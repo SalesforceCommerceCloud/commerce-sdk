@@ -4,7 +4,7 @@ const fetchMock = require("fetch-mock").sandbox();
 const nodeFetch = require("node-fetch");
 nodeFetch.default = fetchMock;
 
-import BaseClient from "../src/base/client";
+import BaseClient from "../src/core/base/client";
 
 import { assert } from "chai";
 
