@@ -1,0 +1,1297 @@
+invalid
+baseUri: https://anypoint.mulesoft.com/mocking/api/v1/links/dec98e68-394f-4508-8cd3-646b131b5166/ #
+title: search-merchandising-idl
+version: v1
+protocols: [ HTTPS ]
+mediaType: application/json
+documentation:
+ - title: Commerce Search
+   content: This is the API specification for the Commerce Search Service. This service is used by clients to perform searches in their Storefronts.
+
+resourceTypes:
+  rules:
+    usage: This resource type should be used for rule creation and retrieval without an id.
+    post:
+      displayName: create<<resourceName | !uppercamelcase>>Rule
+      description: Creates a <<resourceName>> rule for a search cell.
+      responses:
+        201:
+          description: Created
+          headers:
+            Location:
+              type: string
+              description: The location of the created <<resourceName>> rule.
+        400:
+          description: Invalid input
+        404:
+          description: Resource not found
+        500:
+          description: Internal Server Error
+          body:
+            type: ErrorResponseEnvelope
+
+    get:
+      displayName: get<<resourceName | !uppercamelcase>>RulesBySearchCell
+      description: Get all <<resourceName>> rules for a search cell.
+      responses:
+        200:
+          description: OK
+        404:
+          description: Resource not found
+        500:
+          description: Internal Server Error
+          body:
+            type: ErrorResponseEnvelope
+
+  rule:
+    usage: This resourceType should be used configuration of a specific rule
+    uriParameters:
+      <<resourceName>>-rule-id:
+        type: string
+        description: The <<resourceName>> rule identifier.
+    get:
+      displayName: get<<resourceName | !uppercamelcase>>Rule
+      description: Retrieves a single instance of a <<resourceName>> rule.
+      responses:
+        200:
+          description: OK
+        404:
+          description: Resource not found
+        500:
+          description: Internal Server Error
+          body:
+            type: ErrorResponseEnvelope
+    put:
+      displayName: update<<resourceName | !uppercamelcase>>Rule
+      description: Updates an existing <<resourceName>> rule.
+      responses:
+        200:
+          description: OK
+        400:
+          description: Invalid input
+        404:
+          description: Resource not found
+        500:
+          description: Internal Server Error
+          body:
+            type: ErrorResponseEnvelope
+    delete:
+      displayName: delete<<resourceName | !uppercamelcase>>Rule
+      description: Deletes a <<resourceName>> rule instance.
+      responses:
+        204:
+          description: No content
+        500:
+          description: Internal Server Error
+          body:
+            type: ErrorResponseEnvelope
+
+
+/search-cells:
+  post:
+    displayName: createSearchCell
+    description: Creates a usable search cell within the service.
+    headers:
+      Authorization:
+        description: The authorization token
+        type: string
+    body:
+      displayName: search-cell-definition
+      description: The search cell definition to store.
+      type: SearchCellCreationInput
+    responses:
+      201:
+        description: Created
+        body:
+          type: SearchCellCreationOutputEnvelope
+        headers:
+          Location:
+            type: string
+            description: The location for the created search cell.
+      400:
+        description: Invalid input
+        body:
+          type: SearchCellErrorResponseEnvelope
+      500:
+          description: Internal Server Error
+          body:
+            type: ErrorResponseEnvelope
+  /{search-cell-id}:
+    uriParameters:
+      search-cell-id:
+        type: string
+        description: The identifier for the search cell.
+    get:
+      displayName: getSearchCell
+      description: Returns a single instance of a search cell and its status.
+      responses:
+        200:
+          description: OK
+          body:
+            type: SearchCellEnvelope
+        500:
+          description: Internal Server Error
+          body:
+            type: ErrorResponseEnvelope
+    patch:
+      displayName: recoverSearchCell
+      description: Recovers a search cell instance from scheduled deletion if it can be recovered.
+      responses:
+        200:
+          description: OK
+        500:
+          description: Internal Server Error
+          body:
+            type: ErrorResponseEnvelope
+    delete:
+      displayName: scheduleSearchCellForDeletion
+      description: Schedules the deletion of a search cell instance, along with all its search indices.
+      responses:
+        202:
+          description: Accepted
+        404:
+          description: Resource not found
+        500:
+          description: Internal Server Error
+          body:
+            type: ErrorResponseEnvelope
+
+    /indices:
+      post:
+        displayName: createIndex
+        description: Request to build an index for the search cell.
+        body:
+          displayName: index-request
+          type: IndexRequest
+        responses:
+          202:
+            description: Accepted
+            body:
+              type: IndexCreationOutputEnvelope
+            headers:
+              Location:
+                type: string
+                description: The location of the created index.
+              IndexBuildJobLocation:
+                type: string
+                description: The location of the build job for the index.
+          500:
+            description: Internal Server Error
+            body:
+              type: ErrorResponseEnvelope
+
+      /{index-id}:
+        uriParameters:
+          index-id:
+            type: string
+            description: The identifier for the index.
+        get:
+          displayName: getIndexDetails
+          description: Gets the current details for a search index.
+          responses:
+            200:
+              description: OK
+              body:
+                type: SearchIndexDefinitionEnvelope
+            404:
+              description: Resource not found
+            500:
+              description: Internal Server Error
+              body:
+                type: ErrorResponseEnvelope
+        delete:
+          displayName: scheduleIndexForDeletion
+          description: Schedules the deletion of a search index.
+          responses:
+            202:
+              description: Accepted
+            404:
+              description: Resource not found
+            500:
+              description: Internal Server Error
+              body:
+                type: ErrorResponseEnvelope
+        patch:
+          displayName: recoverIndex
+          description: Recovers a search index instance from scheduled deletion if it can be recovered.
+          responses:
+            202:
+              description: Accepted
+            404:
+              description: Resource not found
+            500:
+              description: Internal Server Error
+              body:
+                type: ErrorResponseEnvelope
+
+        /actions/search:
+          post:
+            displayName: createSearchRequest
+            description: Search for products using a query.
+            headers:
+              user-id?:
+                type: string
+            queryParameters:
+              offset:
+                type: integer
+                description: The offset from which to start the retrieval of results.
+                default: 0
+              limit:
+                type: integer
+                description: The maximum number of results requested.
+                default: 10
+            body:
+              type: SearchRequest
+            responses:
+              200:
+                description: Successful request
+                body:
+                  type: SearchResultsEnvelope
+              400:
+                description: Invalid input
+                body:
+                  type: InvalidQueryErrorResponseEnvelope
+              404:
+                description: Resource not found
+
+    /index-build-jobs/{index-build-job-id}:
+      uriParameters:
+        index-build-job-id:
+          type: string
+          description: Identifier for the index build job to retrieve.
+      get:
+        displayName: getIndexBuildJob
+        description: Retrieve the status of an index build job.
+        responses:
+          200:
+            description: OK
+            body:
+              type: IndexBuildJobEnvelope
+          404:
+            description: Resource not found
+          500:
+            description: Internal Server Error
+            body:
+              type: ErrorResponseEnvelope
+
+    /upload-links:
+      get:
+        displayName: getUploadedFilesBulkStatus
+        description: Retrieves the bulk status of all the uploaded files using the upload link ids.
+        queryParameters:
+          ids: array
+        responses:
+            200:
+              description: OK
+              body:
+                type: UploadedFilesBulkStatusEnvelope
+            400:
+              description: Invalid input
+              body:
+                type: ErrorResponseEnvelope
+            500:
+              description: Internal Server Error
+              body:
+                type: ErrorResponseEnvelope
+      post:
+        displayName: createUploadLink
+        description: Creates a temporary resource for bulk uploads.
+        body:
+          displayName: upload-link-payload
+          type: UploadLinkCreationInput
+          description: Details about the uploaded payload
+        responses:
+          201:
+            description: Created
+            body:
+              type: UploadLinkCreationOutputEnvelope
+            headers:
+              Location:
+                type: string
+                description: The location for the created search cell.
+          500:
+            description: Internal Server Error
+            body:
+              type: ErrorResponseEnvelope
+
+      /{upload-link-id}:
+        get:
+          displayName: getUploadedFileDetails
+          description: Retrieves the status of a file upload.
+          responses:
+            200:
+              description: OK
+              body:
+                type: UploadedFileStatusEnvelope
+            400:
+              description: Invalid input
+            404:
+              description: Resource not found
+            500:
+              description: Internal Server Error
+              body:
+                type: ErrorResponseEnvelope
+
+    /sort-rules:
+      type: {rules: {resourceName: sort}}
+      post:
+        body:
+          type: SortRuleCreationInput
+        responses:
+          201:
+            body:
+              type: SortRuleCreationOutputEnvelope
+      get:
+        responses:
+          200:
+            body:
+              type: SortRuleListEnvelope
+
+      /{sort-rule-id}:
+        type: {rule: {resourceName: sort}}
+        get:
+          responses:
+            200:
+              body:
+                type: SortRuleEnvelope
+        put:
+          body:
+            type: SortRuleCreationInput
+
+    /facet-rules:
+      type: {rules: {resourceName: facet}}
+      post:
+        body:
+          type: FacetRuleCreationInput
+        responses:
+          201:
+            body:
+              type: FacetRuleCreationOutputEnvelope
+      get:
+        responses:
+          200:
+            body:
+              type: FacetRuleListEnvelope
+
+      /{facet-rule-id}:
+        type: {rule: {resourceName: facet}}
+        get:
+          responses:
+            200:
+              body:
+                type: FacetRuleEnvelope
+        put:
+          body:
+            type: FacetRuleCreationInput
+
+types:
+  #search cell objects
+  AttributeDefinition:
+    type: object
+    description: Object which contains definition information for a specific attribute expected to be found in a product contained within a catalog.
+    properties:
+      propertyPath:
+        type: string
+        description: The path that the attribute will be found within a product object.
+        example: products.attributes.description
+      dataType:
+        type: string
+        description: The type of data that is expected to be stored at the given path.
+        enum: [BOOLEAN, DATE, DATE_TIME, INTEGER, OBJECT, NUMBER, STRING]
+        example: STRING
+      capabilities?:
+        type: AttributeCapability[]
+    additionalProperties: false
+
+  Status:
+    type: string
+    description: "`Success` or `Failure` of the operation."
+    enum: [SUCCESS, FAILURE]
+    example: SUCCESS
+
+  AttributeCapability:
+    type: string
+    description: |
+      The different types of capabilities an attribute can have.
+        * `FILTERABLE` - Specifies if this field can be used for exact matching through filtering.
+        * `FACETABLE` - Specifies if aggregated information about this field should be returned as part of query results.
+        * `MULTIVALUED` - Specifies if this attribute can have multiple values for the same attribute.
+        * `SEARCHABLE` - Specifies if this attribute should be considered when searching for a product.
+        * `SORTABLE` - Specifies if this attribute can be used to sort against other products.
+    enum: [FILTERABLE, FACETABLE, MULTIVALUED, SEARCHABLE, SORTABLE]
+    example: FILTERABLE
+
+  Locale:
+    type: string
+    description: The locale for a search cell.
+    enum: [en-US, en-GB, en-CA, fr-CA, fr-FR, de-DE]
+    example: en-US
+
+  SearchCellCreationInput:
+    type: object
+    description: Definition for the information used to create a search cell.
+    properties:
+      ownerId:
+        type: string
+        description: The unique owner identifier for the search cell.
+        example: "44342461"
+      productAttributes:
+        type: AttributeDefinition[]
+        description: Collection of individual attributes for a product.
+      locales:
+        type: Locale[]
+        description: Collection of locales for a search cell.
+    additionalProperties: false
+
+
+  SearchCellCreationOutputEnvelope:
+    type: ResponseEnvelope
+    properties:
+      data:
+        type: SearchCellCreationOutput
+
+  SearchCellCreationOutput:
+    type: object
+    description: Output information about the creation of a search cell.
+    properties:
+      searchCellId:
+        type: string
+        description: The created search cell ID.
+        example: 04e0da11-cc0c-4306-9761-e20739347a5f
+      creationDateTime:
+        type: datetime
+        description: The time the search cell was created.
+        example: 2019-03-19T12:34:56Z
+    additionalProperties: false
+
+  SearchCellEnvelope:
+    type: ResponseEnvelope
+    properties:
+      data:
+        type: SearchCell
+
+  SearchCell:
+    type: object
+    description: Definition for the search cell.
+    properties:
+      searchCellId:
+        type: string
+        description: A unique value describing this specific search cell.
+        example: ebf76231-6c6d-4cb3-9e76-1a12a8afe326
+      ownerId:
+        type: string
+        description: The unique owner identifier for the search cell.
+        example: "59006519"
+      productAttributes:
+        type: AttributeDefinition[]
+        description: Collection of individual attributes for a product.
+      status:
+        type: string
+        description: Value describing the state of this definition.
+        example: INDEXING
+      lastModifiedDateTime:
+        type: datetime
+        description: The last time a change occurred in this definition.
+        example: 2019-03-19T12:34:56Z
+      locales:
+        type: Locale[]
+    additionalProperties: false
+
+  SearchCellCreationErrorDetails:
+    type: ErrorDetails
+    description: The details for why Search Cell Creation failed and Property Paths for the ones that failed.
+    properties:
+      blankPropertyPathCount:
+        type: integer
+        format: int64
+        default: 0
+        description: The number of blank property paths.
+      propertyPathsWithNoParents:
+        type: array
+        items: string
+        uniqueItems: true
+        description: Property paths that have no parents object specified.
+      nonStringSearchablePropertyPaths:
+          type: array
+          items: string
+          uniqueItems: true
+          description: Property paths that are searchable but not strings.
+      propertyPathsWithDuplicates:
+          type: array
+          items: string
+          uniqueItems: true
+          description: Property paths that are duplicated.
+      propertyPathsWithInvalidDepth:
+          type: array
+          items: string
+          uniqueItems: true
+          description: Property paths which have exceeded the depth limits. The path depth is defined as the number of subpaths that are separated by the path delimiter. For example, a.b.c.d.e has a depth of 5.
+      systemAttributePropertyPaths:
+          type: array
+          items: string
+          uniqueItems: true
+          description: Property paths that are attempting to overwrite system attributes.
+      hasNoSearchableOrFilterableAttributes:
+        type: boolean
+        default: false
+        description: At least one searchable or filterable attribute must be specified.
+    additionalProperties: false
+
+  SearchCellErrorEnvelope:
+    type: ErrorEnvelope
+    properties:
+      details:
+        type: SearchCellCreationErrorDetails
+
+  SearchCellErrorResponseEnvelope:
+    type: ErrorResponseEnvelope
+    properties:
+      error:
+        type: SearchCellErrorEnvelope
+        required: true
+
+  #index objects
+  IndexRequest:
+    type: object
+    description: Object used to define product collection and category identifiers.
+    properties:
+      productSets:
+        type: string[]
+        description: The product collection identifiers.
+        example: [155bb7ed-9eeb-4ef7-b90e-68760bf18bdd, 4be6fd82-b9fd-4f8b-8146-8ecace4a516c]
+      categories?:
+        type: string
+        description: The category structure identifier.
+        example: 2a5aaf72-625b-4517-84f4-8e143ef0c226
+    additionalProperties: false
+
+  IndexCreationOutputEnvelope:
+      type: ResponseEnvelope
+      properties:
+        data:
+          type: IndexCreationOutput
+
+  IndexCreationOutput:
+    type: object
+    description: Output information about the creation of an index.
+    properties:
+      indexId:
+        type: string
+        description: The created index ID.
+        example: 64c039ef-2c3c-4cd2-9f45-17b49a27e9ca
+      creationDateTime:
+        type: datetime
+        description: The time the index was created.
+        example: 2019-03-19T12:34:56Z
+    additionalProperties: false
+
+  ResponseEnvelope:
+    type: object
+    properties:
+      status:
+        type: Status
+        required: true
+        example: SUCCESS
+
+  SearchIndexDefinitionEnvelope:
+    type: ResponseEnvelope
+    properties:
+      data:
+        type: SearchIndexDefinition
+
+  SearchIndexDefinition:
+    type: object
+    description: Object containing the details about a search index.
+    properties:
+      searchIndexId:
+        type: string
+        description: A unique value describing the search index.
+        example: 9c508b8a-68a2-41d0-a5c7-fec9c04e5f35
+      status:
+        type: string
+        description: The current status of the search index.
+        enum: [REQUESTED, SCHEDULED, INDEXING, INACTIVE, INDEXED, FAILED, SCHEDULED FOR DELETION]
+        example: REQUESTED
+      errorMessage:
+        type: string
+        description: The error message that provides extra information if the search index status is 'FAILED'
+      lastModifiedDateTime:
+        type: datetime
+        description: The last time a change occurred in this index.
+        example: 2019-03-19T12:34:56Z
+    additionalProperties: false
+
+  IndexBuildJobEnvelope:
+    type: ResponseEnvelope
+    properties:
+      data:
+        type: IndexBuildJob
+      metadata:
+        type: IndexBuildJobMetadata
+
+  IndexBuildJob:
+    type: object
+    description: Object containing information about a previously requested index action.
+    properties:
+      indexBuildJobId:
+        type: string
+        description: A unique value describing this specific build job.
+        example: a0ebc32e-53d1-4227-be07-9d5f33e590c5
+      status:
+        type: string
+        description: A value describing the state of the build job.
+        enum: [SCHEDULED, VALIDATING, DOWNLOADING, INDEXING, INACTIVE, ACTIVE, FAILED]
+        example: SCHEDULED
+      requestDateTime:
+        type: datetime
+        description: The time that the request was received.
+        example: 2019-03-19T12:34:56Z
+      lastModifiedDateTime:
+        type: datetime
+        description: The last time a change occurred in this request.
+        example: 2019-03-19T12:34:56Z
+    additionalProperties: false
+
+  IndexBuildJobMetadata:
+    type: object
+    description: Object containing supplemental information about the processing of an index build job.
+    properties:
+      totalProductCount:
+        type: integer
+        format: int64
+        description: The total number of products which were attempted to be processed.
+      processedProductCount:
+        type: integer
+        format: int64
+        description: The total number of products which were processed successfully.
+      failedProductCount:
+        type: integer
+        format: int64
+        description: The total number of products which failed to be processed.
+    additionalProperties: false
+
+  #product search
+  SearchRequest:
+    type: object
+    description: Object used to define a collection of parameters to use for searching products
+    properties:
+      locale:
+        type: string
+        description: The locale for the user.
+        example: en_US
+      phrase?:
+        type: string
+        description: The locale for the user.
+        example: red shirt
+      categoryIds?:
+        type: string[]
+        description: The IDs of the category to filter on.
+        example: [mens-shirts]
+      sort?:
+        type: string
+        description: The ID of the sort rule to sort on.
+        example: best-matches
+      refinements?:
+        type: object
+        description: The collection of refinements to filter the results by. Each refinement is defined using an attribute ID that maps to a collection of possible values.
+        properties:
+          //:
+            type: string[]
+        example:
+          color: ["red", "blue"]
+          size: ["medium"]
+      facets?:
+        type: string[]
+        description: An optional collection of facet record IDs which should be used to calculate aggregations on the return set of data.
+        example: [c11d570c-48da-42c3-9721-9b394a762236]
+    additionalProperties: false
+
+  SearchResultsEnvelope:
+    type: ResponseEnvelope
+    properties:
+      data:
+        type: SearchResults
+      metadata:
+        type: SearchResultsMetadata
+
+  SearchResultsMetadata:
+    type: object
+    properties:
+      processTime:
+        type: integer
+        format: int64
+        description: The time (in milliseconds) the entire search process took, not including the network time from the client.
+        example: 150
+      offset:
+        type: integer
+        description: The requested offset.
+        example: 40
+      limit:
+        type: integer
+        description: The requested limit.
+        example: 10
+      resultCount:
+        type: integer
+        format: int64
+        description: The number of results returned in the request.
+        example: 2
+      totalCount:
+        type: integer
+        format: int64
+        description: The total number of search results.
+        example: 42
+      links?: Links
+    additionalProperties: false
+
+  Links:
+    type: object
+    description: Links provided to assist clients in navigating through the search results. Contains three types of links 'self', 'prev', and 'next' pointing to respective SearchResults.
+    properties:
+      self:
+        type: string
+        description: Link to point to the same SearchResult that was created.
+      prev?:
+        type: string
+        description: Link to point to the previous SearchResult. If limit is greater than offset value, will point to the 0th SearchResult. Optional.
+      next?:
+        type: string
+        description: Link to point to the next SearchResult. If limit is greater than offset value, will point to the last SearchResult. Optional.
+    example:
+      self: "https://.../actions/search&offset=40&limit=10"
+      prev: "https://.../actions/search&offset=30&limit=10"
+      next: "https://.../actions/search&offset=50&limit=10"
+    additionalProperties: false
+
+  SearchResults:
+    type: object
+    description: A grouping of search results, along with information used to describe pagination information.
+    properties:
+      results:
+        type: SearchResult[]
+      facets?:
+        type: Facets
+      sort?:
+        type: string
+        description: The sorting method specified by the client.
+        example: best-matches
+
+  SearchResult:
+    type: object
+    description: Each individual search result. For simple products, this will represent a single product. In cases where there is product grouping (e.g. Product Set/Bundle, Variation Groups), there could be multiple products listed, along with a grouping ID for the grouping mechanism.
+    properties:
+      groupId?:
+        type: string
+        description: The grouping ID if there are multiple products in the search hit.
+        example: VG1
+      products:
+        type: Product[]
+        description: A collection of products in the search hit.
+    additionalProperties: false
+
+  Facets:
+    type: object
+    description: A map of facets for the full search results using the facet rule ID as the key.
+    properties:
+      //:
+        type: Facet
+    example:
+      {
+        "0d3daae2-faed-4022-9417-65ff17003114": {
+            "type": ValueFacet,
+            "path": "color",
+            "ruleId": "0d3daae2-faed-4022-9417-65ff17003114",
+            "values": {
+                "denim": 1,
+                "blue": 3,
+                "black": 1,
+                "charcoal": 1
+            }
+        },
+        "84d660fe-3924-405b-ba27-174e1fe6719a": {
+            "type": MinMaxFacet,
+            "path": "size",
+            "ruleId": "84d660fe-3924-405b-ba27-174e1fe6719a",
+            "minValue": 0,
+            "maxValue": 3
+        }
+      }
+
+  Facet:
+    type: object
+    discriminator: type
+    description: The aggregated data of the result set.
+    properties:
+      type:
+        type: string
+        enum: [ValueFacet, MinMaxFacet]
+        description: The enum describing the facet type.
+      path:
+        type: string
+        description: The attribute path used to calculate the facet.
+      ruleId:
+        type: string
+        description: The identifier of the rule used to request this facet be included in the query return
+
+  ValueFacet:
+    type: Facet
+    description: The count of every unique value in the result set.
+    properties:
+      values:
+        type: object
+        properties:
+          //:
+            type: integer
+            format: int64
+
+  MinMaxFacet:
+    type: Facet
+    description: The minimum and maximum of the values in the result set.
+    properties:
+      minValue:
+        type: number
+        format: double
+      maxValue:
+        type: number
+        format: double
+
+  Product:
+    type: object
+    description: A product that matches the search query.
+    properties:
+      productId:
+        type: string
+        description: The product's unique ID.
+        example: "24681012"
+      score:
+        type: number
+        format: double
+        description: The calculated score for the product, based on the sorting criteria.
+        example: 0.81023
+    additionalProperties: false
+
+  #upload links
+  UploadLinkCreationInput:
+    type: object
+    description: The information describing an uploaded file.
+    properties:
+      filename:
+        type: string
+        description: The name of the file that was uploaded.
+        example: file1.dat
+      fileHash:
+        type: string
+        description: The expected SHA-256 hash of the file.
+        example: 35245312A7EB9A085F57A3031D29FD7E78B8ED9FDE52AB35957F20C68F79F168
+      expirationMinutes:
+         type: integer
+         description: The number of minutes to keep the upload link active. Note that this could be limited by the service.
+         example: 15
+         minimum: 1
+    additionalProperties: false
+
+  UploadLinkCreationOutputEnvelope:
+    type: ResponseEnvelope
+    properties:
+      data:
+        type: UploadLinkCreationOutput
+
+  UploadLinkCreationOutput:
+    type: object
+    description: Output information about the creation of an upload link.
+    properties:
+      uploadLinkId:
+        type: string
+        description: The created upload link ID.
+        example: 3130aae1-0137-48d3-882e-94b8beb782aa
+      uploadLinkUrl:
+        type: string
+        description: The upload link URL.
+        example: https://{upload-bucket-name}/04e0da11-cc0c-4306-9761-e20739347a5f/3130aae1-0137-48d3-882e-94b8beb782aa
+      uploadMethod:
+        type: string
+        description: The method to use for uploading.
+        example: PUT
+      expirationDateTime:
+        type: datetime
+        description: The time the upload link will expire.
+        example: 2019-01-23T12:34:56Z
+    additionalProperties: false
+
+  UploadedFileStatusEnvelope:
+    type: ResponseEnvelope
+    properties:
+      data:
+        type: UploadedFileStatus
+
+  UploadedFileStatus:
+    type: object
+    description: The status of an uploaded file.
+    properties:
+      filename:
+        type: string
+        description: The name of the file that was uploaded.
+        example: file1.dat
+      validationStatus:
+        type: UploadValidationStatus
+      errorMessage?:
+        type: string
+        description: The error message that provides extra information if the validation status is 'ERROR'
+
+  UploadedFilesBulkStatus:
+    type: object
+    description: Describing the status of the uploaded file.
+    properties:
+      status:
+        type: Status
+        description: The status of the request.
+      data?:
+        type: UploadedFileStatus
+        description: The status of the uploaded file.
+      error?:
+        type: ErrorEnvelope
+        description: Details about the request failure.
+    additionalProperties: false
+
+  UploadedFilesBulkStatusEnvelope:
+    description: The bulk status of the uploaded files.
+    type: ResponseEnvelope
+    properties:
+      data:
+        description: A map of the uploaded files status.
+        type: object
+        properties:
+          //:
+            type: UploadedFilesBulkStatus
+    additionalProperties: false
+
+  UploadValidationStatus:
+    type: string
+    description: |
+      The different types of statuses available for an uploaded file.
+        * `WAITING_FOR_UPLOAD` - The file has not been uploaded yet.
+        * `WAITING_FOR_VALIDATION`- The file has been uploaded, but hasn't been validated yet.
+        * `VALIDATING` - The file is currently being validated
+        * `VALIDATED` - The file has been successfully validated
+        * `ERROR` - The file could not be validated due to some error
+    enum: [WAITING_FOR_UPLOAD, WAITING_FOR_VALIDATION, VALIDATING, VALIDATED, ERROR]
+    example: WAITING_FOR_UPLOAD
+
+  #sort rules
+  SortRuleCreationInput:
+    type: object
+    description: Configuration specifying how to sort search results.
+    properties:
+      name:
+        type: string
+        description: A name for the sort rule.
+        example: Price (Ascending)
+      direction?:
+        type: SortDirection
+        description: The order to sort the full results.
+        default: ASCENDING
+        example: ASCENDING
+      attributes:
+        type: SortRuleAttribute[]
+    additionalProperties: false
+
+  SortRuleEnvelope:
+    type: ResponseEnvelope
+    properties:
+      data:
+        type: SortRule
+
+  SortRule:
+    type: object
+    description: Configuration specifying how to sort search results.
+    properties:
+      sortRuleId:
+        type: string
+        description: A unique value identifying the sort rule.
+        example: bfedf52e-b88e-4de8-89c6-1d9e48d82854
+      name:
+        type: string
+        description: A name for the sort rule.
+        example: Price (Ascending)
+      direction?:
+        type: SortDirection
+        description: The order to sort the full results.
+        default: ASCENDING
+        example: ASCENDING
+      attributes:
+        type: SortRuleAttribute[]
+      lastModifiedDateTime:
+        type: datetime
+        description: The time the sort rule was last modified.
+        example: 2019-03-19T12:34:56Z
+    additionalProperties: false
+
+  SortDirection:
+    type: string
+    description: The order used for sorting results.
+    enum: [ASCENDING, DESCENDING]
+    example: ASCENDING
+
+  SortRuleAttribute:
+    type: object
+    description: Configuration describing how to sort an attribute within a sort rule.
+    properties:
+      propertyPath:
+        type: string
+        description: The path that the attribute will be found within a product object.
+        example: products.attributes.prod_price
+      direction?:
+        type: SortDirection
+        description: The order to sort the results in for this attribute.
+        default: ASCENDING
+      weight?:
+        type: number
+        description: The weight used for the attribute when factoring the sort order.
+        minimum: 0
+        #default: 1
+        example: 0.8
+    additionalProperties: false
+
+  SortRuleCreationOutputEnvelope:
+    type: ResponseEnvelope
+    properties:
+      data:
+        type: SortRuleCreationOutput
+
+  SortRuleCreationOutput:
+    type: object
+    description: Output information about the creation of a sort rule.
+    properties:
+      sortRuleId:
+        type: string
+        description: The created sort rule ID.
+        example: ebf76231-6c6d-4cb3-9e76-1a12a8afe326
+      creationDateTime:
+        type: datetime
+        description: The time the sort rule was created.
+        example: 2019-03-19T12:34:56Z
+    additionalProperties: false
+
+  SortRuleListEnvelope:
+    type: ResponseEnvelope
+    properties:
+      data:
+        type: SortRuleList
+
+
+  SortRuleList:
+    type: object
+    description: The created sort rules for the specified search cell.
+    properties:
+      sortRules:
+        type: SortRule[]
+    additionalProperties: false
+
+  #facet rules
+  FacetRuleCreationInput:
+    type: object
+    description: Definition for the information used to create a facet rule.
+    properties:
+      name:
+        type: string
+        description: A descriptive name for the rule.
+        example: Color
+      propertyPath:
+        type: string
+        description: The path that the attribute will be found within a product object.
+        example: products.attributes.color
+      valueType:
+        type: FacetRuleValueType
+    additionalProperties: false
+
+  FacetRuleCreationOutputEnvelope:
+    type: ResponseEnvelope
+    properties:
+      data:
+        type: FacetRuleCreationOutput
+
+  FacetRuleCreationOutput:
+    type: object
+    description: Output information about the creation of a facet rule.
+    properties:
+      facetRuleId:
+        type: string
+        description: The created facet rule ID.
+        example: 65e196a3-7c82-4674-87bd-007f3e0efc45
+      creationDateTime:
+        type: datetime
+        description: The time the facet rule was created.
+        example: 2019-03-19T12:34:56Z
+    additionalProperties: false
+
+  FacetRuleEnvelope:
+    type: ResponseEnvelope
+    properties:
+      data:
+        type: FacetRule
+
+  FacetRule:
+    type: object
+    description: Configuration specifying how to aggregate an attribute in search results.
+    properties:
+      facetRuleId:
+        type: string
+        description: The unique identifier for the facet rule.
+        example: 65e196a3-7c82-4674-87bd-007f3e0efc45
+      name:
+        type: string
+        description: A descriptive name for the rule.
+        example: Color
+      propertyPath:
+        type: string
+        description: The path that the attribute will be found within a product object.
+        example: products.attributes.color
+      valueType:
+        type: FacetRuleValueType
+      modifiedDateTime:
+        type: datetime
+        description: The time the facet rule was last modified.
+        example: 2019-03-19T12:34:56Z
+    additionalProperties: false
+
+  FacetRuleListEnvelope:
+    type: ResponseEnvelope
+    properties:
+      data:
+        type: FacetRuleList
+
+  FacetRuleList:
+    type: object
+    description: A collection of facet rules.
+    properties:
+      facetRules:
+        type: FacetRule[]
+    additionalProperties: false
+
+  FacetRuleValueType:
+    type: string
+    description:
+      The different types of facet values.
+        * DISTINCT - All distinct values are returned.
+        * MIN_MAX - Only the minimum and maximum values are returned.
+    enum: [DISTINCT, MIN_MAX]
+    example: DISTINCT
+
+  ErrorResponse:
+    type: object
+    description: The information describing the error response
+    properties:
+      errorMessage:
+        type: string
+        description: The error message.
+    additionalProperties: false
+
+  ErrorResponseEnvelope:
+    type: object
+    properties:
+      status:
+        type: Status
+        required: true
+        example: FAILURE
+      error:
+        type: ErrorEnvelope
+        required: true
+
+  ErrorEnvelope:
+    type: object
+    description: Error message and details.
+    properties:
+      details?:
+        type: ErrorDetails
+      message:
+        description: Human readable error message.
+        type: string
+        required: true
+        example: Operation Failed due to an error.
+      reason:
+        type: ErrorCode
+        required: true
+    additionalProperties: false
+
+  ErrorCode:
+    type: string
+    description: |
+          Machine readable (string) error code.
+            * `SC101` - Error creating search cell.
+            * `SC102` - Error updating search cell.
+            * `SC103` - Error retrieving search cell.
+            * `SC104` - Error deleting search cell.
+            * `SC105` - Error validating search cell.
+            * `FD101` - Error creating upload link.
+            * `FD102` - Error updating upload link.
+            * `FD103` - Error retrieving upload link.
+            * `FD104` - Error deleting upload link.
+            * `FD105` - Error validating upload link.
+            * `FD106` - Error scheduling file validation.
+            * `FD107` - Error validating bulk upload link ids.
+            * `IM101` - Error creating index.
+            * `IM102` - Error updating index.
+            * `IM103` - Error retrieving index.
+            * `IM104` - Error deleting index.
+            * `IM105` - Error validating index.
+            * `IB101` - Error scheduling index build job.
+            * `IB102` - Error retrieving index build job.
+            * `SR101` - Error creating sort rule.
+            * `SR102` - Error updating sort rule.
+            * `SR103` - Error retrieving sort rule.
+            * `SR104` - Error deleting sort rule.
+            * `SR105` - Error validating sort rule.
+            * `FR101` - Error creating facet rule.
+            * `FR102` - Error updating facet rule.
+            * `FR103` - Error retrieving facet rule.
+            * `FR104` - Error deleting facet rule.
+            * `FR105` - Error validating facet rule.
+            * `PQ101` - Error creating search request.
+            * `PQ102` - Error retrieving search index.
+            * `PQ103` - Error validating search request.
+            * `GE101` - Generic Error.
+    enum: [SC101, SC102, SC103, SC104, SC105, FD101, FD102, FD103, FD104, FD105, FD106, FD107, IM101, IM102, IM103, IM104, IM105, IB101, IB102, SR101, SR102, SR103, SR104, SR105, FR101, FR102, FR103, FR104, FR105, PQ101, PQ102, PQ103, GE101]
+    example: SC101
+
+  ErrorDetails:
+    type: object
+    description: Details which lead to this error.
+    discriminator: type
+    properties:
+      type:
+        type: string
+        description: Properties that are specific to a type of ErrorDetails.
+        enum: [InvalidQueryErrorDetails, SearchCellCreationErrorDetails]
+
+  InvalidQueryErrorDetails:
+    type: ErrorDetails
+    description: The details for an InvalidQueryException.
+    properties:
+      facetIds:
+        type: array
+        items: string
+        uniqueItems: true
+        description: A collection of facet rule IDs.
+        example: ["f5c842ad-eed3-4b27-bee7-31fdfb6b7aa1", "9f37786f-a384-4c48-b0e8-ab5683023388"]
+      sortRuleId:
+        type: string
+        description: UUID of a sort rule.
+        example: "9f37786f-a384-4c48-b0e8-ab5683023388"
+      filters:
+        type: array
+        items: string
+        uniqueItems: true
+        description: A collection of filter names.
+        example: ["filtername-1", "filtername-2"]
+
+  InvalidQueryErrorResponseEnvelope:
+    type: ErrorResponseEnvelope
+    properties:
+      error:
+        type: InvalidQueryErrorEnvelope
+        required: true
+
+  InvalidQueryErrorEnvelope:
+    type: ErrorEnvelope
+    properties:
+      details:
+        type: InvalidQueryErrorDetails
