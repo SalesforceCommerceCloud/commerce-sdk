@@ -2,6 +2,14 @@
   "name": "root",
   "private": true,
   "devDependencies": {
+    "@babel/cli": "^7.6.2",
+    "@babel/core": "^7.6.2",
+    "@babel/node": "^7.6.2",
+    "@babel/polyfill": "^7.6.0",
+    "@babel/preset-env": "^7.6.2",
+    "@babel/register": "^7.6.2",
+    "@istanbuljs/nyc-config-babel": "^2.1.1",
+    "babel-plugin-istanbul": "^5.2.0",
     "eslint": "^6.4.0",
     "eslint-config-standard": "^14.1.0",
     "eslint-plugin-import": "^2.18.2",
@@ -10,7 +18,8 @@
     "eslint-plugin-standard": "^4.0.1",
     "lerna": "^3.16.4",
     "nyc": "^14.1.1",
-    "prettier": "^1.15.2"
+    "prettier": "^1.15.2",
+    "xo": "^0.25.3"
   },
   "nyc": {
     "all": true,
@@ -49,6 +58,6 @@
   "scripts": {
     "bootstrap": "lerna bootstrap --hoist",
     "pretest": "eslint packages",
-    "test": "nyc --reporter=text mocha packages/*/test"
+    "test": "nyc --reporter=text mocha --require @babel/register packages/*/test"
   }
 }
