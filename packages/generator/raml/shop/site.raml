@@ -1,0 +1,169 @@
+#%RAML 1.0
+
+title: Shop API
+baseUri: https://anypoint.mulesoft.com/mocking/api/v1/links/27d5ffea-96a7-447b-b595-2b0e837a20c6/s/-/dw/shop/v19_5
+version: v1
+description: This is a base shop api for testing purposes 
+protocols: https
+mediaType: application/json
+
+/site:
+  get:
+    displayName: getSite
+    description: Access site information, like site status and site content URLs.
+    responses:
+      "200":
+        description: ""
+        body:
+          application/json:
+            description: Document representing a site.
+            additionalProperties: true
+            properties:
+              allowed_currencies:
+                description: The list of allowed currencies.
+                type: array
+                items:
+                  type: string
+                required: false
+              allowed_locales:
+                description: A list of all allowed site locales.
+                type: array
+                items:
+                  description: Document that describes a single locale.
+                  additionalProperties: true
+                  properties:
+                    country:
+                      description: |-
+                        The country/region code for this Locale, which will
+                         either be the empty string or an upercase ISO 3166 2-letter code.
+                      type: string
+                      required: false
+                    default:
+                      description: Flag that is true if the locale is the default one to use if an explicit locale is not specified.
+                      type: boolean
+                      required: false
+                    display_country:
+                      description: |-
+                        The name for the Locale's country that is appropriate for
+                         display to the user, or an empty string if no country has been specified
+                         for the Locale.
+                         The display country is returned in the language defined for this locale,
+                         and not in the language of the session locale.
+                      type: string
+                      required: false
+                    display_language:
+                      description: |-
+                        The name for the Locale's language that is appropriate for
+                         display to the user, or an empty string if no language has been specified
+                         for the Locale.
+                         The display language is returned in the language defined for this locale,
+                         and not in the language of the session locale.
+                      type: string
+                      required: false
+                    display_name:
+                      description: |-
+                        The name for the Locale that is appropriate for
+                         display to the user, or an empty string if no display name has been
+                         specified for the Locale.
+                         The display name is returned in the language defined for this locale,
+                         and not in the language of the session locale.
+                      type: string
+                      required: false
+                    id:
+                      description: |-
+                        The identifier of the Locale. Contains a combination of the
+                         language and the country key, concatenated by "-", e.g. "en-US". This
+                         attribute is the primary key of the class.
+                      type: string
+                      required: false
+                    iso3_country:
+                      description: |-
+                        The three-letter abbreviation for this Locale's country, or an
+                         empty string if no country has been specified for the Locale.
+                      type: string
+                      required: false
+                    iso3_language:
+                      description: |-
+                        The three-letter abbreviation for this Locale's language, or an
+                         empty string if no language has been specified for the
+                         Locale.
+                      type: string
+                      required: false
+                    language:
+                      description: |-
+                        The language code for this Locale, which will either
+                         be the empty string or a lowercase ISO 639 code.
+                      type: string
+                      required: false
+                    name:
+                      description: |-
+                        The display name of the Locale. This uses the current
+                         request locale to localize the value.
+                      type: string
+                      required: false
+                required: false
+              default_currency:
+                description: The currency mnemonic of the site.
+                type: string
+                required: false
+              default_locale:
+                description: The default locale of the site.
+                type: string
+                required: false
+              http_dis_base_url:
+                description: The HTTP DIS base URL.
+                type: string
+                required: false
+              http_hostname:
+                description: The configured HTTP host name. If no host name is configured the instance host name is returned.
+                type: string
+                required: false
+              http_library_content_url:
+                description: The HTTP URL to the library content location of the site.
+                type: string
+                required: false
+              http_site_content_url:
+                description: The HTTP URL to the site content location.
+                type: string
+                required: false
+              https_dis_base_url:
+                description: The HTTPS DIS base URL.
+                type: string
+                required: false
+              https_hostname:
+                description: The configured HTTPS host name. If no host name is configured the instance host name is returned.
+                type: string
+                required: false
+              https_library_content_url:
+                description: The HTTPS URL to the library content location of the site.
+                type: string
+                required: false
+              https_site_content_url:
+                description: The HTTPS URL to the site content location.
+                type: string
+                required: false
+              id:
+                description: The id of the site.
+                type: string
+                required: false
+              name:
+                description: The descriptive name for the site.
+                type: string
+                required: false
+              status:
+                description: The site status online/offline.
+                enum:
+                  - online
+                  - offline
+                type: string
+                required: false
+              timezone:
+                description: The time zone of the site (for example, USA/Eastern).
+                type: string
+                required: false
+              timezone_offset:
+                description: The time zone offset from UTC for the current time in milliseconds (for example, -14400000).
+                type: number
+                format: int32
+                required: false
+ 
