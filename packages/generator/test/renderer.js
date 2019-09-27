@@ -1,6 +1,7 @@
 const tmp = require("tmp");
 const path = require("path");
 import {
+  createIndex,
   createClient,
   copyStaticFiles,
   __RewireAPI__ as RendererRewireApi
@@ -42,18 +43,39 @@ describe("create client test code", () => {
   it("createClient", () => {
     let tmpDir = tmp.dirSync();
     RendererRewireApi.__Rewire__("pkgDir", path.join(tmpDir.name, "pkg"));
-    createClient(model);
-    let expected = `export default class extends BaseClient {
-      constructor() {
-          super("https://anypoint.mulesoft.com/mocking/api/v1/links/27d5ffea-96a7-447b-b595-2b0e837a20c6/s/-/dw/shop/v19_5");
-      }
+    createClient(model, "shop");
 
-      getSite() {
-          this.get("/site");
-    }`;
     let actual = fs
       .readFileSync(path.join(tmpDir.name, "pkg/shop.js"))
       .toString();
+
+    assert.containIgnoreSpaces(
+      actual,
+      "https://anypoint.mulesoft.com/mocking/api/v1/links/27d5ffea-96a7-447b-b595-2b0e837a20c6/s/-/dw/shop/v19_5"
+    );
+    assert.containIgnoreSpaces(actual, `this.get("/site");`);
+    RendererRewireApi.__ResetDependency__("pkgDir");
+  });
+});
+
+describe("create client test code", () => {
+  it("createClient", () => {
+    let tmpDir = tmp.dirSync();
+    RendererRewireApi.__Rewire__("pkgDir", path.join(tmpDir.name, "pkg"));
+
+    let files = [
+      {
+        boundedContext: "shop",
+        ramlFile: `${__dirname}/../raml/shop/site.raml`
+      }
+    ];
+    createIndex(files);
+
+    let actual = fs
+      .readFileSync(path.join(tmpDir.name, "pkg/index.js"))
+      .toString();
+
+    let expected = "export * from shop.js";
 
     assert.containIgnoreSpaces(actual, expected);
     RendererRewireApi.__ResetDependency__("pkgDir");
