@@ -1,16 +1,13 @@
-/* eslint-disable no-undef */
 "use strict";
 
-require("@babel/polyfill");
-
 import { assert, expect } from "chai";
-const generator = require("../src/index");
+const generator = require("../src/utils/parser");
 
 describe("Test RAML file", () => {
   it("Test invalid RAML file", () => {
     let ramlFile = `${__dirname}/raml/invalid/search-invalid.raml`;
     return generator
-      .generate(ramlFile)
+      .processRamlFile(ramlFile)
       .then(res => {
         throw Error("Valid Invalid RAML file parsing to fail", res);
       })
@@ -22,7 +19,7 @@ describe("Test RAML file", () => {
   it("Test valid RAML file", () => {
     let ramlFile = `${__dirname}/raml/valid/site.raml`;
     return generator
-      .generate(ramlFile)
+      .processRamlFile(ramlFile)
       .then(res => {
         expect(res).to.not.equal(null);
         assert(true);

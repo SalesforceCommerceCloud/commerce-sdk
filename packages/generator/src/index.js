@@ -1,16 +1,12 @@
-const wap = require("webapi-parser").WebApiParser;
+import { processRamlFile } from "./utils/parser";
+import { createClient, copyStaticFiles } from "./utils/renderer";
 
-async function processRamlFile(ramlFile) {
-  return new Promise(function(resolve, reject) {
-    return wap.raml10
-      .parse(`file://${ramlFile}`)
-      .then(model => {
-        resolve(model);
-      })
-      .catch(reject);
+processRamlFile(`${__dirname}/../raml/shop/site.raml`)
+  .then(res => {
+    createClient(res.encodes);
+  })
+  .catch(err => {
+    console.log(err);
   });
-}
 
-module.exports = {
-  generate: processRamlFile
-};
+copyStaticFiles();
