@@ -75,9 +75,11 @@ describe("create client test code", () => {
       .readFileSync(path.join(tmpDir.name, "pkg/index.js"))
       .toString();
 
-    let expected = "export * from shop.js";
-
-    assert.containIgnoreSpaces(actual, expected);
+    assert.containIgnoreSpaces(
+      actual,
+      `import {default as shop } from "./shop"`
+    );
+    assert.containIgnoreSpaces(actual, `export let shopClient = new shop();`);
     RendererRewireApi.__ResetDependency__("pkgDir");
   });
 });
