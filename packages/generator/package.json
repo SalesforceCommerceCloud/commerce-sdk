@@ -4,9 +4,12 @@
   "description": "Commerce SDK Generator, contains the templates to generate the SDK",
   "main": "index.js",
   "scripts": {
-    "pretest": "eslint .",
-    "test": "nyc --reporter=text mocha --require @babel/register --exit",
-    "start": "babel-node src/index.js"
+    "test": "cross-env TS_NODE_FILES=true mocha --exit --require ts-node/register --colors test/**/*.ts",
+    "start": "node dist/index.js",
+    "clean": "gulp clean",
+    "build": "gulp buildInt && gulp buildSdk",
+    "lint": "tsc && eslint \"**/*.{js,ts}\" --quiet --fix",
+    "coverage": "nyc npm run test"
   },
   "nyc": {
     "exclude": [
@@ -21,35 +24,21 @@
     "statements": -10
   },
   "devDependencies": {
-    "@babel/cli": "^7.6.2",
-    "@babel/core": "^7.6.2",
-    "@babel/node": "^7.6.2",
-    "@babel/polyfill": "^7.6.0",
-    "@babel/preset-env": "^7.6.2",
-    "@babel/register": "^7.6.2",
-    "@istanbuljs/nyc-config-babel": "^2.1.1",
-    "babel-plugin-istanbul": "^5.2.0",
-    "babel-plugin-rewire": "^1.2.0",
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^12.6.9",
     "chai": "^4.2.0",
-    "chai-files": "^1.4.0",
-    "eslint": "^6.4.0",
-    "eslint-config-prettier": "^3.3.0",
-    "eslint-config-xo": "^0.25.0",
-    "eslint-plugin-prettier": "^3.1.0",
-    "fetch-mock": "^7.3.9",
-    "handlebars": "^4.3.1",
-    "lint-staged": "^8.1.0",
-    "lodash": "^4.17.15",
+    "cross-env": "^5.2.0",
+    "del": "^5.1.0",
+    "fetch-mock": "^7.4.0",
+    "gulp": "^4.0.2",
+    "gulp-typescript": "^5.0.1",
     "mocha": "^6.2.0",
-    "nodemon": "^1.19.2",
+    "node-fetch": "^2.6.0",
     "nyc": "^14.1.1",
-    "path": "^0.12.7",
-    "prettier": "^1.15.2",
-    "promise": "^8.0.3",
-    "sinon": "^7.5.0",
-    "tmp": "^0.1.0",
-    "url-parse": "^1.4.7",
-    "webapi-parser": "^0.3.0"
+    "ts-node": "^8.3.0",
+    "typescript": "^3.5.3",
+    "webapi-parser": "^0.3.1"
   },
   "publishConfig": {
     "registry": "https://nexus.soma.salesforce.com/nexus/content/repositories/npmjs-internal/"
@@ -74,8 +63,5 @@
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "chai-string": "^1.5.0",
-    "node-fetch": "^2.6.0"
-  }
+  "dependencies": {}
 }

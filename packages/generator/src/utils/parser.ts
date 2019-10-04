@@ -1,6 +1,6 @@
 const wap = require("webapi-parser").WebApiParser;
 
-function processRamlFile(ramlFile) {
+function processRamlFile(ramlFile: string): any {
   return wap.raml10.parse(`file://${ramlFile}`);
 }
 

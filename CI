@@ -26,9 +26,9 @@ executePipeline(envDef) {
         sh "node --version"
         sh "npm --version"
         sh """
+          cd packages/generator
           npm install
-          npm run bootstrap
-          npx sfcc-raml-linter packages/generator/raml/shop/site.raml
+          npx sfcc-raml-linter raml/shop/site.raml
           npm test
         """
     }

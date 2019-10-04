@@ -8,10 +8,10 @@ describe("Test RAML file", () => {
     let ramlFile = `${__dirname}/raml/invalid/search-invalid.raml`;
     return generator
       .processRamlFile(ramlFile)
-      .then(res => {
-        throw Error("Valid Invalid RAML file parsing to fail", res);
+      .then((res: any) => {
+        throw Error("Valid Invalid RAML file parsing to fail");
       })
-      .catch(err => {
+      .catch((err : Error) => {
         expect(err).to.not.equal(null);
       });
   });
@@ -24,8 +24,8 @@ describe("Test RAML file", () => {
         expect(res).to.not.equal(null);
         assert(true);
       })
-      .catch(err => {
-        throw Error("Valid RAML file parsing should not fail", err);
+      .catch((err: Error) => {
+        throw Error("Valid RAML file parsing should not fail: " + err.message);
       });
   });
 });
