@@ -1,6 +1,8 @@
-import fs from "fs-extra";
-import Handlebars from "handlebars";
-import path from "path";
+const fs = require("fs-extra");
+const Handlebars = require("handlebars");
+// Load additional helper functions for Handlebars
+require("handlebars-helpers")({ handlebars: Handlebars }, ["comparison"]);
+const path = require("path");
 
 const templateDirectory = `${__dirname}/../../templates`;
 const pkgDir = "./pkg";

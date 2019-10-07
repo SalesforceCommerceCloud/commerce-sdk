@@ -17,7 +17,7 @@ describe("base client test", () => {
     fetchMock.get("*", 200);
 
     return client
-      .get("/over/the/rainbow", [])
+      .get("/over/the/rainbow")
       .then(() => {
         assert.equal(fetchMock.lastUrl(), "https://somewhere/over/the/rainbow");
       })

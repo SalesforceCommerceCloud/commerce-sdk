@@ -1,10 +1,10 @@
-import fetch from "node-fetch";
+import { default as fetch, Response } from "node-fetch";
 
-import {Resource} from "./resource";
+import { Resource } from "./resource";
 
 interface IClient {
   baseUri: string;
-  get(path: string, pathParameters:Array<String>): any;
+  get(path: string, pathParameters: object, queryParameters: object): Promise<Response>;
 }
 
 export default class BaseClient implements IClient {
@@ -15,9 +15,9 @@ export default class BaseClient implements IClient {
     this.baseUri = baseUri;
   }
 
-  get(path:string, pathParameters:Array<string>): any {
-    return fetch(new Resource(this.baseUri, path, pathParameters).toString());
+  get(path: string, pathParameters?: object, queryParameters?: object): Promise<Response> {
+    return fetch(new Resource(this.baseUri, path, pathParameters, queryParameters).toString());
   }
 }
 
-export {BaseClient};
+export { BaseClient };

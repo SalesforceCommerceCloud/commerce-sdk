@@ -1,24 +1,29 @@
+import qs from "qs";
+
 interface IResource {
     baseUri: string;
     path: string;
-    pathParameters: Array<string>;
-    substitutePathParameters(path: string, parameters: Array<string>) :string;
+    pathParameters: object;
+    queryParameters: object;
+    substitutePathParameters(path: string, parameters: object) :string;
     toString(): string;
 }
 
-class Resource implements IResource {
+export default class Resource implements IResource {
 
     public baseUri: string;
     public path: string;
-    public pathParameters: Array<string>;
+    public pathParameters: object;
+    public queryParameters: object;
 
-    constructor(baseUri: string, path: string, pathParameters: Array<string>) {
+    constructor(baseUri?: string, path?: string, pathParameters?: object, queryParameters?: object) {
         this.baseUri = baseUri;
         this.path = path;
-        this.pathParameters = pathParameters;
+        this.pathParameters = pathParameters
+        this.queryParameters = queryParameters;
     }
 
-    substitutePathParameters(path: string, parameters: Array<string>): string {
+    substitutePathParameters(path: string, parameters: object): string {
         return path.replace(/\{([^}]+)\}/g, (entireMatch, param) => {
             if (parameters && param in parameters) {
                 return parameters[param];
@@ -36,9 +41,12 @@ class Resource implements IResource {
         const renderedPath = this.path
             ? this.substitutePathParameters(this.path, this.pathParameters)
             : "";
+        const queryString = qs.stringify(this.queryParameters);
 
-        return `${this.baseUri}${renderedPath}`;
+        return `${this.baseUri}${renderedPath}${
+            queryString ? "?" : ""
+        }${queryString}`;
     }
 }
 
-export {Resource};
+export { Resource };
