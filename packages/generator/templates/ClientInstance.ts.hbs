@@ -1,4 +1,4 @@
-import { BaseClient } from "./core";
+import { BaseClient, Response } from "./core"
 
 export default class extends BaseClient {
   constructor() {
@@ -10,7 +10,7 @@ export default class extends BaseClient {
   /**
   * {{description}}
   */
-  {{name}}(parameters = {}) {
+  {{name}}(parameters = {}): Promise<Response> {
     const pathParameters = {
 {{#each ../parameters}}      "{{name}}": parameters["{{name}}"]{{#unless @last}},{{/unless}}
 {{/each}}

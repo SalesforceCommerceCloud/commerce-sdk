@@ -1,3 +1,3 @@
-import BaseClient from "./base/client";
+import { BaseClient, Response } from "./base/client";
 
-export { BaseClient };
+export { BaseClient, Response };

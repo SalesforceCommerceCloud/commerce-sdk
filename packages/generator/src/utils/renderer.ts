@@ -1,35 +1,33 @@
-const fs = require("fs-extra");
-const Handlebars = require("handlebars");
-// Load additional helper functions for Handlebars
-require("handlebars-helpers")({ handlebars: Handlebars }, ["comparison"]);
-const path = require("path");
+import fs from "fs-extra";
+import path from "path";
+import Handlebars from "handlebars";
+import { model } from "amf-client-js";
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+require("handlebars-helpers")({ handlebars: Handlebars }, [
+  "string",
+  "comparison"
+]);
 
 const templateDirectory = `${__dirname}/../../templates`;
-const pkgDir = "./pkg";
 
 const clientInstanceTemplate = Handlebars.compile(
-  fs.readFileSync(path.join(templateDirectory, "ClientInstance.js.hbs"), "utf8")
+  fs.readFileSync(path.join(templateDirectory, "ClientInstance.ts.hbs"), "utf8")
 );
 
 const indexTemplate = Handlebars.compile(
-  fs.readFileSync(path.join(templateDirectory, "index.js.hbs"), "utf8")
+  fs.readFileSync(path.join(templateDirectory, "index.ts.hbs"), "utf8")
 );
 
-function createClient(webApiModel: any, context: any): void {
-  let clientCode = clientInstanceTemplate(webApiModel);
-  writeCode(clientCode, `${context}.js`);
+export function createClient(webApiModel: model.domain.DomainElement): string {
+  const clientCode: string = clientInstanceTemplate(webApiModel);
+  return clientCode;
 }
 
-function createIndex(boundedContexts: any): void {
-  let indexCode = indexTemplate({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function createIndex(boundedContexts: any): string {
+  const indexCode: string = indexTemplate({
     apiSpec: boundedContexts
   });
-  writeCode(indexCode, "index.js");
+  return indexCode;
 }
-
-function writeCode(clientCode: any, filename: string) : void {
-  fs.ensureDirSync(pkgDir);
-  fs.writeFileSync(path.join(pkgDir, filename), clientCode);
-}
-
-export { createClient, createIndex };

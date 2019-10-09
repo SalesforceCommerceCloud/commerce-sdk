@@ -1,18 +1,18 @@
 "use strict";
 
 const fetchMock = require("fetch-mock").sandbox();
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const nodeFetch = require("node-fetch");
 nodeFetch.default = fetchMock;
 
 import { assert } from "chai";
 
-
 import { BaseClient } from "../src/core/base/client";
-
 
 describe("base client test", () => {
   it("makes correct call", () => {
-    let client = new BaseClient("https://somewhere");
+    const client = new BaseClient("https://somewhere");
 
     fetchMock.get("*", 200);
 
