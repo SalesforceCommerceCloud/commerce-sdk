@@ -29,41 +29,50 @@ gulp.task("cleanDist", (cb: any) => {
 
 gulp.task("clean", gulp.parallel("cleanTmp", "cleanDist"));
 
+function copyCore(cb: any) {
+  gulp.src("./src/core/**/*").pipe(gulp.dest(`./${TMPDIR}/core`))
+  .on('end', function() {cb()});
+}
+
 gulp.task(
   "renderTemplates",
-  gulp.series("cleanTmp", async () => {
-    const files = [
-      {
-        boundedContext: "shop",
-        ramlFile: `${__dirname}/raml/shop/site.raml`
+  gulp.series(
+    "cleanTmp",
+    async () => {
+      const files = [
+        {
+          boundedContext: "shop",
+          ramlFile: `${__dirname}/raml/shop/site.raml`
+        }
+      ];
+
+      await fs.ensureDir(TMPDIR);
+
+      for (const entry of files) {
+        await processRamlFile(entry.ramlFile)
+          .then((res: WebApiBaseUnitWithDeclaresModelAndEncodesModel) => {
+            fs.writeFileSync(
+              `${TMPDIR}/${entry.boundedContext}.ts`,
+              createClient(res.encodes)
+            );
+          })
+          .catch(err => {
+            console.log(err);
+          });
       }
-    ];
 
-    await fs.ensureDir(TMPDIR);
-
-    for (const entry of files) {
-      await processRamlFile(entry.ramlFile)
-        .then((res: WebApiBaseUnitWithDeclaresModelAndEncodesModel) => {
-          fs.writeFileSync(
-            `${TMPDIR}/${entry.boundedContext}.ts`,
-            createClient(res.encodes)
-          );
-        })
-        .catch(err => {
-          console.log(err);
-        });
-    }
-
-    fs.writeFileSync(`${TMPDIR}/index.ts`, createIndex(files));
-    return gulp.src("./src/core/**/*").pipe(gulp.dest(`./${TMPDIR}/core`));
-  })
+      fs.writeFileSync(`${TMPDIR}/index.ts`, createIndex(files));
+    },
+    copyCore
+  )
 );
 
-gulp.task("buildSdk", () => {
-  return tsProject
+gulp.task("buildSdk", function(cb) {
+  tsProject
     .src()
     .pipe(tsProject())
-    .js.pipe(gulp.dest("./dist"));
+    .js.pipe(gulp.dest("./dist"))
+    .on('end', function() {cb()});
 });
 
 gulp.task("default", gulp.series("clean", "renderTemplates", "buildSdk"));

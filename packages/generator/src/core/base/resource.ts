@@ -1,31 +1,12 @@
 import qs from "qs";
 
-interface IResource {
-  baseUri: string;
-  path: string;
-  pathParameters: object;
-  queryParameters: object;
-  substitutePathParameters(path: string, parameters: object): string;
-  toString(): string;
-}
-
-export default class Resource implements IResource {
-  public baseUri: string;
-  public path: string;
-  public pathParameters: object;
-  public queryParameters: object;
-
+export class Resource {
   constructor(
-    baseUri?: string,
-    path?: string,
-    pathParameters?: object,
-    queryParameters?: object
-  ) {
-    this.baseUri = baseUri;
-    this.path = path;
-    this.pathParameters = pathParameters;
-    this.queryParameters = queryParameters;
-  }
+    private baseUri: string,
+    private path?: string,
+    private pathParameters?: object,
+    private queryParameters?: object
+  ) {}
 
   substitutePathParameters(path: string, parameters: object): string {
     return path.replace(/\{([^}]+)\}/g, (entireMatch, param) => {
@@ -42,9 +23,6 @@ export default class Resource implements IResource {
     : "";
 
   toString(): string {
-    if (this.baseUri === null || this.baseUri === undefined) {
-      throw new Error("baseUri is not set");
-    }
     const renderedPath = this.path
       ? this.substitutePathParameters(this.path, this.pathParameters)
       : "";
@@ -55,5 +33,3 @@ export default class Resource implements IResource {
     }${queryString}`;
   }
 }
-
-export { Resource };

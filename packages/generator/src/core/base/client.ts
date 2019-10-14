@@ -1,21 +1,12 @@
 import { default as fetch, Response } from "node-fetch";
+import { ClientConfig } from "./client-config";
 import { Resource } from "./resource";
 
-interface IClient {
-  baseUri: string;
-
-  get(
-    path: string,
-    pathParameters: object,
-    queryParameters: object
-  ): Promise<Response>;
-}
-
-export default class BaseClient implements IClient {
+export class BaseClient {
   public baseUri: string;
 
-  constructor(baseUri: string) {
-    this.baseUri = baseUri;
+  constructor(config: ClientConfig) {
+    this.baseUri = config.baseUri;
   }
 
   get(
@@ -34,6 +25,5 @@ export default class BaseClient implements IClient {
   }
 }
 
-export { BaseClient };
-
+export { ClientConfig } from "./client-config";
 export { Response } from "node-fetch";

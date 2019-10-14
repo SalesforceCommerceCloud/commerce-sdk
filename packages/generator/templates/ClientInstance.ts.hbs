@@ -1,8 +1,11 @@
-import { BaseClient, Response } from "./core"
+import { BaseClient, ClientConfig, Response } from "./core"
 
 export default class extends BaseClient {
-  constructor() {
-    super("{{servers/0/url}}");
+  constructor(config: ClientConfig = new ClientConfig()) {
+    if (!!!config.baseUri) {
+      config.baseUri = "{{servers/0/url}}";
+    }
+    super(config);
   }
 
 {{#each endPoints}}

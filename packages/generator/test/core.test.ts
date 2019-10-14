@@ -12,7 +12,7 @@ import { BaseClient } from "../src/core/base/client";
 
 describe("base client test", () => {
   it("makes correct call", () => {
-    const client = new BaseClient("https://somewhere");
+    const client = new BaseClient({ baseUri: "https://somewhere" });
 
     fetchMock.get("*", 200);
 

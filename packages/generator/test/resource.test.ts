@@ -1,14 +1,10 @@
 "use strict";
 
-import Resource from "../src/core/base/resource";
+import { Resource } from "../src/core/base/resource";
 
 import { assert } from "chai";
 
 describe("Resource class tests", () => {
-  it("throws an error when baseUri is not set", () => {
-    assert.throws(() => new Resource().toString(), Error, "baseUri is not set");
-  });
-
   it("returns baseUri when only baseUri is set", () => {
     assert.strictEqual(new Resource("baseUri").toString(), "baseUri");
   });
