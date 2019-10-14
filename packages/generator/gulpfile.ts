@@ -1,7 +1,7 @@
 import * as gulp from "gulp";
 
 import { processRamlFile } from "./src/utils/parser";
-import { createClient, createIndex } from "./src/utils/renderer";
+import { createClient, createDto, createIndex } from "./src/utils/renderer";
 
 import log from "fancy-log";
 
@@ -30,8 +30,12 @@ gulp.task("cleanDist", (cb: any) => {
 gulp.task("clean", gulp.parallel("cleanTmp", "cleanDist"));
 
 function copyCore(cb: any) {
-  gulp.src("./src/core/**/*").pipe(gulp.dest(`./${TMPDIR}/core`))
-  .on('end', function() {cb()});
+  gulp
+    .src("./src/core/**/*")
+    .pipe(gulp.dest(`./${TMPDIR}/core`))
+    .on("end", function() {
+      cb();
+    });
 }
 
 gulp.task(
@@ -55,6 +59,10 @@ gulp.task(
               `${TMPDIR}/${entry.boundedContext}.ts`,
               createClient(res.encodes)
             );
+            fs.writeFileSync(
+              `${TMPDIR}/${entry.boundedContext}.types.ts`,
+              createDto(res.declares)
+            );
           })
           .catch(err => {
             console.log(err);
@@ -72,7 +80,9 @@ gulp.task("buildSdk", function(cb) {
     .src()
     .pipe(tsProject())
     .js.pipe(gulp.dest("./dist"))
-    .on('end', function() {cb()});
+    .on("end", function() {
+      cb();
+    });
 });
 
 gulp.task("default", gulp.series("clean", "renderTemplates", "buildSdk"));
