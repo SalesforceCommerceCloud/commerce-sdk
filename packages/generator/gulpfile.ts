@@ -59,10 +59,6 @@ gulp.task(
               `${TMPDIR}/${entry.boundedContext}.ts`,
               createClient(res.encodes)
             );
-            fs.writeFileSync(
-              `${TMPDIR}/${entry.boundedContext}.types.ts`,
-              createDto(res.declares)
-            );
           })
           .catch(err => {
             console.log(err);
