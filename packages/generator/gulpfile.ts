@@ -8,31 +8,38 @@ import log from "fancy-log";
 import del from "del";
 import fs from "fs-extra";
 import ts from "gulp-typescript";
-import { WebApiBaseUnitWithDeclaresModelAndEncodesModel } from "webapi-parser";
+
+import {
+  WebApiBaseUnit,
+  WebApiBaseUnitWithEncodesModel,
+  WebApiBaseUnitWithDeclaresModel
+} from "webapi-parser";
+
+const RELEASES = "release";
+const SDK_DIR_TS = "commerce-sdk-ts";
+const SDK_DIR_JS = "commerce-sdk";
+
 const tsProject = ts.createProject("tsconfig.json");
 
-const TMPDIR = "tmp-dist";
-
-tsProject.config.include = [`${TMPDIR}/**/*.ts`];
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-gulp.task("cleanTmp", (cb: any) => {
-  log.info(`Removing ${TMPDIR} directory`);
-  return del([`./${TMPDIR}`], cb);
+gulp.task("cleanTs", (cb: any) => {
+  log.info(`Removing ${RELEASES}/${SDK_DIR_TS} directory`);
+  return del([`${RELEASES}/${SDK_DIR_TS}`], cb);
 });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-gulp.task("cleanDist", (cb: any) => {
+gulp.task("cleanJs", (cb: any) => {
   log.info(`Removing 'dist' directory`);
-  return del(["dist"], cb);
+  return del([`${RELEASES}/${SDK_DIR_JS}`], cb);
 });
 
-gulp.task("clean", gulp.parallel("cleanTmp", "cleanDist"));
+gulp.task("clean", gulp.parallel("cleanTs", "cleanJs"));
 
-function copyCore(cb: any) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function copyCore(cb: any): any {
   gulp
     .src("./src/core/**/*")
-    .pipe(gulp.dest(`./${TMPDIR}/core`))
+    .pipe(gulp.dest(`${RELEASES}/${SDK_DIR_TS}/core`))
     .on("end", function() {
       cb();
     });
@@ -41,7 +48,7 @@ function copyCore(cb: any) {
 gulp.task(
   "renderTemplates",
   gulp.series(
-    "cleanTmp",
+    "cleanTs",
     async () => {
       const files = [
         {
@@ -50,14 +57,14 @@ gulp.task(
         }
       ];
 
-      await fs.ensureDir(TMPDIR);
+      await fs.ensureDir(`${RELEASES}/${SDK_DIR_TS}`);
 
       for (const entry of files) {
         await processRamlFile(entry.ramlFile)
-          .then((res: WebApiBaseUnitWithDeclaresModelAndEncodesModel) => {
+          .then((res: WebApiBaseUnit) => {
             fs.writeFileSync(
-              `${TMPDIR}/${entry.boundedContext}.ts`,
-              createClient(res.encodes)
+              `${RELEASES}/${SDK_DIR_TS}/${entry.boundedContext}.ts`,
+              createClient((res as WebApiBaseUnitWithEncodesModel).encodes)
             );
           })
           .catch(err => {
@@ -65,20 +72,26 @@ gulp.task(
           });
       }
 
-      fs.writeFileSync(`${TMPDIR}/index.ts`, createIndex(files));
+      fs.writeFileSync(
+        `${RELEASES}/${SDK_DIR_TS}/index.ts`,
+        createIndex(files)
+      );
     },
     copyCore
   )
 );
 
-gulp.task("buildSdk", function(cb) {
-  tsProject
-    .src()
-    .pipe(tsProject())
-    .js.pipe(gulp.dest("./dist"))
-    .on("end", function() {
-      cb();
-    });
-});
+gulp.task(
+  "buildSdk",
+  gulp.series("cleanJs", function(cb) {
+    tsProject
+      .src()
+      .pipe(tsProject())
+      .js.pipe(gulp.dest(`${RELEASES}/${SDK_DIR_JS}`))
+      .on("end", function() {
+        cb();
+      });
+    })
+);
 
-gulp.task("default", gulp.series("clean", "renderTemplates", "buildSdk"));
+gulp.task("default", gulp.series("renderTemplates", "buildSdk"));

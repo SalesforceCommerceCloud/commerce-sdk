@@ -9,7 +9,7 @@ export class Resource {
   ) {}
 
   substitutePathParameters(path: string, parameters: object): string {
-    return path.replace(/\{([^}]+)\}/g, (entireMatch, param) => {
+    return path.replace(/\{([^}]+)\}/g, (_entireMatch, param) => {
       if (parameters && param in parameters) {
         return parameters[param];
       }
@@ -19,12 +19,18 @@ export class Resource {
     });
   }
   renderedPath = this.path
-    ? this.substitutePathParameters(this.path, this.pathParameters)
+    ? this.substitutePathParameters(
+        this.path as string,
+        this.pathParameters as object
+      )
     : "";
 
   toString(): string {
     const renderedPath = this.path
-      ? this.substitutePathParameters(this.path, this.pathParameters)
+      ? this.substitutePathParameters(
+          this.path as string,
+          this.pathParameters as object
+        )
       : "";
     const queryString = qs.stringify(this.queryParameters);
 

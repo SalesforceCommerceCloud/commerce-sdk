@@ -6,7 +6,7 @@ export class BaseClient {
   public baseUri: string;
 
   constructor(config: ClientConfig) {
-    this.baseUri = config.baseUri;
+    this.baseUri = config.baseUri as string;
   }
 
   get(
