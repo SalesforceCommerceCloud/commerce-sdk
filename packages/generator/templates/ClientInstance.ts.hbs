@@ -10,6 +10,7 @@ export default class extends BaseClient {
 
 {{#each endPoints}}
 {{#each operations}}
+{{#or (is method "get") (is method "delete")}}
   /**
   * {{description}}
   */
@@ -49,6 +50,7 @@ export default class extends BaseClient {
     return this.{{method}}("{{../path}}", pathParameters, queryParameters);
   }
 
+{{/or}}
 {{/each}}
 {{/each}}
 }

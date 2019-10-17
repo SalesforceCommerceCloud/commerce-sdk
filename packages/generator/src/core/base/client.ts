@@ -23,6 +23,22 @@ export class BaseClient {
       ).toString()
     );
   }
+
+  delete(
+    path: string,
+    pathParameters?: object,
+    queryParameters?: object
+  ): Promise<Response> {
+    return fetch(
+      new Resource(
+        this.baseUri,
+        path,
+        pathParameters,
+        queryParameters
+      ).toString(),
+      { method: "delete" }
+    );
+  }
 }
 
 export { ClientConfig } from "./client-config";
