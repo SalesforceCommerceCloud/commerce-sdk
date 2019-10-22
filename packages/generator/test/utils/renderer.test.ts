@@ -1,6 +1,6 @@
 "use strict";
 
-import { mapToTypeScriptDataType } from "../src/utils/renderer";
+import { mapToTypeScriptDataType } from "../../src/utils/renderer";
 
 import { assert } from "chai";
 

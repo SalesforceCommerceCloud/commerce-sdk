@@ -1,6 +1,6 @@
 "use strict";
 
-import { Resource } from "../src/core/base/resource";
+import { Resource } from "../../src/core/base/resource";
 
 import { assert } from "chai";
 

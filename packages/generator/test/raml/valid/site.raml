@@ -3,10 +3,56 @@
 title: Shop API
 baseUri: https://anypoint.mulesoft.com/mocking/api/v1/links/27d5ffea-96a7-447b-b595-2b0e837a20c6/s/-/dw/shop/v19_5
 version: v1
-description: This is a base shop api for testing purposes 
+description: This is a base shop api for testing purposes
 protocols: https
 mediaType: application/json
 
+types:
+  ClassA:
+    type: object
+    description: Class A type
+    properties:
+      property1:
+        type: string
+        description: String type property.
+        example: property1
+      property2:
+        type: integer
+        description: Number data type property.
+
+  ClassB:
+    type: object
+    description: ClassB type.
+    properties:
+      property3:
+        type: ClassA
+        description: property is of type ClassA.
+      property4:
+        type: integer[]
+        description: Integer Array dataType
+      property5:
+        type: string[]
+        description: String array datatype
+
+  Class_with-no-params:
+    type: object
+    description: Class with no params.
+
+  Class_with-hyphen:
+    type: object
+    description: Class with hyphen.
+    properties:
+      default:
+        type: ClassA
+        description: property is of type ClassA.
+        required: false
+      property4?:
+        type: integer[]
+        description: Integer Array dataType
+      property5?:
+        type: string[]
+        description: String array datatype
+        required: false
 /site:
   get:
     displayName: getSite
@@ -166,4 +212,3 @@ mediaType: application/json
                 type: number
                 format: int32
                 required: false
- 

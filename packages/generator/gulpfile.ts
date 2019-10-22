@@ -14,12 +14,17 @@ import {
   WebApiBaseUnitWithEncodesModel,
   WebApiBaseUnitWithDeclaresModel
 } from "webapi-parser";
+import { TypeRenderer } from "./src/utils/type-renderer";
 
-const RELEASES = "release";
-const SDK_DIR_TS = "commerce-sdk-ts";
-const SDK_DIR_JS = "commerce-sdk";
+import { RELEASES, SDK_DIR_TS, SDK_DIR_JS } from "./src/utils/config";
 
 const tsProject = ts.createProject("tsconfig.json");
+const files = [
+  {
+    boundedContext: "shop",
+    ramlFile: "/raml/shop/site.raml"
+  }
+];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 gulp.task("cleanTs", (cb: any) => {
@@ -81,6 +86,18 @@ gulp.task(
   )
 );
 
+gulp.task("renderTypes", async () => {
+  const typeRenderer = new TypeRenderer(__dirname);
+  await typeRenderer.process(files);
+});
+
+gulp.task(
+  "cleanAndRenderTypes",
+  gulp.series("cleanTs", async () => {
+    const typeRenderer = new TypeRenderer(__dirname);
+    await typeRenderer.process(files);
+  })
+);
 gulp.task(
   "buildSdk",
   gulp.series("cleanJs", function(cb) {
@@ -91,7 +108,7 @@ gulp.task(
       .on("end", function() {
         cb();
       });
-    })
+  })
 );
 
-gulp.task("default", gulp.series("renderTemplates", "buildSdk"));
+gulp.task("default", gulp.series("renderTemplates", "renderTypes", "buildSdk"));

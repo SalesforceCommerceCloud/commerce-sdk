@@ -1,9 +1,16 @@
 {{#each .}}
-export class {{name}} {
-    constructor(
-    {{#each properties}}
-        {{name}}?: {{getDataType range/dataType range/inherits}}{{#unless @last}},{{/unless}}
-    {{/each}}) {}
+export class {{pascalcase (getValue name)}} {
+    {{#each (onlyRequired properties)}}
+        public {{camelcase (getValue name)}}: {{getDataType range/dataType range/inherits}};
+    {{/each}}
+    {{#each (onlyOptional properties)}}
+        public {{camelcase (getValue name)}}?: {{getDataType range/dataType range/inherits}};
+    {{/each}}
+
+    {{#if properties}}
+        constructor(
+        ) {}
+    {{/if}}
 }
 
 {{/each}}

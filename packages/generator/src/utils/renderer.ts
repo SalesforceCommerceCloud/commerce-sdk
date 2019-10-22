@@ -20,16 +20,42 @@ const clientInstanceTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "ClientInstance.ts.hbs"), "utf8")
 );
 
-const mapToTypeScriptDataType = function(dataType: any): string {
+export const mapToTypeScriptDataType = function(dataType: any): string {
   if (!dataType || !dataType.value) {
     return ANY;
   }
   return dataTypeMap[dataType.value()] ? dataTypeMap[dataType.value()] : ANY;
 };
 
-export { mapToTypeScriptDataType };
-
 Handlebars.registerHelper("getDataType", mapToTypeScriptDataType);
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+Handlebars.registerHelper("getValue", function(name: any): string {
+  return name.value();
+});
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+Handlebars.registerHelper("onlyRequired", function(classes: any[]): any[] {
+  return !classes
+    ? []
+    : classes.filter(entry => {
+        return entry.minCount.value() > 0;
+      });
+});
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+Handlebars.registerHelper("onlyOptional", function(classes: any[]): any[] {
+  return !classes
+    ? []
+    : classes.filter(entry => {
+        return entry.minCount.value() == 0;
+      });
+});
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+Handlebars.registerHelper("isOptional", function(item: any): boolean {
+  return (item.value() as number) === 0;
+});
 
 const indexTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "index.ts.hbs"), "utf8")
@@ -45,7 +71,7 @@ export function createClient(webApiModel: model.domain.DomainElement): string {
 }
 
 export function createDto(webApiModel: model.domain.DomainElement[]): string {
-  const dtoCode: string = dtoTemplate(webApiModel);
+  const dtoCode: string = dtoTemplate(webApiModel as model.domain.ClassTerm[]);
   return dtoCode;
 }
 

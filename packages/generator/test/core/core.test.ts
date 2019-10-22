@@ -8,7 +8,7 @@ nodeFetch.default = fetchMock;
 
 import { assert } from "chai";
 
-import { BaseClient } from "../src/core/base/client";
+import { BaseClient } from "../../src/core/base/client";
 
 describe("base client get test", () => {
   it("makes correct call", () => {
