@@ -1,10 +1,7 @@
 import * as gulp from "gulp";
-
 import { processRamlFile } from "./src/utils/parser";
 import { createClient, createDto, createIndex } from "./src/utils/renderer";
-
 import log from "fancy-log";
-
 import del from "del";
 import fs from "fs-extra";
 import ts from "gulp-typescript";
@@ -14,17 +11,10 @@ import {
   WebApiBaseUnitWithEncodesModel,
   WebApiBaseUnitWithDeclaresModel
 } from "webapi-parser";
-import { TypeRenderer } from "./src/utils/type-renderer";
 
 import { RELEASES, SDK_DIR_TS, SDK_DIR_JS } from "./src/utils/config";
 
 const tsProject = ts.createProject("tsconfig.json");
-const files = [
-  {
-    boundedContext: "shop",
-    ramlFile: "/raml/shop/site.raml"
-  }
-];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 gulp.task("cleanTs", (cb: any) => {
@@ -69,7 +59,14 @@ gulp.task(
           .then((res: WebApiBaseUnit) => {
             fs.writeFileSync(
               `${RELEASES}/${SDK_DIR_TS}/${entry.boundedContext}.ts`,
-              createClient((res as WebApiBaseUnitWithEncodesModel).encodes)
+              createClient(
+                res as WebApiBaseUnitWithEncodesModel,
+                entry.boundedContext
+              )
+            );
+            fs.writeFileSync(
+              `${RELEASES}/${SDK_DIR_TS}/${entry.boundedContext}.types.ts`,
+              createDto((res as WebApiBaseUnitWithDeclaresModel).declares)
             );
           })
           .catch(err => {
@@ -86,18 +83,6 @@ gulp.task(
   )
 );
 
-gulp.task("renderTypes", async () => {
-  const typeRenderer = new TypeRenderer(__dirname);
-  await typeRenderer.process(files);
-});
-
-gulp.task(
-  "cleanAndRenderTypes",
-  gulp.series("cleanTs", async () => {
-    const typeRenderer = new TypeRenderer(__dirname);
-    await typeRenderer.process(files);
-  })
-);
 gulp.task(
   "buildSdk",
   gulp.series("cleanJs", function(cb) {
@@ -111,4 +96,4 @@ gulp.task(
   })
 );
 
-gulp.task("default", gulp.series("renderTemplates", "renderTypes", "buildSdk"));
+gulp.task("default", gulp.series("renderTemplates", "buildSdk"));

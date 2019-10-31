@@ -1,5 +1,6 @@
 import { BaseClient, ClientConfig, Response, ResponseError } from "./core"
 
+
 export default class extends BaseClient {
   constructor(config: ClientConfig = new ClientConfig()) {
     if (!!!config.baseUri) {
@@ -8,7 +9,7 @@ export default class extends BaseClient {
     super(config);
   }
 
-{{#each endPoints}}
+{{#each model.encodes.endPoints}}
 {{#each operations}}
 {{#or (is method "get") (is method "delete") (is method "post")}}
   /**

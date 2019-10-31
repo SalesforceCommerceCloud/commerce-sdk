@@ -2,11 +2,22 @@ import fs from "fs-extra";
 import path from "path";
 import Handlebars from "handlebars";
 import { model } from "amf-client-js";
-const dataTypeMap = {
-  "http://www.w3.org/2001/XMLSchema#string": "string",
-  "http://www.w3.org/2001/XMLSchema#integer": "number"
-};
-const ANY = "any";
+
+import {
+  isDefinedProperty,
+  getDataType,
+  isPrimitiveProperty,
+  isArrayProperty,
+  isObjectProperty,
+  getArrayElementTypeProperty,
+  getReturnPayloadType,
+  isReturnPayloadDefined,
+  getValue,
+  onlyRequired,
+  onlyOptional
+} from "./template-helpers";
+
+const templateDirectory = `${__dirname}/../../templates`;
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require("handlebars-helpers")({ handlebars: Handlebars }, [
@@ -14,59 +25,23 @@ require("handlebars-helpers")({ handlebars: Handlebars }, [
   "comparison"
 ]);
 
-const templateDirectory = `${__dirname}/../../templates`;
-
-const clientInstanceTemplate = Handlebars.compile(
+export const clientInstanceTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "ClientInstance.ts.hbs"), "utf8")
 );
 
-export const mapToTypeScriptDataType = function(dataType: any): string {
-  if (!dataType || !dataType.value) {
-    return ANY;
-  }
-  return dataTypeMap[dataType.value()] ? dataTypeMap[dataType.value()] : ANY;
-};
-
-Handlebars.registerHelper("getDataType", mapToTypeScriptDataType);
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-Handlebars.registerHelper("getValue", function(name: any): string {
-  return name.value();
-});
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-Handlebars.registerHelper("onlyRequired", function(classes: any[]): any[] {
-  return !classes
-    ? []
-    : classes.filter(entry => {
-        return entry.minCount.value() > 0;
-      });
-});
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-Handlebars.registerHelper("onlyOptional", function(classes: any[]): any[] {
-  return !classes
-    ? []
-    : classes.filter(entry => {
-        return entry.minCount.value() == 0;
-      });
-});
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-Handlebars.registerHelper("isOptional", function(item: any): boolean {
-  return (item.value() as number) === 0;
-});
-
-const indexTemplate = Handlebars.compile(
+export const indexTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "index.ts.hbs"), "utf8")
 );
 
-const dtoTemplate = Handlebars.compile(
+export const dtoTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "dto.ts.hbs"), "utf8")
 );
 
-export function createClient(webApiModel: model.domain.DomainElement): string {
-  const clientCode: string = clientInstanceTemplate(webApiModel);
+export function createClient(webApiModel: any, boundedContext: string): string {
+  const clientCode: string = clientInstanceTemplate({
+    model: webApiModel,
+    apiSpec: boundedContext
+  });
   return clientCode;
 }
 
@@ -82,3 +57,29 @@ export function createIndex(boundedContexts: any): string {
   });
   return indexCode;
 }
+
+// Register helpers
+Handlebars.registerHelper("isDefinedProperty", isDefinedProperty);
+
+Handlebars.registerHelper("getDataType", getDataType);
+
+Handlebars.registerHelper("isPrimitive", isPrimitiveProperty);
+
+Handlebars.registerHelper("isArrayProperty", isArrayProperty);
+
+Handlebars.registerHelper("isObjectProperty", isObjectProperty);
+
+Handlebars.registerHelper("getArrayElementType", getArrayElementTypeProperty);
+
+Handlebars.registerHelper("getReturnPayloadType", getReturnPayloadType);
+
+Handlebars.registerHelper("isReturnPayloadDefined", isReturnPayloadDefined);
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+Handlebars.registerHelper("getValue", getValue);
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+Handlebars.registerHelper("onlyRequired", onlyRequired);
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+Handlebars.registerHelper("onlyOptional", onlyOptional);
