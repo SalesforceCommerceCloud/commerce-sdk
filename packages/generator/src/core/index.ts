@@ -1,1 +1,6 @@
-export { BaseClient, ClientConfig, Response } from "./base/client";
+export {
+  BaseClient,
+  ClientConfig,
+  Response,
+  ResponseError
+} from "./base/client";

@@ -1,4 +1,4 @@
-import { BaseClient, ClientConfig, Response } from "./core"
+import { BaseClient, ClientConfig, Response, ResponseError } from "./core"
 
 export default class extends BaseClient {
   constructor(config: ClientConfig = new ClientConfig()) {
@@ -14,7 +14,7 @@ export default class extends BaseClient {
   /**
   * {{description}}
   */
-  {{name}}(parameters = {}): Promise<Response> {
+  {{name}}(parameters = {}): Promise<object> {
     const pathParameters = {
 {{#each ../parameters}}      "{{name}}": parameters["{{name}}"]{{#unless @last}},{{/unless}}
 {{/each}}
@@ -47,11 +47,17 @@ export default class extends BaseClient {
     }
 
 {{/if}}
-    return this.{{method}}("{{../path}}", pathParameters, queryParameters);
+    return this.{{method}}("{{../path}}", pathParameters, queryParameters)
+               .then(res => {
+                 if (res.ok) {
+                   return res.json();
+                 } else {
+                   throw new ResponseError(res);
+                 }
+               });
   }
 
 {{/or}}
 {{/each}}
 {{/each}}
 }
-

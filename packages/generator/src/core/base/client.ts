@@ -41,5 +41,11 @@ export class BaseClient {
   }
 }
 
+export class ResponseError extends Error {
+  constructor(public response: Response) {
+    super(`${response.status} ${response.statusText}`);
+  }
+}
+
 export { ClientConfig } from "./client-config";
 export { Response } from "node-fetch";
