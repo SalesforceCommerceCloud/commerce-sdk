@@ -6,6 +6,14 @@ version: v1
 description: This is a base shop api for testing purposes
 protocols: https
 mediaType: application/json
+securitySchemes:
+  bearer_token:
+    description: For accessing the API a valid Bearer token must be passed in all the queries in the 'Authorization' header.
+    type: x-custom
+    describedBy:
+      headers:
+        Authorization:
+          type: string
 
 types:
   ClassA:
@@ -15,7 +23,6 @@ types:
       property1:
         type: string
         description: String type property.
-        example: property1
       property2?:
         type: integer
         description: Number data type property.
@@ -53,6 +60,158 @@ types:
         type: string[]
         description: String array datatype
         required: false
+
+  search_request:
+    description: Document representing a search request for retrieving items within the Data API. The query is a potentially complex set of expressions. The fields that each query supports are defined within the search resource.
+    properties:
+      count:
+        description: The number of returned documents
+        maximum: 200
+        minimum: 1
+        type: integer
+        format: int32
+        required: false
+      db_start_record_:
+        description: 'The zero-based index of the record that we want to start with, used to optimize special handling'
+        minimum: 0
+        type: integer
+        format: int32
+        required: false
+      expand:
+        description: List of expansions to be applied to each search results. Expands are optional
+        type: array
+        items:
+          type: string
+        required: false
+      query:
+        description: The query to apply
+        type: query
+        (sub_types):
+          nested_query: '#/definitions/nested_query'
+          filtered_query: '#/definitions/filtered_query'
+          text_query: '#/definitions/text_query'
+          match_all_query: '#/definitions/match_all_query'
+          term_query: '#/definitions/term_query'
+          bool_query: '#/definitions/bool_query'
+      select:
+        description: The field to be selected.
+        type: string
+        required: false
+      sorts:
+        description: The list of sort clauses configured for the search request. Sort clauses are optional.
+        type: array
+        items:
+          type: sort
+        required: false
+      start:
+        description: The zero-based index of the first search hit to include in the result.
+        minimum: 0
+        type: integer
+        format: int32
+        required: false
+  product_search_result:
+    description: Document representing a product search result.
+    properties:
+      count:
+        description: The number of returned documents.
+        type: integer
+        format: int32
+      data:
+        type: array
+        items:
+          type: object
+        required: false
+      db_start_record_:
+        description: 'The zero-based index of the record that we want to start with, used to optimize special handling'
+        minimum: 0
+        type: integer
+        format: int32
+        required: false
+      expand:
+        description: List of expansions to be applied to each search results. Expands are optional
+        type: array
+        items:
+          type: string
+        required: false
+      hits:
+        description: The sorted array of search hits. Can be empty.
+        type: array
+        items:
+          type: object
+      next:
+        description: The URL of the next result page.
+        type: result_page
+        required: false
+      previous:
+        description: The URL of the previous result page.
+        type: result_page
+        required: false
+      query:
+        description: The query passed into the search
+        type: query
+        (sub_types):
+          nested_query: '#/definitions/nested_query'
+          filtered_query: '#/definitions/filtered_query'
+          text_query: '#/definitions/text_query'
+          match_all_query: '#/definitions/match_all_query'
+          term_query: '#/definitions/term_query'
+          bool_query: '#/definitions/bool_query'
+      select:
+        description: The fields that you want to select.
+        type: string
+      sorts:
+        description: The list of sort clauses configured for the search request. Sort clauses are optional.
+        type: array
+        items:
+          type: sort
+        required: false
+      start:
+        description: The zero-based index of the first search hit to include in the result.
+        minimum: 0
+        type: integer
+        format: int32
+      total:
+        description: The total number of documents.
+        type: integer
+        format: int32
+  query:
+    description: |
+      "Document representing a query. A query contains a set of objects that define criteria
+       used to select records. A query can contain one of the following:
+       \n\n match_all_query - returns all records.
+       \n\n term_query - matches records where a field (or fields) exactly match some simple value (including null).
+       \n\n text_query - matches records where a field (or fields) contain a search phrase.
+       \n\n boolean_query - formulates a complex boolean expression using query objects as criteria.
+       \n\n filtered_query - allows for filtering of records based on both a query and a filter."
+    type: object
+  sort:
+    description: Document representing a sort request.
+    properties:
+      field:
+        description: The name of the field to sort on.
+        type: string
+      sort_order:
+        description: 'The sort order to be applied when sorting. When omitted, the default sort order (ASC) is used.'
+        type: string
+        enum:
+          - asc
+          - desc
+        required: false
+  result_page:
+    description: Data that can be used to get the next and previous page of a Data API results object.
+    properties:
+      count:
+        description: The number of returned documents.
+        type: integer
+        format: int32
+      db_start_record_:
+        description: 'The zero-based index of the record that we want to start with, used to optimize special handling'
+        type: integer
+        format: int32
+      start:
+        description: The zero-based index of the first search hit to include in the result.
+        type: integer
+        format: int32
 
 /site:
   get:
@@ -213,3 +372,28 @@ types:
                 type: number
                 format: int32
                 required: false
+
+/product-search:
+  post:
+    description: |
+     "Searches for products.\n\n The query attribute specifies a complex query that can be used to narrow down the search. Attributes are grouped\n into different buckets.  These are the list of searchable attributes with their corresponding buckets:\n\n Main:\n \n    id - String\n    name - String\n    online - SiteSpecific Boolean\n    searchable - SiteSpecific Boolean \n    valid_from - SiteSpefic DateTime \n    valid_to - SiteSpecfic DateTime \n    type - ProductType \n    creation_date - DateTime\n \n Catalog:\n \n    catalog_id - String\n \n Category:\n \n    category_id - String\n \n Special:\n \n    type - {\"item\", \"set, \"bundle\", \"master\", \"part_of_product_set\", \"bundled\", \"variant\", \"variation_group\", \"option\", \"retail_set\", \"part_of_retail_set\"}\n \n\n The sortable properties are:\n \n id - String\n name - String\n creation_date - DateTime\n \n\n Note that catalog_id is the id of the catalog to which products are assigned to.\n\n Only attributes in the same bucket can be joined using a disjunction (OR).\n For instance, when joining id and catalog_id above, only a conjunction is allowed (AND), whereas id\n and searchable can be joined using a disjunction because they are in the same bucket.  If an attribute\n is used in a disjunction (OR) that violates this rule, an exception will be thrown.\n\n The product search retrieves additional properties of the product when expansions are used.\n\tThe available expand attribute values are:\n \n        \t'all' will retrieve all the product properties.\n          'availability' will retrieve the following properties:\n            ats\n            in_stock\n            online\n\t\t    \n          'categories' will retrieve the following properties:\n            assigned_categories\n\t\t\t\n          'images' will retrieve the following properties:\n            image\n\t\t\t\n\t\t\t'all_images' used with images will retrieve the following properties:\n            image\n            image_groups\n\t\t\t\n          'prices' will retrieve the following properties:\n            price\n            price_currency\n\t\t\t\n          'sets' will retrieve the following properties:\n            set_products\n            product_sets\n\t\t\t\n          'bundles' will retrieve the following properties:\n            product_bundles\n            bundled_products\n            \n\t\t\t\n\n "
+    displayName: searchProducts
+    queryParameters:
+      siteId:
+        description: The site context.
+        type: string
+        required: false
+    body:
+      application/json:
+        type: search_request
+        (oas-body-name): body
+    responses:
+      '201':
+        description: Created
+        body:
+          application/json:
+            type: product_search_result
+    securedBy:
+      - bearer_token
+    (oas-tags):
+      - product_search

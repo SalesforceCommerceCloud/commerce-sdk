@@ -10,11 +10,11 @@ export default class extends BaseClient {
 
 {{#each endPoints}}
 {{#each operations}}
-{{#or (is method "get") (is method "delete")}}
+{{#or (is method "get") (is method "delete") (is method "post")}}
   /**
   * {{description}}
   */
-  {{name}}(parameters = {}): Promise<object> {
+  {{name}}(parameters = {}{{#is method "post"}}, body: any{{/is}}): Promise<object> {
     const pathParameters = {
 {{#each ../parameters}}      "{{name}}": parameters["{{name}}"]{{#unless @last}},{{/unless}}
 {{/each}}
@@ -47,7 +47,7 @@ export default class extends BaseClient {
     }
 
 {{/if}}
-    return this.{{method}}("{{../path}}", pathParameters, queryParameters)
+    return this.{{method}}("{{../path}}", pathParameters, queryParameters{{#is method "post"}}, body{{/is}})
                .then(res => {
                  if (res.ok) {
                    return res.json();

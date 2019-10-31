@@ -2,6 +2,8 @@ import { default as fetch, Response } from "node-fetch";
 import { ClientConfig } from "./client-config";
 import { Resource } from "./resource";
 
+const CONTENT_TYPE = "application/json";
+
 export class BaseClient {
   public baseUri: string;
 
@@ -37,6 +39,27 @@ export class BaseClient {
         queryParameters
       ).toString(),
       { method: "delete" }
+    );
+  }
+
+  post(
+    path: string,
+    pathParameters: object,
+    queryParameters: object,
+    body: any
+  ): Promise<Response> {
+    return fetch(
+      new Resource(
+        this.baseUri,
+        path,
+        pathParameters,
+        queryParameters
+      ).toString(),
+      {
+        method: "post",
+        headers: { "Content-Type": CONTENT_TYPE },
+        body: JSON.stringify(body)
+      }
     );
   }
 }
