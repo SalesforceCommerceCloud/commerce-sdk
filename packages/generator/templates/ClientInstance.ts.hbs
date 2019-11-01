@@ -1,4 +1,11 @@
-import { BaseClient, ClientConfig, Response, ResponseError } from "./core"
+import { BaseClient, ClientConfig, Response, ResponseError } from "./core";
+import {
+{{#each model.declares}}
+    {{#eq $classData.name "amf.client.model.domain.NodeShape"}}
+        {{getValue name}}{{#unless @last}},{{/unless}}
+    {{/eq}}
+{{/each}}
+} from "./{{apiSpec}}.types";
 
 
 export default class extends BaseClient {
@@ -48,15 +55,24 @@ export default class extends BaseClient {
     }
 
 {{/if}}
-    return this.{{method}}("{{../path}}", pathParameters, queryParameters{{#is method "post"}}, body{{/is}})
-               .then(res => {
-                 if (res.ok) {
-                   return res.json();
-                 } else {
-                   throw new ResponseError(res);
-                 }
-               });
-  }
+// @ts-ignore
+return this.{{method}}("{{../path}}", pathParameters, queryParameters{{#is method "post"}}, body{{/is}})
+    .then( async(res) => {
+        if (res.ok) {
+        {{#eq (isReturnPayloadDefined . ) false}}
+            return res.json();
+        {{else}}
+            return await res.json().then( (s) => {
+                return new Promise<{{getReturnPayloadType .}}>( (resolve, reject) => {
+                    resolve({{getReturnPayloadType .}}.instanceFromJson(s));
+                });
+        });
+        {{/eq}}
+    } else {
+        throw new ResponseError(res);
+    }
+ });
+}
 
 {{/or}}
 {{/each}}
