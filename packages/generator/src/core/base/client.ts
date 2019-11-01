@@ -4,6 +4,12 @@ import { Resource } from "./resource";
 
 const CONTENT_TYPE = "application/json";
 
+export class ResponseError extends Error {
+  constructor(public response: Response) {
+    super(`${response.status} ${response.statusText}`);
+  }
+}
+
 export class BaseClient {
   public baseUri: string;
 
@@ -15,7 +21,7 @@ export class BaseClient {
     path: string,
     pathParameters?: object,
     queryParameters?: object
-  ): Promise<Response> {
+  ): Promise<any> {
     return fetch(
       new Resource(
         this.baseUri,
@@ -23,14 +29,14 @@ export class BaseClient {
         pathParameters,
         queryParameters
       ).toString()
-    );
+    ).then(this.getJsonFromResponse);
   }
 
   delete(
     path: string,
     pathParameters?: object,
     queryParameters?: object
-  ): Promise<Response> {
+  ): Promise<any> {
     return fetch(
       new Resource(
         this.baseUri,
@@ -39,7 +45,7 @@ export class BaseClient {
         queryParameters
       ).toString(),
       { method: "delete" }
-    );
+    ).then(this.getJsonFromResponse);
   }
 
   post(
@@ -47,7 +53,7 @@ export class BaseClient {
     pathParameters: object,
     queryParameters: object,
     body: any
-  ): Promise<Response> {
+  ): Promise<any> {
     return fetch(
       new Resource(
         this.baseUri,
@@ -60,13 +66,16 @@ export class BaseClient {
         headers: { "Content-Type": CONTENT_TYPE },
         body: JSON.stringify(body)
       }
-    );
+    ).then(this.getJsonFromResponse);
   }
-}
 
-export class ResponseError extends Error {
-  constructor(public response: Response) {
-    super(`${response.status} ${response.statusText}`);
+  getJsonFromResponse(response: Response): Promise<any> {
+    if (response.ok) {
+      // It's ideal to get "{}" for an empty response body, but we won't throw if it's truly empty
+      return response.text().then(text => (text ? JSON.parse(text) : {}));
+    } else {
+      throw new ResponseError(response);
+    }
   }
 }
 
