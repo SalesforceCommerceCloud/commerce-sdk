@@ -1,4 +1,11 @@
-import { BaseClient, ClientConfig, ResponseError } from "./core"
+import { BaseClient, ClientConfig, ResponseError } from "./core";
+import {
+{{#each model.declares}}
+    {{#eq $classData.name "amf.client.model.domain.NodeShape"}}
+        {{getValue name}}{{#unless @last}},{{/unless}}
+    {{/eq}}
+{{/each}}
+} from "./{{apiSpec}}.types";
 
 export class Client extends BaseClient {
   constructor(config: ClientConfig = new ClientConfig()) {
@@ -14,7 +21,7 @@ export class Client extends BaseClient {
   /**
   * {{description}}
   */
-  {{name}}(parameters = {}{{#is method "post"}}, body: any{{/is}}): Promise<object> {
+  {{name}}(parameters = {}{{#is method "post"}}, body: any{{/is}}): Promise<{{#if (eq (isReturnPayloadDefined .) true)}}{{getReturnPayloadType .}}{{else}}object{{/if}}> {
     const pathParameters = {
 {{#each ../parameters}}      "{{name}}": parameters["{{name}}"]{{#unless @last}},{{/unless}}
 {{/each}}
@@ -47,7 +54,7 @@ export class Client extends BaseClient {
     }
 
 {{/if}}
-    return this.{{method}}("{{../path}}", pathParameters, queryParameters{{#is method "post"}}, body{{/is}});
+    return this.{{method}}("{{../path}}", pathParameters, queryParameters{{#is method "post"}}, body{{/is}}){{#eq (isReturnPayloadDefined .) true}}.then({{getReturnPayloadType .}}.instanceFromJson){{/eq}};
   }
 
 {{/or}}

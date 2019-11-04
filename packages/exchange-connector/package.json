@@ -1,24 +1,25 @@
 {
-  "name": "commerce-sdk-generator",
-  "version": "0.0.1",
-  "description": "Commerce SDK Generator, contains the templates to generate the SDK",
-  "main": "index.js",
-  "scripts": {
-    "pretest": "npm run lint",
-    "test": "nyc cross-env TS_NODE_FILES=true mocha --exit --require ts-node/register --colors test/**/*.ts",
-    "start": "node dist/index.js",
-    "clean": "gulp clean",
-    "build": "gulp",
-    "lint": "eslint \"**/*.{js,ts}\" --quiet --fix"
+  "name": "exchange-connector",
+  "version": "1.0.0",
+  "description": "Downloads raml specs from exchange",
+  "author": "Jeff Albert <jalbert@salesforce.com>",
+  "homepage": "",
+  "license": "MIT",
+  "main": "lib/index.ts",
+  "directories": {
+    "lib": "lib"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "registry": "https://nexus.soma.salesforce.com/nexus/content/groups/npm-all/"
   },
   "nyc": {
     "exclude": [
       "release",
       "coverage",
-      "test",
-      "gulpfile.ts",
-      "src/core/index.ts",
-      "src/utils/renderer.ts"
+      "test"
     ],
     "reporter": [
       "html",
@@ -35,8 +36,14 @@
     "lines": 80,
     "statements": -10
   },
-  "publishConfig": {
-    "registry": "https://nexus.soma.salesforce.com/nexus/content/repositories/npmjs-internal/"
+  "repository": {
+    "type": "git",
+    "url": "git@git.soma.salesforce.com:cc-steelarc/commerce-sdk.git"
+  },
+  "scripts": {
+    "pretest": "npm run lint",
+    "lint": "eslint \"**/*.{js,ts}\" --quiet --fix",
+    "test": "nyc cross-env TS_NODE_FILES=true mocha --exit --require ts-node/register --colors test/**/*.ts"
   },
   "lint-staged": {
     "*.js": [
@@ -67,6 +74,10 @@
       ]
     }
   },
-  "author": "",
-  "license": "ISC"
+  "dependencies": {
+    "@types/graphql": "^14.5.0",
+    "apollo-boost": "^0.4.4",
+    "dotenv": "^8.2.0",
+    "graphql-tag": "^2.10.1"
+  }
 }

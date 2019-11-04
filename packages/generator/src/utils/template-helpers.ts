@@ -72,7 +72,7 @@ const getPayloadResponses = function(operation: any): any {
   const okResponse = [];
   for (const res of operation.responses) {
     if (
-      res.statusCode.value() == "200" &&
+      res.statusCode.value().startsWith("2") &&
       Array.isArray(res.payloads) &&
       res.payloads.length > 0 &&
       res.payloads[0].mediaType !== undefined &&
