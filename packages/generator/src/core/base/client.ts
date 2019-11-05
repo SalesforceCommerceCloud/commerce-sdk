@@ -69,6 +69,27 @@ export class BaseClient {
     ).then(this.getJsonFromResponse);
   }
 
+  put(
+    path: string,
+    pathParameters: object,
+    queryParameters: object,
+    body: any
+  ): Promise<any> {
+    return fetch(
+      new Resource(
+        this.baseUri,
+        path,
+        pathParameters,
+        queryParameters
+      ).toString(),
+      {
+        method: "put",
+        headers: { "Content-Type": CONTENT_TYPE },
+        body: JSON.stringify(body)
+      }
+    ).then(this.getJsonFromResponse);
+  }
+
   getJsonFromResponse(response: Response): Promise<any> {
     if (response.ok) {
       // It's ideal to get "{}" for an empty response body, but we won't throw if it's truly empty

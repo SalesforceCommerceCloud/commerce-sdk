@@ -130,3 +130,56 @@ describe("base client post test", () => {
       });
   });
 });
+
+describe("base client put test", () => {
+  let client;
+
+  beforeEach(() => {
+    client = new BaseClient({ baseUri: "https://somewhere" });
+  });
+  afterEach(fetchMock.restore);
+
+  it("put resource and returns 201", () => {
+    fetchMock.put("*", 201);
+
+    return client.put("/over/the/rainbow", {}, {}, {}).then(() => {
+      expect(fetchMock.lastUrl()).to.equal(
+        "https://somewhere/over/the/rainbow"
+      );
+    });
+  });
+
+  it("is not ok when attempting to put nonexistent resource", () => {
+    fetchMock.put("*", 404);
+
+    return client
+      .put("/over/the/rainbow", {}, {}, {})
+      .should.eventually.be.rejectedWith(ResponseError);
+  });
+
+  it("put resource with body and returns 200", () => {
+    fetchMock.put("*", 200);
+
+    return client.put("/over/the", {}, {}, { id: "rainbow" }).then(() => {
+      expect(fetchMock.lastUrl()).to.equal("https://somewhere/over/the");
+    });
+  });
+
+  it("put resource with body and returns 204", () => {
+    fetchMock.put("*", 204);
+
+    return client.put("/over/the", {}, {}, { id: "rainbow" }).then(() => {
+      expect(fetchMock.lastUrl()).to.equal("https://somewhere/over/the");
+    });
+  });
+
+  it("put resource with site id in query param, body and returns 201", () => {
+    fetchMock.put("*", 201);
+
+    return client
+      .put("/over", {}, { id: "the" }, { content: "rainbow" })
+      .then(() => {
+        expect(fetchMock.lastUrl()).to.equal("https://somewhere/over?id=the");
+      });
+  });
+});

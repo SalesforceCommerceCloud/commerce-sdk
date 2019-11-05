@@ -17,11 +17,11 @@ export class Client extends BaseClient {
 
 {{#each model.encodes.endPoints}}
 {{#each operations}}
-{{#or (is method "get") (is method "delete") (is method "post")}}
+{{#or (is method "get") (is method "delete") (is method "post") (is method "put")}}
   /**
   * {{description}}
   */
-  {{name}}(parameters = {}{{#is method "post"}}, body: any{{/is}}): Promise<{{#if (eq (isReturnPayloadDefined .) true)}}{{getReturnPayloadType .}}{{else}}object{{/if}}> {
+  {{name}}(parameters = {}{{#or (is method "post") (is method "put")}}, body: {{request.payloads.[0].schema.inherits.[0].linkTarget.name}}{{/or}}): Promise<{{#if (eq (isReturnPayloadDefined .) true)}}{{getReturnPayloadType .}}{{else}}object{{/if}}> {
     const pathParameters = {
 {{#each ../parameters}}      "{{name}}": parameters["{{name}}"]{{#unless @last}},{{/unless}}
 {{/each}}
@@ -54,7 +54,7 @@ export class Client extends BaseClient {
     }
 
 {{/if}}
-    return this.{{method}}("{{../path}}", pathParameters, queryParameters{{#is method "post"}}, body{{/is}}){{#eq (isReturnPayloadDefined .) true}}.then({{getReturnPayloadType .}}.instanceFromJson){{/eq}};
+    return this.{{method}}("{{../path}}", pathParameters, queryParameters{{#or (is method "post") (is method "put")}}, body{{/or}}){{#eq (isReturnPayloadDefined .) true}}.then({{getReturnPayloadType .}}.instanceFromJson){{/eq}};
   }
 
 {{/or}}
