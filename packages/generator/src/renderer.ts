@@ -17,7 +17,7 @@ import {
   onlyOptional
 } from "./template-helpers";
 
-const templateDirectory = `${__dirname}/../../templates`;
+const templateDirectory = `${__dirname}/../templates`;
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require("handlebars-helpers")({ handlebars: Handlebars }, [

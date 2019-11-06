@@ -1,24 +1,24 @@
 {
-  "name": "commerce-sdk-generator",
-  "version": "0.0.1",
+  "name": "commerce-sdk",
+  "version": "0.0.2-alpha.0",
   "description": "Commerce SDK Generator, contains the templates to generate the SDK",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "pretest": "npm run lint",
     "test": "nyc cross-env TS_NODE_FILES=true mocha --exit --require ts-node/register --colors test/**/*.ts",
     "start": "node dist/index.js",
     "clean": "gulp clean",
-    "build": "gulp",
+    "renderTemplates": "gulp renderTemplates",
+    "build": "npm run renderTemplates && tsc",
     "lint": "eslint \"**/*.{js,ts}\" --quiet --fix"
   },
   "nyc": {
     "exclude": [
-      "release",
       "coverage",
       "test",
       "gulpfile.ts",
-      "src/core/index.ts",
-      "src/utils/renderer.ts"
+      "generated-src"
     ],
     "reporter": [
       "html",
@@ -68,5 +68,9 @@
     }
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@commerce-sdk/core": "^0.0.2-alpha.0"
+  },
+  "gitHead": "a1ce46a1a70e7ec09357bf8b6889a8d208a34063"
 }

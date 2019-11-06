@@ -1,4 +1,4 @@
-import { getBearer } from "../lib";
+import { getBearer } from "../src";
 import { assert } from "chai";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires

@@ -1,10 +1,9 @@
 import * as gulp from "gulp";
-import { processRamlFile } from "./src/utils/parser";
-import { createClient, createDto, createIndex } from "./src/utils/renderer";
+import { processRamlFile } from "./src/parser";
+import { createClient, createDto, createIndex } from "./src/renderer";
 import log from "fancy-log";
 import del from "del";
 import fs from "fs-extra";
-import ts from "gulp-typescript";
 
 import {
   WebApiBaseUnit,
@@ -12,88 +11,42 @@ import {
   WebApiBaseUnitWithDeclaresModel
 } from "webapi-parser";
 
-import { RELEASES, SDK_DIR_TS, SDK_DIR_JS } from "./src/utils/config";
-
-const tsProject = ts.createProject("tsconfig.json");
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const config = require("./build-config.json");
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-gulp.task("cleanTs", (cb: any) => {
-  log.info(`Removing ${RELEASES}/${SDK_DIR_TS} directory`);
-  return del([`${RELEASES}/${SDK_DIR_TS}`], cb);
+gulp.task("cleanTmp", (cb: any) => {
+  log.info(`Removing ${config.tmpDir} directory`);
+  return del([`${config.tmpDir}`], cb);
 });
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-gulp.task("cleanJs", (cb: any) => {
-  log.info(`Removing 'dist' directory`);
-  return del([`${RELEASES}/${SDK_DIR_JS}`], cb);
-});
-
-gulp.task("clean", gulp.parallel("cleanTs", "cleanJs"));
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function copyCore(cb: any): any {
-  gulp
-    .src("./src/core/**/*")
-    .pipe(gulp.dest(`${RELEASES}/${SDK_DIR_TS}/core`))
-    .on("end", function() {
-      cb();
-    });
-}
 
 gulp.task(
   "renderTemplates",
-  gulp.series(
-    "cleanTs",
-    async () => {
-      const files = [
-        {
-          boundedContext: "shop",
-          ramlFile: `${__dirname}/raml/shop/site.raml`
-        }
-      ];
+  gulp.series("cleanTmp", async () => {
+    await fs.ensureDir(`${config.tmpDir}`);
 
-      await fs.ensureDir(`${RELEASES}/${SDK_DIR_TS}`);
+    // TODO: This needs to be replaced with calls to download the raml instead of reading it locally.
+    // When this is done we should move it out of this file and into the library with tests.
+    for (const entry of config.files) {
+      await processRamlFile(entry.ramlFile)
+        .then((res: WebApiBaseUnit) => {
+          fs.writeFileSync(
+            `${config.tmpDir}/${entry.boundedContext}.ts`,
+            createClient(
+              res as WebApiBaseUnitWithEncodesModel,
+              entry.boundedContext
+            )
+          );
+          fs.writeFileSync(
+            `${config.tmpDir}/${entry.boundedContext}.types.ts`,
+            createDto((res as WebApiBaseUnitWithDeclaresModel).declares)
+          );
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    }
 
-      for (const entry of files) {
-        await processRamlFile(entry.ramlFile)
-          .then((res: WebApiBaseUnit) => {
-            fs.writeFileSync(
-              `${RELEASES}/${SDK_DIR_TS}/${entry.boundedContext}.ts`,
-              createClient(
-                res as WebApiBaseUnitWithEncodesModel,
-                entry.boundedContext
-              )
-            );
-            fs.writeFileSync(
-              `${RELEASES}/${SDK_DIR_TS}/${entry.boundedContext}.types.ts`,
-              createDto((res as WebApiBaseUnitWithDeclaresModel).declares)
-            );
-          })
-          .catch(err => {
-            console.log(err);
-          });
-      }
-
-      fs.writeFileSync(
-        `${RELEASES}/${SDK_DIR_TS}/index.ts`,
-        createIndex(files)
-      );
-    },
-    copyCore
-  )
-);
-
-gulp.task(
-  "buildSdk",
-  gulp.series("cleanJs", function(cb) {
-    tsProject
-      .src()
-      .pipe(tsProject())
-      .js.pipe(gulp.dest(`${RELEASES}/${SDK_DIR_JS}`))
-      .on("end", function() {
-        cb();
-      });
+    fs.writeFileSync(`${config.tmpDir}/index.ts`, createIndex(config.files));
   })
 );
-
-gulp.task("default", gulp.series("renderTemplates", "buildSdk"));

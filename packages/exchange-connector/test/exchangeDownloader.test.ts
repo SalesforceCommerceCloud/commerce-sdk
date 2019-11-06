@@ -1,4 +1,4 @@
-import { downloadAssets } from "../lib/exchangeDownloader";
+import { downloadAssets } from "../src/exchangeDownloader";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const nodeFetch = require("node-fetch");
