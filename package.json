@@ -2,10 +2,13 @@
   "name": "commerce-sdk",
   "private": true,
   "scripts": {
-    "test": "lerna run test"
+    "postinstall": "lerna bootstrap --hoist && lerna link",
+    "test": "lerna run test",
+    "build": "lerna run build"
   },
   "dependencies": {
-    "commerce-sdk-generator": "file:packages/generator",
+    "@commerce-sdk/core": "file:packages/core",
+    "@commerce-sdk/generator": "file:packages/generator",
     "exchange-connector": "file:packages/exchange-connector"
   },
   "devDependencies": {
@@ -43,6 +46,7 @@
     "gulp-typescript": "^5.0.1",
     "handlebars": "^4.4.3",
     "handlebars-helpers": "^0.10.0",
+    "lerna": "^3.18.3",
     "mocha": "^6.2.0",
     "node-fetch": "^2.6.0",
     "nyc": "^14.1.1",

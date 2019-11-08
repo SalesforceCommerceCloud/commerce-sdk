@@ -1,7 +1,4 @@
-export const RELEASES = "release";
-export const SDK_DIR_TS = "commerce-sdk-ts";
 export const TYPESCRIPT_DTO_EXT = ".types.ts";
-export const SDK_DIR_JS = "commerce-sdk";
 export const DEFAULT_DATA_TYPE = "any";
 export const RESPONSE_DATA_TYPE = "Response";
 export const OBJECT_DATA_TYPE = "object";

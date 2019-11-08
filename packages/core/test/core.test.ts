@@ -17,7 +17,7 @@ before(() => {
   chai.use(chaiAsPromised);
 });
 
-import { BaseClient, ResponseError } from "../../src/core/base/client";
+import { BaseClient, ResponseError } from "../../src/base/client";
 
 describe("base client get test", () => {
   it("makes correct call", () => {

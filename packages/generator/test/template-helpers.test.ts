@@ -12,7 +12,7 @@ import {
   isTypeDefined,
   onlyOptional,
   onlyRequired
-} from "../../src/utils/template-helpers";
+} from "../src/template-helpers";
 
 import { assert } from "chai";
 
