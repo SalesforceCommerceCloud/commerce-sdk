@@ -1,50 +1,15 @@
 {{#each .}}
 {{#eq $classData.name "amf.client.model.domain.NodeShape"}}
-export class {{getValue name}} {
+export type {{getValue name}} = {
     {{#each (onlyRequired properties)}}
-        public {{getValue name}}: {{{getDataType .}}};
+        {{getValue name}}: {{{getDataType .}}};
     {{/each}}
     {{#each (onlyOptional properties)}}
-        public {{getValue name}}?: {{{getDataType .}}};
+        {{getValue name}}?: {{{getDataType .}}};
     {{/each}}
-
-    {{#if properties}}
-        constructor(
-        ) {}
-    {{/if}}
-
-    static instanceFromJson(obj: any) : {{getValue name}}  {
-        const newIns: {{getValue name}}  = new {{getValue name}} ();
-        if(obj) {
-        {{#each properties}}
-            {{#eq (isArrayProperty . ) true}}
-                newIns.{{getValue name}} = obj.{{getValue name}};
-            {{/eq}}
-            {{#eq (isObjectProperty . ) true}}
-                newIns.{{getValue name}} = obj.{{getValue name}};
-            {{/eq}}
-            {{#eq (isPrimitive . ) true}}
-                newIns.{{getValue name}} = obj.{{getValue name}};
-            {{/eq}}
-            {{#eq (isDefinedProperty . ) true}}
-                newIns.{{getValue name}} = obj.{{getValue name}};
-            {{/eq}}
-        {{/each}}
-        }
-        return newIns;
-    }
-
-    static arrayFromJson(obj: any) : {{getValue name}} [] {
-        let newInstanceOrArray: Array<{{getValue name}}> = [];
-        if(Array.isArray(obj)) {
-            obj.forEach( (s: any) => {
-                newInstanceOrArray.push({{getValue name}}.instanceFromJson(s));
-            });
-        }
-        return newInstanceOrArray;
-        }
-    }
+}
 {{/eq}}
+
 {{/each}}
 
 

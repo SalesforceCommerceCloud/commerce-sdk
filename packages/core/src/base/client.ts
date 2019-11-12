@@ -1,108 +1,57 @@
-import { default as fetch, HeadersInit, Response } from "node-fetch";
-import { ClientConfig } from "./client-config";
-import { Resource } from "./resource";
+import { Response, RequestInit } from "node-fetch";
+import { IAuthScheme } from "./auth-schemes";
+import _ from "lodash";
+
 import { config } from "dotenv";
 import { getBearer } from "@commerce-sdk/exchange-connector";
-
-import {
-  MOCK_SERVICE_BEARER_HEADER_KEY,
-  MOCK_SERVICE_CLIENT_ID_HEADER_KEY,
-  DEFAULT_CLIENT
-} from "./constants";
 
 /**
  * dotenv config loads environmental variables.
  */
 config();
 
-const CONTENT_TYPE = "application/json";
+export type ClientConfig = {
+  authHost?: string;
+  baseUri?: string;
+  clientId?: string;
+  clientSecret?: string;
+};
+
+const DEFAULT_CLIENT_CONFIG: ClientConfig = {
+  authHost: "https://account-pod5.demandware.net"
+};
 
 export class BaseClient {
-  public baseUri: string;
-  public useMock: boolean;
-  private mockServiceToken: string;
-  private headers: HeadersInit;
+  public clientConfig: ClientConfig;
+  public authSchemes: {
+    [x: string]: IAuthScheme;
+  };
 
-  constructor(config: ClientConfig) {
-    this.baseUri = config.baseUri as string;
-    this.useMock = config.useMock as boolean;
-    this.initializeMockServiceAuth();
+  public fetchOptions: RequestInit;
+
+  constructor(config?: ClientConfig) {
+    this.clientConfig = _.merge(DEFAULT_CLIENT_CONFIG, config);
+    // this.authSchemes = {};
+    this.fetchOptions = {};
   }
 
-  initializeMockServiceAuth(): void {
-    if (this.useMock) {
-      Promise.resolve(
-        getBearer(process.env.ANYPOINT_USERNAME, process.env.ANYPOINT_PASSWORD)
-          .then(token => {
-            this.mockServiceToken = token;
-            this.headers = {
-              MOCK_SERVICE_BEARER_HEADER_KEY: "bearer ".concat(
-                this.mockServiceToken
-              ),
-              "ms2-origin": "Exchange",
-              MOCK_SERVICE_CLIENT_ID_HEADER_KEY: DEFAULT_CLIENT
-            };
-          })
-          .catch(err => {
-            throw new Error(
-              "Error while initializing mock client\n".concat(err)
-            );
-          })
-      );
-    }
-  }
-
-  get(
-    path: string,
-    pathParameters?: object,
-    queryParameters?: object
-  ): Promise<Response> {
-    return fetch(
-      new Resource(
-        this.baseUri,
-        path,
-        pathParameters,
-        queryParameters
-      ).toString(),
-      { headers: this.headers }
-    );
-  }
-
-  delete(
-    path: string,
-    pathParameters?: object,
-    queryParameters?: object
-  ): Promise<Response> {
-    return fetch(
-      new Resource(
-        this.baseUri,
-        path,
-        pathParameters,
-        queryParameters
-      ).toString(),
-      { method: "delete", headers: this.headers }
-    );
-  }
-
-  post(
-    path: string,
-    pathParameters: object,
-    queryParameters: object,
-    body: any
-  ): Promise<Response> {
-    return fetch(
-      new Resource(
-        this.baseUri,
-        path,
-        pathParameters,
-        queryParameters
-      ).toString(),
-      {
-        method: "post",
-        headers: { "Content-Type": CONTENT_TYPE },
-        body: JSON.stringify(body)
-      }
-    );
+  initializeMockService(): Promise<void> {
+    return getBearer(
+      process.env.ANYPOINT_USERNAME,
+      process.env.ANYPOINT_PASSWORD
+    )
+      .then(token => {
+        console.log(this.fetchOptions);
+        this.fetchOptions = _.merge(this.fetchOptions, {
+          headers: {
+            "ms2-authorization": `bearer ${token}`,
+            "ms2-origin": "Exchange"
+          }
+        });
+      })
+      .catch(err => {
+        throw new Error("Error while initializing mock client\n".concat(err));
+      });
   }
 }
 
@@ -112,5 +61,4 @@ export class ResponseError extends Error {
   }
 }
 
-export { ClientConfig } from "./client-config";
 export { Response } from "node-fetch";

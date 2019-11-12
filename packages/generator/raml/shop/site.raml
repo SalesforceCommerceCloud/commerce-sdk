@@ -7,12 +7,12 @@ description: This is a base shop api for testing purposes
 protocols: https
 mediaType: application/json
 securitySchemes:
-  bearer_token:
-    description: For accessing the API a valid Bearer token must be passed in all the queries in the 'Authorization' header.
+  clientId:
+    description: Add client ID for application identification. Alternative as 'clientId' query parameter.
     type: x-custom
     describedBy:
       headers:
-        Authorization:
+        x-dw-client-id:
           type: string
 
 types:
@@ -195,6 +195,8 @@ types:
 
 /site:
   get:
+    securedBy:
+      - clientId
     displayName: getSite
     description: Access site information, like site status and site content URLs.
     responses:
@@ -384,6 +386,6 @@ types:
           application/json:
             type: product_search_result
     securedBy:
-      - bearer_token
+      - clientId
     (oas-tags):
       - product_search

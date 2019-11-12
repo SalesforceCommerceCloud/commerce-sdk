@@ -1,4 +1,5 @@
-import { BaseClient, ClientConfig, ResponseError } from "@commerce-sdk/core";
+import { StaticClient, BaseClient, ClientConfig, ResponseError, AuthSchemes } from "@commerce-sdk/core";
+
 import {
 {{#each model.declares}}
     {{#eq $classData.name "amf.client.model.domain.NodeShape"}}
@@ -9,72 +10,91 @@ import {
 
 
 export default class extends BaseClient {
-  constructor(config: ClientConfig = new ClientConfig()) {
+  constructor(config: ClientConfig) {
+    super(config);
+
     if (!!!config.baseUri) {
       config.baseUri = "{{servers/0/url}}";
     }
-    super(config);
+    {{#each model.declares}}
+      {{#is ./$classData/name "amf.client.model.domain.SecurityScheme"}}
+        this.authSchemes["{{./name}}"] = new AuthSchemes["{{./name}}"]();
+      {{/is}}
+    {{/each}}
   }
 
 {{#each model.encodes.endPoints}}
-{{#each operations}}
-{{#or (is method "get") (is method "delete") (is method "post")}}
-  /**
-  * {{description}}
-  */
-  {{name}}(parameters = {}{{#is method "post"}}, body: any{{/is}}): Promise<object> {
-    const pathParameters = {
-{{#each ../parameters}}      "{{name}}": parameters["{{name}}"]{{#unless @last}},{{/unless}}
-{{/each}}
-    };
+  {{#each operations}}
+    {{#or (is method "get") (is method "delete") (is method "post")}}
+      /**
+      * {{description}}
+      */
+      {{name}}(parameters = {}{{#is method "post"}}, body: any{{/is}}): Promise<object> {
+        const pathParameters = {
+    {{#each ../parameters}}      
+      "{{name}}": parameters["{{name}}"]{{#unless @last}},{{/unless}}
+    {{/each}}
+        };
 
-{{#if ../parameters}}
-    for (let param in pathParameters) {
-      if (pathParameters[param] === undefined
-          || pathParameters[param] === null) {
-        throw new Error(`Parameter '${param}' is required when calling {{name}}`);
-      }
+    {{#if ../parameters}}
+        for (let param in pathParameters) {
+          if (pathParameters[param] === undefined
+              || pathParameters[param] === null) {
+            throw new Error(`Parameter '${param}' is required when calling {{name}}`);
+          }
+        }
+    {{/if}}
+
+        const queryParameters = {
+    {{#each request/queryParameters}}      
+      "{{name}}": parameters["{{name}}"]{{#unless @last}},{{/unless}}
+    {{/each}}
+        }
+
+        const requiredQueryParameters = [];
+    {{#each request/queryParameters}}
+      {{#is required "true"}} 
+        requiredQueryParameters.push("{{name}}");
+      {{/is}}
+    {{/each}}
+
+    {{#if request/queryParameters}}
+        for (let param in requiredQueryParameters) {
+          if (queryParameters[param] === undefined
+              || queryParameters[param] === null) {
+            throw new Error(`Parameter '${param}' is required when calling {{name}}`);
+          }
+        }
+    {{/if}}
+
+    // @ts-ignore
+    return StaticClient.{{method}}({
+          client: this, 
+          path: "{{../path}}",
+          pathParameters: pathParameters, 
+          queryParameters: queryParameters
+          {{#is method "post"}}, body: body{{/is}}
+          {{getSecurityScheme ", authScheme: " security}}
+        
+      })
+        .then( async(res) => {
+            if (res.ok) {
+            {{#eq (isReturnPayloadDefined . ) false}}
+                return res.json();
+            {{else}}
+                return await res.json().then( (s) => {
+                    return new Promise<{{getReturnPayloadType .}}>( (resolve, reject) => {
+                        resolve({{getReturnPayloadType .}}.instanceFromJson(s));
+                    });
+            });
+            {{/eq}}
+        } else {
+            throw new ResponseError(res);
+        }
+    });
     }
 
-{{/if}}
-    const queryParameters = {
-{{#each request/queryParameters}}      "{{name}}": parameters["{{name}}"]{{#unless @last}},{{/unless}}
-{{/each}}
-    }
-
-    const requiredQueryParameters = [];
-{{#each request/queryParameters}}{{#is required "true"}}    requiredQueryParameters.push("{{name}}");
-{{/is}}{{/each}}
-
-{{#if request/queryParameters}}
-    for (let param in requiredQueryParameters) {
-      if (queryParameters[param] === undefined
-          || queryParameters[param] === null) {
-        throw new Error(`Parameter '${param}' is required when calling {{name}}`);
-      }
-    }
-
-{{/if}}
-// @ts-ignore
-return this.{{method}}("{{../path}}", pathParameters, queryParameters{{#is method "post"}}, body{{/is}})
-    .then( async(res) => {
-        if (res.ok) {
-        {{#eq (isReturnPayloadDefined . ) false}}
-            return res.json();
-        {{else}}
-            return await res.json().then( (s) => {
-                return new Promise<{{getReturnPayloadType .}}>( (resolve, reject) => {
-                    resolve({{getReturnPayloadType .}}.instanceFromJson(s));
-                });
-        });
-        {{/eq}}
-    } else {
-        throw new ResponseError(res);
-    }
- });
-}
-
-{{/or}}
-{{/each}}
+    {{/or}}
+  {{/each}}
 {{/each}}
 }
