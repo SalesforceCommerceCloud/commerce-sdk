@@ -1,34 +1,19 @@
 version: 2
 jobs:
-  build:
-    # working_directory: ~/mern-starter
-    # The primary container is an instance of the first image listed. The job's commands run in this container.
+  test:
     docker:
-      - image: circleci/node:4.8.2-jessie
-    # The secondary container is an instance of the second listed image which is run in a common network where ports exposed on the primary container are available on localhost.
-
+      - image: circleci/node:10.16.0
     steps:
       - checkout
-      - run:
+      - run :
           name: Update npm
           command: 'sudo npm install -g npm@latest'
-      - restore_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
       - run:
           name: Install npm wee
           command: npm install
       - run:
           name: Install npm wee
           command: npm run build
-      - save_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
-          paths:
-            - node_modules
-  test:
-    docker:
-      - image: circleci/node:4.8.2-jessie
-    steps:
-      - checkout
       - run:
           name: build
           command: npm test
@@ -38,9 +23,6 @@ jobs:
 
 workflows:
   version: 2
-  build_and_test:
+  test:
     jobs:
-      - build
       - test:
-          requires:
-            - build
