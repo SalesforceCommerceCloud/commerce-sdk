@@ -1,31 +1,39 @@
 version: 2
 jobs:
-  test10:
+  test:
     docker:
       - image: circleci/node:10.16.0
+
+    working_directory: ~/repo
+
     steps:
       - checkout
-      - run :
-          name: Update npm
-          command: 'sudo npm install -g npm@latest'
       - run:
-          name: Install npm wee
+          name: Update NPM to the latest
+          command: "sudo npm install -g npm@latest"
+
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+
+      - run:
+          name: Install dependencies
           command: npm install
+
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+
       - run:
-          name: Install npm wee
+          name: Build application
           command: npm run build
+
       - run:
-          name: build
-          command: npm test
-      - store_artifacts:
-          path: packages/core/coverage
-      - store_artifacts:
-          path: packages/exchange-connector/coverage
-      - store_artifacts:
-          path: packages/generator/coverage
+          name: Test application
+          command: npm run test
 
 workflows:
   version: 2
   test:
     jobs:
-      - test10
+      - test
