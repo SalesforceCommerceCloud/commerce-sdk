@@ -2,7 +2,7 @@
 
 A mono repo containing the tools needed to be a rockstar commerce cloud developer.
 
-[![CircleCI](https://circleci.com/gh/SalesforceCommerceCloud/commerce-sdk.svg?style=svg)](https://circleci.com/gh/SalesforceCommerceCloud/commerce-sdk)  [![Slack][slack-image]][slack-url]
+[![CircleCI][circleci-image]][circleci-url]
 
 ## Mono repo setup
 
@@ -43,7 +43,6 @@ This is the package that communicates with exchange to download raml files to bu
 
 
 <!-- Markdown link & img dfn's -->
-[jenkins-image]: https://cc-dx-runtimeci.dop.sfdc.net/buildStatus/icon?job=cc-dx-runtime-org%2Fcommerce-sdk%2Fmaster
-[jenkins-url]: https://cc-dx-runtimeci.dop.sfdc.net/job/cc-dx-runtime-org/job/commerce-sdk/job/master/
-[slack-image]: https://img.shields.io/badge/slack-ecom--sdk-e01563.svg?logo=slack
-[slack-url]: https://commercecloud.slack.com/messages/CM8LTEFMX
+[circleci-image]: https://circleci.com/gh/SalesforceCommerceCloud/commerce-sdk.svg?style=svg&circle-token=c68cee5cb20ee75f00cbda1b0eec5b5484c58b2a
+[circleci-url]: https://circleci.com/gh/SalesforceCommerceCloud/commerce-sdk
+
