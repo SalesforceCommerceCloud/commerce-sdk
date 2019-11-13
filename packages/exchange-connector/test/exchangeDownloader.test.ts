@@ -1,4 +1,10 @@
 import { downloadAssets } from "../src/exchangeDownloader";
+import { expect, default as chai } from "chai";
+import chaiAsPromised from "chai-as-promised";
+
+before(() => {
+  chai.use(chaiAsPromised);
+});
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const nodeFetch = require("node-fetch");
@@ -46,9 +52,11 @@ const FILE_LIST = [
 describe("Test Downloads", () => {
   afterEach(fetchMock.restore);
 
-  it("can download", async () => {
+  it("can download", () => {
     const tmpDir = tmp.dirSync();
     fetchMock.get("https://mulesoft/fatraml.zip", 200);
-    downloadAssets(FILE_LIST, tmpDir.name);
+    return downloadAssets(FILE_LIST, tmpDir.name).then(s => {
+      expect(s[0]).to.be.undefined;
+    });
   });
 });
