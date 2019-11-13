@@ -2,7 +2,7 @@
 
 A mono repo containing the tools needed to be a rockstar commerce cloud developer.
 
-[![Build Status][jenkins-image]][jenkins-url]  [![Slack][slack-image]][slack-url]
+[![CircleCI](https://circleci.com/gh/SalesforceCommerceCloud/commerce-sdk.svg?style=svg)](https://circleci.com/gh/SalesforceCommerceCloud/commerce-sdk)  [![Slack][slack-image]][slack-url]
 
 ## Mono repo setup
 
