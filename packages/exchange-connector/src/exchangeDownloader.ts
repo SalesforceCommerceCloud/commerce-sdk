@@ -1,37 +1,46 @@
 import gql from "graphql-tag";
 import "cross-fetch/polyfill";
-// import { graphql } from "graphql";
 import ApolloClient from "apollo-boost";
 
 import { writeFileSync } from "fs";
 
 import fetch from "node-fetch";
 
-export async function downloadAssets(
+export function downloadAssets(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   assets: Array<any>,
   downloadFolder: string
-): Promise<void> {
-  assets.forEach(asset => {
-    asset.files.forEach(async element => {
-      if (element.classifier === "fat-raml") {
-        await fetch(element.externalLink)
-          .then(x => x.arrayBuffer())
-          .then(x =>
-            writeFileSync(
-              `${downloadFolder ? downloadFolder : "download"}/${
-                asset.assetId
-              }`,
-              Buffer.from(x)
-            )
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Promise<any> {
+  return new Promise((resolve, reject) => {
+    const promises: Promise<any>[] = [];
+    const downloadedFolder = downloadFolder ? downloadFolder : "download";
+
+    assets.forEach(asset => {
+      const zipFilePath = `${downloadedFolder}/${asset.assetId}.zip`;
+
+      asset.files.forEach(element => {
+        if (element.classifier === "fat-raml") {
+          promises.push(
+            fetch(element.externalLink)
+              .then(result => {
+                return result.arrayBuffer();
+              })
+              .then(x => {
+                writeFileSync(zipFilePath, Buffer.from(x));
+              })
+              .catch(e => {
+                reject(e);
+              })
           );
-      }
+        }
+      });
     });
+    return Promise.all(promises).then(resolve);
   });
-  return;
 }
 
-export async function getRamlByTag(
+export function getRamlByTag(
   accessToken: string,
   tag: string,
   downloadFolder?: string
@@ -47,6 +56,7 @@ export async function getRamlByTag(
             query: { type: "rest-api", tags: [{ value: "${tag}" }] }
             latestVersionsOnly: true
           ) {
+            assetId
             files {
               externalLink
               classifier
@@ -60,8 +70,11 @@ export async function getRamlByTag(
         accessToken: accessToken
       }
     })
-    .then(async data => {
-      await downloadAssets(data.data.assets, downloadFolder);
+    .then(data => {
+      if (data && data.data) {
+        return downloadAssets(data.data.assets, downloadFolder);
+      }
+      return Promise.resolve();
     })
     .catch(error => console.error(error));
 }

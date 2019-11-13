@@ -41,7 +41,6 @@ export class BaseClient {
       process.env.ANYPOINT_PASSWORD
     )
       .then(token => {
-        console.log(this.fetchOptions);
         this.fetchOptions = _.merge(this.fetchOptions, {
           headers: {
             "ms2-authorization": `bearer ${token}`,

@@ -1,5 +1,11 @@
 import { getBearer } from "../src";
-import { assert } from "chai";
+import { expect, default as chai } from "chai";
+import chaiAsPromised from "chai-as-promised";
+import { processRamlFile } from "../../generator/src/parser";
+
+before(() => {
+  chai.use(chaiAsPromised);
+});
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const nodeFetch = require("node-fetch");
@@ -19,7 +25,7 @@ if (typeof nodeFetch.default.getNativeFetch === "function") {
 describe("Test Auth", () => {
   afterEach(fetchMock.restore);
 
-  it("Test getting token", async () => {
+  it("Test getting token", () => {
     fetchMock.post("*", {
       status: 200,
       body: {
@@ -27,43 +33,28 @@ describe("Test Auth", () => {
         access_token: "AUTH_TOKEN_HERE"
       }
     });
-    const token = await getBearer("user", "pass");
-    assert.equal(token, "AUTH_TOKEN_HERE");
+    return getBearer("user", "pass").then(s => {
+      expect(s).to.equals("AUTH_TOKEN_HERE");
+    });
   });
 
-  it("Test failed auth", async () => {
+  it("Test failed auth bad user/password", () => {
     fetchMock.post("*", {
       status: 401,
       body: "Unauthorized"
     });
-
-    return getBearer("user", "badpass")
-      .then(res => {
-        assert.isDefined(
-          res,
-          "We should not be here! Because we should have failed"
-        );
-      })
-      .catch(res => {
-        assert.equal(res.message, "Invalid username/password");
-      });
+    expect(getBearer("user", "badpass")).to.be.eventually.rejectedWith(
+      new Error("Invalid username/password")
+    );
   });
 
-  it("Test failed auth", async () => {
+  it("Test failed auth unknown error", () => {
     fetchMock.post("*", {
       status: 500,
       body: "Unknown Error"
     });
-
-    return getBearer("user", "badpass")
-      .then(res => {
-        assert.isDefined(
-          res,
-          "We should not be here! Because we should have failed"
-        );
-      })
-      .catch(res => {
-        assert.equal(res.message, "Unknown Error 500: Internal Server Error");
-      });
+    expect(getBearer("user", "badpass")).to.be.eventually.rejectedWith(
+      new Error("Unknown Error 500: Internal Server Error")
+    );
   });
 });
