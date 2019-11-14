@@ -1,31 +1,16 @@
-version: 2
 jobs:
-  test10:
-    docker:
-      - image: circleci/node:10.16.0
+  build:
+    executor:
+      name: node/default
+      tag: '10.16'
     steps:
       - checkout
-      - run :
-          name: Update npm
-          command: 'sudo npm install -g npm@latest'
-      - run:
-          name: Install npm wee
-          command: npm install
-      - run:
-          name: Install npm wee
-          command: npm run build
-      - run:
-          name: build
-          command: npm test
-      - store_artifacts:
-          path: packages/core/coverage
-      - store_artifacts:
-          path: packages/exchange-connector/coverage
-      - store_artifacts:
-          path: packages/generator/coverage
+      - node/with-cache:
+          steps:
+            - run: npm install
+      - run: npm run build
+      - run: npm run test
+orbs:
+  node: circleci/node@1.1
+version: 2.1
 
-workflows:
-  version: 2
-  test:
-    jobs:
-      - test10
