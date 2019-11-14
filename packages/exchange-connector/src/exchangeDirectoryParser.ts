@@ -26,7 +26,7 @@ export function extractFiles(directory: string): Promise<any> {
                 )
               })
               .on("error", reject)
-              .on("finish", resolve)
+              .on("close", resolve)
           );
         })
       );
