@@ -16,25 +16,28 @@ before(() => {
   chai.use(chaiAsPromised);
 });
 
-import { BaseClient, ResponseError } from "../src/base/client";
+import { BaseClient } from "../src/base/client";
+import {
+  _delete,
+  _get,
+  _post,
+  _put,
+  ResponseError
+} from "../src/base/static-client";
 
 describe("base client get test", () => {
+  afterEach(fetchMock.restore);
+
   it("makes correct call", () => {
     const client = new BaseClient({ baseUri: "https://somewhere" });
-
     fetchMock.get("*", { status: 200, body: { mock: "data" } });
 
-    return client
-      .get("/over/the/rainbow")
-      .then(data => {
-        expect(data).to.eql({ mock: "data" });
-        expect(fetchMock.lastUrl()).to.equal(
-          "https://somewhere/over/the/rainbow"
-        );
-      })
-      .finally(() => {
-        fetchMock.restore();
-      });
+    return _get({ client: client, path: "/over/the/rainbow" }).then(data => {
+      expect(data).to.eql({ mock: "data" });
+      expect(fetchMock.lastUrl()).to.equal(
+        "https://somewhere/over/the/rainbow"
+      );
+    });
   });
 });
 
@@ -49,8 +52,11 @@ describe("base client delete test", () => {
   it("deletes resource and returns 200", () => {
     fetchMock.delete("*", 200);
 
-    return client.delete("/over/the/rainbow").then(() => {
-      expect(fetchMock.lastUrl()).to.equal(
+    return _delete({
+      client: client,
+      path: "/over/the/rainbow"
+    }).then(res => {
+      expect(fetchMock.lastUrl()).to.be.equal(
         "https://somewhere/over/the/rainbow"
       );
     });
@@ -59,16 +65,21 @@ describe("base client delete test", () => {
   it("is not ok when attempting to delete nonexistent resource", () => {
     fetchMock.delete("*", 404);
 
-    return client
-      .delete("/over/the/rainbow")
-      .should.eventually.be.rejectedWith(ResponseError);
+    return _delete({
+      client: client,
+      path: "/over/the/rainbow"
+    }).should.eventually.be.rejectedWith(ResponseError);
   });
 
   it("deletes resource with id and returns 200", () => {
     fetchMock.delete("*", 200);
 
-    return client.delete("/over/the/{id}", { id: "rainbow" }).then(() => {
-      expect(fetchMock.lastUrl()).to.equal(
+    return _delete({
+      client: client,
+      path: "/over/the/{id}",
+      pathParameters: { id: "rainbow" }
+    }).then(res => {
+      expect(fetchMock.lastUrl()).to.be.equal(
         "https://somewhere/over/the/rainbow"
       );
     });
@@ -77,8 +88,12 @@ describe("base client delete test", () => {
   it("deletes resource with id in query param and returns 200", () => {
     fetchMock.delete("*", 200);
 
-    return client.delete("/over/the/", {}, { id: "rainbow" }).then(() => {
-      expect(fetchMock.lastUrl()).to.equal(
+    return _delete({
+      client: client,
+      path: "/over/the/",
+      queryParameters: { id: "rainbow" }
+    }).then(res => {
+      expect(fetchMock.lastUrl()).to.be.equal(
         "https://somewhere/over/the/?id=rainbow"
       );
     });
@@ -96,8 +111,12 @@ describe("base client post test", () => {
   it("post resource and returns 201", () => {
     fetchMock.post("*", 201);
 
-    return client.post("/over/the/rainbow", {}, {}, {}).then(() => {
-      expect(fetchMock.lastUrl()).to.equal(
+    return _post({
+      client: client,
+      path: "/over/the/rainbow",
+      body: {}
+    }).then(res => {
+      expect(fetchMock.lastUrl()).to.be.equal(
         "https://somewhere/over/the/rainbow"
       );
     });
@@ -106,27 +125,36 @@ describe("base client post test", () => {
   it("is not ok when attempting to post nonexistent collection", () => {
     fetchMock.post("*", 404);
 
-    return client
-      .post("/over/the/rainbow", {}, {}, {})
-      .should.eventually.be.rejectedWith(ResponseError);
+    return _post({
+      client: client,
+      path: "/over/the/rainbow",
+      body: { location: "oz" }
+    }).should.eventually.be.rejectedWith(ResponseError);
   });
 
   it("post resource with body and returns 201", () => {
     fetchMock.post("*", 201);
 
-    return client.post("/over/the", {}, {}, { id: "rainbow" }).then(() => {
-      expect(fetchMock.lastUrl()).to.equal("https://somewhere/over/the");
+    return _post({
+      client: client,
+      path: "/over/the",
+      body: { location: "oz" }
+    }).then(res => {
+      expect(fetchMock.lastUrl()).to.be.equal("https://somewhere/over/the");
     });
   });
 
   it("post resource with site id in query param, body and returns 201", () => {
     fetchMock.post("*", 201);
 
-    return client
-      .post("/over", {}, { id: "the" }, { content: "rainbow" })
-      .then(() => {
-        expect(fetchMock.lastUrl()).to.equal("https://somewhere/over?id=the");
-      });
+    return _post({
+      client: client,
+      path: "/over",
+      queryParameters: { id: "the" },
+      body: { content: "rainbow" }
+    }).then(res => {
+      expect(fetchMock.lastUrl()).to.be.equal("https://somewhere/over?id=the");
+    });
   });
 });
 
@@ -141,25 +169,33 @@ describe("base client put test", () => {
   it("put resource and returns 201", () => {
     fetchMock.put("*", 201);
 
-    return client.put("/over/the/rainbow", {}, {}, {}).then(() => {
-      expect(fetchMock.lastUrl()).to.equal(
-        "https://somewhere/over/the/rainbow"
-      );
-    });
+    return _put({ client: client, path: "/over/the/rainbow", body: {} }).then(
+      () => {
+        expect(fetchMock.lastUrl()).to.equal(
+          "https://somewhere/over/the/rainbow"
+        );
+      }
+    );
   });
 
   it("is not ok when attempting to put nonexistent resource", () => {
     fetchMock.put("*", 404);
 
-    return client
-      .put("/over/the/rainbow", {}, {}, {})
-      .should.eventually.be.rejectedWith(ResponseError);
+    return _put({
+      client: client,
+      path: "/over/the/rainbow",
+      body: {}
+    }).should.eventually.be.rejectedWith(ResponseError);
   });
 
   it("put resource with body and returns 200", () => {
     fetchMock.put("*", 200);
 
-    return client.put("/over/the", {}, {}, { id: "rainbow" }).then(() => {
+    return _put({
+      client: client,
+      path: "/over/the",
+      body: {}
+    }).then(() => {
       expect(fetchMock.lastUrl()).to.equal("https://somewhere/over/the");
     });
   });
@@ -167,7 +203,11 @@ describe("base client put test", () => {
   it("put resource with body and returns 204", () => {
     fetchMock.put("*", 204);
 
-    return client.put("/over/the", {}, {}, { id: "rainbow" }).then(() => {
+    return _put({
+      client: client,
+      path: "/over/the",
+      body: {}
+    }).then(() => {
       expect(fetchMock.lastUrl()).to.equal("https://somewhere/over/the");
     });
   });
@@ -175,10 +215,13 @@ describe("base client put test", () => {
   it("put resource with site id in query param, body and returns 201", () => {
     fetchMock.put("*", 201);
 
-    return client
-      .put("/over", {}, { id: "the" }, { content: "rainbow" })
-      .then(() => {
-        expect(fetchMock.lastUrl()).to.equal("https://somewhere/over?id=the");
-      });
+    return _put({
+      client: client,
+      path: "/over",
+      queryParameters: { id: "the" },
+      body: { content: "rainbow" }
+    }).then(() => {
+      expect(fetchMock.lastUrl()).to.equal("https://somewhere/over?id=the");
+    });
   });
 });

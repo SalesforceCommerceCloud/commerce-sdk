@@ -8,17 +8,15 @@
     "pretest": "npm run lint",
     "test": "nyc cross-env TS_NODE_FILES=true mocha --exit --require ts-node/register --colors test/**/*.ts",
     "build": "tsc",
-    "lint": "eslint \"**/*.{js,ts}\" --quiet --fix"
+    "lint": "eslint \"**/*.ts\" --quiet --fix"
   },
   "nyc": {
+    "extends": "@istanbuljs/nyc-config-typescript",
     "exclude": [
-      "release",
       "coverage",
       "dist",
       "test",
-      "gulpfile.ts",
-      "src/core/index.ts",
-      "src/utils/renderer.ts"
+      "src/core/index.ts"
     ],
     "reporter": [
       "html",
@@ -67,7 +65,14 @@
       ]
     }
   },
+  "devDependencies": {
+    "@commerce-sdk/exchange-connector": "^1.0.1-alpha.0",
+    "cross-env": "^6.0.3",
+    "dotenv": "^8.2.0",
+    "mocha": "^6.2.2",
+    "nyc": "^14.1.1"
+  },
   "author": "",
   "license": "ISC",
-  "gitHead": "a1ce46a1a70e7ec09357bf8b6889a8d208a34063"
+  "gitHead": "a1ce46a1a70e7ec09357bf8b6889a8d208a34063",
 }

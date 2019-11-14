@@ -1,104 +1,57 @@
-import { default as fetch, Response } from "node-fetch";
-import { ClientConfig } from "./client-config";
-import { Resource } from "./resource";
+import { RequestInit } from "node-fetch";
+import { IAuthScheme } from "./auth-schemes";
+import _ from "lodash";
 
-const CONTENT_TYPE = "application/json";
+import { config } from "dotenv";
+import { getBearer } from "@commerce-sdk/exchange-connector";
 
-export class ResponseError extends Error {
-  constructor(public response: Response) {
-    super(`${response.status} ${response.statusText}`);
-  }
-}
+/**
+ * dotenv config loads environmental variables.
+ */
+config();
+
+export type ClientConfig = {
+  authHost?: string;
+  baseUri?: string;
+  clientId?: string;
+  clientSecret?: string;
+};
+
+const DEFAULT_CLIENT_CONFIG: ClientConfig = {
+  authHost: "https://account-pod5.demandware.net"
+};
 
 export class BaseClient {
-  public baseUri: string;
+  public clientConfig: ClientConfig;
+  public authSchemes: {
+    [x: string]: IAuthScheme;
+  };
 
-  constructor(config: ClientConfig) {
-    this.baseUri = config.baseUri as string;
+  public fetchOptions: RequestInit;
+
+  constructor(config?: ClientConfig) {
+    this.clientConfig = _.merge(DEFAULT_CLIENT_CONFIG, config);
+    this.fetchOptions = {};
   }
 
-  get(
-    path: string,
-    pathParameters?: object,
-    queryParameters?: object
-  ): Promise<any> {
-    return fetch(
-      new Resource(
-        this.baseUri,
-        path,
-        pathParameters,
-        queryParameters
-      ).toString()
-    ).then(this.getJsonFromResponse);
-  }
+  async initializeMockService(): Promise<void> {
+    try {
+      const token = await getBearer(
+        process.env.ANYPOINT_USERNAME,
+        process.env.ANYPOINT_PASSWORD
+      );
 
-  delete(
-    path: string,
-    pathParameters?: object,
-    queryParameters?: object
-  ): Promise<any> {
-    return fetch(
-      new Resource(
-        this.baseUri,
-        path,
-        pathParameters,
-        queryParameters
-      ).toString(),
-      { method: "delete" }
-    ).then(this.getJsonFromResponse);
-  }
-
-  post(
-    path: string,
-    pathParameters: object,
-    queryParameters: object,
-    body: any
-  ): Promise<any> {
-    return fetch(
-      new Resource(
-        this.baseUri,
-        path,
-        pathParameters,
-        queryParameters
-      ).toString(),
-      {
-        method: "post",
-        headers: { "Content-Type": CONTENT_TYPE },
-        body: JSON.stringify(body)
-      }
-    ).then(this.getJsonFromResponse);
-  }
-
-  put(
-    path: string,
-    pathParameters: object,
-    queryParameters: object,
-    body: any
-  ): Promise<any> {
-    return fetch(
-      new Resource(
-        this.baseUri,
-        path,
-        pathParameters,
-        queryParameters
-      ).toString(),
-      {
-        method: "put",
-        headers: { "Content-Type": CONTENT_TYPE },
-        body: JSON.stringify(body)
-      }
-    ).then(this.getJsonFromResponse);
-  }
-
-  getJsonFromResponse(response: Response): Promise<any> {
-    if (response.ok) {
-      // It's ideal to get "{}" for an empty response body, but we won't throw if it's truly empty
-      return response.text().then(text => (text ? JSON.parse(text) : {}));
-    } else {
-      throw new ResponseError(response);
+      this.fetchOptions = _.merge(this.fetchOptions, {
+        headers: {
+          "ms2-authorization": `bearer ${token}`,
+          "ms2-origin": "Exchange"
+        }
+      });
+    } catch (err) {
+      throw new Error("Error while initializing mock client\n".concat(err));
     }
   }
 }
 
-export { ClientConfig } from "./client-config";
 export { Response } from "node-fetch";
+export { ResponseError } from "./static-client";

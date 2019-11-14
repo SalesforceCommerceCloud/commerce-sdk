@@ -11,6 +11,7 @@ import {
   isObjectProperty,
   getArrayElementTypeProperty,
   getReturnPayloadType,
+  getSecurityScheme,
   isReturnPayloadDefined,
   getValue,
   onlyRequired,
@@ -72,6 +73,8 @@ Handlebars.registerHelper("isObjectProperty", isObjectProperty);
 Handlebars.registerHelper("getArrayElementType", getArrayElementTypeProperty);
 
 Handlebars.registerHelper("getReturnPayloadType", getReturnPayloadType);
+
+Handlebars.registerHelper("getSecurityScheme", getSecurityScheme);
 
 Handlebars.registerHelper("isReturnPayloadDefined", isReturnPayloadDefined);
 

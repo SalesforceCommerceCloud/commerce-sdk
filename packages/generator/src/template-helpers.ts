@@ -6,6 +6,8 @@ import {
   RESPONSE_DATA_TYPE
 } from "./config";
 
+import { AuthSchemes } from "@commerce-sdk/core";
+
 const isValidProperty = function(property: any): boolean {
   return (
     property !== undefined && property !== null && property.range !== undefined
@@ -104,6 +106,26 @@ export const getReturnPayloadType = function(operation: any): string {
     return okResponses[0].payloads[0].schema.inherits[0].linkTarget.name.value();
   }
   return RESPONSE_DATA_TYPE;
+};
+
+export const getSecurityScheme = function(
+  prefix: string,
+  security: any
+): string {
+  let scheme = "";
+  if (security.length > 0) {
+    for (const secScheme of security) {
+      const tmpScheme = secScheme.scheme.name.value();
+
+      // Ensures we found an auth scheme that we support
+      // This current only supports a SINGLE auth scheme at a time, need to figure out the best way of supporting multiple
+      if (AuthSchemes.hasOwnProperty(tmpScheme)) {
+        scheme = `${prefix} this.authSchemes.${tmpScheme}`;
+        break;
+      }
+    }
+  }
+  return scheme;
 };
 
 const getDataTypeFromMap = function(uuidDataType: string): string {
