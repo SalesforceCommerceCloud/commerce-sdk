@@ -31,7 +31,7 @@ export class BaseClient {
 
   constructor(config?: ClientConfig) {
     this.clientConfig = _.merge(DEFAULT_CLIENT_CONFIG, config);
-    // this.authSchemes = {};
+    this.authSchemes = {};
     this.fetchOptions = {};
   }
 
@@ -44,7 +44,8 @@ export class BaseClient {
         this.fetchOptions = _.merge(this.fetchOptions, {
           headers: {
             "ms2-authorization": `bearer ${token}`,
-            "ms2-origin": "Exchange"
+            "ms2-origin": "Exchange",
+            "x-dw-client-id": "mock-client"
           }
         });
       })

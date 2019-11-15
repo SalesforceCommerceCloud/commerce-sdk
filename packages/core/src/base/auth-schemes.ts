@@ -29,10 +29,13 @@ export class AccountManager implements IAuthScheme {
   }
 
   async injectAuth(options: RequestInit): Promise<RequestInit> {
-    await this.refresh();
     if (!options.headers) {
       options["headers"] = {};
     }
+    if (options.headers["ms2-authorization"]) {
+      return options;
+    }
+    await this.refresh();
 
     if (!("Authentication" in options.headers)) {
       options.headers[
