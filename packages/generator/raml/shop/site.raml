@@ -14,6 +14,13 @@ securitySchemes:
       headers:
         x-dw-client-id:
           type: string
+  clientId:
+    description: Add client ID for application identification. Alternative as 'clientId' query parameter.
+    type: x-custom
+    describedBy:
+      headers:
+        x-dw-client-id:
+          type: string
 
 types:
   ClassA:
@@ -40,6 +47,18 @@ types:
       property5:
         type: string
         description: String datatype
+
+  password_change_request:
+    description: Document representing a password change request.
+    properties:
+      current_password:
+        description: The customer's current password.
+        maxLength: 4096
+        type: string
+      password:
+        description: The customer's new password.
+        maxLength: 4096
+        type: string
 
   search_request:
     description: Document representing a search request for retrieving items within the Data API. The query is a potentially complex set of expressions. The fields that each query supports are defined within the search resource.
@@ -389,3 +408,24 @@ types:
       - clientId
     (oas-tags):
       - product_search
+
+  /password:
+    put:
+      description: Updates the customer's password.
+      displayName: updateCustomerPassword
+      responses:
+        '204':
+          description: No Content
+      headers:
+        Authorization:
+          description: the JWT token
+          type: string
+          required: false
+      body:
+        application/json:
+          type: password_change_request
+          (oas-body-name): body
+      securedBy:
+        - clientId
+      (oas-tags):
+        - customers

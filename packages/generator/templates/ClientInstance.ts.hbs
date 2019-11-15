@@ -9,7 +9,7 @@ import {
 } from "./{{apiSpec}}.types";
 
 
-export default class extends BaseClient {
+export class Client extends BaseClient {
   constructor(config: ClientConfig) {
     super(config);
 
@@ -25,11 +25,14 @@ export default class extends BaseClient {
 
 {{#each model.encodes.endPoints}}
   {{#each operations}}
-    {{#or (is method "get") (is method "delete") (is method "post")}}
+    {{#or (is method "get") (is method "delete") (is method "post") (is method "put")}}
       /**
       * {{description}}
       */
-      {{name}}(parameters = {}{{#is method "post"}}, body: any{{/is}}): Promise<object> {
+      {{name}}(
+        parameters = {}{{#or (is method "post") (is method "put")}}, body: {{request.payloads.[0].schema.inherits.[0].linkTarget.name}}{{/or}}
+      ): Promise<{{#if (eq (isReturnPayloadDefined .) true)}}{{getReturnPayloadType .}}{{else}}object{{/if}}> {
+
         const pathParameters = {
     {{#each ../parameters}}      
       "{{name}}": parameters["{{name}}"]{{#unless @last}},{{/unless}}
@@ -72,29 +75,13 @@ export default class extends BaseClient {
           client: this, 
           path: "{{../path}}",
           pathParameters: pathParameters, 
-          queryParameters: queryParameters
-          {{#is method "post"}}, body: body{{/is}}
-          {{getSecurityScheme ", authScheme: " security}}
-        
-      })
-        .then( async(res) => {
-            if (res.ok) {
-            {{#eq (isReturnPayloadDefined . ) false}}
-                return res.json();
-            {{else}}
-                return await res.json().then( (s) => {
-                    return new Promise<{{getReturnPayloadType .}}>( (resolve, reject) => {
-                        resolve({{getReturnPayloadType .}}.instanceFromJson(s));
-                    });
-            });
-            {{/eq}}
-        } else {
-            throw new ResponseError(res);
-        }
-    });
+          queryParameters: queryParameters{{#or (is method "post") (is method "put")}}, body: body{{/or}}{{getSecurityScheme ", authScheme: " security}}
+      });
     }
 
     {{/or}}
   {{/each}}
 {{/each}}
 }
+
+export default Client;
