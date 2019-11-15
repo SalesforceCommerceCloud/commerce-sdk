@@ -1,4 +1,4 @@
-import { Response, RequestInit } from "node-fetch";
+import { RequestInit } from "node-fetch";
 import { IAuthScheme } from "./auth-schemes";
 import _ from "lodash";
 
@@ -31,34 +31,27 @@ export class BaseClient {
 
   constructor(config?: ClientConfig) {
     this.clientConfig = _.merge(DEFAULT_CLIENT_CONFIG, config);
-    this.authSchemes = {};
     this.fetchOptions = {};
   }
 
-  initializeMockService(): Promise<void> {
-    return getBearer(
-      process.env.ANYPOINT_USERNAME,
-      process.env.ANYPOINT_PASSWORD
-    )
-      .then(token => {
-        this.fetchOptions = _.merge(this.fetchOptions, {
-          headers: {
-            "ms2-authorization": `bearer ${token}`,
-            "ms2-origin": "Exchange",
-            "x-dw-client-id": "mock-client"
-          }
-        });
-      })
-      .catch(err => {
-        throw new Error("Error while initializing mock client\n".concat(err));
-      });
-  }
-}
+  async initializeMockService(): Promise<void> {
+    try {
+      const token = await getBearer(
+        process.env.ANYPOINT_USERNAME,
+        process.env.ANYPOINT_PASSWORD
+      );
 
-export class ResponseError extends Error {
-  constructor(public response: Response) {
-    super(`${response.status} ${response.statusText}`);
+      this.fetchOptions = _.merge(this.fetchOptions, {
+        headers: {
+          "ms2-authorization": `bearer ${token}`,
+          "ms2-origin": "Exchange"
+        }
+      });
+    } catch (err) {
+      throw new Error("Error while initializing mock client\n".concat(err));
+    }
   }
 }
 
 export { Response } from "node-fetch";
+export { ResponseError } from "./static-client";
