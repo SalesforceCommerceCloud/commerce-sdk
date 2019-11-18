@@ -136,15 +136,4 @@ describe("Test account manager auth", () => {
         });
     });
   });
-
-  it("Inject auth returns options when client is mocked", () => {
-    am.injectAuth({
-      headers: {
-        "ms2-authorization": "bearer mock token"
-      }
-    }).then(res => {
-      expect(res.headers["ms2-authorization"]).to.be.equal("bearer mock token");
-      expect(getTokenStub.called).to.be.false;
-    });
-  });
 });
