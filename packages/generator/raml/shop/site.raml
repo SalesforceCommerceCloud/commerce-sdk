@@ -6,21 +6,6 @@ version: v1
 description: This is a base shop api for testing purposes
 protocols: https
 mediaType: application/json
-securitySchemes:
-  clientId:
-    description: Add client ID for application identification. Alternative as 'clientId' query parameter.
-    type: x-custom
-    describedBy:
-      headers:
-        x-dw-client-id:
-          type: string
-  clientId:
-    description: Add client ID for application identification. Alternative as 'clientId' query parameter.
-    type: x-custom
-    describedBy:
-      headers:
-        x-dw-client-id:
-          type: string
 
 types:
   ClassA:
@@ -85,13 +70,6 @@ types:
       query:
         description: The query to apply
         type: query
-        (sub_types):
-          nested_query: '#/definitions/nested_query'
-          filtered_query: '#/definitions/filtered_query'
-          text_query: '#/definitions/text_query'
-          match_all_query: '#/definitions/match_all_query'
-          term_query: '#/definitions/term_query'
-          bool_query: '#/definitions/bool_query'
       select:
         description: The field to be selected.
         type: string
@@ -148,13 +126,6 @@ types:
       query:
         description: The query passed into the search
         type: query
-        (sub_types):
-          nested_query: '#/definitions/nested_query'
-          filtered_query: '#/definitions/filtered_query'
-          text_query: '#/definitions/text_query'
-          match_all_query: '#/definitions/match_all_query'
-          term_query: '#/definitions/term_query'
-          bool_query: '#/definitions/bool_query'
       select:
         description: The fields that you want to select.
         type: string
@@ -214,8 +185,6 @@ types:
 
 /site:
   get:
-    securedBy:
-      - clientId
     displayName: getSite
     description: Access site information, like site status and site content URLs.
     responses:
@@ -397,17 +366,12 @@ types:
     body:
       application/json:
         type: search_request
-        (oas-body-name): body
     responses:
       '201':
         description: Created
         body:
           application/json:
             type: product_search_result
-    securedBy:
-      - clientId
-    (oas-tags):
-      - product_search
 
   /password:
     put:
@@ -424,8 +388,3 @@ types:
       body:
         application/json:
           type: password_change_request
-          (oas-body-name): body
-      securedBy:
-        - clientId
-      (oas-tags):
-        - customers
