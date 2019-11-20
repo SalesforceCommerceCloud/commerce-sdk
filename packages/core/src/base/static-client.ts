@@ -77,6 +77,30 @@ export function _delete(options: {
   return runFetch(resource, fetchOptions, options.authScheme);
 }
 
+export function _patch(options: {
+  client: BaseClient;
+  path: string;
+  pathParameters?: object;
+  queryParameters?: object;
+  authScheme?: IAuthScheme;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  body: any;
+}): Promise<object> {
+  const fetchOptions: RequestInit = _.merge(options.client.fetchOptions, {
+    method: "patch",
+    headers: { "Content-Type": CONTENT_TYPE },
+    body: JSON.stringify(options.body)
+  });
+  const resource = new Resource(
+    options.client.clientConfig.baseUri,
+    options.path,
+    options.pathParameters,
+    options.queryParameters
+  ).toString();
+
+  return runFetch(resource, fetchOptions, options.authScheme);
+}
+
 export function _post(options: {
   client: BaseClient;
   path: string;

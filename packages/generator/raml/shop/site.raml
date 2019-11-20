@@ -183,6 +183,47 @@ types:
         type: integer
         format: int32
 
+customer_product_list_item:
+    description: Document representing a customer product list item.
+    properties:
+      id:
+        description: The id of this product list item.
+        type: string
+      priority:
+        description: The priority of the item.
+        type: integer
+        format: int32
+      product:
+        description: The product item
+        type: product
+        required: false
+      product_details_link:
+        description: A link to the product.
+        type: product_simple_link
+        required: false
+      product_id:
+        description: The id of the product.
+        type: string
+        required: false
+      public:
+        description: Is this product list item available for access by other customers?
+        type: boolean
+      purchased_quantity:
+        description: The quantity of products already purchased.
+        type: number
+        format: double
+      quantity:
+        description: The quantity of this product list item.
+        minimum: 0
+        type: number
+        format: double
+      type:
+        description: The type of the item.
+        type: string
+        enum:
+          - product
+          - gift_certificate
+
 /site:
   get:
     displayName: getSite
@@ -387,3 +428,26 @@ types:
       body:
         application/json:
           type: password_change_request
+
+  /patch:
+    '/{itemId}':
+      patch:
+        description: |-
+          Updates an item of a customer's product list.
+            Considered values from the request body are:
+
+            priority: This is the priority of the customer's product list item.
+            public: This is the flag whether the customer's product list item is public.
+            quantity: used for product item type only. This is the quantity of
+            the customer's product list item.
+            custom properties in the form c_<CUSTOM_NAME>: the custom property
+            must correspond to a custom attribute (<CUSTOM_NAME>) defined for ProductListItem.
+            The value of this property must be valid for the type of custom attribute defined for ProductListItem.
+
+        displayName: updateCustomerProductListItem
+        responses:
+          '200':
+            description: Success
+            body:
+              application/json:
+                type: customer_product_list_item

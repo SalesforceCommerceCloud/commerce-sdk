@@ -25,12 +25,11 @@ export class Client extends BaseClient {
 
 {{#each model.encodes.endPoints}}
   {{#each operations}}
-    {{#or (is method "get") (is method "delete") (is method "post") (is method "put")}}
       /**
       * {{description}}
       */
       {{name}}(
-        parameters = {}{{#or (is method "post") (is method "put")}}, body: {{request.payloads.[0].schema.inherits.[0].linkTarget.name}}{{/or}}
+        parameters = {}{{#or (is method "patch") (is method "post") (is method "put")}}, body: {{default request.payloads.[0].schema.inherits.[0].linkTarget.name "object"}}{{/or}}
       ): Promise<{{#if (eq (isReturnPayloadDefined .) true)}}{{getReturnPayloadType .}}{{else}}object{{/if}}> {
 
         const pathParameters = {
@@ -75,11 +74,10 @@ export class Client extends BaseClient {
           client: this, 
           path: "{{../path}}",
           pathParameters: pathParameters, 
-          queryParameters: queryParameters{{#or (is method "post") (is method "put")}}, body: body{{/or}}{{getSecurityScheme ", authScheme: " security}}
+          queryParameters: queryParameters{{#or (is method "patch") (is method "post") (is method "put")}}, body: body{{/or}}{{getSecurityScheme ", authScheme: " security}}
       });
     }
 
-    {{/or}}
   {{/each}}
 {{/each}}
 }
