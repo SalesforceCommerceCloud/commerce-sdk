@@ -413,41 +413,41 @@ types:
         body:
           application/json:
             type: product_search_result
-  /password:
-    put:
-      description: Updates the customer's password.
-      displayName: updateCustomerPassword
+/password:
+  put:
+    description: Updates the customer's password.
+    displayName: updateCustomerPassword
+    responses:
+      '204':
+        description: No Content
+    headers:
+      Authorization:
+        description: the JWT token
+        type: string
+        required: false
+    body:
+      application/json:
+        type: password_change_request
+
+/patch:
+  '/{itemId}':
+    patch:
+      description: |-
+        Updates an item of a customer's product list.
+          Considered values from the request body are:
+
+          priority: This is the priority of the customer's product list item.
+          public: This is the flag whether the customer's product list item is public.
+          quantity: used for product item type only. This is the quantity of
+          the customer's product list item.
+          custom properties in the form c_<CUSTOM_NAME>: the custom property
+          must correspond to a custom attribute (<CUSTOM_NAME>) defined for ProductListItem.
+          The value of this property must be valid for the type of custom attribute defined for ProductListItem.
+
+      displayName: updateCustomerProductListItem
       responses:
-        '204':
-          description: No Content
-      headers:
-        Authorization:
-          description: the JWT token
-          type: string
-          required: false
-      body:
-        application/json:
-          type: password_change_request
-
-  /patch:
-    '/{itemId}':
-      patch:
-        description: |-
-          Updates an item of a customer's product list.
-            Considered values from the request body are:
-
-            priority: This is the priority of the customer's product list item.
-            public: This is the flag whether the customer's product list item is public.
-            quantity: used for product item type only. This is the quantity of
-            the customer's product list item.
-            custom properties in the form c_<CUSTOM_NAME>: the custom property
-            must correspond to a custom attribute (<CUSTOM_NAME>) defined for ProductListItem.
-            The value of this property must be valid for the type of custom attribute defined for ProductListItem.
-
-        displayName: updateCustomerProductListItem
-        responses:
-          '200':
-            description: Success
-            body:
-              application/json:
-                type: customer_product_list_item
+        '200':
+          description: Success
+          body:
+            application/json:
+              type: customer_product_list_item
