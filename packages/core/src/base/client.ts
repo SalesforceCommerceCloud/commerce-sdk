@@ -36,7 +36,8 @@ export class BaseClient {
   public fetchOptions: RequestInit;
 
   constructor(config?: ClientConfig) {
-    this.clientConfig = _.merge(DEFAULT_CLIENT_CONFIG, config);
+    this.clientConfig = {};
+    _.merge(this.clientConfig, DEFAULT_CLIENT_CONFIG, config);
     this.fetchOptions = {};
   }
 
@@ -47,7 +48,7 @@ export class BaseClient {
         process.env.ANYPOINT_PASSWORD
       );
 
-      this.fetchOptions = _.merge(this.fetchOptions, {
+      _.merge(this.fetchOptions, {
         headers: {
           "ms2-authorization": `bearer ${token}`,
           "ms2-origin": "Exchange"
