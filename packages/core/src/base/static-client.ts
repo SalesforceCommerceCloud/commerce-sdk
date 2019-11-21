@@ -65,7 +65,6 @@ export function _delete(options: {
   authScheme?: IAuthScheme;
 }): Promise<object> {
   const fetchOptions: RequestInit = options.client.fetchOptions;
-  console.log(fetchOptions);
   fetchOptions.method = "delete";
   const resource = new Resource(
     options.client.clientConfig.baseUri,
@@ -86,7 +85,8 @@ export function _patch(options: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;
 }): Promise<object> {
-  const fetchOptions: RequestInit = _.merge(options.client.fetchOptions, {
+  const fetchOptions = {};
+  _.merge(fetchOptions, options.client.fetchOptions, {
     method: "patch",
     headers: { "Content-Type": CONTENT_TYPE },
     body: JSON.stringify(options.body)
@@ -110,7 +110,8 @@ export function _post(options: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;
 }): Promise<object> {
-  const fetchOptions: RequestInit = _.merge(options.client.fetchOptions, {
+  const fetchOptions = {};
+  _.merge(fetchOptions, options.client.fetchOptions, {
     method: "post",
     headers: { "Content-Type": CONTENT_TYPE },
     body: JSON.stringify(options.body)
@@ -134,7 +135,8 @@ export function _put(options: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;
 }): Promise<object> {
-  const fetchOptions: RequestInit = _.merge(options.client.fetchOptions, {
+  const fetchOptions = {};
+  _.merge(fetchOptions, options.client.fetchOptions, {
     method: "put",
     headers: { "Content-Type": CONTENT_TYPE },
     body: JSON.stringify(options.body)
