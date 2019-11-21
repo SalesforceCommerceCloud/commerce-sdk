@@ -300,3 +300,68 @@ describe("base client patch test", () => {
     });
   });
 });
+
+describe("base client test with headers", () => {
+  afterEach(fetchMock.restore);
+
+  const LANGUAGE_HEADER = { "Accept-Language": "en-US" };
+  const TWO_HEADER = {
+    "Accept-Language": "en-US",
+    "Max-Forwards": "10"
+  };
+  const CONTENT_TYPE_XML = { "Content-Type": "text/xml" };
+
+  it("makes correct get call with headers", () => {
+    const client = new BaseClient({
+      baseUri: "https://somewhere",
+      headers: LANGUAGE_HEADER
+    });
+    fetchMock.get("*", { status: 200, body: { mock: "data" } });
+
+    return _get({ client: client, path: "/over/the/rainbow" }).then(() => {
+      expect(fetchMock.lastOptions().headers).to.eql(LANGUAGE_HEADER);
+    });
+  });
+
+  it("makes correct call with two headers", () => {
+    const client = new BaseClient({
+      baseUri: "https://somewhere",
+      headers: TWO_HEADER
+    });
+    fetchMock.get("*", { status: 200, body: { mock: "data" } });
+
+    return _get({ client: client, path: "/over/the/rainbow" }).then(() => {
+      expect(fetchMock.lastOptions().headers).to.eql(TWO_HEADER);
+    });
+  });
+
+  it("makes correct call for post with two headers", () => {
+    const client = new BaseClient({
+      baseUri: "https://somewhere",
+      headers: TWO_HEADER
+    });
+    fetchMock.post("*", { status: 201, body: {} });
+
+    return _post({ client: client, path: "/over/the/rainbow", body: {} }).then(
+      () => {
+        expect(fetchMock.lastOptions().headers).to.include(TWO_HEADER);
+      }
+    );
+  });
+
+  it("cannot overwrite content-type for post", () => {
+    const client = new BaseClient({
+      baseUri: "https://somewhere",
+      headers: CONTENT_TYPE_XML
+    });
+    fetchMock.post("*", { status: 201, body: {} });
+
+    return _post({ client: client, path: "/over/the/rainbow", body: {} }).then(
+      () => {
+        expect(fetchMock.lastOptions().headers).to.not.include(
+          CONTENT_TYPE_XML
+        );
+      }
+    );
+  });
+});

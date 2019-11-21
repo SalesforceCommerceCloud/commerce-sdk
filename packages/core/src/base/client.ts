@@ -21,6 +21,7 @@ export type ClientConfig = {
   baseUri?: string;
   clientId?: string;
   clientSecret?: string;
+  headers?: { [key: string]: string };
 };
 
 const DEFAULT_CLIENT_CONFIG: ClientConfig = {
@@ -38,7 +39,7 @@ export class BaseClient {
   constructor(config?: ClientConfig) {
     this.clientConfig = {};
     _.merge(this.clientConfig, DEFAULT_CLIENT_CONFIG, config);
-    this.fetchOptions = {};
+    this.fetchOptions = config.headers ? { headers: config.headers } : {};
   }
 
   async initializeMockService(): Promise<void> {
