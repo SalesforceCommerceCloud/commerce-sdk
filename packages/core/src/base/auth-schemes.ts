@@ -5,14 +5,15 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import { BaseClient } from "./client";
-import { RequestInit } from "node-fetch";
 import oauth2, { OAuthClient } from "simple-oauth2";
 
 export interface IAuthScheme {
   // eslint-disable-next-line @typescript-eslint/no-misused-new
   init(client: BaseClient): void;
   authenticate(client?: BaseClient): Promise<boolean>;
-  injectAuth(options: RequestInit): Promise<RequestInit>;
+  injectAuth(headers: {
+    [key: string]: string;
+  }): Promise<{ [key: string]: string }>;
 }
 
 export class AccountManager implements IAuthScheme {
@@ -34,18 +35,17 @@ export class AccountManager implements IAuthScheme {
     this.oauth2 = oauth2.create(credentials);
   }
 
-  async injectAuth(options: RequestInit): Promise<RequestInit> {
+  async injectAuth(headers: {
+    [key: string]: string;
+  }): Promise<{ [key: string]: string }> {
     await this.refresh();
-    if (!options.headers) {
-      options["headers"] = {};
-    }
 
-    if (!("Authentication" in options.headers)) {
-      options.headers[
-        "Authentication"
-      ] = `Bearer ${this.token.token["access_token"]}`;
+    headers = headers ? headers : {};
+
+    if (!("Authentication" in headers)) {
+      headers["Authentication"] = `Bearer ${this.token.token["access_token"]}`;
     }
-    return options;
+    return headers;
   }
 
   // This is returning true or false because you might want to continue using the client without auth as some endpoints
