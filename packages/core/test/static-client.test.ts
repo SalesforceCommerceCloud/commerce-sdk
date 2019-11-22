@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2019, salesforce.com, inc.
+ * All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause
+ * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+ */
 "use strict";
 
 const fetchMock = require("fetch-mock").sandbox();
@@ -20,6 +26,7 @@ import { BaseClient } from "../src/base/client";
 import {
   _delete,
   _get,
+  _patch,
   _post,
   _put,
   ResponseError
@@ -216,6 +223,74 @@ describe("base client put test", () => {
     fetchMock.put("*", 201);
 
     return _put({
+      client: client,
+      path: "/over",
+      queryParameters: { id: "the" },
+      body: { content: "rainbow" }
+    }).then(() => {
+      expect(fetchMock.lastUrl()).to.equal("https://somewhere/over?id=the");
+    });
+  });
+});
+
+describe("base client patch test", () => {
+  let client;
+
+  beforeEach(() => {
+    client = new BaseClient({ baseUri: "https://somewhere" });
+  });
+  afterEach(fetchMock.restore);
+
+  it("patch resource and returns 200", () => {
+    fetchMock.patch("*", 200);
+
+    return _patch({ client: client, path: "/over/the/rainbow", body: {} }).then(
+      () => {
+        expect(fetchMock.lastUrl()).to.equal(
+          "https://somewhere/over/the/rainbow"
+        );
+      }
+    );
+  });
+
+  it("is not ok when attempting to patch nonexistent resource", () => {
+    fetchMock.patch("*", 404);
+
+    return _patch({
+      client: client,
+      path: "/over/the/rainbow",
+      body: {}
+    }).should.eventually.be.rejectedWith(ResponseError);
+  });
+
+  it("patch resource with body and returns 200", () => {
+    fetchMock.patch("*", 200);
+
+    return _patch({
+      client: client,
+      path: "/over/the",
+      body: {}
+    }).then(() => {
+      expect(fetchMock.lastUrl()).to.equal("https://somewhere/over/the");
+    });
+  });
+
+  it("patch resource with body and returns 204", () => {
+    fetchMock.patch("*", 204);
+
+    return _patch({
+      client: client,
+      path: "/over/the",
+      body: {}
+    }).then(() => {
+      expect(fetchMock.lastUrl()).to.equal("https://somewhere/over/the");
+    });
+  });
+
+  it("patch resource with site id in query param, body and returns 200", () => {
+    fetchMock.patch("*", 200);
+
+    return _patch({
       client: client,
       path: "/over",
       queryParameters: { id: "the" },

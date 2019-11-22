@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2019, salesforce.com, inc.
+ * All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause
+ * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+ */
 import { RequestInit } from "node-fetch";
 import { IAuthScheme } from "./auth-schemes";
 import _ from "lodash";
@@ -30,7 +36,8 @@ export class BaseClient {
   public fetchOptions: RequestInit;
 
   constructor(config?: ClientConfig) {
-    this.clientConfig = _.merge(DEFAULT_CLIENT_CONFIG, config);
+    this.clientConfig = {};
+    _.merge(this.clientConfig, DEFAULT_CLIENT_CONFIG, config);
     this.fetchOptions = {};
   }
 
@@ -41,7 +48,7 @@ export class BaseClient {
         process.env.ANYPOINT_PASSWORD
       );
 
-      this.fetchOptions = _.merge(this.fetchOptions, {
+      _.merge(this.fetchOptions, {
         headers: {
           "ms2-authorization": `bearer ${token}`,
           "ms2-origin": "Exchange"

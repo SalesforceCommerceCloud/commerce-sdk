@@ -25,12 +25,22 @@ export class Client extends BaseClient {
 
 {{#each model.encodes.endPoints}}
   {{#each operations}}
-    {{#or (is method "get") (is method "delete") (is method "post") (is method "put")}}
       /**
       * {{description}}
       */
       {{name}}(
-        parameters = {}{{#or (is method "post") (is method "put")}}, body: {{request.payloads.[0].schema.inherits.[0].linkTarget.name}}{{/or}}
+        {{#and (isEmpty ../parameters) (equalsLength request.queryParameters 0)}}
+          {{#or (is method "patch") (is method "post") (is method "put")}}body: {{default request.payloads.[0].schema.inherits.[0].linkTarget.name "object"}}{{/or}}
+        {{else}}
+        parameters: {
+          {{#each ../parameters}}
+          {{name}}: any
+          {{/each}}
+          {{#each request/queryParameters}}
+          {{name}}{{#if (not (is required "true"))}}?{{/if}}: any
+          {{/each}}
+        }{{#or (is method "patch") (is method "post") (is method "put")}}, body: {{default request.payloads.[0].schema.inherits.[0].linkTarget.name "object"}}{{/or}}
+        {{/and}}
       ): Promise<{{#if (eq (isReturnPayloadDefined .) true)}}{{getReturnPayloadType .}}{{else}}object{{/if}}> {
 
         const pathParameters = {
@@ -39,47 +49,21 @@ export class Client extends BaseClient {
     {{/each}}
         };
 
-    {{#if ../parameters}}
-        for (let param in pathParameters) {
-          if (pathParameters[param] === undefined
-              || pathParameters[param] === null) {
-            throw new Error(`Parameter '${param}' is required when calling {{name}}`);
-          }
-        }
-    {{/if}}
-
         const queryParameters = {
     {{#each request/queryParameters}}      
       "{{name}}": parameters["{{name}}"]{{#unless @last}},{{/unless}}
     {{/each}}
         }
 
-        const requiredQueryParameters = [];
-    {{#each request/queryParameters}}
-      {{#is required "true"}} 
-        requiredQueryParameters.push("{{name}}");
-      {{/is}}
-    {{/each}}
-
-    {{#if request/queryParameters}}
-        for (let param in requiredQueryParameters) {
-          if (queryParameters[param] === undefined
-              || queryParameters[param] === null) {
-            throw new Error(`Parameter '${param}' is required when calling {{name}}`);
-          }
-        }
-    {{/if}}
-
     // @ts-ignore
     return StaticClient.{{method}}({
           client: this, 
           path: "{{../path}}",
           pathParameters: pathParameters, 
-          queryParameters: queryParameters{{#or (is method "post") (is method "put")}}, body: body{{/or}}{{getSecurityScheme ", authScheme: " security}}
+          queryParameters: queryParameters{{#or (is method "patch") (is method "post") (is method "put")}}, body: body{{/or}}{{getSecurityScheme ", authScheme: " security}}
       });
     }
 
-    {{/or}}
   {{/each}}
 {{/each}}
 }

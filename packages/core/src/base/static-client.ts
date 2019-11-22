@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2019, salesforce.com, inc.
+ * All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause
+ * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+ */
 import { default as fetch, Response, RequestInit } from "node-fetch";
 import { Resource } from "./resource";
 import { BaseClient } from "./client";
@@ -59,8 +65,32 @@ export function _delete(options: {
   authScheme?: IAuthScheme;
 }): Promise<object> {
   const fetchOptions: RequestInit = options.client.fetchOptions;
-  console.log(fetchOptions);
   fetchOptions.method = "delete";
+  const resource = new Resource(
+    options.client.clientConfig.baseUri,
+    options.path,
+    options.pathParameters,
+    options.queryParameters
+  ).toString();
+
+  return runFetch(resource, fetchOptions, options.authScheme);
+}
+
+export function _patch(options: {
+  client: BaseClient;
+  path: string;
+  pathParameters?: object;
+  queryParameters?: object;
+  authScheme?: IAuthScheme;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  body: any;
+}): Promise<object> {
+  const fetchOptions = {};
+  _.merge(fetchOptions, options.client.fetchOptions, {
+    method: "patch",
+    headers: { "Content-Type": CONTENT_TYPE },
+    body: JSON.stringify(options.body)
+  });
   const resource = new Resource(
     options.client.clientConfig.baseUri,
     options.path,
@@ -80,7 +110,8 @@ export function _post(options: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;
 }): Promise<object> {
-  const fetchOptions: RequestInit = _.merge(options.client.fetchOptions, {
+  const fetchOptions = {};
+  _.merge(fetchOptions, options.client.fetchOptions, {
     method: "post",
     headers: { "Content-Type": CONTENT_TYPE },
     body: JSON.stringify(options.body)
@@ -104,7 +135,8 @@ export function _put(options: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;
 }): Promise<object> {
-  const fetchOptions: RequestInit = _.merge(options.client.fetchOptions, {
+  const fetchOptions = {};
+  _.merge(fetchOptions, options.client.fetchOptions, {
     method: "put",
     headers: { "Content-Type": CONTENT_TYPE },
     body: JSON.stringify(options.body)
