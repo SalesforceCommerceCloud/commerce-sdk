@@ -24,7 +24,7 @@ before(() => {
   initializeMockPromise = client.initializeMockService();
 });
 
-describe("Shop client integratin get tests", () => {
+describe("Shop client integration get tests", () => {
   it("Throws error calling GET with no token", () => {
     const newLocalClient = new Shop({
       baseUri: BASE_URI
