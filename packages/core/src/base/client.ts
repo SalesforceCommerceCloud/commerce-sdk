@@ -24,7 +24,8 @@ export type ClientConfig = {
 };
 
 const DEFAULT_CLIENT_CONFIG: ClientConfig = {
-  authHost: "https://account-pod5.demandware.net"
+  authHost: "https://account-pod5.demandware.net",
+  headers: {}
 };
 
 export class BaseClient {
