@@ -28,14 +28,44 @@ async function getObjectFromResponse(response: Response): Promise<object> {
 }
 
 async function runFetch(
-  resource: string,
-  fetchOptions: RequestInit,
-  authScheme?: IAuthScheme
+  method: "delete" | "get" | "patch" | "post" | "put",
+  options: {
+    client: BaseClient;
+    path: string;
+    pathParameters?: object;
+    queryParameters?: object;
+    authScheme?: IAuthScheme;
+    body?: any;
+  }
 ): Promise<object> {
-  const options = authScheme
-    ? await authScheme.injectAuth(fetchOptions)
-    : fetchOptions;
-  const response = await fetch(resource, options);
+  const resource = new Resource(
+    options.client.clientConfig.baseUri,
+    options.path,
+    options.pathParameters,
+    options.queryParameters
+  ).toString();
+
+  const fetchOptions: RequestInit = {
+    method: method
+  };
+
+  if (options.authScheme) {
+    fetchOptions.headers = await options.authScheme.injectAuth(
+      options.client.clientConfig.headers
+    );
+  } else {
+    fetchOptions.headers = options.client.clientConfig.headers
+      ? options.client.clientConfig.headers
+      : {};
+  }
+
+  if (options.body) {
+    fetchOptions.body = JSON.stringify(options.body);
+    fetchOptions.headers["Content-Type"] = CONTENT_TYPE;
+  }
+
+  const response = await fetch(resource, fetchOptions);
+
   return getObjectFromResponse(response);
 }
 
@@ -46,15 +76,7 @@ export function _get(options: {
   queryParameters?: object;
   authScheme?: IAuthScheme;
 }): Promise<object> {
-  const fetchOptions: RequestInit = options.client.fetchOptions;
-
-  const resource = new Resource(
-    options.client.clientConfig.baseUri,
-    options.path,
-    options.pathParameters,
-    options.queryParameters
-  ).toString();
-  return runFetch(resource, fetchOptions, options.authScheme);
+  return runFetch("get", options);
 }
 
 export function _delete(options: {
@@ -64,16 +86,7 @@ export function _delete(options: {
   queryParameters?: object;
   authScheme?: IAuthScheme;
 }): Promise<object> {
-  const fetchOptions: RequestInit = options.client.fetchOptions;
-  fetchOptions.method = "delete";
-  const resource = new Resource(
-    options.client.clientConfig.baseUri,
-    options.path,
-    options.pathParameters,
-    options.queryParameters
-  ).toString();
-
-  return runFetch(resource, fetchOptions, options.authScheme);
+  return runFetch("delete", options);
 }
 
 export function _patch(options: {
@@ -85,20 +98,7 @@ export function _patch(options: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;
 }): Promise<object> {
-  const fetchOptions = {};
-  _.merge(fetchOptions, options.client.fetchOptions, {
-    method: "patch",
-    headers: { "Content-Type": CONTENT_TYPE },
-    body: JSON.stringify(options.body)
-  });
-  const resource = new Resource(
-    options.client.clientConfig.baseUri,
-    options.path,
-    options.pathParameters,
-    options.queryParameters
-  ).toString();
-
-  return runFetch(resource, fetchOptions, options.authScheme);
+  return runFetch("patch", options);
 }
 
 export function _post(options: {
@@ -110,20 +110,7 @@ export function _post(options: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;
 }): Promise<object> {
-  const fetchOptions = {};
-  _.merge(fetchOptions, options.client.fetchOptions, {
-    method: "post",
-    headers: { "Content-Type": CONTENT_TYPE },
-    body: JSON.stringify(options.body)
-  });
-  const resource = new Resource(
-    options.client.clientConfig.baseUri,
-    options.path,
-    options.pathParameters,
-    options.queryParameters
-  ).toString();
-
-  return runFetch(resource, fetchOptions, options.authScheme);
+  return runFetch("post", options);
 }
 
 export function _put(options: {
@@ -135,18 +122,5 @@ export function _put(options: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;
 }): Promise<object> {
-  const fetchOptions = {};
-  _.merge(fetchOptions, options.client.fetchOptions, {
-    method: "put",
-    headers: { "Content-Type": CONTENT_TYPE },
-    body: JSON.stringify(options.body)
-  });
-  const resource = new Resource(
-    options.client.clientConfig.baseUri,
-    options.path,
-    options.pathParameters,
-    options.queryParameters
-  ).toString();
-
-  return runFetch(resource, fetchOptions, options.authScheme);
+  return runFetch("put", options);
 }
