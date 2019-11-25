@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import { RequestInit } from "node-fetch";
 import { IAuthScheme } from "./auth-schemes";
 import _ from "lodash";
 
@@ -21,6 +20,7 @@ export type ClientConfig = {
   baseUri?: string;
   clientId?: string;
   clientSecret?: string;
+  headers?: { [key: string]: string };
 };
 
 const DEFAULT_CLIENT_CONFIG: ClientConfig = {
@@ -33,12 +33,9 @@ export class BaseClient {
     [x: string]: IAuthScheme;
   };
 
-  public fetchOptions: RequestInit;
-
   constructor(config?: ClientConfig) {
     this.clientConfig = {};
     _.merge(this.clientConfig, DEFAULT_CLIENT_CONFIG, config);
-    this.fetchOptions = {};
   }
 
   async initializeMockService(): Promise<void> {
@@ -48,11 +45,9 @@ export class BaseClient {
         process.env.ANYPOINT_PASSWORD
       );
 
-      _.merge(this.fetchOptions, {
-        headers: {
-          "ms2-authorization": `bearer ${token}`,
-          "ms2-origin": "Exchange"
-        }
+      _.merge(this.clientConfig.headers, {
+        "ms2-authorization": `bearer ${token}`,
+        "ms2-origin": "Exchange"
       });
     } catch (err) {
       throw new Error("Error while initializing mock client\n".concat(err));

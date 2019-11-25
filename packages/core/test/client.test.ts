@@ -14,7 +14,15 @@ const nodeFetch = require("node-fetch");
 nodeFetch.default = fetchMock;
 import sinon from "sinon";
 
-import { expect } from "chai";
+import chai from "chai";
+import chaiAsPromised from "chai-as-promised";
+
+const expect = chai.expect;
+
+before(() => {
+  chai.should();
+  chai.use(chaiAsPromised);
+});
 
 import { BaseClient } from "../src/base/client";
 
@@ -65,6 +73,8 @@ describe("base client config get Bearer token failure tests", () => {
 
   it("YES useMock and wrong password, throws some api error", () => {
     const client = new BaseClient({ baseUri: "https://somewhere" });
-    expect(client.initializeMockService()).to.eventually.rejectedWith(error);
+    return client
+      .initializeMockService()
+      .should.eventually.be.rejectedWith(Error);
   });
 });

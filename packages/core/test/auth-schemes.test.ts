@@ -121,9 +121,7 @@ describe("Test account manager auth", () => {
     getTokenStub.resolves(ACCESS_TOKEN);
     return am.authenticate().then(() => {
       return am.injectAuth({}).then(res => {
-        expect(res.headers["Authentication"]).to.be.equal(
-          "Bearer ACCESS_TOKEN"
-        );
+        expect(res["Authentication"]).to.be.equal("Bearer ACCESS_TOKEN");
       });
     });
   });
@@ -133,12 +131,10 @@ describe("Test account manager auth", () => {
     return am.authenticate().then(() => {
       return am
         .injectAuth({
-          headers: {
-            Authentication: "A CUSTOM HEADER"
-          }
+          Authentication: "A CUSTOM HEADER"
         })
         .then(res => {
-          expect(res.headers["Authentication"]).to.be.equal("A CUSTOM HEADER");
+          expect(res["Authentication"]).to.be.equal("A CUSTOM HEADER");
         });
     });
   });
