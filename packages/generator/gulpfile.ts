@@ -35,7 +35,7 @@ gulp.task("cleanTmp", (cb: any) => {
   return del([`${config.tmpDir}`], cb);
 });
 
-gulp.task("retrieveTemplates", () => {
+gulp.task("downloadRamlFromExchange", () => {
   const tmpDir = tmp.dirSync();
 
   return getBearer(
@@ -46,6 +46,8 @@ gulp.task("retrieveTemplates", () => {
       () => {
         return extractFiles(tmpDir.name).then(() => {
           console.log(`Files downloaded to ${tmpDir.name}`);
+
+          // TODO: This needs to be sorted by bounded context before being added to config.files
           config.files = getRamlFromDirectory(tmpDir.name);
         });
       }
@@ -55,7 +57,7 @@ gulp.task("retrieveTemplates", () => {
 
 gulp.task(
   "renderTemplates",
-  gulp.series("cleanTmp", async () => {
+  gulp.series("downloadRamlFromExchange", "cleanTmp", async () => {
     await fs.ensureDir(`${config.tmpDir}`);
 
     // console.log(config);
