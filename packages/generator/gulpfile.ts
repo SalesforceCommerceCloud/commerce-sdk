@@ -57,10 +57,9 @@ gulp.task("downloadRamlFromExchange", () => {
 
 gulp.task(
   "renderTemplates",
-  gulp.series("downloadRamlFromExchange", "cleanTmp", async () => {
+  gulp.series("cleanTmp", async () => {
     await fs.ensureDir(`${config.tmpDir}`);
 
-    // console.log(config);
     // TODO: This needs to be replaced with calls to download the raml instead of reading it locally.
     // When this is done we should move it out of this file and into the library with tests.
     for (const entry of config.files) {
