@@ -10,6 +10,15 @@ import { createClient, createDto, createIndex } from "./src/renderer";
 import log from "fancy-log";
 import del from "del";
 import fs from "fs-extra";
+import {
+  extractFiles,
+  getBearer,
+  getRamlByTag,
+  getRamlFromDirectory
+} from "@commerce-sdk/exchange-connector";
+import tmp from "tmp";
+
+require("dotenv").config();
 
 import {
   WebApiBaseUnit,
@@ -26,11 +35,30 @@ gulp.task("cleanTmp", (cb: any) => {
   return del([`${config.tmpDir}`], cb);
 });
 
+gulp.task("retrieveTemplates", () => {
+  const tmpDir = tmp.dirSync();
+
+  return getBearer(
+    process.env.ANYPOINT_USERNAME,
+    process.env.ANYPOINT_PASSWORD
+  ).then(token => {
+    return getRamlByTag(token, process.env.ANYPOINT_TAG, tmpDir.name).then(
+      () => {
+        return extractFiles(tmpDir.name).then(() => {
+          console.log(`Files downloaded to ${tmpDir.name}`);
+          config.files = getRamlFromDirectory(tmpDir.name);
+        });
+      }
+    );
+  });
+});
+
 gulp.task(
   "renderTemplates",
   gulp.series("cleanTmp", async () => {
     await fs.ensureDir(`${config.tmpDir}`);
 
+    // console.log(config);
     // TODO: This needs to be replaced with calls to download the raml instead of reading it locally.
     // When this is done we should move it out of this file and into the library with tests.
     for (const entry of config.files) {
