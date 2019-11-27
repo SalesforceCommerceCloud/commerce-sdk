@@ -10,6 +10,15 @@ import { createClient, createDto, createIndex } from "./src/renderer";
 import log from "fancy-log";
 import del from "del";
 import fs from "fs-extra";
+import {
+  extractFiles,
+  getBearer,
+  getRamlByTag,
+  getRamlFromDirectory
+} from "@commerce-sdk/exchange-connector";
+import tmp from "tmp";
+
+require("dotenv").config();
 
 import {
   WebApiBaseUnit,
@@ -24,6 +33,26 @@ const config = require("./build-config.json");
 gulp.task("cleanTmp", (cb: any) => {
   log.info(`Removing ${config.tmpDir} directory`);
   return del([`${config.tmpDir}`], cb);
+});
+
+gulp.task("downloadRamlFromExchange", () => {
+  const tmpDir = tmp.dirSync();
+
+  return getBearer(
+    process.env.ANYPOINT_USERNAME,
+    process.env.ANYPOINT_PASSWORD
+  ).then(token => {
+    return getRamlByTag(token, process.env.ANYPOINT_TAG, tmpDir.name).then(
+      () => {
+        return extractFiles(tmpDir.name).then(() => {
+          console.log(`Files downloaded to ${tmpDir.name}`);
+
+          // TODO: This needs to be sorted by bounded context before being added to config.files
+          config.files = getRamlFromDirectory(tmpDir.name);
+        });
+      }
+    );
+  });
 });
 
 gulp.task(

@@ -5,8 +5,6 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 "use strict";
-import { ResponseError } from "@commerce-sdk/core";
-
 const Shop = require("../dist").Shop;
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
