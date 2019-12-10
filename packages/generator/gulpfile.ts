@@ -68,7 +68,7 @@ gulp.task(
           fs.writeFileSync(
             `${config.tmpDir}/${entry.boundedContext}.ts`,
             createClient(
-              res as WebApiBaseUnitWithEncodesModel,
+              [res as WebApiBaseUnitWithEncodesModel],
               entry.boundedContext
             )
           );

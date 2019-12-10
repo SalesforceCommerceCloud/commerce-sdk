@@ -32,6 +32,10 @@ require("handlebars-helpers")({ handlebars: Handlebars }, [
   "comparison"
 ]);
 
+const operationsPartialTemplate = Handlebars.compile(
+  fs.readFileSync(path.join(templateDirectory, "operations.ts.hbs"), "utf8")
+);
+
 export const clientInstanceTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "ClientInstance.ts.hbs"), "utf8")
 );
@@ -44,9 +48,12 @@ export const dtoTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "dto.ts.hbs"), "utf8")
 );
 
-export function createClient(webApiModel: any, boundedContext: string): string {
+export function createClient(
+  webApiModels: any,
+  boundedContext: string
+): string {
   const clientCode: string = clientInstanceTemplate({
-    model: webApiModel,
+    models: webApiModels,
     apiSpec: boundedContext
   });
   return clientCode;
@@ -92,3 +99,5 @@ Handlebars.registerHelper("onlyRequired", onlyRequired);
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 Handlebars.registerHelper("onlyOptional", onlyOptional);
+
+Handlebars.registerPartial("operations", operationsPartialTemplate);
