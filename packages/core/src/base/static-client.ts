@@ -34,6 +34,7 @@ async function runFetch(
     path: string;
     pathParameters?: object;
     queryParameters?: object;
+    headers?: { [key: string]: string };
     authScheme?: IAuthScheme;
     body?: any;
   }
@@ -49,6 +50,8 @@ async function runFetch(
     method: method
   };
 
+  // If there's an auth scheme, update the client headers with the auth info
+  // and set the headers for the call or just set the headers for the call
   if (options.authScheme) {
     fetchOptions.headers = await options.authScheme.injectAuth(
       options.client.clientConfig.headers
@@ -57,6 +60,11 @@ async function runFetch(
     fetchOptions.headers = options.client.clientConfig.headers
       ? options.client.clientConfig.headers
       : {};
+  }
+
+  // if headers have been given for just this call, merge those in
+  if (options.headers) {
+    _.merge(fetchOptions.headers, options.headers);
   }
 
   if (options.body) {
@@ -74,6 +82,7 @@ export function _get(options: {
   path: string;
   pathParameters?: object;
   queryParameters?: object;
+  headers?: { [key: string]: string };
   authScheme?: IAuthScheme;
 }): Promise<object> {
   return runFetch("get", options);
@@ -84,6 +93,7 @@ export function _delete(options: {
   path: string;
   pathParameters?: object;
   queryParameters?: object;
+  headers?: { [key: string]: string };
   authScheme?: IAuthScheme;
 }): Promise<object> {
   return runFetch("delete", options);
@@ -94,6 +104,7 @@ export function _patch(options: {
   path: string;
   pathParameters?: object;
   queryParameters?: object;
+  headers?: { [key: string]: string };
   authScheme?: IAuthScheme;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;
@@ -106,6 +117,7 @@ export function _post(options: {
   path: string;
   pathParameters?: object;
   queryParameters?: object;
+  headers?: { [key: string]: string };
   authScheme?: IAuthScheme;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;
@@ -118,6 +130,7 @@ export function _put(options: {
   path: string;
   pathParameters?: object;
   queryParameters?: object;
+  headers?: { [key: string]: string };
   authScheme?: IAuthScheme;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;

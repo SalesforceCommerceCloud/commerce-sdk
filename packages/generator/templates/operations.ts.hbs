@@ -4,18 +4,15 @@
       * {{description}}
       */
       {{name}}(
-        {{#and (isEmpty ../parameters) (equalsLength request.queryParameters 0)}}
-          {{#or (is method "patch") (is method "post") (is method "put")}}body: {{default request.payloads.[0].schema.inherits.[0].linkTarget.name "object"}}{{/or}}
-        {{else}}
-        parameters: {
+        parameters{{#or (is method "get") (is method "delete")}}?{{/or}}: {
           {{#each ../parameters}}
           {{name}}: any
           {{/each}}
           {{#each request/queryParameters}}
           {{name}}{{#if (not (is required "true"))}}?{{/if}}: any
           {{/each}}
+          headers?: { [key: string]: string }
         }{{#or (is method "patch") (is method "post") (is method "put")}}, body: {{default request.payloads.[0].schema.inherits.[0].linkTarget.name "object"}}{{/or}}
-        {{/and}}
       ): Promise<{{#if (eq (isReturnPayloadDefined .) true)}}{{getReturnPayloadType .}}{{else}}object{{/if}}> {
 
         const pathParameters = {
@@ -35,7 +32,8 @@
           client: this,
           path: "{{../path}}",
           pathParameters: pathParameters,
-          queryParameters: queryParameters{{#or (is method "patch") (is method "post") (is method "put")}}, body: body{{/or}}{{getSecurityScheme ", authScheme: " security}}
+          queryParameters: queryParameters,
+          headers: parameters.headers{{#or (is method "patch") (is method "post") (is method "put")}}, body: body{{/or}}{{getSecurityScheme ", authScheme: " security}}
       });
     }
 

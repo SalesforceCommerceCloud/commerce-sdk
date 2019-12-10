@@ -29,7 +29,7 @@ import {
   WebApiBaseUnitWithDeclaresModel
 } from "webapi-parser";
 
-const RAML_API_FAMILIES = "raml-api-families.json";
+const RAML_GROUPS = "raml-groups.json";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const config = require("./build-config.json");
@@ -65,7 +65,7 @@ gulp.task("groupRamls", async () => {
   // TODO: Replace this with downloaded RAML using downloadRamlFromExchange gulp task
   const ramlApiFamilies = _.groupBy(config.files, file => file.boundedContext);
   await fs.writeFile(
-    path.join(`${config.tmpDir}`, RAML_API_FAMILIES),
+    path.join(`${config.tmpDir}`, RAML_GROUPS),
     JSON.stringify(ramlApiFamilies)
   );
 });
@@ -76,7 +76,7 @@ gulp.task(
     // require the json written in groupRamls gulpTask
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const apiFamilyConfig = require(path.resolve(
-      path.join(".", `${config.tmpDir}`, RAML_API_FAMILIES)
+      path.join(".", `${config.tmpDir}`, RAML_GROUPS)
     ));
     const apiKeys = _.keysIn(apiFamilyConfig);
     for (const apiFamily of apiKeys) {
