@@ -365,3 +365,97 @@ describe("base client test with headers", () => {
     );
   });
 });
+
+describe("base client test with endpoint headers", () => {
+  afterEach(fetchMock.restore);
+
+  const LANGUAGE_HEADER = { "Accept-Language": "en-US" };
+  const TWO_HEADER = {
+    "Accept-Language": "fr-CH",
+    "Max-Forwards": "10"
+  };
+  const MERGE_HEADER = {
+    "Accept-Language": "en-US",
+    "Max-Forwards": "10"
+  };
+  const CONTENT_TYPE_XML = { "Content-Type": "text/xml" };
+
+  it("makes correct get call with endpoint headers", () => {
+    const client = new BaseClient({
+      baseUri: "https://somewhere"
+    });
+    fetchMock.get("*", { status: 200, body: { mock: "data" } });
+
+    return _get({
+      client: client,
+      path: "/over/the/rainbow",
+      headers: LANGUAGE_HEADER
+    }).then(() => {
+      expect(fetchMock.lastOptions().headers).to.eql(LANGUAGE_HEADER);
+    });
+  });
+
+  it("makes correct call with two endpoint headers", () => {
+    const client = new BaseClient({
+      baseUri: "https://somewhere"
+    });
+    fetchMock.get("*", { status: 200, body: { mock: "data" } });
+
+    return _get({
+      client: client,
+      path: "/over/the/rainbow",
+      headers: TWO_HEADER
+    }).then(() => {
+      expect(fetchMock.lastOptions().headers).to.eql(TWO_HEADER);
+    });
+  });
+
+  it("makes correct call for post with two endpoint headers", () => {
+    const client = new BaseClient({
+      baseUri: "https://somewhere"
+    });
+    fetchMock.post("*", { status: 201, body: {} });
+
+    return _post({
+      client: client,
+      path: "/over/the/rainbow",
+      headers: TWO_HEADER,
+      body: {}
+    }).then(() => {
+      expect(fetchMock.lastOptions().headers).to.include(TWO_HEADER);
+    });
+  });
+
+  it("makes correct call for post with client and endpoint headers", () => {
+    const client = new BaseClient({
+      baseUri: "https://somewhere",
+      headers: TWO_HEADER
+    });
+    fetchMock.post("*", { status: 201, body: {} });
+
+    return _post({
+      client: client,
+      path: "/over/the/rainbow",
+      headers: LANGUAGE_HEADER,
+      body: {}
+    }).then(() => {
+      expect(fetchMock.lastOptions().headers).to.include(MERGE_HEADER);
+    });
+  });
+
+  it("cannot overwrite content-type for post", () => {
+    const client = new BaseClient({
+      baseUri: "https://somewhere"
+    });
+    fetchMock.post("*", { status: 201, body: {} });
+
+    return _post({
+      client: client,
+      path: "/over/the/rainbow",
+      headers: CONTENT_TYPE_XML,
+      body: {}
+    }).then(() => {
+      expect(fetchMock.lastOptions().headers).to.not.include(CONTENT_TYPE_XML);
+    });
+  });
+});
