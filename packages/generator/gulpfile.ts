@@ -63,10 +63,10 @@ gulp.task("downloadRamlFromExchange", () => {
 gulp.task("groupRamls", async () => {
   await fs.ensureDir(`${config.tmpDir}`);
   // TODO: Replace this with downloaded RAML using downloadRamlFromExchange gulp task
-  const ramlApiFamilies = _.groupBy(config.files, file => file.boundedContext);
+  const ramlGroups = _.groupBy(config.files, file => file.boundedContext);
   await fs.writeFile(
     path.join(`${config.tmpDir}`, RAML_GROUPS),
-    JSON.stringify(ramlApiFamilies)
+    JSON.stringify(ramlGroups)
   );
 });
 
@@ -75,26 +75,26 @@ gulp.task(
   gulp.series(gulp.series("cleanTmp", "groupRamls"), async () => {
     // require the json written in groupRamls gulpTask
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const apiFamilyConfig = require(path.resolve(
+    const ramlGroupConfig = require(path.resolve(
       path.join(".", `${config.tmpDir}`, RAML_GROUPS)
     ));
-    const apiKeys = _.keysIn(apiFamilyConfig);
-    for (const apiFamily of apiKeys) {
+    const apiGroupKeys = _.keysIn(ramlGroupConfig);
+    for (const apiGroup of apiGroupKeys) {
       const familyPromises = [];
-      const ramlFileFromFamily = apiFamilyConfig[apiFamily];
+      const ramlFileFromFamily = ramlGroupConfig[apiGroup];
       _.map(ramlFileFromFamily, ramlMeta => {
         familyPromises.push(processRamlFile(ramlMeta.ramlFile));
       });
       Promise.all(familyPromises).then(values => {
         fs.writeFileSync(
-          `${config.tmpDir}/${apiFamily}.ts`,
+          `${config.tmpDir}/${apiGroup}.ts`,
           createClient(
             values.map(value => value as WebApiBaseUnitWithEncodesModel),
-            apiFamily
+            apiGroup
           )
         );
         fs.writeFileSync(
-          `${config.tmpDir}/${apiFamily}.types.ts`,
+          `${config.tmpDir}/${apiGroup}.types.ts`,
           createDto(
             values.map(
               value => (value as WebApiBaseUnitWithDeclaresModel).declares
@@ -103,6 +103,6 @@ gulp.task(
         );
       });
     }
-    fs.writeFileSync(`${config.tmpDir}/index.ts`, createIndex(apiKeys));
+    fs.writeFileSync(`${config.tmpDir}/index.ts`, createIndex(apiGroupKeys));
   })
 );
