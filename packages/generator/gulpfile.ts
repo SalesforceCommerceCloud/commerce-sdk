@@ -60,6 +60,10 @@ gulp.task("downloadRamlFromExchange", () => {
   });
 });
 
+/**
+ * Groups RAML files for the given key (API Family, a.k.a Bounded Context).
+ * Once grouped, renderTemplates task creates one Client per group
+ */
 gulp.task("groupRamls", async () => {
   await fs.ensureDir(`${config.tmpDir}`);
   // TODO: Replace this with downloaded RAML using downloadRamlFromExchange gulp task
@@ -76,7 +80,7 @@ gulp.task(
     // require the json written in groupRamls gulpTask
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const ramlGroupConfig = require(path.resolve(
-      path.join(".", `${config.tmpDir}`, RAML_GROUPS)
+      path.join(`${config.tmpDir}`, RAML_GROUPS)
     ));
     const apiGroupKeys = _.keysIn(ramlGroupConfig);
     for (const apiGroup of apiGroupKeys) {
