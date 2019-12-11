@@ -59,8 +59,12 @@ export function createClient(
   return clientCode;
 }
 
-export function createDto(webApiModel: model.domain.DomainElement[]): string {
-  const dtoCode: string = dtoTemplate(webApiModel as model.domain.ClassTerm[]);
+export function createDto(
+  webApiModels: model.domain.DomainElement[][]
+): string {
+  const dtoCode: string = dtoTemplate(
+    webApiModels as model.domain.ClassTerm[][]
+  );
   return dtoCode;
 }
 

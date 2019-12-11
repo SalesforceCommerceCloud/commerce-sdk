@@ -16,22 +16,22 @@
       ): Promise<{{#if (eq (isReturnPayloadDefined .) true)}}{{getReturnPayloadType .}}{{else}}object{{/if}}> {
 
         const pathParameters = {
-    {{#each ../parameters}}      
+    {{#each ../parameters}}
       "{{name}}": parameters["{{name}}"]{{#unless @last}},{{/unless}}
     {{/each}}
         };
 
         const queryParameters = {
-    {{#each request/queryParameters}}      
+    {{#each request/queryParameters}}
       "{{name}}": parameters["{{name}}"]{{#unless @last}},{{/unless}}
     {{/each}}
         }
 
     // @ts-ignore
     return StaticClient.{{method}}({
-          client: this, 
+          client: this,
           path: "{{../path}}",
-          pathParameters: pathParameters, 
+          pathParameters: pathParameters,
           queryParameters: queryParameters,
           headers: parameters.headers{{#or (is method "patch") (is method "post") (is method "put")}}, body: body{{/or}}{{getSecurityScheme ", authScheme: " security}}
       });

@@ -10,6 +10,9 @@ import { createClient, createDto, createIndex } from "./src/renderer";
 import log from "fancy-log";
 import del from "del";
 import fs from "fs-extra";
+import _ from "lodash";
+import * as path from "path";
+
 import {
   extractFiles,
   getBearer,
@@ -25,6 +28,8 @@ import {
   WebApiBaseUnitWithEncodesModel,
   WebApiBaseUnitWithDeclaresModel
 } from "webapi-parser";
+
+const RAML_GROUPS = "raml-groups.json";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const config = require("./build-config.json");
@@ -55,33 +60,53 @@ gulp.task("downloadRamlFromExchange", () => {
   });
 });
 
+/**
+ * Groups RAML files for the given key (API Family, a.k.a Bounded Context).
+ * Once grouped, renderTemplates task creates one Client per group
+ */
+gulp.task("groupRamls", async () => {
+  await fs.ensureDir(`${config.tmpDir}`);
+  // TODO: Replace this with downloaded RAML using downloadRamlFromExchange gulp task
+  const ramlGroups = _.groupBy(config.files, file => file.boundedContext);
+  await fs.writeFile(
+    path.join(`${config.tmpDir}`, RAML_GROUPS),
+    JSON.stringify(ramlGroups)
+  );
+});
+
 gulp.task(
   "renderTemplates",
-  gulp.series("cleanTmp", async () => {
-    await fs.ensureDir(`${config.tmpDir}`);
-
-    // TODO: This needs to be replaced with calls to download the raml instead of reading it locally.
-    // When this is done we should move it out of this file and into the library with tests.
-    for (const entry of config.files) {
-      await processRamlFile(entry.ramlFile)
-        .then((res: WebApiBaseUnit) => {
-          fs.writeFileSync(
-            `${config.tmpDir}/${entry.boundedContext}.ts`,
-            createClient(
-              [res as WebApiBaseUnitWithEncodesModel],
-              entry.boundedContext
+  gulp.series(gulp.series("cleanTmp", "groupRamls"), async () => {
+    // require the json written in groupRamls gulpTask
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const ramlGroupConfig = require(path.resolve(
+      path.join(`${config.tmpDir}`, RAML_GROUPS)
+    ));
+    const apiGroupKeys = _.keysIn(ramlGroupConfig);
+    for (const apiGroup of apiGroupKeys) {
+      const familyPromises = [];
+      const ramlFileFromFamily = ramlGroupConfig[apiGroup];
+      _.map(ramlFileFromFamily, ramlMeta => {
+        familyPromises.push(processRamlFile(ramlMeta.ramlFile));
+      });
+      Promise.all(familyPromises).then(values => {
+        fs.writeFileSync(
+          `${config.tmpDir}/${apiGroup}.ts`,
+          createClient(
+            values.map(value => value as WebApiBaseUnitWithEncodesModel),
+            apiGroup
+          )
+        );
+        fs.writeFileSync(
+          `${config.tmpDir}/${apiGroup}.types.ts`,
+          createDto(
+            values.map(
+              value => (value as WebApiBaseUnitWithDeclaresModel).declares
             )
-          );
-          fs.writeFileSync(
-            `${config.tmpDir}/${entry.boundedContext}.types.ts`,
-            createDto((res as WebApiBaseUnitWithDeclaresModel).declares)
-          );
-        })
-        .catch(err => {
-          console.log(err);
-        });
+          )
+        );
+      });
     }
-
-    fs.writeFileSync(`${config.tmpDir}/index.ts`, createIndex(config.files));
+    fs.writeFileSync(`${config.tmpDir}/index.ts`, createIndex(apiGroupKeys));
   })
 );
