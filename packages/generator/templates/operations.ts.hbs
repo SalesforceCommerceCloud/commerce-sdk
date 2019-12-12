@@ -33,7 +33,7 @@
           path: "{{../path}}",
           pathParameters: pathParameters,
           queryParameters: queryParameters,
-          headers: parameters.headers{{#or (is method "patch") (is method "post") (is method "put")}}, body: body{{/or}}{{getSecurityScheme ", authScheme: " security}}
+          headers: (parameters || {}).headers{{#or (is method "patch") (is method "post") (is method "put")}}, body: body{{/or}}{{getSecurityScheme ", authScheme: " security}}
       });
     }
 
