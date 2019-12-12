@@ -17,6 +17,11 @@ function getFiles(directory): fs.Dirent[] {
   });
 }
 
+/**
+ * Extracts zip files present in the given directory.
+ * zip files are usually downloaded from Anypoint exchange
+ * @param directory
+ */
 export function extractFiles(directory: string): Promise<any> {
   const files: fs.Dirent[] = getFiles(directory);
   const promises: Promise<any>[] = [];
@@ -45,6 +50,12 @@ export function extractFiles(directory: string): Promise<any> {
   return Promise.all(promises);
 }
 
+/**
+ * After extracting the zip files using extractFiles function,
+ * this method parses the exchange.json if present and creates
+ * metadata for further processing
+ * @param directory
+ */
 function getMetadataFilesFromDirectory(directory: string): any[] {
   const files: fs.Dirent[] = getFiles(directory);
 
@@ -72,6 +83,11 @@ function getMetadataFilesFromDirectory(directory: string): any[] {
   return metaDataFiles;
 }
 
+/**
+ * decorates the metadata for the zip files present in the given directory
+ * with bounded context information present inside the exchange.json
+ * @param directory
+ */
 export function getConfigFilesFromDirectory(directory: string): any[] {
   const metaDataFiles = getMetadataFilesFromDirectory(directory);
   const configFiles = [];
@@ -95,6 +111,11 @@ export function getConfigFilesFromDirectory(directory: string): any[] {
   return configFiles;
 }
 
+/**
+ * Slices the metadata for the zip files present in the given directory
+ * by extracting only the RAML files
+ * @param directory
+ */
 export function getRamlFromDirectory(directory: string): string[] {
   return getMetadataFilesFromDirectory(directory).map(
     configFile => configFile.ramlFile
