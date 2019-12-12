@@ -17,7 +17,8 @@ import {
   extractFiles,
   getBearer,
   getRamlByTag,
-  getRamlFromDirectory
+  getRamlFromDirectory,
+  getConfigFilesFromDirectory
 } from "@commerce-sdk/exchange-connector";
 import tmp from "tmp";
 
@@ -30,6 +31,7 @@ import {
 } from "webapi-parser";
 
 const RAML_GROUPS = "raml-groups.json";
+const PRE_GROUP_BUILD_CONFIG = "pre-group-build-config.json";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const config = require("./build-config.json");
@@ -61,18 +63,61 @@ gulp.task("downloadRamlFromExchange", () => {
 });
 
 /**
+ * Prepares sdk-integration-test.zip file for integration testing
+ * The zip file is moved to a temporary folder, extracted, parsed and grouped, built and then
+ * integration tests are executed. This is necessary to ensure the downloaded fat RAML files
+ * follow similar route before generating the respective SDKs.
+ */
+gulp.task("prepareIntegrationTest", async () => {
+  await fs.ensureDir(`${config.tmpDir}`);
+  const tmpDir = tmp.dirSync();
+  //This copy mocks the download of fat raml files
+  fs.copyFileSync(
+    path.join(path.resolve("test"), "raml", "valid", "sdk-integration.zip"),
+    path.join(tmpDir.name, "sdk-integration.zip")
+  );
+  fs.copyFileSync(
+    path.resolve("build-config.json"),
+    path.join(`${config.tmpDir}`, PRE_GROUP_BUILD_CONFIG)
+  );
+  console.log("Integration test files copied to ", tmpDir.name);
+
+  // require the temporary json and replace the files property after extraction
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const preGroupConfig = require(path.resolve(
+    path.join(`${config.tmpDir}`, PRE_GROUP_BUILD_CONFIG)
+  ));
+
+  // replace the files property after extraction. Files will be grouped in groupRamls task
+  return extractFiles(tmpDir.name).then(() => {
+    const configFiles = getConfigFilesFromDirectory(tmpDir.name);
+    preGroupConfig.files = configFiles;
+  });
+});
+
+/**
  * Groups RAML files for the given key (API Family, a.k.a Bounded Context).
  * Once grouped, renderTemplates task creates one Client per group
  */
-gulp.task("groupRamls", async () => {
-  await fs.ensureDir(`${config.tmpDir}`);
-  // TODO: Replace this with downloaded RAML using downloadRamlFromExchange gulp task
-  const ramlGroups = _.groupBy(config.files, file => file.boundedContext);
-  await fs.writeFile(
-    path.join(`${config.tmpDir}`, RAML_GROUPS),
-    JSON.stringify(ramlGroups)
-  );
-});
+gulp.task(
+  "groupRamls",
+  gulp.series("prepareIntegrationTest", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const preGroupConfig = require(path.resolve(
+      path.join(`${config.tmpDir}`, PRE_GROUP_BUILD_CONFIG)
+    ));
+
+    // Group RAML files by the key, aka, bounded context/API Family
+    const ramlGroups = _.groupBy(
+      preGroupConfig.files,
+      file => file.boundedContext
+    );
+    await fs.writeFile(
+      path.join(`${config.tmpDir}`, RAML_GROUPS),
+      JSON.stringify(ramlGroups)
+    );
+  })
+);
 
 gulp.task(
   "renderTemplates",
