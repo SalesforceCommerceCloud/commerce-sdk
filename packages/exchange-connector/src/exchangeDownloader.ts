@@ -84,3 +84,42 @@ export function getRamlByTag(
     })
     .catch(error => console.error(error));
 }
+
+export function getRamlById(
+  accessToken: string,
+  assetId: string,
+  downloadFolder?: string
+): Promise<void> {
+  const client = new ApolloClient({
+    uri: "https://anypoint.mulesoft.com/graph/api/v1/graphql"
+  });
+  return client
+    .query({
+      query: gql`
+        {
+          assets(
+            query: { assetId: "${assetId}" }
+            latestVersionsOnly: true
+          ) {
+            assetId
+            files {
+              externalLink
+              classifier
+              packaging
+            }
+            type
+          }
+        }
+      `,
+      variables: {
+        accessToken: accessToken
+      }
+    })
+    .then(data => {
+      if (data && data.data) {
+        return downloadAssets(data.data.assets, downloadFolder);
+      }
+      return Promise.resolve();
+    })
+    .catch(error => console.error(error));
+}
