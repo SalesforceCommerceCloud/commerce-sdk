@@ -7,7 +7,7 @@
 "use strict";
 
 export { getBearer } from "./bearerToken";
-export { getRamlByTag } from "./exchangeDownloader";
+export { getRamlByTag, getRamlById } from "./exchangeDownloader";
 export {
   extractFiles,
   getRamlFromDirectory,
