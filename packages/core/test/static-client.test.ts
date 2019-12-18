@@ -6,11 +6,7 @@
  */
 "use strict";
 
-const fetchMock = require("fetch-mock").sandbox();
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const nodeFetch = require("node-fetch");
-nodeFetch.default = fetchMock;
+import nock from "nock";
 
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
@@ -33,17 +29,17 @@ import {
 } from "../src/base/static-client";
 
 describe("base client get test", () => {
-  afterEach(fetchMock.restore);
+  afterEach(nock.cleanAll);
 
   it("makes correct call", () => {
     const client = new BaseClient({ baseUri: "https://somewhere" });
-    fetchMock.get("*", { status: 200, body: { mock: "data" } });
+    const scope = nock("https://somewhere")
+      .get("/over/the/rainbow")
+      .reply(200, { mock: "data" });
 
     return _get({ client: client, path: "/over/the/rainbow" }).then(data => {
       expect(data).to.eql({ mock: "data" });
-      expect(fetchMock.lastUrl()).to.equal(
-        "https://somewhere/over/the/rainbow"
-      );
+      expect(nock.isDone()).to.be.true;
     });
   });
 });
@@ -54,23 +50,25 @@ describe("base client delete test", () => {
   beforeEach(() => {
     client = new BaseClient({ baseUri: "https://somewhere" });
   });
-  afterEach(fetchMock.restore);
+  afterEach(nock.cleanAll);
 
   it("deletes resource and returns 200", () => {
-    fetchMock.delete("*", 200);
+    const scope = nock("https://somewhere")
+      .delete("/over/the/rainbow")
+      .reply(200);
 
     return _delete({
       client: client,
       path: "/over/the/rainbow"
     }).then(res => {
-      expect(fetchMock.lastUrl()).to.be.equal(
-        "https://somewhere/over/the/rainbow"
-      );
+      expect(nock.isDone()).to.be.true;
     });
   });
 
   it("is not ok when attempting to delete nonexistent resource", () => {
-    fetchMock.delete("*", 404);
+    const scope = nock("https://somewhere")
+      .delete("/over/the/rainbow")
+      .reply(404);
 
     return _delete({
       client: client,
@@ -79,30 +77,31 @@ describe("base client delete test", () => {
   });
 
   it("deletes resource with id and returns 200", () => {
-    fetchMock.delete("*", 200);
+    const scope = nock("https://somewhere")
+      .delete("/over/the/rainbow")
+      .reply(200);
 
     return _delete({
       client: client,
       path: "/over/the/{id}",
       pathParameters: { id: "rainbow" }
     }).then(res => {
-      expect(fetchMock.lastUrl()).to.be.equal(
-        "https://somewhere/over/the/rainbow"
-      );
+      expect(nock.isDone()).to.be.true;
     });
   });
 
   it("deletes resource with id in query param and returns 200", () => {
-    fetchMock.delete("*", 200);
+    const scope = nock("https://somewhere")
+      .delete("/over/the")
+      .query({ id: "rainbow" })
+      .reply(200);
 
     return _delete({
       client: client,
-      path: "/over/the/",
+      path: "/over/the",
       queryParameters: { id: "rainbow" }
     }).then(res => {
-      expect(fetchMock.lastUrl()).to.be.equal(
-        "https://somewhere/over/the/?id=rainbow"
-      );
+      expect(nock.isDone()).to.be.true;
     });
   });
 });
@@ -113,24 +112,26 @@ describe("base client post test", () => {
   beforeEach(() => {
     client = new BaseClient({ baseUri: "https://somewhere" });
   });
-  afterEach(fetchMock.restore);
+  afterEach(nock.cleanAll);
 
   it("post resource and returns 201", () => {
-    fetchMock.post("*", 201);
+    const scope = nock("https://somewhere")
+      .post("/over/the/rainbow")
+      .reply(201);
 
     return _post({
       client: client,
       path: "/over/the/rainbow",
       body: {}
     }).then(res => {
-      expect(fetchMock.lastUrl()).to.be.equal(
-        "https://somewhere/over/the/rainbow"
-      );
+      expect(nock.isDone()).to.be.true;
     });
   });
 
   it("is not ok when attempting to post nonexistent collection", () => {
-    fetchMock.post("*", 404);
+    const scope = nock("https://somewhere")
+      .post("/over/the/rainbow")
+      .reply(404);
 
     return _post({
       client: client,
@@ -140,19 +141,24 @@ describe("base client post test", () => {
   });
 
   it("post resource with body and returns 201", () => {
-    fetchMock.post("*", 201);
+    const scope = nock("https://somewhere")
+      .post("/over/the")
+      .reply(201);
 
     return _post({
       client: client,
       path: "/over/the",
       body: { location: "oz" }
     }).then(res => {
-      expect(fetchMock.lastUrl()).to.be.equal("https://somewhere/over/the");
+      expect(nock.isDone()).to.be.true;
     });
   });
 
   it("post resource with site id in query param, body and returns 201", () => {
-    fetchMock.post("*", 201);
+    const scope = nock("https://somewhere")
+      .post("/over")
+      .query({ id: "the" })
+      .reply(201);
 
     return _post({
       client: client,
@@ -160,7 +166,7 @@ describe("base client post test", () => {
       queryParameters: { id: "the" },
       body: { content: "rainbow" }
     }).then(res => {
-      expect(fetchMock.lastUrl()).to.be.equal("https://somewhere/over?id=the");
+      expect(nock.isDone()).to.be.true;
     });
   });
 });
@@ -171,22 +177,24 @@ describe("base client put test", () => {
   beforeEach(() => {
     client = new BaseClient({ baseUri: "https://somewhere" });
   });
-  afterEach(fetchMock.restore);
+  afterEach(nock.cleanAll);
 
   it("put resource and returns 201", () => {
-    fetchMock.put("*", 201);
+    const scope = nock("https://somewhere")
+      .put("/over/the/rainbow")
+      .reply(201);
 
     return _put({ client: client, path: "/over/the/rainbow", body: {} }).then(
       () => {
-        expect(fetchMock.lastUrl()).to.equal(
-          "https://somewhere/over/the/rainbow"
-        );
+        expect(nock.isDone()).to.be.true;
       }
     );
   });
 
   it("is not ok when attempting to put nonexistent resource", () => {
-    fetchMock.put("*", 404);
+    const scope = nock("https://somewhere")
+      .put("/over/the/rainbow")
+      .reply(404);
 
     return _put({
       client: client,
@@ -196,31 +204,38 @@ describe("base client put test", () => {
   });
 
   it("put resource with body and returns 200", () => {
-    fetchMock.put("*", 200);
+    const scope = nock("https://somewhere")
+      .put("/over/the")
+      .reply(200);
 
     return _put({
       client: client,
       path: "/over/the",
       body: {}
     }).then(() => {
-      expect(fetchMock.lastUrl()).to.equal("https://somewhere/over/the");
+      expect(nock.isDone()).to.be.true;
     });
   });
 
   it("put resource with body and returns 204", () => {
-    fetchMock.put("*", 204);
+    const scope = nock("https://somewhere")
+      .put("/over/the")
+      .reply(204);
 
     return _put({
       client: client,
       path: "/over/the",
       body: {}
     }).then(() => {
-      expect(fetchMock.lastUrl()).to.equal("https://somewhere/over/the");
+      expect(nock.isDone()).to.be.true;
     });
   });
 
   it("put resource with site id in query param, body and returns 201", () => {
-    fetchMock.put("*", 201);
+    const scope = nock("https://somewhere")
+      .put("/over")
+      .query({ id: "the" })
+      .reply(201);
 
     return _put({
       client: client,
@@ -228,7 +243,7 @@ describe("base client put test", () => {
       queryParameters: { id: "the" },
       body: { content: "rainbow" }
     }).then(() => {
-      expect(fetchMock.lastUrl()).to.equal("https://somewhere/over?id=the");
+      expect(nock.isDone()).to.be.true;
     });
   });
 });
@@ -239,22 +254,24 @@ describe("base client patch test", () => {
   beforeEach(() => {
     client = new BaseClient({ baseUri: "https://somewhere" });
   });
-  afterEach(fetchMock.restore);
+  afterEach(nock.cleanAll);
 
   it("patch resource and returns 200", () => {
-    fetchMock.patch("*", 200);
+    const scope = nock("https://somewhere")
+      .patch("/over/the/rainbow")
+      .reply(200);
 
     return _patch({ client: client, path: "/over/the/rainbow", body: {} }).then(
       () => {
-        expect(fetchMock.lastUrl()).to.equal(
-          "https://somewhere/over/the/rainbow"
-        );
+        expect(nock.isDone()).to.be.true;
       }
     );
   });
 
   it("is not ok when attempting to patch nonexistent resource", () => {
-    fetchMock.patch("*", 404);
+    const scope = nock("https://somewhere")
+      .patch("/over/the/rainbow")
+      .reply(404);
 
     return _patch({
       client: client,
@@ -264,31 +281,38 @@ describe("base client patch test", () => {
   });
 
   it("patch resource with body and returns 200", () => {
-    fetchMock.patch("*", 200);
+    const scope = nock("https://somewhere")
+      .patch("/over/the")
+      .reply(200);
 
     return _patch({
       client: client,
       path: "/over/the",
       body: {}
     }).then(() => {
-      expect(fetchMock.lastUrl()).to.equal("https://somewhere/over/the");
+      expect(nock.isDone()).to.be.true;
     });
   });
 
   it("patch resource with body and returns 204", () => {
-    fetchMock.patch("*", 204);
+    const scope = nock("https://somewhere")
+      .patch("/over/the")
+      .reply(204);
 
     return _patch({
       client: client,
       path: "/over/the",
       body: {}
     }).then(() => {
-      expect(fetchMock.lastUrl()).to.equal("https://somewhere/over/the");
+      expect(nock.isDone()).to.be.true;
     });
   });
 
   it("patch resource with site id in query param, body and returns 200", () => {
-    fetchMock.patch("*", 200);
+    const scope = nock("https://somewhere")
+      .patch("/over")
+      .query({ id: "the" })
+      .reply(200);
 
     return _patch({
       client: client,
@@ -296,19 +320,20 @@ describe("base client patch test", () => {
       queryParameters: { id: "the" },
       body: { content: "rainbow" }
     }).then(() => {
-      expect(fetchMock.lastUrl()).to.equal("https://somewhere/over?id=the");
+      expect(nock.isDone()).to.be.true;
     });
   });
 });
 
 describe("base client test with headers", () => {
-  afterEach(fetchMock.restore);
+  afterEach(nock.cleanAll);
 
   const LANGUAGE_HEADER = { "Accept-Language": "en-US" };
   const TWO_HEADER = {
     "Accept-Language": "en-US",
     "Max-Forwards": "10"
   };
+  const CONTENT_TYPE_JSON = { "Content-Type": "application/json" };
   const CONTENT_TYPE_XML = { "Content-Type": "text/xml" };
 
   it("makes correct get call with headers", () => {
@@ -316,10 +341,12 @@ describe("base client test with headers", () => {
       baseUri: "https://somewhere",
       headers: LANGUAGE_HEADER
     });
-    fetchMock.get("*", { status: 200, body: { mock: "data" } });
+    const scope = nock("https://somewhere", { reqheaders: LANGUAGE_HEADER })
+      .get("/over/the/rainbow")
+      .reply(200, { mock: "data" });
 
     return _get({ client: client, path: "/over/the/rainbow" }).then(() => {
-      expect(fetchMock.lastOptions().headers).to.eql(LANGUAGE_HEADER);
+      expect(nock.isDone()).to.be.true;
     });
   });
 
@@ -328,10 +355,12 @@ describe("base client test with headers", () => {
       baseUri: "https://somewhere",
       headers: TWO_HEADER
     });
-    fetchMock.get("*", { status: 200, body: { mock: "data" } });
+    const scope = nock("https://somewhere", { reqheaders: TWO_HEADER })
+      .get("/over/the/rainbow")
+      .reply(200, { mock: "data" });
 
     return _get({ client: client, path: "/over/the/rainbow" }).then(() => {
-      expect(fetchMock.lastOptions().headers).to.eql(TWO_HEADER);
+      expect(nock.isDone()).to.be.true;
     });
   });
 
@@ -340,11 +369,13 @@ describe("base client test with headers", () => {
       baseUri: "https://somewhere",
       headers: TWO_HEADER
     });
-    fetchMock.post("*", { status: 201, body: {} });
+    const scope = nock("https://somewhere", { reqheaders: TWO_HEADER })
+      .post("/over/the/rainbow")
+      .reply(201, {});
 
     return _post({ client: client, path: "/over/the/rainbow", body: {} }).then(
       () => {
-        expect(fetchMock.lastOptions().headers).to.include(TWO_HEADER);
+        expect(nock.isDone()).to.be.true;
       }
     );
   });
@@ -354,20 +385,20 @@ describe("base client test with headers", () => {
       baseUri: "https://somewhere",
       headers: CONTENT_TYPE_XML
     });
-    fetchMock.post("*", { status: 201, body: {} });
+    const scope = nock("https://somewhere", { reqheaders: CONTENT_TYPE_JSON })
+      .post("/over/the/rainbow")
+      .reply(201, {});
 
     return _post({ client: client, path: "/over/the/rainbow", body: {} }).then(
       () => {
-        expect(fetchMock.lastOptions().headers).to.not.include(
-          CONTENT_TYPE_XML
-        );
+        expect(nock.isDone()).to.be.true;
       }
     );
   });
 });
 
 describe("base client test with endpoint headers", () => {
-  afterEach(fetchMock.restore);
+  afterEach(nock.cleanAll);
 
   const LANGUAGE_HEADER = { "Accept-Language": "en-US" };
   const TWO_HEADER = {
@@ -378,20 +409,23 @@ describe("base client test with endpoint headers", () => {
     "Accept-Language": "en-US",
     "Max-Forwards": "10"
   };
+  const CONTENT_TYPE_JSON = { "Content-Type": "application/json" };
   const CONTENT_TYPE_XML = { "Content-Type": "text/xml" };
 
   it("makes correct get call with endpoint headers", () => {
     const client = new BaseClient({
       baseUri: "https://somewhere"
     });
-    fetchMock.get("*", { status: 200, body: { mock: "data" } });
+    const scope = nock("https://somewhere", { reqheaders: LANGUAGE_HEADER })
+      .get("/over/the/rainbow")
+      .reply(200, { mock: "data" });
 
     return _get({
       client: client,
       path: "/over/the/rainbow",
       headers: LANGUAGE_HEADER
     }).then(() => {
-      expect(fetchMock.lastOptions().headers).to.eql(LANGUAGE_HEADER);
+      expect(nock.isDone()).to.be.true;
     });
   });
 
@@ -399,14 +433,16 @@ describe("base client test with endpoint headers", () => {
     const client = new BaseClient({
       baseUri: "https://somewhere"
     });
-    fetchMock.get("*", { status: 200, body: { mock: "data" } });
+    const scope = nock("https://somewhere", { reqheaders: TWO_HEADER })
+      .get("/over/the/rainbow")
+      .reply(200, { mock: "data" });
 
     return _get({
       client: client,
       path: "/over/the/rainbow",
       headers: TWO_HEADER
     }).then(() => {
-      expect(fetchMock.lastOptions().headers).to.eql(TWO_HEADER);
+      expect(nock.isDone()).to.be.true;
     });
   });
 
@@ -414,7 +450,9 @@ describe("base client test with endpoint headers", () => {
     const client = new BaseClient({
       baseUri: "https://somewhere"
     });
-    fetchMock.post("*", { status: 201, body: {} });
+    const scope = nock("https://somewhere", { reqheaders: TWO_HEADER })
+      .post("/over/the/rainbow")
+      .reply(201, {});
 
     return _post({
       client: client,
@@ -422,7 +460,7 @@ describe("base client test with endpoint headers", () => {
       headers: TWO_HEADER,
       body: {}
     }).then(() => {
-      expect(fetchMock.lastOptions().headers).to.include(TWO_HEADER);
+      expect(nock.isDone()).to.be.true;
     });
   });
 
@@ -431,7 +469,9 @@ describe("base client test with endpoint headers", () => {
       baseUri: "https://somewhere",
       headers: TWO_HEADER
     });
-    fetchMock.post("*", { status: 201, body: {} });
+    const scope = nock("https://somewhere", { reqheaders: MERGE_HEADER })
+      .post("/over/the/rainbow")
+      .reply(201, {});
 
     return _post({
       client: client,
@@ -439,7 +479,7 @@ describe("base client test with endpoint headers", () => {
       headers: LANGUAGE_HEADER,
       body: {}
     }).then(() => {
-      expect(fetchMock.lastOptions().headers).to.include(MERGE_HEADER);
+      expect(nock.isDone()).to.be.true;
     });
   });
 
@@ -447,7 +487,9 @@ describe("base client test with endpoint headers", () => {
     const client = new BaseClient({
       baseUri: "https://somewhere"
     });
-    fetchMock.post("*", { status: 201, body: {} });
+    const scope = nock("https://somewhere", { reqheaders: CONTENT_TYPE_JSON })
+      .post("/over/the/rainbow")
+      .reply(201, {});
 
     return _post({
       client: client,
@@ -455,7 +497,7 @@ describe("base client test with endpoint headers", () => {
       headers: CONTENT_TYPE_XML,
       body: {}
     }).then(() => {
-      expect(fetchMock.lastOptions().headers).to.not.include(CONTENT_TYPE_XML);
+      expect(nock.isDone()).to.be.true;
     });
   });
 });
