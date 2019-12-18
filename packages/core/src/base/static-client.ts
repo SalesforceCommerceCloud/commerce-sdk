@@ -53,12 +53,12 @@ async function runFetch(
   // If there's an auth scheme, update the client headers with the auth info
   // and set the headers for the call or just set the headers for the call
   if (options.authScheme) {
-    fetchOptions.headers = await options.authScheme.injectAuth(
-      options.client.clientConfig.headers
+    fetchOptions.headers = _.clone(
+      await options.authScheme.injectAuth(options.client.clientConfig.headers)
     );
   } else {
     fetchOptions.headers = options.client.clientConfig.headers
-      ? options.client.clientConfig.headers
+      ? _.clone(options.client.clientConfig.headers)
       : {};
   }
 
