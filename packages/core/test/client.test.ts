@@ -7,11 +7,7 @@
 "use strict";
 
 import * as authMock from "@commerce-sdk/exchange-connector";
-const fetchMock = require("fetch-mock").sandbox();
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const nodeFetch = require("node-fetch");
-nodeFetch.default = fetchMock;
 import sinon from "sinon";
 
 import chai from "chai";
@@ -49,7 +45,7 @@ describe("base client config get Bearer token success tests", () => {
     expect(getBearerMock.calledOnce).to.be.false;
   });
 
-  it("YES useMock client config does not get bearer token", () => {
+  it("useMock client config does not get bearer token", () => {
     const client = new BaseClient({ baseUri: "https://somewhere" });
     return client.initializeMockService().then(() => {
       expect(getBearerMock.calledOnce).to.be.true;
@@ -71,7 +67,7 @@ describe("base client config get Bearer token failure tests", () => {
     sandbox.restore();
   });
 
-  it("YES useMock and wrong password, throws some api error", () => {
+  it("useMock and wrong password, throws some api error", () => {
     const client = new BaseClient({ baseUri: "https://somewhere" });
     return client
       .initializeMockService()
