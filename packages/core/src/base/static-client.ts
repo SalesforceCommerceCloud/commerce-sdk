@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import { default as fetch, Response, RequestInit } from "node-fetch";
+import { default as fetch, Response, RequestInit } from "make-fetch-happen";
 import { Resource } from "./resource";
 import { BaseClient } from "./client";
 import { IAuthScheme } from "./auth-schemes";
