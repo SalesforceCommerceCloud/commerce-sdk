@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import { default as fetch, Response, RequestInit } from "node-fetch";
+import { default as fetch, Response, RequestInit } from "make-fetch-happen";
 import { Resource } from "./resource";
 import { BaseClient } from "./client";
 import { IAuthScheme } from "./auth-schemes";
@@ -53,12 +53,12 @@ async function runFetch(
   // If there's an auth scheme, update the client headers with the auth info
   // and set the headers for the call or just set the headers for the call
   if (options.authScheme) {
-    fetchOptions.headers = await options.authScheme.injectAuth(
-      options.client.clientConfig.headers
+    fetchOptions.headers = _.clone(
+      await options.authScheme.injectAuth(options.client.clientConfig.headers)
     );
   } else {
     fetchOptions.headers = options.client.clientConfig.headers
-      ? options.client.clientConfig.headers
+      ? _.clone(options.client.clientConfig.headers)
       : {};
   }
 
