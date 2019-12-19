@@ -72,6 +72,10 @@ async function runFetch(
     fetchOptions.headers["Content-Type"] = CONTENT_TYPE;
   }
 
+  if (options.client.clientConfig.cacheManager) {
+    fetchOptions.cacheManager = options.client.clientConfig.cacheManager;
+  }
+
   const response = await fetch(resource, fetchOptions);
 
   return getObjectFromResponse(response);

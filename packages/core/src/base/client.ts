@@ -4,27 +4,40 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import { IAuthScheme } from "./auth-schemes";
-import _ from "lodash";
+import * as os from 'os';
+import * as path from 'path';
 
 import { config } from "dotenv";
 import { getBearer } from "@commerce-sdk/exchange-connector";
+import _ from "lodash";
 
-/**
- * dotenv config loads environmental variables.
- */
+import { IAuthScheme } from "./auth-schemes";
+
+// dotenv config loads environmental variables.
 config();
 
 export type ClientConfig = {
   authHost?: string;
   baseUri?: string;
+  // Setting to a string sets the path for the default cacache cache.
+  // Set to ICacheManager for another caching solution
+  // Set to null to disable caching
+  // TODO: Make this a specific interface ICacheManager
+  cacheManager?: object | string;
   clientId?: string;
   clientSecret?: string;
   headers?: { [key: string]: string };
 };
 
+function makeNewTempDir(prefix: string): string {
+  const id = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  return path.join(os.tmpdir(), prefix, id);
+}
+
 const DEFAULT_CLIENT_CONFIG: ClientConfig = {
   authHost: "https://account-pod5.demandware.net",
+  // Enables cacache for local caching in temp dir by default
+  cacheManager: makeNewTempDir("cache"),
   headers: {}
 };
 
