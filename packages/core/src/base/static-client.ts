@@ -11,6 +11,9 @@ import { IAuthScheme } from "./auth-schemes";
 const CONTENT_TYPE = "application/json";
 import _ from "lodash";
 
+import DefaultCache = require("make-fetch-happen/cache");
+export { DefaultCache };
+
 export class ResponseError extends Error {
   constructor(public response: Response) {
     super(`${response.status} ${response.statusText}`);

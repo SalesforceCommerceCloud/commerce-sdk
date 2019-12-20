@@ -6,13 +6,9 @@
  */
 "use strict";
 
-import * as os from 'os';
-import * as path from 'path';
-
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import nock from "nock";
-import { FetchError } from "minipass-fetch";
 
 const expect = chai.expect;
 
@@ -27,8 +23,7 @@ import {
   _get,
   _patch,
   _post,
-  _put,
-  ResponseError
+  _put
 } from "../src/base/static-client";
 
 describe("base client get test", () => {
@@ -60,7 +55,7 @@ describe("base client get test", () => {
       return _get({ client: client, path: "/max-age-zero" }).then(data => {
         expect(data).to.eql({ mock: "newData" });
         expect(nock.isDone()).to.be.true;
-      })
+      });
     });
   });
 
@@ -68,17 +63,25 @@ describe("base client get test", () => {
     const client = new BaseClient({ baseUri: "https://somewhere" });
     const scope = nock("https://somewhere")
       .get("/fresh")
-      .reply(200, { mock: "data" }, { "Expires": "Sun, 03 May 2055 23:02:37 GMT" });
+      .reply(
+        200,
+        { mock: "data" },
+        { Expires: "Sun, 03 May 2055 23:02:37 GMT" }
+      );
     scope
       .get("/fresh")
-      .reply(200, { mock: "newData" }, { "Expires": "Sun, 03 May 2055 23:02:37 GMT" });
+      .reply(
+        200,
+        { mock: "newData" },
+        { Expires: "Sun, 03 May 2055 23:02:37 GMT" }
+      );
 
     return _get({ client: client, path: "/fresh" }).then(data => {
       expect(data).to.eql({ mock: "data" });
       return _get({ client: client, path: "/fresh" }).then(data => {
         expect(data).to.eql({ mock: "data" });
         expect(nock.isDone()).to.be.false;
-      })
+      });
     });
   });
 
@@ -86,17 +89,25 @@ describe("base client get test", () => {
     const client = new BaseClient({ baseUri: "https://somewhere" });
     const scope = nock("https://somewhere")
       .get("/expired")
-      .reply(200, { mock: "data" }, { "Expires": "Sun, 03 May 2015 23:02:37 GMT" });
+      .reply(
+        200,
+        { mock: "data" },
+        { Expires: "Sun, 03 May 2015 23:02:37 GMT" }
+      );
     scope
       .get("/expired")
-      .reply(200, { mock: "newData" }, { "Expires": "Sun, 03 May 2015 23:02:37 GMT" });
+      .reply(
+        200,
+        { mock: "newData" },
+        { Expires: "Sun, 03 May 2015 23:02:37 GMT" }
+      );
 
     return _get({ client: client, path: "/expired" }).then(data => {
       expect(data).to.eql({ mock: "data" });
       return _get({ client: client, path: "/expired" }).then(data => {
         expect(data).to.eql({ mock: "newData" });
         expect(nock.isDone()).to.be.true;
-      })
+      });
     });
   });
 
@@ -120,7 +131,10 @@ describe("base client get test", () => {
   });
 
   it("bypasses caches with no cache", () => {
-    const client = new BaseClient({ baseUri: "https://somewhere", cacheManager: null });
+    const client = new BaseClient({
+      baseUri: "https://somewhere",
+      cacheManager: null
+    });
     const scope = nock("https://somewhere")
       .get("/max-age-null-cache")
       .reply(200, { mock: "data" }, { "Cache-Control": "max-age=604800" });
@@ -131,10 +145,12 @@ describe("base client get test", () => {
     return _get({ client: client, path: "/max-age-null-cache" }).then(data => {
       expect(data).to.eql({ mock: "data" });
       expect(nock.isDone()).to.be.false;
-      return _get({ client: client, path: "/max-age-null-cache" }).then(data => {
-        expect(data).to.eql({ mock: "newData" });
-        expect(nock.isDone()).to.be.true;
-      });
+      return _get({ client: client, path: "/max-age-null-cache" }).then(
+        data => {
+          expect(data).to.eql({ mock: "newData" });
+          expect(nock.isDone()).to.be.true;
+        }
+      );
     });
   });
 
@@ -150,7 +166,11 @@ describe("base client get test", () => {
     return _get({ client: client, path: "/max-age-no-cache" }).then(data => {
       expect(data).to.eql({ mock: "data" });
       expect(nock.isDone()).to.be.false;
-      return _get({ client: client, path: "/max-age-no-cache", headers: { "Cache-Control": "no-cache" } }).then(data => {
+      return _get({
+        client: client,
+        path: "/max-age-no-cache",
+        headers: { "Cache-Control": "no-cache" }
+      }).then(data => {
         expect(data).to.eql({ mock: "newData" });
         expect(nock.isDone()).to.be.true;
       });
@@ -166,14 +186,18 @@ describe("base client get test", () => {
       .post("/post-max-age")
       .reply(200, { mock: "newData" }, { "Cache-Control": "max-age=604800" });
 
-    return _post({ client: client, path: "/post-max-age", body: {} }).then(data => {
-      expect(data).to.eql({ mock: "data" });
-      expect(nock.isDone()).to.be.false;
-      return _post({ client: client, path: "/post-max-age", body: {} }).then(data => {
-        expect(data).to.eql({ mock: "newData" });
-        expect(nock.isDone()).to.be.true;
-      });
-    });
+    return _post({ client: client, path: "/post-max-age", body: {} }).then(
+      data => {
+        expect(data).to.eql({ mock: "data" });
+        expect(nock.isDone()).to.be.false;
+        return _post({ client: client, path: "/post-max-age", body: {} }).then(
+          data => {
+            expect(data).to.eql({ mock: "newData" });
+            expect(nock.isDone()).to.be.true;
+          }
+        );
+      }
+    );
   });
 
   it("doesn't cache patch request max-age", () => {
@@ -185,14 +209,20 @@ describe("base client get test", () => {
       .patch("/patch-max-age")
       .reply(200, { mock: "newData" }, { "Cache-Control": "max-age=604800" });
 
-    return _patch({ client: client, path: "/patch-max-age", body: {} }).then(data => {
-      expect(data).to.eql({ mock: "data" });
-      expect(nock.isDone()).to.be.false;
-      return _patch({ client: client, path: "/patch-max-age", body: {} }).then(data => {
-        expect(data).to.eql({ mock: "newData" });
-        expect(nock.isDone()).to.be.true;
-      });
-    });
+    return _patch({ client: client, path: "/patch-max-age", body: {} }).then(
+      data => {
+        expect(data).to.eql({ mock: "data" });
+        expect(nock.isDone()).to.be.false;
+        return _patch({
+          client: client,
+          path: "/patch-max-age",
+          body: {}
+        }).then(data => {
+          expect(data).to.eql({ mock: "newData" });
+          expect(nock.isDone()).to.be.true;
+        });
+      }
+    );
   });
 
   it("doesn't cache put request max-age", () => {
@@ -204,13 +234,17 @@ describe("base client get test", () => {
       .put("/put-max-age")
       .reply(200, { mock: "newData" }, { "Cache-Control": "max-age=604800" });
 
-    return _put({ client: client, path: "/put-max-age", body: {} }).then(data => {
-      expect(data).to.eql({ mock: "data" });
-      expect(nock.isDone()).to.be.false;
-      return _put({ client: client, path: "/put-max-age", body: {} }).then(data => {
-        expect(data).to.eql({ mock: "newData" });
-        expect(nock.isDone()).to.be.true;
-      });
-    });
+    return _put({ client: client, path: "/put-max-age", body: {} }).then(
+      data => {
+        expect(data).to.eql({ mock: "data" });
+        expect(nock.isDone()).to.be.false;
+        return _put({ client: client, path: "/put-max-age", body: {} }).then(
+          data => {
+            expect(data).to.eql({ mock: "newData" });
+            expect(nock.isDone()).to.be.true;
+          }
+        );
+      }
+    );
   });
 });
