@@ -11,6 +11,9 @@ import { IAuthScheme } from "./auth-schemes";
 const CONTENT_TYPE = "application/json";
 import _ from "lodash";
 
+import DefaultCache = require("make-fetch-happen/cache");
+export { DefaultCache };
+
 export class ResponseError extends Error {
   constructor(public response: Response) {
     super(`${response.status} ${response.statusText}`);
@@ -70,6 +73,10 @@ async function runFetch(
   if (options.body) {
     fetchOptions.body = JSON.stringify(options.body);
     fetchOptions.headers["Content-Type"] = CONTENT_TYPE;
+  }
+
+  if (options.client.clientConfig.cacheManager) {
+    fetchOptions.cacheManager = options.client.clientConfig.cacheManager;
   }
 
   const response = await fetch(resource, fetchOptions);
