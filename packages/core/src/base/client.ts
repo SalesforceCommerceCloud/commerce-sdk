@@ -10,9 +10,10 @@ import * as path from "path";
 import { config } from "dotenv";
 import { getBearer } from "@commerce-sdk/exchange-connector";
 import _ from "lodash";
+import tmp from "tmp";
 
 import { DefaultCache } from "./static-client";
-export { DefaultCache }
+export { DefaultCache };
 import { IAuthScheme } from "./auth-schemes";
 import { ICacheManager } from "./cache-manager";
 
@@ -28,21 +29,12 @@ export type ClientConfig = {
   headers?: { [key: string]: string };
 };
 
-function makeNewTempDir(prefix: string): string {
-  const id =
-    Math.random()
-      .toString(36)
-      .substring(2, 15) +
-    Math.random()
-      .toString(36)
-      .substring(2, 15);
-  return path.join(os.tmpdir(), prefix, id);
-}
-
 const DEFAULT_CLIENT_CONFIG: ClientConfig = {
   authHost: "https://account-pod5.demandware.net",
-  // Enables cacache for local caching in temp dir by default
-  cacheManager: new DefaultCache(makeNewTempDir("cache")),
+  // Enables cacache for local caching in temp dir by default, unsafeCleanup == rm -rf on exit
+  cacheManager: new DefaultCache(
+    tmp.dirSync({ prefix: "cache-", unsafeCleanup: true }).name
+  ),
   headers: {}
 };
 
