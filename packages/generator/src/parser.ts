@@ -4,18 +4,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import {
-  WebApiParser,
-  WebApiBaseUnit,
-  WebApiBaseUnitWithDeclaresModel
-} from "webapi-parser";
+import { WebApiBaseUnit, WebApiBaseUnitWithDeclaresModel } from "webapi-parser";
 
 // import amf from "webapi-parser";
 
 import { model } from "amf-client-js";
 import amf from "amf-client-js";
 
-export function processRamlFile(ramlFile: string): Promise<any> {
+export function processRamlFile(ramlFile: string): Promise<WebApiBaseUnit> {
   amf.plugins.document.WebApi.register();
   amf.plugins.features.AMFValidation.register();
   amf.plugins.document.Vocabularies.register();
@@ -24,7 +20,7 @@ export function processRamlFile(ramlFile: string): Promise<any> {
     const parser = amf.Core.parser("RAML 1.0", "application/yaml");
 
     return parser.parseFileAsync(`file://${ramlFile}`).then(function(model) {
-      return model;
+      return model as WebApiBaseUnit;
     });
   });
 }
