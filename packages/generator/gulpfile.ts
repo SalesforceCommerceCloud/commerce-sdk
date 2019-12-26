@@ -26,16 +26,13 @@ require("dotenv").config();
 
 import { WebApiBaseUnitWithEncodesModel } from "webapi-parser";
 
-const RAML_GROUPS = "raml-groups.json";
-
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const config = require("./build-config.json");
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-gulp.task("cleanTmp", (cb: any) => {
+gulp.task("clean", (cb: any) => {
   log.info(`Removing ${config.renderDir} directory`);
-  return;
-  // return del([`${config.renderDir}`], cb);
+  return del([`${config.renderDir}`, "dist"], cb);
 });
 
 function search(): Promise<RestApi[]> {
@@ -43,30 +40,32 @@ function search(): Promise<RestApi[]> {
     process.env.ANYPOINT_USERNAME,
     process.env.ANYPOINT_PASSWORD
   ).then(token => {
-    return searchExchange(token, 'category:"CC API Family"');
+    return searchExchange(token, `category:"${config.exchangeCategory}"`);
   });
 }
-
-gulp.task("downloadRamlFromExchange", search);
 
 /**
  * Groups RAML files for the given key (API Family, a.k.a Bounded Context).
  * Once grouped, renderTemplates task creates one Client per group
  */
-function groupRamls(): Promise<void> {
+function downloadRamlFromExchange(): Promise<void> {
+  const downloadDir = tmp.dirSync();
   return search().then(apis => {
-    return downloadRestApis(apis)
+    return downloadRestApis(apis, downloadDir.name)
       .then(folder => {
+        console.log(`Setting config.inputDir to '${folder}'`);
         config.inputDir = folder;
         return extractFiles(folder);
       })
       .then(async () => {
         const ramlGroups = _.groupBy(apis, api => {
-          return api.categories["CC API Family"][0];
+          // Categories are actually a list.
+          // We are just going to use whatever the first one is for now
+          return api.categories[config.exchangeCategory][0];
         });
         fs.ensureDirSync(config.inputDir);
         return fs.writeFile(
-          path.join(`${config.inputDir}`, RAML_GROUPS),
+          path.join(config.inputDir, config.apiConfigFile),
           JSON.stringify(ramlGroups)
         );
       });
@@ -75,20 +74,23 @@ function groupRamls(): Promise<void> {
   });
 }
 
-gulp.task("groupRamls", async () => {
+gulp.task("downloadRamlFromExchange", async () => {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  if (process.env.DOWNLOAD) {
-    return groupRamls();
+  if (process.env.EXCHANGE_DOWNLOAD) {
+    console.log("Downloading apis from exchange");
+    return downloadRamlFromExchange();
+  } else {
+    console.log("Not downloading so justing local files");
   }
 });
 
 gulp.task(
   "renderTemplates",
-  gulp.series(gulp.series("groupRamls"), async () => {
+  gulp.series(gulp.series("clean", "downloadRamlFromExchange"), async () => {
     // require the json written in groupRamls gulpTask
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const ramlGroupConfig = require(path.resolve(
-      path.join(`${config.inputDir}`, RAML_GROUPS)
+      path.join(config.inputDir, config.apiConfigFile)
     ));
     // console.log(ramlGroupConfig);
     const apiGroupKeys = _.keysIn(ramlGroupConfig);

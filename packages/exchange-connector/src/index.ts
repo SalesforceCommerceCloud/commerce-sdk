@@ -12,10 +12,6 @@ export {
   downloadRestApi,
   downloadRestApis
 } from "./exchangeDownloader";
-export {
-  extractFiles,
-  getRamlFromDirectory,
-  getConfigFilesFromDirectory
-} from "./exchangeDirectoryParser";
+export { extractFiles } from "./exchangeDirectoryParser";
 
 export { RestApi } from "./exchangeTypes";

@@ -6,7 +6,7 @@
  */
 "use strict";
 import { processRamlFile, getAllDataTypes } from "../src/parser";
-import { WebApiBaseUnit, WebApiBaseUnitWithDeclaresModel } from "webapi-parser";
+import { WebApiBaseUnitWithDeclaresModel } from "webapi-parser";
 
 import { expect, default as chai } from "chai";
 import chaiAsPromised from "chai-as-promised";
