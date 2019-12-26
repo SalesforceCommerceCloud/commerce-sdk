@@ -20,23 +20,13 @@ export function processRamlFile(ramlFile: string): Promise<any> {
   amf.plugins.features.AMFValidation.register();
   amf.plugins.document.Vocabularies.register();
 
-  return amf.Core.init()
-    .then(() => {
-      const parser = amf.Core.parser("RAML 1.0", "application/yaml");
+  return amf.Core.init().then(() => {
+    const parser = amf.Core.parser("RAML 1.0", "application/yaml");
 
-      return parser
-        .parseFileAsync(`file://${ramlFile}`)
-        .then(function(model) {
-          return model;
-        }) // Validating using a custom profile
-        .catch(function(err) {
-          console.log("Error validating");
-          console.log(err);
-        });
-    })
-    .catch(e => {
-      console.error(e);
+    return parser.parseFileAsync(`file://${ramlFile}`).then(function(model) {
+      return model;
     });
+  });
 }
 
 function getDataTypesFromDeclare(
