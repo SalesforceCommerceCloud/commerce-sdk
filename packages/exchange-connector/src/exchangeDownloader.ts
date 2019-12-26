@@ -4,13 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import gql from "graphql-tag";
 import "cross-fetch/polyfill";
-import ApolloClient from "apollo-boost";
 
-import { writeFileSync } from "fs";
+import { writeFileSync, ensureDirSync } from "fs-extra";
 
-import fetch from "node-fetch";
+import fetch, { Response } from "node-fetch";
 
 import { RestApi, FileInfo, Categories } from "./exchangeTypes";
 
@@ -18,24 +16,33 @@ export function downloadRestApi(
   restApi: RestApi,
   destinationFolder?: string
 ): Promise<void | Response> {
-  if (!restApi.fatRaml) {
-    throw new Error(
-      `Fat RAML download information for ${restApi.assetId} is missing`
-    );
-  }
-  if (!destinationFolder) {
-    destinationFolder = "download";
-  }
+  return new Promise((resolve, reject) => {
+    if (!restApi.fatRaml) {
+      reject(
+        new Error(
+          `Fat RAML download information for ${restApi.assetId} is missing`
+        )
+      );
+    }
+    if (!destinationFolder) {
+      destinationFolder = "download";
+    }
 
-  const zipFilePath = `${destinationFolder}/${restApi.assetId}.zip`;
+    ensureDirSync(destinationFolder);
 
-  return fetch(restApi.fatRaml.externalLink)
-    .then(result => {
-      return result.arrayBuffer();
-    })
-    .then(x => {
-      writeFileSync(zipFilePath, Buffer.from(x));
-    });
+    const zipFilePath = `${destinationFolder}/${restApi.assetId}.zip`;
+
+    let ret: Response;
+    return fetch(restApi.fatRaml.externalLink)
+      .then(result => {
+        ret = result;
+        return result.arrayBuffer();
+      })
+      .then(x => {
+        writeFileSync(zipFilePath, Buffer.from(x));
+        resolve(ret);
+      });
+  });
 }
 
 export function downloadRestApis(
