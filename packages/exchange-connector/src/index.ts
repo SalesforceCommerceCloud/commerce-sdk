@@ -7,9 +7,15 @@
 "use strict";
 
 export { getBearer } from "./bearerToken";
-export { getRamlByTag, getRamlById } from "./exchangeDownloader";
+export {
+  searchExchange,
+  downloadRestApi,
+  downloadRestApis
+} from "./exchangeDownloader";
 export {
   extractFiles,
   getRamlFromDirectory,
   getConfigFilesFromDirectory
 } from "./exchangeDirectoryParser";
+
+export { RestApi } from "./exchangeTypes";

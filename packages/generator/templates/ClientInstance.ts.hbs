@@ -1,12 +1,10 @@
 import { StaticClient, BaseClient, ClientConfig, ResponseError, AuthSchemes } from "@commerce-sdk/core";
 
 import {
-{{#each models}}
-{{#each declares}}
-    {{#eq $classData.name "amf.client.model.domain.NodeShape"}}
+{{#each dataTypes}}
+    {{#if (isTypeDefinition .)}}
         {{getValue name}},
-    {{/eq}}
-{{/each}}
+    {{/if}}
 {{/each}}
 } from "./{{apiSpec}}.types";
 

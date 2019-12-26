@@ -1,6 +1,5 @@
 {{#each .}}
-{{#each .}}
-{{#eq $classData.name "amf.client.model.domain.NodeShape"}}
+{{#if (isTypeDefinition .)}}
 export type {{getValue name}} = {
     {{#each (onlyRequired properties)}}
         {{getValue name}}: {{{getDataType .}}};
@@ -9,6 +8,5 @@ export type {{getValue name}} = {
         {{getValue name}}?: {{{getDataType .}}};
     {{/each}}
 }
-{{/eq}}
-{{/each}}
+{{/if}}
 {{/each}}

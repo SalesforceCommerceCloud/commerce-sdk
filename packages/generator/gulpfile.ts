@@ -16,16 +16,16 @@ import * as path from "path";
 import {
   extractFiles,
   getBearer,
-  getRamlByTag,
-  getRamlFromDirectory,
-  getConfigFilesFromDirectory
+  searchExchange,
+  getConfigFilesFromDirectory,
+  downloadRestApis,
+  RestApi
 } from "@commerce-sdk/exchange-connector";
 import tmp from "tmp";
 
 require("dotenv").config();
 
 import {
-  WebApiBaseUnit,
   WebApiBaseUnitWithEncodesModel,
   WebApiBaseUnitWithDeclaresModel
 } from "webapi-parser";
@@ -42,82 +42,47 @@ gulp.task("cleanTmp", (cb: any) => {
   return del([`${config.tmpDir}`], cb);
 });
 
-gulp.task("downloadRamlFromExchange", () => {
-  const tmpDir = tmp.dirSync();
-
+function search(): Promise<RestApi[]> {
   return getBearer(
     process.env.ANYPOINT_USERNAME,
     process.env.ANYPOINT_PASSWORD
   ).then(token => {
-    return getRamlByTag(token, process.env.ANYPOINT_TAG, tmpDir.name).then(
-      () => {
-        return extractFiles(tmpDir.name).then(() => {
-          console.log(`Files downloaded to ${tmpDir.name}`);
-
-          // TODO: This needs to be sorted by bounded context before being added to config.files
-          config.files = getRamlFromDirectory(tmpDir.name);
-        });
-      }
-    );
+    return searchExchange(token, 'category:"CC API Family"');
   });
-});
+}
 
-/**
- * Prepares sdk-integration-test.zip file for integration testing
- * The zip file is moved to a temporary folder, extracted, parsed and grouped, built and then
- * integration tests are executed. This is necessary to ensure the downloaded fat RAML files
- * follow similar route before generating the respective SDKs.
- */
-gulp.task("prepareIntegrationTest", async () => {
-  await fs.ensureDir(`${config.tmpDir}`);
-  const tmpDir = tmp.dirSync();
-  //This copy mocks the download of fat raml files
-  fs.copyFileSync(
-    path.join(path.resolve("test"), "raml", "valid", "sdk-integration.zip"),
-    path.join(tmpDir.name, "sdk-integration.zip")
-  );
-  fs.copyFileSync(
-    path.resolve("build-config.json"),
-    path.join(`${config.tmpDir}`, PRE_GROUP_BUILD_CONFIG)
-  );
-  console.log("Integration test files copied to ", tmpDir.name);
-
-  // require the temporary json and replace the files property after extraction
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const preGroupConfig = require(path.resolve(
-    path.join(`${config.tmpDir}`, PRE_GROUP_BUILD_CONFIG)
-  ));
-
-  // replace the files property after extraction. Files will be grouped in groupRamls task
-  return extractFiles(tmpDir.name).then(() => {
-    const configFiles = getConfigFilesFromDirectory(tmpDir.name);
-    preGroupConfig.files = configFiles;
-  });
-});
+gulp.task("downloadRamlFromExchange", search);
 
 /**
  * Groups RAML files for the given key (API Family, a.k.a Bounded Context).
  * Once grouped, renderTemplates task creates one Client per group
  */
-gulp.task(
-  "groupRamls",
-  gulp.series("prepareIntegrationTest", async () => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const preGroupConfig = require(path.resolve(
-      path.join(`${config.tmpDir}`, PRE_GROUP_BUILD_CONFIG)
-    ));
+function groupRamls(): Promise<void> {
+  return search().then(apis => {
+    return downloadRestApis(apis)
+      .then(folder => {
+        return extractFiles(folder);
+      })
+      .then(async () => {
+        const ramlGroups = _.groupBy(apis, api => {
+          return api.categories["CC API Family"][0];
+        });
+        return fs.ensureDir(`${config.tmpDir}`).then(() => {
+          return fs.writeFile(
+            path.join(`${config.tmpDir}`, RAML_GROUPS),
+            JSON.stringify(ramlGroups)
+          );
+        });
+      });
 
     // Group RAML files by the key, aka, bounded context/API Family
-    const ramlGroups = _.groupBy(
-      preGroupConfig.files,
-      file => file.boundedContext
-    );
-    await fs.writeFile(
-      path.join(`${config.tmpDir}`, RAML_GROUPS),
-      JSON.stringify(ramlGroups)
-    );
-  })
-);
+  });
+}
+
+gulp.task("groupRamls", async () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  return groupRamls();
+});
 
 gulp.task(
   "renderTemplates",
@@ -127,14 +92,21 @@ gulp.task(
     const ramlGroupConfig = require(path.resolve(
       path.join(`${config.tmpDir}`, RAML_GROUPS)
     ));
+    // console.log(ramlGroupConfig);
     const apiGroupKeys = _.keysIn(ramlGroupConfig);
+
     for (const apiGroup of apiGroupKeys) {
       const familyPromises = [];
       const ramlFileFromFamily = ramlGroupConfig[apiGroup];
-      _.map(ramlFileFromFamily, ramlMeta => {
-        familyPromises.push(processRamlFile(ramlMeta.ramlFile));
+      _.map(ramlFileFromFamily, (apiMeta: RestApi) => {
+        familyPromises.push(
+          processRamlFile(
+            `download/${apiMeta.assetId}/${apiMeta.fatRaml.mainFile}`
+          )
+        );
       });
       Promise.all(familyPromises).then(values => {
+        // console.log(values);
         fs.writeFileSync(
           `${config.tmpDir}/${apiGroup}.ts`,
           createClient(
@@ -145,9 +117,7 @@ gulp.task(
         fs.writeFileSync(
           `${config.tmpDir}/${apiGroup}.types.ts`,
           createDto(
-            values.map(
-              value => (value as WebApiBaseUnitWithDeclaresModel).declares
-            )
+            values.map(value => value as WebApiBaseUnitWithEncodesModel)
           )
         );
       });

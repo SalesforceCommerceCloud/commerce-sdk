@@ -7,7 +7,6 @@
 import { getBearer } from "../src";
 import { expect, default as chai } from "chai";
 import chaiAsPromised from "chai-as-promised";
-import { processRamlFile } from "../../generator/src/parser";
 
 before(() => {
   chai.use(chaiAsPromised);

@@ -12,114 +12,102 @@ import { writeFileSync } from "fs";
 
 import fetch from "node-fetch";
 
-export function downloadAssets(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  assets: Array<any>,
-  downloadFolder: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): Promise<any> {
-  return new Promise((resolve, reject) => {
-    const promises: Promise<any>[] = [];
-    const downloadedFolder = downloadFolder ? downloadFolder : "download";
+import { RestApi, FileInfo, Categories } from "./exchangeTypes";
 
-    assets.forEach(asset => {
-      const zipFilePath = `${downloadedFolder}/${asset.assetId}.zip`;
+export function downloadRestApi(
+  restApi: RestApi,
+  destinationFolder?: string
+): Promise<void | Response> {
+  if (!restApi.fatRaml) {
+    throw new Error(
+      `Fat RAML download information for ${restApi.assetId} is missing`
+    );
+  }
+  if (!destinationFolder) {
+    destinationFolder = "download";
+  }
 
-      asset.files.forEach(element => {
-        if (element.classifier === "fat-raml") {
-          promises.push(
-            fetch(element.externalLink)
-              .then(result => {
-                return result.arrayBuffer();
-              })
-              .then(x => {
-                writeFileSync(zipFilePath, Buffer.from(x));
-              })
-              .catch(e => {
-                reject(e);
-              })
-          );
-        }
-      });
+  const zipFilePath = `${destinationFolder}/${restApi.assetId}.zip`;
+
+  return fetch(restApi.fatRaml.externalLink)
+    .then(result => {
+      return result.arrayBuffer();
+    })
+    .then(x => {
+      writeFileSync(zipFilePath, Buffer.from(x));
     });
-    return Promise.all(promises).then(resolve);
-  });
 }
 
-export function getRamlByTag(
-  accessToken: string,
-  tag: string,
-  downloadFolder?: string
-): Promise<void> {
-  const client = new ApolloClient({
-    uri: "https://anypoint.mulesoft.com/graph/api/v1/graphql"
+export function downloadRestApis(
+  restApi: Array<RestApi>,
+  destinationFolder?: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Promise<string> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const promises: Promise<any>[] = [];
+
+  if (!destinationFolder) {
+    destinationFolder = "download";
+  }
+
+  restApi.forEach((api: RestApi) => {
+    promises.push(downloadRestApi(api, destinationFolder));
   });
-  return client
-    .query({
-      query: gql`
-        {
-          assets(
-            query: { type: "rest-api", tags: [{ value: "${tag}" }] }
-            latestVersionsOnly: true
-          ) {
-            assetId
-            files {
-              externalLink
-              classifier
-              packaging
-            }
-            type
-          }
-        }
-      `,
-      variables: {
-        accessToken: accessToken
-      }
-    })
-    .then(data => {
-      if (data && data.data) {
-        return downloadAssets(data.data.assets, downloadFolder);
-      }
-      return Promise.resolve();
-    })
-    .catch(error => console.error(error));
+
+  return Promise.all(promises).then(() => destinationFolder);
 }
 
-export function getRamlById(
-  accessToken: string,
-  assetId: string,
-  downloadFolder?: string
-): Promise<void> {
-  const client = new ApolloClient({
-    uri: "https://anypoint.mulesoft.com/graph/api/v1/graphql"
+function mapCategories(categories): Categories {
+  const cats: Categories = {};
+  categories.forEach(category => {
+    cats[category["key"]] = category["value"];
   });
-  return client
-    .query({
-      query: gql`
-        {
-          assets(
-            query: { assetId: "${assetId}" }
-            latestVersionsOnly: true
-          ) {
-            assetId
-            files {
-              externalLink
-              classifier
-              packaging
-            }
-            type
-          }
-        }
-      `,
-      variables: {
-        accessToken: accessToken
+  return cats;
+}
+
+function getFileByClassifier(files, classifier): FileInfo {
+  let myFile: FileInfo;
+  files.forEach(file => {
+    if (file["classifier"] === classifier) {
+      myFile = {
+        classifier: file["classifier"],
+        packaging: file["packaging"],
+        externalLink: file["externalLink"],
+        createdDate: file["createdDate"],
+        md5: file["md5"],
+        sha1: file["sha1"],
+        mainFile: file["mainFile"]
+      };
+    }
+  });
+  return myFile;
+}
+
+export function searchExchange(
+  accessToken: string,
+  searchString: string
+): Promise<RestApi[]> {
+  return fetch(
+    `https://anypoint.mulesoft.com/exchange/api/v2/assets?search=${searchString}`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
       }
-    })
-    .then(data => {
-      if (data && data.data) {
-        return downloadAssets(data.data.assets, downloadFolder);
-      }
-      return Promise.resolve();
-    })
-    .catch(error => console.error(error));
+    }
+  )
+    .then(res => res.json())
+    .then(restApis => {
+      const apis: RestApi[] = [];
+      restApis.forEach(restApi => {
+        apis.push({
+          name: restApi["name"],
+          groupId: restApi["groupId"],
+          assetId: restApi["assetId"],
+          version: restApi["version"],
+          categories: mapCategories(restApi["categories"]),
+          fatRaml: getFileByClassifier(restApi["files"], "fat-raml")
+        });
+      });
+      return apis;
+    });
 }

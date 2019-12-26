@@ -12,7 +12,10 @@ import {
   RESPONSE_DATA_TYPE
 } from "./config";
 
+import _ from "lodash";
+
 import { AuthSchemes } from "@commerce-sdk/core";
+import { WebApiBaseUnit } from "webapi-parser";
 
 const isValidProperty = function(property: any): boolean {
   return (
@@ -74,6 +77,14 @@ export const isPrimitiveProperty = function(property: any): boolean {
 
 export const isDefinedProperty = function(property: any): boolean {
   return property !== undefined && isTypeDefined(property.range);
+};
+
+export const isTypeDefinition = function(obj: any): boolean {
+  return (
+    obj !== undefined &&
+    (obj.$classData.name === "amf.client.model.domain.NodeShape" ||
+      obj.$classData.name === "amf.client.model.domain.ScalarShape")
+  );
 };
 
 const getPayloadResponses = function(operation: any): any {
@@ -224,4 +235,13 @@ export const onlyOptional = function(classes: any[]): any[] {
     : classes.filter(entry => {
         return entry.minCount.value() == 0;
       });
+};
+
+export const eachModel = function(context): any[] {
+  const ret = _.map(context, (item: any) => {
+    if (item.$classData.name === "amf.client.model.domain.NodeShape") {
+      return item.declares;
+    }
+  });
+  return ret;
 };
