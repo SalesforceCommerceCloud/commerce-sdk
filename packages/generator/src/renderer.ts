@@ -7,7 +7,7 @@
 import fs from "fs-extra";
 import path from "path";
 import Handlebars from "handlebars";
-import { model } from "amf-client-js";
+import { getAllDataTypes } from "./parser";
 
 import {
   isDefinedProperty,
@@ -21,8 +21,11 @@ import {
   isReturnPayloadDefined,
   getValue,
   onlyRequired,
-  onlyOptional
+  onlyOptional,
+  eachModel,
+  isTypeDefinition
 } from "./template-helpers";
+import { WebApiBaseUnit, WebApiBaseUnitWithDeclaresModel } from "webapi-parser";
 
 const templateDirectory = `${__dirname}/../templates`;
 
@@ -49,21 +52,22 @@ export const dtoTemplate = Handlebars.compile(
 );
 
 export function createClient(
-  webApiModels: any,
+  webApiModels: WebApiBaseUnit[],
   boundedContext: string
 ): string {
   const clientCode: string = clientInstanceTemplate({
+    dataTypes: getAllDataTypes(
+      webApiModels as WebApiBaseUnitWithDeclaresModel[]
+    ),
     models: webApiModels,
     apiSpec: boundedContext
   });
   return clientCode;
 }
 
-export function createDto(
-  webApiModels: model.domain.DomainElement[][]
-): string {
+export function createDto(webApiModels: WebApiBaseUnit[]): string {
   const dtoCode: string = dtoTemplate(
-    webApiModels as model.domain.ClassTerm[][]
+    getAllDataTypes(webApiModels as WebApiBaseUnitWithDeclaresModel[])
   );
   return dtoCode;
 }
@@ -87,6 +91,8 @@ Handlebars.registerHelper("isArrayProperty", isArrayProperty);
 
 Handlebars.registerHelper("isObjectProperty", isObjectProperty);
 
+Handlebars.registerHelper("isTypeDefinition", isTypeDefinition);
+
 Handlebars.registerHelper("getArrayElementType", getArrayElementTypeProperty);
 
 Handlebars.registerHelper("getReturnPayloadType", getReturnPayloadType);
@@ -105,3 +111,5 @@ Handlebars.registerHelper("onlyRequired", onlyRequired);
 Handlebars.registerHelper("onlyOptional", onlyOptional);
 
 Handlebars.registerPartial("operations", operationsPartialTemplate);
+
+Handlebars.registerHelper("eachModel", eachModel);

@@ -46,6 +46,7 @@ export class BaseClient {
 
   constructor(config?: ClientConfig) {
     this.clientConfig = {};
+    this.authSchemes = {};
     _.merge(this.clientConfig, DEFAULT_CLIENT_CONFIG, config);
   }
 
