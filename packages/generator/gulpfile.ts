@@ -79,7 +79,7 @@ gulp.task("downloadRamlFromExchange", async () => {
     console.log("Downloading apis from exchange");
     return downloadRamlFromExchange();
   } else {
-    console.log("Not downloading so just, using local files");
+    console.log("Not downloading so just using local files");
   }
 });
 
