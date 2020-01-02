@@ -69,7 +69,6 @@ function downloadRamlFromExchange(): Promise<void> {
           JSON.stringify(ramlGroups)
         );
       });
-
     // Group RAML files by the key, aka, bounded context/API Family
   });
 }
@@ -92,7 +91,6 @@ gulp.task(
     const ramlGroupConfig = require(path.resolve(
       path.join(config.inputDir, config.apiConfigFile)
     ));
-    // console.log(ramlGroupConfig);
     const apiGroupKeys = _.keysIn(ramlGroupConfig);
 
     for (const apiGroup of apiGroupKeys) {
@@ -107,16 +105,15 @@ gulp.task(
       });
       fs.ensureDirSync(config.renderDir);
       Promise.all(familyPromises).then(values => {
-        // console.log(values);
         fs.writeFileSync(
-          `${config.renderDir}/${apiGroup}.ts`,
+          path.join(config.renderDir, `${apiGroup}.ts`),
           createClient(
             values.map(value => value as WebApiBaseUnitWithEncodesModel),
             apiGroup
           )
         );
         fs.writeFileSync(
-          `${config.renderDir}/${apiGroup}.types.ts`,
+          path.join(config.renderDir, `${apiGroup}.types.ts`),
           createDto(
             values.map(value => value as WebApiBaseUnitWithEncodesModel)
           )
