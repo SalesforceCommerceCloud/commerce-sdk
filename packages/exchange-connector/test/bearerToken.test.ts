@@ -16,7 +16,6 @@ before(() => {
 
 describe("Test Auth", () => {
   afterEach(nock.cleanAll);
-  // afterEach(fetchMock.restore);
   it("Test getting token", () => {
     nock("https://anypoint.mulesoft.com")
       .post("/accounts/login", { username: "user", password: "pass" })

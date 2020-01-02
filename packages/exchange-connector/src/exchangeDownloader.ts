@@ -14,6 +14,7 @@ import path from "path";
 import { RestApi, FileInfo, Categories } from "./exchangeTypes";
 
 const DEFAULT_DOWNLOAD_FOLDER = "download";
+const ANYPOINT_BASE_URI = "https://anypoint.mulesoft.com/exchange/api/v2";
 
 export function downloadRestApi(
   restApi: RestApi,
@@ -89,14 +90,11 @@ export function searchExchange(
   accessToken: string,
   searchString: string
 ): Promise<RestApi[]> {
-  return fetch(
-    `https://anypoint.mulesoft.com/exchange/api/v2/assets?search=${searchString}`,
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
+  return fetch(`${ANYPOINT_BASE_URI}/assets?search=${searchString}`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`
     }
-  )
+  })
     .then(res => res.json())
     .then(restApis => {
       const apis: RestApi[] = [];

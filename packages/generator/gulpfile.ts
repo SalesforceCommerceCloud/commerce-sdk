@@ -99,7 +99,11 @@ gulp.task(
       _.map(ramlFileFromFamily, (apiMeta: RestApi) => {
         familyPromises.push(
           processRamlFile(
-            `${config.inputDir}/${apiMeta.assetId}/${apiMeta.fatRaml.mainFile}`
+            path.join(
+              config.inputDir,
+              apiMeta.assetId,
+              apiMeta.fatRaml.mainFile
+            )
           )
         );
       });
@@ -120,6 +124,9 @@ gulp.task(
         );
       });
     }
-    fs.writeFileSync(`${config.renderDir}/index.ts`, createIndex(apiGroupKeys));
+    fs.writeFileSync(
+      path.join(config.renderDir, "index.ts"),
+      createIndex(apiGroupKeys)
+    );
   })
 );
