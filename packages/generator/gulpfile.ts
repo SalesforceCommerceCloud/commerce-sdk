@@ -80,7 +80,7 @@ gulp.task("downloadRamlFromExchange", async () => {
     console.log("Downloading apis from exchange");
     return downloadRamlFromExchange();
   } else {
-    console.log("Not downloading so justing local files");
+    console.log("Not downloading so just, using local files");
   }
 });
 
@@ -106,26 +106,22 @@ gulp.task(
         );
       });
       fs.ensureDirSync(config.renderDir);
-      Promise.all(familyPromises)
-        .then(values => {
-          // console.log(values);
-          fs.writeFileSync(
-            `${config.renderDir}/${apiGroup}.ts`,
-            createClient(
-              values.map(value => value as WebApiBaseUnitWithEncodesModel),
-              apiGroup
-            )
-          );
-          fs.writeFileSync(
-            `${config.renderDir}/${apiGroup}.types.ts`,
-            createDto(
-              values.map(value => value as WebApiBaseUnitWithEncodesModel)
-            )
-          );
-        })
-        .catch(err => {
-          console.log(err);
-        });
+      Promise.all(familyPromises).then(values => {
+        // console.log(values);
+        fs.writeFileSync(
+          `${config.renderDir}/${apiGroup}.ts`,
+          createClient(
+            values.map(value => value as WebApiBaseUnitWithEncodesModel),
+            apiGroup
+          )
+        );
+        fs.writeFileSync(
+          `${config.renderDir}/${apiGroup}.types.ts`,
+          createDto(
+            values.map(value => value as WebApiBaseUnitWithEncodesModel)
+          )
+        );
+      });
     }
     fs.writeFileSync(`${config.renderDir}/index.ts`, createIndex(apiGroupKeys));
   })

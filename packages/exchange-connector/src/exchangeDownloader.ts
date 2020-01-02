@@ -17,7 +17,7 @@ const DEFAULT_DOWNLOAD_FOLDER = "download";
 
 export function downloadRestApi(
   restApi: RestApi,
-  destinationFolder?: string
+  destinationFolder: string = DEFAULT_DOWNLOAD_FOLDER
 ): Promise<void | Response> {
   return new Promise((resolve, reject) => {
     if (!restApi.fatRaml) {
@@ -26,9 +26,6 @@ export function downloadRestApi(
           `Fat RAML download information for ${restApi.assetId} is missing`
         )
       );
-    }
-    if (!destinationFolder) {
-      destinationFolder = DEFAULT_DOWNLOAD_FOLDER;
     }
 
     ensureDirSync(destinationFolder);
@@ -50,15 +47,10 @@ export function downloadRestApi(
 
 export function downloadRestApis(
   restApi: Array<RestApi>,
-  destinationFolder?: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  destinationFolder: string = DEFAULT_DOWNLOAD_FOLDER
 ): Promise<string> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const promises: Promise<any>[] = [];
-
-  if (!destinationFolder) {
-    destinationFolder = DEFAULT_DOWNLOAD_FOLDER;
-  }
 
   restApi.forEach((api: RestApi) => {
     promises.push(downloadRestApi(api, destinationFolder));
