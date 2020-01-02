@@ -9,8 +9,11 @@ import "cross-fetch/polyfill";
 import { writeFileSync, ensureDirSync } from "fs-extra";
 
 import fetch, { Response } from "node-fetch";
+import path from "path";
 
 import { RestApi, FileInfo, Categories } from "./exchangeTypes";
+
+const DEFAULT_DOWNLOAD_FOLDER = "download";
 
 export function downloadRestApi(
   restApi: RestApi,
@@ -25,12 +28,12 @@ export function downloadRestApi(
       );
     }
     if (!destinationFolder) {
-      destinationFolder = "download";
+      destinationFolder = DEFAULT_DOWNLOAD_FOLDER;
     }
 
     ensureDirSync(destinationFolder);
 
-    const zipFilePath = `${destinationFolder}/${restApi.assetId}.zip`;
+    const zipFilePath = path.join(destinationFolder, `${restApi.assetId}.zip`);
 
     let ret: Response;
     return fetch(restApi.fatRaml.externalLink)
@@ -54,7 +57,7 @@ export function downloadRestApis(
   const promises: Promise<any>[] = [];
 
   if (!destinationFolder) {
-    destinationFolder = "download";
+    destinationFolder = DEFAULT_DOWNLOAD_FOLDER;
   }
 
   restApi.forEach((api: RestApi) => {

@@ -25,11 +25,7 @@ import {
   eachModel,
   isTypeDefinition
 } from "./template-helpers";
-import {
-  webapi,
-  WebApiBaseUnit,
-  WebApiBaseUnitWithDeclaresModel
-} from "webapi-parser";
+import { WebApiBaseUnit, WebApiBaseUnitWithDeclaresModel } from "webapi-parser";
 
 const templateDirectory = `${__dirname}/../templates`;
 
@@ -59,8 +55,6 @@ export function createClient(
   webApiModels: WebApiBaseUnit[],
   boundedContext: string
 ): string {
-  // const mergedApis = mergeApis(webApiModels);
-  // console.log();
   const clientCode: string = clientInstanceTemplate({
     dataTypes: getAllDataTypes(
       webApiModels as WebApiBaseUnitWithDeclaresModel[]
