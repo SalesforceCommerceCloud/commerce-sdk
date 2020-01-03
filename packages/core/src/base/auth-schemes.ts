@@ -42,7 +42,7 @@ export class AccountManager implements IAuthScheme {
 
     headers = headers ? headers : {};
 
-    if (!("Authentication" in headers)) {
+    if (this.token && !("Authentication" in headers)) {
       headers["Authentication"] = `Bearer ${this.token.token["access_token"]}`;
     }
     return headers;
@@ -67,7 +67,7 @@ export class AccountManager implements IAuthScheme {
   }
 
   async refresh(): Promise<void> {
-    if (this.token.expired()) {
+    if (this.token && this.token.expired()) {
       this.token = await this.token.refresh();
     }
   }
@@ -76,5 +76,8 @@ export class AccountManager implements IAuthScheme {
 // This us ugly, but until we have consistent auth scheme naming in raml we need a mapping
 export const AuthSchemes = {
   AccountManager: AccountManager,
-  clientId: AccountManager
+  clientId: AccountManager,
+  ShopperJWT: AccountManager,
+  // eslint-disable-next-line @typescript-eslint/camelcase
+  OAuth2_0: AccountManager
 };
