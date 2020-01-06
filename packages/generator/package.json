@@ -12,7 +12,7 @@
     "start": "node dist/index.js",
     "clean": "gulp clean",
     "renderTemplates": "gulp renderTemplates",
-    "build": "npm run renderTemplates && tsc",
+    "build": "npm run renderTemplates && tsc && eslint dist/** --quiet --fix",
     "lint": "eslint \"**/*.ts\" --quiet --fix"
   },
   "nyc": {
@@ -77,7 +77,7 @@
           "",
           {
             "pattern": "^ \\* Copyright \\(c\\) \\d{4}, salesforce.com, inc\\.$",
-            "template": " * Copyright (c) 2019, salesforce.com, inc."
+            "template": " * Copyright (c) 2020, salesforce.com, inc."
           },
           " * All rights reserved.",
           " * SPDX-License-Identifier: BSD-3-Clause",
@@ -85,7 +85,17 @@
           " "
         ]
       ]
-    }
+    },
+    "overrides": [
+      {
+          "files": ["dist/**"],
+          "rules": {
+              "@typescript-eslint/camelcase": "warn",
+              "@typescript-eslint/ban-ts-ignore": "warn",
+              "@typescript-eslint/no-var-requires": "warn"
+          }
+      }
+    ]
   },
   "author": "",
   "license": "ISC",
