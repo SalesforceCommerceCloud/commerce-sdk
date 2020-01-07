@@ -12,7 +12,6 @@ Use npm to install the Commerce SDK.
 ```
 npm install commerce-sdk
 ```
-​
 ## Usage
 To use an SDK client, instantiate an object of that client and configure these parameters. 
 > **Note:** These are optional parameters.
@@ -23,7 +22,7 @@ To use an SDK client, instantiate an object of that client and configure these p
 | baseUri | URL of the service with which the SDK interacts. If the baseUri isn't provided, the default baseUri for the relevant RAML file is used.  |
 | clientId | ID of the client account created with Salesforce B2C Commerce. |
 | clientSecret | Secret associated with the client ID. |
-​
+
 ### Sample Code 
 ```javascript
 /**
@@ -52,7 +51,7 @@ shopClient.getSite()
         throw new Error(`Error fetching allowed currencies: ${error}`);
     });
 ```
-To use an IDE, the autocomplete feature lets you view the available methods and variables defined in that client class.
+When using an IDE such as VSCode, the autocomplete feature lets you view the available method and class definitions, including parameters.
 ​
 ![Autocomplete](../../images/Autocomplete.jpg?raw=true "Autocomplete")
 ​
