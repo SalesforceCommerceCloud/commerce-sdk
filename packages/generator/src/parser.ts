@@ -4,7 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import { WebApiBaseUnit, WebApiBaseUnitWithDeclaresModel } from "webapi-parser";
+import {
+  WebApiBaseUnit,
+  WebApiBaseUnitWithDeclaresModel,
+  WebApiBaseUnitWithEncodesModel
+} from "webapi-parser";
 
 // import amf from "webapi-parser";
 
@@ -59,4 +63,13 @@ export function getAllDataTypes(
     ret = ret.concat(getDataTypesFromDeclare(element.declares, dataTypes));
   });
   return ret;
+}
+
+export function applyTraits(
+  apis: WebApiBaseUnitWithEncodesModel[]
+): WebApiBaseUnitWithEncodesModel[] {
+  apis.forEach(api => {
+    console.log(api);
+  });
+  return apis;
 }
