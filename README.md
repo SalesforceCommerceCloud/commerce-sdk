@@ -41,7 +41,6 @@ This is the package that communicates with exchange to download raml files to bu
 [README](./packages/exchange-connector/README.md)
 
 
-
 <!-- Markdown link & img dfn's -->
 [circleci-image]: https://circleci.com/gh/SalesforceCommerceCloud/commerce-sdk.svg?style=svg&circle-token=c68cee5cb20ee75f00cbda1b0eec5b5484c58b2a
 [circleci-url]: https://circleci.com/gh/SalesforceCommerceCloud/commerce-sdk
