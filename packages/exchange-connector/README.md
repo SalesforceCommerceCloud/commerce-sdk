@@ -17,4 +17,3 @@ getRamlByTag(accessToken: string, tag: string, downloadFolder?: string): Promise
 npm i && npm run build && npm link
 
 ```
-
