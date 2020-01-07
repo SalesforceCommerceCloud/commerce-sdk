@@ -13,7 +13,24 @@ jobs:
       - run: npm run test:integration
       - store_test_results:
           path: reports
+  npm_publish:
+    executor:
+      name: node/default
+      tag: '10.16'
+    steps:
+      - checkout
+      - node/with-cache:
+          steps:
+            - run: npm install
+      - run: git config user.email "cc-steelarc@salesforce.com"
+      - run: git config user.name "cc-steelarc"
+      - run:
+          name: Create npmrc file to authenticate with npm registry.
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > ~/.npmrc
+      - run: npm run build
+      - run: npm run test
+      - run: npm run test:integration
+      - run: npm run publish
 orbs:
   node: circleci/node@1.1
 version: 2.1
-
