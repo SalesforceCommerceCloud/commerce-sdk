@@ -8,7 +8,7 @@ import * as os from "os";
 import * as path from "path";
 
 import { config } from "dotenv";
-import { getBearer } from "@commerce-sdk/exchange-connector";
+import { getBearer } from "@commerce-apps/exchange-connector";
 import _ from "lodash";
 import tmp from "tmp";
 
