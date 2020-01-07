@@ -5,37 +5,41 @@
     */
     {{name}}(
       options{{#or (is method "get") (is method "delete")}}?{{/or}}: {
-        parameters{{#or (is method "get") (is method "delete")}}?{{/or}}: {
+        parameters?: {
           {{#each ../parameters}}
           {{name}}: any
           {{/each}}
           {{#each request/queryParameters}}
           {{name}}{{#if (not (is required "true"))}}?{{/if}}: any
           {{/each}}
-        }
-        headers?: { [key: string]: string }
-      }{{#or (is method "patch") (is method "post") (is method "put")}}, body: {{default request.payloads.[0].schema.inherits.[0].linkTarget.name "object"}}{{/or}}
+        },
+        headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}}, 
+        body: {{default request.payloads.[0].schema.inherits.[0].linkTarget.name "object"}}{{/or}}
+      }
     ): Promise<{{#if (eq (isReturnPayloadDefined .) true)}}{{getReturnPayloadType .}}{{else}}object{{/if}}> {
     
-      const params = options ? _.clone(options.parameters) : {};
+      const parameters = (options && options.parameters) ? options.parameters : {};
       
-      const pathParameters = {
+      const pathParameters = _.omitBy({
       {{#each ../parameters}}
-        "{{name}}": params["{{name}}"]{{#unless @last}},{{/unless}}
+        "{{name}}": parameters["{{name}}"]{{#unless @last}},{{/unless}}
       {{/each}}
-      }
+      }, _.isUndefined);
 
-    {{#each ../parameters}}
-      delete params["{{name}}"];
-    {{/each}}
+      const queryParameters = _.omitBy({
+      {{#each request/queryParameters}}
+        "{{name}}": parameters["{{name}}"]{{#unless @last}},{{/unless}}
+      {{/each}}
+      }, _.isUndefined);
 
       // @ts-ignore
       return StaticClient.{{method}}({
         client: this,
         path: "{{../path}}",
         pathParameters: pathParameters,
-        queryParameters: params,
-        headers: (options || {}).headers{{#or (is method "patch") (is method "post") (is method "put")}}, body: body{{/or}}{{getSecurityScheme ", authScheme: " security}}
+        queryParameters: queryParameters,
+        headers: (options || {}).headers{{#or (is method "patch") (is method "post") (is method "put")}}, 
+        body: (options || {}).body{{/or}}{{getSecurityScheme ", authScheme: " security}}
       });
     }
 
