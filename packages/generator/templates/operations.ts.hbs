@@ -20,17 +20,15 @@
     
       const parameters = (options && options.parameters) ? options.parameters : {};
       
-      const pathParameters = _.omitBy({
+      const pathParameters = {
       {{#each ../parameters}}
         "{{name}}": parameters["{{name}}"]{{#unless @last}},{{/unless}}
       {{/each}}
-      }, _.isUndefined);
+      };
 
-      const queryParameters = _.omitBy({
-      {{#each request/queryParameters}}
-        "{{name}}": parameters["{{name}}"]{{#unless @last}},{{/unless}}
-      {{/each}}
-      }, _.isUndefined);
+      const queryParameters = _.omit(parameters, _.keys(pathParameters));
+
+      console.log(queryParameters);
 
       // @ts-ignore
       return StaticClient.{{method}}({
