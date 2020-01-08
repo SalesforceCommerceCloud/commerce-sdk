@@ -10,22 +10,22 @@ import {
   WebApiBaseUnitWithEncodesModel
 } from "webapi-parser";
 
-// import amf from "webapi-parser";
-
-import { model } from "amf-client-js";
+import { model, Raml10Resolver, core } from "amf-client-js";
 import amf, { AMF } from "amf-client-js";
-import { format } from "path";
 
 export function processRamlFile(ramlFile: string): Promise<WebApiBaseUnit> {
   amf.plugins.document.WebApi.register();
   amf.plugins.features.AMFValidation.register();
   amf.plugins.document.Vocabularies.register();
 
+  const resolver = new Raml10Resolver();
+
   return amf.Core.init().then(() => {
     const parser = amf.Core.parser("RAML 1.0", "application/yaml");
 
     return parser.parseFileAsync(`file://${ramlFile}`).then(function(model) {
-      model = AMF.resolveRaml10(model);
+      model = resolver.resolve(model, "editing");
+
       return model as WebApiBaseUnit;
     });
   });
@@ -66,13 +66,3 @@ export function getAllDataTypes(
   });
   return ret;
 }
-
-// export function (
-//   apis: WebApiBaseUnitWithEncodesModel[]
-// ): WebApiBaseUnitWithEncodesModel[] {
-//   apis.forEach(api => {
-//     console.log(AMF.resolveRaml10(api));
-//     // console.log(api);
-//   });
-//   return apis;
-// }

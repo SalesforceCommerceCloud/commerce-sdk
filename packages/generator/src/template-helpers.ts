@@ -16,6 +16,8 @@ import _ from "lodash";
 
 import { AuthSchemes } from "@commerce-apps/core";
 import { WebApiBaseUnit } from "webapi-parser";
+import { ok } from "assert";
+import { AmfGraphParser, model } from "amf-client-js";
 
 const isValidProperty = function(property: any): boolean {
   return (
@@ -87,42 +89,31 @@ export const isTypeDefinition = function(obj: any): boolean {
   );
 };
 
-const getPayloadResponses = function(operation: any): any {
-  const okResponse = [];
+const getPayloadResponses = function(operation: any): model.domain.Response[] {
+  const okResponses = [];
   for (const res of operation.responses) {
-    if (
-      res.statusCode.value().startsWith("2") &&
-      Array.isArray(res.payloads) &&
-      res.payloads.length > 0 &&
-      res.payloads[0].mediaType !== undefined &&
-      res.payloads[0].mediaType.value !== undefined &&
-      res.payloads[0].mediaType.value() === "application/json" &&
-      res.payloads[0].schema !== undefined &&
-      isTypeDefined(res.payloads[0].schema)
-    ) {
-      okResponse.push(res);
+    if (res.statusCode.value().startsWith("2")) {
+      okResponses.push(res);
     }
   }
-  return okResponse;
-};
-
-export const isReturnPayloadDefined = function(operation: any): boolean {
-  //console.log(operation.to);
-    // console.log(JSON.stringify(operation));
-  if (operation && !Array.isArray(operation.responses)) {
-    return false;
-  }
-
-  return true;
+  return okResponses;
 };
 
 export const getReturnPayloadType = function(operation: any): string {
-  if (isReturnPayloadDefined(operation)) {
-    console.log(operation.responses[0].payloads[0].schema);
-    // const okResponses = getPayloadResponses(operation);
-    return operation.responses[0].payloads[0].schema.linkTarget.name.value();
-  }
-  return RESPONSE_DATA_TYPE;
+  const okResponses = getPayloadResponses(operation);
+
+  // Always at least provide Response as an option
+  const dataTypes: string[] = ["Response"];
+
+  okResponses.forEach(res => {
+    if (res.payloads.length > 0) {
+      dataTypes.push(res.payloads[0].schema.name.value());
+    } else {
+      dataTypes.push("void");
+    }
+  });
+
+  return dataTypes.join(" | ");
 };
 
 export const getSecurityScheme = function(
