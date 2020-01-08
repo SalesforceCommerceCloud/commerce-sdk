@@ -1,39 +1,41 @@
 {{#each model.encodes.endPoints}}
   {{#each operations}}
-      /**
-      * {{description}}
-      */
-      {{name}}(
-        parameters{{#or (is method "get") (is method "delete")}}?{{/or}}: {
+    /**
+    * {{description}}
+    */
+    {{name}}(
+      options{{#or (is method "get") (is method "delete")}}?{{/or}}: {
+        parameters?: {
           {{#each ../parameters}}
           {{name}}: any
           {{/each}}
           {{#each request/queryParameters}}
           {{name}}{{#if (not (is required "true"))}}?{{/if}}: any
           {{/each}}
-          headers?: { [key: string]: string }
-        }{{#or (is method "patch") (is method "post") (is method "put")}}, body: {{default request.payloads.[0].schema.inherits.[0].linkTarget.name "object"}}{{/or}}
-      ): Promise<{{#if (eq (isReturnPayloadDefined .) true)}}{{getReturnPayloadType .}}{{else}}object{{/if}}> {
+        },
+        headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}}, 
+        body: {{default request.payloads.[0].schema.inherits.[0].linkTarget.name "object"}}{{/or}}
+      }
+    ): Promise<{{#if (eq (isReturnPayloadDefined .) true)}}{{getReturnPayloadType .}}{{else}}object{{/if}}> {
+    
+      const parameters = (options && options.parameters) ? options.parameters : {};
+      
+      const pathParameters = {
+      {{#each ../parameters}}
+        "{{name}}": parameters["{{name}}"]{{#unless @last}},{{/unless}}
+      {{/each}}
+      };
 
-        const pathParameters = {
-    {{#each ../parameters}}
-      "{{name}}": parameters["{{name}}"]{{#unless @last}},{{/unless}}
-    {{/each}}
-        };
+      const queryParameters = _.omit(parameters, _.keys(pathParameters));
 
-        const queryParameters = {
-    {{#each request/queryParameters}}
-      "{{name}}": parameters["{{name}}"]{{#unless @last}},{{/unless}}
-    {{/each}}
-        }
-
-    // @ts-ignore
-    return StaticClient.{{method}}({
-          client: this,
-          path: "{{../path}}",
-          pathParameters: pathParameters,
-          queryParameters: queryParameters,
-          headers: (parameters || {}).headers{{#or (is method "patch") (is method "post") (is method "put")}}, body: body{{/or}}{{getSecurityScheme ", authScheme: " security}}
+      // @ts-ignore
+      return StaticClient.{{method}}({
+        client: this,
+        path: "{{../path}}",
+        pathParameters: pathParameters,
+        queryParameters: queryParameters,
+        headers: (options || {}).headers{{#or (is method "patch") (is method "post") (is method "put")}}, 
+        body: (options || {}).body{{/or}}{{getSecurityScheme ", authScheme: " security}}
       });
     }
 
