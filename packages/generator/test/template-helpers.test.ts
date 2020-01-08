@@ -260,7 +260,7 @@ describe("Template helper Array item type tests", () => {
   });
 });
 
-describe("Template helper tests array literal definitions like string[], defined_type[], ettc", () => {
+describe("Template helper tests array literal definitions like string[], defined_type[], etc", () => {
   it("Returns 'string' on range.items is null", () => {
     const property = {
       range: {
@@ -278,6 +278,7 @@ describe("Template helper tests array literal definitions like string[], defined
     };
     assert.equal(getArrayElementTypeProperty(property), "string");
   });
+
   it("Returns 'defined_type' on range.items is null and defined_type as data type for array items", () => {
     const property = {
       range: {
@@ -437,6 +438,7 @@ describe("Template helper tests for defined type properties", () => {
   it("Returns 'false' on undefined property", () => {
     assert.isFalse(isDefinedProperty(undefined));
   });
+
   it("Returns 'false' on undefined property range", () => {
     assert.isFalse(isDefinedProperty({}));
   });
@@ -446,6 +448,7 @@ describe("Template helper tests for primitive type properties", () => {
   it("Returns 'false' on undefined property", () => {
     assert.isFalse(isPrimitiveProperty(undefined));
   });
+
   it("Returns 'false' on undefined property range", () => {
     assert.isFalse(isPrimitiveProperty({}));
   });
@@ -455,6 +458,7 @@ describe("Template helper tests for object type properties", () => {
   it("Returns 'false' on undefined property", () => {
     assert.isFalse(isObjectProperty(undefined));
   });
+
   it("Returns 'false' on undefined property range", () => {
     assert.isFalse(isObjectProperty({}));
   });
@@ -470,11 +474,12 @@ describe("Template helper tests for get value from name", () => {
   it("Returns null on undefined name", () => {
     assert.isNull(getValue(undefined));
   });
+
   it("Returns null on undefined value", () => {
     assert.isNull(getValue({}));
   });
 
-  it("Returns 'valid' on valie value", () => {
+  it("Returns 'valid' on valid value", () => {
     assert.equal(
       "valid",
       getValue({
@@ -488,9 +493,11 @@ describe("Template helper tests for only required properties", () => {
   it("Returns empty array on undefined classes", () => {
     assert.isEmpty(onlyRequired(undefined));
   });
+
   it("Returns empty array on empty classes", () => {
     assert.isEmpty(onlyRequired([]));
   });
+
   it("Returns empty array on valid optional classes", () => {
     assert.isEmpty(
       onlyRequired([
@@ -502,6 +509,7 @@ describe("Template helper tests for only required properties", () => {
       ])
     );
   });
+
   it("Returns non empty array on valid required classes", () => {
     assert.isNotEmpty(
       onlyRequired([
@@ -519,9 +527,11 @@ describe("Template helper tests for only optional properties", () => {
   it("Returns empty array on undefined classes", () => {
     assert.isEmpty(onlyOptional(undefined));
   });
+
   it("Returns empty array on empty classes", () => {
     assert.isEmpty(onlyOptional([]));
   });
+
   it("Returns empty array on valid required properties", () => {
     assert.isEmpty(
       onlyOptional([
@@ -533,6 +543,7 @@ describe("Template helper tests for only optional properties", () => {
       ])
     );
   });
+
   it("Returns non empty array on valid optional properties", () => {
     assert.isNotEmpty(
       onlyOptional([
@@ -622,7 +633,7 @@ describe("Template helper tests for defined types", () => {
     assert.isFalse(isTypeDefined(property.range));
   });
 
-  it("Returns 'false' on inherited item does not have linkTarget name's value functioon", () => {
+  it("Returns 'false' on inherited item does not have linkTarget name's value function", () => {
     const property = {
       range: {
         inherits: [
@@ -638,7 +649,7 @@ describe("Template helper tests for defined types", () => {
     assert.isFalse(isTypeDefined(property.range));
   });
 
-  it("Returns 'true' on inherited item have linkTarget name's value functioon", () => {
+  it("Returns 'true' on inherited item have linkTarget name's value function", () => {
     const property = {
       range: {
         inherits: [

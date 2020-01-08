@@ -1,7 +1,7 @@
 {
-  "name": "@commerce-apps/commerce-sdk",
-  "version": "0.0.13-alpha.9",
-  "description": "Commerce Cloud SDK",
+  "name": "commerce-sdk",
+  "version": "0.0.13-alpha.11",
+  "description": "Salesforce Commerce Cloud SDK",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -15,7 +15,7 @@
     "start": "node dist/index.js",
     "clean": "gulp clean",
     "renderTemplates": "gulp renderTemplates",
-    "build": "npm run renderTemplates && tsc",
+    "build": "npm run renderTemplates && tsc && eslint dist/** --quiet --fix",
     "lint": "eslint \"**/*.ts\" --quiet --fix"
   },
   "publishConfig": {
@@ -80,7 +80,7 @@
           "",
           {
             "pattern": "^ \\* Copyright \\(c\\) \\d{4}, salesforce.com, inc\\.$",
-            "template": " * Copyright (c) 2019, salesforce.com, inc."
+            "template": " * Copyright (c) 2020, salesforce.com, inc."
           },
           " * All rights reserved.",
           " * SPDX-License-Identifier: BSD-3-Clause",
@@ -88,7 +88,17 @@
           " "
         ]
       ]
-    }
+    },
+    "overrides": [
+      {
+          "files": ["dist/**"],
+          "rules": {
+              "@typescript-eslint/camelcase": "warn",
+              "@typescript-eslint/ban-ts-ignore": "warn",
+              "@typescript-eslint/no-var-requires": "warn"
+          }
+      }
+    ]
   },
   "author": "",
   "license": "ISC",
@@ -100,8 +110,13 @@
     "unzipper": "^0.10.5"
   },
   "dependencies": {
+<<<<<<< HEAD
     "@commerce-apps/core": "^0.0.12-alpha.8",
     "@commerce-apps/exchange-connector": "^1.0.9-alpha.3",
+=======
+    "@commerce-apps/core": "^0.0.12-alpha.9",
+    "@commerce-apps/exchange-connector": "^1.0.9-alpha.4",
+>>>>>>> master
     "tslib": "^1.10.0"
   }
 }
