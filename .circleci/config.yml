@@ -22,6 +22,10 @@ jobs:
           condition: << pipeline.parameters.publish_sdk >>
           steps:
             - run: echo publishing sdk to npm
+            - run:
+                name: Create npmrc file to authenticate with npm registry.
+                command: echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > ~/.npmrc
+            - run: npm run publish
 orbs:
   node: circleci/node@1.1
 version: 2.1
