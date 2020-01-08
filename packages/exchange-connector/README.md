@@ -5,7 +5,7 @@
 ## Usage
 
 ```
-import {getBearer, getRamlByTag} form "@commerce-sdk/exchange-connector"
+import {getBearer, getRamlByTag} form "@commerce-apps/exchange-connector"
 
 // Gets an Access token for talking with Mulesoft
 getBearer(username, password): Promise<Token>

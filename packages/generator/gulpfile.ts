@@ -19,7 +19,7 @@ import {
   searchExchange,
   downloadRestApis,
   RestApi
-} from "@commerce-sdk/exchange-connector";
+} from "@commerce-apps/exchange-connector";
 import tmp from "tmp";
 
 require("dotenv").config();
