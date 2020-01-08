@@ -23,6 +23,7 @@ To use an SDK client, instantiate an object of that client and configure these p
 | clientId | ID of the client account created with Salesforce B2C Commerce. |
 | clientSecret | Secret associated with the client ID. |
 
+
 ### Sample Code 
 ```javascript
 /**

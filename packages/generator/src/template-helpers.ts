@@ -14,7 +14,7 @@ import {
 
 import _ from "lodash";
 
-import { AuthSchemes } from "@commerce-sdk/core";
+import { AuthSchemes } from "@commerce-apps/core";
 import { WebApiBaseUnit } from "webapi-parser";
 
 const isValidProperty = function(property: any): boolean {

@@ -1,9 +1,12 @@
 {
   "name": "commerce-sdk",
-  "version": "0.0.2-alpha.0",
-  "description": "Commerce SDK Generator, contains the templates to generate the SDK",
+  "version": "0.0.13-alpha.11",
+  "description": "Salesforce Commerce Cloud SDK",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "pretest": "npm run lint",
     "test:debug": "nyc cross-env TS_NODE_FILES=true mocha --exit --require ts-node/register --colors test/**/*.ts",
@@ -14,6 +17,9 @@
     "renderTemplates": "gulp renderTemplates",
     "build": "npm run renderTemplates && tsc && eslint dist/** --quiet --fix",
     "lint": "eslint \"**/*.ts\" --quiet --fix"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "nyc": {
     "exclude": [
@@ -38,9 +44,6 @@
     "functions": 80,
     "lines": 80,
     "statements": -10
-  },
-  "publishConfig": {
-    "registry": "https://nexus.soma.salesforce.com/nexus/content/repositories/npmjs-internal/"
   },
   "lint-staged": {
     "*.ts": [
@@ -99,15 +102,16 @@
   },
   "author": "",
   "license": "ISC",
-  "gitHead": "a1ce46a1a70e7ec09357bf8b6889a8d208a34063",
+  "gitHead": "f99255fced226ec4a43e60f4dc469eee028d8a81",
   "devDependencies": {
-    "@commerce-sdk/exchange-connector": "^1.0.1-alpha.0",
     "chai": "^4.2.0",
     "cross-env": "^6.0.3",
     "nyc": "^14.1.1",
     "unzipper": "^0.10.5"
   },
   "dependencies": {
-    "@commerce-sdk/core": "^0.0.2-alpha.0"
+    "@commerce-apps/core": "^0.0.12-alpha.9",
+    "@commerce-apps/exchange-connector": "^1.0.9-alpha.4",
+    "tslib": "^1.10.0"
   }
 }
