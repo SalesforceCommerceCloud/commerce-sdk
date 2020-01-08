@@ -39,10 +39,14 @@ workflows:
   build-and-publish:
     jobs:
       - build
-      - npm_publish:
+      - hold:
+          type: approval
           requires:
             - build
           filters:
             branches:
               only:
-                - master
+                - publish
+      - npm_publish:
+          requires:
+            - hold
