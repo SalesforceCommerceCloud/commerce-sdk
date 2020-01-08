@@ -37,11 +37,12 @@ function getDataTypesFromDeclare(
 ): model.domain.CustomDomainProperty[] {
   const ret: model.domain.CustomDomainProperty[] = [];
   types.forEach((dataType: model.domain.CustomDomainProperty) => {
-    if (!existingDataTypes.has(dataType.name.value())) {
+    if (
+      !existingDataTypes.has(dataType.name.value()) &&
+      dataType.name.value() !== "trait"
+    ) {
       existingDataTypes.add(dataType.name.value());
       ret.push(dataType);
-    } else {
-      console.warn("Duplicate datatype: " + dataType.name.value());
     }
   });
   return ret;
