@@ -92,7 +92,7 @@ export const isTypeDefinition = function(obj: any): boolean {
 const getPayloadResponses = function(operation: any): model.domain.Response[] {
   const okResponses = [];
   for (const res of operation.responses) {
-    if (res.statusCode.value().startsWith("2")) {
+    if (res.statusCode.nonEmpty && res.statusCode.value().startsWith("2")) {
       okResponses.push(res);
     }
   }
@@ -101,10 +101,8 @@ const getPayloadResponses = function(operation: any): model.domain.Response[] {
 
 export const getReturnPayloadType = function(operation: any): string {
   const okResponses = getPayloadResponses(operation);
-  console.log("okResponses: " + okResponses);
   // Always at least provide Response as an option
   const dataTypes: string[] = ["Response"];
-
   okResponses.forEach(res => {
     if (res.payloads.length > 0) {
       dataTypes.push(
@@ -116,6 +114,10 @@ export const getReturnPayloadType = function(operation: any): string {
       dataTypes.push("void");
     }
   });
+
+  if (okResponses.length === 0) {
+    dataTypes.push("void");
+  }
 
   return dataTypes.join(" | ");
 };

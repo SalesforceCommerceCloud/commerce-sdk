@@ -312,6 +312,7 @@ describe("Template helper, response item type tests", () => {
     const response: model.domain.Response = new model.domain.Response();
     const payload: model.domain.Payload = new model.domain.Payload();
     payload.withSchema(new model.domain.SchemaShape());
+    payload.withMediaType("application/json");
     response.withPayloads([payload]);
     operation.withResponses([response]);
   });
@@ -320,82 +321,33 @@ describe("Template helper, response item type tests", () => {
     const response = operation.responses[0];
     response.payloads[0].schema.withName("schema");
     response.withStatusCode("200");
-    expect(getReturnPayloadType(operation)).equal("Response | Object");
+    expect(getReturnPayloadType(operation)).to.equal("Response | Object");
   });
 
   it("Returns 'defined_type' on defined_type datatype", () => {
     const response: model.domain.Response = operation.responses[0];
     response.withStatusCode("200");
-    response.payloads[0].withMediaType("application/json");
     response.payloads[0].schema.withName("DefinedType");
-    expect(getReturnPayloadType(operation)).is.equal("Response | DefinedType");
+    expect(getReturnPayloadType(operation)).to.equal("Response | DefinedType");
   });
 
-  it("Returns 'Response' on defined_type datatype, but with statusCode as 500", () => {
-    const operation = {
-      responses: [
-        {
-          statusCode: {
-            value: () => "500"
-          },
-          payloads: [
-            {
-              mediaType: {
-                value: () => "application/json"
-              },
-              schema: {
-                inherits: [
-                  {
-                    isLink: true,
-                    linkTarget: {
-                      name: {
-                        value: () => "defined_type"
-                      }
-                    }
-                  }
-                ]
-              }
-            }
-          ]
-        }
-      ]
-    };
-    assert.isTrue(getReturnPayloadType(operation) === "Response");
+  it("Returns 'Response | void' on defined_type datatype, but with statusCode as 500", () => {
+    const response: model.domain.Response = operation.responses[0];
+    response.withStatusCode("500");
+    response.payloads[0].schema.withName("DefinedType");
+    expect(getReturnPayloadType(operation)).to.equal("Response | void");
   });
 
-  it("Returns 'Response' on defined_type datatype, but without responses array", () => {
-    const operation = {
-      responses1: [
-        {
-          statusCode: {
-            value: () => "200"
-          },
-          payloads: [
-            {
-              mediaType: {
-                value: () => "application/json"
-              },
-              schema: {
-                inherits: [
-                  {
-                    isLink: true,
-                    linkTarget: {
-                      name: {
-                        value: () => "defined_type"
-                      }
-                    }
-                  }
-                ]
-              }
-            }
-          ]
-        }
-      ]
-    };
-    assert.isTrue(getReturnPayloadType(operation) === "Response");
+  it("Returns 'Response | void' without responses", () => {
+    operation.withResponses([]);
+    expect(getReturnPayloadType(operation)).to.equal("Response | void");
+  });
+
+  it("Returns 'Response | void' datatype, with response array but with no response codes", () => {
+    expect(getReturnPayloadType(operation)).to.equal("Response | void");
   });
 });
-
+     
 describe("Template helper tests for defined type properties", () => {
   it("Returns 'false' on undefined property", () => {
     assert.isFalse(isDefinedProperty(undefined));
