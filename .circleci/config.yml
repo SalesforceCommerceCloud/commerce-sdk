@@ -44,9 +44,11 @@ workflows:
           requires:
             - build
           filters:
+            tags:
+              only: /^npm_publish_v.*/
             branches:
               only:
-                - master
+                - publish
       - npm_publish:
           requires:
             - hold
