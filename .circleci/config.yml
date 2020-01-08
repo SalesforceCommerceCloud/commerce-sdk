@@ -42,8 +42,7 @@ workflows:
   build-and-publish:
     jobs:
       - build
-      - hold:
-          type: approval
+      - npm_publish:
           requires:
             - build
           filters:
@@ -52,6 +51,3 @@ workflows:
             branches:
               only:
                 - publish
-      - npm_publish:
-          requires:
-            - hold
