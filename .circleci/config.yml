@@ -1,3 +1,7 @@
+parameters:
+  publish_sdk:
+    type: boolean
+    default: false
 jobs:
   build:
     executor:
@@ -13,6 +17,11 @@ jobs:
       - run: npm run test:integration
       - store_test_results:
           path: reports
+      - run: echo publish to npm << pipeline.parameters.publish_sdk >>
+      - when:
+          condition: << pipeline.parameters.publish_sdk >>
+          steps:
+            - run: echo publishing sdk to npm
 orbs:
   node: circleci/node@1.1
 version: 2.1
