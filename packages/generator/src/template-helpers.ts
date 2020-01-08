@@ -107,20 +107,20 @@ const getPayloadResponses = function(operation: any): any {
 };
 
 export const isReturnPayloadDefined = function(operation: any): boolean {
+  //console.log(operation.to);
+    // console.log(JSON.stringify(operation));
   if (operation && !Array.isArray(operation.responses)) {
     return false;
   }
-  const okResponse = getPayloadResponses(operation);
-  if (okResponse.length !== 1) {
-    return false;
-  }
+
   return true;
 };
 
 export const getReturnPayloadType = function(operation: any): string {
   if (isReturnPayloadDefined(operation)) {
-    const okResponses = getPayloadResponses(operation);
-    return okResponses[0].payloads[0].schema.inherits[0].linkTarget.name.value();
+    console.log(operation.responses[0].payloads[0].schema);
+    // const okResponses = getPayloadResponses(operation);
+    return operation.responses[0].payloads[0].schema.linkTarget.name.value();
   }
   return RESPONSE_DATA_TYPE;
 };

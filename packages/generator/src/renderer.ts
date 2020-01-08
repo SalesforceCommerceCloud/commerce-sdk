@@ -7,7 +7,7 @@
 import fs from "fs-extra";
 import path from "path";
 import Handlebars from "handlebars";
-import { getAllDataTypes, applyTraits } from "./parser";
+import { getAllDataTypes } from "./parser";
 
 import {
   isDefinedProperty,
@@ -59,7 +59,7 @@ export function createClient(
     dataTypes: getAllDataTypes(
       webApiModels as WebApiBaseUnitWithDeclaresModel[]
     ),
-    models: applyTraits(webApiModels),
+    models: webApiModels,
     apiSpec: boundedContext
   });
   return clientCode;
