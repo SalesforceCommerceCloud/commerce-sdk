@@ -54,7 +54,6 @@ describe("Get Data types", () => {
     });
   });
 
-
   it("Test valid RAML file with references", () => {
     const ramlFile = path.join(__dirname, "/raml/valid/site.raml");
     return processRamlFile(ramlFile).then(s => {
@@ -73,7 +72,4 @@ describe("Get Data types", () => {
       ]);
     });
   });
-
 });
-
-

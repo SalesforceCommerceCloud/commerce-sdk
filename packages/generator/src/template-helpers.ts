@@ -8,16 +8,13 @@ import {
   PRIMITIVE_DATA_TYPE_MAP,
   DEFAULT_DATA_TYPE,
   OBJECT_DATA_TYPE,
-  ARRAY_DATA_TYPE,
-  RESPONSE_DATA_TYPE
+  ARRAY_DATA_TYPE
 } from "./config";
 
 import _ from "lodash";
 
 import { AuthSchemes } from "@commerce-apps/core";
-import { WebApiBaseUnit } from "webapi-parser";
-import { ok } from "assert";
-import { AmfGraphParser, model } from "amf-client-js";
+import { model } from "amf-client-js";
 
 const isValidProperty = function(property: any): boolean {
   return (

@@ -4,14 +4,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import {
-  WebApiBaseUnit,
-  WebApiBaseUnitWithDeclaresModel,
-  WebApiBaseUnitWithEncodesModel
-} from "webapi-parser";
+import { WebApiBaseUnit, WebApiBaseUnitWithDeclaresModel } from "webapi-parser";
 
 import { model, Raml10Resolver, core } from "amf-client-js";
-import amf, { AMF } from "amf-client-js";
+import amf from "amf-client-js";
 
 export function processRamlFile(ramlFile: string): Promise<WebApiBaseUnit> {
   amf.plugins.document.WebApi.register();
@@ -23,10 +19,28 @@ export function processRamlFile(ramlFile: string): Promise<WebApiBaseUnit> {
   return amf.Core.init().then(() => {
     const parser = amf.Core.parser("RAML 1.0", "application/yaml");
 
-    return parser.parseFileAsync(`file://${ramlFile}`).then(function(model) {
-      model = resolver.resolve(model, "editing");
+    return parser.parseFileAsync(`file://${ramlFile}`).then(ramlModel => {
+      ramlModel = resolver.resolve(
+        ramlModel,
 
-      return model as WebApiBaseUnit;
+        /**
+         *
+         * In AMF There are a few pipelines for 'resolution'
+         * The default one is unsurprisingly called 'default'
+         *
+         * By default it will resolve declarations to be inline which we do not want as we want
+         * to be able to use those declarations as well for types.
+         *
+         * Using the 'editing' pipeline will retain those declarations in  the model.
+         *
+         * There is a constant of 'core.resolution.pipelines.ResolutionPipeline.EDITING_PIPELINE' from amf but
+         * for some reason I can't use it because it says 'resolution' is undefined
+         *
+         **/
+        "editing"
+      );
+
+      return ramlModel as WebApiBaseUnit;
     });
   });
 }

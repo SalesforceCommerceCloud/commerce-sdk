@@ -347,7 +347,7 @@ describe("Template helper, response item type tests", () => {
     expect(getReturnPayloadType(operation)).to.equal("Response | void");
   });
 });
-     
+
 describe("Template helper tests for defined type properties", () => {
   it("Returns 'false' on undefined property", () => {
     assert.isFalse(isDefinedProperty(undefined));
