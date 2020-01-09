@@ -4,6 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
+import { model } from "amf-client-js";
+import _ from "lodash";
+import { WebApiBaseUnitWithEncodesModel } from "webapi-parser";
+
+import { AuthSchemes } from "@commerce-apps/core";
+
 import {
   PRIMITIVE_DATA_TYPE_MAP,
   DEFAULT_DATA_TYPE,
@@ -12,10 +18,16 @@ import {
   RESPONSE_DATA_TYPE
 } from "./config";
 
-import _ from "lodash";
-
-import { AuthSchemes } from "@commerce-apps/core";
-import { WebApiBaseUnit } from "webapi-parser";
+/**
+ * Selects the baseUri from an AMF model. TypeScript will not allow access to
+ * the data without the proper cast to a WebApi type.
+ *
+ * @param property A model from the the AMF parser
+ */
+export const getBaseUri = function(property: WebApiBaseUnitWithEncodesModel): string {
+  return (property && property.encodes) ?
+    (property.encodes as model.domain.WebApi).servers[0].url.value() : "";
+};
 
 const isValidProperty = function(property: any): boolean {
   return (
