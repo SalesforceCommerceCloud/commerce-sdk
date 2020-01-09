@@ -6,7 +6,7 @@
  */
 import { WebApiBaseUnit, WebApiBaseUnitWithDeclaresModel } from "webapi-parser";
 
-import { model, Raml10Resolver, core } from "amf-client-js";
+import { model, Raml10Resolver } from "amf-client-js";
 import amf from "amf-client-js";
 
 export function processRamlFile(ramlFile: string): Promise<WebApiBaseUnit> {
