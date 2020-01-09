@@ -6,6 +6,8 @@
  */
 import { BaseClient } from "./client";
 import oauth2, { OAuthClient } from "simple-oauth2";
+//Using our own static client for Shopper Auth Token call
+import * as ShopperAuthClient from "./static-client";
 
 export interface IAuthScheme {
   // eslint-disable-next-line @typescript-eslint/no-misused-new
@@ -14,6 +16,81 @@ export interface IAuthScheme {
   injectAuth(headers: {
     [key: string]: string;
   }): Promise<{ [key: string]: string }>;
+}
+
+// Implementing without abstract class for now..
+// Once we figure out the non guest workflow, we can refactor this ShopperManager
+export class ShopperManager implements IAuthScheme {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public token: string;
+  public shopperClient: BaseClient;
+  public baseClient: BaseClient;
+  public authEndpoint: string;
+
+  init(client: BaseClient): void {
+    this.shopperClient = client;
+    this.baseClient = new BaseClient({
+      clientId: client.clientConfig.clientId,
+      baseUri: client.clientConfig.authHost,
+      rawReponse: true
+    });
+    this.authEndpoint = "/s/SiteGenesis/dw/shop/v19_3/customers/auth";
+  }
+
+  async injectAuth(headers: {
+    [key: string]: string;
+  }): Promise<{ [key: string]: string }> {
+    await this.refresh();
+
+    headers = headers ? headers : {};
+
+    if (this.token && !("Authentication" in headers)) {
+      // Token contains Auth header as "Bearer adsfsdf..."
+      // No need to prepend with Bearer
+      headers["Authentication"] = `${this.token}`;
+    }
+    return headers;
+  }
+
+  // This is returning true or false because you might want to continue using the client without auth as some endpoints
+  // in a context might not have auth or be using a different auth
+  async authenticate(client?: BaseClient): Promise<boolean> {
+    if (client) {
+      this.init(client);
+    }
+    const body = {
+      type: "guest"
+    };
+
+    const queryParams = {
+      // eslint-disable-next-line @typescript-eslint/camelcase
+      client_id: this.baseClient.clientConfig.clientId
+    };
+    try {
+      const response = await ShopperAuthClient._post({
+        client: this.baseClient,
+        path: this.authEndpoint,
+        pathParameters: {},
+        queryParameters: queryParams,
+        headers: {},
+        body: body
+      });
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // @ts-ignore
+      this.token = response.headers.get("authorization");
+    } catch (error) {
+      console.error("Shopper bearer token error", error.message);
+      return false;
+    }
+    return true;
+  }
+
+  async refresh(): Promise<void> {
+    if (!!!this.token) {
+      await this.authenticate();
+    }
+    return;
+  }
 }
 
 export class AccountManager implements IAuthScheme {
@@ -77,7 +154,7 @@ export class AccountManager implements IAuthScheme {
 export const AuthSchemes = {
   AccountManager: AccountManager,
   clientId: AccountManager,
-  ShopperJWT: AccountManager,
+  ShopperJWT: ShopperManager,
   // eslint-disable-next-line @typescript-eslint/camelcase
   OAuth2_0: AccountManager
 };

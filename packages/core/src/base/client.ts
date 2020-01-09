@@ -27,6 +27,7 @@ export type ClientConfig = {
   clientId?: string;
   clientSecret?: string;
   headers?: { [key: string]: string };
+  rawReponse?: boolean;
 };
 
 const DEFAULT_CLIENT_CONFIG: ClientConfig = {

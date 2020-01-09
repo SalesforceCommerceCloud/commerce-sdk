@@ -81,7 +81,9 @@ async function runFetch(
 
   const response = await fetch(resource, fetchOptions);
 
-  return getObjectFromResponse(response);
+  return options.client.clientConfig.rawReponse
+    ? response
+    : getObjectFromResponse(response);
 }
 
 export function _get(options: {
