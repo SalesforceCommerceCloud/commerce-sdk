@@ -8,14 +8,13 @@ import {
   PRIMITIVE_DATA_TYPE_MAP,
   DEFAULT_DATA_TYPE,
   OBJECT_DATA_TYPE,
-  ARRAY_DATA_TYPE,
-  RESPONSE_DATA_TYPE
+  ARRAY_DATA_TYPE
 } from "./config";
 
 import _ from "lodash";
 
 import { AuthSchemes } from "@commerce-apps/core";
-import { WebApiBaseUnit } from "webapi-parser";
+import { model } from "amf-client-js";
 
 const isValidProperty = function(property: any): boolean {
   return (
@@ -87,42 +86,37 @@ export const isTypeDefinition = function(obj: any): boolean {
   );
 };
 
-const getPayloadResponses = function(operation: any): any {
-  const okResponse = [];
+const getPayloadResponses = function(operation: any): model.domain.Response[] {
+  const okResponses = [];
   for (const res of operation.responses) {
-    if (
-      res.statusCode.value().startsWith("2") &&
-      Array.isArray(res.payloads) &&
-      res.payloads.length > 0 &&
-      res.payloads[0].mediaType !== undefined &&
-      res.payloads[0].mediaType.value !== undefined &&
-      res.payloads[0].mediaType.value() === "application/json" &&
-      res.payloads[0].schema !== undefined &&
-      isTypeDefined(res.payloads[0].schema)
-    ) {
-      okResponse.push(res);
+    if (res.statusCode.nonEmpty && res.statusCode.value().startsWith("2")) {
+      okResponses.push(res);
     }
   }
-  return okResponse;
-};
-
-export const isReturnPayloadDefined = function(operation: any): boolean {
-  if (operation && !Array.isArray(operation.responses)) {
-    return false;
-  }
-  const okResponse = getPayloadResponses(operation);
-  if (okResponse.length !== 1) {
-    return false;
-  }
-  return true;
+  return okResponses;
 };
 
 export const getReturnPayloadType = function(operation: any): string {
-  if (isReturnPayloadDefined(operation)) {
-    const okResponses = getPayloadResponses(operation);
-    return okResponses[0].payloads[0].schema.inherits[0].linkTarget.name.value();
+  const okResponses = getPayloadResponses(operation);
+  // Always at least provide Response as an option
+  const dataTypes: string[] = ["Response"];
+  okResponses.forEach(res => {
+    if (res.payloads.length > 0) {
+      dataTypes.push(
+        res.payloads[0].schema.name.value() === "schema"
+          ? "Object"
+          : res.payloads[0].schema.name.value()
+      );
+    } else {
+      dataTypes.push("void");
+    }
+  });
+
+  if (okResponses.length === 0) {
+    dataTypes.push("void");
   }
-  return RESPONSE_DATA_TYPE;
+
+  return dataTypes.join(" | ");
 };
 
 export const getSecurityScheme = function(

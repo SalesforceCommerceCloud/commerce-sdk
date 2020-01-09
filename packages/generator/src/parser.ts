@@ -6,9 +6,7 @@
  */
 import { WebApiBaseUnit, WebApiBaseUnitWithDeclaresModel } from "webapi-parser";
 
-// import amf from "webapi-parser";
-
-import { model } from "amf-client-js";
+import { model, Raml10Resolver } from "amf-client-js";
 import amf from "amf-client-js";
 
 export function processRamlFile(ramlFile: string): Promise<WebApiBaseUnit> {
@@ -16,11 +14,33 @@ export function processRamlFile(ramlFile: string): Promise<WebApiBaseUnit> {
   amf.plugins.features.AMFValidation.register();
   amf.plugins.document.Vocabularies.register();
 
+  const resolver = new Raml10Resolver();
+
   return amf.Core.init().then(() => {
     const parser = amf.Core.parser("RAML 1.0", "application/yaml");
 
-    return parser.parseFileAsync(`file://${ramlFile}`).then(function(model) {
-      return model as WebApiBaseUnit;
+    return parser.parseFileAsync(`file://${ramlFile}`).then(ramlModel => {
+      ramlModel = resolver.resolve(
+        ramlModel,
+
+        /**
+         *
+         * In AMF There are a few pipelines for 'resolution'
+         * The default one is unsurprisingly called 'default'
+         *
+         * By default it will resolve declarations to be inline which we do not want as we want
+         * to be able to use those declarations as well for types.
+         *
+         * Using the 'editing' pipeline will retain those declarations in  the model.
+         *
+         * There is a constant of 'core.resolution.pipelines.ResolutionPipeline.EDITING_PIPELINE' from amf but
+         * for some reason I can't use it because it says 'resolution' is undefined
+         *
+         **/
+        "editing"
+      );
+
+      return ramlModel as WebApiBaseUnit;
     });
   });
 }
@@ -31,11 +51,12 @@ function getDataTypesFromDeclare(
 ): model.domain.CustomDomainProperty[] {
   const ret: model.domain.CustomDomainProperty[] = [];
   types.forEach((dataType: model.domain.CustomDomainProperty) => {
-    if (!existingDataTypes.has(dataType.name.value())) {
+    if (
+      !existingDataTypes.has(dataType.name.value()) &&
+      dataType.name.value() !== "trait"
+    ) {
       existingDataTypes.add(dataType.name.value());
       ret.push(dataType);
-    } else {
-      console.warn("Duplicate datatype: " + dataType.name.value());
     }
   });
   return ret;

@@ -16,7 +16,7 @@
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}}, 
         body: {{default request.payloads.[0].schema.inherits.[0].linkTarget.name "object"}}{{/or}}
       }
-    ): Promise<{{#if (eq (isReturnPayloadDefined .) true)}}{{getReturnPayloadType .}}{{else}}object{{/if}}> {
+    ): Promise<{{getReturnPayloadType .}}> {
     
       const parameters = (options && options.parameters) ? options.parameters : {};
       
