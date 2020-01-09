@@ -79,7 +79,6 @@ async function runFetch(
     fetchOptions.cacheManager = options.client.clientConfig.cacheManager;
   }
 
-  console.log(resource);
   const response = await fetch(resource, fetchOptions);
 
   return getObjectFromResponse(response);
