@@ -23,9 +23,12 @@ import {
  *
  * @param property A model from the the AMF parser
  */
-export const getBaseUri = function(property: WebApiBaseUnitWithEncodesModel): string {
-  return (property && property.encodes) ?
-    (property.encodes as model.domain.WebApi).servers[0].url.value() : "";
+export const getBaseUri = function(
+  property: WebApiBaseUnitWithEncodesModel
+): string {
+  return property && property.encodes
+    ? (property.encodes as model.domain.WebApi).servers[0].url.value()
+    : "";
 };
 
 const isValidProperty = function(property: any): boolean {
