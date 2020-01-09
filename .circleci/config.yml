@@ -1,7 +1,7 @@
 parameters:
   publish_sdk:
     type: boolean
-    default: false
+    default: true
   lerna_command:
     type: string
     default: "prerelease --yes"
@@ -40,7 +40,7 @@ jobs:
             - run:
                 name: Create npmrc file to authenticate with npm registry.
                 command: echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > ~/.npmrc
-            - run: npm run publish << pipeline.parameters.lerna_command >>
+            - run: npm run publish
 
 workflows:
   version: 2
