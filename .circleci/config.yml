@@ -1,7 +1,7 @@
 parameters:
   publish_sdk:
     type: boolean
-    default: true
+    default: false
   lerna_command:
     type: string
     default: "prerelease --yes"
@@ -17,6 +17,9 @@ jobs:
       - node/with-cache:
           steps:
             - run: npm install
+      - run: npm run build
+      - run: npm run test
+      - run: npm run test:integration
       - store_test_results:
           path: reports
       - run: echo publish to npm << pipeline.parameters.publish_sdk >>
