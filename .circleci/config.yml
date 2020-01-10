@@ -2,8 +2,10 @@ parameters:
   publish_sdk:
     type: boolean
     default: false
+
 jobs:
   build:
+    working_directory: ~/build_and_publish
     executor:
       name: node/default
       tag: '10.16'
@@ -18,14 +20,45 @@ jobs:
       - store_test_results:
           path: reports
       - run: echo publish to npm << pipeline.parameters.publish_sdk >>
+      - persist_to_workspace:
+          root: ~/build_and_publish
+          paths: .
+
+  publish:
+    working_directory: ~/build_and_publish
+    executor:
+      name: node/default
+      tag: '10.16'
+    steps:
+      - run: echo Publish commerce_sdk to npm << pipeline.parameters.publish_sdk >>
       - when:
           condition: << pipeline.parameters.publish_sdk >>
           steps:
-            - run: echo publishing sdk to npm
+            - attach_workspace:
+                at: ~/build_and_publish
+            - run: echo start publish sdk to npm
             - run:
                 name: Create npmrc file to authenticate with npm registry.
                 command: echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > ~/.npmrc
             - run: npm run publish
+
+workflows:
+  version: 2
+  build-only:
+    unless: << pipeline.parameters.publish_sdk >>
+    jobs:
+      - build
+  build-and-deploy:
+    when: << pipeline.parameters.publish_sdk >>
+    jobs:
+      - build
+      - hold:
+          type: approval
+          requires:
+            - build
+      - publish:
+          requires:
+            - hold
 orbs:
   node: circleci/node@1.1
 version: 2.1
