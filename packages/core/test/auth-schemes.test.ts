@@ -5,13 +5,14 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import { BaseClient } from "../src/base/client";
-import { AccountManager } from "../src/base/auth-schemes";
+import { AccountManager, ShopperManager } from "../src/base/auth-schemes";
 
 import { expect, default as chai } from "chai";
 import chaiAsPromised from "chai-as-promised";
 
 import _ from "lodash";
 import sinon from "sinon";
+import * as ShopperAuthClient from "../src/base/static-client";
 
 before(() => {
   chai.use(chaiAsPromised);
@@ -25,6 +26,13 @@ const ACCESS_TOKEN = {
   token_type: "Bearer",
   // eslint-disable-next-line @typescript-eslint/camelcase
   expires_in: 1798
+};
+
+const SHOPPER_TOKEN = {
+  // eslint-disable-next-line @typescript-eslint/camelcase
+  headers: {
+    get: () => "Bearer abcd"
+  }
 };
 
 describe("Test account manager auth", () => {
@@ -122,6 +130,82 @@ describe("Test account manager auth", () => {
     return am.authenticate().then(() => {
       return am.injectAuth({}).then(res => {
         expect(res["Authentication"]).to.be.equal("Bearer ACCESS_TOKEN");
+      });
+    });
+  });
+
+  it("Test inject auth, don't override", () => {
+    getTokenStub.resolves(ACCESS_TOKEN);
+    return am.authenticate().then(() => {
+      return am
+        .injectAuth({
+          Authentication: "A CUSTOM HEADER"
+        })
+        .then(res => {
+          expect(res["Authentication"]).to.be.equal("A CUSTOM HEADER");
+        });
+    });
+  });
+});
+
+describe("Test shopper manager auth", () => {
+  let client: BaseClient;
+  let am: ShopperManager;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  let shopperAuthClientMock: any;
+
+  beforeEach(() => {
+    client = new BaseClient({
+      clientId: "ID",
+      clientSecret: "SECRET",
+      authHost: "https://somewhere.com"
+    });
+
+    am = new ShopperManager();
+
+    am.init(client);
+    shopperAuthClientMock = sinon.mock(ShopperAuthClient);
+  });
+
+  it("Test getting access token", () => {
+
+    return am.authenticate().then(res => {
+      expect(res).to.be.true;
+      expect(am.token).to.be.equal("Bearer abcd");
+    });
+  });
+
+  it("Test getting failing token", () => {
+
+    getTokenStub.rejects("Response Error: 401 Unauthorized");
+
+    return am.authenticate().then(res => {
+      expect(res).to.be.false;
+      expect(am.token).to.be.not.ok;
+    });
+  });
+
+  it("Test init", () => {
+    const am = new ShopperManager();
+    am.init(client);
+    expect(am.token).to.be.not.ok;
+  });
+
+  it("Test refresh", () => {
+    getTokenStub.resolves(SHOPPER_TOKEN);
+    // Initiall token is empty
+    expect(am.token).to.be.not.ok;
+    // Expect refresh to get the token as well
+    return am.refresh().then(() => {
+      expect(am.token).to.be.ok;
+    });
+  });
+
+  it("Test inject auth", () => {
+    getTokenStub.resolves(SHOPPER_TOKEN);
+    return am.authenticate().then(() => {
+      return am.injectAuth({}).then(res => {
+        expect(res["Authentication"]).to.be.equal("Bearer abcd");
       });
     });
   });
