@@ -5,14 +5,15 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import { BaseClient } from "../src/base/client";
-import { AccountManager, ShopperManager } from "../src/base/auth-schemes";
+import { AccountManager, ShopperJWT } from "../src/base/auth-schemes";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const ShopperAuthClient = require("../src/base/static-client");
 
 import { expect, default as chai } from "chai";
 import chaiAsPromised from "chai-as-promised";
 
 import _ from "lodash";
 import sinon from "sinon";
-import * as ShopperAuthClient from "../src/base/static-client";
 
 before(() => {
   chai.use(chaiAsPromised);
@@ -148,11 +149,11 @@ describe("Test account manager auth", () => {
   });
 });
 
-describe("Test shopper manager auth", () => {
+describe("Test shopper jwt successfully resolving token", () => {
   let client: BaseClient;
-  let am: ShopperManager;
+  let shopperJwt: ShopperJWT;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  let shopperAuthClientMock: any;
+  let getTokenStub: any;
 
   beforeEach(() => {
     client = new BaseClient({
@@ -160,59 +161,103 @@ describe("Test shopper manager auth", () => {
       clientSecret: "SECRET",
       authHost: "https://somewhere.com"
     });
-
-    am = new ShopperManager();
-
-    am.init(client);
-    shopperAuthClientMock = sinon.mock(ShopperAuthClient);
+    shopperJwt = new ShopperJWT();
+    shopperJwt.init(client);
+    getTokenStub = sinon.stub(ShopperAuthClient, "_post");
+    getTokenStub.resolves(SHOPPER_TOKEN);
   });
 
-  it("Test getting access token", () => {
+  afterEach(() => {
+    getTokenStub.restore();
+  });
 
-    return am.authenticate().then(res => {
+  it("get authorization token resolves successfully", () => {
+    return shopperJwt.authenticate().then(res => {
       expect(res).to.be.true;
-      expect(am.token).to.be.equal("Bearer abcd");
-    });
-  });
-
-  it("Test getting failing token", () => {
-
-    getTokenStub.rejects("Response Error: 401 Unauthorized");
-
-    return am.authenticate().then(res => {
-      expect(res).to.be.false;
-      expect(am.token).to.be.not.ok;
+      expect(shopperJwt.token).to.be.equal("abcd");
     });
   });
 
   it("Test init", () => {
-    const am = new ShopperManager();
+    const am = new ShopperJWT();
     am.init(client);
     expect(am.token).to.be.not.ok;
   });
 
   it("Test refresh", () => {
-    getTokenStub.resolves(SHOPPER_TOKEN);
-    // Initiall token is empty
-    expect(am.token).to.be.not.ok;
+    const shopperJWTRefreshing = new ShopperJWT();
+    shopperJWTRefreshing.init(client);
+    // Initial token is empty
+    expect(shopperJWTRefreshing.token).to.be.not.ok;
     // Expect refresh to get the token as well
-    return am.refresh().then(() => {
-      expect(am.token).to.be.ok;
+    return shopperJWTRefreshing.refresh().then(() => {
+      expect(shopperJWTRefreshing.token).to.be.ok;
     });
   });
 
   it("Test inject auth", () => {
-    getTokenStub.resolves(SHOPPER_TOKEN);
-    return am.authenticate().then(() => {
-      return am.injectAuth({}).then(res => {
+    return shopperJwt.authenticate().then(() => {
+      return shopperJwt.injectAuth({}).then(res => {
         expect(res["Authentication"]).to.be.equal("Bearer abcd");
       });
     });
   });
 
   it("Test inject auth, don't override", () => {
-    getTokenStub.resolves(ACCESS_TOKEN);
-    return am.authenticate().then(() => {
+    return shopperJwt.authenticate().then(() => {
+      return shopperJwt
+        .injectAuth({
+          Authentication: "A CUSTOM HEADER"
+        })
+        .then(res => {
+          expect(res["Authentication"]).to.be.equal("A CUSTOM HEADER");
+        });
+    });
+  });
+});
+
+describe("Test shopper jwt auth rejects tokens", () => {
+  let client: BaseClient;
+  let am: ShopperJWT;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  let getTokenStub: any;
+
+  beforeEach(() => {
+    client = new BaseClient({
+      clientId: "ID",
+      clientSecret: "SECRET",
+      authHost: "https://somewhere.com"
+    });
+    am = new ShopperJWT();
+    am.init(client);
+    getTokenStub = sinon.stub(ShopperAuthClient, "_post");
+    getTokenStub.rejects("Response Error: 401 Unauthorized");
+  });
+
+  afterEach(() => {
+    getTokenStub.restore();
+  });
+
+  it("Test getting failing token", () => {
+    return am.authenticate().then(res => {
+      expect(res).to.be.false;
+      expect(am.token).to.be.not.ok;
+    });
+  });
+
+  it("Test refresh with failing token", () => {
+    const sjwt = new ShopperJWT();
+    sjwt.init(client);
+    // Initial token is empty
+    expect(sjwt.token).to.be.not.ok;
+    // Expect refresh to get the token as well
+    return sjwt.refresh().then(() => {
+      expect(sjwt.token).to.be.not.ok;
+    });
+  });
+
+  it("Test inject auth with failing token, don't override", () => {
+    return am.authenticate(client).then(() => {
       return am
         .injectAuth({
           Authentication: "A CUSTOM HEADER"
