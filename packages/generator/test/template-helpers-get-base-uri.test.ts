@@ -6,24 +6,30 @@
  */
 "use strict";
 
+import { expect } from "chai";
+// This just plain doesn't work right with any form of import
+const webapi = require("webapi-parser");
+const wap = webapi.WebApiParser;
+const document = webapi.model.document;
+const domain = webapi.model.domain;
+
 import { getBaseUri } from "../src/template-helpers";
 
-import { model } from "amf-client-js";
-import { expect } from "chai";
-import { WebApiBaseUnit, webapi, WebApiParser, WebApiBaseUnitWithEncodesModel } from "webapi-parser";
-
 describe("Test getBaseUri template help function", () => {
+  before(() => wap.init());
+
   it("returns an empty string for null input", () => {
     expect(getBaseUri(null)).to.equal("");
   });
 
   it("returns an empty string for empty model", () => {
-    expect(getBaseUri(new webapi.WebApiDocument())).to.equal("");
+    expect(getBaseUri(new document.Document())).to.equal("");
   });
 
   it("returns correct base uri", async () => {
-    const w:WebApiBaseUnit = await WebApiParser.raml10.parse(`file://${__dirname}/raml/valid/site.raml`);
-    const baseUri:string = ((w as WebApiBaseUnitWithEncodesModel).encodes as model.domain.WebApi).servers[0].url.value();
-    expect(getBaseUri(w as WebApiBaseUnitWithEncodesModel)).to.equal(baseUri);
+    const api = new domain.WebApi();
+    api.withServer("test-url-value");
+    const model = new document.Document(api);
+    expect(getBaseUri(model)).to.equal("test-url-value");
   });
 });
