@@ -13,7 +13,7 @@ All these commands can both be ran from the root as well as within a package in 
     # To setup
     npm install
 
-    # To run templates
+    # To run tests
     npm test
 
     # To build 
