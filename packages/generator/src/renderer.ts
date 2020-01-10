@@ -18,7 +18,6 @@ import {
   getArrayElementTypeProperty,
   getReturnPayloadType,
   getSecurityScheme,
-  isReturnPayloadDefined,
   getValue,
   onlyRequired,
   onlyOptional,
@@ -98,8 +97,6 @@ Handlebars.registerHelper("getArrayElementType", getArrayElementTypeProperty);
 Handlebars.registerHelper("getReturnPayloadType", getReturnPayloadType);
 
 Handlebars.registerHelper("getSecurityScheme", getSecurityScheme);
-
-Handlebars.registerHelper("isReturnPayloadDefined", isReturnPayloadDefined);
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 Handlebars.registerHelper("getValue", getValue);
