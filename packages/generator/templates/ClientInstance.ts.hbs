@@ -22,6 +22,7 @@ export class Client extends BaseClient {
         {{#each declares}}
             {{#is ./$classData/name "amf.client.model.domain.SecurityScheme"}}
                 this.authSchemes["{{./name}}"] = new AuthSchemes["{{./name}}"]();
+                this.authSchemes.{{./name}}.init(this);
             {{/is}}
         {{/each}}
     {{/each}}

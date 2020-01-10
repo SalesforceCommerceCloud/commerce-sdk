@@ -20,12 +20,11 @@ export interface IAuthScheme {
 
 // Implementing without abstract class for now..
 // Once we figure out the non guest workflow, we can refactor this ShopperManager
-export class ShopperManager implements IAuthScheme {
+export class ShopperJWT implements IAuthScheme {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public token: string;
   public shopperClient: BaseClient;
   public baseClient: BaseClient;
-  public authEndpoint: string;
 
   init(client: BaseClient): void {
     this.shopperClient = client;
@@ -34,7 +33,6 @@ export class ShopperManager implements IAuthScheme {
       baseUri: client.clientConfig.authHost,
       rawReponse: true
     });
-    this.authEndpoint = "/s/SiteGenesis/dw/shop/v19_3/customers/auth";
   }
 
   async injectAuth(headers: {
@@ -47,7 +45,7 @@ export class ShopperManager implements IAuthScheme {
     if (this.token && !("Authentication" in headers)) {
       // Token contains Auth header as "Bearer adsfsdf..."
       // No need to prepend with Bearer
-      headers["Authentication"] = `${this.token}`;
+      headers["Authentication"] = `Bearer ${this.token}`;
     }
     return headers;
   }
@@ -69,7 +67,7 @@ export class ShopperManager implements IAuthScheme {
     try {
       const response = await ShopperAuthClient._post({
         client: this.baseClient,
-        path: this.authEndpoint,
+        path: undefined,
         pathParameters: {},
         queryParameters: queryParams,
         headers: {},
@@ -77,9 +75,12 @@ export class ShopperManager implements IAuthScheme {
       });
       // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
       // @ts-ignore
-      this.token = response.headers.get("authorization");
+      this.token = response.headers
+        .get("authorization")
+        .split("Bearer ")[1]
+        .trim();
     } catch (error) {
-      console.error("Shopper bearer token error", error.message);
+      console.error("ShopperJwt bearer token error", error.message);
       return false;
     }
     return true;
@@ -154,7 +155,7 @@ export class AccountManager implements IAuthScheme {
 export const AuthSchemes = {
   AccountManager: AccountManager,
   clientId: AccountManager,
-  ShopperJWT: ShopperManager,
+  ShopperJWT: ShopperJWT,
   // eslint-disable-next-line @typescript-eslint/camelcase
   OAuth2_0: AccountManager
 };
