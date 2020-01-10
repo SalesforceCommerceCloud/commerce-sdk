@@ -10,6 +10,7 @@ import Handlebars from "handlebars";
 import { getAllDataTypes } from "./parser";
 
 import {
+  getBaseUri,
   isDefinedProperty,
   getDataType,
   isPrimitiveProperty,
@@ -80,6 +81,8 @@ export function createIndex(boundedContexts: any): string {
 }
 
 // Register helpers
+Handlebars.registerHelper("getBaseUri", getBaseUri);
+
 Handlebars.registerHelper("isDefinedProperty", isDefinedProperty);
 
 Handlebars.registerHelper("getDataType", getDataType);
