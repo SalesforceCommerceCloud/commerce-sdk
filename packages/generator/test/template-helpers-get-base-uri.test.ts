@@ -8,6 +8,7 @@
 
 import { expect } from "chai";
 // This just plain doesn't work right with any form of import
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const webapi = require("webapi-parser");
 const wap = webapi.WebApiParser;
 const document = webapi.model.document;
