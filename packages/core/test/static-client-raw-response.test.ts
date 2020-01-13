@@ -36,7 +36,7 @@ describe("rawResponse tests", () => {
   });
   afterEach(nock.cleanAll);
 
-  it("makes correct call", () => {
+  it("makes correct call for true", () => {
     const client = new BaseClient({ baseUri: "https://somewhere" });
     const scope = nock("https://somewhere")
       .get("/over/the/rainbow")
@@ -48,6 +48,38 @@ describe("rawResponse tests", () => {
       rawResponse: true
     }).then(res => {
       expect(res).to.be.a("Response");
+      expect(nock.isDone()).to.be.true;
+    });
+  });
+
+  it("makes correct call for false", () => {
+    const client = new BaseClient({ baseUri: "https://somewhere" });
+    const scope = nock("https://somewhere")
+      .get("/over/the/rainbow")
+      .reply(200, { mock: "data" });
+
+    return _get({
+      client: client,
+      path: "/over/the/rainbow",
+      rawResponse: false
+    }).then(res => {
+      expect(res).to.not.be.a("Response");
+      expect(nock.isDone()).to.be.true;
+    });
+  });
+
+  it("makes correct call for null", () => {
+    const client = new BaseClient({ baseUri: "https://somewhere" });
+    const scope = nock("https://somewhere")
+      .get("/over/the/rainbow")
+      .reply(200, { mock: "data" });
+
+    return _get({
+      client: client,
+      path: "/over/the/rainbow",
+      rawResponse: null
+    }).then(res => {
+      expect(res).to.not.be.a("Response");
       expect(nock.isDone()).to.be.true;
     });
   });
