@@ -35,7 +35,7 @@ To use an SDK client, instantiate an object of that client and configure these p
 import { Shop } from 'commerce-sdk';
 ​
 // Instantiate a Shop client object with configuration parameters.
-const shopClient = new Shop({
+const shopClient = new Shop.Client({
     baseUri: "https://somewhere.com/v1/shop",
     clientId: 'test-client-id',
     clientSecret: 'test-client-secret'
