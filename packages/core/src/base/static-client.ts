@@ -12,7 +12,7 @@ const CONTENT_TYPE = "application/json";
 import _ from "lodash";
 
 import DefaultCache = require("make-fetch-happen/cache");
-export { DefaultCache };
+export { DefaultCache, Response };
 
 export class ResponseError extends Error {
   constructor(public response: Response) {
@@ -39,6 +39,7 @@ async function runFetch(
     queryParameters?: object;
     headers?: { [key: string]: string };
     authScheme?: IAuthScheme;
+    rawResponse?: boolean;
     body?: any;
   }
 ): Promise<object> {
@@ -81,7 +82,7 @@ async function runFetch(
 
   const response = await fetch(resource, fetchOptions);
 
-  return getObjectFromResponse(response);
+  return options.rawResponse ? response : getObjectFromResponse(response);
 }
 
 export function _get(options: {
@@ -91,6 +92,7 @@ export function _get(options: {
   queryParameters?: object;
   headers?: { [key: string]: string };
   authScheme?: IAuthScheme;
+  rawResponse?: boolean;
 }): Promise<object> {
   return runFetch("get", options);
 }
@@ -102,6 +104,7 @@ export function _delete(options: {
   queryParameters?: object;
   headers?: { [key: string]: string };
   authScheme?: IAuthScheme;
+  rawResponse?: boolean;
 }): Promise<object> {
   return runFetch("delete", options);
 }
@@ -113,6 +116,7 @@ export function _patch(options: {
   queryParameters?: object;
   headers?: { [key: string]: string };
   authScheme?: IAuthScheme;
+  rawResponse?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;
 }): Promise<object> {
@@ -126,6 +130,7 @@ export function _post(options: {
   queryParameters?: object;
   headers?: { [key: string]: string };
   authScheme?: IAuthScheme;
+  rawResponse?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;
 }): Promise<object> {
@@ -139,6 +144,7 @@ export function _put(options: {
   queryParameters?: object;
   headers?: { [key: string]: string };
   authScheme?: IAuthScheme;
+  rawResponse?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;
 }): Promise<object> {
