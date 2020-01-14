@@ -2,6 +2,9 @@ parameters:
   publish_sdk:
     type: boolean
     default: false
+  lerna_command:
+    type: string
+    default: "publish from-package -- --yes --git-head invalid"
 
 jobs:
   build:
@@ -40,7 +43,7 @@ jobs:
             - run:
                 name: Create npmrc file to authenticate with npm registry.
                 command: echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > ~/.npmrc
-            - run: npm run publish
+            - run: npm run publish << pipeline.parameters.lerna_command >>
 
 workflows:
   version: 2
