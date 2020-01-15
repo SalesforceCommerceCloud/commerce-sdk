@@ -10,6 +10,8 @@ jobs:
           steps:
             - run: npm install
       - run: npm run build
+      - run: npm run test
+      - run: npm run test:integration
       - persist_to_workspace:
           root: ~/build_and_publish
           paths: .
@@ -20,14 +22,10 @@ jobs:
       name: node/default
       tag: '10.16'
     steps:
-      - run: echo Publishing commerce_sdk to npm
+      - run: echo Publish commerce_sdk to npm
       - checkout
       - attach_workspace:
           at: ~/build_and_publish
-      - run: ls -lrt ~/build_and_publish
-      - run: ls -lrt ~/build_and_publish/packages
-      - run: ls -lrt ~/build_and_publish/packages/generator
-      - run: ls -lrt ~/build_and_publish/packages/generator/dist
       - run: git config --global user.email "kalagarraj@salesforce.com"
       - run: git config --global user.name "kalagarraj"
       - add_ssh_keys:
