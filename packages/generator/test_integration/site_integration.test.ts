@@ -14,7 +14,7 @@ let initializeMockPromise;
 const BASE_URI =
   "https://anypoint.mulesoft.com/mocking/api/v1/sources/exchange/assets/893f605e-10e2-423a-bdb4-f952f56eb6d8/steelarc-integration/1.0.0/m/s/-/dw/shop/v19_5";
 
-const client = new Shop({
+const client = new Shop.Client({
   baseUri: BASE_URI
 });
 
@@ -26,7 +26,7 @@ before(() => {
 
 describe("Shop client integration GET tests", () => {
   it("Throws error calling GET with no token", () => {
-    const newLocalClient = new Shop({
+    const newLocalClient = new Shop.Client({
       baseUri: BASE_URI
     });
     return expect(newLocalClient.getSite()).to.be.rejected;
@@ -62,7 +62,7 @@ describe("Shop client integration GET tests", () => {
 
 describe("Shop client integration PUT tests", () => {
   it("Throws error calling PUT with no token", () => {
-    const newLocalClient = new Shop({
+    const newLocalClient = new Shop.Client({
       baseUri: BASE_URI
     });
     return expect(
@@ -113,7 +113,7 @@ describe("Shop client integration PUT tests", () => {
 
 describe("Shop client integration PATCH tests", () => {
   it("Throws error calling PATCH with no token", () => {
-    const newLocalClient = new Shop({
+    const newLocalClient = new Shop.Client({
       baseUri: BASE_URI
     });
     return expect(
@@ -145,7 +145,7 @@ describe("Shop client integration PATCH tests", () => {
 
 describe("Shop client integration DELETE tests", () => {
   it("Throws error calling DELETE with no token", () => {
-    const newLocalClient = new Shop({
+    const newLocalClient = new Shop.Client({
       baseUri: BASE_URI
     });
     return expect(newLocalClient.deleteSite()).to.be.rejected;
@@ -160,7 +160,7 @@ describe("Shop client integration DELETE tests", () => {
 
 describe("Shop client integration POST tests", () => {
   it("Throws error calling POST with no token", () => {
-    const newLocalClient = new Shop({
+    const newLocalClient = new Shop.Client({
       baseUri: BASE_URI
     });
     return expect(newLocalClient.searchProducts()).to.be.rejected;
