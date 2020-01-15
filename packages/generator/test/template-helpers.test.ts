@@ -21,7 +21,7 @@ import {
 } from "../src/template-helpers";
 
 import { assert, expect } from "chai";
-import { core, model } from "amf-client-js";
+import { model } from "amf-client-js";
 
 describe("Template helper primitive datatype tests", () => {
   it("Returns 'any' on undefined property", () => {
@@ -29,34 +29,33 @@ describe("Template helper primitive datatype tests", () => {
   });
 
   it("Returns 'boolean' on boolean dataType", () => {
-    const property = {
-      range: {
-        dataType: {
-          value: () => "http://www.w3.org/2001/XMLSchema#boolean"
-        }
-      }
-    };
+    const property: model.domain.PropertyShape = new model.domain.PropertyShape();
+    const range: model.domain.ScalarShape = new model.domain.ScalarShape();
 
-    assert.isTrue(getDataType(property) === "boolean");
+    range.withDataType("http://www.w3.org/2001/XMLSchema#boolean");
+    property.withRange(range);
+
+    expect(getDataType(property)).to.equal("boolean");
   });
 
   it("Returns 'number' on float dataType", () => {
-    const property = {
-      range: {
-        dataType: { value: () => "http://www.w3.org/2001/XMLSchema#float" }
-      }
-    };
+    const property: model.domain.PropertyShape = new model.domain.PropertyShape();
+    const range: model.domain.ScalarShape = new model.domain.ScalarShape();
 
-    assert.isTrue(getDataType(property) === "number");
+    range.withDataType("http://www.w3.org/2001/XMLSchema#float");
+    property.withRange(range);
+
+    expect(getDataType(property)).to.equal("number");
   });
 
   it("Returns 'any' on undefined dataType", () => {
-    const property = {
-      range: {
-        dataType: { value: () => undefined }
-      }
-    };
-    assert.isTrue(getDataType(property) === "any");
+    const property: model.domain.PropertyShape = new model.domain.PropertyShape();
+    const range: model.domain.ScalarShape = new model.domain.ScalarShape();
+
+    range.withDataType(undefined);
+    property.withRange(range);
+
+    expect(getDataType(property)).to.equal("any");
   });
 
   it("Returns 'object' on object dataType", () => {
@@ -91,36 +90,39 @@ describe("Template helper primitive datatype tests", () => {
 
 describe("Template helper Array item type tests", () => {
   it("Returns 'Array<any>' on array of unknown dataType", () => {
-    const property = {
-      range: {
-        items: {
-          dataType: { value: () => "unknown" }
-        }
-      }
-    };
-    assert.isTrue(getDataType(property) === "Array<any>");
+    const property: model.domain.PropertyShape = new model.domain.PropertyShape();
+    const range: model.domain.ArrayShape = new model.domain.ArrayShape();
+    const item: model.domain.ScalarShape = new model.domain.ScalarShape();
+
+    item.withDataType("unknown");
+    range.withItems(item);
+    property.withRange(range);
+
+    expect(getDataType(property)).to.equal("Array<any>");
   });
 
   it("Returns 'Array<string>' on array of string dataType", () => {
-    const property = {
-      range: {
-        items: {
-          dataType: { value: () => "http://www.w3.org/2001/XMLSchema#string" }
-        }
-      }
-    };
-    assert.isTrue(getDataType(property) === "Array<string>");
+    const property: model.domain.PropertyShape = new model.domain.PropertyShape();
+    const range: model.domain.ArrayShape = new model.domain.ArrayShape();
+    const item: model.domain.ScalarShape = new model.domain.ScalarShape();
+
+    item.withDataType("http://www.w3.org/2001/XMLSchema#string");
+    range.withItems(item);
+    property.withRange(range);
+
+    expect(getDataType(property)).to.equal("Array<string>");
   });
 
   it("Returns 'Array<number>' on array of double dataType", () => {
-    const property = {
-      range: {
-        items: {
-          dataType: { value: () => "http://www.w3.org/2001/XMLSchema#double" }
-        }
-      }
-    };
-    assert.isTrue(getDataType(property) === "Array<number>");
+    const property: model.domain.PropertyShape = new model.domain.PropertyShape();
+    const range: model.domain.ArrayShape = new model.domain.ArrayShape();
+    const item: model.domain.ScalarShape = new model.domain.ScalarShape();
+
+    item.withDataType("http://www.w3.org/2001/XMLSchema#double");
+    range.withItems(item);
+    property.withRange(range);
+
+    expect(getDataType(property)).to.equal("Array<number>");
   });
 
   it("Returns 'Array<object>' on array of object dataType", () => {
@@ -248,16 +250,15 @@ describe("Template helper Array item type tests", () => {
   });
 
   it("Returns 'string' on array of defined_type items, but isLink is undefined", () => {
-    const property = {
-      range: {
-        items: {
-          dataType: {
-            value: () => "http://www.w3.org/2001/XMLSchema#string"
-          }
-        }
-      }
-    };
-    assert.isTrue(getArrayElementTypeProperty(property) === "string");
+    const property: model.domain.PropertyShape = new model.domain.PropertyShape();
+    const range: model.domain.ArrayShape = new model.domain.ArrayShape();
+    const item: model.domain.ScalarShape = new model.domain.ScalarShape();
+
+    item.withDataType("http://www.w3.org/2001/XMLSchema#string");
+    range.withItems(item);
+    property.withRange(range);
+
+    expect(getArrayElementTypeProperty(property)).to.equal("string");
   });
 });
 
@@ -390,16 +391,17 @@ describe("Template helper tests for get value from name", () => {
   });
 
   it("Returns null on undefined value", () => {
-    assert.isNull(getValue({}));
+    const property: model.domain.ScalarShape = new model.domain.ScalarShape();
+
+    expect(getValue(property.dataType)).to.be.null;
   });
 
   it("Returns 'valid' on valid value", () => {
-    assert.equal(
-      "valid",
-      getValue({
-        value: () => "valid"
-      })
-    );
+    const property: model.domain.ScalarShape = new model.domain.ScalarShape();
+
+    property.withDataType("valid");
+
+    expect(getValue(property.dataType)).to.equal("valid");
   });
 });
 
@@ -413,27 +415,19 @@ describe("Template helper tests for only required properties", () => {
   });
 
   it("Returns empty array on valid optional classes", () => {
-    assert.isEmpty(
-      onlyRequired([
-        {
-          minCount: {
-            value: () => 0
-          }
-        }
-      ])
-    );
+    const property: model.domain.PropertyShape = new model.domain.PropertyShape();
+
+    property.withMinCount(0);
+
+    expect(onlyRequired([property])).to.be.empty;
   });
 
   it("Returns non empty array on valid required classes", () => {
-    assert.isNotEmpty(
-      onlyRequired([
-        {
-          minCount: {
-            value: () => 1
-          }
-        }
-      ])
-    );
+    const property: model.domain.PropertyShape = new model.domain.PropertyShape();
+
+    property.withMinCount(1);
+
+    expect(onlyRequired([property])).to.not.be.empty;
   });
 });
 
@@ -447,27 +441,19 @@ describe("Template helper tests for only optional properties", () => {
   });
 
   it("Returns empty array on valid required properties", () => {
-    assert.isEmpty(
-      onlyOptional([
-        {
-          minCount: {
-            value: () => 1
-          }
-        }
-      ])
-    );
+    const property: model.domain.PropertyShape = new model.domain.PropertyShape();
+
+    property.withMinCount(1);
+
+    expect(onlyOptional([property])).to.be.empty;
   });
 
   it("Returns non empty array on valid optional properties", () => {
-    assert.isNotEmpty(
-      onlyOptional([
-        {
-          minCount: {
-            value: () => 0
-          }
-        }
-      ])
-    );
+    const property: model.domain.PropertyShape = new model.domain.PropertyShape();
+
+    property.withMinCount(0);
+
+    expect(onlyOptional([property])).to.not.be.empty;
   });
 });
 
@@ -477,34 +463,36 @@ describe("Template helper tests for defined types", () => {
   });
 
   it("Returns 'false' on null range property", () => {
-    assert.isFalse(isTypeDefined({}));
+    const property: model.domain.ScalarShape = new model.domain.ScalarShape();
+
+    expect(isTypeDefined(property.dataType)).to.be.false;
   });
 
   it("Returns 'false' on presence of items property", () => {
-    const property = {
-      range: {
-        items: {}
-      }
-    };
-    assert.isFalse(isTypeDefined(property.range));
+    const property: model.domain.PropertyShape = new model.domain.PropertyShape();
+    const range: model.domain.ArrayShape = new model.domain.ArrayShape();
+
+    property.withRange(range);
+
+    expect(isTypeDefined(property.range)).to.be.false;
   });
 
   it("Returns 'false' on inherits property not being an array", () => {
-    const property = {
-      range: {
-        inherits: {}
-      }
-    };
-    assert.isFalse(isTypeDefined(property.range));
+    const property: model.domain.PropertyShape = new model.domain.PropertyShape();
+    const range: model.domain.ArrayShape = new model.domain.ArrayShape();
+
+    property.withRange(range);
+
+    expect(isTypeDefined(property.range)).to.be.false;
   });
 
   it("Returns 'false' on inherits array is empty", () => {
-    const property = {
-      range: {
-        inherits: []
-      }
-    };
-    assert.isFalse(isTypeDefined(property.range));
+    const property: model.domain.PropertyShape = new model.domain.PropertyShape();
+    const range: model.domain.ArrayShape = new model.domain.ArrayShape();
+
+    property.withRange(range);
+
+    expect(isTypeDefined(property.range)).to.be.false;
   });
 
   it("Returns 'false' on inherited item is not linked", () => {
