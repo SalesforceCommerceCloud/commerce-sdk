@@ -4,8 +4,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import { BaseClient } from "./client";
 import oauth2, { OAuthClient } from "simple-oauth2";
+
+import { ShopperJWT } from "./auth-shopper-jwt";
+import { BaseClient } from "./client";
 
 export interface IAuthScheme {
   // eslint-disable-next-line @typescript-eslint/no-misused-new
@@ -77,7 +79,7 @@ export class AccountManager implements IAuthScheme {
 export const AuthSchemes = {
   AccountManager: AccountManager,
   clientId: AccountManager,
-  ShopperJWT: AccountManager,
+  ShopperJWT: ShopperJWT,
   // eslint-disable-next-line @typescript-eslint/camelcase
   OAuth2_0: AccountManager
 };
