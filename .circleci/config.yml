@@ -27,15 +27,14 @@ jobs:
       - run: echo Publishing commerce_sdk to npm
       - attach_workspace:
           at: ~/build_and_publish
-      - checkout
-      - node/with-cache:
-          steps:
-            - run: npm install
       - run: ls -lrt ~/build_and_publish
+      - run: ls -lrt ~/build_and_publish/packages
+      - run: ls -lrt ~/build_and_publish/packages/generator
+      - run: ls -lrt ~/build_and_publish/packages/generator/dist
       - run:
           name: Create npmrc file to authenticate with npm registry.
           command: echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > ~/.npmrc
-      - run: lerna publish prerelease --yes
+      - run: npm run publish
 
 workflows:
   version: 2
