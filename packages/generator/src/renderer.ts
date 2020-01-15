@@ -55,20 +55,30 @@ export function createClient(
   webApiModels: WebApiBaseUnit[],
   boundedContext: string
 ): string {
-  const clientCode: string = clientInstanceTemplate({
-    dataTypes: getAllDataTypes(
-      webApiModels as WebApiBaseUnitWithDeclaresModel[]
-    ),
-    models: webApiModels,
-    apiSpec: boundedContext
-  });
+  const clientCode: string = clientInstanceTemplate(
+    {
+      dataTypes: getAllDataTypes(
+        webApiModels as WebApiBaseUnitWithDeclaresModel[]
+      ),
+      models: webApiModels,
+      apiSpec: boundedContext
+    },
+    {
+      allowProtoPropertiesByDefault: true,
+      allowProtoMethodsByDefault: true
+    }
+  );
   return clientCode;
 }
 
 export function createDto(webApiModels: WebApiBaseUnit[]): string {
-  const dtoCode: string = dtoTemplate(
-    getAllDataTypes(webApiModels as WebApiBaseUnitWithDeclaresModel[])
+  const types = getAllDataTypes(
+    webApiModels as WebApiBaseUnitWithDeclaresModel[]
   );
+  const dtoCode: string = dtoTemplate(types, {
+    allowProtoPropertiesByDefault: true,
+    allowProtoMethodsByDefault: true
+  });
   return dtoCode;
 }
 
