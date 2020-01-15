@@ -38,9 +38,17 @@ workflows:
   build-only:
     jobs:
       - build
+          filters:
+            branches:
+              ignore:
+                  - /^release.*/
   build-and-deploy:
     jobs:
-      - build
+      - build:
+          filters:
+            branches:
+              only:
+                  - /^release.*/
       - hold:
           type: approval
           requires:
