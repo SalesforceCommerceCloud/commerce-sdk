@@ -10,6 +10,14 @@ import {
 {{/each}}
 } from "./{{apiSpec}}.types";
 
+export {
+{{#each dataTypes}}
+    {{#if (isTypeDefinition .)}}
+        {{getValue name}},
+    {{/if}}
+{{/each}}
+} from "./{{apiSpec}}.types";
+
 
 export class Client extends BaseClient {
   constructor(config: ClientConfig) {
