@@ -8,7 +8,7 @@ import { decode } from "jsonwebtoken";
 
 import { IAuthScheme } from "./auth-schemes";
 import { BaseClient } from "./client";
-import { _post } from "./static-client";
+import { _post, ResponseError } from "./static-client";
 
 /**
  * Decodes token from the server and returns the claims in the JWT.
@@ -50,23 +50,20 @@ export class ShopperJWT implements IAuthScheme {
   }
 
   async refresh(): Promise<void> {
-    if (!this.token || this.token.decoded.exp < Date.now()) {
-      try {
-        const response: Response = (await _post({
-          client: this.authClient,
-          path: "",
-          rawResponse: true,
-          body: { type: "guest" }
-        })) as Response;
-        this.token = {
-          authHeaderString: response.headers.get("authorization")
-        };
-        this.token.decoded = decodeJWTFromAuthHeader(
-          this.token.authHeaderString
-        );
-      } catch (error) {
-        console.error("Access Token error", error.message);
+    if (!this.token || this.token.decoded.exp < Math.floor(Date.now() / 1000)) {
+      const response: Response = (await _post({
+        client: this.authClient,
+        path: "",
+        rawResponse: true,
+        body: { type: "guest" }
+      })) as Response;
+      if (!response.ok) {
+        throw new ResponseError(response);
       }
+      this.token = {
+        authHeaderString: response.headers.get("authorization")
+      };
+      this.token.decoded = decodeJWTFromAuthHeader(this.token.authHeaderString);
     }
   }
 }
