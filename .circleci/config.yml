@@ -1,11 +1,11 @@
 jobs:
   build:
     working_directory: ~/build_and_publish
-    environment:
-      EXCHANGE_DOWNLOAD: true
     executor:
       name: node/default
       tag: '10.16'
+    environment:
+      EXCHANGE_DOWNLOAD: true
     steps:
       - run: echo Publish commerce_sdk to npm "$EXCHANGE_DOWNLOAD"
       - checkout
@@ -23,11 +23,11 @@ jobs:
 
   publish:
     working_directory: ~/build_and_publish
-    environment:
-      EXCHANGE_DOWNLOAD: true
     executor:
       name: node/default
       tag: '10.16'
+    environment:
+      EXCHANGE_DOWNLOAD: true
     steps:
       - run: echo Publish commerce_sdk to npm "$EXCHANGE_DOWNLOAD"
       - checkout
@@ -47,37 +47,37 @@ jobs:
           command: echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > ~/.npmrc
       - run: npm run publish
 
-  workflows:
-    version: 2
-    build-only:
-      jobs:
-        - build:
-            filters:
-              branches:
-                ignore:
-                  - /^release.*/
-    build-and-deploy:
-      jobs:
-        - build:
-            filters:
-              branches:
-                only:
-                  - /^release.*/
-        - hold:
-            type: approval
-            requires:
-              - build
-            filters:
-              branches:
-                only:
-                  - /^release.*/
-        - publish:
-            requires:
-              - hold
-            filters:
-              branches:
-                only:
-                  - /^release.*/
+workflows:
+  version: 2
+  build-only:
+    jobs:
+      - build:
+          filters:
+            branches:
+              ignore:
+                - /^release.*/
+  build-and-deploy:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only:
+                - /^release.*/
+      - hold:
+          type: approval
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - /^release.*/
+      - publish:
+          requires:
+            - hold
+          filters:
+            branches:
+              only:
+                - /^release.*/
 
 orbs:
   node: circleci/node@1.1
