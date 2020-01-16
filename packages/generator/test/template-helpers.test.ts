@@ -575,9 +575,7 @@ describe("Template helper tests for defined types", () => {
 
 describe("Template helper tests for getSecurityScheme", () => {
   before(() => {
-    return AMF.init().then(() => {
-      return AMF.raml10Generator();
-    });
+    return AMF.init();
   });
 
   it("Returns '' on undefined security scheme", () => {
