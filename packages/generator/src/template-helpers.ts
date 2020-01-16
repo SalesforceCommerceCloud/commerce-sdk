@@ -136,22 +136,26 @@ export const getReturnPayloadType = function(operation: any): string {
 
 export const getSecurityScheme = function(
   prefix: string,
-  security: any
+  security: model.domain.SecurityRequirement[]
 ): string {
-  let scheme = "";
-  if (security.length > 0) {
-    for (const secScheme of security) {
-      const tmpScheme = secScheme.scheme.name.value();
+  const secSchemes: model.domain.SecurityRequirement = _.first(security);
 
-      // Ensures we found an auth scheme that we support
-      // This current only supports a SINGLE auth scheme at a time, need to figure out the best way of supporting multiple
-      if (AuthSchemes.hasOwnProperty(tmpScheme)) {
-        scheme = `${prefix} this.authSchemes.${tmpScheme}`;
-        break;
-      }
-    }
+  let secScheme: model.domain.ParametrizedSecurityScheme = undefined;
+
+  if (!_.isNil(secSchemes)) {
+    secScheme = _.first(secSchemes.schemes);
   }
-  return scheme;
+
+  // Ensures we found an auth scheme that we support
+  // This current only supports a SINGLE auth scheme at a time, need to figure out the best way of supporting multiple
+  if (
+    !_.isNil(secScheme) &&
+    AuthSchemes.hasOwnProperty(secScheme.name.value())
+  ) {
+    return `${prefix} this.authSchemes.${secScheme.name.value()}`;
+  }
+
+  return "";
 };
 
 const getDataTypeFromMap = function(uuidDataType: string): string {
