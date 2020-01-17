@@ -40,7 +40,7 @@ function search(): Promise<RestApi[]> {
     process.env.ANYPOINT_USERNAME,
     process.env.ANYPOINT_PASSWORD
   ).then(token => {
-    return searchExchange(token, `category:"${config.exchangeCategory}"`);
+    return searchExchange(token, config.exchangeSearch);
   });
 }
 
@@ -61,7 +61,7 @@ function downloadRamlFromExchange(): Promise<void> {
         const ramlGroups = _.groupBy(apis, api => {
           // Categories are actually a list.
           // We are just going to use whatever the first one is for now
-          return api.categories[config.exchangeCategory][0];
+          return api.categories[config.apiFamily][0];
         });
         fs.ensureDirSync(config.inputDir);
         return fs.writeFile(
