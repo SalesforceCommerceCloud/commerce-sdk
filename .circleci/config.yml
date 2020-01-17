@@ -1,11 +1,10 @@
 jobs:
   build:
-    working_directory: ~/build_and_publish
+    working_directory: ~/build_only
     executor:
       name: node/default
       tag: '10.16'
     steps:
-      - run: echo Publish commerce_sdk to npm "$EXCHANGE_DOWNLOAD"
       - checkout
       - node/with-cache:
           steps:
@@ -15,9 +14,6 @@ jobs:
       - run: npm run test:integration
       - store_test_results:
           path: reports
-      - persist_to_workspace:
-          root: ~/build_and_publish
-          paths: .
 
   publish:
     working_directory: ~/build_and_publish
@@ -29,13 +25,15 @@ jobs:
     steps:
       - run: echo Publish commerce_sdk to npm "$EXCHANGE_DOWNLOAD"
       - checkout
-      - attach_workspace:
-          at: ~/build_and_publish
+      - node/with-cache:
+          steps:
+            - run: npm install
+      - run: npm run build
       - run: echo -e "$GPG_KEY" | gpg --import
       - run: gpg --list-secret-keys --keyid-format LONG
       - run: git config --global user.email "$GITHUB_PUBLISH_EMAIL"
       - run: git config --global user.name "$GITHUB_PUBLISH_USER"
-      - run: git config --global user.signingkey $GITHUB_GPG_SIGN_KEY
+      - run: git config --global user.signingkey $GITHUB_GPG_SIGN_KEY_ID
       - run: git config --global commit.gpgsign true
       - add_ssh_keys:
           fingerprints:
