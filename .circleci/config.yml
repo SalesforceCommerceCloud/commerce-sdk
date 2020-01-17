@@ -23,6 +23,9 @@ jobs:
     environment:
       EXCHANGE_DOWNLOAD: true
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "$GITHUB_HOST_SSH_KEY"
       - run: echo Publish commerce_sdk to npm "$EXCHANGE_DOWNLOAD"
       - checkout
       - node/with-cache:
@@ -35,9 +38,6 @@ jobs:
       - run: git config --global user.name "$GITHUB_PUBLISH_USER"
       - run: git config --global user.signingkey $GITHUB_GPG_SIGN_KEY_ID
       - run: git config --global commit.gpgsign true
-      - add_ssh_keys:
-          fingerprints:
-            - "$GITHUB_HOST_SSH_KEY"
       - run:
           name: Create npmrc file to authenticate with npm registry.
           command: echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > ~/.npmrc
