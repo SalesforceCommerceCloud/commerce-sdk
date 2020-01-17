@@ -31,6 +31,14 @@ export const getBaseUri = function(
     : "";
 };
 
+export const getBaseUriParameters = function(
+  property: WebApiBaseUnitWithEncodesModel
+): string[] {
+  return property && property.encodes
+    ? (property.encodes as model.domain.WebApi).servers[0].variables.map(p => p.name.value())
+    : [];
+};
+
 const isValidProperty = function(property: any): boolean {
   return (
     property !== undefined && property !== null && property.range !== undefined
