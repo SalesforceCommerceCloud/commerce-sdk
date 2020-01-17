@@ -23,6 +23,7 @@ config();
 export type BaseClientConfig = {
   authHost?: string;
   baseUri?: string;
+  baseUriParameters?: { [key: string]: string };
   cacheManager?: ICacheManager;
   clientId?: string;
   clientSecret?: string;

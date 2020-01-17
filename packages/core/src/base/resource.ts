@@ -9,6 +9,7 @@ import qs from "qs";
 export class Resource {
   constructor(
     private baseUri: string,
+    private baseUriParameters?: object,
     private path?: string,
     private pathParameters?: object,
     private queryParameters?: object
@@ -24,23 +25,19 @@ export class Resource {
       );
     });
   }
-  renderedPath = this.path
-    ? this.substitutePathParameters(
-        this.path as string,
-        this.pathParameters as object
-      )
-    : "";
 
   toString(): string {
+    const renderedBaseUri = this.baseUriParameters
+      ? this.substitutePathParameters(this.baseUri, this.baseUriParameters)
+      : this.baseUri;
+
     const renderedPath = this.path
-      ? this.substitutePathParameters(
-          this.path as string,
-          this.pathParameters as object
-        )
+      ? this.substitutePathParameters(this.path, this.pathParameters)
       : "";
+
     const queryString = qs.stringify(this.queryParameters);
 
-    return `${this.baseUri}${renderedPath}${
+    return `${renderedBaseUri}${renderedPath}${
       queryString ? "?" : ""
     }${queryString}`;
   }
