@@ -16,11 +16,20 @@ describe("Resource class tests", () => {
   });
 
   it("returns baseUri with param when only baseUri and param is set", () => {
-    assert.strictEqual(new Resource("{param}Uri", { param: "base" }).toString(), "baseUri");
+    assert.strictEqual(
+      new Resource("{param}Uri", { param: "base" }).toString(),
+      "baseUri"
+    );
   });
 
   it("returns baseUri with params when only baseUri and two params is set", () => {
-    assert.strictEqual(new Resource("{param}Uri/{p2}", { param: "base", p2: "value" }).toString(), "baseUri/value");
+    assert.strictEqual(
+      new Resource("{param}Uri/{p2}", {
+        param: "base",
+        p2: "value"
+      }).toString(),
+      "baseUri/value"
+    );
   });
 
   it("returns only baseUri + path when there's no template params in path", () => {

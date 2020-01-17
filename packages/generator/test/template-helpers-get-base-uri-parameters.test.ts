@@ -21,7 +21,9 @@ describe("Test getBaseUriParameters template helper function", () => {
   });
 
   it("returns an empty array for empty model", () => {
-    expect(getBaseUriParameters(new lib.webapi.WebApiDocument())).to.deep.equal([]);
+    expect(getBaseUriParameters(new lib.webapi.WebApiDocument())).to.deep.equal(
+      []
+    );
   });
 
   it("returns an empty array for static uri", () => {
