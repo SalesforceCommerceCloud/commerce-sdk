@@ -10,9 +10,9 @@ This will organize the packages within vscode like the following
 
 If you workspace bar does not look like this there are a couple of ways to open it.
 
-On is open the `commerce-sdk.code-workspace` in vscode and you will have a button in the lower right to open that workspace
+One option is when you open the `commerce-sdk.code-workspace` in vscode and you will have a button in the lower right to open that workspace directly
 
-Alternatively you can open it via the cli `$ code commerce-sdk.code-workspace` will directly open the workspace as well.
+Alternatively, you can open it via the cli `$ code commerce-sdk.code-workspace` will directly open the workspace as well.
 
 Monorepo config represents the files at the root of the folder that lets you configure or run the commands in the monorepo itself.
 
@@ -47,7 +47,7 @@ Often you will need to debug the generator.  Since the following are specific ON
 }
 ```
 
-Note that we are running gulp directly.  This is because when debugging you most likely want to execute the minimum about of code needed for your testing.  So this allows you to target exact tasks to debug them.
+Note that we are running gulp directly.  This is because when debugging you most likely want to execute the minimum amount of code needed for your testing.  So this allows you to target exact tasks to debug them.
 
 But what if you want to troubleshoot a part of the rendering that is happening when downloading the apis from exchange.  Pretty simple to add a launch configuration for that as well
 
