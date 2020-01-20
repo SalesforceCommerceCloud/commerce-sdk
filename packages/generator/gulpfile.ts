@@ -5,8 +5,14 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import * as gulp from "gulp";
-import { processRamlFile } from "./src/parser";
-import { createClient, createDto, createIndex } from "./src/renderer";
+import { processRamlFile, processApiFamily } from "./src/parser";
+import {
+  createClient,
+  createDto,
+  createIndex,
+  simplifiedApis
+} from "./src/renderer";
+
 import log from "fancy-log";
 import del from "del";
 import fs from "fs-extra";
@@ -94,19 +100,12 @@ gulp.task(
     const apiGroupKeys = _.keysIn(ramlGroupConfig);
 
     for (const apiGroup of apiGroupKeys) {
-      const familyPromises = [];
-      const ramlFileFromFamily = ramlGroupConfig[apiGroup];
-      _.map(ramlFileFromFamily, (apiMeta: RestApi) => {
-        familyPromises.push(
-          processRamlFile(
-            path.join(
-              config.inputDir,
-              apiMeta.assetId,
-              apiMeta.fatRaml.mainFile
-            )
-          )
-        );
-      });
+      const familyPromises = processApiFamily(
+        apiGroup,
+        ramlGroupConfig,
+        config.inputDir
+      );
+
       fs.ensureDirSync(config.renderDir);
       Promise.all(familyPromises).then(values => {
         fs.writeFileSync(
@@ -128,5 +127,44 @@ gulp.task(
       path.join(config.renderDir, "index.ts"),
       createIndex(apiGroupKeys)
     );
+  })
+);
+
+gulp.task(
+  "buildOperationList",
+  gulp.series(gulp.series("clean", "downloadRamlFromExchange"), async () => {
+    // require the json written in groupRamls gulpTask
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const ramlGroupConfig = require(path.resolve(
+      path.join(config.inputDir, config.apiConfigFile)
+    ));
+    const apiGroupKeys = _.keysIn(ramlGroupConfig);
+
+    const allApis = {};
+
+    const modelingPromises = [];
+
+    for (const apiGroup of apiGroupKeys) {
+      const familyPromises = processApiFamily(
+        apiGroup,
+        ramlGroupConfig,
+        config.inputDir
+      );
+      fs.ensureDirSync(config.renderDir);
+
+      modelingPromises.push(
+        Promise.all(familyPromises).then(values => {
+          allApis[apiGroup] = values;
+          return;
+        })
+      );
+    }
+
+    return Promise.all(modelingPromises).then(() => {
+      fs.writeFileSync(
+        path.join(config.renderDir, "operationList.yaml"),
+        simplifiedApis(allApis)
+      );
+    });
   })
 );

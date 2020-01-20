@@ -25,7 +25,11 @@ import {
   eachModel,
   isTypeDefinition
 } from "./template-helpers";
-import { WebApiBaseUnit, WebApiBaseUnitWithDeclaresModel } from "webapi-parser";
+import {
+  WebApiBaseUnit,
+  WebApiBaseUnitWithDeclaresModel,
+  WebApiBaseUnitWithEncodesModel
+} from "webapi-parser";
 
 const templateDirectory = `${__dirname}/../templates`;
 
@@ -45,6 +49,13 @@ export const clientInstanceTemplate = Handlebars.compile(
 
 export const indexTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "index.ts.hbs"), "utf8")
+);
+
+export const simplifiedApisTemplate = Handlebars.compile(
+  fs.readFileSync(
+    path.join(templateDirectory, "simplified-apis.yaml.hbs"),
+    "utf8"
+  )
 );
 
 export const dtoTemplate = Handlebars.compile(
@@ -88,6 +99,17 @@ export function createIndex(boundedContexts: any): string {
     apiSpec: boundedContexts
   });
   return indexCode;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function simplifiedApis(allApis: {
+  [key: string]: WebApiBaseUnitWithEncodesModel[];
+}): string {
+  const simplifiedApisCode: string = simplifiedApisTemplate(allApis, {
+    allowProtoPropertiesByDefault: true,
+    allowProtoMethodsByDefault: true
+  });
+  return simplifiedApisCode;
 }
 
 // Register helpers
