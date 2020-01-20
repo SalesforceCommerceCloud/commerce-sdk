@@ -9,19 +9,15 @@ import qs from "qs";
 export class Resource {
   constructor(
     private baseUri: string,
-    private baseUriParameters?: object,
-    private path?: string,
-    private pathParameters?: object,
-    private queryParameters?: object
+    private baseUriParameters = {},
+    private path = "",
+    private pathParameters = {},
+    private queryParameters = {}
   ) {}
 
-  substitutePathParameters(path: string, parameters: object): string {
-    if (!this.path) {
-      return "";
-    }
-
+  substitutePathParameters(path = "", parameters = {}): string {
     return path.replace(/\{([^}]+)\}/g, (_entireMatch, param) => {
-      if (parameters && param in parameters) {
+      if (param in parameters) {
         return parameters[param];
       }
       throw new Error(
