@@ -31,6 +31,24 @@ export const getBaseUri = function(
     : "";
 };
 
+/**
+ * Returns a list of names of the baseUri parameters. This should work the same
+ * whether the parameters have been specified in RAML explicitly as
+ * baseUriParameters or extracted from baseUri
+ * https://github.com/raml-org/raml-spec/blob/master/versions/raml-10/raml-10.md#the-root-of-the-document
+ * 
+ * @param property A model from the AMF parser
+ */
+export const getBaseUriParameters = function(
+  property: WebApiBaseUnitWithEncodesModel
+): string[] {
+  return property && property.encodes
+    ? (property.encodes as model.domain.WebApi).servers[0].variables.map(p =>
+        p.name.value()
+      )
+    : [];
+};
+
 const isValidProperty = function(property: any): boolean {
   return (
     property !== undefined && property !== null && property.range !== undefined

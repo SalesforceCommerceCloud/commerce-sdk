@@ -15,16 +15,42 @@ describe("Resource class tests", () => {
     assert.strictEqual(new Resource("baseUri").toString(), "baseUri");
   });
 
+  it("returns baseUri with param when only baseUri and param is set", () => {
+    assert.strictEqual(
+      new Resource("{param}Uri", { param: "base" }).toString(),
+      "baseUri"
+    );
+  });
+
+  it("returns baseUri with params when only baseUri and two params is set", () => {
+    assert.strictEqual(
+      new Resource("{param}Uri/{p2}", {
+        param: "base",
+        p2: "value"
+      }).toString(),
+      "baseUri/value"
+    );
+  });
+
+  it("returns baseUri with param and path with param", () => {
+    assert.strictEqual(
+      new Resource("{param}Uri", { param: "base" }, "/path{param}", {
+        param: 1
+      }).toString(),
+      "baseUri/path1"
+    );
+  });
+
   it("returns only baseUri + path when there's no template params in path", () => {
     assert.strictEqual(
-      new Resource("baseUri", "/path").toString(),
+      new Resource("baseUri", {}, "/path").toString(),
       "baseUri/path"
     );
   });
 
   it("throws an error when path parameter is missing", () => {
     assert.throws(
-      () => new Resource("baseUri", "/path/{param}").toString(),
+      () => new Resource("baseUri", {}, "/path/{param}").toString(),
       Error,
       "Failed to find a value for required path parameter 'param'"
     );
@@ -32,14 +58,16 @@ describe("Resource class tests", () => {
 
   it("returns resource with substitution", () => {
     assert.strictEqual(
-      new Resource("baseUri", "/path/{param}", { param: "value" }).toString(),
+      new Resource("baseUri", {}, "/path/{param}", {
+        param: "value"
+      }).toString(),
       "baseUri/path/value"
     );
   });
 
   it("returns resource with multiple substitutions", () => {
     assert.strictEqual(
-      new Resource("baseUri", "/path/{param}/and/{another-one}", {
+      new Resource("baseUri", {}, "/path/{param}/and/{another-one}", {
         param: "value",
         "another-one": "value2"
       }).toString(),
@@ -49,7 +77,7 @@ describe("Resource class tests", () => {
 
   it("returns correct url with one query param", () => {
     assert.strictEqual(
-      new Resource("baseUri", "/path", {}, { q1: "v1" }).toString(),
+      new Resource("baseUri", {}, "/path", {}, { q1: "v1" }).toString(),
       "baseUri/path?q1=v1"
     );
   });
@@ -58,6 +86,7 @@ describe("Resource class tests", () => {
     assert.strictEqual(
       new Resource(
         "baseUri",
+        {},
         "/path",
         {},
         { q1: "v1", query_param_2: "value 2" } // eslint-disable-line
@@ -68,28 +97,28 @@ describe("Resource class tests", () => {
 
   it("returns correct url with one null query param", () => {
     assert.strictEqual(
-      new Resource("baseUri", "/path", {}, { q1: null }).toString(),
+      new Resource("baseUri", {}, "/path", {}, { q1: null }).toString(),
       "baseUri/path?q1="
     );
   });
 
   it("returns correct url with one undefined query param", () => {
     assert.strictEqual(
-      new Resource("baseUri", "/path", {}, { q1: undefined }).toString(),
+      new Resource("baseUri", {}, "/path", {}, { q1: undefined }).toString(),
       "baseUri/path"
     );
   });
 
   it("returns correct url with one empty string query param", () => {
     assert.strictEqual(
-      new Resource("baseUri", "/path", {}, { q1: "" }).toString(),
+      new Resource("baseUri", {}, "/path", {}, { q1: "" }).toString(),
       "baseUri/path?q1="
     );
   });
 
   it("returns correct url with one numeric query param", () => {
     assert.strictEqual(
-      new Resource("baseUri", "/path", {}, { q1: 1 }).toString(),
+      new Resource("baseUri", {}, "/path", {}, { q1: 1 }).toString(),
       "baseUri/path?q1=1"
     );
   });
@@ -98,6 +127,7 @@ describe("Resource class tests", () => {
     assert.strictEqual(
       new Resource(
         "baseUri",
+        {},
         "/path/{first-id}/and/{second-id}",
         { "first-id": "id1", "second-id": "id2" },
         { firstQueryParam: "v1", "second-query-param": "value 2" }
