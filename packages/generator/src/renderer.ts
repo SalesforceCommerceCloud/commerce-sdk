@@ -51,9 +51,9 @@ export const indexTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "index.ts.hbs"), "utf8")
 );
 
-export const simplifiedApisTemplate = Handlebars.compile(
+export const renderOperationListTemplate = Handlebars.compile(
   fs.readFileSync(
-    path.join(templateDirectory, "simplified-apis.yaml.hbs"),
+    path.join(templateDirectory, "operation-list.yaml.hbs"),
     "utf8"
   )
 );
@@ -102,14 +102,14 @@ export function createIndex(boundedContexts: any): string {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function simplifiedApis(allApis: {
+export function renderOperationList(allApis: {
   [key: string]: WebApiBaseUnitWithEncodesModel[];
 }): string {
-  const simplifiedApisCode: string = simplifiedApisTemplate(allApis, {
+  const renderedOperations: string = renderOperationListTemplate(allApis, {
     allowProtoPropertiesByDefault: true,
     allowProtoMethodsByDefault: true
   });
-  return simplifiedApisCode;
+  return renderedOperations;
 }
 
 // Register helpers

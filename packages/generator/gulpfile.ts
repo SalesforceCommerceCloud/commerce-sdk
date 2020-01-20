@@ -5,12 +5,12 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import * as gulp from "gulp";
-import { processRamlFile, processApiFamily } from "./src/parser";
+import { processApiFamily } from "./src/parser";
 import {
   createClient,
   createDto,
   createIndex,
-  simplifiedApis
+  renderOperationList
 } from "./src/renderer";
 
 import log from "fancy-log";
@@ -163,7 +163,7 @@ gulp.task(
     return Promise.all(modelingPromises).then(() => {
       fs.writeFileSync(
         path.join(config.renderDir, "operationList.yaml"),
-        simplifiedApis(allApis)
+        renderOperationList(allApis)
       );
     });
   })
