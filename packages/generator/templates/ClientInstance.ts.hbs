@@ -1,5 +1,5 @@
 
-import { StaticClient, BaseClient, ClientConfig, ResponseError, AuthSchemes } from "@commerce-apps/core";
+import { StaticClient, BaseClient, BaseClientConfig, ResponseError, AuthSchemes } from "@commerce-apps/core";
 import _ from "lodash";
 
 import {
@@ -18,13 +18,20 @@ export {
 {{/each}}
 } from "./{{apiSpec}}.types";
 
+type ClientConfig = BaseClientConfig & {
+  baseUriParameters?: {
+    {{#each (getBaseUriParameters models.[0]) }}
+    "{{{this}}}": string;
+    {{/each}}
+  }
+}
 
 export class Client extends BaseClient {
   constructor(config: ClientConfig) {
     super(config);
 
     if (!!!config.baseUri) {
-      config.baseUri = "{{getBaseUri models.[0] }}";
+      this.clientConfig.baseUri = "{{getBaseUri models.[0] }}";
     }
     {{#each models}}
         {{#each declares}}
