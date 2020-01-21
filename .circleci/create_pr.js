@@ -2,7 +2,8 @@ const Octokit = require("@octokit/rest");
 
 async function createPullRequest( arguments ) {
     if (!Array.isArray(arguments) || arguments.length < 5) {
-        throw "Usage: create_pr.js <<token>> <<head branch name>> <<pull request title>> <<pull request information>>";
+        console.log("Usage: create_pr.js <<token>> <<head branch name>> <<pull request title>> <<pull request information>>");
+        process.exit(1);
     }
     const owner = arguments[0];
     const token = arguments[1];
