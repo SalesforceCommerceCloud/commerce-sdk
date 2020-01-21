@@ -9,14 +9,15 @@ import qs from "qs";
 export class Resource {
   constructor(
     private baseUri: string,
-    private path?: string,
-    private pathParameters?: object,
-    private queryParameters?: object
+    private baseUriParameters = {},
+    private path = "",
+    private pathParameters = {},
+    private queryParameters = {}
   ) {}
 
-  substitutePathParameters(path: string, parameters: object): string {
+  substitutePathParameters(path = "", parameters = {}): string {
     return path.replace(/\{([^}]+)\}/g, (_entireMatch, param) => {
-      if (parameters && param in parameters) {
+      if (param in parameters) {
         return parameters[param];
       }
       throw new Error(
@@ -24,23 +25,21 @@ export class Resource {
       );
     });
   }
-  renderedPath = this.path
-    ? this.substitutePathParameters(
-        this.path as string,
-        this.pathParameters as object
-      )
-    : "";
 
   toString(): string {
-    const renderedPath = this.path
-      ? this.substitutePathParameters(
-          this.path as string,
-          this.pathParameters as object
-        )
-      : "";
+    const renderedBaseUri = this.substitutePathParameters(
+      this.baseUri,
+      this.baseUriParameters
+    );
+
+    const renderedPath = this.substitutePathParameters(
+      this.path,
+      this.pathParameters
+    );
+
     const queryString = qs.stringify(this.queryParameters);
 
-    return `${this.baseUri}${renderedPath}${
+    return `${renderedBaseUri}${renderedPath}${
       queryString ? "?" : ""
     }${queryString}`;
   }
