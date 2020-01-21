@@ -57,7 +57,7 @@ async function createPullRequest( arguments ) {
 const argumentsFromCircleCiBuild = process.argv.slice(2);
 
 if (argumentsFromCircleCiBuild.length !== 5) {
-    console.log("Usage: create_pr.js <<token>> <<head branch name>> <<pull request title>> <<pull request information>>");
+    console.log("Usage: create_pr.js <<github repository owner>> <<token>> <<head branch name>> <<pull request title>> <<pull request information>>");
     process.exit(1);
 }
 
