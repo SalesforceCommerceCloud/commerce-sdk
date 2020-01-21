@@ -2,33 +2,35 @@
 
 ## Multi-Workspace Project
 
-At the root of the project you will find a `commerce-sdk.code-workspace` file which includes some basic configuration settings to setup a multi workspace project within vscode.
+At the root of the project you will find a `commerce-sdk.code-workspace` file, which includes some basic configuration settings to setup a multi-workspace project within vscode.
 
 This will organize the packages within vscode like the following
 ​
 ![Workspaces](./images/workspaces.png "Workspaces")
 
-If you workspace bar does not look like this there are a couple of ways to open it.
+If the workspace bar on the left does not look like this there are a couple of ways to open vscode in it's multi-workspace mode.
 
-When you open the `commerce-sdk.code-workspace` in vscode, there is a button in the lower right to open that workspace directly.
+1) You can open it via the cli `$ code commerce-sdk.code-workspace`.
+2) Open the `commerce-sdk.code-workspace` in vscode, there is a button in the lower right to open that workspace directly.
+![Open Workspace Button](./images/open-workspace.png "Open Workspace button")  
 
-Alternatively, you can open it via the cli `$ code commerce-sdk.code-workspace`.
+
 
 "Monorepo config" represents the files at the root of the folder that let you configure or run the commands in the monorepo itself.
 
-The others workspaces correspond directly with each of the lerna packages.
+Each other workspace corresponds directly with the lerna packages of the same name.
 
 ## Launch configurations
 
-VSCode lets you define launch configurations via json.  I have included some examples below to get people started. 
+VSCode lets you define launch configurations via JSON.  See examples below to get started.
 
-> NOTE: The below configurations will only work in a multi workspace otherwise ${workspaceFolder} will point to the root of the project and not the root of the workspace
+> NOTE: The below configurations will only work in a multi-workspace otherwise ${workspaceFolder} will point to the root of the project and not the root of the workspace
         
-### Debugging Code
+### Debugging the generator
 
-#### Generator
+The exchange-connector and core don't have any logic when you build them.  If you want to debug those you should write a test and use the below example for debugging tests.
 
-Often you will need to debug the generator.  Since the following are specific ONLY for the generator you can add them to the launch configuration that is specific for the generator itself
+The generator however is unique in that the build itself has a lot of logic in it depending on the input.  (Different RAML produces different results) So often you will need to debug the actual build of the generator.  
 
 > NOTE: Core and Exchange-connector must already be built for these to work
 
@@ -73,21 +75,20 @@ What if you want to troubleshoot a part of the rendering that is happening when 
 As long as you have a .env with your credentials for exchange, this will now download from exchange and let you step through to debug as well.
 
 
-### How do I debug tests
+### Debugging tests
 
-Sometimes you need to debug what a test is doing.  This can also be done and the below can be added as a workspace config as it will work for all workspaces.
+Sometimes you need to debug what a test is doing. This can be accomplished by adding the below example as a workspace config to any workspace.
 
-Specifically what this lets you do is debug a single test file easily and add breakpoints and watches within that test file
-
-> NOTE: Currently this requires cross-env to be installed globally (Will update at some point)
+Specifically, this allows you to debug a single test file easily and add breakpoints and/or watches within said test file.
 
 ```json
 {
     "type": "node",
     "request": "launch",
     "name": "Debug tests for current file",
-    "runtimeExecutable": "cross-env",
+    "runtimeExecutable": "npx",
     "runtimeArgs": [
+        "cross-env",
         "mocha",
         "-r",
         "ts-node/register",
@@ -100,7 +101,7 @@ Specifically what this lets you do is debug a single test file easily and add br
     "internalConsoleOptions": "neverOpen",
     "protocol": "inspector",
     "cwd": "${workspaceFolder}"
-}   
+}  
 ```
 
 To read more about debugging in VSCODE you can view that here: https://code.visualstudio.com/docs/editor/debugging
