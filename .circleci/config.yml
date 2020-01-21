@@ -14,6 +14,8 @@ jobs:
       - run: npm run test:integration
       - store_test_results:
           path: reports
+      - run: sudo npm install -g @octokit/rest
+      - run: node .circleci/create_pr.js $GITHUB_OAUTH_TOKEN_OWNER $GITHUB_OAUTH_TOKEN $CIRCLE_BRANCH "Publish to npm" "Published commerce_sdk to npm"
 
   publish:
     working_directory: ~/build_and_publish
@@ -33,8 +35,7 @@ jobs:
           steps:
             - run: npm install
       - run: npm run build
-      - run: echo -e "$GPG_KEY" | gpg --import
-      - run: gpg --list-secret-keys --keyid-format LONG
+      - run: echo -e "$GPG_KEY" | gpg --impor
       - run: git config --global user.email "$GITHUB_PUBLISH_EMAIL"
       - run: git config --global user.name "$GITHUB_PUBLISH_USER"
       - run: git config --global user.signingkey $GITHUB_GPG_SIGN_KEY_ID
@@ -43,6 +44,8 @@ jobs:
           name: Create npmrc file to authenticate with npm registry.
           command: echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > ~/.npmrc
       - run: npm run publish
+      - run: sudo npm install -g @octokit/rest
+      - run: node .circleci/create_pr.js $GITHUB_OAUTH_TOKEN_OWNER $GITHUB_OAUTH_TOKEN $CIRCLE_BRANCH "Publish to npm" "Published commerce_sdk to npm"
 
 workflows:
   version: 2
@@ -64,17 +67,9 @@ workflows:
           type: approval
           requires:
             - build
-          filters:
-            branches:
-              only:
-                - /^release.*/
       - publish:
           requires:
             - hold
-          filters:
-            branches:
-              only:
-                - /^release.*/
 
 orbs:
   node: circleci/node@1.1
