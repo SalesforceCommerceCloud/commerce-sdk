@@ -1,15 +1,20 @@
 const Octokit = require("@octokit/rest");
 
+const opt = {
+    OWNER: 0,
+    TOKEN: 1,
+    HEAD: 2,
+    TITLE: 3,
+    BODY: 4
+};
+
 async function createPullRequest( arguments ) {
-    if (!Array.isArray(arguments) || arguments.length < 5) {
-        console.log("Usage: create_pr.js <<token>> <<head branch name>> <<pull request title>> <<pull request information>>");
-        process.exit(1);
-    }
-    const owner = arguments[0];
-    const token = arguments[1];
-    const head = arguments[2];
-    const title = arguments[3];
-    const body = arguments[4];
+
+    const owner = arguments[opt.OWNER];
+    const token = arguments[opt.TOKEN];
+    const head = arguments[opt.HEAD];
+    const title = arguments[opt.TITLE];
+    const body = arguments[opt.BODY];
 
     const octokit = new Octokit({
         auth: token,
@@ -33,7 +38,7 @@ async function createPullRequest( arguments ) {
         return true;
     }
 
-    await octokit.pulls.create({
+    return await octokit.pulls.create({
         "owner" : owner,
         "repo": "commerce-sdk",
         "title": title,
@@ -42,10 +47,20 @@ async function createPullRequest( arguments ) {
         "body": body
     }).then(s => {
         console.log("Pull request created successfully ", s);
+        return true;
     }).catch(err => {
         console.log("Error creating pull request", err);
         process.exit(1);
     });
 }
 
-createPullRequest(process.argv.slice([2]));
+const argumentsFromCircleCiBuild = process.argv.slice(2);
+
+if (argumentsFromCircleCiBuild.length !== 5) {
+    console.log("Usage: create_pr.js <<token>> <<head branch name>> <<pull request title>> <<pull request information>>");
+    process.exit(1);
+}
+
+createPullRequest(argumentsFromCircleCiBuild).then(s => {
+    console.log("build-test-and-deploy: Pull request task completed.");
+});
