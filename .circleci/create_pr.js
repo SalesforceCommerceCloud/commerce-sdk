@@ -40,7 +40,7 @@ async function createPullRequest( arguments ) {
     }
 
     try{
-        return await octokit.pulls.create({
+        return octokit.pulls.create({
             "owner" : owner,
             "repo": "commerce-sdk",
             "title": title,
