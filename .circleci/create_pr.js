@@ -21,34 +21,37 @@ async function createPullRequest( arguments ) {
         baseUrl: 'https://api.github.com'
     });
 
-    const listOfExistingPullRequests = await octokit.pulls.list( {
-        "owner" : owner,
-        "repo": "commerce-sdk",
-        "head" : owner.concat(":").concat(head),
-        "base": "master"
-    }).catch(err => {
-        console.log("Error getting pull requests for this branch ", head, err);
-        process.exit(1);
-    });
-
-    if ( listOfExistingPullRequests
+    try{
+        const listOfExistingPullRequests = await octokit.pulls.list( {
+            "owner" : owner,
+            "repo": "commerce-sdk",
+            "head" : owner.concat(":").concat(head),
+            "base": "master"
+        });
+        if ( listOfExistingPullRequests
             && Array.isArray(listOfExistingPullRequests.data)
             && listOfExistingPullRequests.data.length > 0) {
-        console.log("New pull request not needed, proceed completing the build.");
-        return true;
+            console.log("New pull request not needed, proceed completing the build.");
+            return true;
+        }
+    }catch (err) {
+        console.log("Error getting pull requests for this branch ", head, err);
+        process.exit(1);
     }
 
-    return await octokit.pulls.create({
-        "owner" : owner,
-        "repo": "commerce-sdk",
-        "title": title,
-        "head" : head,
-        "base": "master",
-        "body": body
-    }).catch(err => {
+    try{
+        return await octokit.pulls.create({
+            "owner" : owner,
+            "repo": "commerce-sdk",
+            "title": title,
+            "head" : head,
+            "base": "master",
+            "body": body
+        });
+    }catch (err) {
         console.log("Error creating pull request", err);
         process.exit(1);
-    });
+    }
 }
 
 const argumentsFromCircleCiBuild = process.argv.slice(2);
@@ -61,3 +64,5 @@ if (argumentsFromCircleCiBuild.length !== 5) {
 createPullRequest(argumentsFromCircleCiBuild).then(s => {
     console.log("build-test-and-deploy: Pull request task completed.", s);
 });
+
+
