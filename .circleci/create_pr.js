@@ -45,9 +45,6 @@ async function createPullRequest( arguments ) {
         "head" : head,
         "base": "master",
         "body": body
-    }).then(s => {
-        console.log("Pull request created successfully ", s);
-        return true;
     }).catch(err => {
         console.log("Error creating pull request", err);
         process.exit(1);
@@ -62,5 +59,5 @@ if (argumentsFromCircleCiBuild.length !== 5) {
 }
 
 createPullRequest(argumentsFromCircleCiBuild).then(s => {
-    console.log("build-test-and-deploy: Pull request task completed.");
+    console.log("build-test-and-deploy: Pull request task completed.", s);
 });
