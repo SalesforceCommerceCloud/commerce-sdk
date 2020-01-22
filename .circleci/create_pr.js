@@ -39,19 +39,14 @@ async function createPullRequest( arguments ) {
         process.exit(1);
     }
 
-    try{
-        return octokit.pulls.create({
-            "owner" : owner,
-            "repo": "commerce-sdk",
-            "title": title,
-            "head" : head,
-            "base": "master",
-            "body": body
-        });
-    }catch (err) {
-        console.log("Error creating pull request", err);
-        process.exit(1);
-    }
+    return octokit.pulls.create({
+        "owner" : owner,
+        "repo": "commerce-sdk",
+        "title": title,
+        "head" : head,
+        "base": "master",
+        "body": body
+    });
 }
 
 const argumentsFromCircleCiBuild = process.argv.slice(2);
@@ -63,6 +58,9 @@ if (argumentsFromCircleCiBuild.length !== 5) {
 
 createPullRequest(argumentsFromCircleCiBuild).then(s => {
     console.log("build-test-and-deploy: Pull request task completed.", s);
+}).catch(err => {
+    console.log("Error creating pull request", err);
+    process.exit(1);
 });
 
 
