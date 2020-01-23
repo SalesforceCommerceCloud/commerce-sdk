@@ -5,7 +5,40 @@
 * Templates are rendered into the tmpDir specified by [build-config.json](../build-config.json)
 * Once rendered they are transpiled to the dist directory just like every other package
 
+## Usage
 
+### Using real endpoints
+
+> By default *ALL* build commands use local files for testing purposes. In order to build the actual SDK you need to run the build with the environmental variable of `EXCHANGE_DOWNLOAD` set to `1`
+
+For example
+```bash
+  # To build sdk
+  EXCHANGE_DOWNLOAD=1 npm run build
+```
+Additionally you need credentials for exchange to download the APIs.  This can be found in a .env file or in your environmental configuration.
+
+For example
+```
+ANYPOINT_USERNAME=<username>
+ANYPOINT_PASSWORD=<password>
+```
+
+### Building the SDK
+
+Simply run `npm run build`
+
+> NOTE: Core and Exchange-Connector must already be built 
+
+In the backend this is running a bunch of gulp tasks to accomplish this.
+
+### Build Operation List
+
+> NOTE: Core and Exchange-Connector must already be built 
+
+Another option is to build a list of operations. Simply run `npm run buildOperationList` to build a list of operations
+
+You can then find this list at `renderedTemplates/operationList.yaml`
 
 ## Dependencies 
 
