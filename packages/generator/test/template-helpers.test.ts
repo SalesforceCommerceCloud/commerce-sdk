@@ -621,6 +621,6 @@ describe("Template helper tests for getSecurityScheme", () => {
       expect(getSecurityScheme("prefix", security)).to.be.equal(
         `prefix this.authSchemes.${schemeName}`
       );
-  });
+    });
   });
 });

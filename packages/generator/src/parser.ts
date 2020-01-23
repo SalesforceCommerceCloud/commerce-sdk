@@ -8,6 +8,9 @@ import { WebApiBaseUnit, WebApiBaseUnitWithDeclaresModel } from "webapi-parser";
 
 import { model, Raml10Resolver } from "amf-client-js";
 import amf from "amf-client-js";
+import path from "path";
+import _ from "lodash";
+import { RestApi } from "@commerce-apps/exchange-connector";
 
 export function processRamlFile(ramlFile: string): Promise<WebApiBaseUnit> {
   amf.plugins.document.WebApi.register();
@@ -80,4 +83,23 @@ export function getAllDataTypes(
     ret = ret.concat(getDataTypesFromDeclare(element.declares, dataTypes));
   });
   return ret;
+}
+
+export function processApiFamily(
+  apiFamily: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  apiFamilyConfig: any,
+  inputDir: string
+): Promise<WebApiBaseUnit>[] {
+  const promises = [];
+  const ramlFileFromFamily = apiFamilyConfig[apiFamily];
+  _.map(ramlFileFromFamily, (apiMeta: RestApi) => {
+    promises.push(
+      processRamlFile(
+        path.join(inputDir, apiMeta.assetId, apiMeta.fatRaml.mainFile)
+      )
+    );
+  });
+
+  return promises;
 }
