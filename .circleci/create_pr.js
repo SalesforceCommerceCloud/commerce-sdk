@@ -1,20 +1,12 @@
 const Octokit = require("@octokit/rest");
 
-const opt = {
-    OWNER: 0,
-    TOKEN: 1,
-    HEAD: 2,
-    TITLE: 3,
-    BODY: 4
-};
+async function createPullRequest() {
 
-async function createPullRequest( arguments ) {
-
-    const owner = arguments[opt.OWNER];
-    const token = arguments[opt.TOKEN];
-    const head = arguments[opt.HEAD];
-    const title = arguments[opt.TITLE];
-    const body = arguments[opt.BODY];
+    const owner = process.env.GITHUB_OAUTH_TOKEN_OWNER;
+    const token = process.env.GITHUB_OAUTH_TOKEN;
+    const head = process.env.CIRCLE_BRANCH;
+    const title = "Publish to npm";
+    const body = "Published commerce_sdk to npm";
 
     const octokit = new Octokit({
         auth: token,
@@ -49,14 +41,7 @@ async function createPullRequest( arguments ) {
     });
 }
 
-const argumentsFromCircleCiBuild = process.argv.slice(2);
-
-if (argumentsFromCircleCiBuild.length !== 5) {
-    console.log("Usage: create_pr.js <<github repository owner>> <<token>> <<head branch name>> <<pull request title>> <<pull request information>>");
-    process.exit(1);
-}
-
-createPullRequest(argumentsFromCircleCiBuild).then(s => {
+createPullRequest().then(s => {
     console.log("build-test-and-deploy: Pull request task completed.", s);
 }).catch(err => {
     console.log("Error creating pull request", err);
