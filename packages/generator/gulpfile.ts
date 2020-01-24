@@ -25,6 +25,7 @@ import tmp from "tmp";
 require("dotenv").config();
 
 import { WebApiBaseUnitWithEncodesModel } from "webapi-parser";
+import { model } from "amf-client-js";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const config = require("./build-config.json");
@@ -82,6 +83,10 @@ gulp.task("downloadRamlFromExchange", async () => {
     console.log("Not downloading so just using local files");
   }
 });
+function getApiName(apiModel: WebApiBaseUnitWithEncodesModel): string {
+  const apiName: string = (apiModel.encodes as model.domain.WebApi).name.value();
+  return _.upperFirst(_.camelCase(apiName));
+}
 
 gulp.task(
   "renderTemplates",
@@ -107,26 +112,32 @@ gulp.task(
           )
         );
       });
-      fs.ensureDirSync(config.renderDir);
+      const apiGroupPath: string = path.join(config.renderDir, apiGroup);
+      fs.ensureDirSync(apiGroupPath);
       Promise.all(familyPromises).then(values => {
-        fs.writeFileSync(
-          path.join(config.renderDir, `${apiGroup}.ts`),
-          createClient(
-            values.map(value => value as WebApiBaseUnitWithEncodesModel),
-            apiGroup
-          )
-        );
-        fs.writeFileSync(
-          path.join(config.renderDir, `${apiGroup}.types.ts`),
-          createDto(
-            values.map(value => value as WebApiBaseUnitWithEncodesModel)
-          )
-        );
+        values.forEach(api => {
+          const apiName: string = getApiName(api);
+          const apiPath: string = path.join(apiGroupPath, apiName);
+          fs.ensureDirSync(apiPath);
+          const temp: WebApiBaseUnitWithEncodesModel[] = [api];
+          fs.writeFileSync(
+            path.join(apiPath, `${apiName}.ts`),
+            createClient(temp, apiName)
+          );
+          fs.writeFileSync(
+            path.join(apiPath, `${apiName}.types.ts`),
+            createDto(temp)
+          );
+          fs.writeFileSync(
+            path.join(apiPath, "index.ts"),
+            createIndex([apiName])
+          );
+        });
       });
     }
-    fs.writeFileSync(
-      path.join(config.renderDir, "index.ts"),
-      createIndex(apiGroupKeys)
-    );
+    /*fs.writeFileSync(
+      path.join(apiGroupPath, `${apiGroup}.ts`),
+      createIndex(apiGroup)
+    );*/
   })
 );
