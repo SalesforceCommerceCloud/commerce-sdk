@@ -48,6 +48,14 @@ export const indexTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "index.ts.hbs"), "utf8")
 );
 
+export const apiGroupTemplate = Handlebars.compile(
+  fs.readFileSync(path.join(templateDirectory, "apiGroup.ts.hbs"), "utf8")
+);
+
+export const apiIndexTemplate = Handlebars.compile(
+  fs.readFileSync(path.join(templateDirectory, "apiIndex.ts.hbs"), "utf8")
+);
+
 export const dtoTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "dto.ts.hbs"), "utf8")
 );
@@ -86,6 +94,20 @@ export function createDto(webApiModels: WebApiBaseUnit[]): string {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function createIndex(boundedContexts: any): string {
   const indexCode: string = indexTemplate({
+    apiSpec: boundedContexts
+  });
+  return indexCode;
+}
+
+export function createApiGroup(boundedContexts: any): string {
+  const indexCode: string = apiGroupTemplate({
+    apiSpec: boundedContexts
+  });
+  return indexCode;
+}
+
+export function createApiIndex(boundedContexts: any): string {
+  const indexCode: string = apiIndexTemplate({
     apiSpec: boundedContexts
   });
   return indexCode;
