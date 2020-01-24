@@ -36,13 +36,17 @@ gulp.task("clean", (cb: any) => {
   return del([`${config.renderDir}`, "dist"], cb);
 });
 
-function search(): Promise<RestApi[]> {
-  return getBearer(
+async function search(): Promise<RestApi[]> {
+  const token = await getBearer(
     process.env.ANYPOINT_USERNAME,
     process.env.ANYPOINT_PASSWORD
-  ).then(token => {
-    return searchExchange(token, config.exchangeSearch);
-  });
+  );
+
+  const ret: RestApi[] = [];
+  for (const exchangeSearch in config.exchangeSearches) {
+    ret.concat(await searchExchange(token, exchangeSearch));
+  }
+  return ret;
 }
 
 /**
