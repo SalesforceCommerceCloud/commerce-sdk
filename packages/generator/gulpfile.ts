@@ -53,7 +53,11 @@ async function search(): Promise<RestApi[]> {
 
   const ret: RestApi[] = [];
   for (const exchangeSearch in config.exchangeSearches) {
-    ret.concat(await searchExchange(token, exchangeSearch));
+    const apis = await searchExchange(
+      token,
+      config.exchangeSearches[exchangeSearch]
+    );
+    _.extend(ret, apis);
   }
   return ret;
 }
