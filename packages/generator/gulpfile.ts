@@ -5,14 +5,17 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import * as gulp from "gulp";
-import { processRamlFile } from "./src/parser";
+
+import { processApiFamily } from "./src/parser";
 import {
   createClient,
   createDto,
+  createIndex,
   createApiIndex,
   createApiGroup,
-  createIndex
+  renderOperationList
 } from "./src/renderer";
+
 import log from "fancy-log";
 import del from "del";
 import fs from "fs-extra";
@@ -30,7 +33,7 @@ import tmp from "tmp";
 
 require("dotenv").config();
 
-import { WebApiBaseUnitWithEncodesModel } from "webapi-parser";
+import { WebApiBaseUnitWithEncodesModel, WebApiBaseUnit } from "webapi-parser";
 import { model } from "amf-client-js";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -72,7 +75,11 @@ function downloadRamlFromExchange(): Promise<void> {
         const ramlGroups = _.groupBy(apis, api => {
           // Categories are actually a list.
           // We are just going to use whatever the first one is for now
-          return api.categories[config.apiFamily][0];
+          if (config.apiFamily in api.categories) {
+            return api.categories[config.apiFamily][0];
+          } else {
+            return "unclassified";
+          }
         });
         fs.ensureDirSync(config.inputDir);
         return fs.writeFile(
@@ -108,57 +115,99 @@ gulp.task(
     ));
     const apiGroupKeys = _.keysIn(ramlGroupConfig);
 
+    const allPromises: Promise<any>[] = [];
     for (const apiGroup of apiGroupKeys) {
-      const familyPromises = [];
-      const ramlFileFromFamily = ramlGroupConfig[apiGroup];
-      _.map(ramlFileFromFamily, (apiMeta: RestApi) => {
-        familyPromises.push(
-          processRamlFile(
-            path.join(
-              config.inputDir,
-              apiMeta.assetId,
-              apiMeta.fatRaml.mainFile
-            )
-          )
-        );
-      });
-      const apiGroupPath: string = path.join(config.renderDir, apiGroup);
-      fs.ensureDirSync(apiGroupPath);
+      const familyPromises = processApiFamily(
+        apiGroup,
+        ramlGroupConfig,
+        config.inputDir
+      );
 
-      Promise.all(familyPromises)
-        .then(values => {
-          const apiNames = [];
-          values.forEach(api => {
-            const apiName: string = getApiName(api);
-            apiNames.push(apiName);
-            const apiPath: string = path.join(apiGroupPath, apiName);
-            fs.ensureDirSync(apiPath);
-            const temp: WebApiBaseUnitWithEncodesModel[] = [api];
+      const apiGroupPath: string = path.join(config.renderDir, apiGroup);
+      fs.ensureDirSync(config.renderDir);
+      allPromises.push(
+        Promise.all(familyPromises)
+          .then(values => {
+            const apiNames = [];
+            values.forEach((api: WebApiBaseUnit) => {
+              const apiName: string = getApiName(
+                api as WebApiBaseUnitWithEncodesModel
+              );
+              apiNames.push(apiName);
+              const apiPath: string = path.join(apiGroupPath, apiName);
+              fs.ensureDirSync(apiPath);
+              const temp: WebApiBaseUnitWithEncodesModel[] = [
+                api as WebApiBaseUnitWithEncodesModel
+              ];
+              fs.writeFileSync(
+                path.join(apiPath, `${apiName}.ts`),
+                createClient(temp, apiName)
+              );
+              fs.writeFileSync(
+                path.join(apiPath, `${apiName}.types.ts`),
+                createDto(temp)
+              );
+              fs.writeFileSync(
+                path.join(apiPath, "index.ts"),
+                createApiIndex([apiName])
+              );
+            });
+            return apiNames;
+          })
+          .then(apiNames => {
             fs.writeFileSync(
-              path.join(apiPath, `${apiName}.ts`),
-              createClient(temp, apiName)
+              path.join(apiGroupPath, `${apiGroup}.ts`),
+              createApiGroup(apiNames)
             );
-            fs.writeFileSync(
-              path.join(apiPath, `${apiName}.types.ts`),
-              createDto(temp)
-            );
-            fs.writeFileSync(
-              path.join(apiPath, "index.ts"),
-              createApiIndex([apiName])
-            );
-          });
-          return apiNames;
-        })
-        .then(apiNames => {
-          fs.writeFileSync(
-            path.join(apiGroupPath, `${apiGroup}.ts`),
-            createApiGroup(apiNames)
-          );
-        });
+          })
+      );
     }
-    fs.writeFileSync(
-      path.join(config.renderDir, "index.ts"),
-      createIndex(apiGroupKeys)
+    allPromises.push(
+      fs.writeFile(
+        path.join(config.renderDir, "index.ts"),
+        createIndex(apiGroupKeys)
+      )
     );
+
+    return Promise.all(allPromises);
+  })
+);
+
+gulp.task(
+  "buildOperationList",
+  gulp.series(gulp.series("clean", "downloadRamlFromExchange"), async () => {
+    // require the json written in groupRamls gulpTask
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const ramlGroupConfig = require(path.resolve(
+      path.join(config.inputDir, config.apiConfigFile)
+    ));
+    const apiGroupKeys = _.keysIn(ramlGroupConfig);
+
+    const allApis = {};
+
+    const modelingPromises = [];
+
+    for (const apiGroup of apiGroupKeys) {
+      const familyPromises = processApiFamily(
+        apiGroup,
+        ramlGroupConfig,
+        config.inputDir
+      );
+      fs.ensureDirSync(config.renderDir);
+
+      modelingPromises.push(
+        Promise.all(familyPromises).then(values => {
+          allApis[apiGroup] = values;
+          return;
+        })
+      );
+    }
+
+    return Promise.all(modelingPromises).then(() => {
+      fs.writeFileSync(
+        path.join(config.renderDir, "operationList.yaml"),
+        renderOperationList(allApis)
+      );
+    });
   })
 );
