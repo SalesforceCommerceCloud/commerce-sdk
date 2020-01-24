@@ -67,7 +67,11 @@ function downloadRamlFromExchange(): Promise<void> {
         const ramlGroups = _.groupBy(apis, api => {
           // Categories are actually a list.
           // We are just going to use whatever the first one is for now
-          return api.categories[config.apiFamily][0];
+          if (config.apiFamily in api.categories) {
+            return api.categories[config.apiFamily][0];
+          } else {
+            return "unclassified";
+          }
         });
         fs.ensureDirSync(config.inputDir);
         return fs.writeFile(
@@ -99,6 +103,7 @@ gulp.task(
     ));
     const apiGroupKeys = _.keysIn(ramlGroupConfig);
 
+    const allPromises: Promise<any>[] = [];
     for (const apiGroup of apiGroupKeys) {
       const familyPromises = processApiFamily(
         apiGroup,
@@ -107,26 +112,32 @@ gulp.task(
       );
 
       fs.ensureDirSync(config.renderDir);
-      Promise.all(familyPromises).then(values => {
-        fs.writeFileSync(
-          path.join(config.renderDir, `${apiGroup}.ts`),
-          createClient(
-            values.map(value => value as WebApiBaseUnitWithEncodesModel),
-            apiGroup
-          )
-        );
-        fs.writeFileSync(
-          path.join(config.renderDir, `${apiGroup}.types.ts`),
-          createDto(
-            values.map(value => value as WebApiBaseUnitWithEncodesModel)
-          )
-        );
-      });
+      allPromises.push(
+        Promise.all(familyPromises).then(values => {
+          fs.writeFileSync(
+            path.join(config.renderDir, `${apiGroup}.ts`),
+            createClient(
+              values.map(value => value as WebApiBaseUnitWithEncodesModel),
+              apiGroup
+            )
+          );
+          fs.writeFileSync(
+            path.join(config.renderDir, `${apiGroup}.types.ts`),
+            createDto(
+              values.map(value => value as WebApiBaseUnitWithEncodesModel)
+            )
+          );
+        })
+      );
     }
-    fs.writeFileSync(
-      path.join(config.renderDir, "index.ts"),
-      createIndex(apiGroupKeys)
+    allPromises.push(
+      fs.writeFile(
+        path.join(config.renderDir, "index.ts"),
+        createIndex(apiGroupKeys)
+      )
     );
+
+    return Promise.all(allPromises);
   })
 );
 
