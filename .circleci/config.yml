@@ -15,6 +15,22 @@ jobs:
       - store_test_results:
           path: reports
 
+  build-12:
+    working_directory: ~/build_only
+    executor:
+      name: node/default
+      tag: '12.14'
+    steps:
+      - checkout
+      - node/with-cache:
+          steps:
+            - run: npm install
+      - run: npm run build
+      - run: npm run test
+      - run: npm run test:integration
+      - store_test_results:
+          path: reports
+
   publish:
     working_directory: ~/build_and_publish
     executor:
@@ -54,6 +70,11 @@ workflows:
             branches:
               ignore:
                 - /^release.*/
+      - build-12:
+        filters:
+          branches:
+            ignore:
+              - /^release.*/
   build-test-and-deploy:
     jobs:
       - build:
