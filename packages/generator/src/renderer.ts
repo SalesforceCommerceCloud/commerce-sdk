@@ -51,6 +51,19 @@ export const clientInstanceTemplate = Handlebars.compile(
 export const indexTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "index.ts.hbs"), "utf8")
 );
+/**
+ * Handlebar template to export all APIs in a family
+ */
+export const apiFamilyTemplate = Handlebars.compile(
+  fs.readFileSync(path.join(templateDirectory, "apiFamily.ts.hbs"), "utf8")
+);
+
+/**
+ * Handlebar template to export all functions in a API
+ */
+export const apiIndexTemplate = Handlebars.compile(
+  fs.readFileSync(path.join(templateDirectory, "apiIndex.ts.hbs"), "utf8")
+);
 
 export const renderOperationListTemplate = Handlebars.compile(
   fs.readFileSync(
@@ -100,6 +113,30 @@ export function createIndex(boundedContexts: any): string {
     apiSpec: boundedContexts
   });
   return indexCode;
+}
+
+/**
+ * Generates code to export all APIs in a API Family
+ * @param apiNames Names of all the APIs in the family
+ * @returns code to export all APIs in a API Family
+ */
+export function createApiFamily(apiNames: string[]): string {
+  const code: string = apiFamilyTemplate({
+    apiNamesInFamily: apiNames
+  });
+  return code;
+}
+
+/**
+ * Generates code to export all functions of a API in index.ts
+ * @param apiName Name of the API
+ * @returns index.ts code for the given API
+ */
+export function createApiIndex(apiName: string): string {
+  const code: string = apiIndexTemplate({
+    apiName: apiName
+  });
+  return code;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -1,6 +1,9 @@
 {{#each apiSpec}}
-import * as {{capitalize .}} from "./{{.}}";
-export { {{capitalize .}} };
+import * as {{capitalize .}} from "./{{.}}/{{.}}";
 {{/each}}
-
+export {
+{{#each apiSpec}}
+    {{capitalize .}}{{#unless @last}},{{/unless}}
+{{/each}}
+}
 

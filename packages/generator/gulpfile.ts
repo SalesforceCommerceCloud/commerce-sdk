@@ -10,6 +10,8 @@ import {
   createClient,
   createDto,
   createIndex,
+  createApiFamily,
+  createApiIndex,
   renderOperationList
 } from "./src/renderer";
 
@@ -31,6 +33,7 @@ import tmp from "tmp";
 require("dotenv").config();
 
 import { WebApiBaseUnitWithEncodesModel } from "webapi-parser";
+import { model } from "amf-client-js";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const config = require("./build-config.json");
@@ -93,51 +96,111 @@ gulp.task("downloadRamlFromExchange", async () => {
   }
 });
 
+/**
+ * Returns API name from the AMF model
+ * @param apiModel AMF Model of the API
+ * @returns Name of the API
+ */
+function getApiName(apiModel: WebApiBaseUnitWithEncodesModel): string {
+  const apiName: string = (apiModel.encodes as model.domain.WebApi).name.value();
+  return _.upperFirst(_.camelCase(apiName));
+}
+
+/**
+ * Renders API functions and its types into a typescript file
+ * @param apiModel AMF Model of the API
+ * @param inputDir Directory path at which the rendered API files are saved
+ * @returns Name of the API
+ */
+function renderApi(
+  apiModel: WebApiBaseUnitWithEncodesModel,
+  inputDir: string
+): string {
+  const apiName: string = getApiName(apiModel);
+  const apiPath: string = path.join(inputDir, apiName);
+  fs.ensureDirSync(apiPath);
+  //TODO: Modify createClient and createDto functions to take a single model object instead of array and get rid of apiModels array
+  const apiModels: WebApiBaseUnitWithEncodesModel[] = [apiModel];
+  fs.writeFileSync(
+    path.join(apiPath, `${apiName}.ts`),
+    createClient(apiModels, apiName)
+  );
+  fs.writeFileSync(
+    path.join(apiPath, `${apiName}.types.ts`),
+    createDto(apiModels)
+  );
+  fs.writeFileSync(path.join(apiPath, "index.ts"), createApiIndex(apiName));
+  return apiName;
+}
+
+/**
+ * Renders API functions and its types into a typescript file for all the APIs in a family
+ * @param apiFamily Name of the API family
+ * @param apiFamilyConfig Config of the API family
+ * @param inputDir Directory path to save the rendered API files
+ * @returns Promise<void>
+ */
+function renderApiFamily(
+  apiFamily: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  apiFamilyConfig: any,
+  inputDir: string
+): Promise<void> {
+  const apiFamilyPath: string = path.join(config.renderDir, apiFamily);
+  fs.ensureDirSync(apiFamilyPath);
+
+  const familyPromises = processApiFamily(apiFamily, apiFamilyConfig, inputDir);
+  return Promise.all(familyPromises)
+    .then(familyApis => {
+      const apiNames: string[] = [];
+      familyApis.forEach(api => {
+        apiNames.push(
+          renderApi(api as WebApiBaseUnitWithEncodesModel, apiFamilyPath)
+        );
+      });
+      return apiNames;
+    })
+    .then(apiNames => {
+      //export all apis in a family
+      fs.writeFileSync(
+        path.join(apiFamilyPath, `${apiFamily}.ts`),
+        createApiFamily(apiNames)
+      );
+    });
+}
+
+/**
+ * Renders typescript code for the APIs using the pre-defined templates
+ * @returns Promise<void>
+ */
+function renderTemplates(): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const apiFamilyRamlConfig = require(path.resolve(
+    path.join(config.inputDir, config.apiConfigFile)
+  ));
+  const apiFamilyNames = _.keysIn(apiFamilyRamlConfig);
+  const allPromises: Promise<void>[] = [];
+  apiFamilyNames.forEach((apiFamily: string) => {
+    allPromises.push(
+      renderApiFamily(apiFamily, apiFamilyRamlConfig, config.inputDir)
+    );
+  });
+  //create index file that exports all the api families in the root
+  return Promise.all(allPromises).then(() => {
+    fs.writeFileSync(
+      path.join(config.renderDir, "index.ts"),
+      createIndex(apiFamilyNames)
+    );
+  });
+}
+
+/**
+ *  Gulp task that renders typescript code for the APIs using the pre-defined templates
+ */
 gulp.task(
   "renderTemplates",
   gulp.series(gulp.series("clean", "downloadRamlFromExchange"), async () => {
-    // require the json written in groupRamls gulpTask
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const ramlGroupConfig = require(path.resolve(
-      path.join(config.inputDir, config.apiConfigFile)
-    ));
-    const apiGroupKeys = _.keysIn(ramlGroupConfig);
-
-    const allPromises: Promise<any>[] = [];
-    for (const apiGroup of apiGroupKeys) {
-      const familyPromises = processApiFamily(
-        apiGroup,
-        ramlGroupConfig,
-        config.inputDir
-      );
-
-      fs.ensureDirSync(config.renderDir);
-      allPromises.push(
-        Promise.all(familyPromises).then(values => {
-          fs.writeFileSync(
-            path.join(config.renderDir, `${apiGroup}.ts`),
-            createClient(
-              values.map(value => value as WebApiBaseUnitWithEncodesModel),
-              apiGroup
-            )
-          );
-          fs.writeFileSync(
-            path.join(config.renderDir, `${apiGroup}.types.ts`),
-            createDto(
-              values.map(value => value as WebApiBaseUnitWithEncodesModel)
-            )
-          );
-        })
-      );
-    }
-    allPromises.push(
-      fs.writeFile(
-        path.join(config.renderDir, "index.ts"),
-        createIndex(apiGroupKeys)
-      )
-    );
-
-    return Promise.all(allPromises);
+    return renderTemplates();
   })
 );
 
