@@ -4,7 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import { WebApiBaseUnit, WebApiBaseUnitWithDeclaresModel } from "webapi-parser";
+import {
+  WebApiBaseUnit,
+  WebApiBaseUnitWithDeclaresModel,
+  WebApiBaseUnitWithEncodesModel
+} from "webapi-parser";
 
 import { model, Raml10Resolver } from "amf-client-js";
 import amf from "amf-client-js";
@@ -102,4 +106,15 @@ export function processApiFamily(
   });
 
   return promises;
+}
+
+/**
+ * Returns API name from the AMF model in Pascal Case ("Shopper Customers" is returned as "ShopperCustomers")
+ *
+ * @param apiModel AMF Model of the API
+ * @returns Name of the API
+ */
+export function getApiName(apiModel: WebApiBaseUnitWithEncodesModel): string {
+  const apiName: string = (apiModel.encodes as model.domain.WebApi).name.value();
+  return _.upperFirst(_.camelCase(apiName));
 }
