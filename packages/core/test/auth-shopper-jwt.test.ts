@@ -13,7 +13,6 @@ import {
 
 import { expect, default as chai } from "chai";
 import chaiAsPromised from "chai-as-promised";
-import sinon from "sinon";
 
 import _ from "lodash";
 import nock from "nock";
@@ -26,11 +25,11 @@ before(() => {
 describe("Test init", () => {
   it("correctly initializes auth client from client and shopperJWTConfig", () => {
     const c = new BaseClient({ authHost: "auth-host", clientId: "client-id" });
-    const shopperJWTConfig: ShopperJWTConfig = {
-      username: "jamesbond",
-      password: "007007007",
-      authRequestType: AuthRequestType.Credentials
-    };
+    const shopperJWTConfig = new ShopperJWTConfig(
+      "jamesbond",
+      "007007007",
+      AuthRequestType.Credentials
+    );
     const sj = new ShopperJWT();
 
     sj.init(c, shopperJWTConfig);
@@ -41,7 +40,7 @@ describe("Test init", () => {
     expect(sj.authClient.clientConfig.headers["x-dw-client-id"]).to.equal(
       c.clientConfig.clientId
     );
-    expect(sj.shopperJWTConfig).to.equal(shopperJWTConfig);
+    expect(sj.authRequestType).to.equal(AuthRequestType.Credentials);
   });
 
   it("correctly initializes auth client from client if shopperJWTConfig is not provided", () => {
@@ -57,63 +56,33 @@ describe("Test init", () => {
       c.clientConfig.clientId
     );
     // Make sure it defaults to `guest` if no ShopperJWTConfig is provided
-    expect(sj.shopperJWTConfig.authRequestType).to.equal(AuthRequestType.Guest);
+    expect(sj.authRequestType).to.equal(AuthRequestType.Guest);
   });
 
   it("defaults to `guest` if shopperJWTConfig.AuthRequestType is not provided", () => {
     const c = new BaseClient({ authHost: "auth-host", clientId: "client-id" });
     const sj = new ShopperJWT();
-    const shopperJWTConfig: ShopperJWTConfig = {
-      username: "jamesbond",
-      password: "007007007"
-    };
+    const shopperJWTConfig = new ShopperJWTConfig("jamesbond", "007007007");
 
     sj.init(c, shopperJWTConfig);
 
-    expect(sj.shopperJWTConfig.authRequestType).to.equal(AuthRequestType.Guest);
-  });
-
-  it("adds a Basic token to the Authorization header for AuthRequestType.Credentials", () => {
-    const c = new BaseClient({ authHost: "auth-host", clientId: "client-id" });
-    const sj = new ShopperJWT();
-    const shopperJWTConfig: ShopperJWTConfig = {
-      username: "jamesbond",
-      password: "007007007",
-      authRequestType: AuthRequestType.Credentials
-    };
-    const base64EncodedCreds = Buffer.from(
-      `${shopperJWTConfig.username}:${shopperJWTConfig.password}`
-    ).toString("base64");
-    const basicToken = `Basic ${base64EncodedCreds}`;
-
-    sj.init(c, shopperJWTConfig);
-
-    expect(sj.authClient.clientConfig.headers["Authorization"]).to.equal(
-      basicToken
-    );
+    expect(sj.authRequestType).to.equal(AuthRequestType.Guest);
   });
 
   it("adds a STS header for AuthRequestType.Credentials", () => {
     const c = new BaseClient({ authHost: "auth-host", clientId: "client-id" });
     const sj = new ShopperJWT();
-    const shopperJWTConfig: ShopperJWTConfig = {
-      authRequestType: AuthRequestType.Credentials
-    };
+    const shopperJWTConfig = new ShopperJWTConfig(
+      "jamesbond",
+      "007007007",
+      AuthRequestType.Credentials
+    );
 
     sj.init(c, shopperJWTConfig);
 
     expect(
       sj.authClient.clientConfig.headers["Strict-Transport-Security"]
     ).to.equal("max-age=31536000; includeSubDomains");
-  });
-
-  it("does not add an Authorization header for AuthRequestType.Guest", () => {
-    const c = new BaseClient({ authHost: "auth-host", clientId: "client-id" });
-    const sj = new ShopperJWT();
-
-    sj.init(c);
-
-    expect(sj.authClient.clientConfig.headers["Authorization"]).to.be.undefined;
   });
 });
 
@@ -239,7 +208,6 @@ describe("Test injectAuth", async () => {
       .post("/")
       .reply(200);
     const sj = new ShopperJWT();
-    const spy = sinon.spy(sj, "refresh");
 
     sj.init(
       new BaseClient({
@@ -249,9 +217,37 @@ describe("Test injectAuth", async () => {
     );
     const headers = await sj.injectAuth({});
 
-    expect(spy.calledOnce).to.be.true;
+    expect(nock.isDone()).to.be.true;
     expect(headers["Authorization"]).to.not.equal(
       tokenLongValid.authHeaderString
     );
+  });
+});
+
+describe("Test ShopperJWTConfig.toAuthHeader", async() => {
+  it("returns Authorization header with Basic Auth for AuthRequestType.Credentials", () => {
+    const shopperJWTConfig = new ShopperJWTConfig(
+      "jamesbond",
+      "007007007",
+      AuthRequestType.Credentials
+    );
+    const base64EncodedCreds = Buffer.from(
+      `${shopperJWTConfig.username}:${shopperJWTConfig.password}`
+    ).toString("base64");
+    const basicToken = `Basic ${base64EncodedCreds}`;
+
+    expect(shopperJWTConfig.toAuthHeader()["Authorization"]).to.equal(
+      basicToken
+    );
+  });
+
+  it("does not return an Authorization header for AuthRequestType.Guest", () => {
+    const shopperJWTConfig = new ShopperJWTConfig(
+      "jamesbond",
+      "007007007",
+      AuthRequestType.Guest
+    );
+
+    expect(shopperJWTConfig.toAuthHeader()["Authorization"]).to.be.undefined;
   });
 });

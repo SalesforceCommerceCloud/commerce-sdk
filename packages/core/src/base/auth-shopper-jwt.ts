@@ -5,6 +5,7 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import { decode } from "jsonwebtoken";
+import _ from "lodash";
 
 import { IAuthScheme } from "./auth-schemes";
 import { BaseClient } from "./client";
@@ -34,11 +35,31 @@ export enum AuthRequestType {
  * Username and password are required if the request type is `credentials`, not
  * required for `guest`.
  */
-export type ShopperJWTConfig = {
-  username?: string;
-  password?: string;
-  authRequestType?: AuthRequestType;
-};
+export class ShopperJWTConfig {
+  constructor(
+    public username = "",
+    public password = "",
+    public authRequestType = AuthRequestType.Guest
+  ) {}
+
+  /**
+   * Returns an Authorization header with Basic Auth for AuthRequestType of
+   * type `guest`
+   *
+   * @returns  Authorization header with Basic Auth
+   */
+  toAuthHeader(): { [key: string]: string } {
+    let authHeader = {};
+    if (this.authRequestType == AuthRequestType.Credentials) {
+      const basicAuth = Buffer.from(
+        `${this.username}:${this.password}`
+      ).toString("base64");
+      authHeader = { Authorization: `Basic ${basicAuth}` };
+    }
+
+    return authHeader;
+  }
+}
 
 /**
  * Implements ShopperJWT auth scheme. Gets ShopperJWT Bearer tokens of type
@@ -50,7 +71,7 @@ export class ShopperJWT implements IAuthScheme {
   public authClient: BaseClient;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public token: any;
-  public shopperJWTConfig: ShopperJWTConfig;
+  public authRequestType: AuthRequestType;
 
   /**
    * Initializes the object with client and ShopperJWT config. If
@@ -63,27 +84,20 @@ export class ShopperJWT implements IAuthScheme {
   init(client: BaseClient, shopperJWTConfig?: ShopperJWTConfig): void {
     this.authClient = new BaseClient({
       baseUri: client.clientConfig.authHost,
-      headers: { "x-dw-client-id": client.clientConfig.clientId }
+      headers: {
+        "x-dw-client-id": client.clientConfig.clientId,
+        "Strict-Transport-Security": hstsOptions // Enforces https
+      }
     });
 
-    this.shopperJWTConfig = shopperJWTConfig ? shopperJWTConfig : {};
-    this.shopperJWTConfig.authRequestType = this.shopperJWTConfig
-      .authRequestType
-      ? this.shopperJWTConfig.authRequestType
-      : AuthRequestType.Guest;
-
-    if (this.shopperJWTConfig.authRequestType == AuthRequestType.Credentials) {
-      const basicAuthToken = Buffer.from(
-        `${this.shopperJWTConfig.username}:${this.shopperJWTConfig.password}`
-      ).toString("base64");
-      this.authClient.clientConfig.headers[
-        "Authorization"
-      ] = `Basic ${basicAuthToken}`;
-      // Enforces https
-      this.authClient.clientConfig.headers[
-        "Strict-Transport-Security"
-      ] = hstsOptions;
-    }
+    shopperJWTConfig = shopperJWTConfig
+      ? shopperJWTConfig
+      : new ShopperJWTConfig();
+    this.authRequestType = shopperJWTConfig.authRequestType;
+    _.merge(
+      this.authClient.clientConfig.headers,
+      shopperJWTConfig.toAuthHeader()
+    );
   }
 
   /**
@@ -124,7 +138,7 @@ export class ShopperJWT implements IAuthScheme {
         client: this.authClient,
         path: "",
         rawResponse: true,
-        body: { type: this.shopperJWTConfig.authRequestType }
+        body: { type: this.authRequestType }
       };
 
       const response: Response = (await _post(options)) as Response;

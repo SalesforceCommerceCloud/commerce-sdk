@@ -35,6 +35,8 @@ All these commands can both be ran from the root as well as within a package in 
     npm run build
 
 ## Running Tests
+> **Note:** Instructions in Setup section are prerequisites for this section
+
 To run tests in all the packages, execute
 ```bash
 npm test
