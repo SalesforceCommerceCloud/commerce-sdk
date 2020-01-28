@@ -25,7 +25,7 @@ import {
   _patch,
   _post,
   _put,
-  Response,
+  Response
 } from "../src/base/static-client";
 
 describe("rawResponse tests", () => {
@@ -112,7 +112,7 @@ describe("rawResponse tests", () => {
       expect(res).to.be.a("Response");
       expect((res as Response).status).to.eql(404);
       expect(nock.isDone()).to.be.true;
-    })
+    });
   });
 
   it("post resource and returns 201", () => {
@@ -153,12 +153,15 @@ describe("rawResponse tests", () => {
       .put("/over/the/rainbow")
       .reply(201);
 
-    return _put({ client: client, path: "/over/the/rainbow", rawResponse: true, body: {} }).then(
-      (res) => {
-        expect(res).to.be.a("Response");
-        expect(nock.isDone()).to.be.true;
-      }
-    );
+    return _put({
+      client: client,
+      path: "/over/the/rainbow",
+      rawResponse: true,
+      body: {}
+    }).then(res => {
+      expect(res).to.be.a("Response");
+      expect(nock.isDone()).to.be.true;
+    });
   });
 
   it("is not ok when attempting to put nonexistent resource", () => {
@@ -183,12 +186,15 @@ describe("rawResponse tests", () => {
       .patch("/over/the/rainbow")
       .reply(200);
 
-    return _patch({ client: client, path: "/over/the/rainbow", rawResponse: true, body: {} }).then(
-      (res) => {
-        expect(res).to.be.a("Response");
-        expect(nock.isDone()).to.be.true;
-      }
-    );
+    return _patch({
+      client: client,
+      path: "/over/the/rainbow",
+      rawResponse: true,
+      body: {}
+    }).then(res => {
+      expect(res).to.be.a("Response");
+      expect(nock.isDone()).to.be.true;
+    });
   });
 
   it("is not ok when attempting to patch nonexistent resource", () => {

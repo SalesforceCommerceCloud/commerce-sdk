@@ -36,7 +36,7 @@ export const getBaseUri = function(
  * whether the parameters have been specified in RAML explicitly as
  * baseUriParameters or extracted from baseUri
  * https://github.com/raml-org/raml-spec/blob/master/versions/raml-10/raml-10.md#the-root-of-the-document
- * 
+ *
  * @param property A model from the AMF parser
  */
 export const getBaseUriParameters = function(
