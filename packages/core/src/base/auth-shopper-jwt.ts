@@ -5,7 +5,6 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import { decode } from "jsonwebtoken";
-import _ from "lodash";
 
 import { IAuthScheme } from "./auth-schemes";
 import { BaseClient } from "./client";
@@ -43,21 +42,29 @@ export class ShopperJWTConfig {
   ) {}
 
   /**
-   * Returns an Authorization header with Basic Auth for AuthRequestType of
-   * type `guest`
+   * Adds an Authorization header with Basic Auth to the header object passed,
+   * if AuthRequestType is `credentials`. Doesn't do anything for AuthRequestType
+   * `Guest`
+   *
+   * @params The header object where the Authorization header should be passed
    *
    * @returns  Authorization header with Basic Auth
    */
-  toAuthHeader(): { [key: string]: string } {
-    let authHeader = {};
+  addAuthHeader(headers: { [key: string]: string }) {
     if (this.authRequestType == AuthRequestType.Credentials) {
-      const basicAuth = Buffer.from(
-        `${this.username}:${this.password}`
-      ).toString("base64");
-      authHeader = { Authorization: `Basic ${basicAuth}` };
+      const basicAuth = this.getBasicAuth();
+      headers["Authorization"] = `Basic ${basicAuth}`;
     }
+  }
 
-    return authHeader;
+  /**
+   * Returns Basic Auth, which is Base64 encoded username and password separated
+   * by a colon.
+   *
+   * @returns Basic Auth
+   */
+  getBasicAuth(): string {
+    return Buffer.from(`${this.username}:${this.password}`).toString("base64");
   }
 }
 
@@ -94,10 +101,7 @@ export class ShopperJWT implements IAuthScheme {
       ? shopperJWTConfig
       : new ShopperJWTConfig();
     this.authRequestType = shopperJWTConfig.authRequestType;
-    _.merge(
-      this.authClient.clientConfig.headers,
-      shopperJWTConfig.toAuthHeader()
-    );
+    shopperJWTConfig.addAuthHeader(this.authClient.clientConfig.headers);
   }
 
   /**

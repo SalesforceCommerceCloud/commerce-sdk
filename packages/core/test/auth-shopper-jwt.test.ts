@@ -224,7 +224,7 @@ describe("Test injectAuth", async () => {
   });
 });
 
-describe("Test ShopperJWTConfig.toAuthHeader", async() => {
+describe("Test ShopperJWTConfig.addAuthHeader", async () => {
   it("returns Authorization header with Basic Auth for AuthRequestType.Credentials", () => {
     const shopperJWTConfig = new ShopperJWTConfig(
       "jamesbond",
@@ -235,10 +235,11 @@ describe("Test ShopperJWTConfig.toAuthHeader", async() => {
       `${shopperJWTConfig.username}:${shopperJWTConfig.password}`
     ).toString("base64");
     const basicToken = `Basic ${base64EncodedCreds}`;
+    const headers = {};
 
-    expect(shopperJWTConfig.toAuthHeader()["Authorization"]).to.equal(
-      basicToken
-    );
+    shopperJWTConfig.addAuthHeader(headers);
+
+    expect(headers["Authorization"]).to.equal(basicToken);
   });
 
   it("does not return an Authorization header for AuthRequestType.Guest", () => {
@@ -247,7 +248,10 @@ describe("Test ShopperJWTConfig.toAuthHeader", async() => {
       "007007007",
       AuthRequestType.Guest
     );
+    const headers = {};
 
-    expect(shopperJWTConfig.toAuthHeader()["Authorization"]).to.be.undefined;
+    shopperJWTConfig.addAuthHeader(headers);
+
+    expect(headers["Authorization"]).to.be.undefined;
   });
 });

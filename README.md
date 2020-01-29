@@ -26,7 +26,7 @@ This is the package that communicates with exchange to download raml files to bu
 
 ## Setup
 
-All these commands can both be ran from the root as well as within a package in the repo.
+All of these commands can be run from either the repo root or the package root.
 
     # To setup
     npm install
