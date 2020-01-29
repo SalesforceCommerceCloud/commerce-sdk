@@ -4,22 +4,6 @@ A mono repo containing the tools needed to be a rockstar commerce cloud develope
 
 [![CircleCI][circleci-image]][circleci-url]
 
-## Mono repo setup
-
-### Setup
-
-All these commands can both be ran from the root as well as within a package in the repo.
-
-    # To setup
-    npm install
-
-    # To run tests
-    npm test
-
-    # To build 
-    npm run build
-
-
 ## Packages
 
 ### commerce-sdk
@@ -39,6 +23,42 @@ This represents the core functions that call the APIs and interact with commerce
 This is the package that communicates with exchange to download raml files to build the SDK.  This is used by the generator but not the generated sdk
 
 [README](./packages/exchange-connector/README.md)
+
+## Setup
+
+All of these commands can be run from either the repo root or the package root.
+
+    # To setup
+    npm install
+
+    # To build 
+    npm run build
+
+## Running Tests
+> **Note:** Instructions in Setup section are prerequisites for this section
+
+To run tests in all the packages, execute
+```bash
+npm test
+```
+To run tests in debug mode, execute
+```bash
+npm run test:debug
+```
+To run tests in the core package only, execute
+```bash
+npm run test:core
+```
+
+To run tests in the exchange-connector package only, execute
+```bash
+npm run test:ec
+```
+
+To run tests in the generator package only, execute
+```bash
+npm run test:generator
+```
 
 ### Additional documentation
 

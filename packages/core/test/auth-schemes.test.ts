@@ -44,7 +44,7 @@ describe("Test account manager auth", () => {
 
     am.init(client);
 
-    getTokenStub = sinon.stub(am.oauth2.clientCredentials, "getToken");
+    getTokenStub = sinon.stub(am.oauth2Client.clientCredentials, "getToken");
   });
 
   it("Test getting access token", () => {
@@ -70,7 +70,7 @@ describe("Test account manager auth", () => {
   it("Test init", () => {
     const am = new AccountManager();
     am.init(client);
-    expect(am.oauth2).to.be.ok;
+    expect(am.oauth2Client).to.be.ok;
   });
 
   it("Test refresh", () => {

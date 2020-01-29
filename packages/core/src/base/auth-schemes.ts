@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import oauth2, { OAuthClient } from "simple-oauth2";
+import * as oauth2 from "simple-oauth2";
 
 import { ShopperJWT } from "./auth-shopper-jwt";
 import { BaseClient } from "./client";
@@ -20,7 +20,7 @@ export interface IAuthScheme {
 
 export class AccountManager implements IAuthScheme {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public oauth2: OAuthClient<any>;
+  public oauth2Client: oauth2.OAuthClient<any>;
   public token: oauth2.AccessToken;
 
   init(client: BaseClient): void {
@@ -34,19 +34,19 @@ export class AccountManager implements IAuthScheme {
         tokenPath: "/dwsso/oauth2/access_token"
       }
     };
-    this.oauth2 = oauth2.create(credentials);
+    this.oauth2Client = oauth2.create(credentials);
   }
 
   async injectAuth(headers: {
     [key: string]: string;
   }): Promise<{ [key: string]: string }> {
-    await this.refresh();
-
     headers = headers ? headers : {};
 
-    if (this.token && !("Authentication" in headers)) {
+    if (!("Authentication" in headers)) {
+      await this.refresh();
       headers["Authentication"] = `Bearer ${this.token.token["access_token"]}`;
     }
+
     return headers;
   }
 
@@ -58,8 +58,8 @@ export class AccountManager implements IAuthScheme {
     }
 
     try {
-      const result = await this.oauth2.clientCredentials.getToken({});
-      this.token = this.oauth2.accessToken.create(result);
+      const result = await this.oauth2Client.clientCredentials.getToken({});
+      this.token = this.oauth2Client.accessToken.create(result);
     } catch (error) {
       console.error("Access Token error", error.message);
       return false;
