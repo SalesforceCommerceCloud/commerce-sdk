@@ -6,12 +6,7 @@
  */
 import * as gulp from "gulp";
 import { processApiFamily } from "./src/parser";
-import {
-  createClient,
-  createDto,
-  createIndex,
-  renderOperationList
-} from "./src/renderer";
+import { renderTemplates, renderOperationList } from "./src/renderer";
 
 import log from "fancy-log";
 import del from "del";
@@ -29,8 +24,6 @@ import {
 import tmp from "tmp";
 
 require("dotenv").config();
-
-import { WebApiBaseUnitWithEncodesModel } from "webapi-parser";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const config = require("./build-config.json");
@@ -93,51 +86,17 @@ gulp.task("downloadRamlFromExchange", async () => {
   }
 });
 
+/**
+ *  Gulp task that renders typescript code for the APIs using the pre-defined templates
+ */
 gulp.task(
   "renderTemplates",
   gulp.series(gulp.series("clean", "downloadRamlFromExchange"), async () => {
-    // require the json written in groupRamls gulpTask
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const ramlGroupConfig = require(path.resolve(
-      path.join(config.inputDir, config.apiConfigFile)
-    ));
-    const apiGroupKeys = _.keysIn(ramlGroupConfig);
-
-    const allPromises: Promise<any>[] = [];
-    for (const apiGroup of apiGroupKeys) {
-      const familyPromises = processApiFamily(
-        apiGroup,
-        ramlGroupConfig,
-        config.inputDir
-      );
-
-      fs.ensureDirSync(config.renderDir);
-      allPromises.push(
-        Promise.all(familyPromises).then(values => {
-          fs.writeFileSync(
-            path.join(config.renderDir, `${apiGroup}.ts`),
-            createClient(
-              values.map(value => value as WebApiBaseUnitWithEncodesModel),
-              apiGroup
-            )
-          );
-          fs.writeFileSync(
-            path.join(config.renderDir, `${apiGroup}.types.ts`),
-            createDto(
-              values.map(value => value as WebApiBaseUnitWithEncodesModel)
-            )
-          );
-        })
-      );
-    }
-    allPromises.push(
-      fs.writeFile(
-        path.join(config.renderDir, "index.ts"),
-        createIndex(apiGroupKeys)
-      )
+    return renderTemplates(
+      config.renderDir,
+      config.inputDir,
+      config.apiConfigFile
     );
-
-    return Promise.all(allPromises);
   })
 );
 
