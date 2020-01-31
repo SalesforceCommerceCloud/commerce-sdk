@@ -33,4 +33,8 @@ export class ShopperToken implements IAuthToken {
   getAuthToken(): string {
     return this.rawToken;
   }
+
+  getBearerHeader(): string {
+    return `Bearer ${this.rawToken}`;
+  }
 }

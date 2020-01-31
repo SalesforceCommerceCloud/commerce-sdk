@@ -47,4 +47,10 @@ describe("Test ShopperToken", () => {
     expect(token.getAuthToken()).to.equal("NOT_A_TOKEN");
     expect(token.decodedToken).to.be.null;
   });
+
+  it("ShopperToken getBearer", () => {
+    const token = new ShopperToken("NOT_A_TOKEN");
+
+    expect(token.getBearerHeader()).to.equal("Bearer NOT_A_TOKEN");
+  });
 });
