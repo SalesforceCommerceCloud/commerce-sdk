@@ -23,6 +23,7 @@ import {
   getValue,
   onlyRequired,
   onlyOptional,
+  onlyAdditional,
   eachModel,
   isTypeDefinition
 } from "./template-helpers";
@@ -43,6 +44,13 @@ require("handlebars-helpers")({ handlebars: Handlebars }, [
 
 const operationsPartialTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "operations.ts.hbs"), "utf8")
+);
+
+const additionalPropertiesPartialTemplate = Handlebars.compile(
+  fs.readFileSync(
+    path.join(templateDirectory, "dto_additional_properties.ts.hbs"),
+    "utf8"
+  )
 );
 
 const clientInstanceTemplate = Handlebars.compile(
@@ -68,6 +76,10 @@ export const renderOperationListTemplate = Handlebars.compile(
 
 const dtoTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "dto.ts.hbs"), "utf8")
+);
+
+const dtoPartial = Handlebars.compile(
+  fs.readFileSync(path.join(templateDirectory, "dto_partial.ts.hbs"), "utf8")
 );
 
 function createClient(
@@ -257,15 +269,21 @@ Handlebars.registerHelper("getReturnPayloadType", getReturnPayloadType);
 
 Handlebars.registerHelper("getSecurityScheme", getSecurityScheme);
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 Handlebars.registerHelper("getValue", getValue);
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 Handlebars.registerHelper("onlyRequired", onlyRequired);
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 Handlebars.registerHelper("onlyOptional", onlyOptional);
 
-Handlebars.registerPartial("operations", operationsPartialTemplate);
+Handlebars.registerHelper("onlyAdditional", onlyAdditional);
+
+Handlebars.registerPartial("dtoPartial", dtoPartial);
+
+Handlebars.registerPartial("operationsPartial", operationsPartialTemplate);
+
+Handlebars.registerPartial(
+  "additionalPropertiesPartial",
+  additionalPropertiesPartialTemplate
+);
 
 Handlebars.registerHelper("eachModel", eachModel);

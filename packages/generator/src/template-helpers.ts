@@ -17,6 +17,8 @@ import {
   ARRAY_DATA_TYPE
 } from "./config";
 
+const ADDITIONAL_PROPERTY_NAME = "//";
+
 /**
  * Selects the baseUri from an AMF model. TypeScript will not allow access to
  * the data without the proper cast to a WebApi type.
@@ -252,20 +254,32 @@ export const getValue = function(name: any): string {
   return null;
 };
 
-export const onlyRequired = function(classes: any[]): any[] {
-  return !classes
-    ? []
-    : classes.filter(entry => {
-        return entry.minCount.value() > 0;
-      });
+const getProperties = function(classes: any[], filterEntriesBy): any {
+  return !classes ? [] : classes.filter(entry => filterEntriesBy(entry));
 };
 
 export const onlyOptional = function(classes: any[]): any[] {
-  return !classes
-    ? []
-    : classes.filter(entry => {
-        return entry.minCount.value() == 0;
-      });
+  return getProperties(classes, entry => {
+    return (
+      entry.minCount.value() == 0 &&
+      entry.name.value() !== ADDITIONAL_PROPERTY_NAME
+    );
+  });
+};
+
+export const onlyRequired = function(classes: any[]): any[] {
+  return getProperties(classes, entry => {
+    return entry.minCount.value() > 0;
+  });
+};
+
+export const onlyAdditional = function(classes: any[]): any[] {
+  return getProperties(classes, entry => {
+    return (
+      entry.minCount.value() == 0 &&
+      entry.name.value() === ADDITIONAL_PROPERTY_NAME
+    );
+  });
 };
 
 export const eachModel = function(context): any[] {
