@@ -8,7 +8,7 @@ Salesforce Commerce B2C SDK.
 
 A mono repo containing the tools needed to be a rockstar commerce developer on the Salesforce Commerce B2C platform.
 
-To find more information about the Salesforce Commerce platform services or signing up for Salesforce Commerce please see our platform documentation via the [Commerce Cloud Developer Center](https://developer.commercecloud.com/).
+If you're looking to sign up for Salesforce Commerce, ask a message in our official forums, or find documentation on the Salesforce B2C platform APIs, check out the [Commerce Cloud Developer Center](https://developer.commercecloud.com/).
 
 ## Packages
 
@@ -37,7 +37,7 @@ All of these commands can be run from either the repo root or the package root.
     # To setup
     npm install
 
-    # To build 
+    # To build
     npm run build
 
 ## Running Tests
