@@ -1,8 +1,14 @@
 # commerce-sdk
 
-A mono repo containing the tools needed to be a rockstar commerce cloud developer.
+Salesforce Commerce B2C SDK.
 
 [![CircleCI][circleci-image]][circleci-url]
+
+## What is this?
+
+A mono repo containing the tools needed to be a rockstar commerce developer on the Salesforce Commerce B2C platform.
+
+To find more information about the Salesforce Commerce platform services or signing up for Salesforce Commerce please see our platform documentation via the [Commerce Cloud Developer Center](https://developer.commercecloud.com/).
 
 ## Packages
 
