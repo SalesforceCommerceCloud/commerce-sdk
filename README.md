@@ -10,7 +10,7 @@ commerce-sdk is a node.js SDK for Salesforce B2C Commerce. It provides easy acce
 
 It is a mono repo containing the tools needed to be a rockstar commerce developer on the Salesforce B2C Commerce platform.
 
-If you're looking to sign up for Salesforce B2C Commerce, ask a message in our official forums, or find documentation on the Salesforce B2C Commerce platform APIs, check out the [Commerce Cloud Developer Center](https://developer.commercecloud.com/).
+Visit the [Commerce Cloud Developer Center](https://developer.commercecloud.com/) to learn more about Salesforce B2C Commerce. The developer center has API documentation, getting started guides, community forums, and more.
 
 ## Packages
 
