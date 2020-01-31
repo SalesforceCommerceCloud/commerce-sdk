@@ -5,6 +5,7 @@
     */
     {{name}}(
       options{{#or (is method "get") (is method "delete")}}?{{/or}}: {
+        rawResponse?: boolean,
         parameters?: {
           {{#each ../parameters}}
           {{name}}: any
@@ -31,11 +32,12 @@
       // @ts-ignore
       return StaticClient.{{method}}({
         client: this,
+        rawResponse: options.rawResponse,
         path: "{{../path}}",
         pathParameters: pathParameters,
         queryParameters: queryParameters,
         headers: (options || {}).headers{{#or (is method "patch") (is method "post") (is method "put")}}, 
-        body: (options || {}).body{{/or}}{{getSecurityScheme ", authScheme: " security}}
+        body: (options || {}).body{{/or}}
       });
     }
 

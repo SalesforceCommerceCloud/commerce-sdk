@@ -52,6 +52,11 @@ const clientInstanceTemplate = Handlebars.compile(
 const indexTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "index.ts.hbs"), "utf8")
 );
+
+const helpersTemplate = Handlebars.compile(
+  fs.readFileSync(path.join(templateDirectory, "helpers.ts.hbs"), "utf8")
+);
+
 /**
  * Handlebar template to export all APIs in a family
  */
@@ -108,6 +113,18 @@ function createDto(webApiModels: WebApiBaseUnit[]): string {
 function createIndex(boundedContexts: any): string {
   return indexTemplate({
     apiSpec: boundedContexts
+  });
+}
+
+/**
+ * Generates code to export all API families to index.ts
+ * @param boundedContexts
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function createHelpers(boundedContexts: any): string {
+  return helpersTemplate({
+    shopperAuthClient: "Customer.ShopperCustomers",
+    shopperAuthApi: "authorizeCustomer"
   });
 }
 
@@ -219,6 +236,11 @@ export function renderTemplates(
     fs.writeFileSync(
       path.join(renderDir, "index.ts"),
       createIndex(apiFamilyNames)
+    );
+
+    fs.writeFileSync(
+      path.join(renderDir, "helpers.ts"),
+      createHelpers(apiFamilyNames)
     );
   });
 }

@@ -23,4 +23,4 @@ export const StaticClient = {
   put: _put
 };
 
-export { IAuthHelper } from "./base/auth-helper.ts";
+export { IAuthToken, ShopperToken, stripBearer } from "./base/auth-helper";
