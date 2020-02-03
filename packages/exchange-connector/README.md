@@ -2,6 +2,16 @@
 
 > TODO: description
 
+## Setup
+
+Execute the following commands to install dependencies and build exchange-connector.
+
+    # To setup
+    npm install
+
+    # To build
+    npm run build
+
 ## Usage
 
 ```
@@ -17,3 +27,17 @@ getRamlByTag(accessToken: string, tag: string, downloadFolder?: string): Promise
 npm i && npm run build && npm link
 
 ```
+
+## Testing
+
+To run tests, execute
+```bash
+npm run test
+```
+To run tests in debug mode, execute
+```bash
+npm run test:debug
+```
+
+## License Information
+This package is licensed under BSD-3-Clause license. See the [license](https://github.com/SalesforceCommerceCloud/commerce-sdk/blob/master/packages/exchange-connector/LICENSE.txt) for details.
