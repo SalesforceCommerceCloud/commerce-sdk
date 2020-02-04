@@ -22,32 +22,37 @@ import _ from "lodash";
  * Example: We can't mock renderApiFamily function while testing renderTemplates function. To make it work renderTemplates should invoke
  * renderApiFamily as "module.exports.renderApiFamily(..)" which is not desired.
  */
-it("Render Templates", () => {
-  const renderDir = tmp.dirSync();
-  const apiInputDir = path.join(__dirname, "/raml/valid");
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const apiConfig = require(path.join(
-    __dirname,
-    "/raml/valid/api-config.json"
-  ));
-  return renderer
-    .renderTemplates(renderDir.name, apiInputDir, "api-config.json")
-    .then(() => {
-      expect(fs.existsSync(path.join(renderDir.name, "index.ts"))).to.be.true;
-      const apiFamilies: string[] = _.keysIn(apiConfig);
-      apiFamilies.forEach(family => {
-        expect(fs.existsSync(path.join(renderDir.name, family, family + ".ts")))
-          .to.be.true;
-        const familyAps: any[] = apiConfig[family];
-        familyAps.forEach(api => {
-          const apiName = _.upperFirst(_.camelCase(api.name));
-          fs.existsSync(
-            path.join(renderDir.name, family, apiName, apiName + ".ts")
-          );
-          fs.existsSync(
-            path.join(renderDir.name, family, apiName, apiName + "types.ts")
-          );
+describe("Render Templates Test", () => {
+  this.timeout(10000);
+
+  it("Render Templates", () => {
+    const renderDir = tmp.dirSync();
+    const apiInputDir = path.join(__dirname, "/raml/valid");
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const apiConfig = require(path.join(
+      __dirname,
+      "/raml/valid/api-config.json"
+    ));
+    return renderer
+      .renderTemplates(renderDir.name, apiInputDir, "api-config.json")
+      .then(() => {
+        expect(fs.existsSync(path.join(renderDir.name, "index.ts"))).to.be.true;
+        const apiFamilies: string[] = _.keysIn(apiConfig);
+        apiFamilies.forEach(family => {
+          expect(
+            fs.existsSync(path.join(renderDir.name, family, family + ".ts"))
+          ).to.be.true;
+          const familyAps: any[] = apiConfig[family];
+          familyAps.forEach(api => {
+            const apiName = _.upperFirst(_.camelCase(api.name));
+            fs.existsSync(
+              path.join(renderDir.name, family, apiName, apiName + ".ts")
+            );
+            fs.existsSync(
+              path.join(renderDir.name, family, apiName, apiName + "types.ts")
+            );
+          });
         });
       });
-    });
+  });
 });
