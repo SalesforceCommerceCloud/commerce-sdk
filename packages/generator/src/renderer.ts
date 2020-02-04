@@ -107,21 +107,24 @@ function createDto(webApiModels: WebApiBaseUnit[]): string {
 
 /**
  * Generates code to export all API families to index.ts
- * @param boundedContexts
+ * @param apiFamilies The list of api families we used to generate the code
+ *
+ * @returns The rendered code as a string
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function createIndex(boundedContexts: any): string {
+function createIndex(apiFamilies: string[]): string {
   return indexTemplate({
-    apiSpec: boundedContexts
+    apiSpec: apiFamilies
   });
 }
 
 /**
- * Generates code to export all API families to index.ts
- * @param boundedContexts
+ * Generates helper methods for the SDK (Syntactical sugar)
+ *
+ * @returns The rendered code as a string
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function createHelpers(boundedContexts: any): string {
+function createHelpers(): string {
   return helpersTemplate({
     shopperAuthClient: "Customer.ShopperCustomers",
     shopperAuthApi: "authorizeCustomer"
@@ -238,10 +241,7 @@ export function renderTemplates(
       createIndex(apiFamilyNames)
     );
 
-    fs.writeFileSync(
-      path.join(renderDir, "helpers.ts"),
-      createHelpers(apiFamilyNames)
-    );
+    fs.writeFileSync(path.join(renderDir, "helpers.ts"), createHelpers());
   });
 }
 
