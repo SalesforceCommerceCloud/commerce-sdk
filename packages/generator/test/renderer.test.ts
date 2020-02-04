@@ -23,8 +23,6 @@ import _ from "lodash";
  * renderApiFamily as "module.exports.renderApiFamily(..)" which is not desired.
  */
 describe("Render Templates Test", () => {
-  this.timeout(10000);
-
   it("Render Templates", () => {
     const renderDir = tmp.dirSync();
     const apiInputDir = path.join(__dirname, "/raml/valid");
@@ -54,5 +52,5 @@ describe("Render Templates Test", () => {
           });
         });
       });
-  });
+  }).timeout(10000);
 });
