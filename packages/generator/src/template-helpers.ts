@@ -17,7 +17,14 @@ import {
   ARRAY_DATA_TYPE
 } from "./config";
 
-const ADDITIONAL_PROPERTY_NAME = "//";
+/**
+ * Additional properties are allowed in RAML type definitions using regular expressions
+ * We currently support any valid arbitrary property names without any prefixes or suffixes.
+ * These properties are rendered using the following semantics
+ * const SomeType = { [key: string]: string/boolean/number/SomeOtherType }
+ *                      & { definitions for other concrete properties }
+ */
+const ADDITIONAL_PROPERTY_REGEX_NAMES = ["//", "/.*/"];
 
 /**
  * Selects the baseUri from an AMF model. TypeScript will not allow access to
@@ -254,31 +261,67 @@ export const getValue = function(name: any): string {
   return null;
 };
 
-const getProperties = function(classes: any[], filterEntriesBy): any {
-  return !classes ? [] : classes.filter(entry => filterEntriesBy(entry));
+const getProperties = function(
+  propertyShapes: model.domain.PropertyShape[],
+  filterEntriesBy: Function
+): model.domain.PropertyShape[] {
+  return !propertyShapes
+    ? []
+    : propertyShapes.filter(entry => filterEntriesBy(entry));
 };
 
-export const onlyOptional = function(classes: any[]): any[] {
-  return getProperties(classes, entry => {
+/**
+ * Returns a list of optional properties defined in RAML type.
+ * Optional properties have minimum count of 0
+ * We ignore optional additional properties which also have minimum count of 0,
+ * because of the different semantics used in rendering those properties.
+ *
+ * @param Array of properties
+ * @returns Array of properties
+ */
+export const onlyOptional = function(
+  propertyShapes: model.domain.PropertyShape[]
+): model.domain.PropertyShape[] {
+  return getProperties(propertyShapes, entry => {
     return (
       entry.minCount.value() == 0 &&
-      entry.name.value() !== ADDITIONAL_PROPERTY_NAME
+      !ADDITIONAL_PROPERTY_REGEX_NAMES.includes(entry.name.value())
     );
   });
 };
 
-export const onlyRequired = function(classes: any[]): any[] {
-  return getProperties(classes, entry => {
-    return entry.minCount.value() > 0;
+/**
+ * Returns a list of required properties defined in RAML type.
+ * Required properties have minimum count of atleast 1
+ * We ignore required additional properties because of the
+ * different semantics used in rendering those properties
+ *
+ * @param Array of properties
+ * @returns Array of properties
+ */
+export const onlyRequired = function(
+  propertyShapes: model.domain.PropertyShape[]
+): model.domain.PropertyShape[] {
+  return getProperties(propertyShapes, entry => {
+    return (
+      entry.minCount.value() > 0 &&
+      !ADDITIONAL_PROPERTY_REGEX_NAMES.includes(entry.name.value())
+    );
   });
 };
 
-export const onlyAdditional = function(classes: any[]): any[] {
-  return getProperties(classes, entry => {
-    return (
-      entry.minCount.value() == 0 &&
-      entry.name.value() === ADDITIONAL_PROPERTY_NAME
-    );
+/**
+ * Returns a list of additional properties defined in RAML type.
+ * Additional property names use regular expressions.
+ *
+ * @param Array of properties
+ * @returns Array of properties
+ */
+export const onlyAdditional = function(
+  propertyShapes: model.domain.PropertyShape[]
+): model.domain.PropertyShape[] {
+  return getProperties(propertyShapes, entry => {
+    return ADDITIONAL_PROPERTY_REGEX_NAMES.includes(entry.name.value());
   });
 };
 

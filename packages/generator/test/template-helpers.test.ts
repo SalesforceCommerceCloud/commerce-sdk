@@ -435,13 +435,23 @@ describe("Template helper tests for only required properties", () => {
   });
 
   /** A required property with name as // is extremely not possible
-   * onlyRequired method should not care about names.
+   * onlyRequired method will ignore required additional properties
    */
   it("Returns empty array on classes containing one required parameter with // as name", () => {
     const property1: model.domain.PropertyShape = new model.domain.PropertyShape();
     property1.withName("//");
     property1.withMinCount(1);
-    expect(onlyRequired([property1])).to.not.be.empty;
+    expect(onlyRequired([property1])).to.be.empty;
+  });
+
+  /** A required property with name as /...../ is extremely not possible
+   * onlyRequired method will ignore required additional properties
+   */
+  it("Returns empty array on classes containing one required parameter with // as name", () => {
+    const property1: model.domain.PropertyShape = new model.domain.PropertyShape();
+    property1.withName("/.*/");
+    property1.withMinCount(1);
+    expect(onlyRequired([property1])).to.be.empty;
   });
 });
 
@@ -468,6 +478,26 @@ describe("Template helper tests for only optional properties", () => {
     property.withMinCount(0);
 
     expect(onlyOptional([property])).to.not.be.empty;
+  });
+
+  /**
+   * onlyOptional method will ignore additional properties
+   */
+  it("Returns empty array on classes containing one additional parameter with /.*/ as name", () => {
+    const property1: model.domain.PropertyShape = new model.domain.PropertyShape();
+    property1.withName("/.*/");
+    property1.withMinCount(0);
+    expect(onlyRequired([property1])).to.be.empty;
+  });
+
+  /**
+   * onlyOptional method will ignore additional properties
+   */
+  it("Returns empty array on classes containing one additional parameter with // as name", () => {
+    const property1: model.domain.PropertyShape = new model.domain.PropertyShape();
+    property1.withName("//");
+    property1.withMinCount(0);
+    expect(onlyRequired([property1])).to.be.empty;
   });
 });
 
@@ -689,6 +719,13 @@ describe("Template helper tests for onlyAdditionalProperties", () => {
   it("Returns array of length 1 on classes containing additional properties", () => {
     const property1: model.domain.PropertyShape = new model.domain.PropertyShape();
     property1.withName("//");
+    property1.withMinCount(0);
+    expect(onlyAdditional([property1])).to.be.length(1);
+  });
+
+  it("Returns array of length 1 on classes containing additional properties with regex /.*/", () => {
+    const property1: model.domain.PropertyShape = new model.domain.PropertyShape();
+    property1.withName("/.*/");
     property1.withMinCount(0);
     expect(onlyAdditional([property1])).to.be.length(1);
   });
