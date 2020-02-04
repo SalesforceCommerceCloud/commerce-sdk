@@ -29,7 +29,7 @@ describe("Test RAML file", () => {
   });
 
   it("Test valid RAML file", () => {
-    const ramlFile = path.join(__dirname, "/raml/valid/site.raml");
+    const ramlFile = path.join(__dirname, "/raml/valid/site/site.raml");
     return processRamlFile(ramlFile)
       .then(s => {
         expect(s).to.not.equal(null);
@@ -42,7 +42,7 @@ describe("Test RAML file", () => {
 
 describe("Get Data types", () => {
   it("Test valid RAML file", () => {
-    const ramlFile = path.join(__dirname, "/raml/valid/site.raml");
+    const ramlFile = path.join(__dirname, "/raml/valid/site/site.raml");
     return processRamlFile(ramlFile).then(s => {
       const res = getAllDataTypes([s as WebApiBaseUnitWithDeclaresModel]);
       expect(_.map(res, res => res.name.value())).to.be.deep.equal([
@@ -60,7 +60,7 @@ describe("Get Data types", () => {
   });
 
   it("Test valid RAML file with references", () => {
-    const ramlFile = path.join(__dirname, "/raml/valid/site.raml");
+    const ramlFile = path.join(__dirname, "/raml/valid/site/site.raml");
     return processRamlFile(ramlFile).then(s => {
       s.withReferences([s]);
       const res = getAllDataTypes([s as WebApiBaseUnitWithDeclaresModel]);
