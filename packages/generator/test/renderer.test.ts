@@ -31,8 +31,17 @@ describe("Render Templates Test", () => {
       __dirname,
       "/raml/valid/api-config.json"
     ));
+
     return renderer
-      .renderTemplates(renderDir.name, apiInputDir, "api-config.json")
+      .renderTemplates({
+        inputDir: apiInputDir,
+        renderDir: renderDir.name,
+        apiFamily: "CC API Family",
+        exchangeSearch: 'category:"CC Visibility" = "External"',
+        apiConfigFile: "api-config.json",
+        shopperAuthClient: "Customer.ShopperCustomers",
+        shopperAuthApi: "authorizeCustomer"
+      })
       .then(() => {
         expect(fs.existsSync(path.join(renderDir.name, "index.ts"))).to.be.true;
         const apiFamilies: string[] = _.keysIn(apiConfig);
