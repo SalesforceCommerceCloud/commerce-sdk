@@ -26,7 +26,7 @@ import tmp from "tmp";
 require("dotenv").config();
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const config = require("./build-config.json");
+import config from "./build-config";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 gulp.task("clean", (cb: any) => {
@@ -92,11 +92,7 @@ gulp.task("downloadRamlFromExchange", async () => {
 gulp.task(
   "renderTemplates",
   gulp.series(gulp.series("clean", "downloadRamlFromExchange"), async () => {
-    return renderTemplates(
-      config.renderDir,
-      config.inputDir,
-      config.apiConfigFile
-    );
+    return renderTemplates(config);
   })
 );
 
