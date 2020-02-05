@@ -9,6 +9,7 @@ import _ from "lodash";
 import { WebApiBaseUnitWithEncodesModel } from "webapi-parser";
 
 import { AuthSchemes } from "@commerce-apps/core";
+import { commonParameterPositions } from "../../core/dist";
 
 import {
   PRIMITIVE_DATA_TYPE_MAP,
@@ -48,6 +49,26 @@ export const getBaseUriParameters = function(
       )
     : [];
 };
+
+/**
+ * Checks if a path parameter is one of the set that are configurable at the client level
+ * 
+ * @param property The string name of the parameter to check
+ * 
+ * @returns true if the parameter is a common parameter
+ */
+export const isCommonPathParameter = (property: string) =>
+  commonParameterPositions.pathParameters.includes(property.toString())
+
+/**
+ * Checks if a query parameter is one of the set that are configurable at the client level
+ * 
+ * @param property The string name of the parameter to check
+ * 
+ * @returns true if the parameter is a common parameter
+ */
+export const isCommonQueryParameter = (property: string) =>
+  commonParameterPositions.queryParameters.includes(property.toString());
 
 const isValidProperty = function(property: any): boolean {
   return (

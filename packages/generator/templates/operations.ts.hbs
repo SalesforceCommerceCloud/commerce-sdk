@@ -8,10 +8,11 @@
         rawResponse?: boolean,
         parameters?: {
           {{#each ../parameters}}
-          {{name}}: any
+          {{! common parameters can be configured at the client level and therefore are not required }}
+          {{name}}{{#if (isCommonPathParameter name)}}?{{/if}}: any
           {{/each}}
           {{#each request/queryParameters}}
-          {{name}}{{#if (not (is required "true"))}}?{{/if}}: any
+          {{name}}{{#if (or (not (is required "true")) (isCommonQueryParameter name))}}?{{/if}}: any
           {{/each}}
         },
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}}, 
@@ -23,11 +24,22 @@
       
       const pathParameters = {
       {{#each ../parameters}}
-        "{{name}}": parameters["{{name}}"]{{#unless @last}},{{/unless}}
+        "{{{name}}}": parameters["{{{name}}}"]
+        {{! if it is a common path parameter, fallback to client config for undefined }}
+        {{#if (isCommonPathParameter name)}} !== undefined ? parameters["{{{name}}}"] : this.clientConfig.parameters["{{{name}}}"]{{/if}}
+        {{#unless @last}},{{/unless}}
       {{/each}}
       };
 
       const queryParameters = _.omit(parameters, _.keys(pathParameters));
+
+      {{#each request.queryParameters}}
+      {{! for queryParameters that are common query parameters, fallback to client config for undefined }}
+      {{#if (isCommonQueryParameter name)}}
+      queryParameters["{{{name}}}"] !== undefined 
+          ? queryParameters["{{{name}}}"] : this.clientConfig.parameters["{{{name}}}"];
+      {{/if}}
+      {{/each}}
 
       // @ts-ignore
       return StaticClient.{{method}}({
