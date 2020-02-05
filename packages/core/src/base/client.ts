@@ -4,14 +4,13 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import * as os from "os";
-import * as path from "path";
-
-import { config } from "dotenv";
-import { getBearer } from "@commerce-apps/exchange-connector";
 import _ from "lodash";
+import { config } from "dotenv";
 import tmp from "tmp";
 
+import { getBearer } from "@commerce-apps/exchange-connector";
+
+import { CommonParameters } from "./commonParameters";
 import { DefaultCache } from "./static-client";
 export { DefaultCache };
 import { IAuthScheme } from "./auth-schemes";
@@ -28,6 +27,7 @@ export type BaseClientConfig = {
   clientId?: string;
   clientSecret?: string;
   headers?: { [key: string]: string };
+  parameters?: CommonParameters;
 };
 
 const DEFAULT_CLIENT_CONFIG: BaseClientConfig = {
