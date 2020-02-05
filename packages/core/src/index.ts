@@ -6,7 +6,7 @@
  */
 export {
   BaseClient,
-  BaseClientConfig,
+  ClientConfig,
   Response,
   ResponseError
 } from "./base/client";

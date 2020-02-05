@@ -19,10 +19,9 @@ import { ICacheManager } from "./cache-manager";
 // dotenv config loads environmental variables.
 config();
 
-export type BaseClientConfig = {
+export type ClientConfig = {
   authHost?: string;
   baseUri?: string;
-  baseUriParameters?: { [key: string]: string };
   cacheManager?: ICacheManager;
   clientId?: string;
   clientSecret?: string;
@@ -30,7 +29,7 @@ export type BaseClientConfig = {
   parameters?: CommonParameters;
 };
 
-const DEFAULT_CLIENT_CONFIG: BaseClientConfig = {
+const DEFAULT_CLIENT_CONFIG: ClientConfig = {
   authHost: "https://account-pod5.demandware.net",
   // Enables cacache for local caching in temp dir by default, unsafeCleanup == rm -rf on exit
   cacheManager: new DefaultCache(
@@ -40,12 +39,12 @@ const DEFAULT_CLIENT_CONFIG: BaseClientConfig = {
 };
 
 export class BaseClient {
-  public clientConfig: BaseClientConfig;
+  public clientConfig: ClientConfig;
   public authSchemes: {
     [x: string]: IAuthScheme;
   };
 
-  constructor(config?: BaseClientConfig) {
+  constructor(config?: ClientConfig) {
     this.clientConfig = {};
     this.authSchemes = {};
     _.merge(this.clientConfig, DEFAULT_CLIENT_CONFIG, config);
