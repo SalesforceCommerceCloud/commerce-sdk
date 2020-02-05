@@ -52,6 +52,11 @@ const clientInstanceTemplate = Handlebars.compile(
 const indexTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "index.ts.hbs"), "utf8")
 );
+
+const helpersTemplate = Handlebars.compile(
+  fs.readFileSync(path.join(templateDirectory, "helpers.ts.hbs"), "utf8")
+);
+
 /**
  * Handlebar template to export all APIs in a family
  */
@@ -102,12 +107,27 @@ function createDto(webApiModels: WebApiBaseUnit[]): string {
 
 /**
  * Generates code to export all API families to index.ts
- * @param boundedContexts
+ * @param apiFamilies The list of api families we used to generate the code
+ *
+ * @returns The rendered code as a string
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function createIndex(boundedContexts: any): string {
+function createIndex(apiFamilies: string[]): string {
   return indexTemplate({
-    apiSpec: boundedContexts
+    apiSpec: apiFamilies
+  });
+}
+
+/**
+ * Generates helper methods for the SDK (Syntactical sugar)
+ *
+ * @returns The rendered code as a string
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function createHelpers(config: any): string {
+  return helpersTemplate({
+    shopperAuthClient: config.shopperAuthClient,
+    shopperAuthApi: config.shopperAuthApi
   });
 }
 
@@ -192,33 +212,39 @@ function renderApiFamily(
 
 /**
  * Renders typescript code for the APIs using the pre-defined templates
- * @param renderDir Directory path where the templates are rendered
- * @param apiRamlDir Directory path of API RAML files
- * @param apiConfigFile Configuration file of the API
+ * @param config uild config used to build the SDK
+
  * @returns Promise<void>
  */
-export function renderTemplates(
-  renderDir: string,
-  apiRamlDir: string,
-  apiConfigFile: string
-): Promise<void> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function renderTemplates(config: any): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const apiFamilyRamlConfig = require(path.resolve(
-    path.join(apiRamlDir, apiConfigFile)
+    path.join(config.inputDir, config.apiConfigFile)
   ));
-  fs.ensureDirSync(renderDir);
+  fs.ensureDirSync(config.renderDir);
   const apiFamilyNames = _.keysIn(apiFamilyRamlConfig);
   const allPromises: Promise<void>[] = [];
   apiFamilyNames.forEach((apiFamily: string) => {
     allPromises.push(
-      renderApiFamily(apiFamily, apiFamilyRamlConfig, apiRamlDir, renderDir)
+      renderApiFamily(
+        apiFamily,
+        apiFamilyRamlConfig,
+        config.inputDir,
+        config.renderDir
+      )
     );
   });
   //create index file that exports all the api families in the root
   return Promise.all(allPromises).then(() => {
     fs.writeFileSync(
-      path.join(renderDir, "index.ts"),
+      path.join(config.renderDir, "index.ts"),
       createIndex(apiFamilyNames)
+    );
+
+    fs.writeFileSync(
+      path.join(config.renderDir, "helpers.ts"),
+      createHelpers(config)
     );
   });
 }
