@@ -24,3 +24,8 @@ export const StaticClient = {
 };
 
 export { IAuthToken, ShopperToken, stripBearer } from "./base/auth-helper";
+
+export {
+  commonParameterPositions,
+  CommonParameters
+} from "./base/commonParameters";
