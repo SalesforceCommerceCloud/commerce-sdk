@@ -1,6 +1,12 @@
 # core
 
-Core provides classes and functions to perform HTTP and authentication operations on an instance of Salesforce B2C Commerce APIs. [commerce-sdk](https://github.com/SalesforceCommerceCloud/commerce-sdk/tree/master/packages/generator) uses core to communicate with Salesforce B2C Commerce APIs.
+The Core package provides a variety of functions that make interacting with Salesforce Commerce APIs easy. Following are some of the functions that the Core package can be used to perform:
+
+* Authentication - An easy way to authenticate with the APIs that require Account Manager authentication.
+* HTTP operations - TypeScript functions for all the HTTP operations.
+* Caching - Ability to specify whether the results of HTTP requests should be cached or not.
+
+ [commerce-sdk](https://www.npmjs.com/package/commerce-sdk) uses core to communicate with Salesforce Commerce APIs.
 
 ## Setup
 
@@ -11,25 +17,6 @@ Execute the following commands to install dependencies and build core.
 
     # To build
     npm run build
-
-## Sample Code
-
-```typescript
-import { StaticClient } from "@commerce-apps/core";
-import { Shop } from 'commerce-sdk';
-
-// Instantiate a Shop client object with configuration parameters.
-const shopClient = new Shop.Client({
-    baseUri: "https://somewhere.com/v1/shop"
-});
-
-// Perform get operation on the client created above using get method of StaticClient
-const result = await StaticClient.get({
-    client: shopClient, 
-    path: "/something"
-});
-
-console.log(result);
 ```
 
 ## Testing
@@ -38,10 +25,10 @@ To run tests, execute
 ```bash
 npm run test
 ```
-To run tests in debug mode, execute
+To print the detailed test results and errors on the console, execute
 ```bash
 npm run test:debug
 ```
 
 ## License Information
-This package is licensed under BSD-3-Clause license. See the [license](https://github.com/SalesforceCommerceCloud/commerce-sdk/blob/master/packages/core/LICENSE.txt) for details.
+This package is licensed under BSD-3-Clause license. See the [license](./LICENSE.txt) for details.
