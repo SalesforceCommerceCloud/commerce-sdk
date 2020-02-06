@@ -38,7 +38,7 @@ export function processRamlFile(ramlFile: string): Promise<WebApiBaseUnit> {
          * By default it will resolve declarations to be inline which we do not want as we want
          * to be able to use those declarations as well for types.
          *
-         * Using the 'editing' pipeline will retain those declarations in  the model.
+         * Using the 'editing' pipeline will retain those declarations in the model.
          *
          * There is a constant of 'core.resolution.pipelines.ResolutionPipeline.EDITING_PIPELINE' from amf but
          * for some reason I can't use it because it says 'resolution' is undefined

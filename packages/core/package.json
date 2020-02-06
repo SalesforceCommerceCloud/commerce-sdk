@@ -1,13 +1,13 @@
 {
   "name": "@commerce-apps/core",
-  "version": "0.2.0-alpha.0",
+  "version": "0.2.0-alpha.1",
   "description": "Commerce SDK Generator, contains the templates to generate the SDK",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "pretest": "npm run lint",
-    "test": "nyc cross-env TS_NODE_FILES=true mocha --reporter=xunit --reporter-options output=../../reports/core.xml --exit --require ts-node/register --colors test/**/*.ts",
-    "test:debug": "nyc cross-env TS_NODE_FILES=true mocha --exit --require ts-node/register --colors test/**/*.ts",
+    "test": "nyc --extension .ts mocha --forbid-only \"test/**/*.test.ts\" --require ts-node/register --require source-map-support/register --reporter=xunit --reporter-options output=../../reports_integration/core.xml --colors",
+    "test:debug": "nyc --extension .ts mocha --forbid-only \"test/**/*.test.ts\" --require ts-node/register --require source-map-support/register --colors",
     "build": "tsc",
     "lint": "eslint \"**/*.ts\" --quiet --fix"
   },
@@ -22,13 +22,11 @@
     "exclude": [
       "coverage",
       "dist",
-      "test",
-      "src/core/index.ts"
+      "test"
     ],
     "reporter": [
-      "html",
-      "text",
-      "json"
+      "lcov",
+      "text"
     ],
     "extension": [
       ".ts"
@@ -86,18 +84,18 @@
     }
   },
   "devDependencies": {
-    "@commerce-apps/exchange-connector": "^1.1.0-alpha.0",
-    "cross-env": "^6.0.3",
-    "mocha": "^6.2.2",
+    "@istanbuljs/nyc-config-typescript": "^1.0.1",
+    "@types/jsonwebtoken": "^8.3.7",
+    "mocha": "^7.0.1",
     "nock": "^11.7.0",
-    "nyc": "^14.1.1"
+    "nyc": "^15.0.0"
   },
   "author": "",
-  "license": "BSD 3-Clause",
+  "license": "BSD-3-Clause",
   "gitHead": "f99255fced226ec4a43e60f4dc469eee028d8a81",
   "dependencies": {
     "dotenv": "~8.2.0",
-    "jsonwebtoken": "~8.5.1",
+    "jsonwebtoken": "^8.5.1",
     "lodash": "~4.17.15",
     "make-fetch-happen": "~7.1.0",
     "node-fetch": "~2.6.0",

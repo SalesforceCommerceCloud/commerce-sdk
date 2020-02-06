@@ -42,13 +42,7 @@ export class Client extends BaseClient {
     if (!!!config.baseUri) {
       this.clientConfig.baseUri = "{{getBaseUri models.[0] }}";
     }
-    {{#each models}}
-        {{#each declares}}
-            {{#is ./$classData/name "amf.client.model.domain.SecurityScheme"}}
-                this.authSchemes["{{./name}}"] = new AuthSchemes["{{./name}}"]();
-            {{/is}}
-        {{/each}}
-    {{/each}}
+
   }
 
 {{#each models}}

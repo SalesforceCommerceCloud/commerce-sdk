@@ -22,3 +22,5 @@ export const StaticClient = {
   post: _post,
   put: _put
 };
+
+export { IAuthToken, ShopperToken, stripBearer } from "./base/auth-helper";
