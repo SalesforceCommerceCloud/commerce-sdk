@@ -11,7 +11,6 @@ import { getAllDataTypes, processApiFamily, getApiName } from "./parser";
 
 import {
   getBaseUri,
-  getBaseUriParameters,
   isDefinedProperty,
   getDataType,
   isPrimitiveProperty,
@@ -264,8 +263,6 @@ export function renderOperationList(allApis: {
 
 // Register helpers
 Handlebars.registerHelper("getBaseUri", getBaseUri);
-
-Handlebars.registerHelper("getBaseUriParameters", getBaseUriParameters);
 
 Handlebars.registerHelper("isCommonQueryParameter", isCommonQueryParameter);
 
