@@ -19,15 +19,15 @@ import { ICacheManager } from "./cache-manager";
 // dotenv config loads environmental variables.
 config();
 
-export type ClientConfig = {
-  authHost?: string;
-  baseUri?: string;
-  cacheManager?: ICacheManager;
-  clientId?: string;
-  clientSecret?: string;
-  headers?: { [key: string]: string };
-  parameters?: CommonParameters;
-};
+export class ClientConfig {
+  public authHost?: string;
+  public baseUri?: string;
+  public cacheManager?: ICacheManager;
+  public clientId?: string;
+  public clientSecret?: string;
+  public headers?: { [key: string]: string };
+  public parameters?: CommonParameters;
+}
 
 const DEFAULT_CLIENT_CONFIG: ClientConfig = {
   authHost: "https://account-pod5.demandware.net",
