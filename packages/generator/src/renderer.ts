@@ -46,13 +46,6 @@ const operationsPartialTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "operations.ts.hbs"), "utf8")
 );
 
-const additionalPropertiesPartialTemplate = Handlebars.compile(
-  fs.readFileSync(
-    path.join(templateDirectory, "dto_additional_properties.ts.hbs"),
-    "utf8"
-  )
-);
-
 const clientInstanceTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "ClientInstance.ts.hbs"), "utf8")
 );
@@ -306,10 +299,5 @@ Handlebars.registerHelper("onlyAdditional", onlyAdditional);
 Handlebars.registerPartial("dtoPartial", dtoPartial);
 
 Handlebars.registerPartial("operationsPartial", operationsPartialTemplate);
-
-Handlebars.registerPartial(
-  "additionalPropertiesPartial",
-  additionalPropertiesPartialTemplate
-);
 
 Handlebars.registerHelper("eachModel", eachModel);

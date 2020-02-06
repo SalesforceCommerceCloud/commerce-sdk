@@ -276,7 +276,7 @@ const getProperties = function(
  * We ignore optional additional properties which also have minimum count of 0,
  * because of the different semantics used in rendering those properties.
  *
- * @param Array of properties
+ * @param propertyShapes Array of properties
  * @returns Array of properties
  */
 export const onlyOptional = function(
@@ -296,7 +296,7 @@ export const onlyOptional = function(
  * We ignore required additional properties because of the
  * different semantics used in rendering those properties
  *
- * @param Array of properties
+ * @param propertyShapes Array of properties
  * @returns Array of properties
  */
 export const onlyRequired = function(
@@ -314,7 +314,7 @@ export const onlyRequired = function(
  * Returns a list of additional properties defined in RAML type.
  * Additional property names use regular expressions.
  *
- * @param Array of properties
+ * @param propertyShapes Array of properties
  * @returns Array of properties
  */
 export const onlyAdditional = function(

@@ -1,4 +1,6 @@
-{{> additionalPropertiesPartial properties=typeDto.properties }} {
+{{#each (onlyAdditional typeDto.properties)}}
+    { [key: string]: {{{getDataType .}}} } &
+{{/each}} {
     {{#each (onlyRequired typeDto.properties)}}
         {{{getValue name}}}: {{{getDataType .}}};
     {{/each}}
