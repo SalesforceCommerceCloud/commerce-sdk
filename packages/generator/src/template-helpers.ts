@@ -276,8 +276,8 @@ const getProperties = function(
  * We ignore optional additional properties which also have minimum count of 0,
  * because of the different semantics used in rendering those properties.
  *
- * @param propertyShapes Array of properties
- * @returns Array of properties
+ * @param propertyShapes - Array of properties {model.domain.PropertyShape[]}
+ * @returns {model.domain.PropertyShape[]} Array of optional properties
  */
 export const onlyOptional = function(
   propertyShapes: model.domain.PropertyShape[]
@@ -296,8 +296,8 @@ export const onlyOptional = function(
  * We ignore required additional properties because of the
  * different semantics used in rendering those properties
  *
- * @param propertyShapes Array of properties
- * @returns Array of properties
+ * @param propertyShapes - Array of properties {model.domain.PropertyShape[]}
+ * @returns {model.domain.PropertyShape[]} Array of required properties
  */
 export const onlyRequired = function(
   propertyShapes: model.domain.PropertyShape[]
@@ -314,8 +314,8 @@ export const onlyRequired = function(
  * Returns a list of additional properties defined in RAML type.
  * Additional property names use regular expressions.
  *
- * @param propertyShapes Array of properties
- * @returns Array of properties
+ * @param propertyShapes - Array of properties {model.domain.PropertyShape[]}
+ * @returns {model.domain.PropertyShape[]} Array of additional properties
  */
 export const onlyAdditional = function(
   propertyShapes: model.domain.PropertyShape[]
