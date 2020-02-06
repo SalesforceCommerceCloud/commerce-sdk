@@ -26,12 +26,13 @@ describe("Test isCommonQueryParameter template help function", () => {
   });
 
   it("returns true for a common parameter", () => {
-    expect(isCommonQueryParameter(commonParameterPositions.queryParameters[0])).to.be.true;
+    expect(isCommonQueryParameter(commonParameterPositions.queryParameters[0]))
+      .to.be.true;
   });
 
   it("returns true for all common parameter", () => {
-    commonParameterPositions.queryParameters.forEach((p) => {
+    commonParameterPositions.queryParameters.forEach(p => {
       expect(isCommonQueryParameter(p)).to.be.true;
-    })
+    });
   });
 });

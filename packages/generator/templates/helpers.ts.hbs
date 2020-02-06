@@ -13,7 +13,6 @@ const shopperAuthApi = sdk.{{shopperAuthClient}}.Client.prototype.{{shopperAuthA
  * @param {(T extends (arg: infer A) => any
  *           ? { parameters: { clientId?: string; shortCode?: string } } & A
  *           : never)} options This provides the type ahead for this parameter properly
- * **NOTE** clientId might need to be changed once the new apis are deployed that use clientId as a parameters
  * @returns {Promise<ShopperToken>}
  */
 export async function getAuthToken<T extends typeof shopperAuthApi>(
@@ -23,20 +22,15 @@ export async function getAuthToken<T extends typeof shopperAuthApi>(
       ): Promise<ShopperToken> {
 
         let client = new sdk.{{shopperAuthClient}}.Client({    
-                parameters: {
-                        shortCode: options.parameters.shortCode
-                }
+           parameters: {
+             shortCode: options.parameters.shortCode
+           }
         });
 
         options.rawResponse = true;
-        let headers = {
-              "x-dw-client-id": options.parameters.clientId
-        }
-        options.headers = headers;
 
         // At some point this should go through the same stripping as everything else.  
         //  Should be part of the global config story
-        delete options.parameters.clientId;
         delete options.parameters.shortCode;
 
         let response = await client.authorizeCustomer(options) as Response;

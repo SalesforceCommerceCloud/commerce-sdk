@@ -23,7 +23,8 @@ const expect = chai.expect;
 describe("test exports", () => {
   it("can import BaseClient", () => expect(BaseClient).to.exist);
 
-  it("can import commonParameterPositions", () => expect(commonParameterPositions).to.exist);
+  it("can import commonParameterPositions", () =>
+    expect(commonParameterPositions).to.exist);
 
   it("can import Response", () => expect(Response).to.exist);
 

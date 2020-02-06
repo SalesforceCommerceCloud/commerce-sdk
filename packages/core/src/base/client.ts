@@ -35,7 +35,8 @@ const DEFAULT_CLIENT_CONFIG: ClientConfig = {
   cacheManager: new DefaultCache(
     tmp.dirSync({ prefix: "cache-", unsafeCleanup: true }).name
   ),
-  headers: {}
+  headers: {},
+  parameters: {}
 };
 
 export class BaseClient {

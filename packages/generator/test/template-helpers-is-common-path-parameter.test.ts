@@ -26,12 +26,13 @@ describe("Test isCommonPathParameter template help function", () => {
   });
 
   it("returns true for a common parameter", () => {
-    expect(isCommonPathParameter(commonParameterPositions.pathParameters[0])).to.be.true;
+    expect(isCommonPathParameter(commonParameterPositions.pathParameters[0])).to
+      .be.true;
   });
 
   it("returns true for all common parameter", () => {
-    commonParameterPositions.pathParameters.forEach((p) => {
+    commonParameterPositions.pathParameters.forEach(p => {
       expect(isCommonPathParameter(p)).to.be.true;
-    })
+    });
   });
 });

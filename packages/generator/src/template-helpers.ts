@@ -39,7 +39,9 @@ export const getBaseUri = function(
  * @returns true if the parameter is a common parameter
  */
 export const isCommonPathParameter = (property: string) =>
-  property ? commonParameterPositions.pathParameters.includes(property.toString()) : false;
+  property
+    ? commonParameterPositions.pathParameters.includes(property.toString())
+    : false;
 
 /**
  * Checks if a query parameter is one of the set that are configurable at the client level
@@ -49,7 +51,9 @@ export const isCommonPathParameter = (property: string) =>
  * @returns true if the parameter is a common parameter
  */
 export const isCommonQueryParameter = (property: string) =>
-  property ? commonParameterPositions.queryParameters.includes(property.toString()) : false;
+  property
+    ? commonParameterPositions.queryParameters.includes(property.toString())
+    : false;
 
 const isValidProperty = function(property: any): boolean {
   return (
