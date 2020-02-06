@@ -22,7 +22,6 @@ import {
   getValue,
   onlyRequired,
   onlyOptional,
-  eachModel,
   isTypeDefinition,
   isCommonQueryParameter,
   isCommonPathParameter
@@ -296,5 +295,3 @@ Handlebars.registerHelper("onlyRequired", onlyRequired);
 Handlebars.registerHelper("onlyOptional", onlyOptional);
 
 Handlebars.registerPartial("operations", operationsPartialTemplate);
-
-Handlebars.registerHelper("eachModel", eachModel);

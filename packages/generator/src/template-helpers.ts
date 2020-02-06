@@ -269,12 +269,3 @@ export const onlyOptional = function(classes: any[]): any[] {
         return entry.minCount.value() == 0;
       });
 };
-
-export const eachModel = function(context): any[] {
-  const ret = _.map(context, (item: any) => {
-    if (item.$classData.name === "amf.client.model.domain.NodeShape") {
-      return item.declares;
-    }
-  });
-  return ret;
-};
