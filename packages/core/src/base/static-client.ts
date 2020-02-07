@@ -45,7 +45,7 @@ async function runFetch(
 ): Promise<object> {
   const resource = new Resource(
     options.client.clientConfig.baseUri,
-    options.client.clientConfig.baseUriParameters,
+    options.client.clientConfig.parameters,
     options.path,
     options.pathParameters,
     options.queryParameters

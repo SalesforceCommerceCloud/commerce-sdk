@@ -1,5 +1,5 @@
 
-import { StaticClient, BaseClient, BaseClientConfig, ResponseError, AuthSchemes } from "@commerce-apps/core";
+import { StaticClient, BaseClient, ClientConfig, ResponseError, AuthSchemes } from "@commerce-apps/core";
 import _ from "lodash";
 
 import {
@@ -17,14 +17,6 @@ export {
     {{/if}}
 {{/each}}
 } from "./{{apiSpec}}.types";
-
-type ClientConfig = BaseClientConfig & {
-  baseUriParameters?: {
-    {{#each (getBaseUriParameters models.[0]) }}
-    "{{{this}}}": string;
-    {{/each}}
-  }
-}
 
 /**
 * Instantiate a Client object with desired ClientConfig to perform operations 

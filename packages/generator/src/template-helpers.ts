@@ -8,7 +8,7 @@ import { model } from "amf-client-js";
 import _ from "lodash";
 import { WebApiBaseUnitWithEncodesModel } from "webapi-parser";
 
-import { AuthSchemes } from "@commerce-apps/core";
+import { AuthSchemes, commonParameterPositions } from "@commerce-apps/core";
 
 import {
   PRIMITIVE_DATA_TYPE_MAP,
@@ -32,22 +32,28 @@ export const getBaseUri = function(
 };
 
 /**
- * Returns a list of names of the baseUri parameters. This should work the same
- * whether the parameters have been specified in RAML explicitly as
- * baseUriParameters or extracted from baseUri
- * https://github.com/raml-org/raml-spec/blob/master/versions/raml-10/raml-10.md#the-root-of-the-document
+ * Checks if a path parameter is one of the set that are configurable at the client level
  *
- * @param property A model from the AMF parser
+ * @param property The string name of the parameter to check
+ *
+ * @returns true if the parameter is a common parameter
  */
-export const getBaseUriParameters = function(
-  property: WebApiBaseUnitWithEncodesModel
-): string[] {
-  return property && property.encodes
-    ? (property.encodes as model.domain.WebApi).servers[0].variables.map(p =>
-        p.name.value()
-      )
-    : [];
-};
+export const isCommonPathParameter = (property: string) =>
+  property
+    ? commonParameterPositions.pathParameters.includes(property.toString())
+    : false;
+
+/**
+ * Checks if a query parameter is one of the set that are configurable at the client level
+ *
+ * @param property The string name of the parameter to check
+ *
+ * @returns true if the parameter is a common parameter
+ */
+export const isCommonQueryParameter = (property: string) =>
+  property
+    ? commonParameterPositions.queryParameters.includes(property.toString())
+    : false;
 
 const isValidProperty = function(property: any): boolean {
   return (
@@ -266,13 +272,4 @@ export const onlyOptional = function(classes: any[]): any[] {
     : classes.filter(entry => {
         return entry.minCount.value() == 0;
       });
-};
-
-export const eachModel = function(context): any[] {
-  const ret = _.map(context, (item: any) => {
-    if (item.$classData.name === "amf.client.model.domain.NodeShape") {
-      return item.declares;
-    }
-  });
-  return ret;
 };

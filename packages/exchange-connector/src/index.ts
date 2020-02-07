@@ -10,7 +10,10 @@ export { getBearer } from "./bearerToken";
 export {
   searchExchange,
   downloadRestApi,
-  downloadRestApis
+  downloadRestApis,
+  getVersionByDeployment,
+  getSpecificApi,
+  getAsset
 } from "./exchangeDownloader";
 export { extractFiles } from "./exchangeDirectoryParser";
 

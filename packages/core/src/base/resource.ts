@@ -17,7 +17,7 @@ export class Resource {
 
   substitutePathParameters(path = "", parameters = {}): string {
     return path.replace(/\{([^}]+)\}/g, (_entireMatch, param) => {
-      if (param in parameters) {
+      if (param in parameters && parameters[param] !== undefined) {
         return parameters[param];
       }
       throw new Error(
