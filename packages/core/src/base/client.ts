@@ -36,7 +36,9 @@ const DEFAULT_CLIENT_CONFIG: ClientConfig = {
     tmp.dirSync({ prefix: "cache-", unsafeCleanup: true }).name
   ),
   headers: {},
-  parameters: {}
+  parameters: {
+    version: "v1"
+  }
 };
 
 export class BaseClient {
