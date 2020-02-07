@@ -37,6 +37,9 @@ const DEFAULT_CLIENT_CONFIG: ClientConfig = {
   ),
   headers: {},
   parameters: {
+    // Ideally, when version is set as a parameter in the baseUri, it's gets
+    // filled in from the version field in the RAML. Until that's implemented,
+    // we'll deafult to v1.
     version: "v1"
   }
 };
