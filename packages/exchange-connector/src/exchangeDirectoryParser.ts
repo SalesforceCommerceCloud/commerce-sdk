@@ -21,9 +21,9 @@ function getFiles(directory): fs.Dirent[] {
  * zip files are usually downloaded from Anypoint exchange
  * @param directory
  */
-export function extractFiles(directory: string): Promise<any> {
+export function extractFiles(directory: string): Promise<void> {
   const files: fs.Dirent[] = getFiles(directory);
-  const promises: Promise<any>[] = [];
+  const promises: Promise<void>[] = [];
   files.forEach(file => {
     if (file.isFile()) {
       promises.push(
@@ -46,5 +46,6 @@ export function extractFiles(directory: string): Promise<any> {
     }
   });
 
-  return Promise.all(promises);
+  // The then here collapses the return from an array of void to a single void
+  return Promise.all(promises).then();
 }

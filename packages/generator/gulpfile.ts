@@ -5,8 +5,12 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import * as gulp from "gulp";
-import { processApiFamily } from "./src/parser";
-import { renderTemplates, renderOperationList } from "./src/renderer";
+import { processApiFamily, groupByCategory } from "./src/parser";
+import {
+  renderTemplates,
+  renderOperationList,
+  createVersionFile
+} from "./src/renderer";
 
 import log from "fancy-log";
 import del from "del";
@@ -19,7 +23,9 @@ import {
   getBearer,
   searchExchange,
   downloadRestApis,
-  RestApi
+  RestApi,
+  getVersionByDeployment,
+  getSpecificApi
 } from "@commerce-apps/exchange-connector";
 import tmp from "tmp";
 
@@ -34,12 +40,37 @@ gulp.task("clean", (cb: any) => {
   return del([`${config.renderDir}`, "dist"], cb);
 });
 
-function search(): Promise<RestApi[]> {
-  return getBearer(
+async function search(): Promise<RestApi[]> {
+  const token = await getBearer(
     process.env.ANYPOINT_USERNAME,
     process.env.ANYPOINT_PASSWORD
-  ).then(token => {
-    return searchExchange(token, config.exchangeSearch);
+  );
+  const apis = await searchExchange(token, config.exchangeSearch);
+  const promises = [];
+  apis.forEach(api => {
+    promises.push(
+      getVersionByDeployment(token, api, config.exchangeDeploymentRegex).then(
+        (version: string) => {
+          const neededApi = getSpecificApi(
+            token,
+            api.groupId,
+            api.assetId,
+            version
+          );
+
+          if (neededApi) {
+            return neededApi;
+          } else {
+            api.version = null;
+            return api;
+          }
+        }
+      )
+    );
+  });
+  return Promise.all(promises).then((deployedApis: RestApi[]) => {
+    createVersionFile(deployedApis, config);
+    return deployedApis;
   });
 }
 
@@ -57,19 +88,11 @@ function downloadRamlFromExchange(): Promise<void> {
         return extractFiles(folder);
       })
       .then(async () => {
-        const ramlGroups = _.groupBy(apis, api => {
-          // Categories are actually a list.
-          // We are just going to use whatever the first one is for now
-          if (config.apiFamily in api.categories) {
-            return api.categories[config.apiFamily][0];
-          } else {
-            return "unclassified";
-          }
-        });
+        const apiFamilyGroups = groupByCategory(apis, config.apiFamily);
         fs.ensureDirSync(config.inputDir);
         return fs.writeFile(
           path.join(config.inputDir, config.apiConfigFile),
-          JSON.stringify(ramlGroups)
+          JSON.stringify(apiFamilyGroups)
         );
       });
     // Group RAML files by the key, aka, bounded context/API Family
