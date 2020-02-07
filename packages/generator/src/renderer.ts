@@ -16,7 +16,6 @@ import {
 
 import {
   getBaseUri,
-  getBaseUriParameters,
   isDefinedProperty,
   getDataType,
   isPrimitiveProperty,
@@ -28,8 +27,9 @@ import {
   getValue,
   onlyRequired,
   onlyOptional,
-  eachModel,
-  isTypeDefinition
+  isTypeDefinition,
+  isCommonQueryParameter,
+  isCommonPathParameter
 } from "./template-helpers";
 import {
   WebApiBaseUnit,
@@ -292,7 +292,9 @@ export function renderOperationList(allApis: {
 // Register helpers
 Handlebars.registerHelper("getBaseUri", getBaseUri);
 
-Handlebars.registerHelper("getBaseUriParameters", getBaseUriParameters);
+Handlebars.registerHelper("isCommonQueryParameter", isCommonQueryParameter);
+
+Handlebars.registerHelper("isCommonPathParameter", isCommonPathParameter);
 
 Handlebars.registerHelper("isDefinedProperty", isDefinedProperty);
 
@@ -322,5 +324,3 @@ Handlebars.registerHelper("onlyRequired", onlyRequired);
 Handlebars.registerHelper("onlyOptional", onlyOptional);
 
 Handlebars.registerPartial("operations", operationsPartialTemplate);
-
-Handlebars.registerHelper("eachModel", eachModel);

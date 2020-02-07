@@ -4,17 +4,27 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import { BaseClient, BaseClientConfig, Response, ResponseError } from "../src";
-
-import { IAuthScheme, AccountManager, AuthSchemes } from "../src";
-
-import { StaticClient } from "../src";
+import {
+  AccountManager,
+  AuthSchemes,
+  BaseClient,
+  ClientConfig,
+  commonParameterPositions,
+  CommonParameters,
+  IAuthScheme,
+  Response,
+  ResponseError,
+  StaticClient
+} from "../src";
 
 import chai from "chai";
 const expect = chai.expect;
 
 describe("test exports", () => {
   it("can import BaseClient", () => expect(BaseClient).to.exist);
+
+  it("can import commonParameterPositions", () =>
+    expect(commonParameterPositions).to.exist);
 
   it("can import Response", () => expect(Response).to.exist);
 
