@@ -11,5 +11,6 @@ export default {
   exchangeSearch: 'category:"CC Visibility" = "External"',
   apiConfigFile: "api-config.json",
   shopperAuthClient: "Customer.ShopperCustomers",
-  shopperAuthApi: "authorizeCustomer"
+  shopperAuthApi: "authorizeCustomer",
+  exchangeDeploymentRegex: /production/i
 };

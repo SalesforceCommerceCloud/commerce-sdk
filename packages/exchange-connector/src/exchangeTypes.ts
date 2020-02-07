@@ -6,10 +6,13 @@
  */
 
 export type RestApi = {
+  id: string;
   name: string;
   groupId: string;
   assetId: string;
-  version: string;
+  description?: string;
+  updatedDate?: string;
+  version?: string;
   categories?: Categories;
   fatRaml?: FileInfo;
 };

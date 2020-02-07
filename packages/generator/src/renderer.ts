@@ -7,7 +7,12 @@
 import fs from "fs-extra";
 import path from "path";
 import Handlebars from "handlebars";
-import { getAllDataTypes, processApiFamily, getApiName } from "./parser";
+import {
+  getAllDataTypes,
+  processApiFamily,
+  getApiName,
+  groupByCategory
+} from "./parser";
 
 import {
   getBaseUri,
@@ -32,6 +37,7 @@ import {
   WebApiBaseUnitWithEncodesModel
 } from "webapi-parser";
 import _ from "lodash";
+import { RestApi } from "@commerce-apps/exchange-connector";
 
 const templateDirectory = `${__dirname}/../templates`;
 
@@ -73,6 +79,10 @@ export const renderOperationListTemplate = Handlebars.compile(
 
 const dtoTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "dto.ts.hbs"), "utf8")
+);
+
+const versionTemplate = Handlebars.compile(
+  fs.readFileSync(path.join(templateDirectory, "version.md.hbs"), "utf8")
 );
 
 function createClient(
@@ -166,6 +176,25 @@ function renderApi(
     createDto(apiModels)
   );
   return apiName;
+}
+
+/**
+ * @description
+ * @export
+ * @param {RestApi[]} apis
+ */
+export function createVersionFile(
+  apis: RestApi[],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  config: { [key: string]: any }
+): void {
+  const apiFamilyGroups = groupByCategory(apis, config["apiFamily"]);
+
+  console.log(apiFamilyGroups);
+  fs.writeFileSync(
+    path.join(__dirname, "..", "VERSION.md"),
+    versionTemplate(apiFamilyGroups)
+  );
 }
 
 /**
