@@ -135,7 +135,7 @@ export function groupByCategory(
   return _.groupBy(apis, api => {
     // Categories are actually a list.
     // We are just going to use whatever the first one is for now
-    if (groupBy in api.categories) {
+    if (api.categories && groupBy in api.categories) {
       return api.categories[groupBy][0];
     } else if (allowUnclassified) {
       return "unclassified";

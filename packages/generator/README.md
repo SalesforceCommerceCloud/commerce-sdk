@@ -36,7 +36,7 @@ import { Product, helpers } from 'commerce-sdk';
 helpers.getAuthToken({
     parameters: {
         clientId: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        # NOTE: Once global config is done you should need to specify this here
+        # NOTE: Once global config is done you shouldn't need to specify this here
         shortCode: "staging-001
     },
     body: {
