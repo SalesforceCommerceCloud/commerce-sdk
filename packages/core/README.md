@@ -1,6 +1,6 @@
 # core
 
-The Core package provides a variety of functions that make interacting with Salesforce Commerce APIs easy. Following are some of the functions that the Core package can be used to perform:
+The Core package provides a variety of functions that make interacting with Salesforce Commerce APIs easy. The following are some of the functions that the Core package can perform:
 
 * Authentication - An easy way to authenticate with the APIs that require Account Manager authentication.
 * HTTP operations - TypeScript functions for all the HTTP operations.
