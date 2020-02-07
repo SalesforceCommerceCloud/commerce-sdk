@@ -19,7 +19,8 @@ import {
   onlyOptional,
   onlyRequired,
   onlyAdditional,
-  getSecurityScheme
+  getSecurityScheme,
+  isAdditionalPropertiesAllowed
 } from "../src/template-helpers";
 
 import _ from "lodash";
@@ -665,6 +666,31 @@ describe("Template helper tests for getSecurityScheme", () => {
     });
   });
 });
+
+describe("Template helper tests for isAdditionalPropertiesAllowed", () => {
+  before(() => {
+    return AMF.init();
+  });
+
+  it("Returns false on undefined RAML type", () => {
+    expect(isAdditionalPropertiesAllowed(undefined)).to.be.false;
+  });
+
+  it("Returns false when additional properties are not allowed", () => {
+    const typeDto = new model.domain.NodeShape();
+    // Closed ensures no Additional properties are allowed for this type
+    typeDto.withClosed(true);
+    expect(isAdditionalPropertiesAllowed(typeDto)).to.be.false;
+  });
+
+  it("Returns true when additional properties are allowed", () => {
+    const typeDto = new model.domain.NodeShape();
+    // Closed ensures no Additional properties are allowed for this type
+    typeDto.withClosed(false);
+    expect(isAdditionalPropertiesAllowed(typeDto)).to.be.true;
+  });
+});
+
 
 describe("Template helper tests for onlyAdditionalProperties", () => {
   before(() => {

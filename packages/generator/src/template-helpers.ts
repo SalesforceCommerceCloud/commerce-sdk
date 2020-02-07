@@ -325,6 +325,18 @@ export const onlyAdditional = function(
   });
 };
 
+/**
+ * Returns whether additional properties are allowed for a given RAML type.
+ *
+ * @param ramlTypeDefinition - RAML NodeShape type {model.domain.NodeShape}
+ * @returns {boolean} true if additional properties are allowed, false otherwise
+ */
+export const isAdditionalPropertiesAllowed = function(
+  ramlTypeDefinition: model.domain.NodeShape
+): boolean {
+  return ramlTypeDefinition !== undefined && !ramlTypeDefinition.closed.value();
+};
+
 export const eachModel = function(context): any[] {
   const ret = _.map(context, (item: any) => {
     if (item.$classData.name === "amf.client.model.domain.NodeShape") {

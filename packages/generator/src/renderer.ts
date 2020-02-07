@@ -24,6 +24,7 @@ import {
   onlyRequired,
   onlyOptional,
   onlyAdditional,
+  isAdditionalPropertiesAllowed,
   eachModel,
   isTypeDefinition
 } from "./template-helpers";
@@ -295,6 +296,11 @@ Handlebars.registerHelper("onlyRequired", onlyRequired);
 Handlebars.registerHelper("onlyOptional", onlyOptional);
 
 Handlebars.registerHelper("onlyAdditional", onlyAdditional);
+
+Handlebars.registerHelper(
+  "isAdditionalPropertiesAllowed",
+  isAdditionalPropertiesAllowed
+);
 
 Handlebars.registerPartial("dtoPartial", dtoPartial);
 
