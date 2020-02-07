@@ -5,15 +5,12 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 "use strict";
-const Shop = require("../dist").Shop;
+import { Shop } from "../dist";
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
-
 const expect = chai.expect;
-let initializeMockPromise;
 const BASE_URI =
   "https://anypoint.mulesoft.com/mocking/api/v1/sources/exchange/assets/893f605e-10e2-423a-bdb4-f952f56eb6d8/steelarc-integration/1.0.0/m/s/-/dw/shop/v19_5";
-
 const client = new Shop.ShopApi.Client({
   baseUri: BASE_URI
 });
@@ -21,7 +18,8 @@ const client = new Shop.ShopApi.Client({
 before(() => {
   chai.should();
   chai.use(chaiAsPromised);
-  initializeMockPromise = client.initializeMockService();
+
+  return client.initializeMockService();
 });
 
 describe("Shop client integration GET tests", () => {
@@ -29,26 +27,29 @@ describe("Shop client integration GET tests", () => {
     const newLocalClient = new Shop.ShopApi.Client({
       baseUri: BASE_URI
     });
+
     return expect(newLocalClient.getSite()).to.be.rejected;
   });
 
   it("Returns object calling GET with token", () => {
-    return initializeMockPromise.then(() => {
-      return client.getSite().then(s => {
-        expect(s).to.deep.equal({
-          // eslint-disable-next-line @typescript-eslint/camelcase
-          allowed_currencies: [],
-          // eslint-disable-next-line @typescript-eslint/camelcase
-          allowed_locales: [{}]
-        });
+    return client.getSite().then(s => {
+      expect(s).to.deep.equal({
+        // eslint-disable-next-line @typescript-eslint/camelcase
+        allowed_currencies: [],
+        // eslint-disable-next-line @typescript-eslint/camelcase
+        allowed_locales: [{}]
       });
     });
   });
 
-  it("Returns object calling GET with token and unknown query parameter", () => {
-    return initializeMockPromise.then(() => {
-      // eslint-disable-next-line @typescript-eslint/camelcase
-      return client.getSite({ unknown_parameter: "unknown_value" }).then(s => {
+  it("Returns object calling - GET with token and unknown query parameter", () => {
+    // eslint-disable-next-line @typescript-eslint/camelcase
+    return client
+      .getSite({
+        // eslint-disable-next-line @typescript-eslint/camelcase
+        parameters: { unknown_parameter: "unknown_value" }
+      })
+      .then(s => {
         expect(s).to.deep.equal({
           // eslint-disable-next-line @typescript-eslint/camelcase
           allowed_currencies: [],
@@ -56,7 +57,6 @@ describe("Shop client integration GET tests", () => {
           allowed_locales: [{}]
         });
       });
-    });
   });
 });
 
@@ -65,49 +65,51 @@ describe("Shop client integration PUT tests", () => {
     const newLocalClient = new Shop.ShopApi.Client({
       baseUri: BASE_URI
     });
+
     return expect(
       newLocalClient.updateCustomerPassword({
-        // eslint-disable-next-line @typescript-eslint/camelcase
-        current_password: "Current Password",
-        password: "New Password"
+        body: {
+          // eslint-disable-next-line @typescript-eslint/camelcase
+          current_password: "Current Password",
+          password: "New Password"
+        }
       })
     ).to.be.rejected;
   });
 
   it("Throws error calling PUT without required body", () => {
-    return initializeMockPromise.then(() => {
-      expect(client.updateCustomerPassword()).to.be.rejected;
-    });
+    return expect(client.updateCustomerPassword({ body: {} })).to.be.rejected;
   });
 
   it("Throws error calling PUT without required body param", () => {
-    return initializeMockPromise.then(() => {
-      expect(client.updateCustomerPassword({})).to.be.rejected;
-    });
+    return expect(client.updateCustomerPassword({ body: {} })).to.be.rejected;
   });
 
   it("Throws error calling PUT with invalid body parameter", () => {
-    return initializeMockPromise.then(() => {
-      expect(
-        client.updateCustomerPassword({
+    return expect(
+      client.updateCustomerPassword({
+        body: {
           // eslint-disable-next-line @typescript-eslint/camelcase
           invalid_key: "This key is invalid",
           password: ""
-        })
-      ).to.be.rejected;
-    });
+        }
+      })
+    ).to.be.rejected;
   });
 
   it("Returns object calling PUT with valid token and request body", () => {
-    return initializeMockPromise.then(() => {
-      expect(
-        client.updateCustomerPassword({
+    return client
+      .updateCustomerPassword({
+        rawResponse: true,
+        body: {
           // eslint-disable-next-line @typescript-eslint/camelcase
           current_password: "Current password",
           password: ""
-        })
-      ).to.deep.equal({});
-    });
+        }
+      })
+      .then(res => {
+        return expect((res as Response).ok).is.true;
+      });
   });
 });
 
@@ -116,30 +118,26 @@ describe("Shop client integration PATCH tests", () => {
     const newLocalClient = new Shop.ShopApi.Client({
       baseUri: BASE_URI
     });
+
     return expect(
-      newLocalClient.updateCustomerProductListItem({ itemId: "item_id" }, {})
+      newLocalClient.updateCustomerProductListItem({
+        parameters: {
+          itemId: "item_id"
+        },
+        body: {}
+      })
     ).to.be.rejected;
   });
 
-  it("Throws error calling PATCH without required template parameter", () => {
-    return initializeMockPromise.then(() => {
-      // eslint-disable-next-line @typescript-eslint/camelcase
-      try {
-        client.updateCustomerProductListItem();
-      } catch (e) {
-        expect(e).to.equal(
-          "TypeError: Cannot read property 'itemId' of undefined"
-        );
-      }
-    });
-  });
-
   it("Returns object calling PATCH with required template parameter", () => {
-    return initializeMockPromise.then(() => {
-      expect(
-        client.updateCustomerProductListItem({ itemId: "item_id" }, {})
-      ).should.eventually.deep.equal({});
-    });
+    return expect(
+      client.updateCustomerProductListItem({
+        parameters: {
+          itemId: "item_id"
+        },
+        body: {}
+      })
+    ).to.eventually.deep.equal({});
   });
 });
 
@@ -148,13 +146,14 @@ describe("Shop client integration DELETE tests", () => {
     const newLocalClient = new Shop.ShopApi.Client({
       baseUri: BASE_URI
     });
+
     return expect(newLocalClient.deleteSite()).to.be.rejected;
   });
 
   it("Returns object calling DELETE with valid token", () => {
-    return initializeMockPromise.then(() => {
-      expect(client.deleteSite()).should.eventually.deep.equal({});
-    });
+    return client
+      .deleteSite({ rawResponse: true })
+      .then(res => expect((res as Response).ok).to.be.true);
   });
 });
 
@@ -163,19 +162,18 @@ describe("Shop client integration POST tests", () => {
     const newLocalClient = new Shop.ShopApi.Client({
       baseUri: BASE_URI
     });
-    return expect(newLocalClient.searchProducts()).to.be.rejected;
+
+    return expect(newLocalClient.searchProducts({ body: {} })).to.be.rejected;
   });
 
   it("Throws error calling POST with valid out required request body", () => {
-    return initializeMockPromise.then(() => {
-      expect(client.searchProducts()).to.be.rejected;
-    });
+    return expect(client.searchProducts({ body: {} })).to.be.rejected;
   });
 
   it("Throws error calling POST with valid out valid enum", () => {
-    return initializeMockPromise.then(() => {
-      expect(
-        client.searchProducts({
+    return expect(
+      client.searchProducts({
+        body: {
           count: 1,
           // eslint-disable-next-line @typescript-eslint/camelcase
           db_start_record_: 0,
@@ -185,15 +183,15 @@ describe("Shop client integration POST tests", () => {
           // eslint-disable-next-line @typescript-eslint/camelcase
           sorts: [{ field: "", sort_order: "0" }],
           start: 0
-        })
-      ).to.be.rejected;
-    });
+        }
+      })
+    ).to.be.rejected;
   });
 
   it("Throws error calling POST with valid out valid query object", () => {
-    return initializeMockPromise.then(() => {
-      expect(
-        client.searchProducts({
+    return expect(
+      client.searchProducts({
+        body: {
           count: 1,
           // eslint-disable-next-line @typescript-eslint/camelcase
           db_start_record_: 0,
@@ -203,15 +201,15 @@ describe("Shop client integration POST tests", () => {
           // eslint-disable-next-line @typescript-eslint/camelcase
           sorts: [{ field: "", sort_order: "asc" }],
           start: 0
-        })
-      ).to.be.rejected;
-    });
+        }
+      })
+    ).to.be.rejected;
   });
 
   it("Returns object calling POST with valid token and valid request body", () => {
-    return initializeMockPromise.then(() => {
-      expect(
-        client.searchProducts({
+    return expect(
+      client.searchProducts({
+        body: {
           count: 1,
           // eslint-disable-next-line @typescript-eslint/camelcase
           db_start_record_: 0,
@@ -221,8 +219,8 @@ describe("Shop client integration POST tests", () => {
           // eslint-disable-next-line @typescript-eslint/camelcase
           sorts: [{ field: "", sort_order: "asc" }],
           start: 0
-        })
-      ).should.eventually.deep.equal({});
-    });
+        }
+      })
+    ).to.eventually.deep.equal({});
   });
 });
