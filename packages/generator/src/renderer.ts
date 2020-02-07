@@ -189,8 +189,6 @@ export function createVersionFile(
   config: { [key: string]: any }
 ): void {
   const apiFamilyGroups = groupByCategory(apis, config["apiFamily"]);
-
-  console.log(apiFamilyGroups);
   fs.writeFileSync(
     path.join(__dirname, "..", "VERSION.md"),
     versionTemplate(apiFamilyGroups)
