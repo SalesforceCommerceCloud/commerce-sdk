@@ -4,14 +4,13 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import * as os from "os";
-import * as path from "path";
-
-import { config } from "dotenv";
-import { getBearer } from "@commerce-apps/exchange-connector";
 import _ from "lodash";
+import { config } from "dotenv";
 import tmp from "tmp";
 
+import { getBearer } from "@commerce-apps/exchange-connector";
+
+import { CommonParameters } from "./commonParameters";
 import { DefaultCache } from "./static-client";
 export { DefaultCache };
 import { IAuthScheme } from "./auth-schemes";
@@ -20,32 +19,33 @@ import { ICacheManager } from "./cache-manager";
 // dotenv config loads environmental variables.
 config();
 
-export type BaseClientConfig = {
-  authHost?: string;
-  baseUri?: string;
-  baseUriParameters?: { [key: string]: string };
-  cacheManager?: ICacheManager;
-  clientId?: string;
-  clientSecret?: string;
-  headers?: { [key: string]: string };
-};
+export class ClientConfig {
+  public authHost?: string;
+  public baseUri?: string;
+  public cacheManager?: ICacheManager;
+  public clientId?: string;
+  public clientSecret?: string;
+  public headers?: { [key: string]: string };
+  public parameters?: CommonParameters;
+}
 
-const DEFAULT_CLIENT_CONFIG: BaseClientConfig = {
+const DEFAULT_CLIENT_CONFIG: ClientConfig = {
   authHost: "https://account-pod5.demandware.net",
   // Enables cacache for local caching in temp dir by default, unsafeCleanup == rm -rf on exit
   cacheManager: new DefaultCache(
     tmp.dirSync({ prefix: "cache-", unsafeCleanup: true }).name
   ),
-  headers: {}
+  headers: {},
+  parameters: {}
 };
 
 export class BaseClient {
-  public clientConfig: BaseClientConfig;
+  public clientConfig: ClientConfig;
   public authSchemes: {
     [x: string]: IAuthScheme;
   };
 
-  constructor(config?: BaseClientConfig) {
+  constructor(config?: ClientConfig) {
     this.clientConfig = {};
     this.authSchemes = {};
     _.merge(this.clientConfig, DEFAULT_CLIENT_CONFIG, config);

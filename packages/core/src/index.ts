@@ -6,7 +6,7 @@
  */
 export {
   BaseClient,
-  BaseClientConfig,
+  ClientConfig,
   Response,
   ResponseError
 } from "./base/client";
@@ -24,3 +24,8 @@ export const StaticClient = {
 };
 
 export { IAuthToken, ShopperToken, stripBearer } from "./base/auth-helper";
+
+export {
+  commonParameterPositions,
+  CommonParameters
+} from "./base/commonParameters";

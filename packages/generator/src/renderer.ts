@@ -16,7 +16,6 @@ import {
 
 import {
   getBaseUri,
-  getBaseUriParameters,
   isDefinedProperty,
   getDataType,
   isPrimitiveProperty,
@@ -30,8 +29,9 @@ import {
   onlyOptional,
   onlyAdditional,
   isAdditionalPropertiesAllowed,
-  eachModel,
-  isTypeDefinition
+  isTypeDefinition,
+  isCommonQueryParameter,
+  isCommonPathParameter
 } from "./template-helpers";
 import {
   WebApiBaseUnit,
@@ -88,7 +88,7 @@ const versionTemplate = Handlebars.compile(
 );
 
 const dtoPartial = Handlebars.compile(
-    fs.readFileSync(path.join(templateDirectory, "dto_partial.ts.hbs"), "utf8")
+  fs.readFileSync(path.join(templateDirectory, "dto_partial.ts.hbs"), "utf8")
 );
 
 function createClient(
@@ -298,7 +298,9 @@ export function renderOperationList(allApis: {
 // Register helpers
 Handlebars.registerHelper("getBaseUri", getBaseUri);
 
-Handlebars.registerHelper("getBaseUriParameters", getBaseUriParameters);
+Handlebars.registerHelper("isCommonQueryParameter", isCommonQueryParameter);
+
+Handlebars.registerHelper("isCommonPathParameter", isCommonPathParameter);
 
 Handlebars.registerHelper("isDefinedProperty", isDefinedProperty);
 
@@ -334,5 +336,3 @@ Handlebars.registerHelper(
 Handlebars.registerPartial("dtoPartial", dtoPartial);
 
 Handlebars.registerPartial("operationsPartial", operationsPartialTemplate);
-
-Handlebars.registerHelper("eachModel", eachModel);
