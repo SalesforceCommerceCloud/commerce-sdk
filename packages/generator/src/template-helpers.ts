@@ -328,13 +328,18 @@ export const onlyAdditional = function(
 /**
  * Returns whether additional properties are allowed for a given RAML type.
  *
- * @param ramlTypeDefinition - RAML NodeShape type {model.domain.NodeShape}
+ * @param ramlTypeDefinition - Any RAML type definition
  * @returns {boolean} true if additional properties are allowed, false otherwise
  */
 export const isAdditionalPropertiesAllowed = function(
-  ramlTypeDefinition: model.domain.NodeShape
+  ramlTypeDefinition: any
 ): boolean {
-  return ramlTypeDefinition !== undefined && !ramlTypeDefinition.closed.value();
+  return (
+    ramlTypeDefinition !== undefined &&
+    ramlTypeDefinition.closed !== undefined &&
+    ramlTypeDefinition.closed.value !== undefined &&
+    !ramlTypeDefinition.closed.value()
+  );
 };
 
 export const eachModel = function(context): any[] {

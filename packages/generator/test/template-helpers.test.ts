@@ -676,6 +676,15 @@ describe("Template helper tests for isAdditionalPropertiesAllowed", () => {
     expect(isAdditionalPropertiesAllowed(undefined)).to.be.false;
   });
 
+  it("Returns false on Scalar Shape", () => {
+    const scalarShape = new model.domain.ScalarShape();
+    expect(isAdditionalPropertiesAllowed(scalarShape)).to.be.false;
+  });
+
+  it("Returns false on objects other than NodeShape", () => {
+    expect(isAdditionalPropertiesAllowed({})).to.be.false;
+  });
+
   it("Returns false when additional properties are not allowed", () => {
     const typeDto = new model.domain.NodeShape();
     // Closed ensures no Additional properties are allowed for this type
