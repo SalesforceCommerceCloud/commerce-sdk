@@ -16,36 +16,36 @@
 _______________________________________________________________________
 
 ## Pricing 
-#### [Gift Certificates](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/gift-certificates/1.0.14)
-**Mule App Version** 1.0.14
+#### [Gift Certificates](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/gift-certificates/1.0.16)
+**Mule App Version** 1.0.16
 *Create, get, and update gift certificates.*
 
-#### [Source Code Groups](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/source-code-groups/1.0.13)
-**Mule App Version** 1.0.13
+#### [Source Code Groups](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/source-code-groups/1.0.15)
+**Mule App Version** 1.0.15
 *Create, update, delete, and search for source code groups.*
 
-#### [Campaigns](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/campaigns/1.0.12)
-**Mule App Version** 1.0.12
+#### [Campaigns](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/campaigns/1.0.14)
+**Mule App Version** 1.0.14
 *Create, update, and manage campaigns.*
 
-#### [Promotions](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/promotions/1.0.9)
-**Mule App Version** 1.0.9
+#### [Promotions](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/promotions/1.0.11)
+**Mule App Version** 1.0.11
 *Create, get, and update promotions.*
 
-#### [Coupons](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/coupons/1.0.12)
-**Mule App Version** 1.0.12
+#### [Coupons](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/coupons/1.0.13)
+**Mule App Version** 1.0.13
 *Create, update, read, search for, and manage coupons.*
 
 #### [Assignments](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/assignments/1.0.11)
 **Mule App Version** 1.0.11
 *Enable merchandisers to search for assignments.*
 
-#### [Shopper Gift Certificates](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-gift-certificates/1.0.5)
-**Mule App Version** 1.0.5
+#### [Shopper Gift Certificates](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-gift-certificates/1.0.6)
+**Mule App Version** 1.0.6
 *Obtain details about a gift certificate.*
 
-#### [Shopper Promotions](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-promotions/1.0.14)
-**Mule App Version** 1.0.14
+#### [Shopper Promotions](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-promotions/1.0.15)
+**Mule App Version** 1.0.15
 *Obtain promotion details.*
 
 _______________________________________________________________________
