@@ -20,15 +20,15 @@ To use an SDK client, instantiate an object of that client and configure these p
 | Parameter | Description |
 | --------- | :----------- |
 | baseUri | URL of the service with which the SDK interacts. If the baseUri isn't provided, the default baseUri for the relevant RAML file is used.  |
-| clientId | ID of the client account created with Salesforce B2C Commerce. |
+| clientId | ID of the client account created with Salesforce Commerce. |
 | clientSecret | Secret associated with the client ID. |
 
 
 ### Sample Code 
 ```javascript
 /**
- * Sample TypeScript code shows how Commerce SDK can access 
- * Salesforce B2C Commerce platform APIs.
+ * Sample TypeScript code shows how Commerce SDK can access Salesforce Commerce 
+ * APIs.
  */
 ​
 // Import the SDK
@@ -61,4 +61,4 @@ To view the details of a method or a variable, hover over methods and variables.
 ![Method Details](../../images/MethodDetails.jpg?raw=true "Method Details")
 ​
 ## License Information
-The Commerce SDK is licensed under BSD-3-Clause license. See the [license](https://github.com/SalesforceCommerceCloud/commerce-sdk/blob/master/LICENSE.txt) for details.
+The Commerce SDK is licensed under BSD-3-Clause license. See the [license](./LICENSE.txt) for details.
