@@ -34,11 +34,14 @@
       const queryParameters = _.omit(parameters, _.keys(pathParameters));
 
       {{#each request.queryParameters}}
-      {{! for queryParameters that are common query parameters, fallback to client config for undefined }}
-      {{#if (isCommonQueryParameter name)}}
-      queryParameters["{{{name}}}"] !== undefined 
-          ? queryParameters["{{{name}}}"] : this.clientConfig.parameters["{{{name}}}"];
-      {{/if}}
+        queryParameters["{{{name}}}"] =
+        {{! for queryParameters that are common query parameters, fallback to client config for undefined }}
+        {{#if (isCommonQueryParameter name)}}
+          queryParameters["{{{name}}}"] !== undefined 
+            ? parameters["{{{name}}}"] : this.clientConfig.parameters["{{{name}}}"];
+        {{else}}
+          queryParameters["{{{name}}}"] = parameters["{{{name}}}"];
+        {{/if}}
       {{/each}}
 
       // @ts-ignore
