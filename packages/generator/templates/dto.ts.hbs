@@ -1,12 +1,5 @@
 {{#each .}}
-{{#if (isTypeDefinition .)}}
-export type {{getValue name}} = {
-    {{#each (onlyRequired properties)}}
-        {{{getValue name}}}: {{{getDataType .}}};
-    {{/each}}
-    {{#each (onlyOptional properties)}}
-        {{{getValue name}}}?: {{{getDataType .}}};
-    {{/each}}
-}
-{{/if}}
+    {{#if (isTypeDefinition .)}}
+export type {{getValue name}} = {{> dtoPartial typeDto=. }}
+    {{/if}}
 {{/each}}

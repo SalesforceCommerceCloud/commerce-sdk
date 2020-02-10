@@ -1,0 +1,12 @@
+{{#if (isAdditionalPropertiesAllowed typeDto)}}
+    {{#each (onlyAdditional typeDto.properties)}}
+        { [key: string]: {{{getDataType .}}} } &
+    {{/each}}
+{{/if}} {
+    {{#each (onlyRequired typeDto.properties)}}
+        {{{getValue name}}}: {{{getDataType .}}};
+    {{/each}}
+    {{#each (onlyOptional typeDto.properties)}}
+        {{{getValue name}}}?: {{{getDataType .}}};
+    {{/each}}
+}

@@ -27,6 +27,8 @@ import {
   getValue,
   onlyRequired,
   onlyOptional,
+  onlyAdditional,
+  isAdditionalPropertiesAllowed,
   isTypeDefinition,
   isCommonQueryParameter,
   isCommonPathParameter
@@ -83,6 +85,10 @@ const dtoTemplate = Handlebars.compile(
 
 const versionTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "version.md.hbs"), "utf8")
+);
+
+const dtoPartial = Handlebars.compile(
+  fs.readFileSync(path.join(templateDirectory, "dto_partial.ts.hbs"), "utf8")
 );
 
 function createClient(
@@ -312,13 +318,19 @@ Handlebars.registerHelper("getReturnPayloadType", getReturnPayloadType);
 
 Handlebars.registerHelper("getSecurityScheme", getSecurityScheme);
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 Handlebars.registerHelper("getValue", getValue);
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 Handlebars.registerHelper("onlyRequired", onlyRequired);
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 Handlebars.registerHelper("onlyOptional", onlyOptional);
 
-Handlebars.registerPartial("operations", operationsPartialTemplate);
+Handlebars.registerHelper("onlyAdditional", onlyAdditional);
+
+Handlebars.registerHelper(
+  "isAdditionalPropertiesAllowed",
+  isAdditionalPropertiesAllowed
+);
+
+Handlebars.registerPartial("dtoPartial", dtoPartial);
+
+Handlebars.registerPartial("operationsPartial", operationsPartialTemplate);

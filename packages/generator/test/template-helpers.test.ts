@@ -18,7 +18,9 @@ import {
   isTypeDefined,
   onlyOptional,
   onlyRequired,
-  getSecurityScheme
+  onlyAdditional,
+  getSecurityScheme,
+  isAdditionalPropertiesAllowed
 } from "../src/template-helpers";
 
 import _ from "lodash";
@@ -432,6 +434,26 @@ describe("Template helper tests for only required properties", () => {
 
     expect(onlyRequired([property])).to.not.be.empty;
   });
+
+  /** A required property with name as // is extremely not possible
+   * onlyRequired method will ignore required additional properties
+   */
+  it("Returns empty array on classes containing one required parameter with // as name", () => {
+    const property1: model.domain.PropertyShape = new model.domain.PropertyShape();
+    property1.withName("//");
+    property1.withMinCount(1);
+    expect(onlyRequired([property1])).to.be.empty;
+  });
+
+  /** A required property with name as /...../ is extremely not possible
+   * onlyRequired method will ignore required additional properties
+   */
+  it("Returns empty array on classes containing one required parameter with // as name", () => {
+    const property1: model.domain.PropertyShape = new model.domain.PropertyShape();
+    property1.withName("/.*/");
+    property1.withMinCount(1);
+    expect(onlyRequired([property1])).to.be.empty;
+  });
 });
 
 describe("Template helper tests for only optional properties", () => {
@@ -457,6 +479,26 @@ describe("Template helper tests for only optional properties", () => {
     property.withMinCount(0);
 
     expect(onlyOptional([property])).to.not.be.empty;
+  });
+
+  /**
+   * onlyOptional method will ignore additional properties
+   */
+  it("Returns empty array on classes containing one additional parameter with /.*/ as name", () => {
+    const property1: model.domain.PropertyShape = new model.domain.PropertyShape();
+    property1.withName("/.*/");
+    property1.withMinCount(0);
+    expect(onlyRequired([property1])).to.be.empty;
+  });
+
+  /**
+   * onlyOptional method will ignore additional properties
+   */
+  it("Returns empty array on classes containing one additional parameter with // as name", () => {
+    const property1: model.domain.PropertyShape = new model.domain.PropertyShape();
+    property1.withName("//");
+    property1.withMinCount(0);
+    expect(onlyRequired([property1])).to.be.empty;
   });
 });
 
@@ -622,5 +664,142 @@ describe("Template helper tests for getSecurityScheme", () => {
         `prefix this.authSchemes.${schemeName}`
       );
     });
+  });
+});
+
+describe("Template helper tests for isAdditionalPropertiesAllowed", () => {
+  before(() => {
+    return AMF.init();
+  });
+
+  it("Returns false on undefined RAML type", () => {
+    expect(isAdditionalPropertiesAllowed(undefined)).to.be.false;
+  });
+
+  it("Returns false on Scalar Shape", () => {
+    const scalarShape = new model.domain.ScalarShape();
+    expect(isAdditionalPropertiesAllowed(scalarShape)).to.be.false;
+  });
+
+  it("Returns false on objects other than NodeShape", () => {
+    expect(isAdditionalPropertiesAllowed({})).to.be.false;
+  });
+
+  it("Returns false when additional properties are not allowed", () => {
+    const typeDto = new model.domain.NodeShape();
+    // Closed ensures no Additional properties are allowed for this type
+    typeDto.withClosed(true);
+    expect(isAdditionalPropertiesAllowed(typeDto)).to.be.false;
+  });
+
+  it("Returns true when additional properties are allowed", () => {
+    const typeDto = new model.domain.NodeShape();
+    // Closed ensures no Additional properties are allowed for this type
+    typeDto.withClosed(false);
+    expect(isAdditionalPropertiesAllowed(typeDto)).to.be.true;
+  });
+});
+
+
+describe("Template helper tests for onlyAdditionalProperties", () => {
+  before(() => {
+    return AMF.init();
+  });
+
+  it("Returns empty array on undefined classes", () => {
+    expect(onlyAdditional(undefined)).to.be.empty;
+  });
+
+  it("Returns empty array on empty classes", () => {
+    expect(onlyAdditional([])).to.be.empty;
+  });
+
+  it("Returns empty array on classes containing only one required parameter", () => {
+    const property: model.domain.PropertyShape = new model.domain.PropertyShape();
+    property.withName("required");
+    property.withMinCount(1);
+    expect(onlyAdditional([property])).to.be.empty;
+  });
+
+  it("Returns empty array on classes containing two required parameters", () => {
+    const property1: model.domain.PropertyShape = new model.domain.PropertyShape();
+    const property2: model.domain.PropertyShape = new model.domain.PropertyShape();
+    property1.withName("required");
+    property1.withMinCount(1);
+    property2.withName("required");
+    property2.withMinCount(3);
+    expect(onlyAdditional([property1, property2])).to.be.empty;
+  });
+
+  it("Returns empty array on classes containing two optional properties with name other than //", () => {
+    const property1: model.domain.PropertyShape = new model.domain.PropertyShape();
+    const property2: model.domain.PropertyShape = new model.domain.PropertyShape();
+    property1.withName("optional1");
+    property1.withMinCount(0);
+    property2.withName("optional2");
+    property2.withMinCount(0);
+    expect(onlyAdditional([property1, property2])).to.be.empty;
+  });
+
+  it("Returns empty array on classes containing two optional properties with name other than //", () => {
+    const property1: model.domain.PropertyShape = new model.domain.PropertyShape();
+    const property2: model.domain.PropertyShape = new model.domain.PropertyShape();
+    property1.withName("optional1");
+    property1.withMinCount(0);
+    property2.withName("optional2");
+    property2.withMinCount(0);
+    expect(onlyAdditional([property1, property2])).to.be.empty;
+  });
+
+  it("Returns array of length 1 on classes containing additional properties", () => {
+    const property1: model.domain.PropertyShape = new model.domain.PropertyShape();
+    property1.withName("//");
+    property1.withMinCount(0);
+    expect(onlyAdditional([property1])).to.be.length(1);
+  });
+
+  it("Returns array of length 1 on classes containing additional properties with regex /.*/", () => {
+    const property1: model.domain.PropertyShape = new model.domain.PropertyShape();
+    property1.withName("/.*/");
+    property1.withMinCount(0);
+    expect(onlyAdditional([property1])).to.be.length(1);
+  });
+
+  it("Returns array of length 1 on classes containing one additional property semantics and one optional property", () => {
+    const property1: model.domain.PropertyShape = new model.domain.PropertyShape();
+    const property2: model.domain.PropertyShape = new model.domain.PropertyShape();
+    property1.withName("//");
+    property1.withMinCount(0);
+    property2.withName("optional2");
+    property2.withMinCount(0);
+    expect(onlyAdditional([property1, property2])).to.be.length(1);
+  });
+
+  it("Returns array of length 1 on classes containing one additional property semantics, one optional property and one required property", () => {
+    const property1: model.domain.PropertyShape = new model.domain.PropertyShape();
+    const property2: model.domain.PropertyShape = new model.domain.PropertyShape();
+    const property3: model.domain.PropertyShape = new model.domain.PropertyShape();
+    property1.withName("//");
+    property1.withMinCount(0);
+    property2.withName("optional");
+    property2.withMinCount(0);
+    property3.withName("required");
+    property3.withMinCount(1);
+
+    expect(onlyAdditional([property1, property2])).to.be.length(1);
+  });
+
+  it("Returns array of length 2 on classes containing one additional property semantics, one optional property and one required property", () => {
+    const property1: model.domain.PropertyShape = new model.domain.PropertyShape();
+    const property2: model.domain.PropertyShape = new model.domain.PropertyShape();
+    const property3: model.domain.PropertyShape = new model.domain.PropertyShape();
+    property1.withName("//");
+    property1.withMinCount(0);
+    property2.withName("optional");
+    property2.withMinCount(0);
+    property3.withName("required");
+    property3.withMinCount(1);
+
+    expect(onlyAdditional([property1, property2])).to.be.length(1);
   });
 });
