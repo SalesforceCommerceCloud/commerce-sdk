@@ -36,7 +36,12 @@ const DEFAULT_CLIENT_CONFIG: ClientConfig = {
     tmp.dirSync({ prefix: "cache-", unsafeCleanup: true }).name
   ),
   headers: {},
-  parameters: {}
+  parameters: {
+    // Ideally, when version is set as a parameter in the baseUri, it's gets
+    // filled in from the version field in the RAML. Until that's implemented,
+    // we'll default to v1.
+    version: "v1"
+  }
 };
 
 export class BaseClient {
