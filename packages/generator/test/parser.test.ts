@@ -67,21 +67,27 @@ describe("Get Data types", () => {
 
   it("Test valid RAML file with references", () => {
     const ramlFile = path.join(__dirname, "/raml/valid/site/site.raml");
-    return processRamlFile(ramlFile).then(s => {
-      s.withReferences([s]);
-      const res = getAllDataTypes([s as WebApiBaseUnitWithDeclaresModel]);
-      expect(_.map(res, res => res.name.value())).to.be.deep.equal([
-        "product_search_result",
-        "ClassA",
-        "customer_product_list_item",
-        "query",
-        "ClassB",
-        "search_request",
-        "password_change_request",
-        "sort",
-        "result_page"
-      ]);
-    });
+    processRamlFile(ramlFile)
+      .then(refModel => {
+        return processRamlFile(ramlFile).then(mainModel => {
+          mainModel.withReferences([refModel]);
+          return mainModel;
+        });
+      })
+      .then(s => {
+        const res = getAllDataTypes([s as WebApiBaseUnitWithDeclaresModel]);
+        expect(_.map(res, res => res.name.value())).to.be.deep.equal([
+          "product_search_result",
+          "ClassA",
+          "customer_product_list_item",
+          "query",
+          "ClassB",
+          "search_request",
+          "password_change_request",
+          "sort",
+          "result_page"
+        ]);
+      });
   });
 });
 

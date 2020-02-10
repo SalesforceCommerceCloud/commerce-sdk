@@ -37,7 +37,7 @@ describe("Template helper primitive datatype tests", () => {
     const property: model.domain.PropertyShape = new model.domain.PropertyShape();
     const range: model.domain.ScalarShape = new model.domain.ScalarShape();
 
-    //range.withDataType("http://www.w3.org/2001/XMLSchema#boolean");
+    range.withDataType("http://www.w3.org/2001/XMLSchema#boolean");
     property.withRange(range);
 
     expect(getDataType(property)).to.equal("boolean");
