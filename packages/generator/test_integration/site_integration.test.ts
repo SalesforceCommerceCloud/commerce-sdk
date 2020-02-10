@@ -77,26 +77,6 @@ describe("Shop client integration PUT tests", () => {
     ).to.be.rejected;
   });
 
-  it("Throws error calling PUT without required body", () => {
-    return expect(client.updateCustomerPassword({ body: {} })).to.be.rejected;
-  });
-
-  it("Throws error calling PUT without required body param", () => {
-    return expect(client.updateCustomerPassword({ body: {} })).to.be.rejected;
-  });
-
-  it("Throws error calling PUT with invalid body parameter", () => {
-    return expect(
-      client.updateCustomerPassword({
-        body: {
-          // eslint-disable-next-line @typescript-eslint/camelcase
-          invalid_key: "This key is invalid",
-          password: ""
-        }
-      })
-    ).to.be.rejected;
-  });
-
   it("Returns object calling PUT with valid token and request body", () => {
     return client
       .updateCustomerPassword({
@@ -163,16 +143,8 @@ describe("Shop client integration POST tests", () => {
       baseUri: BASE_URI
     });
 
-    return expect(newLocalClient.searchProducts({ body: {} })).to.be.rejected;
-  });
-
-  it("Throws error calling POST with valid out required request body", () => {
-    return expect(client.searchProducts({ body: {} })).to.be.rejected;
-  });
-
-  it("Throws error calling POST with valid out valid enum", () => {
     return expect(
-      client.searchProducts({
+      newLocalClient.searchProducts({
         body: {
           count: 1,
           // eslint-disable-next-line @typescript-eslint/camelcase
@@ -188,7 +160,7 @@ describe("Shop client integration POST tests", () => {
     ).to.be.rejected;
   });
 
-  it("Throws error calling POST with valid out valid query object", () => {
+  it("Throws error calling POST with valid out valid enum", () => {
     return expect(
       client.searchProducts({
         body: {
@@ -196,10 +168,10 @@ describe("Shop client integration POST tests", () => {
           // eslint-disable-next-line @typescript-eslint/camelcase
           db_start_record_: 0,
           expand: [""],
-          query: "",
+          query: {},
           select: "",
           // eslint-disable-next-line @typescript-eslint/camelcase
-          sorts: [{ field: "", sort_order: "asc" }],
+          sorts: [{ field: "", sort_order: "0" }],
           start: 0
         }
       })
