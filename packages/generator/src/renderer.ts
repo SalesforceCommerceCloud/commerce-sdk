@@ -11,6 +11,7 @@ import {
   getAllDataTypes,
   processApiFamily,
   getApiName,
+  resolveApiModel,
   groupByCategory
 } from "./parser";
 
@@ -25,13 +26,14 @@ import {
   getReturnPayloadType,
   getSecurityScheme,
   getValue,
-  onlyRequired,
-  onlyOptional,
   onlyAdditional,
   isAdditionalPropertiesAllowed,
   isTypeDefinition,
   isCommonQueryParameter,
-  isCommonPathParameter
+  isCommonPathParameter,
+  getAllProperties,
+  isRequired,
+  isOptional
 } from "./template-helpers";
 import {
   WebApiBaseUnit,
@@ -174,12 +176,16 @@ function renderApi(
   //TODO: Modify createClient and createDto functions to take a single model object instead of array and get rid of apiModels array
   const apiModels: WebApiBaseUnitWithEncodesModel[] = [apiModel];
   fs.writeFileSync(
-    path.join(apiPath, `${apiName}.ts`),
-    createClient(apiModels, apiName)
-  );
-  fs.writeFileSync(
     path.join(apiPath, `${apiName}.types.ts`),
     createDto(apiModels)
+  );
+  //Resolve model for the end points Using the 'editing' pipeline will retain the declarations in the model
+  const apiModelsForEndPoints: WebApiBaseUnitWithEncodesModel[] = [
+    resolveApiModel(apiModel, "editing")
+  ];
+  fs.writeFileSync(
+    path.join(apiPath, `${apiName}.ts`),
+    createClient(apiModelsForEndPoints, apiName)
   );
   return apiName;
 }
@@ -320,10 +326,6 @@ Handlebars.registerHelper("getSecurityScheme", getSecurityScheme);
 
 Handlebars.registerHelper("getValue", getValue);
 
-Handlebars.registerHelper("onlyRequired", onlyRequired);
-
-Handlebars.registerHelper("onlyOptional", onlyOptional);
-
 Handlebars.registerHelper("onlyAdditional", onlyAdditional);
 
 Handlebars.registerHelper(
@@ -334,3 +336,9 @@ Handlebars.registerHelper(
 Handlebars.registerPartial("dtoPartial", dtoPartial);
 
 Handlebars.registerPartial("operationsPartial", operationsPartialTemplate);
+
+Handlebars.registerHelper("getAllProperties", getAllProperties);
+
+Handlebars.registerHelper("isRequired", isRequired);
+
+Handlebars.registerHelper("isOptional", isOptional);
