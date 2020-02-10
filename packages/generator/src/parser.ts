@@ -125,10 +125,10 @@ export function resolveApiModel(
   resolutionPipeline: string
 ): WebApiBaseUnitWithEncodesModel {
   if (apiModel == null) {
-    throw new Error("Invalid API model: ${apiModel}");
+    throw new Error("Invalid API model");
   }
   if (!resolutionPipeline) {
-    throw new Error("Invalid resolution pipeline: ${resolutionPipeline}");
+    throw new Error("Invalid resolution pipeline");
   }
   const resolver = new Raml10Resolver();
   return resolver.resolve(
