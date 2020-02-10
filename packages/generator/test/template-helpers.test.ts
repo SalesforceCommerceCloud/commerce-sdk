@@ -700,7 +700,6 @@ describe("Template helper tests for isAdditionalPropertiesAllowed", () => {
   });
 });
 
-
 describe("Template helper tests for onlyAdditionalProperties", () => {
   before(() => {
     return AMF.init();
