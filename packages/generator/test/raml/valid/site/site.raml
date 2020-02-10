@@ -11,6 +11,7 @@ types:
   ClassA:
     type: object
     description: Class A type
+    additionalProperties: true
     properties:
       property1:
         type: string
@@ -18,9 +19,18 @@ types:
       property2?:
         type: integer
         description: Number data type property.
-      //:
-        type: boolean
-        description: Additional properties of boolean data type
+      /.*/:
+        type: ClassB
+        description: Nested reference to ClassA as additional properties
+      classAobjectProperty?:
+        type: object
+        description: Nested object property (ClassA.objectProperty)
+        properties:
+          name:
+            type: string
+          //:
+            type: string
+            description: ClassA.objectProperty's additional property
 
   ClassB:
     type: object
@@ -35,6 +45,9 @@ types:
       property5:
         type: string
         description: String datatype
+      //:
+        type: string
+        description: ClassB.Additional properties of string data type
 
   password_change_request:
     description: Document representing a password change request.
