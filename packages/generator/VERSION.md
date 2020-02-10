@@ -50,11 +50,6 @@ _______________________________________________________________________
 
 _______________________________________________________________________
 
-## AI 
-#### [Einstein - Internal](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/einstein-api-internal/1.0.16)
-
-_______________________________________________________________________
-
 ## Customer 
 #### [Shopper Customers](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-customers/0.0.6)
 **Mule App Version** 0.0.6
