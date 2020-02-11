@@ -68,7 +68,7 @@ If an issue requires an urgent resolution, log it with [Commerce Cloud Developer
 
 ## Contributing
 
-If you would like to contribute please take a look at our [contributors' guide](./Contributing.md)
+If you would like to contribute please take a look at our [contributors' guide](./Contributing.md).
 
 ## Additional Documentation
 
