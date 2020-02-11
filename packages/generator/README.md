@@ -4,7 +4,7 @@ The Commerce SDK allows easy interaction with the B2C Commerce platform APIs on 
 ## Prerequisites
 Download and install Node.js and npm [here](https://nodejs.org/en/download/).
 ​
-> **Note:** Only Node.js version 10 is supported. A version other than version 10 can cause unexpected results. To use a different version of Node.js for other projects, you can manage multiple versions of Node.js with [nvm](https://github.com/nvm-sh/nvm).
+> **Note:** Only Node.js version 10 and 12 are supported. A version other than version can cause unexpected results. To use a different version of Node.js for other projects, you can manage multiple versions of Node.js with [nvm](https://github.com/nvm-sh/nvm).
 ​
 ## Installation
 Use npm to install the Commerce SDK.
@@ -21,7 +21,7 @@ To use an SDK client, instantiate an object of that client and configure these p
 | baseUri | URL of the service with which the SDK interacts. If the baseUri isn't provided, the default baseUri for the relevant RAML file is used.  |
 | clientId | ID of the client account created with Salesforce Commerce. |
 | organizationId | The unique identifier for your Salesforce identity. |
-| shortCode | Region specific ID. |
+| shortCode | Region specific merchant ID. |
 | siteId | A unique site ID (for example, RefArch or SiteGenesis). |
 
 
