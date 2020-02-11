@@ -5,7 +5,7 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import { BaseClient } from "../src/base/client";
-import { AccountManager } from "../src/base/auth-schemes";
+import { AccountManager } from "../src/base/authSchemes";
 
 import { expect, default as chai } from "chai";
 import chaiAsPromised from "chai-as-promised";

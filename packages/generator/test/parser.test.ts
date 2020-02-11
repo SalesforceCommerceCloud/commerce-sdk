@@ -9,7 +9,8 @@ import {
   processRamlFile,
   getAllDataTypes,
   getApiName,
-  groupByCategory
+  groupByCategory,
+  getNormalizedName
 } from "../src/parser";
 import {
   WebApiBaseUnitWithDeclaresModel,
@@ -85,12 +86,12 @@ describe("Get Data types", () => {
   });
 });
 
-describe("Test that API Name is returned in Pascal Case", () => {
+describe("Test that API Name is returned in lower camelCase", () => {
   const domain = model.domain;
   before(() => {
     WebApiParser.init();
   });
-  const expectedApiName = "ShopperCustomers";
+  const expectedApiName = "shopperCustomers";
   it("Test GET to API Name with space", () => {
     const api = new domain.WebApi();
     api.withName("Shopper Customers");
@@ -120,6 +121,30 @@ describe("Test that API Name is returned in Pascal Case", () => {
     api.withName("shopper customers");
     const model = new webapi.WebApiExternalFragment().withEncodes(api);
     return expect(getApiName(model)).to.equal(expectedApiName);
+  });
+  it("Test with null API name", () => {
+    const api = new domain.WebApi();
+    api.withName(null);
+    const model = new webapi.WebApiExternalFragment().withEncodes(api);
+    return expect(() => getApiName(model)).to.throw(
+      "Invalid name provided to normalize"
+    );
+  });
+  it("Test with undefined API name", () => {
+    const api = new domain.WebApi();
+    api.withName(undefined);
+    const model = new webapi.WebApiExternalFragment().withEncodes(api);
+    return expect(() => getApiName(model)).to.throw(
+      "Invalid name provided to normalize"
+    );
+  });
+  it("Test with empty API name", () => {
+    const api = new domain.WebApi();
+    api.withName("");
+    const model = new webapi.WebApiExternalFragment().withEncodes(api);
+    return expect(() => getApiName(model)).to.throw(
+      "Invalid name provided to normalize"
+    );
   });
 });
 

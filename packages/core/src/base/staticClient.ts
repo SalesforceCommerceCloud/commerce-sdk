@@ -7,7 +7,7 @@
 import { default as fetch, Response, RequestInit } from "make-fetch-happen";
 import { Resource } from "./resource";
 import { BaseClient } from "./client";
-import { IAuthScheme } from "./auth-schemes";
+import { IAuthScheme } from "./authSchemes";
 const CONTENT_TYPE = "application/json";
 import _ from "lodash";
 

@@ -10,7 +10,7 @@ import { expect } from "chai";
 
 import { commonParameterPositions } from "@commerce-apps/core";
 
-import { isCommonPathParameter } from "../src/template-helpers";
+import { isCommonPathParameter } from "../src/templateHelpers";
 
 describe("Test isCommonPathParameter template help function", () => {
   it("returns false for null input", () => {

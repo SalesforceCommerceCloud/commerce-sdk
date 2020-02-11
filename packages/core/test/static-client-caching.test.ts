@@ -18,7 +18,7 @@ before(() => {
 });
 
 import { BaseClient } from "../src/base/client";
-import { _delete, _get, _patch, _post, _put } from "../src/base/static-client";
+import { _delete, _get, _patch, _post, _put } from "../src/base/staticClient";
 
 describe("base client get test", () => {
   afterEach(nock.cleanAll);
