@@ -36,8 +36,9 @@ import { Product, helpers } from 'commerce-sdk';
 helpers.getAuthToken({
     parameters: {
         clientId: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        # NOTE: Once global config is done you shouldn't need to specify this here
-        shortCode: "staging-001
+        organizationId: "f_ecom_bblx_stg",
+        shortCode: "staging-001",
+        siteId: "RefArch"
     },
     body: {
         type: "guest"
@@ -46,16 +47,18 @@ helpers.getAuthToken({
 
     // Instantiate a Product client object with configuration parameters.
     const productClient = new Product.ShopperProduct.Client({
-        baseUriParameters: {
-            shortCode: "staging-001"
+        parameters: {
+            organizationId: "f_ecom_bblx_stg",
+            shortCode: "staging-001",
+            siteId: "RefArch"
         },
         headers: {
-            Authorization: authToken.getBearerToken()
+            Authorization: authToken.getBearerHeader()
         }
     });
 
     // Retrieve a list of currencies allowed by a merchant.
-    productClient.getProduct()
+    productClient.getProduct({ parameters: { id: "product-id" }})
         .then(response => {
             // Do something with the response
             return response.allowed_currencies;
