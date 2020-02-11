@@ -92,33 +92,39 @@ describe("Test that API Name is returned in lower camelCase", () => {
     WebApiParser.init();
   });
   const expectedApiName = "shopperCustomers";
-  it("Test GET to API Name with space", () => {
+  it("Test with space in the name", () => {
     const api = new domain.WebApi();
     api.withName("Shopper Customers");
     const model = new webapi.WebApiExternalFragment().withEncodes(api);
     return expect(getApiName(model)).to.equal(expectedApiName);
   });
-  it("Test GET to API Name with -", () => {
+  it("Test with - in the name", () => {
     const api = new domain.WebApi();
     api.withName("Shopper-Customers");
     const model = new webapi.WebApiExternalFragment().withEncodes(api);
     return expect(getApiName(model)).to.equal(expectedApiName);
   });
-  it("Test GET to API Name with _", () => {
+  it("Test with _ in the name", () => {
     const api = new domain.WebApi();
     api.withName("Shopper-Customers");
     const model = new webapi.WebApiExternalFragment().withEncodes(api);
     return expect(getApiName(model)).to.equal(expectedApiName);
   });
-  it("Test GET to API Name with .", () => {
+  it("Test with . in the name", () => {
     const api = new domain.WebApi();
     api.withName("shopper.customers");
     const model = new webapi.WebApiExternalFragment().withEncodes(api);
     return expect(getApiName(model)).to.equal(expectedApiName);
   });
-  it("Test GET to API Name with lowercase", () => {
+  it("Test with all lowercase name", () => {
     const api = new domain.WebApi();
     api.withName("shopper customers");
+    const model = new webapi.WebApiExternalFragment().withEncodes(api);
+    return expect(getApiName(model)).to.equal(expectedApiName);
+  });
+  it("Test with camelCase name", () => {
+    const api = new domain.WebApi();
+    api.withName("shopperCustomers");
     const model = new webapi.WebApiExternalFragment().withEncodes(api);
     return expect(getApiName(model)).to.equal(expectedApiName);
   });
