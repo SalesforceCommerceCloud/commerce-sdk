@@ -91,6 +91,7 @@ describe("Test that API Name is returned in lower camelCase", () => {
   before(() => {
     WebApiParser.init();
   });
+
   const expectedApiName = "shopperCustomers";
   it("Test with space in the name", () => {
     const api = new domain.WebApi();
