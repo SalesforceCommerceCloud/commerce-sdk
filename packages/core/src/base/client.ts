@@ -20,7 +20,6 @@ import { ICacheManager } from "./cache-manager";
 config();
 
 export class ClientConfig {
-  public authHost?: string;
   public baseUri?: string;
   public cacheManager?: ICacheManager;
   public clientId?: string;
@@ -29,7 +28,6 @@ export class ClientConfig {
 }
 
 const DEFAULT_CLIENT_CONFIG: ClientConfig = {
-  authHost: "https://account-pod5.demandware.net",
   // Enables cacache for local caching in temp dir by default, unsafeCleanup == rm -rf on exit
   cacheManager: new DefaultCache(
     tmp.dirSync({ prefix: "cache-", unsafeCleanup: true }).name
