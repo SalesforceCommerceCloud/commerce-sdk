@@ -20,7 +20,7 @@ import {
   onlyRequired,
   onlyAdditional,
   isAdditionalPropertiesAllowed
-} from "../src/template-helpers";
+} from "../src/templateHelpers";
 
 import _ from "lodash";
 import { assert, expect } from "chai";

@@ -109,6 +109,18 @@ export function processApiFamily(
 }
 
 /**
+ * Get normalized name for the file/directory that is created while rendering the templates
+ * @param name File or directory name to normalize
+ * @returns a normalized name
+ */
+export function getNormalizedName(name: string): string {
+  if (!name) {
+    throw new Error("Invalid name provided to normalize");
+  }
+  return _.camelCase(name);
+}
+
+/**
  * Returns API name from the AMF model in Pascal Case ("Shopper Customers" is returned as "ShopperCustomers")
  *
  * @param apiModel AMF Model of the API
@@ -116,7 +128,7 @@ export function processApiFamily(
  */
 export function getApiName(apiModel: WebApiBaseUnitWithEncodesModel): string {
   const apiName: string = (apiModel.encodes as model.domain.WebApi).name.value();
-  return _.upperFirst(_.camelCase(apiName));
+  return getNormalizedName(apiName);
 }
 
 /**

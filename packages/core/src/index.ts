@@ -11,7 +11,7 @@ export {
   ResponseError
 } from "./base/client";
 
-import { _get, _delete, _patch, _post, _put } from "./base/static-client";
+import { _get, _delete, _patch, _post, _put } from "./base/staticClient";
 
 export const StaticClient = {
   get: _get,
@@ -21,7 +21,7 @@ export const StaticClient = {
   put: _put
 };
 
-export { IAuthToken, ShopperToken, stripBearer } from "./base/auth-helper";
+export { IAuthToken, ShopperToken, stripBearer } from "./base/authHelper";
 
 export {
   commonParameterPositions,

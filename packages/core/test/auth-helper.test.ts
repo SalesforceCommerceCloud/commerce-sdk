@@ -5,7 +5,7 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import { BaseClient, ResponseError } from "../src/base/client";
-import { ShopperToken, stripBearer } from "../src/base/auth-helper";
+import { ShopperToken, stripBearer } from "../src/base/authHelper";
 
 import { expect, default as chai } from "chai";
 import chaiAsPromised from "chai-as-promised";

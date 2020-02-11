@@ -11,7 +11,7 @@ import * as lib from "webapi-parser";
 const wap = lib.WebApiParser;
 const domain = lib.model.domain;
 
-import { getBaseUri } from "../src/template-helpers";
+import { getBaseUri } from "../src/templateHelpers";
 
 describe("Test getBaseUri template help function", () => {
   before(() => wap.init());

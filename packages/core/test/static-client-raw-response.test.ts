@@ -26,7 +26,7 @@ import {
   _post,
   _put,
   Response
-} from "../src/base/static-client";
+} from "../src/base/staticClient";
 
 describe("rawResponse tests", () => {
   let client;

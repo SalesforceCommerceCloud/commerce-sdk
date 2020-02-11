@@ -26,7 +26,7 @@ import {
   _post,
   _put,
   ResponseError
-} from "../src/base/static-client";
+} from "../src/base/staticClient";
 
 describe("base client get test", () => {
   afterEach(nock.cleanAll);
