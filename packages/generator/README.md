@@ -4,7 +4,7 @@ The Commerce SDK allows easy interaction with the B2C Commerce platform APIs on 
 ## Prerequisites
 Download and install Node.js and npm [here](https://nodejs.org/en/download/).
 ​
-> **Note:** Only Node.js version 10 and 12 are supported. A version other than version can cause unexpected results. To use a different version of Node.js for other projects, you can manage multiple versions of Node.js with [nvm](https://github.com/nvm-sh/nvm).
+> **Note:** Only Node.js version 10 and 12 are supported. A version other than these can cause unexpected results. To use a different version of Node.js for other projects, you can manage multiple versions of Node.js with [nvm](https://github.com/nvm-sh/nvm).
 ​
 ## Installation
 Use npm to install the Commerce SDK.
