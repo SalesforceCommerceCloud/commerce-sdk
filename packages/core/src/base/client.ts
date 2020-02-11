@@ -11,10 +11,10 @@ import tmp from "tmp";
 import { getBearer } from "@commerce-apps/exchange-connector";
 
 import { CommonParameters } from "./commonParameters";
-import { DefaultCache } from "./static-client";
+import { DefaultCache } from "./staticClient";
 export { DefaultCache };
-import { IAuthScheme } from "./auth-schemes";
-import { ICacheManager } from "./cache-manager";
+import { IAuthScheme } from "./authSchemes";
+import { ICacheManager } from "./cacheManager";
 
 // dotenv config loads environmental variables.
 config();
@@ -74,4 +74,4 @@ export class BaseClient {
 }
 
 export { Response } from "node-fetch";
-export { ResponseError } from "./static-client";
+export { ResponseError } from "./staticClient";

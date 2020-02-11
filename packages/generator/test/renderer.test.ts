@@ -12,6 +12,7 @@ import path from "path";
 import * as renderer from "../src/renderer";
 import tmp from "tmp";
 import _ from "lodash";
+import { getNormalizedName } from "../src/parser";
 
 /**
  * Tests all the functions that are invoked while rendering templates.
@@ -46,18 +47,39 @@ describe("Render Templates Test", () => {
         expect(fs.existsSync(path.join(renderDir.name, "index.ts"))).to.be.true;
         const apiFamilies: string[] = _.keysIn(apiConfig);
         apiFamilies.forEach(family => {
+          const apiFamilyNormalizedName: string = getNormalizedName(family);
           expect(
-            fs.existsSync(path.join(renderDir.name, family, family + ".ts"))
+            fs.existsSync(
+              path.join(
+                renderDir.name,
+                apiFamilyNormalizedName,
+                apiFamilyNormalizedName + ".ts"
+              )
+            )
           ).to.be.true;
           const familyAps: any[] = apiConfig[family];
           familyAps.forEach(api => {
-            const apiName = _.upperFirst(_.camelCase(api.name));
-            fs.existsSync(
-              path.join(renderDir.name, family, apiName, apiName + ".ts")
-            );
-            fs.existsSync(
-              path.join(renderDir.name, family, apiName, apiName + "types.ts")
-            );
+            const apiName = getNormalizedName(api.name);
+            expect(
+              fs.existsSync(
+                path.join(
+                  renderDir.name,
+                  apiFamilyNormalizedName,
+                  apiName,
+                  apiName + ".ts"
+                )
+              )
+            ).to.be.true;
+            expect(
+              fs.existsSync(
+                path.join(
+                  renderDir.name,
+                  apiFamilyNormalizedName,
+                  apiName,
+                  apiName + ".types.ts"
+                )
+              )
+            ).to.be.true;
           });
         });
       });

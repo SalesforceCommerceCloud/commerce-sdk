@@ -12,7 +12,8 @@ import {
   processApiFamily,
   getApiName,
   resolveApiModel,
-  groupByCategory
+  groupByCategory,
+  getNormalizedName
 } from "./parser";
 
 import {
@@ -34,7 +35,7 @@ import {
   getAllProperties,
   isRequired,
   isOptional
-} from "./template-helpers";
+} from "./templateHelpers";
 import {
   WebApiBaseUnit,
   WebApiBaseUnitWithDeclaresModel,
@@ -76,7 +77,7 @@ const apiFamilyTemplate = Handlebars.compile(
 
 export const renderOperationListTemplate = Handlebars.compile(
   fs.readFileSync(
-    path.join(templateDirectory, "operation-list.yaml.hbs"),
+    path.join(templateDirectory, "operationList.yaml.hbs"),
     "utf8"
   )
 );
@@ -90,7 +91,7 @@ const versionTemplate = Handlebars.compile(
 );
 
 const dtoPartial = Handlebars.compile(
-  fs.readFileSync(path.join(templateDirectory, "dto_partial.ts.hbs"), "utf8")
+  fs.readFileSync(path.join(templateDirectory, "dtoPartial.ts.hbs"), "utf8")
 );
 
 function createClient(
@@ -213,7 +214,7 @@ export function createVersionFile(
  * @param apiFamilyConfig Config of the API family
  * @param apiRamlDir Directory path of API RAML files
  * @param renderDir Directory path to save the rendered API files
- * @returns Promise<void>
+ * @returns Promise with the api family name
  */
 function renderApiFamily(
   apiFamily: string,
@@ -221,8 +222,9 @@ function renderApiFamily(
   apiFamilyConfig: any,
   apiRamlDir: string,
   renderDir: string
-): Promise<void> {
-  const apiFamilyPath: string = path.join(renderDir, apiFamily);
+): Promise<string> {
+  const apiFamilyFileName = getNormalizedName(apiFamily);
+  const apiFamilyPath: string = path.join(renderDir, apiFamilyFileName);
   fs.ensureDirSync(apiFamilyPath);
 
   const familyPromises = processApiFamily(
@@ -243,9 +245,10 @@ function renderApiFamily(
     .then(apiNames => {
       //export all apis in a family
       fs.writeFileSync(
-        path.join(apiFamilyPath, `${apiFamily}.ts`),
+        path.join(apiFamilyPath, `${apiFamilyFileName}.ts`),
         createApiFamily(apiNames)
       );
+      return apiFamilyFileName;
     });
 }
 
@@ -263,7 +266,7 @@ export function renderTemplates(config: any): Promise<void> {
   ));
   fs.ensureDirSync(config.renderDir);
   const apiFamilyNames = _.keysIn(apiFamilyRamlConfig);
-  const allPromises: Promise<void>[] = [];
+  const allPromises: Promise<string>[] = [];
   apiFamilyNames.forEach((apiFamily: string) => {
     allPromises.push(
       renderApiFamily(
@@ -275,10 +278,10 @@ export function renderTemplates(config: any): Promise<void> {
     );
   });
   //create index file that exports all the api families in the root
-  return Promise.all(allPromises).then(() => {
+  return Promise.all(allPromises).then(familyNames => {
     fs.writeFileSync(
       path.join(config.renderDir, "index.ts"),
-      createIndex(apiFamilyNames)
+      createIndex(familyNames)
     );
 
     fs.writeFileSync(
