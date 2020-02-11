@@ -1,20 +1,5 @@
 # Included Apis
 
-## Checkout 
-#### [Shopper Baskets](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-baskets/0.0.13)
-**Mule App Version** 0.0.13
-*Build a checkout experience.*
-
-#### [Shopper Orders](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-orders/0.0.12)
-**Mule App Version** 0.0.12
-*Finish the shopper checkout experience resulting in an order.*
-
-#### [Orders](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/orders/1.0.4)
-**Mule App Version** 1.0.4
-*Manage order status and order payment status.*
-
-_______________________________________________________________________
-
 ## Search 
 #### [Shopper Search](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-search/1.0.1)
 **Mule App Version** 1.0.1
@@ -45,6 +30,21 @@ _______________________________________________________________________
 #### [Shopper Customers](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-customers/0.0.6)
 **Mule App Version** 0.0.6
 *Let customers log in and manage their profiles and product lists.*
+
+_______________________________________________________________________
+
+## Checkout 
+#### [Shopper Baskets](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-baskets/0.0.5)
+**Mule App Version** 0.0.5
+*Build a checkout experience.*
+
+#### [Shopper Orders](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-orders/0.0.6)
+**Mule App Version** 0.0.6
+*Finish the shopper checkout experience resulting in an order.*
+
+#### [Orders](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/orders/1.0.4)
+**Mule App Version** 1.0.4
+*Manage order status and order payment status.*
 
 _______________________________________________________________________
 
