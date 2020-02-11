@@ -19,14 +19,12 @@ import {
   onlyOptional,
   onlyRequired,
   onlyAdditional,
-  getSecurityScheme,
   isAdditionalPropertiesAllowed
 } from "../src/templateHelpers";
 
 import _ from "lodash";
 import { assert, expect } from "chai";
 import { model, AMF } from "amf-client-js";
-import { AuthSchemes } from "@commerce-apps/core";
 
 describe("Template helper primitive datatype tests", () => {
   it("Returns 'any' on undefined property", () => {
@@ -612,58 +610,6 @@ describe("Template helper tests for defined types", () => {
       }
     };
     assert.isTrue(isTypeDefined(property.range));
-  });
-});
-
-describe("Template helper tests for getSecurityScheme", () => {
-  before(() => {
-    return AMF.init();
-  });
-
-  it("Returns '' on undefined security scheme", () => {
-    expect(getSecurityScheme("prefix", undefined)).to.be.empty;
-  });
-
-  it("Returns '' on empty security scheme", () => {
-    const security: model.domain.SecurityRequirement[] = [];
-    expect(getSecurityScheme("prefix", security)).to.be.empty;
-  });
-
-  it("Returns '' on empty security scheme without a define scheme", () => {
-    const security: model.domain.SecurityRequirement[] = [];
-    security.push(new model.domain.SecurityRequirement());
-    expect(getSecurityScheme("prefix", security)).to.be.empty;
-  });
-
-  it("Returns '' on empty security scheme with a defined scheme that has no name", () => {
-    const security: model.domain.SecurityRequirement[] = [
-      new model.domain.SecurityRequirement()
-    ];
-    security[0].withScheme();
-    expect(getSecurityScheme("prefix", security)).to.be.empty;
-  });
-
-  it("Returns '' on empty security scheme without a define scheme that we don't have", () => {
-    const security: model.domain.SecurityRequirement[] = [
-      new model.domain.SecurityRequirement()
-    ];
-    security[0].withScheme().withName("AuthType");
-    expect(getSecurityScheme("prefix", security)).to.be.empty;
-  });
-
-  it("Returns the correct Auth when passed all of the valid ones", () => {
-    const schemes = _.keys(AuthSchemes);
-
-    schemes.forEach(schemeName => {
-      const security: model.domain.SecurityRequirement[] = [
-        new model.domain.SecurityRequirement()
-      ];
-
-      security[0].withScheme().withName(schemeName);
-      expect(getSecurityScheme("prefix", security)).to.be.equal(
-        `prefix this.authSchemes.${schemeName}`
-      );
-    });
   });
 });
 
