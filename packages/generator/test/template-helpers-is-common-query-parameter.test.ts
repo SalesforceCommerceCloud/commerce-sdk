@@ -10,7 +10,7 @@ import { expect } from "chai";
 
 import { commonParameterPositions } from "@commerce-apps/core";
 
-import { isCommonQueryParameter } from "../src/template-helpers";
+import { isCommonQueryParameter } from "../src/templateHelpers";
 
 describe("Test isCommonQueryParameter template help function", () => {
   it("returns false for null input", () => {
