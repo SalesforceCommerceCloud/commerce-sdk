@@ -20,7 +20,7 @@ To use an SDK client, instantiate an object of that client and configure these p
 | --------- | :----------- |
 | baseUri | URL of the service with which the SDK interacts. If the baseUri isn't provided, the default baseUri for the relevant RAML file is used.  |
 | clientId | ID of the client account created with Salesforce Commerce. |
-| clientSecret | Secret associated with the client ID. |
+
 
 
 ### Sample Code 
@@ -76,7 +76,7 @@ To view the details of a method or a variable, hover over methods and variables.
 ![Method Details](./images/MethodDetails.jpg?raw=true "Method Details")
 ​
 
-## Mulesoft exchange documentation
+## Mulesoft Exchange Documentation
 > NOTE: For Beta only, link only works on npmjs
 (Documentation)[./VERSION.md]
 

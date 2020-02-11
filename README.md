@@ -4,7 +4,7 @@ Salesforce Commerce Node.js SDK
 
 [![CircleCI][circleci-image]][circleci-url]
 
-## What is this?
+## What is This?
 
 commerce-sdk is a Node.js SDK for Salesforce Commerce. It provides easy access to the Salesforce Commerce platform RESTful APIs.
 
@@ -60,7 +60,7 @@ To run tests in the generator package only, execute
 npm run test:generator
 ```
 
-### Additional documentation
+### Additional Documentation
 
 [Using VSCODE](./docs/vscode.md)
 [Code Generation](./packages/generator/docs/GENERATOR.md)
