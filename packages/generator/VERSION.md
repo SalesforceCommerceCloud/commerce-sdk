@@ -1,4 +1,4 @@
-# Included Apis
+# Included APIs
 
 ## Search 
 #### [Shopper Search](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-search/1.0.1)
