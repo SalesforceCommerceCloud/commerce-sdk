@@ -76,7 +76,7 @@ To view the details of a method or a variable, hover over methods and variables.
 ![Method Details](./images/MethodDetails.jpg?raw=true "Method Details")
 ​
 
-## Mulesoft exchange documentation
+## Mulesoft Exchange Documentation
 > NOTE: For Beta only, link only works on npmjs
 (Documentation)[./VERSION.md]
 
