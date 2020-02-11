@@ -1,5 +1,38 @@
 # Included Apis
 
+## Search 
+#### [Shopper Search](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-search/1.0.1)
+**Mule App Version** 1.0.1
+*API to perform product search and provide search suggestion.*
+
+_______________________________________________________________________
+
+## Product 
+#### [Products](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/products/0.0.1)
+**Mule App Version** 0.0.1
+*Create, manage, and search products within a merchandizing system.*
+
+#### [Catalogs](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/catalogs/0.0.1)
+**Mule App Version** 0.0.1
+*Create, manage, and search categories and catalogs within a merchandizing system.*
+
+#### [Shopper Products](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-products/0.0.2)
+**Mule App Version** 0.0.2
+*Let customers view product and category details in shopping apps.*
+
+_______________________________________________________________________
+
+## Customer 
+#### [Customers](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/customers/0.0.1)
+**Mule App Version** 0.0.1
+*Manage customer lists, and search and manage customer groups.*
+
+#### [Shopper Customers](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-customers/0.0.6)
+**Mule App Version** 0.0.6
+*Let customers log in and manage their profiles and product lists.*
+
+_______________________________________________________________________
+
 ## Checkout 
 #### [Shopper Baskets](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-baskets/0.0.5)
 **Mule App Version** 0.0.5
@@ -50,39 +83,6 @@ _______________________________________________________________________
 
 _______________________________________________________________________
 
-## Customer 
-#### [Shopper Customers](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-customers/0.0.6)
-**Mule App Version** 0.0.6
-*Let customers log in and manage their profiles and product lists.*
-
-#### [Customers](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/customers/0.0.1)
-**Mule App Version** 0.0.1
-*Manage customer lists, and search and manage customer groups.*
-
-_______________________________________________________________________
-
-## Product 
-#### [Products](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/products/0.0.1)
-**Mule App Version** 0.0.1
-*Create, manage, and search products within a merchandizing system.*
-
-#### [Catalogs](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/catalogs/0.0.1)
-**Mule App Version** 0.0.1
-*Create, manage, and search categories and catalogs within a merchandizing system.*
-
-#### [Shopper Products](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-products/0.0.2)
-**Mule App Version** 0.0.2
-*Let customers view product details in shopping apps.*
-
-_______________________________________________________________________
-
-## Search 
-#### [Shopper Search](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-search/1.0.1)
-**Mule App Version** 1.0.1
-*API to perform product search and provide search suggestion.*
-
-_______________________________________________________________________
-
 ## Seller 
 #### [Shopper Stores](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-stores/1.0.1)
 **Mule App Version** 1.0.1
@@ -92,6 +92,12 @@ _______________________________________________________________________
 
 ## CDN 
 #### [CDN API](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/cdn-api-process-apis/1.0.1)
+
+_______________________________________________________________________
+
+## AI 
+#### [Einstein Recommendations](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/einstein-api-quick-start-guide/3.0.2)
+*API to get Einstein recommendations and send activities to Einstein engine.*
 
 _______________________________________________________________________
 
