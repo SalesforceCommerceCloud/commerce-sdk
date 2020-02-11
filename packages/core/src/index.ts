@@ -11,7 +11,7 @@ export {
   ResponseError
 } from "./base/client";
 
-export { IAuthScheme, AccountManager, AuthSchemes } from "./base/auth-schemes";
+export { IAuthScheme } from "./base/auth-schemes";
 
 import { _get, _delete, _patch, _post, _put } from "./base/static-client";
 

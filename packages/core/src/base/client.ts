@@ -24,7 +24,6 @@ export class ClientConfig {
   public baseUri?: string;
   public cacheManager?: ICacheManager;
   public clientId?: string;
-  public clientSecret?: string;
   public headers?: { [key: string]: string };
   public parameters?: CommonParameters;
 }
