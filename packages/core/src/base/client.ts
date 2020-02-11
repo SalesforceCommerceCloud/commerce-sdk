@@ -13,24 +13,19 @@ import { getBearer } from "@commerce-apps/exchange-connector";
 import { CommonParameters } from "./commonParameters";
 import { DefaultCache } from "./staticClient";
 export { DefaultCache };
-import { IAuthScheme } from "./authSchemes";
 import { ICacheManager } from "./cacheManager";
 
 // dotenv config loads environmental variables.
 config();
 
 export class ClientConfig {
-  public authHost?: string;
   public baseUri?: string;
   public cacheManager?: ICacheManager;
-  public clientId?: string;
-  public clientSecret?: string;
   public headers?: { [key: string]: string };
   public parameters?: CommonParameters;
 }
 
 const DEFAULT_CLIENT_CONFIG: ClientConfig = {
-  authHost: "https://account-pod5.demandware.net",
   // Enables cacache for local caching in temp dir by default, unsafeCleanup == rm -rf on exit
   cacheManager: new DefaultCache(
     tmp.dirSync({ prefix: "cache-", unsafeCleanup: true }).name
@@ -46,13 +41,9 @@ const DEFAULT_CLIENT_CONFIG: ClientConfig = {
 
 export class BaseClient {
   public clientConfig: ClientConfig;
-  public authSchemes: {
-    [x: string]: IAuthScheme;
-  };
 
   constructor(config?: ClientConfig) {
     this.clientConfig = {};
-    this.authSchemes = {};
     _.merge(this.clientConfig, DEFAULT_CLIENT_CONFIG, config);
   }
 

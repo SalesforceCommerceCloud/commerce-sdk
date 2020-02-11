@@ -8,7 +8,7 @@ import { model } from "amf-client-js";
 import _ from "lodash";
 import { WebApiBaseUnitWithEncodesModel } from "webapi-parser";
 
-import { AuthSchemes, commonParameterPositions } from "@commerce-apps/core";
+import { commonParameterPositions } from "@commerce-apps/core";
 
 import {
   PRIMITIVE_DATA_TYPE_MAP,
@@ -165,30 +165,6 @@ export const getReturnPayloadType = function(operation: any): string {
   }
 
   return dataTypes.join(" | ");
-};
-
-export const getSecurityScheme = function(
-  prefix: string,
-  security: model.domain.SecurityRequirement[]
-): string {
-  const secSchemes: model.domain.SecurityRequirement = _.first(security);
-
-  let secScheme: model.domain.ParametrizedSecurityScheme = undefined;
-
-  if (!_.isNil(secSchemes)) {
-    secScheme = _.first(secSchemes.schemes);
-  }
-
-  // Ensures we found an auth scheme that we support
-  // This current only supports a SINGLE auth scheme at a time, need to figure out the best way of supporting multiple
-  if (
-    !_.isNil(secScheme) &&
-    AuthSchemes.hasOwnProperty(secScheme.name.value())
-  ) {
-    return `${prefix} this.authSchemes.${secScheme.name.value()}`;
-  }
-
-  return "";
 };
 
 const getDataTypeFromMap = function(uuidDataType: string): string {

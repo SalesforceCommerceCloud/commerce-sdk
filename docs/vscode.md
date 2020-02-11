@@ -20,13 +20,13 @@ If the workspace bar on the left does not look like this there are a couple of w
 
 Each other workspace corresponds directly with the lerna packages of the same name.
 
-## Launch configurations
+## Launch Configurations
 
 VSCode lets you define launch configurations via JSON.  See examples below to get started.
 
 > NOTE: The below configurations will only work in a multi-workspace otherwise ${workspaceFolder} will point to the root of the project and not the root of the workspace
         
-### Debugging the generator
+### Debugging the Generator
 
 The exchange-connector and core don't have any logic when you build them.  If you want to debug those you should write a test and use the below example for debugging tests.
 
@@ -72,14 +72,14 @@ What if you want to troubleshoot a part of the rendering that is happening when 
     }
 ```
 
-As long as you have a .env with your credentials for exchange, this will now download from exchange and let you step through to debug as well.
+As long as you have a .env with your credentials for Exchange, this will now download from Exchange and let you step through to debug as well.
 
 
-### Debugging tests
+### Debugging Tests
 
-Sometimes you need to debug what a test is doing. This can be accomplished by adding the below example as a workspace config to any workspace.
+Sometimes you need to debug what a test is doing. This can be accomplished by adding the example below as a workspace config to any workspace.
 
-Specifically, this allows you to debug a single test file easily and add breakpoints and/or watches within said test file.
+Specifically, this allows you to debug a single test file easily and add breakpoints and/or watches within the test file.
 
 ```json
 {
@@ -104,4 +104,4 @@ Specifically, this allows you to debug a single test file easily and add breakpo
 }  
 ```
 
-To read more about debugging in VSCODE you can view that here: https://code.visualstudio.com/docs/editor/debugging
+See [Debugging](https://code.visualstudio.com/docs/editor/debugging) for details on debugging in VSCODE. 

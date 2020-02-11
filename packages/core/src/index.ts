@@ -11,8 +11,6 @@ export {
   ResponseError
 } from "./base/client";
 
-export { IAuthScheme, AccountManager, AuthSchemes } from "./base/authSchemes";
-
 import { _get, _delete, _patch, _post, _put } from "./base/staticClient";
 
 export const StaticClient = {

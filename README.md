@@ -4,7 +4,7 @@ Salesforce Commerce Node.js SDK
 
 [![CircleCI][circleci-image]][circleci-url]
 
-## What is this?
+## What is This?
 
 commerce-sdk is a Node.js SDK for Salesforce Commerce. It provides easy access to the Salesforce Commerce platform RESTful APIs.
 
@@ -24,7 +24,7 @@ The Core package represents the core functions that call the APIs and interact w
 
 ### @commerce-apps/exchange-connector
 
-The exchange-connector package downloads RAML files from Anypoint Exchange to build the SDK. It is used by the generator but not the generated SDK. Read more about the exchange-connector package[here](./packages/exchange-connector/README.md).
+The exchange-connector package downloads RAML files from Anypoint Exchange to build the SDK. It is used by the generator but not the generated SDK. Read more about the exchange-connector package [here](./packages/exchange-connector/README.md).
 
 ## Setup
 
@@ -60,7 +60,7 @@ To run tests in the generator package only, execute
 npm run test:generator
 ```
 
-### Additional documentation
+### Additional Documentation
 
 [Using VSCODE](./docs/vscode.md)
 [Code Generation](./packages/generator/docs/GENERATOR.md)
