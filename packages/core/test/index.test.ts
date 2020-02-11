@@ -9,7 +9,6 @@ import {
   ClientConfig,
   commonParameterPositions,
   CommonParameters,
-  IAuthScheme,
   Response,
   ResponseError,
   StaticClient

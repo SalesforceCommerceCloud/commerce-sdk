@@ -20,6 +20,9 @@ To use an SDK client, instantiate an object of that client and configure these p
 | --------- | :----------- |
 | baseUri | URL of the service with which the SDK interacts. If the baseUri isn't provided, the default baseUri for the relevant RAML file is used.  |
 | clientId | ID of the client account created with Salesforce Commerce. |
+| organizationId | The unique identifier for your Salesforce identity. |
+| shortCode | Region specific ID. |
+| siteId | A unique site ID (for example, RefArch or SiteGenesis). |
 
 
 

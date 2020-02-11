@@ -7,7 +7,6 @@
 import { default as fetch, Response, RequestInit } from "make-fetch-happen";
 import { Resource } from "./resource";
 import { BaseClient } from "./client";
-import { IAuthScheme } from "./auth-schemes";
 const CONTENT_TYPE = "application/json";
 import _ from "lodash";
 
@@ -38,7 +37,6 @@ async function runFetch(
     pathParameters?: object;
     queryParameters?: object;
     headers?: { [key: string]: string };
-    authScheme?: IAuthScheme;
     rawResponse?: boolean;
     body?: any;
   }
@@ -55,18 +53,9 @@ async function runFetch(
     method: method
   };
 
-  // If there's an auth scheme, update the client headers with the auth info
-  // and set the headers for the call or just set the headers for the call
-  if (options.authScheme) {
-    options.authScheme.init(options.client);
-    fetchOptions.headers = _.clone(
-      await options.authScheme.injectAuth(options.client.clientConfig.headers)
-    );
-  } else {
-    fetchOptions.headers = options.client.clientConfig.headers
-      ? _.clone(options.client.clientConfig.headers)
-      : {};
-  }
+  fetchOptions.headers = options.client.clientConfig.headers
+    ? _.clone(options.client.clientConfig.headers)
+    : {};
 
   // if headers have been given for just this call, merge those in
   if (options.headers) {
@@ -93,7 +82,6 @@ export function _get(options: {
   pathParameters?: object;
   queryParameters?: object;
   headers?: { [key: string]: string };
-  authScheme?: IAuthScheme;
   rawResponse?: boolean;
 }): Promise<object> {
   return runFetch("get", options);
@@ -105,7 +93,6 @@ export function _delete(options: {
   pathParameters?: object;
   queryParameters?: object;
   headers?: { [key: string]: string };
-  authScheme?: IAuthScheme;
   rawResponse?: boolean;
 }): Promise<object> {
   return runFetch("delete", options);
@@ -117,7 +104,6 @@ export function _patch(options: {
   pathParameters?: object;
   queryParameters?: object;
   headers?: { [key: string]: string };
-  authScheme?: IAuthScheme;
   rawResponse?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;
@@ -131,7 +117,6 @@ export function _post(options: {
   pathParameters?: object;
   queryParameters?: object;
   headers?: { [key: string]: string };
-  authScheme?: IAuthScheme;
   rawResponse?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;
@@ -145,7 +130,6 @@ export function _put(options: {
   pathParameters?: object;
   queryParameters?: object;
   headers?: { [key: string]: string };
-  authScheme?: IAuthScheme;
   rawResponse?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;
