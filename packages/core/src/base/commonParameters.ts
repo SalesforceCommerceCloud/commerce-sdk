@@ -16,6 +16,7 @@ export const commonParameterPositions = {
 };
 
 export type CommonParameters = {
+  clientId?: string;
   organizationId?: string;
   shortCode?: string;
   siteId?: string;
