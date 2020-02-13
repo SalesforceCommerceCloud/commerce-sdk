@@ -6,11 +6,11 @@ The exchange-connector package allows downloading RAML files from Anypoint Excha
 
 Install dependencies and build exchange-connector:
 
-To set up the exchange-connector: `npm install`
+1. Set up the exchange-connector: `npm install`
 
-To build the exchange-connector: `npm run build`
+2. Build the exchange-connector: `npm run build`
 
-To link (optional):`npm link`
+3. Link (optional):`npm link`
 
 ## Usage
 

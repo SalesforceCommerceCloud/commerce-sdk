@@ -37,13 +37,13 @@ Build npm: `npm run build`
 > **Note:** See Setup for prerequisites.
 
 To run tests in all the packages:`npm test`
-```
+
 To print the detailed test results and errors on the console:`npm run test:debug`
-```
+
 To run tests in the core package only:`npm run test:core`
-```
+
 To run tests in the exchange-connector package only:`npm run test:ec`
-```
+
 To run tests in the generator package only:`npm run test:generator`
 
 ### Documentation
