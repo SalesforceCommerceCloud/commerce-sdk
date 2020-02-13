@@ -1,10 +1,11 @@
 # commerce-sdk
-The Commerce SDK allows easy interaction with the B2C Commerce platform APIs on the Node.js runtime.
+
+The Salesforce Commerce SDK allows easy interaction with the Salesforce B2C Commerce platform APIs on the Node.js runtime.
 ​
 ## Prerequisites
 Download and install Node.js and npm [here](https://nodejs.org/en/download/).
 ​
-> **Note:** Only Node.js version 10 and 12 are supported. Other versions can cause unexpected results. To use a different version of Node.js for other projects, you can manage multiple versions of Node.js with [nvm](https://github.com/nvm-sh/nvm).
+> **Note:** Only Node.js version 10 and 12 LTS are supported. Other versions can cause unexpected results. To use a different version of Node.js for other projects, you can manage multiple versions of Node.js with [nvm](https://github.com/nvm-sh/nvm).
 ​
 ## Installation
 Use npm to install the Commerce SDK.
@@ -13,7 +14,7 @@ Use npm to install the Commerce SDK.
 npm install commerce-sdk
 ```
 ## Usage
-To use an SDK client, instantiate an object of that client and configure these parameters. 
+To use an SDK client, instantiate an object of that client and configure these parameters.
 > **Note:** These are optional parameters.
 
 | Parameter | Description |
@@ -26,10 +27,10 @@ To use an SDK client, instantiate an object of that client and configure these p
 
 
 
-### Sample Code 
+### Sample Code
 ```javascript
 /**
- * Sample TypeScript code shows how Commerce SDK can access Salesforce Commerce 
+ * Sample TypeScript code shows how Commerce SDK can access Salesforce Commerce
  * APIs.
  */
 ​
