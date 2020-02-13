@@ -366,5 +366,4 @@ describe("Test resolving API model", () => {
         expect(resolvedModel).to.exist;
       });
   });
-  /**/
 });

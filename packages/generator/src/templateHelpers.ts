@@ -261,11 +261,10 @@ export const getValue = function(name: any): string {
 type propertyFilter = (propertyName: string) => boolean;
 
 /**
- * Get properties of the DTO - inherited and linked
+ * Get properties of the DTO (inherited and linked) after applying the given filter criteria
  *
  * @param dtoTypeModel AMF model of the dto
- * @param properties Array of properties in the dto
- * @param existingProps Set of property names in the dto, used to de-duplicate the properties
+ * @param propertyFilter function to filter properties based on certain criteria
  */
 const getFilteredProperties = function(
   dtoTypeModel: model.domain.NodeShape | null | undefined,
