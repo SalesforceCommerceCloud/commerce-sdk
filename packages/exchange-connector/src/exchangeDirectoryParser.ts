@@ -43,11 +43,8 @@ export function extractFiles(
                 )
               })
               .on("error", reject)
-              .on("finish", () => {
+              .on("close", () => {
                 if (removeFiles) {
-                  console.log(
-                    "Removing " + path.join(path.resolve(directory), file.name)
-                  );
                   fs.removeSync(path.join(path.resolve(directory), file.name));
                 }
                 resolve();

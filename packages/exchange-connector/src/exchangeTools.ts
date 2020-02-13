@@ -7,6 +7,14 @@
 import { RestApi } from "./exchangeTypes";
 import _ from "lodash";
 
+/**
+ * @description Group APIs by a category in exchange
+ * @export
+ * @param {RestApi[]} apis
+ * @param {string} groupBy
+ * @param {boolean} [allowUnclassified=true]
+ * @returns {{ [key: string]: RestApi[] }} List of Apis grouped by category
+ */
 export function groupByCategory(
   apis: RestApi[],
   groupBy: string,
