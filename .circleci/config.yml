@@ -54,13 +54,13 @@ workflows:
       - build
       - build-12
       - hold:
-        filters:
-          tags:
-            only: /^v.*/
-        type: approval
-        requires:
-          - build
-          - build-12
+          filters:
+            tags:
+              only: /^v.*/
+          type: approval
+          requires:
+            - build
+            - build-12
       - publish:
           requires:
             - hold
