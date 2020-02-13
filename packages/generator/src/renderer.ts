@@ -16,6 +16,7 @@ import {
 } from "./parser";
 
 import {
+  getSecurityScheme,
   getBaseUri,
   isDefinedProperty,
   getDataType,
@@ -74,7 +75,7 @@ const apiFamilyTemplate = Handlebars.compile(
 
 export const renderOperationListTemplate = Handlebars.compile(
   fs.readFileSync(
-    path.join(templateDirectory, "operationList.yaml.hbs"),
+    path.join(templateDirectory, "operationList.csv.hbs"),
     "utf8"
   )
 );
@@ -325,6 +326,8 @@ Handlebars.registerHelper("onlyRequired", onlyRequired);
 Handlebars.registerHelper("onlyOptional", onlyOptional);
 
 Handlebars.registerHelper("onlyAdditional", onlyAdditional);
+
+Handlebars.registerHelper("getSecurityScheme", getSecurityScheme);
 
 Handlebars.registerHelper(
   "isAdditionalPropertiesAllowed",

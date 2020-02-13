@@ -5,7 +5,7 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 export default {
-  inputDir: "test/raml/valid/",
+  inputDir: "test/raml/valid/fromExchange",
   renderDir: "renderedTemplates",
   apiFamily: "CC API Family",
   exchangeSearch: 'category:"CC Visibility" = "External"',

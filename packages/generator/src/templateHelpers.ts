@@ -16,6 +16,7 @@ import {
   OBJECT_DATA_TYPE,
   ARRAY_DATA_TYPE
 } from "./config";
+import { AuthSchemes } from "@commerce-apps/core/dist/base/auth-schemes";
 
 /**
  * Additional properties are allowed in RAML type definitions using regular expressions
@@ -290,6 +291,60 @@ export const onlyRequired = function(
       !ADDITIONAL_PROPERTY_REGEX_NAMES.includes(entry.name.value())
     );
   });
+};
+
+export const getSecurityScheme = function(
+  security: any,
+  security1: any
+): string {
+  const secSchemesSupported = security.security;
+  const secSchemeNames = [];
+  secSchemesSupported.forEach(s => {
+    if (!_.isNil(s.schemes)) {
+      s.schemes.forEach(t => {
+        secSchemeNames.push(t.name.value());
+      });
+    }
+  });
+
+  if (secSchemeNames.includes("CommerceCloudStandards.AmOAuth2")) {
+    return secSchemeNames.join(" or ").concat(", YES");
+  }
+
+  if (secSchemeNames.includes("CommerceCloudStandards.ShopperToken")) {
+    return secSchemeNames.join(" or ").concat(", YES");
+  }
+
+  if (secSchemeNames.length > 0) {
+    return secSchemeNames.join(" or ").concat(", NO");
+  }
+  return ", NO (Not Defined)";
+
+  //
+  //
+  //
+  // const secSchemes: model.domain.SecurityRequirement = _.first(
+  //   security.security
+  // );
+  //
+  // let secScheme: model.domain.ParametrizedSecurityScheme = undefined;
+  //
+  // if (!_.isNil(secSchemes)) {
+  //   secScheme = _.first(secSchemes.schemes);
+  // }
+  // // Ensures we found an auth scheme that we support
+  // // This current only supports a SINGLE auth scheme at a time, need to figure out the best way of supporting multiple
+  // if (!_.isNil(secScheme)) {
+  //   if (
+  //     secScheme.name.value() === "CommerceCloudStandards.AmOAuth2" ||
+  //     secScheme.name.value() === "CommerceCloudStandards.ShopperToken"
+  //   ) {
+  //     return secScheme.name.value().concat(", YES");
+  //   } else {
+  //     return secScheme.name.value().concat(", NO");
+  //   }
+  // }
+  // return ", NO (Not Defined)";
 };
 
 /**

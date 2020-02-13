@@ -151,7 +151,7 @@ gulp.task(
 
     return Promise.all(modelingPromises).then(() => {
       fs.writeFileSync(
-        path.join(config.renderDir, "operationList.yaml"),
+        path.join(config.renderDir, "operationList.csv"),
         renderOperationList(allApis)
       );
     });
