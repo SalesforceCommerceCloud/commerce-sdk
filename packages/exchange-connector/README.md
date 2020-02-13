@@ -1,19 +1,16 @@
 # `exchange-connector`
 
-The exchange-connector package allows downloading RAML files from anypoint exchange.
+The exchange-connector package allows downloading RAML files from Anypoint Exchange.
 
 ## Setup
 
-Execute the following commands to install dependencies and build exchange-connector.
+Install dependencies and build exchange-connector:
 
-    # To setup
-    npm install
+To set up the exchange-connector: `npm install`
 
-    # To build
-    npm run build
+To build the exchange-connector: `npm run build`
 
-    # To link (Optional)
-    npm link
+To link (optional):`npm link`
 
 ## Usage
 
@@ -32,14 +29,11 @@ downloadRestApi(restApi: RestApi, destinationFolder: string): Promise<void | Res
 
 ## Testing
 
-To run tests, execute
-```bash
-npm run test
-```
-To print the detailed test results and errors on the console, execute
-```bash
-npm run test:debug
-```
+To run tests: `npm run test`
 
-## License Information
+To print the detailed test results and errors on the console:
+`npm run test:debug`
+
+
+## License
 This package is licensed under BSD-3-Clause license. See the [license](./LICENSE.txt) for details.
