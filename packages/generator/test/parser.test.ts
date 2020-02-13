@@ -10,13 +10,14 @@ import {
   getAllDataTypes,
   getApiName,
   groupByCategory,
-  getNormalizedName
+  resolveApiModel
 } from "../src/parser";
 import {
   WebApiBaseUnitWithDeclaresModel,
   WebApiParser,
   model,
-  webapi
+  webapi,
+  WebApiBaseUnitWithEncodesModel
 } from "webapi-parser";
 
 import { expect, default as chai } from "chai";
@@ -330,4 +331,40 @@ describe("Test groupByCategory method", () => {
       unclassified: [safeApisObject[1]]
     });
   });
+});
+
+describe("Test resolving API model", () => {
+  it("Test with null model", () => {
+    return expect(() => resolveApiModel(null, "editing")).to.throw(
+      "Invalid API model provided to resolve"
+    );
+  });
+  it("Test with undefined model", () => {
+    return expect(() => resolveApiModel(undefined, "editing")).to.throw(
+      "Invalid API model provided to resolve"
+    );
+  });
+  it("Test with null resolution pipeline", () => {
+    const apiModel = new webapi.WebApiExternalFragment();
+    return expect(() => resolveApiModel(apiModel, null)).to.throw(
+      "Invalid resolution pipeline provided to resolve"
+    );
+  });
+  it("Test with undefined resolution pipeline", () => {
+    const apiModel = new webapi.WebApiExternalFragment();
+    return expect(() => resolveApiModel(apiModel, undefined)).to.throw(
+      "Invalid resolution pipeline provided to resolve"
+    );
+  });
+  it("Test with valid model and resolution pipeline", () => {
+    const ramlFile = path.join(__dirname, "/raml/valid/site/site.raml");
+    return processRamlFile(ramlFile)
+      .then(s => {
+        return resolveApiModel(s as WebApiBaseUnitWithEncodesModel, "editing");
+      })
+      .then(resolvedModel => {
+        expect(resolvedModel).to.exist;
+      });
+  });
+  /**/
 });

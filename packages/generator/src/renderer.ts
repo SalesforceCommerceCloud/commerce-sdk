@@ -26,14 +26,14 @@ import {
   getArrayElementTypeProperty,
   getReturnPayloadType,
   getValue,
-  onlyAdditional,
+  getAdditionalProperties,
   isAdditionalPropertiesAllowed,
   isTypeDefinition,
   isCommonQueryParameter,
   isCommonPathParameter,
-  getAllProperties,
-  isRequired,
-  isOptional
+  getProperties,
+  isRequiredProperty,
+  isOptionalProperty
 } from "./templateHelpers";
 import {
   WebApiBaseUnit,
@@ -326,7 +326,7 @@ Handlebars.registerHelper("getReturnPayloadType", getReturnPayloadType);
 
 Handlebars.registerHelper("getValue", getValue);
 
-Handlebars.registerHelper("onlyAdditional", onlyAdditional);
+Handlebars.registerHelper("getAdditionalProperties", getAdditionalProperties);
 
 Handlebars.registerHelper(
   "isAdditionalPropertiesAllowed",
@@ -337,8 +337,8 @@ Handlebars.registerPartial("dtoPartial", dtoPartial);
 
 Handlebars.registerPartial("operationsPartial", operationsPartialTemplate);
 
-Handlebars.registerHelper("getAllProperties", getAllProperties);
+Handlebars.registerHelper("getProperties", getProperties);
 
-Handlebars.registerHelper("isRequired", isRequired);
+Handlebars.registerHelper("isRequiredProperty", isRequiredProperty);
 
-Handlebars.registerHelper("isOptional", isOptional);
+Handlebars.registerHelper("isOptionalProperty", isOptionalProperty);

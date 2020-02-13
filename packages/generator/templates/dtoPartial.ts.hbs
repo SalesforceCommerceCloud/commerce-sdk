@@ -1,15 +1,15 @@
 {
-{{#each (getAllProperties typeDto)}}
-{{#if (isRequired .)}}
+{{#each (getProperties typeDto)}}
+{{#if (isRequiredProperty .)}}
     {{{getValue name}}}: {{#or (eq (getDataType .) "object")}}{{> dtoPartial typeDto=range }}{{else}}{{{getDataType .}}}{{/or}};
-{{else if (isOptional .)}}
+{{else if (isOptionalProperty .)}}
     {{{getValue name}}}?: {{#or (eq (getDataType .) "object")}}{{> dtoPartial typeDto=range }}{{else}}{{{getDataType .}}}{{/or}};
 {{/if}}
 {{/each}}
 }
 {{~#if (isAdditionalPropertiesAllowed typeDto)}}
-{{#if (onlyAdditional typeDto)}}
-{{#each (onlyAdditional typeDto)}}
+{{#if (getAdditionalProperties typeDto)}}
+{{#each (getAdditionalProperties typeDto)}}
  & { [key: string]: {{#or (eq (getDataType .) "object")}}{{> dtoPartial typeDto=range }}{{else}}{{{getDataType .}}}{{/or}} }
 {{/each}}
 {{else}}

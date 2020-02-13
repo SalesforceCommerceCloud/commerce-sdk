@@ -122,13 +122,17 @@ export function processApiFamily(
  */
 export function resolveApiModel(
   apiModel: WebApiBaseUnitWithEncodesModel,
-  resolutionPipeline: string
+  resolutionPipeline: "default" | "editing" | "compatibility"
 ): WebApiBaseUnitWithEncodesModel {
+  /**
+   * TODO: core.resolution.pipelines.ResolutionPipeline has all the pipelines defined but is throwing an error when used - "Cannot read property 'pipelines' of undefined".
+   *  When this is fixed we should change the type of input param "resolutionPipeline"
+   */
   if (apiModel == null) {
-    throw new Error("Invalid API model");
+    throw new Error("Invalid API model provided to resolve");
   }
-  if (!resolutionPipeline) {
-    throw new Error("Invalid resolution pipeline");
+  if (resolutionPipeline == null) {
+    throw new Error("Invalid resolution pipeline provided to resolve");
   }
   const resolver = new Raml10Resolver();
   return resolver.resolve(

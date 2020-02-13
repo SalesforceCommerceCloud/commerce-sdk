@@ -83,7 +83,7 @@ export const isArrayProperty = function(property: any): boolean {
 
 export const isTypeDefined = function(range: any): boolean {
   if (
-    range !== undefined &&
+    range != null &&
     !range.items &&
     Array.isArray(range.inherits) &&
     range.inherits.length > 0 &&
@@ -258,6 +258,8 @@ export const getValue = function(name: any): string {
   return null;
 };
 
+type propertyFilter = (propertyName: string) => boolean;
+
 /**
  * Get properties of the DTO - inherited and linked
  *
@@ -265,39 +267,46 @@ export const getValue = function(name: any): string {
  * @param properties Array of properties in the dto
  * @param existingProps Set of property names in the dto, used to de-duplicate the properties
  */
-export const getProperties = function(
-  dtoTypeModel: model.domain.NodeShape,
-  properties: model.domain.PropertyShape[],
-  existingProps: Set<string>
-): void {
-  if (dtoTypeModel == null) {
-    return;
-  }
-  if (dtoTypeModel.properties != null && dtoTypeModel.properties.length > 0) {
-    dtoTypeModel.properties.forEach(prop => {
-      const propName = getValue(prop.name);
-      //ignore duplicate props
-      if (propName != null && !existingProps.has(propName)) {
-        existingProps.add(propName);
-        properties.push(prop);
+const getFilteredProperties = function(
+  dtoTypeModel: model.domain.NodeShape | null | undefined,
+  propertyFilter: propertyFilter
+): model.domain.PropertyShape[] {
+  const properties: model.domain.PropertyShape[] = [];
+  const existingProps: Set<string> = new Set();
+
+  while (dtoTypeModel != null) {
+    if (dtoTypeModel.properties != null && dtoTypeModel.properties.length > 0) {
+      dtoTypeModel.properties.forEach(prop => {
+        if (prop != null) {
+          const propName = getValue(prop.name);
+          //ignore duplicate props
+          if (
+            propName != null &&
+            !existingProps.has(propName) &&
+            propertyFilter(propName) === true
+          ) {
+            existingProps.add(propName);
+            properties.push(prop);
+          }
+        }
+      });
+      //Check if there are any inherited properties
+      if (dtoTypeModel.inherits != null && dtoTypeModel.inherits.length > 0) {
+        dtoTypeModel = dtoTypeModel.inherits[0] as model.domain.NodeShape;
+      } else {
+        dtoTypeModel = null;
       }
-    });
-    //Check if there are any inherited properties
-    if (dtoTypeModel.inherits != null && dtoTypeModel.inherits.length > 0) {
-      getProperties(
-        dtoTypeModel.inherits[0] as model.domain.NodeShape,
-        properties,
-        existingProps
-      );
+    } else if (
+      dtoTypeModel.isLink === true &&
+      dtoTypeModel.linkTarget != null
+    ) {
+      //check if other DTO is linked
+      dtoTypeModel = dtoTypeModel.linkTarget as model.domain.NodeShape;
+    } else {
+      dtoTypeModel = null;
     }
-  } else if (dtoTypeModel.isLink === true && dtoTypeModel.linkTarget != null) {
-    //check if other DTO is linked
-    getProperties(
-      dtoTypeModel.linkTarget as model.domain.NodeShape,
-      properties,
-      existingProps
-    );
   }
+  return properties;
 };
 
 /**
@@ -306,13 +315,12 @@ export const getProperties = function(
  * @param dtoTypeModel AMF model of the dto
  * @returns Array of properties in the dto
  */
-export const getAllProperties = function(
-  dtoTypeModel: model.domain.NodeShape
+export const getProperties = function(
+  dtoTypeModel: model.domain.NodeShape | undefined | null
 ): model.domain.PropertyShape[] {
-  const props: model.domain.PropertyShape[] = [];
-  const existingProps: Set<string> = new Set();
-  getProperties(dtoTypeModel, props, existingProps);
-  return props;
+  return getFilteredProperties(dtoTypeModel, propertyName => {
+    return !ADDITIONAL_PROPERTY_REGEX_NAMES.includes(propertyName);
+  });
 };
 
 /**
@@ -323,14 +331,10 @@ export const getAllProperties = function(
  * @param property
  * @returns true if the property is required
  */
-export const isRequired = function(
+export const isRequiredProperty = function(
   property: model.domain.PropertyShape
 ): boolean {
-  return (
-    property != null &&
-    property.minCount.value() > 0 &&
-    !ADDITIONAL_PROPERTY_REGEX_NAMES.includes(property.name.value())
-  );
+  return property != null && property.minCount.value() > 0;
 };
 
 /**
@@ -341,14 +345,10 @@ export const isRequired = function(
  * @param property
  * @returns true if the property is optional
  */
-export const isOptional = function(
+export const isOptionalProperty = function(
   property: model.domain.PropertyShape
 ): boolean {
-  return (
-    property != null &&
-    property.minCount.value() == 0 &&
-    !ADDITIONAL_PROPERTY_REGEX_NAMES.includes(property.name.value())
-  );
+  return property != null && property.minCount.value() == 0;
 };
 
 /**
@@ -375,10 +375,10 @@ export const isAdditionalPropertiesAllowed = function(
  * @param dtoTypeModel - AMF model of the dto {model.domain.NodeShape}
  * @returns {model.domain.PropertyShape[]} Array of additional properties
  */
-export const onlyAdditional = function(
+export const getAdditionalProperties = function(
   dtoTypeModel: model.domain.NodeShape
 ): model.domain.PropertyShape[] {
-  return getAllProperties(dtoTypeModel).filter(entry => {
-    return ADDITIONAL_PROPERTY_REGEX_NAMES.includes(entry.name.value());
+  return getFilteredProperties(dtoTypeModel, propertyName => {
+    return ADDITIONAL_PROPERTY_REGEX_NAMES.includes(propertyName);
   });
 };
