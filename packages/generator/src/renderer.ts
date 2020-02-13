@@ -11,7 +11,6 @@ import {
   getAllDataTypes,
   processApiFamily,
   getApiName,
-  groupByCategory,
   getNormalizedName
 } from "./parser";
 
@@ -39,7 +38,7 @@ import {
   WebApiBaseUnitWithEncodesModel
 } from "webapi-parser";
 import _ from "lodash";
-import { RestApi } from "@commerce-apps/exchange-connector";
+import { RestApi, groupByCategory } from "@commerce-apps/exchange-connector";
 
 const templateDirectory = `${__dirname}/../templates`;
 
@@ -196,7 +195,8 @@ export function createVersionFile(
 ): void {
   const apiFamilyGroups = groupByCategory(apis, config["apiFamily"]);
   fs.writeFileSync(
-    path.join(__dirname, "..", "VERSION.md"),
+    // Write to the directory with the API definitions
+    path.join("..", "..", "VERSION.md"),
     versionTemplate(apiFamilyGroups)
   );
 }
@@ -281,6 +281,8 @@ export function renderTemplates(config: any): Promise<void> {
       path.join(config.renderDir, "helpers.ts"),
       createHelpers(config)
     );
+
+    createVersionFile(apiFamilyRamlConfig, config);
   });
 }
 

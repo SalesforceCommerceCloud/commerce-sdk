@@ -4,9 +4,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import fs from "fs";
+import fs from "fs-extra";
 import path from "path";
 import unzipper from "unzipper";
+import { RestApi } from "./exchangeTypes";
 
 function getFiles(directory): fs.Dirent[] {
   return fs.readdirSync(path.join(directory), {
@@ -21,7 +22,10 @@ function getFiles(directory): fs.Dirent[] {
  * zip files are usually downloaded from Anypoint exchange
  * @param directory
  */
-export function extractFiles(directory: string): Promise<void> {
+export function extractFiles(
+  directory: string,
+  removeFiles = true
+): Promise<void> {
   const files: fs.Dirent[] = getFiles(directory);
   const promises: Promise<void>[] = [];
   files.forEach(file => {
@@ -39,7 +43,15 @@ export function extractFiles(directory: string): Promise<void> {
                 )
               })
               .on("error", reject)
-              .on("close", resolve)
+              .on("finish", () => {
+                if (removeFiles) {
+                  console.log(
+                    "Removing " + path.join(path.resolve(directory), file.name)
+                  );
+                  fs.removeSync(path.join(path.resolve(directory), file.name));
+                }
+                resolve();
+              })
           );
         })
       );

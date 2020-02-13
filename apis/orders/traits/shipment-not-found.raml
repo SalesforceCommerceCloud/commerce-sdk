@@ -1,0 +1,21 @@
+#%RAML 1.0 Trait
+description: This trait represents API behavior for a 404 response when a shipment was not found.
+
+uses:
+  DataTypes: ../data-types.raml
+  
+responses:
+  404:
+    description: |
+            The given shipment id does not reference an existing shipment.
+    body:
+      application/problem+json:
+        type: DataTypes.ErrorResponse
+        example: |
+          {
+            "arguments": {
+              "shipmentId": "express_shipment"
+            },
+            "type": "ShipmentNotFoundException",
+            "message": "No shipment with ID 'express_shipment' could be found."
+          }

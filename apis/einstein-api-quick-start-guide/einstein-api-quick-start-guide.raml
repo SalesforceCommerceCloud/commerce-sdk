@@ -1,0 +1,574 @@
+#%RAML 1.0
+title: Einstein API Quick Start Guide
+version: v3
+mediaType: application/json
+protocols:
+  - HTTPS
+baseUri: 'https://ai.salesforce.com/v3'
+description: This guide covers the minimum implementation of Einstein Recommendations.
+/activities:
+  displayName: Activities
+  '/{siteId}/viewProduct':
+    displayName: viewProduct
+    uriParameters:
+      siteId:
+        type: SiteIdParam
+    post:
+      displayName: sendViewProduct
+      description: Tells the Einstein engine when a user views a product.
+      queryParameters:
+        clientId:
+          type: ClientIdParam
+      body:
+        application/json:
+          type: object
+          properties:
+            product:
+              type: ProductForView
+            userId:
+              type: UserIdParam
+              required: false
+            cookieId:
+              type: CookieIdParam
+              required: false
+            uuid:
+              type: UuidParam
+              required: false
+            clientIp:
+              type: ClientIpParam
+              required: false
+            clientUserAgent:
+              type: ClientUserAgentParam
+              required: false
+      responses:
+        '200':
+          description: A successful response will contain a uuid for the given user.
+          body:
+            application/json:
+              type: ActivityResponse
+        '400':
+          description: >-
+            A validation error response will contain an array of invalid
+            parameters.
+          body:
+            application/json:
+              type: Error
+  '/{siteId}/viewReco':
+    displayName: viewReco
+    uriParameters:
+      siteId:
+        type: SiteIdParam
+    post:
+      displayName: sendViewReco
+      description: Tells the Einstein engine when a user views a set of recommendations
+      queryParameters:
+        clientId:
+          type: ClientIdParam
+      body:
+        application/json:
+          type: object
+          properties:
+            recommenderName:
+              type: string
+              description: The name of the recommender used in the recommendation request.
+            products:
+              type: array
+              description: Array of recommendations the user viewed.
+              items:
+                type: ProductForView
+            userId:
+              type: UserIdParam
+              required: false
+            cookieId:
+              type: CookieIdParam
+              required: false
+            uuid:
+              type: UuidParam
+              required: false
+            clientIp:
+              type: ClientIpParam
+              required: false
+            clientUserAgent:
+              type: ClientUserAgentParam
+              required: false
+      responses:
+        '200':
+          description: A successful response will contain a uuid for the given user.
+          body:
+            application/json:
+              type: ActivityResponse
+        '400':
+          description: >-
+            A validation error response will contain an array of invalid
+            parameters.
+          body:
+            application/json:
+              type: Error
+  '/{siteId}/clickReco':
+    displayName: clickReco
+    uriParameters:
+      siteId:
+        type: SiteIdParam
+    post:
+      displayName: sendClickReco
+      description: Tells the Einstein engine when a user clicks on a recommendation
+      queryParameters:
+        clientId:
+          type: ClientIdParam
+      body:
+        application/json:
+          type: object
+          properties:
+            recommenderName:
+              type: string
+              description: The name of the recommender used in the recommendation request.
+            product:
+              type: ProductForView
+            userId:
+              type: UserIdParam
+              required: false
+            cookieId:
+              type: CookieIdParam
+              required: false
+            uuid:
+              type: UuidParam
+              required: false
+            clientIp:
+              type: ClientIpParam
+              required: false
+            clientUserAgent:
+              type: ClientUserAgentParam
+              required: false
+      responses:
+        '200':
+          description: A successful response will contain a uuid for the given user.
+          body:
+            application/json:
+              type: ActivityResponse
+        '400':
+          description: >-
+            A validation error response will contain an array of invalid
+            parameters.
+          body:
+            application/json:
+              type: Error
+  '/{siteId}/addToCart':
+    displayName: addToCart
+    uriParameters:
+      siteId:
+        type: SiteIdParam
+    post:
+      displayName: sendAddToCart
+      description: Tells the Einstein engine when a user adds an item to their cart.
+      queryParameters:
+        clientId:
+          type: ClientIdParam
+      body:
+        application/json:
+          type: object
+          properties:
+            products:
+              type: array
+              description: Array of products the user has added to their cart.
+              items:
+                type: ProductForCheckout
+            userId:
+              type: UserIdParam
+              required: false
+            cookieId:
+              type: CookieIdParam
+              required: false
+            uuid:
+              type: UuidParam
+              required: false
+            clientIp:
+              type: ClientIpParam
+              required: false
+            clientUserAgent:
+              type: ClientUserAgentParam
+              required: false
+      responses:
+        '200':
+          description: A successful response will contain a uuid for the given user.
+          body:
+            application/json:
+              type: ActivityResponse
+        '400':
+          description: >-
+            A validation error response will contain an array of invalid
+            parameters.
+          body:
+            application/json:
+              type: Error
+/personalization:
+  displayName: Personalization
+  '/recommenders/{siteId}':
+    displayName: Recommenders
+    uriParameters:
+      siteId:
+        type: SiteIdParam
+    get:
+      displayName: getRecommenders
+      description: Get a list of recommenders that can be used in recommendation requests.
+      queryParameters:
+        clientId:
+          type: ClientIdParam
+      responses:
+        '200':
+          description: >-
+            A successful response will contain a list of recommenders available
+            for use in recommendation requests.
+          body:
+            application/json:
+              type: RecommendersResponse
+        '400':
+          description: >-
+            Either there was no OCAPI client id in the request, or the given
+            OCAPI client id was not valid.
+          body:
+            application/json:
+              type: Error
+        '403':
+          description: The given site ID is not valid.
+          body:
+            application/json:
+              type: Error
+  '/recs/{siteId}/{recommenderName}':
+    displayName: Recommendations
+    uriParameters:
+      siteId:
+        type: SiteIdParam
+      recommenderName:
+        type: string
+        description: >-
+          Name of the recommender to use for recommendations. This item should
+          exist in a response to GET /recommenders for the same site id.
+    post:
+      displayName: getRecommendations
+      description: Get a set of recommendations
+      queryParameters:
+        clientId:
+          type: ClientIdParam
+      body:
+        application/json:
+          type: object
+          properties:
+            products:
+              type: array
+              description: >-
+                Products to use as context for generating recommendations. Any
+                given request must have only one of categories or products.
+              items:
+                type: ProductForView
+            categories:
+              type: array
+              description: >-
+                Product categories to use as context for generating
+                recommendations. Any given request must have only one of
+                categories or products.
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: A unique identifier for the given category.
+            rules:
+              type: Rules
+            userId:
+              type: UserIdParam
+              required: false
+            cookieId:
+              type: CookieIdParam
+              required: false
+            uuid:
+              type: UuidParam
+              required: false
+            clientIp:
+              type: ClientIpParam
+              required: false
+            clientUserAgent:
+              type: ClientUserAgentParam
+              required: false
+      responses:
+        '200':
+          description: A successful response will contain a set of recommendations.
+          body:
+            application/json:
+              type: RecommendationsResponse
+        '400':
+          description: A request parameter was missing or invalid.
+          body:
+            application/json:
+              type: Error
+        '404':
+          description: Either the given `recommenderName` or `siteId` was invalid.
+          body:
+            application/json:
+              type: Error
+  '/{siteId}/zones/{zoneName}':
+    displayName: Zone Recommendations
+    uriParameters:
+      siteId:
+        type: SiteIdParam
+      zoneName:
+        type: string
+        description: Name of the recommendation zone.
+    post:
+      displayName: getZoneRecommendations
+      description: Get a set of recommendations for a zone
+      queryParameters:
+        clientId:
+          type: ClientIdParam
+      body:
+        application/json:
+          type: object
+          properties:
+            products:
+              type: array
+              description: >-
+                Products to use as context for generating recommendations. Any
+                given request must have only one of categories or products.
+              items:
+                type: ProductForView
+            categories:
+              type: array
+              description: >-
+                Product categories to use as context for generating
+                recommendations. Any given request must have only one of
+                categories or products.
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: A unique identifier for the given category.
+            rules:
+              type: Rules
+            userId:
+              type: UserIdParam
+              required: false
+            cookieId:
+              type: CookieIdParam
+              required: false
+            uuid:
+              type: UuidParam
+              required: false
+            clientIp:
+              type: ClientIpParam
+              required: false
+            clientUserAgent:
+              type: ClientUserAgentParam
+              required: false
+      responses:
+        '200':
+          description: A successful response will contain a set of recommendations.
+          body:
+            application/json:
+              type: ZoneResponse
+        '400':
+          description: A request parameter was missing or invalid.
+          body:
+            application/json:
+              type: Error
+        '404':
+          description: Either the given `recommenderName` or `siteId` was invalid.
+          body:
+            application/json:
+              type: Error
+types:
+  SiteIdParam:
+    type: string
+    description: >-
+      Your Einstein site ID, which can be found in the top right of the page on
+      [Einstein Configurator](https://configurator.cquotient.com). It has the
+      format `xxxx-<Commerce Cloud Site ID>`
+  ClientIdParam:
+    type: string
+    description: >
+      To use the Einstein API, you must pass a `clientId` query parameter with
+      your Commerce Cloud Account Manager client ID.
+
+      You can find this in Business Manager, under Administration > Site
+      Development > Open Commerce API Settings.
+
+      This screen will have a JSON object with all of your OCAPI configuration.
+
+      You can use any of the values in a `client_id` field, but ideally you
+      should create a new one specifically for Einstein API calls.
+  ProductForView:
+    type: object
+    properties:
+      id:
+        type: string
+        description: A unique identifier for the given product.
+      sku:
+        type: string
+        description: >-
+          A unique identifier for a sellable unit of the given product, when
+          applicable.
+        required: false
+      altId:
+        type: string
+        description: >-
+          An alternate identifier for the given product. You must specify a type
+          in the `alt_id_type` field.
+        required: false
+      altIdType:
+        type: string
+        enum:
+          - vgroup
+        description: The type of alternate identifier.
+        required: false
+  ProductForCheckout:
+    type: object
+    properties:
+      id:
+        type: string
+        description: A unique identifier for the given product.
+      sku:
+        type: string
+        description: >-
+          A unique identifier for a sellable unit of the given product, when
+          applicable.
+      price:
+        type: number
+        description: Price of each individual unit of this product.
+      quantity:
+        type: integer
+        description: Number of this item purchased.
+  UserIdParam:
+    type: string
+    description: Application-provided unique identifier for logged in users (hashed).
+  UuidParam:
+    type: string
+    description: >-
+      Einstein API-provided unique identifier for the current user. This should
+      be passed when it is available. This should only ever be populated with
+      the last value returned in an activity response, and should never be
+      populated with a client generated value.
+  CookieIdParam:
+    type: string
+    description: Application-provided unique identifier for anonymous users.
+  ClientIpParam:
+    type: string
+    description: >-
+      IP address of the end user. Use this if you are sending activities server
+      side for a client application.
+  ClientUserAgentParam:
+    type: string
+    description: >-
+      User agent of the end user. Use this if you are sending activities server
+      side for a client application.
+  Error:
+    type: object
+    properties:
+      code:
+        type: string
+        description: A short error code to classify types of errors.
+      errors:
+        type: array
+        description: A set of invalid parameters.
+        items:
+          type: object
+          properties:
+            location:
+              type: string
+              description: The location of the invalid parameter.
+            msg:
+              type: string
+              description: A message describing why the parameter is invalid.
+            param:
+              type: string
+              description: The name of the invalid parameter.
+      msg:
+        type: string
+        description: >-
+          A descriptive message about the error you can use to troubleshoot what
+          the problem might be.
+  Recommender:
+    type: object
+    properties:
+      name:
+        type: string
+        description: The name of the recommender.
+      description:
+        type: string
+        description: The description of the recommender.
+        required: false
+  RecommendersResponse:
+    type: object
+    properties:
+      recommenders:
+        type: array
+        description: The list of available recommenders.
+        items:
+          type: Recommender
+  RecommendationsResponse:
+    type: object
+    properties:
+      displayMessage:
+        type: string
+        description: Text to (optionally) use to accompany the given recommendations.
+        required: false
+      recs:
+        type: array
+        description: The set of recommendations.
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+              description: ID of the recommendation.
+  ZoneResponse:
+    type: object
+    properties:
+      displayMessage:
+        type: string
+        description: Text to (optionally) use to accompany the given recommendations.
+        required: false
+      recs:
+        type: array
+        description: The set of recommendations.
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+              description: ID of the recommendation.
+      recommenderName:
+        type: string
+        description: The name of the recommender that was used.
+  ActivityResponse:
+    type: object
+    properties:
+      uuid:
+        type: string
+        description: >-
+          Unique identifier for the end user. The client application should
+          store this value and include it in subsequent activities and
+          recommendation requests.
+  Rules:
+    type: array
+    description: Extra rules to add filtering on the set of recommendations
+    items:
+      description: A condition that the set of recommendations must meet.
+      properties:
+        type:
+          type: string
+          description: 'show, hide, promote, or demote'
+        field:
+          type: string
+          description: Name of the field to compare.
+        operator:
+          type: string
+          description: >-
+            equals, greaterThan, or lessThan. For notEquals, use the opposite
+            rule type (e.g. use a hide rule instead of a show rule).
+        values:
+          type: array
+          description: >-
+            List of values to compare. For greaterThan or lessThan operations,
+            the array should consist of just one number element.
+          items:
+            type: string
+            

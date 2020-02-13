@@ -85,7 +85,7 @@ To view the details of a method or a variable, hover over methods and variables.
 
 ## Mulesoft Exchange Documentation
 > NOTE: For Beta only, link only works on npmjs
-(Documentation)[./VERSION.md]
+[Documentation](../../apis/VERSION.md)
 
 ## License Information
 The Commerce SDK is licensed under BSD-3-Clause license. See the [license](./LICENSE.txt) for details.
