@@ -189,15 +189,13 @@ function renderApi(
  * @param {RestApi[]} apis
  */
 export function createVersionFile(
-  apis: RestApi[],
+  apis: { [key: string]: RestApi[] }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  config: { [key: string]: any }
 ): void {
-  const apiFamilyGroups = groupByCategory(apis, config["apiFamily"]);
   fs.writeFileSync(
     // Write to the directory with the API definitions
     path.join(__dirname, "..", "VERSION.md"),
-    versionTemplate(apiFamilyGroups)
+    versionTemplate(apis)
   );
 }
 
@@ -282,7 +280,7 @@ export function renderTemplates(config: any): Promise<void> {
       createHelpers(config)
     );
 
-    createVersionFile(apiFamilyRamlConfig, config);
+    createVersionFile(apiFamilyRamlConfig);
   });
 }
 
