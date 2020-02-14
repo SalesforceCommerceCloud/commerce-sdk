@@ -11,6 +11,7 @@ import {
   getAllDataTypes,
   processApiFamily,
   getApiName,
+  resolveApiModel,
   groupByCategory,
   getNormalizedName
 } from "./parser";
@@ -25,13 +26,14 @@ import {
   getArrayElementTypeProperty,
   getReturnPayloadType,
   getValue,
-  onlyRequired,
-  onlyOptional,
-  onlyAdditional,
+  getAdditionalProperties,
   isAdditionalPropertiesAllowed,
   isTypeDefinition,
   isCommonQueryParameter,
-  isCommonPathParameter
+  isCommonPathParameter,
+  getProperties,
+  isRequiredProperty,
+  isOptionalProperty
 } from "./templateHelpers";
 import {
   WebApiBaseUnit,
@@ -174,12 +176,16 @@ function renderApi(
   //TODO: Modify createClient and createDto functions to take a single model object instead of array and get rid of apiModels array
   const apiModels: WebApiBaseUnitWithEncodesModel[] = [apiModel];
   fs.writeFileSync(
-    path.join(apiPath, `${apiName}.ts`),
-    createClient(apiModels, apiName)
-  );
-  fs.writeFileSync(
     path.join(apiPath, `${apiName}.types.ts`),
     createDto(apiModels)
+  );
+  //Resolve model for the end points Using the 'editing' pipeline will retain the declarations in the model
+  const apiModelsForEndPoints: WebApiBaseUnitWithEncodesModel[] = [
+    resolveApiModel(apiModel, "editing")
+  ];
+  fs.writeFileSync(
+    path.join(apiPath, `${apiName}.ts`),
+    createClient(apiModelsForEndPoints, apiName)
   );
   return apiName;
 }
@@ -320,11 +326,7 @@ Handlebars.registerHelper("getReturnPayloadType", getReturnPayloadType);
 
 Handlebars.registerHelper("getValue", getValue);
 
-Handlebars.registerHelper("onlyRequired", onlyRequired);
-
-Handlebars.registerHelper("onlyOptional", onlyOptional);
-
-Handlebars.registerHelper("onlyAdditional", onlyAdditional);
+Handlebars.registerHelper("getAdditionalProperties", getAdditionalProperties);
 
 Handlebars.registerHelper(
   "isAdditionalPropertiesAllowed",
@@ -334,3 +336,9 @@ Handlebars.registerHelper(
 Handlebars.registerPartial("dtoPartial", dtoPartial);
 
 Handlebars.registerPartial("operationsPartial", operationsPartialTemplate);
+
+Handlebars.registerHelper("getProperties", getProperties);
+
+Handlebars.registerHelper("isRequiredProperty", isRequiredProperty);
+
+Handlebars.registerHelper("isOptionalProperty", isOptionalProperty);

@@ -10,13 +10,14 @@ import {
   getAllDataTypes,
   getApiName,
   groupByCategory,
-  getNormalizedName
+  resolveApiModel
 } from "../src/parser";
 import {
   WebApiBaseUnitWithDeclaresModel,
   WebApiParser,
   model,
-  webapi
+  webapi,
+  WebApiBaseUnitWithEncodesModel
 } from "webapi-parser";
 
 import { expect, default as chai } from "chai";
@@ -68,21 +69,27 @@ describe("Get Data types", () => {
 
   it("Test valid RAML file with references", () => {
     const ramlFile = path.join(__dirname, "/raml/valid/site/site.raml");
-    return processRamlFile(ramlFile).then(s => {
-      s.withReferences([s]);
-      const res = getAllDataTypes([s as WebApiBaseUnitWithDeclaresModel]);
-      expect(_.map(res, res => res.name.value())).to.be.deep.equal([
-        "product_search_result",
-        "ClassA",
-        "customer_product_list_item",
-        "query",
-        "ClassB",
-        "search_request",
-        "password_change_request",
-        "sort",
-        "result_page"
-      ]);
-    });
+    processRamlFile(ramlFile)
+      .then(refModel => {
+        return processRamlFile(ramlFile).then(mainModel => {
+          mainModel.withReferences([refModel]);
+          return mainModel;
+        });
+      })
+      .then(s => {
+        const res = getAllDataTypes([s as WebApiBaseUnitWithDeclaresModel]);
+        expect(_.map(res, res => res.name.value())).to.be.deep.equal([
+          "product_search_result",
+          "ClassA",
+          "customer_product_list_item",
+          "query",
+          "ClassB",
+          "search_request",
+          "password_change_request",
+          "sort",
+          "result_page"
+        ]);
+      });
   });
 });
 
@@ -323,5 +330,40 @@ describe("Test groupByCategory method", () => {
       dog: [safeApisObject[3]],
       unclassified: [safeApisObject[1]]
     });
+  });
+});
+
+describe("Test resolving API model", () => {
+  it("Test with null model", () => {
+    return expect(() => resolveApiModel(null, "editing")).to.throw(
+      "Invalid API model provided to resolve"
+    );
+  });
+  it("Test with undefined model", () => {
+    return expect(() => resolveApiModel(undefined, "editing")).to.throw(
+      "Invalid API model provided to resolve"
+    );
+  });
+  it("Test with null resolution pipeline", () => {
+    const apiModel = new webapi.WebApiExternalFragment();
+    return expect(() => resolveApiModel(apiModel, null)).to.throw(
+      "Invalid resolution pipeline provided to resolve"
+    );
+  });
+  it("Test with undefined resolution pipeline", () => {
+    const apiModel = new webapi.WebApiExternalFragment();
+    return expect(() => resolveApiModel(apiModel, undefined)).to.throw(
+      "Invalid resolution pipeline provided to resolve"
+    );
+  });
+  it("Test with valid model and resolution pipeline", () => {
+    const ramlFile = path.join(__dirname, "/raml/valid/site/site.raml");
+    return processRamlFile(ramlFile)
+      .then(s => {
+        return resolveApiModel(s as WebApiBaseUnitWithEncodesModel, "editing");
+      })
+      .then(resolvedModel => {
+        expect(resolvedModel).to.exist;
+      });
   });
 });
