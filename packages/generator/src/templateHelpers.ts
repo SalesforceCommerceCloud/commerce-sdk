@@ -83,7 +83,7 @@ export const isArrayProperty = function(property: any): boolean {
 
 export const isTypeDefined = function(range: any): boolean {
   if (
-    range !== undefined &&
+    range != null &&
     !range.items &&
     Array.isArray(range.inherits) &&
     range.inherits.length > 0 &&
@@ -95,6 +95,21 @@ export const isTypeDefined = function(range: any): boolean {
     return true;
   }
   return false;
+};
+
+/**
+ * Check if the type of the property is linked
+ *
+ * @param range AMF model that hold the type of the property
+ * @returns true if the type of the property is linked
+ */
+export const isTypeLinked = function(range: model.domain.Shape): boolean {
+  return (
+    range != null &&
+    range.isLink === true &&
+    range.linkTarget != null &&
+    (range.linkTarget as model.domain.ScalarShape).dataType != null
+  );
 };
 
 const isObject = function(range: any): boolean {
@@ -112,9 +127,7 @@ export const isObjectProperty = function(property: any): boolean {
 
 const isPrimitive = function(range: any): boolean {
   return (
-    range !== undefined &&
-    range.dataType !== undefined &&
-    range.dataType.value !== undefined
+    range != null && range.dataType != null && range.dataType.value() != null
   );
 };
 
@@ -128,9 +141,7 @@ export const isDefinedProperty = function(property: any): boolean {
 
 export const isTypeDefinition = function(obj: any): boolean {
   return (
-    obj !== undefined &&
-    (obj.$classData.name === "amf.client.model.domain.NodeShape" ||
-      obj.$classData.name === "amf.client.model.domain.ScalarShape")
+    obj != null && obj.$classData.name === "amf.client.model.domain.NodeShape"
   );
 };
 
@@ -224,6 +235,10 @@ export const getDataType = function(property: any): string {
     return range.inherits[0].linkTarget.name.value();
   }
 
+  if (isTypeLinked(range)) {
+    return getDataTypeFromMap(range.linkTarget.dataType.value());
+  }
+
   if (isObject(range)) {
     return OBJECT_DATA_TYPE;
   }
@@ -243,68 +258,96 @@ export const getValue = function(name: any): string {
   return null;
 };
 
-const getProperties = function(
-  propertyShapes: model.domain.PropertyShape[],
-  filterEntriesBy: Function
+type propertyFilter = (propertyName: string) => boolean;
+
+/**
+ * Get properties of the DTO (inherited and linked) after applying the given filter criteria
+ *
+ * @param dtoTypeModel AMF model of the dto
+ * @param propertyFilter function to filter properties based on certain criteria
+ */
+const getFilteredProperties = function(
+  dtoTypeModel: model.domain.NodeShape | null | undefined,
+  propertyFilter: propertyFilter
 ): model.domain.PropertyShape[] {
-  return !propertyShapes
-    ? []
-    : propertyShapes.filter(entry => filterEntriesBy(entry));
+  const properties: model.domain.PropertyShape[] = [];
+  const existingProps: Set<string> = new Set();
+
+  while (dtoTypeModel != null) {
+    if (dtoTypeModel.properties != null && dtoTypeModel.properties.length > 0) {
+      dtoTypeModel.properties.forEach(prop => {
+        if (prop != null) {
+          const propName = getValue(prop.name);
+          //ignore duplicate props
+          if (
+            propName != null &&
+            !existingProps.has(propName) &&
+            propertyFilter(propName) === true
+          ) {
+            existingProps.add(propName);
+            properties.push(prop);
+          }
+        }
+      });
+      //Check if there are any inherited properties
+      if (dtoTypeModel.inherits != null && dtoTypeModel.inherits.length > 0) {
+        dtoTypeModel = dtoTypeModel.inherits[0] as model.domain.NodeShape;
+      } else {
+        dtoTypeModel = null;
+      }
+    } else if (
+      dtoTypeModel.isLink === true &&
+      dtoTypeModel.linkTarget != null
+    ) {
+      //check if other DTO is linked
+      dtoTypeModel = dtoTypeModel.linkTarget as model.domain.NodeShape;
+    } else {
+      dtoTypeModel = null;
+    }
+  }
+  return properties;
 };
 
 /**
- * Returns a list of optional properties defined in RAML type.
+ * Gets all properties of the DTO
+ *
+ * @param dtoTypeModel AMF model of the dto
+ * @returns Array of properties in the dto
+ */
+export const getProperties = function(
+  dtoTypeModel: model.domain.NodeShape | undefined | null
+): model.domain.PropertyShape[] {
+  return getFilteredProperties(dtoTypeModel, propertyName => {
+    return !ADDITIONAL_PROPERTY_REGEX_NAMES.includes(propertyName);
+  });
+};
+
+/**
+ * Check if the property is defined as required.
+ * Required properties have minimum count of at least 1
+ * We ignore required additional properties because of the
+ * different semantics used in rendering those properties
+ * @param property
+ * @returns true if the property is required
+ */
+export const isRequiredProperty = function(
+  property: model.domain.PropertyShape
+): boolean {
+  return property != null && property.minCount.value() > 0;
+};
+
+/**
+ * Check if the property is optional.
  * Optional properties have minimum count of 0
  * We ignore optional additional properties which also have minimum count of 0,
  * because of the different semantics used in rendering those properties.
- *
- * @param propertyShapes - Array of properties {model.domain.PropertyShape[]}
- * @returns {model.domain.PropertyShape[]} Array of optional properties
+ * @param property
+ * @returns true if the property is optional
  */
-export const onlyOptional = function(
-  propertyShapes: model.domain.PropertyShape[]
-): model.domain.PropertyShape[] {
-  return getProperties(propertyShapes, entry => {
-    return (
-      entry.minCount.value() == 0 &&
-      !ADDITIONAL_PROPERTY_REGEX_NAMES.includes(entry.name.value())
-    );
-  });
-};
-
-/**
- * Returns a list of required properties defined in RAML type.
- * Required properties have minimum count of atleast 1
- * We ignore required additional properties because of the
- * different semantics used in rendering those properties
- *
- * @param propertyShapes - Array of properties {model.domain.PropertyShape[]}
- * @returns {model.domain.PropertyShape[]} Array of required properties
- */
-export const onlyRequired = function(
-  propertyShapes: model.domain.PropertyShape[]
-): model.domain.PropertyShape[] {
-  return getProperties(propertyShapes, entry => {
-    return (
-      entry.minCount.value() > 0 &&
-      !ADDITIONAL_PROPERTY_REGEX_NAMES.includes(entry.name.value())
-    );
-  });
-};
-
-/**
- * Returns a list of additional properties defined in RAML type.
- * Additional property names use regular expressions.
- *
- * @param propertyShapes - Array of properties {model.domain.PropertyShape[]}
- * @returns {model.domain.PropertyShape[]} Array of additional properties
- */
-export const onlyAdditional = function(
-  propertyShapes: model.domain.PropertyShape[]
-): model.domain.PropertyShape[] {
-  return getProperties(propertyShapes, entry => {
-    return ADDITIONAL_PROPERTY_REGEX_NAMES.includes(entry.name.value());
-  });
+export const isOptionalProperty = function(
+  property: model.domain.PropertyShape
+): boolean {
+  return property != null && property.minCount.value() == 0;
 };
 
 /**
@@ -322,4 +365,19 @@ export const isAdditionalPropertiesAllowed = function(
     ramlTypeDefinition.closed.value !== undefined &&
     !ramlTypeDefinition.closed.value()
   );
+};
+
+/**
+ * Returns a list of additional properties defined in RAML type.
+ * Additional property names use regular expressions.
+ *
+ * @param dtoTypeModel - AMF model of the dto {model.domain.NodeShape}
+ * @returns {model.domain.PropertyShape[]} Array of additional properties
+ */
+export const getAdditionalProperties = function(
+  dtoTypeModel: model.domain.NodeShape
+): model.domain.PropertyShape[] {
+  return getFilteredProperties(dtoTypeModel, propertyName => {
+    return ADDITIONAL_PROPERTY_REGEX_NAMES.includes(propertyName);
+  });
 };
