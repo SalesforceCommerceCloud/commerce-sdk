@@ -54,19 +54,26 @@ jobs:
 workflows:
   version: 2
   build-and-test:
-    filters:
-      tags:
-        ignore: /^v.*/
     jobs:
-      - build
-      - build-12
+      - build:
+          filters:
+            tags:
+              ignore: /^v.*/
+      - build-12:
+          filters:
+            tags:
+              ignore: /^v.*/
   build-test-deploy:
-    filters:
-      tags:
-        only: /^v.*/
+
     jobs:
-      - build
-      - build-12
+      - build:
+          filters:
+            tags:
+              only: /^v.*/
+      - build-12:
+          filters:
+            tags:
+              only: /^v.*/
       - confirm-publish-if-tagged:
           type: approval
           requires:
