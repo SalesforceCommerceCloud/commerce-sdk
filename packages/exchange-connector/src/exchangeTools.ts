@@ -32,3 +32,11 @@ export function groupByCategory(
     }
   });
 }
+
+export function removeRamlLinks(apis: RestApi[]): RestApi[] {
+  const apiCopy = _.cloneDeep(apis);
+  apiCopy.forEach(apiEntry => {
+    delete apiEntry.fatRaml.externalLink;
+  });
+  return apiCopy;
+}

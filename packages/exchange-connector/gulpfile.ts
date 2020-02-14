@@ -27,6 +27,7 @@ require("dotenv").config();
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 import config from "../../build-config";
+import { removeRamlLinks } from "./src/exchangeTools";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 gulp.task("clean", (cb: any) => {
@@ -82,7 +83,10 @@ function downloadRamlFromExchange(): Promise<void> {
         return extractFiles(folder);
       })
       .then(async () => {
-        const apiFamilyGroups = groupByCategory(apis, config.apiFamily);
+        const apiFamilyGroups = groupByCategory(
+          removeRamlLinks(apis),
+          config.apiFamily
+        );
         fs.ensureDirSync(config.inputDir);
         return fs.writeFile(
           path.join(config.inputDir, config.apiConfigFile),
