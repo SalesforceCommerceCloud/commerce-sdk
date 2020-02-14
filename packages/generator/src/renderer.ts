@@ -196,7 +196,7 @@ export function createVersionFile(
   const apiFamilyGroups = groupByCategory(apis, config["apiFamily"]);
   fs.writeFileSync(
     // Write to the directory with the API definitions
-    path.join("..", "..", "VERSION.md"),
+    path.join(__dirname, "..", "VERSION.md"),
     versionTemplate(apiFamilyGroups)
   );
 }

@@ -53,7 +53,7 @@ jobs:
       - run: npm run publish
 workflows:
   version: 2
-  build-and-test:
+  build-and-test-maybe-deploy:
     jobs:
       - build
       - build-12
@@ -71,30 +71,6 @@ workflows:
           requires:
             - confirm-publish-if-tagged
           
-  # build-test-deploy:
-
-  #   jobs:
-  #     - build:
-  #         filters:
-  #           tags:
-  #             only: /^v.*/
-  #           branches:
-  #             ignore: /.*/
-  #     - build-12:
-  #         filters:
-  #           tags:
-  #             only: /^v.*/
-  #           branches:
-  #             ignore: /.*/
-  #     - confirm-publish-if-tagged:
-  #         type: approval
-  #         requires:
-  #           - build
-  #           - build-12
-  #     - publish:
-  #         requires:
-  #           - confirm-publish-if-tagged
-
 
 orbs:
   node: circleci/node@1.1
