@@ -33,6 +33,13 @@ export function groupByCategory(
   });
 }
 
+/**
+ * @description Removes links from the api specs as they contain aws api keys
+ *
+ * @export
+ * @param {RestApi[]} apis
+ * @returns {RestApi[]}
+ */
 export function removeRamlLinks(apis: RestApi[]): RestApi[] {
   const apiCopy = _.cloneDeep(apis);
   apiCopy.forEach(apiEntry => {
