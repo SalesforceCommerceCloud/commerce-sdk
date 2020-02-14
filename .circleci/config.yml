@@ -55,37 +55,45 @@ workflows:
   version: 2
   build-and-test:
     jobs:
-      - build:
-          filters:
-            tags:
-              ignore: /^v.*/
-      - build-12:
-          filters:
-            tags:
-              ignore: /^v.*/
-  build-test-deploy:
-
-    jobs:
-      - build:
-          filters:
-            tags:
-              only: /^v.*/
-            branches:
-              ignore: /.*/
-      - build-12:
-          filters:
-            tags:
-              only: /^v.*/
-            branches:
-              ignore: /.*/
+      - build
+      - build-12
       - confirm-publish-if-tagged:
           type: approval
           requires:
             - build
             - build-12
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
       - publish:
           requires:
             - confirm-publish-if-tagged
+          
+  # build-test-deploy:
+
+  #   jobs:
+  #     - build:
+  #         filters:
+  #           tags:
+  #             only: /^v.*/
+  #           branches:
+  #             ignore: /.*/
+  #     - build-12:
+  #         filters:
+  #           tags:
+  #             only: /^v.*/
+  #           branches:
+  #             ignore: /.*/
+  #     - confirm-publish-if-tagged:
+  #         type: approval
+  #         requires:
+  #           - build
+  #           - build-12
+  #     - publish:
+  #         requires:
+  #           - confirm-publish-if-tagged
 
 
 orbs:
