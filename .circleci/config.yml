@@ -78,11 +78,21 @@ workflows:
             branches:
               ignore: /.*/
       - confirm-publish-if-tagged:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
           type: approval
           requires:
             - build
             - build-12
       - publish:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
           requires:
             - confirm-publish-if-tagged
 
