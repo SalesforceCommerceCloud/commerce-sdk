@@ -1,0 +1,242 @@
+#%RAML 1.0
+title: CDN API
+
+version: v1
+description: Provides access to Commerce Cloud Digital CDN-related functionality.
+protocols: HTTPS
+baseUri: https://{shortCode}.api.commercecloud.salesforce.com/cdn/zones/{version}
+baseUriParameters:
+  shortCode:
+    description: Region-specific merchant identifier.
+    example: fd4gt82k
+
+mediaType: application/json
+
+uses:
+  ApiStandards: /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.6/api-standards.raml
+  CommerceCloudStandards: /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.10/commerce-cloud-standards.raml
+
+types:
+  
+  Zone: !include dataTypes/Zone.raml
+  WafGroup: !include dataTypes/WAFGroup.raml
+  WafRule: !include dataTypes/WAFRule.raml
+  FirewallRule: !include dataTypes/FirewallRule.raml
+  ErrorResponse: ApiStandards.ErrorResponse
+  CollectionResponseEnvelope: !include dataTypes/CollectionResponseEnvelope.raml
+  ItemResponseEnvelope: !include dataTypes/ItemResponseEnvelope.raml
+
+  ZonesEnvelope:
+    type: CollectionResponseEnvelope
+    properties:
+      data:
+        type: Zone[]
+  ZoneEnvelope:
+    type: ItemResponseEnvelope
+    properties:
+      data:
+        type: Zone
+  FirewallRulesEnvelope:
+    type: CollectionResponseEnvelope
+    properties:
+      data:
+        type: FirewallRule[]
+  FirewallRuleEnvelope:
+    type: ItemResponseEnvelope
+    properties:
+      data:
+        type: FirewallRule      
+  WafGroupsEnvelope:
+    type: CollectionResponseEnvelope
+    properties:
+      data:
+        type: WafGroup[]
+  WafGroupEnvelope:
+    type: ItemResponseEnvelope
+    properties:
+      data:
+        type: WafGroup
+  WafRuleEnvelope:
+    type: ItemResponseEnvelope
+    properties:
+      data:
+        type: WafRule
+  WafRulesEnvelope:
+    type: CollectionResponseEnvelope
+    properties:
+      data:
+        type: WafRule[]
+
+traits:
+  hasUnauthorizedResponse: !include traits/HasUnauthorizedResponse.raml
+  hasForbiddenAccessResponse: !include traits/HasForbiddenAccessResponse.raml
+  hasInternalServerErrorResponse: !include traits/HasInternalServerErrorResponse.raml
+  hasResourceNotFoundResponse: !include traits/HasResourceNotFoundResponse.raml
+  hasBadRequestResponse: !include traits/HasBadRequestResponse.raml
+  
+securedBy: [ CommerceCloudStandards.AmOAuth2 ]
+
+/organizations/{organizationId}:
+  type: CommerceCloudStandards.Organization
+  
+  /zones/info:
+      is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse]
+      
+      get:
+        is: [ApiStandards.OffsetPaginated: {maxLimit: 50, defaultSize: 25}, hasResourceNotFoundResponse]
+        displayName: getZoneInfo
+        description: Retrieves zone information.
+        responses:
+          '200':
+            description: Successfully retrieved zone information requested by the caller.
+            body:
+              application/json:
+                type: ZonesEnvelope
+                example: !include /examples/zone/zones-get-response.raml
+
+  /zones/{zoneId}/waf/groups:
+    is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse]
+    
+    get:
+      is: [hasResourceNotFoundResponse]
+      displayName: getWafGroups
+      description: Retrieves all WAF groups accessible to the caller.
+      responses:
+        '200':
+          description: Successfully retrieved details of WAF groups that caller has access to.
+          body:
+            application/json:
+              type: WafGroupsEnvelope
+              example: !include /examples/waf/wafgroups-get-response.raml
+    
+    /{groupId}:
+      put:
+        is: [hasBadRequestResponse]
+        displayName: updateWafGroupById
+        description: Update action or mode of a specific WAF group.
+        body:
+          application/json:
+            type: WafGroup
+            example: !include /examples/waf/wafgroup-put-request.raml
+        responses:
+          '200':
+            description: Successfully updated the WAF group specified by the caller.
+            body:
+              application/json:
+                type: WafGroupEnvelope
+                example: !include /examples/waf/wafgroup-put-response.raml
+
+  /zones/{zoneId}/waf/rules:
+    get:
+      is: [hasResourceNotFoundResponse]
+      displayName: getWafRules
+      description: Retrieve WAF rules under the waf group specified by the caller.
+      queryParameters:
+        groupId:
+          displayName: GroupId
+          type: string
+          description: WAF Group that contains the WAF rules.
+          example: f90712123fb02287348dd34c0a282bb9
+          required: false
+      responses:
+        '200':
+          description: Successfully retrieved WAF rules requested by the caller.
+          body:
+            application/json:
+              type: WafRulesEnvelope
+              example: !include /examples/waf/wafrules-get-response.raml
+
+    /{ruleId}:
+      get:
+        is: [hasResourceNotFoundResponse]
+        displayName: getWafRule
+        description: Retrieve details of a specific WAF rule.
+        responses:
+          '200':
+            description: Successfully retrieved details of the WAF rule requested by the caller.
+            body:
+              application/json:
+                type: WafRuleEnvelope
+                example: !include /examples/waf/wafrule-get-response.raml
+      put:
+        is: [hasBadRequestResponse]
+        displayName: updateWafRuleById
+        description: Update action of a specific WAF rule.
+        body:
+          application/json:
+            type: WafRule
+            example: !include /examples/waf/wafrule-put-request.raml
+        responses:
+          '200':
+            description: Successfully updated the WAF rule specified by the caller.
+            body:
+              application/json:
+                type: WafRuleEnvelope
+                example: !include /examples/waf/wafrule-put-response.raml
+
+  /zones/{zoneId}/firewall/rules:
+    get:
+      is: [hasResourceNotFoundResponse]
+      displayName: getFirewallRules
+      description: Retrieves existing firewall rules.
+      responses:
+        '200':
+          description: Successfully returned back the list of firewall rules requested by the caller.
+          body:
+            application/json:
+              type: FirewallRulesEnvelope
+              example: !include /examples/firewall/firewall-rules-get-response.raml
+
+    post:
+      is: [hasBadRequestResponse]
+      displayName: createFirewallRule
+      description: Creates a firewall rule.
+      body:
+        application/json:
+          type: FirewallRule
+          example: !include /examples/firewall/firewall-rules-post-request.raml
+            
+      responses:
+        '201':
+          description: Successfully created the firewall rule requested by the caller.
+          body:
+            application/json:
+              type: FirewallRuleEnvelope
+              example: !include /examples/firewall/firewall-rules-post-response.raml
+
+    /{firewallRuleId}:
+      is: [hasResourceNotFoundResponse]
+      get:
+        displayName: getFirewallRuleById
+        description: Retrieve a specific firewall rule.
+        responses:
+          '200':
+            description: Successfully returned back the firewall rule requested by the caller.
+            body:
+              application/json:
+                type: FirewallRuleEnvelope
+                example: !include /examples/firewall/firewall-rule-get-response.raml
+      put:
+        is: [hasBadRequestResponse]
+        displayName: updateFirewallRuleById
+        description: Update a specific firewall rule.
+        body:
+          application/json:
+            type: FirewallRule
+            example: !include /examples/firewall/firewall-rules-put-request.raml
+        
+        responses:
+          '200':
+            description: Successfully updated the firewall rule specified by the caller.
+            body:
+              application/json:
+                type: FirewallRuleEnvelope
+                example: !include /examples/firewall/firewall-rules-put-response.raml
+      
+      delete:
+        is: [hasResourceNotFoundResponse]
+        displayName: deleteFirewallRule
+        description: Delete a specific firewall rule.
+        responses:
+          '204':
+            description: Successfully deleted the firewall rule specified by the caller.

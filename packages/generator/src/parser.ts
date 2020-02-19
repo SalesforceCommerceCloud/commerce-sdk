@@ -163,29 +163,3 @@ export function getApiName(apiModel: WebApiBaseUnitWithEncodesModel): string {
   const apiName: string = (apiModel.encodes as model.domain.WebApi).name.value();
   return getNormalizedName(apiName);
 }
-
-/**
- * @description
- * @export
- * @param {RestApi[]} apis
- * @param {string} groupBy
- * @param {boolean} [allowUnclassified=true]
- * @returns {{ [key: string]: RestApi[] }}
- */
-export function groupByCategory(
-  apis: RestApi[],
-  groupBy: string,
-  allowUnclassified = true
-): { [key: string]: RestApi[] } {
-  return _.groupBy(apis, api => {
-    // Categories are actually a list.
-    // We are just going to use whatever the first one is for now
-    if (api.categories && groupBy in api.categories) {
-      return api.categories[groupBy][0];
-    } else if (allowUnclassified) {
-      return "unclassified";
-    } else {
-      throw new Error("Unclassified APIs are NOT allowed!");
-    }
-  });
-}

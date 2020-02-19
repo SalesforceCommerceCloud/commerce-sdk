@@ -1,0 +1,21 @@
+#%RAML 1.0 Trait
+description: This trait represents API behavior for a 404 response when a site was not found.
+
+uses:
+  DataTypes: ../data-types.raml
+  
+responses:
+  404:
+    description: |
+            The given site id does not reference an existing site.
+    body:
+      application/problem+json:
+        type: DataTypes.ErrorResponse
+        example: |
+          {
+            "arguments": {
+              "siteId": "SiteGenesis"
+            },
+            "type": "SiteNotFoundException",
+            "message": "No site with ID 'SiteGenesis' could be found."
+          }

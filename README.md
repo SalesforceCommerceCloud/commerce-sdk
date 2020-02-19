@@ -70,8 +70,10 @@ If you would like to contribute please take a look at our [contributors' guide](
 
 ## Additional Documentation
 
-[Using VSCODE](./docs/vscode.md)
-[Code Generation](./packages/generator/docs/GENERATOR.md)
+[Using VSCODE](./docs/vscode.md)  
+[Code Generation](./packages/generator/docs/GENERATOR.md)  
+[API Version Documentation](./packages/generator/VERSION.md)  
+
 
 <!-- Markdown link & img dfn's -->
 [circleci-image]: https://circleci.com/gh/SalesforceCommerceCloud/commerce-sdk.svg?style=svg&circle-token=c68cee5cb20ee75f00cbda1b0eec5b5484c58b2a

@@ -1,0 +1,1267 @@
+#%RAML 1.0
+title: Customers
+version: v1
+mediaType: application/json
+protocols: HTTPS
+baseUri: http://{shortCode}.api.commercecloud.salesforce.com/customer/customers/v1
+baseUriParameters:
+  shortCode:
+    description: A region-specific merchant identifier.
+    example: 0dnz6oep
+    pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
+
+description: Contains endpoints for Customer Lists, Customer Groups, and Customer Group Search.
+
+uses:
+  CustomerListsTraits: data-customer-traits-library.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.6/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.11/commerce-cloud-standards.raml
+
+types:
+  Credentials:
+    description: Document representing the credentials of a customer.
+    properties:
+      enabled:
+        description: A flag indicating whether the customer is enabled and can log in.
+        type: boolean
+        required: false
+        example: true
+      locked:
+        description: A flag indicating whether the customer account is locked.
+        type: boolean
+        required: false
+        example: false
+      login:
+        description: The login of the customer.
+        maxLength: 256
+        type: string
+        example: "rustin.peece"
+      passwordQuestion:
+        description: The password question.
+        maxLength: 256
+        type: string
+        required: false
+        example: "Pet Name?"
+  CustomerGroup:
+    description: Customer groups allow sellers to group various shoppers together based on shopper characteristics. Customer groups can be used by applications for whatever they choose. (Marketing, sales, birthdays, and so on.)
+    properties:
+      creationDate:
+        description: Returns the value of attribute 'creationDate'.
+        type: datetime
+        required: false
+        example: 9999-12-31T00:00:00.0Z
+      description:
+        description: The description for the customer group. This property is read-only for system groups.
+        type: string
+        required: false
+        example: "Super Group"
+      id:
+        description: |-
+          The user-specific identifier for the customer group, which must be unique across the organization.  Property
+           is read-only.
+        maxLength: 256
+        minLength: 1
+        type: string
+        example: "super-group"
+      inDeletion:
+        description: The deletion status of this customer group.
+        type: boolean
+        required: false
+        example: false
+      lastModified:
+        description: Returns the value of attribute 'lastModified'.
+        type: datetime
+        required: false
+        example: 9999-12-31T00:00:00.0Z
+      memberCount:
+        description: The number of members in this customer group.
+        type: integer
+        format: int32
+        required: false
+        example: 100
+      rule:
+        description: The rule of this customer group. Only available for dynamic customer groups.
+        type: Rule
+        required: false
+      type:
+        description: The type of customer group. This property is read-only.
+        type: string
+        enum:
+          - system
+          - dynamic
+          - static
+        required: false
+        example: system
+  CustomerGroupMember:
+    description: Document representing a customer group member.
+    properties:
+      active:
+        description: A flag indicating whether the customer is enabled and can log in.
+        type: boolean
+        required: false
+        example: true
+      creationDate:
+        description: Returns the value of attribute 'creationDate'.
+        type: datetime
+        required: false
+        example: 9999-12-31T00:00:00.0Z
+      customerNo:
+        description: The customer's number (ID).
+        maxLength: 100
+        type: string
+        example: "D100201"  
+      email:
+        description: The customer's email address.
+        maxLength: 256
+        type: string
+        required: false
+        example: "rustin.peece@sample-email.com"
+      firstName:
+        description: The customer's first name.
+        maxLength: 256
+        type: string
+        required: false
+        example: "Rustin"
+      lastModified:
+        description: Returns the value of attribute 'lastModified'.
+        type: datetime
+        required: false
+        example: 9999-12-31T00:00:00.0Z
+      lastName:
+        description: The customer's last name.
+        maxLength: 256
+        type: string
+        example: "Peece"
+      login:
+        description: The login of the customer.
+        maxLength: 256
+        type: string
+        required: false
+        example: "rustin.peece"
+  CustomerGroupMemberSearchResult:
+    description: Document representing a customer group member search result.
+    type: CommerceCloudStandards.PaginatedSearchResult
+    properties:
+      hits:
+        description: The sorted array of search hits. Can be empty.
+        type: CustomerGroupMember[]
+        required: false
+
+  CustomerGroupMembers:
+    description: Document representing an unfiltered list of customer groups.
+    properties:
+      limit:
+        description: The number of returned documents.
+        type: integer
+        format: int32
+        required: false
+        example: 10
+      data:
+        description: List of customer group members.
+        type: array
+        items:
+          type: CustomerGroupMember
+        required: false
+      offset:
+        description: The zero-based index of the first search hit to include in the result.
+        minimum: 0
+        type: integer
+        format: int32
+        required: false
+        example: 0
+      total:
+        description: The total number of documents.
+        type: integer
+        format: int32
+        required: false
+        example: 10
+  Customer:
+    description: Person or entity who shops on Commerce Cloud storefronts by creating a shopper account in Commerce Cloud.
+    properties:
+      birthday:
+        description: The customer's birthday.
+        type: date-only
+        required: false
+        example: 1999-12-31
+      companyName:
+        description: The customer's company name.
+        maxLength: 256
+        type: string
+        required: false
+        example: "Acme"
+      creationDate:
+        description: Returns the value of attribute 'creationDate'.
+        type: datetime
+        required: false
+        example: 9999-12-31T00:00:00.0Z
+      credentials:
+        description: The customer's credentials.
+        type: Credentials
+        required: false
+      customerId:
+        description: |-
+          The customer's ID. Both registered and guest customers have a
+           customer ID.
+        maxLength: 28
+        type: string
+        required: false
+        example: "rustin.peece"
+      customerNo:
+        description: The customer's number.
+        maxLength: 100
+        type: string
+        example: "D100201"
+      email:
+        description: The customer's email address.
+        maxLength: 256
+        type: string
+        required: false
+        example: "rustin.peece@sample-email.com"
+      fax:
+        description: |-
+          The customer's fax number.
+           The length is restricted to 32 characters.
+        maxLength: 32
+        type: string
+        required: false
+        example: "555-555-5555"
+      firstName:
+        description: The customer's first name.
+        maxLength: 256
+        type: string
+        required: false
+        example: "Rustin"
+      gender:
+        description: The customer's gender.
+        type: integer
+        format: int32
+        enum:
+          - 1
+          - 2
+        required: false
+        example: 1
+      jobTitle:
+        description: The customer's job title.
+        maxLength: 256
+        type: string
+        required: false
+        example: "Batman"
+      lastLoginTime:
+        description: The last login time of the customer.
+        type: datetime
+        required: false
+        example: 9999-12-31T00:00:00.0Z
+      lastModified:
+        description: Returns the value of attribute 'lastModified'.
+        type: datetime
+        required: false
+        example: 9999-12-31T00:00:00.0Z
+      lastName:
+        description: The customer's last name.
+        maxLength: 256
+        type: string
+        example: "Peece"
+      lastVisitTime:
+        description: The last visit time of the customer.
+        type: datetime
+        required: false
+        example: 9999-12-31T00:00:00.0Z
+      phoneBusiness:
+        description: The customer's business phone number.
+        maxLength: 32
+        type: string
+        required: false
+        example: "555-555-5555"
+      phoneHome:
+        description: The customer's home phone number.
+        maxLength: 32
+        type: string
+        required: false
+        example: "555-555-5555"
+      phoneMobile:
+        description: The customer's mobile phone number.
+        maxLength: 32
+        type: string
+        required: false
+        example: "555-555-5555"
+      preferredLocale:
+        description: The customer's preferred locale.
+        type: string
+        required: false
+        example: "en_US"
+      previousLoginTime:
+        description: The time when the customer previously logged in.
+        type: datetime
+        required: false
+        example: 9999-12-31T00:00:00.0Z
+      previousVisitTime:
+        description: The time when the customer previously visited the store.
+        type: datetime
+        required: false
+        example: 9999-12-31T00:00:00.0Z
+      primaryAddress:
+        description: The customers primary or default address.
+        type: CustomerAddress
+        required: false
+      salutation:
+        description: The customer's salutation.
+        maxLength: 256
+        type: string
+        required: false
+        example: "Mr."
+      secondName:
+        description: The customer's second name.
+        maxLength: 256
+        type: string
+        required: false
+        example: "Peece"
+      suffix:
+        description: The customer''s suffix (for example, "Jr." or "Sr.").
+        maxLength: 256
+        type: string
+        required: false
+        example: "Sr."
+      title:
+        description: The customer''s title (for example, "Mrs" or "Mr").
+        maxLength: 256
+        type: string
+        required: false
+        example: "Mr."
+  CustomerAddress:
+    description:  Any address that is associated with a customer (billing, shipping, mailing, and so on). 
+    properties:
+      address1:
+        description: The customer's first address.
+        maxLength: 256
+        type: string
+        required: false
+        example: "10 Presidential Way"
+      address2:
+        description: The customer's second address value.
+        maxLength: 256
+        type: string
+        required: false
+        example: "Suite 100"
+      addressId:
+        description: The customer address ID.
+        maxLength: 256
+        type: string
+        example: "Home"
+      city:
+        description: The customer's city.
+        maxLength: 256
+        type: string
+        required: false
+        example: "Gotham"
+      companyName:
+        description: The customer's company name.
+        maxLength: 256
+        type: string
+        required: false
+        example: "Acme"
+      countryCode:
+        description: The customer's two-character country code per ISO 3166-1 alpha-2.
+        maxLength: 2
+        type: string
+        enum:
+          - US
+          - FR
+          - IT
+          - JP
+          - CN
+          - GB
+        example: "US"
+      creationDate:
+        description: Returns the value of attribute 'creationDate'.
+        type: datetime
+        required: false
+        example: 9999-12-31T00:00:00.0Z
+      etag:
+        description: The generated eTag representing the state of the customer address.
+        type: string
+        required: false
+      firstName:
+        description: The customer's first name.
+        maxLength: 256
+        type: string
+        required: false
+        example: "Rustin"
+      fullName:
+        description: The concatenation of the customer's first, middle, last names, and suffix.
+        type: string
+        required: false
+        example: "Mr. Rustin Peece Sr."
+      jobTitle:
+        description: The customer's job title.
+        maxLength: 256
+        type: string
+        required: false
+        example: "Batman"
+      lastModified:
+        description: Returns the value of attribute 'lastModified'.
+        type: datetime
+        required: false
+        example: 9999-12-31T00:00:00.0Z
+      lastName:
+        description: The customer's last name.
+        maxLength: 256
+        type: string
+        example: "Peece"
+      phone:
+        description: The customer's phone number.
+        maxLength: 32
+        type: string
+        required: false
+        example: "555-555-5555"
+      postBox:
+        description: The customer's post box.
+        maxLength: 256
+        type: string
+        required: false
+        example: "A-12345"
+      postalCode:
+        description: The customer's postal code.
+        maxLength: 256
+        type: string
+        required: false
+        example: "12345"
+      salutation:
+        description: The customer's salutation.
+        maxLength: 256
+        type: string
+        required: false
+        example: "Mr."
+      secondName:
+        description: The customer's second name.
+        maxLength: 256
+        type: string
+        required: false
+        example: "Peece"
+      stateCode:
+        description: The customer's state.
+        maxLength: 256
+        type: string
+        required: false
+        example: "NC"
+      suffix:
+        description: The customer's suffix.
+        maxLength: 256
+        type: string
+        required: false
+        example: "Sr."
+      suite:
+        description: The customer's suite.
+        maxLength: 32
+        type: string
+        required: false
+        example: "100"
+      title:
+        description: The customer's title.
+        maxLength: 256
+        type: string
+        required: false
+        example: "Duke"
+  CustomerAddressResult:
+    description: Result document containing an array of customer addresses.
+    properties:
+      limit:
+        description: The number of returned documents.
+        type: integer
+        format: int32
+        required: false
+        example: 10
+      data:
+        description: The array of customer address documents.
+        type: CustomerAddress[]
+        required: false
+      offset:
+        description: The zero-based index of the first search hit to include in the result.
+        minimum: 0
+        type: integer
+        format: int32
+        required: false
+        example: 0
+      total:
+        description: The total number of documents.
+        type: integer
+        format: int32
+        required: false
+        example: 10
+  CustomerList:
+    description: Document representing a customer list.
+    properties:
+      id:
+        description: The ID of the customer list.
+        minLength: 1
+        type: string
+        example: "Site1CustomerList"
+  CustomerSearchHit:
+    description: Document representing a customer search hit.
+    properties:
+      data:
+        description: List of found customers.
+        type: Customer
+      relevance:
+        description: The hit's relevance score.
+        type: number
+        format: double
+        example: 1.0
+  CustomerSearchResult:
+    description: Document representing a customer search result.
+    type: CommerceCloudStandards.PaginatedSearchResult
+    properties:
+      hits:
+        description: The sorted array of search hits. Can be empty.
+        type: CustomerSearchHit[]
+  CustomerGroupSearchResult:
+    description: Document representing a customer group search result.
+    type: CommerceCloudStandards.PaginatedSearchResult
+    properties:
+      hits:
+        description: The sorted array of search hits. Can be empty.
+        type: CustomerGroup[]
+        required: false
+  Rule:
+    description: Document representing a customer group rule.
+    properties:
+      description:
+        description: The description of the rule, describing its conditions in natural language. Property is read-only.
+        type: string
+        example: "This Customer Group is super"
+
+/organizations/{organizationId}:
+  type: CommerceCloudStandards.Organization
+  /customer-lists:
+    /{customerListId}/customer-search:
+      post:
+        description: |-
+          Action to search for customers in a customer list.
+          The query attribute specifies a complex query that can be used to narrow down the search. These are the list
+          of searchable attributes:
+            
+          customer_no - String
+          first_name - String
+          second_name - String
+          last_name - String
+          suffix - String
+          salutation - String
+          title - String
+          fax - String
+          phone_home - String
+          phone_business - String
+          phone_mobile - String
+          email - String
+          gender - Integer
+          company_name - String
+          credentials.login - String
+          credentials.enabled - boolean
+            
+        displayName: searchCustomerInCustomerList
+        is:
+          - ApiStandards.RateLimited4:
+              responseStatus: 200
+              responseStatus2: 400
+              responseStatus3: 401
+              responseStatus4: 404
+          - CustomerListsTraits.Unauthorized
+          - CustomerListsTraits.BadRequest
+          - CustomerListsTraits.NotFound
+        responses:
+          '200':
+            description: Success
+            body:
+              application/json:
+                type: CustomerSearchResult
+                examples:
+                  result: !include Examples/customerSearchResult.raml
+        body:
+          application/json:
+            type: CommerceCloudStandards.SearchRequest
+            examples:
+              result: !include Examples/customerSearchBody.raml
+        securedBy:
+          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.AmOAuth2
+      uriParameters:
+        customerListId:
+          description: The customer list ID to search in
+          maxLength: 256
+          minLength: 1
+          type: string
+          example: "Site1CustomerList"
+    /{listId}:
+        get:
+          description: Action to read an existing customer list.
+          displayName: getCustomerList
+          is:
+            - ApiStandards.RateLimited4:
+                responseStatus: 200
+                responseStatus2: 400
+                responseStatus3: 401
+                responseStatus4: 404
+            - CustomerListsTraits.Unauthorized
+            - CustomerListsTraits.BadRequest
+            - CustomerListsTraits.NotFound
+          responses:
+            '200':
+              description: Success
+              body:
+                application/json:
+                  type: CustomerList
+                  examples: 
+                    get-result: !include Examples/customer-list-get.raml
+          securedBy:
+            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.AmOAuth2
+        uriParameters:
+          listId:
+            description: The list ID of the list to return.
+            minLength: 1
+            type: string
+            example: "Site1CustomerList"
+        /customers:
+          post:
+            description: |-
+              Action to create a new customer. The customer is created using the specified credentials and customer
+              information. This action verifies the following:
+              
+              Login acceptance criteria and uniqueness.
+              Mandatory customer properties.
+              
+              If the action fails to create the customer, it returns a 400 fault with an appropriate message.
+            displayName: createCustomerList
+            is:
+              - ApiStandards.RateLimited4:
+                  responseStatus: 200
+                  responseStatus2: 400
+                  responseStatus3: 401
+                  responseStatus4: 404
+              - CustomerListsTraits.Unauthorized
+              - CustomerListsTraits.NotFound
+              - CustomerListsTraits.BadRequest
+            responses:
+              '200':
+                description: Success
+                body:
+                  application/json:
+                    type: Customer
+                    examples:
+                      customers-result: !include Examples/post-customers.raml
+            body:
+              application/json:
+                type: Customer
+                examples:
+                  body: !include Examples/post-customer-body.raml
+            securedBy:
+              - CommerceCloudStandards.BearerToken
+              - CommerceCloudStandards.AmOAuth2
+          /{customerNo}:
+            delete:
+              description: Deletes the customer, including all related information like the customer addresses.
+              displayName: deleteCustomerFromCustomerList
+              is:
+                - ApiStandards.RateLimited4:
+                    responseStatus: 204
+                    responseStatus2: 400
+                    responseStatus3: 401
+                    responseStatus4: 404
+                - CustomerListsTraits.Unauthorized
+                - CustomerListsTraits.NotFound
+                - CustomerListsTraits.BadRequest
+              responses:
+                '204': 
+                  description: No Content
+              securedBy:
+                - CommerceCloudStandards.BearerToken
+                - CommerceCloudStandards.AmOAuth2
+            get:
+              description: Action to get customer information.
+              displayName: getCustomerFromCustomerList
+              is:
+                - ApiStandards.RateLimited4:
+                    responseStatus: 200
+                    responseStatus2: 400
+                    responseStatus3: 401
+                    responseStatus4: 404
+                - CustomerListsTraits.Unauthorized
+                - CustomerListsTraits.NotFound
+                - CustomerListsTraits.BadRequest
+              responses:
+                '200':
+                  description: Success
+                  body:
+                    application/json:
+                      type: Customer
+                      examples:
+                        get-customer: !include Examples/post-customers.raml
+              securedBy:
+                - CommerceCloudStandards.BearerToken
+                - CommerceCloudStandards.AmOAuth2
+            patch:
+              description: |-
+                Updates the customer with the specified information. The customer number is allowed to be updated but results in a
+                CustomerNumberAlreadyInUseException if there is another customer with the same customer number existing.
+              displayName: updateCustomerInCustomerList
+              is:
+                - ApiStandards.RateLimited4:
+                    responseStatus: 200
+                    responseStatus2: 400
+                    responseStatus3: 401
+                    responseStatus4: 404
+                - CustomerListsTraits.Unauthorized
+                - CustomerListsTraits.NotFound
+                - CustomerListsTraits.BadRequest
+              responses:
+                '200':
+                  description: Success
+                  body:
+                    application/json:
+                      type: Customer
+                      examples:
+                        patch-example: !include Examples/post-customers.raml
+              body:
+                application/json:
+                  type: Customer
+                  examples:
+                    patch-body: !include Examples/post-customer-body.raml
+              securedBy:
+                - CommerceCloudStandards.BearerToken
+                - CommerceCloudStandards.AmOAuth2
+            put:
+              description: |-
+                Action to create a new customer. The customer is created using the specified customer number, credentials, and
+                customer information. This action verifies the following:
+                
+                Login acceptance criteria and uniqueness.
+                Mandatory customer properties.
+                
+                If the action fails to create the customer, it returns a 400 fault with an appropriate message.
+              displayName: createCustomerInCustomerList
+              is:
+                - ApiStandards.RateLimited4:
+                    responseStatus: 201
+                    responseStatus2: 400
+                    responseStatus3: 401
+                    responseStatus4: 404
+                - CustomerListsTraits.Unauthorized
+                - CustomerListsTraits.NotFound
+                - CustomerListsTraits.BadRequest
+              responses:
+                '201':
+                  description: Success
+                  body:
+                    application/json:
+                      type: Customer
+                      examples:
+                        put-example: !include Examples/post-customers.raml
+              body:
+                application/json:
+                  type: Customer
+                  examples:
+                    put-body: !include Examples/post-customer-body.raml
+              securedBy:
+                - CommerceCloudStandards.BearerToken
+                - CommerceCloudStandards.AmOAuth2
+            uriParameters:
+              customerNo:
+                description: The customer number.
+                minLength: 1
+                type: string
+                example: "D100201"
+            /addresses:
+              get:
+                description: |-
+                  Action that returns a pageable list of all customer addresses. The
+                  default page size is 10 customer addresses.
+                displayName: getAddressesForCustomerFromCustomerList
+                is:
+                  - ApiStandards.RateLimited4:
+                      responseStatus: 200
+                      responseStatus2: 400
+                      responseStatus3: 401
+                      responseStatus4: 404
+                  - CustomerListsTraits.BadRequest
+                  - CustomerListsTraits.Unauthorized
+                  - CustomerListsTraits.NotFound
+                  - CustomerListsTraits.offset-paginated:
+                      maxLimit: 50
+                      defaultSize: 25
+                responses:
+                  '200':
+                    description: Success
+                    body:
+                      application/json:
+                        type: CustomerAddressResult
+                        examples:
+                          address-example: !include Examples/addresses-get.raml
+                securedBy:
+                  - CommerceCloudStandards.BearerToken
+                  - CommerceCloudStandards.AmOAuth2
+              post:
+                description: |-
+                  The action creates a new customer address with the given address
+                  information.
+                displayName:  createAdressForCustomerInCustomerList
+                is:
+                  - ApiStandards.RateLimited4:
+                      responseStatus: 200
+                      responseStatus2: 400
+                      responseStatus3: 401
+                      responseStatus4: 404
+                  - CustomerListsTraits.BadRequest
+                  - CustomerListsTraits.Unauthorized
+                  - CustomerListsTraits.NotFound
+                responses:
+                  '200':
+                    description: Success
+                    body:
+                      application/json:
+                        type: CustomerAddress
+                        examples:
+                          address-example: !include Examples/addresses-post.raml
+                body:
+                  application/json:
+                    type: CustomerAddress
+                    examples:
+                      address-body: !include Examples/addresses-body.raml
+                securedBy:
+                  - CommerceCloudStandards.BearerToken
+                  - CommerceCloudStandards.AmOAuth2
+              /{addressId}:
+                get:
+                  description: |-
+                    Action that returns a single customer address from a customer list.
+                  displayName: getAddressForCustomerFromCustomerList
+                  is:
+                    - ApiStandards.RateLimited4:
+                        responseStatus: 200
+                        responseStatus2: 400
+                        responseStatus3: 401
+                        responseStatus4: 404
+                    - CustomerListsTraits.BadRequest
+                    - CustomerListsTraits.Unauthorized
+                    - CustomerListsTraits.NotFound
+                  responses:
+                    '200':
+                      description: Success
+                      body:
+                        application/json:
+                          type: CustomerAddress
+                          examples:
+                            address-example: !include Examples/address-get.raml
+                  securedBy:
+                    - CommerceCloudStandards.BearerToken
+                    - CommerceCloudStandards.AmOAuth2
+                delete:
+                  description: Action which deletes a customer address.
+                  displayName: removeAddressForCustomerInCustomerList
+                  is:
+                    - ApiStandards.RateLimited4:
+                        responseStatus: 204
+                        responseStatus2: 400
+                        responseStatus3: 401
+                        responseStatus4: 404
+                    - CustomerListsTraits.BadRequest
+                    - CustomerListsTraits.Unauthorized
+                    - CustomerListsTraits.NotFound
+                  responses:
+                    '204': 
+                      description: No Content
+                  securedBy:
+                    - CommerceCloudStandards.BearerToken
+                    - CommerceCloudStandards.AmOAuth2
+                patch:
+                  description: Action which updates an address of a customer with the given address information.
+                  displayName: updateAddressForCustomerInCustomerList
+                  is:
+                    - ApiStandards.RateLimited4:
+                        responseStatus: 200
+                        responseStatus2: 400
+                        responseStatus3: 401
+                        responseStatus4: 404
+                    - CustomerListsTraits.BadRequest
+                    - CustomerListsTraits.Unauthorized
+                    - CustomerListsTraits.NotFound
+                  responses:
+                    '200':
+                      description: Success
+                      body:
+                        application/json:
+                          type: CustomerAddress
+                          examples:
+                            address: !include Examples/addresses-post.raml
+                  body:
+                    application/json:
+                      type: CustomerAddress
+                      examples:
+                        address-body: !include Examples/addresses-body.raml
+                  securedBy:
+                    - CommerceCloudStandards.BearerToken
+                    - CommerceCloudStandards.AmOAuth2
+                uriParameters:
+                  addressId:
+                    description: The address ID.
+                    minLength: 1
+                    type: string
+                    example: "Home"
+  /sites/{siteId}/customer-groups:
+    get:
+      description: Action to get site customer groups.
+      displayName: getAllCustomerGroupsFromSite
+      is:
+        - ApiStandards.RateLimited4:
+            responseStatus: 200
+            responseStatus2: 400
+            responseStatus3: 401
+            responseStatus4: 404
+        - CustomerListsTraits.NotFound
+        - CustomerListsTraits.BadRequest
+        - CustomerListsTraits.Unauthorized
+        - CustomerListsTraits.offset-paginated:
+                      maxLimit: 50
+                      defaultSize: 25
+      responses:
+        '200':
+          description: Success.
+          body:
+            application/json:
+              type: CustomerGroup
+              examples:
+                customer_groups: !include Examples/get-customer-groups-example.raml
+      securedBy:
+        - CommerceCloudStandards.BearerToken
+        - CommerceCloudStandards.AmOAuth2
+    /{customerGroupId}:
+      get:
+        description: Action to get customer group information.
+        displayName: getCustomerGroupFromSite
+        is:
+          - ApiStandards.RateLimited4:
+              responseStatus: 200
+              responseStatus2: 400
+              responseStatus3: 401
+              responseStatus4: 404
+          - CustomerListsTraits.NotFound
+          - CustomerListsTraits.BadRequest
+          - CustomerListsTraits.Unauthorized
+        responses:
+          '200':
+            description: Success
+            body:
+              application/json:
+                type: CustomerGroup
+                examples:
+                  customer_groups: !include Examples/get-customer-groups-by-id-example.raml
+        securedBy:
+          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.AmOAuth2
+      delete:
+        description: |-
+          Triggers customer group deletion by ID. The deletion happens via asynchronous batch process
+          which is the reason the deletion itself is not necessarily finished after the call to this resource is returned. The customer group that is in deletion is provided in the response.
+        displayName: deleteCustomerGroupFromSite
+        is:
+          - ApiStandards.RateLimited5:
+              responseStatus: 204
+              responseStatus2: 400
+              responseStatus3: 401
+              responseStatus4: 403
+              responseStatus5: 404
+          - CustomerListsTraits.Forbidden
+          - CustomerListsTraits.NotFound
+          - CustomerListsTraits.BadRequest
+          - CustomerListsTraits.Unauthorized
+        responses:
+          '204': 
+            description: No Content.
+        securedBy:
+          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.AmOAuth2
+      patch:
+        description: Updates the customer group with the specified information.
+        displayName: updateCustomerGroupInSite
+        is:
+          - ApiStandards.RateLimited5:
+              responseStatus: 200
+              responseStatus2: 400
+              responseStatus3: 401
+              responseStatus4: 403
+              responseStatus5: 404
+          - CustomerListsTraits.BadRequest
+          - CustomerListsTraits.Unauthorized
+          - CustomerListsTraits.NotFound
+          - CustomerListsTraits.Forbidden
+        responses:
+          '200':
+            description: Success.
+            body:
+              application/json:
+                type: CustomerGroup
+                examples:
+                  customer_group: !include Examples/patch-customer-groups-by-id-example.raml
+        body:
+          application/json:
+            type: CustomerGroup
+            examples: 
+              customer_group: !include Examples/customer-group-request.raml
+        securedBy:
+          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.AmOAuth2
+      put:
+        description: Creates a customer group using the information provided.
+        displayName: createCustomerGroupInSite
+        is:
+          - ApiStandards.RateLimited5:
+              responseStatus: 201
+              responseStatus2: 400
+              responseStatus3: 401
+              responseStatus4: 403
+              responseStatus5: 409
+          - CustomerListsTraits.BadRequest
+          - CustomerListsTraits.AlreadyExists
+          - CustomerListsTraits.Unauthorized
+          - CustomerListsTraits.Forbidden
+        responses:
+          '201':
+            description: Success
+            body:
+              application/json:
+                type: CustomerGroup
+                examples:
+                  customer_group: !include Examples/put-customer-groups-by-id-example.raml
+        body:
+          application/json:
+            type: CustomerGroup
+            examples: 
+              customer_group: !include Examples/customer-group-request.raml
+        securedBy:
+          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.AmOAuth2
+      uriParameters:
+        siteId:
+          description: The ID of the site.
+          required: true
+          type: string
+          example: "SiteGenesis"
+        customerGroupId:
+          description: The ID of the customer group to create.
+          minLength: 1
+          type: string
+          example: "super-group"
+      /member-search:
+        post:
+          description: |-
+            Searches for customer group members. For dynamic customer groups, and the system groups "Everyone" and "Unregistered", no result is returned (Status Code: 204 - No Content).
+
+            The query attribute specifies a complex query that can be used to narrow down the search. Attributes are grouped
+            into different buckets. These are the searchable attributes with their corresponding buckets:
+
+            Main:
+            
+                  login - String
+                  active - Boolean
+            
+            Customer Profile:
+            
+                  customer_no - String
+                  first_name - String
+                  last_name - String
+                  email - String
+                  zip - String
+            
+
+            Only attributes in the same bucket can be joined using a disjunction (OR).
+            For instance, when joining login and customer_no above, only a conjunction is allowed (AND), whereas customer_no
+            and email can be joined using a disjunction because they are in the same bucket.  If an attribute
+            is used in a disjunction (OR) that violates this rule, an exception is thrown.
+
+            The output of the query can also be sorted. These are the list of sortable attributes:
+            
+            customer_no - String
+            login - String
+            
+
+            If the Business Manager customer search is configured to use the new Search Service, the following differences apply:
+            
+                all attributes can be used for sorting (except for 'active').
+                searching for 'zip' will only search in the customers default address.
+                logical operators can be used without limits (but may result in degraded performance, depending on how they are combined).
+                new assignments might not be found immediately via the search service, and removed assignments
+                might also not be in effect immediately (there is a slight delay in updating the index).
+            
+          displayName: searchMembersInCustomerGroupAssignedToSite
+          is:
+            - ApiStandards.RateLimited4:
+                responseStatus: 200
+                responseStatus2: 400
+                responseStatus3: 401
+                responseStatus4: 404
+            - CustomerListsTraits.BadRequest
+            - CustomerListsTraits.Unauthorized
+            - CustomerListsTraits.NotFound
+          responses:
+            '200':
+              description: Success
+              body:
+                application/json:
+                  type: CustomerGroupMemberSearchResult
+                  examples:
+                    customer_group_member_search_result: !include Examples/post-customer-groups-member-search-example.raml
+          body:
+            application/json:
+              type: CommerceCloudStandards.SearchRequest
+              examples: 
+                search_request: !include Examples/post-customer-groups-member-search-request.raml
+          securedBy:
+            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.AmOAuth2
+      /members:
+        get:
+          description: 'Action to get all the customer group members with no filtering. For dynamic customer groups, and the system groups "Everyone" and "Unregistered", no result is returned (Status Code: 204 - No Content).'
+          displayName: getMembersFromCustomerGroupAssignedToSite
+          is:
+            - ApiStandards.RateLimited4:
+                responseStatus: 200
+                responseStatus2: 400
+                responseStatus3: 401
+                responseStatus4: 404      
+            - CustomerListsTraits.NotFound
+            - CustomerListsTraits.BadRequest
+            - CustomerListsTraits.Unauthorized
+            - CustomerListsTraits.offset-paginated:
+                      maxLimit: 50
+                      defaultSize: 25
+          responses:
+            '200':
+              description: Success
+              body:
+                application/json:
+                  type: CustomerGroupMembers
+                  examples:
+                    customer_group_members: !include Examples/get-customer-groups-members-example.raml
+          securedBy:
+            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.AmOAuth2
+        /{customerNo}:
+          get:
+            description: Action to get customer group member information.
+            displayName: getMemberFromCustomerGroupAssignedToSite
+            is:
+              - ApiStandards.RateLimited4:
+                  responseStatus: 200
+                  responseStatus2: 400
+                  responseStatus3: 401
+                  responseStatus4: 404
+              - CustomerListsTraits.NotFound
+              - CustomerListsTraits.BadRequest
+              - CustomerListsTraits.Unauthorized
+            responses:
+              '200':
+                description: Success
+                body:
+                  application/json:
+                    type: CustomerGroupMember
+                    examples:
+                      customer_group_members: !include Examples/get-customer-groups-members-by-id-example.raml
+            securedBy:
+              - CommerceCloudStandards.BearerToken
+              - CommerceCloudStandards.AmOAuth2
+          delete:
+            description: Action to remove a customer from a static customer group.
+            displayName: deleteMemberFromCustomerGroupAssignedToSite
+            is:
+              - ApiStandards.RateLimited4:
+                  responseStatus: 204
+                  responseStatus2: 400
+                  responseStatus3: 401
+                  responseStatus4: 404
+              - CustomerListsTraits.NotFound
+              - CustomerListsTraits.BadRequest
+              - CustomerListsTraits.Unauthorized
+            responses:
+              '204': 
+                description: No Content.
+            securedBy:
+              - CommerceCloudStandards.BearerToken
+              - CommerceCloudStandards.AmOAuth2
+          put:
+            description: Action to add customer to static customer group.
+            displayName: addMemberToCustomerGroupAssignedToSite
+            is:
+              - ApiStandards.RateLimited5:
+                  responseStatus: 201
+                  responseStatus2: 400
+                  responseStatus3: 401
+                  responseStatus4: 403
+                  responseStatus5: 404
+              - CustomerListsTraits.Forbidden
+              - CustomerListsTraits.NotFound
+              - CustomerListsTraits.BadRequest
+              - CustomerListsTraits.Unauthorized
+            responses:
+              '201':
+                description: Success
+                body:
+                  application/json:
+                    type: CustomerGroupMember
+                    examples:
+                      customer_group_member: !include Examples/put-customer-groups-members-by-id-example.raml
+            securedBy:
+              - CommerceCloudStandards.BearerToken
+              - CommerceCloudStandards.AmOAuth2
+          uriParameters:
+            customerNo:
+              description: The customer number of the customer to add to the group.
+              minLength: 1
+              type: string
+              example: "D100201"
+  /sites/{siteId}/customer-group-search:
+      post:
+        description: |-
+          Searches for customer groups.
+          
+          The query attribute specifies a complex query that can be used to narrow down the search. These are the list
+          of searchable attributes:
+          
+          id - String
+          description - String
+          type - String Enum value[system, dynamic, static]
+          
+
+          The output of the query can also be sorted. These are the list of sortable attributes:
+          
+          id - String
+          description - String
+          
+        displayName: searchCustomerGroupInSite
+        is:
+          - ApiStandards.RateLimited4:
+              responseStatus: 200
+              responseStatus2: 400
+              responseStatus3: 401
+              responseStatus4: 404
+          - CustomerListsTraits.BadRequest
+          - CustomerListsTraits.Unauthorized
+          - CustomerListsTraits.NotFound
+        responses:
+          '200':
+            description: Success
+            body:
+              application/json:
+                type: CustomerGroupSearchResult
+                examples: 
+                  customer_group_search_result: !include Examples/customer-group-search-result.raml
+        body:
+          application/json:
+            type: CommerceCloudStandards.SearchRequest
+            examples: 
+              search_request: !include Examples/customer-group-search-request.raml
+        securedBy:
+          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.AmOAuth2
+      uriParameters:
+        siteId:
+          description: The ID of the site.
+          required: true
+          type: string
+          example: "SiteGenesis"

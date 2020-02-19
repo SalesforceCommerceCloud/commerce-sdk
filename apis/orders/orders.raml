@@ -1,0 +1,256 @@
+#%RAML 1.0
+#In C4E review
+title: Orders
+description: Provides access to Commerce Cloud Digital order related functionality.
+version: v1
+protocols: HTTPS
+mediaType: application/json
+baseUri: https://anypoint.mulesoft.com/mocking/api/v1/links/2a968e56-a214-422b-a6e2-61ed41faad5f/checkout/orders/{version} # baseUri: https://{shortCode}.api.commercecloud.salesforce.com/checkout/orders/{version}
+baseUriParameters:
+  shortCode:
+    description: Region-specific merchant identifier.
+    example: fd4gt8
+
+uses:
+  StatusCodes: status-codes.raml
+  DataTypes: data-types.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.8/commerce-cloud-standards.raml 
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.3/api-standards.raml
+
+types:
+'/organizations/{organizationId}':
+  '/orders/{orderNo}':
+    uriParameters:
+      organizationId:
+        description: The organizationId
+        minLength: 1
+        example: "f_ecom_dspk_stg"
+      orderNo:
+        description: The order number
+        minLength: 1
+        type: string
+        example: "00000410"
+    patch:
+      description: Updates the order.
+      displayName: patchSitesByIdOrdersById
+      is:
+        - StatusCodes.Success
+        - StatusCodes.BadRequest
+        - StatusCodes.OrderNotFound
+        - StatusCodes.SiteNotFound
+        - CommerceCloudStandards.SiteSpecific
+        - ApiStandards.RateLimited3:
+            responseStatus: 204
+            responseStatus2: 400
+            responseStatus3: 404
+      body:
+        application/json:
+          type: DataTypes.OrderUpdateRequest
+          examples:
+              DataTypes.OrderUpdateRequest: !include examples/order-request.raml
+      securedBy:
+        - CommerceCloudStandards.AmOAuth2
+    /confirmation-status:
+      put:
+        description: Updates the order confirmation status.
+        displayName: putSitesByIdOrdersByIdConfirmationStatus
+        is:
+          - StatusCodes.Success
+          - StatusCodes.BadRequest
+          - StatusCodes.OrderNotFound
+          - StatusCodes.SiteNotFound
+          - CommerceCloudStandards.SiteSpecific
+          - ApiStandards.RateLimited3:
+              responseStatus: 204
+              responseStatus2: 400
+              responseStatus3: 404
+        body:
+            type: DataTypes.OrderConfirmationStatusUpdateRequest
+            examples:
+              DataTypes.OrderConfirmationStatusUpdateRequest: !include examples/order-confirmation-status-request.raml
+        securedBy:
+          - CommerceCloudStandards.AmOAuth2
+    /export-status:
+      put:
+        description: |-
+          Updates the order export status. Setting the status to EXPORTED will also trigger the finalization of on-order inventory transactions for this order, meaning that all inventory transactions with type on-order will be moved into final inventory transactions. This is only relevant when on-order inventory is turned on for the inventory list ordered products are in.
+        displayName: putSitesByIdOrdersByIdExportStatus
+        is:
+          - StatusCodes.Success
+          - StatusCodes.BadRequest
+          - StatusCodes.OrderNotFound
+          - StatusCodes.SiteNotFound
+          - CommerceCloudStandards.SiteSpecific
+          - ApiStandards.RateLimited3:
+              responseStatus: 204
+              responseStatus2: 400
+              responseStatus3: 404      
+        body:
+            type: DataTypes.OrderExportStatusUpdateRequest
+            examples:
+              DataTypes.OrderExportStatusUpdateRequest: !include examples/order-export-status-request.raml
+        securedBy:
+          - CommerceCloudStandards.AmOAuth2
+    /external-status:
+      put:
+        description: Updates the order external status.
+        displayName: putSitesByIdOrdersByIdExternalStatus
+        is:
+          - StatusCodes.Success
+          - StatusCodes.BadRequest
+          - StatusCodes.OrderNotFound
+          - StatusCodes.SiteNotFound
+          - CommerceCloudStandards.SiteSpecific
+          - ApiStandards.RateLimited3:
+              responseStatus: 204
+              responseStatus2: 400
+              responseStatus3: 404
+        body:
+            type: DataTypes.OrderExternalStatusUpdateRequest
+            examples:
+              DataTypes.OrderExternalStatusUpdateRequest: !include examples/order-external-status-request.raml
+        securedBy:
+          - CommerceCloudStandards.AmOAuth2
+    /payment-status:
+      put:
+        description: Updates the order payment status.
+        displayName: putSitesByIdOrdersByIdPaymentStatus
+        is:
+          - StatusCodes.Success
+          - StatusCodes.BadRequest
+          - StatusCodes.OrderNotFound
+          - StatusCodes.SiteNotFound
+          - CommerceCloudStandards.SiteSpecific
+          - ApiStandards.RateLimited3:
+              responseStatus: 204
+              responseStatus2: 400
+              responseStatus3: 404
+        body:
+            type: DataTypes.OrderPaymentStatusUpdateRequest
+            examples:
+              DataTypes.OrderPaymentStatusUpdateRequest: !include examples/order-payment-status-request.raml
+        securedBy:
+          - CommerceCloudStandards.AmOAuth2
+    /shipping-status:
+      put:
+        description: Updates the order shipping status.
+        displayName: putSitesByIdOrdersByIdShippingStatus
+        is:
+          - StatusCodes.Success
+          - StatusCodes.BadRequest
+          - StatusCodes.OrderNotFound
+          - StatusCodes.SiteNotFound
+          - CommerceCloudStandards.SiteSpecific
+          - ApiStandards.RateLimited3:
+              responseStatus: 204
+              responseStatus2: 400
+              responseStatus3: 404
+        body:
+            type: DataTypes.OrderShippingStatusUpdateRequest
+            examples:
+              DataTypes.OrderShippingStatusUpdateRequest: !include examples/order-shipping-status-request.raml
+        securedBy:
+          - CommerceCloudStandards.AmOAuth2
+    /status:
+      put:
+        description: |-
+          Updates the order status. Orders which are in status NEW, OPEN, COMPLETED or CANCELLED can not be set to status CREATED or FAILED.
+        displayName: putSitesByIdOrdersByIdStatus
+        is:
+          - StatusCodes.Success
+          - StatusCodes.BadRequest
+          - StatusCodes.OrderNotFound
+          - StatusCodes.SiteNotFound
+          - StatusCodes.StatusTransitionConflict
+          - StatusCodes.CancelOrderConflict
+          - StatusCodes.PlaceOrderConflict
+          - StatusCodes.UndoCancelOrderConflict
+          - StatusCodes.UndoFailOrderConflict
+          - CommerceCloudStandards.SiteSpecific
+          - ApiStandards.RateLimited4:
+              responseStatus: 204
+              responseStatus2: 400
+              responseStatus3: 404
+              responseStatus4: 409
+        body:
+            type: DataTypes.OrderStatusUpdateRequest
+            examples:
+              DataTypes.OrderStatusUpdateRequest: !include examples/order-status-request.raml
+        securedBy:
+          - CommerceCloudStandards.AmOAuth2
+    '/payment-instruments/{paymentInstrumentId}':
+      uriParameters:
+        paymentInstrumentId:
+          description: ID of the payment instrument
+          minLength: 1
+          type: string
+          example: b7679bea661819b2de78b9de7d
+      patch:
+        description: Updates the payment instrument of an order.
+        displayName: patchSitesByIdOrdersByIdPaymentInstrumentsById
+        is:
+          - StatusCodes.Success
+          - StatusCodes.BadRequest
+          - StatusCodes.OrderNotFound
+          - StatusCodes.SiteNotFound
+          - StatusCodes.PaymentInstrumentNotFound
+          - CommerceCloudStandards.SiteSpecific
+          - ApiStandards.RateLimited3:
+              responseStatus: 204
+              responseStatus2: 400
+              responseStatus3: 404
+        body:
+            type: DataTypes.PaymentInstrumentUpdateRequest
+            examples:
+              DataTypes.PaymentInstrumentUpdateRequest: !include examples/order-payment-instrument-request.raml
+        securedBy:
+          - CommerceCloudStandards.AmOAuth2
+      /transaction:
+        patch:
+          description: Updates the transaction of an order payment instrument.
+          displayName: patchSitesByIdOrdersByIdPaymentInstrumentsByIdTransaction
+          is:
+            - StatusCodes.Success
+            - StatusCodes.BadRequest
+            - StatusCodes.OrderNotFound
+            - StatusCodes.SiteNotFound
+            - StatusCodes.PaymentInstrumentNotFound
+            - CommerceCloudStandards.SiteSpecific
+            - ApiStandards.RateLimited3:
+                responseStatus: 204
+                responseStatus2: 400
+                responseStatus3: 404
+          body:
+              type: DataTypes.PaymentTransactionUpdateRequest
+              examples:
+                DataTypes.PaymentTransactionUpdateRequest: !include examples/order-payment-transaction-request.raml
+          securedBy:
+            - CommerceCloudStandards.AmOAuth2
+    '/shipments/{shipmentId}':
+      uriParameters:
+        shipmentId:
+          description: ID of the shipment
+          minLength: 1
+          type: string
+          example: me
+      /shipping-address:
+        put:
+          description: Updates (create or replace) the order shipment address.
+          displayName: putSitesByIdOrdersByIdShipmentsByIdShippingAddress
+          is:
+            - StatusCodes.Success
+            - StatusCodes.BadRequest
+            - StatusCodes.OrderNotFound
+            - StatusCodes.SiteNotFound
+            - StatusCodes.ShipmentNotFound
+            - CommerceCloudStandards.SiteSpecific
+            - ApiStandards.RateLimited3:
+                responseStatus: 204
+                responseStatus2: 400
+                responseStatus3: 404
+          body:
+              type: DataTypes.ShippingAddressUpdateRequest
+              examples:
+                DataTypes.ShippingAddressUpdateRequest: !include examples/order-shipping-address-request.raml
+          securedBy:
+            - CommerceCloudStandards.AmOAuth2

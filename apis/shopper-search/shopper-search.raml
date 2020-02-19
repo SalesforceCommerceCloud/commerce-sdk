@@ -1,0 +1,183 @@
+#%RAML 1.0
+version: v1
+title: Shopper Search
+uses:
+  CommerceCloudStandards: /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.10/commerce-cloud-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.6/api-standards.raml
+  search-types-library: shopper-search-library.raml
+    
+mediaType: application/json
+protocols: [HTTPS]
+baseUri: https://{shortCode}.api.commercecloud.salesforce.com/search/shopper-search/{version}/
+baseUriParameters:
+  shortCode:
+    description: Region-specific merchant identifier.
+    example: fd4gt8
+
+/organizations/{organizationId}:
+  /product-search:
+    type: CommerceCloudStandards.Organization
+    get:
+      description: |-
+        Provides keyword and refinement search functionality for products. Only returns the product ID, link, and name in
+        the product search hit. The search result contains only products that are online and assigned to site catalog.
+      displayName: productSearch
+      is:
+          - ApiStandards.RateLimited2:
+              responseStatus: 200
+              responseStatus2: 400
+          - ApiStandards.RateLimited:
+              responseStatus: 200
+          - ApiStandards.OffsetPaginated:
+              maxLimit: 200
+              defaultSize: 25
+      responses:
+        '200':
+          description: Product search successfully returned results.
+          body:
+            type: search-types-library.ProductSearchResult
+            examples:
+              product_search: !include Examples/product-search-result-example.raml
+        '400':
+          description: Thrown if a price refinement parameter is malformed.
+          body:
+            application/problem+json:
+              type: ApiStandards.ErrorResponse
+              examples:
+                  product-search-400-error: !include Examples/product-search-400-error-example.raml
+      queryParameters:
+        siteId:
+          type: CommerceCloudStandards.SiteId
+        q:
+          description: The query phrase to search for. For example to search for a product "shirt", type q=shirt.
+          maxLength: 50
+          type: string
+          required: false
+        refine_1:
+          description: |-
+            Parameter that represents a refinement attribute or values pair. Refinement attribute ID and
+                        values are separated by '='. Multiple values are supported by a subset of refinement attributes and
+                        can be provided by separating them using a pipe (URL
+                        encoded = "|") i.e. refine_1=c_refinementColor=red|green|blue.  Value ranges can be specified like this: refine_1=price=(100..500) Multiple refine parameters can be provided by using the refine parameter name and a counter range 1..9. 
+                        following system refinement attribute ids are supported:
+                          
+                        cgid: Allows refinement per single category ID. Multiple category ids are not supported.
+                        price: Allows refinement per single price range. Multiple price ranges are not supported.
+                        pmid: Allows refinement per promotion ID.
+                        htypes: Allow refinement by including only the provided hit types. Accepted types are 'product', 'master', 'set', 'bundle', 'slicing_group' (deprecated), 'variation_group'.
+                        orderable_only: Unavailable products are excluded from the search results if true is set. Multiple refinement values are not supported.                               
+                  
+            In addition, custom attributes are also supported for refinement. Custom attributes are marked by the prefix "c_" (for example "c_refinementColor") 
+          type: string
+          required: false
+        refine_2:
+          description: |-
+            Please refer to the documentation under refine_1.
+          type: string
+          required: false
+        refine_3:
+          description: |-
+            Please refer to the documentation under refine_1.
+          type: string
+          required: false
+        refine_4:
+          description: |-
+            Please refer to the documentation under refine_1.
+          type: string
+          required: false
+        refine_5:
+          description: |-
+            Please refer to the documentation under refine_1.    
+          type: string
+          required: false
+        refine_6:
+          description: |-
+            Please refer to the documentation under refine_1. 
+          type: string
+          required: false
+        refine_7:
+          description: |-
+            Please refer to the documentation under refine_1.
+          type: string
+          required: false
+        refine_8:
+          description: |-
+            Please refer to the documentation under refine_1  
+          type: string
+          required: false
+        refine_9:
+          description: |-
+            Please refer to the documentation under refine_1.
+          type: string
+          required: false
+        sort:
+          description: The ID of the sorting option to sort the search hits.
+          type: string
+          required: false
+        currency:
+          description: The currency mnemonic specified for price. This parameter is effective only if the returned results contain prices.
+          type: string
+          required: false
+        locale:
+          description: The locale context.
+          type: string
+          required: false
+      securedBy:
+        - CommerceCloudStandards.ShopperToken
+
+  /search-suggestions:
+    type: CommerceCloudStandards.Organization
+    get:
+      description: Provides keyword search functionality for products, categories, and brands suggestions.
+        Returns suggested products, suggested categories, and suggested brands for the given search phrase.
+      displayName: getSearchSuggestions
+      is:
+          - ApiStandards.RateLimited2:
+              responseStatus: 200
+              responseStatus2: 400
+          - ApiStandards.RateLimited:
+              responseStatus: 200
+      responses:
+        '200':
+          description: Search suggestions are successfully returned.
+          body:
+            type: search-types-library.SuggestionResult
+            examples:
+              search_suggestion: !include Examples/search-suggestion-result-example.raml
+        '400':
+          description: Thrown in case a query parameter or its value is unknown, or a maximum or minimum constraint is violated.
+          body:
+            application/problem+json:
+              type: ApiStandards.ErrorResponse
+              examples:
+                search-suggestion-400-error: !include Examples/search-suggestion-400-error-example.raml
+      queryParameters:
+        siteId:
+          type: CommerceCloudStandards.SiteId
+        q:
+          description: The search phrase (q) for which suggestions are evaluated. Search suggestions are determined when the search phrase input is at least three (default) characters long. The value is configurable in the Business Manager.
+          maxLength: 50
+          minLength: 1
+          type: string
+          required: true
+          example: son
+        limit:
+          description: The maximum number of suggestions made per request. If no value is defined, by default five suggestions per suggestion type are evaluated. This affects all types of suggestions (category, product, brand, and custom suggestions).
+          maximum: 10
+          minimum: 1
+          default: 5
+          type: integer
+          format: int32
+          required: false
+          example: 5
+        currency:
+          description: The currency code specified for price. This parameter is effective only for product suggestions.
+          type: string
+          required: false
+          example: EUR
+        locale:
+          description: Sets a collection of international preferences for the search, such as language. If no locale is specified fall back to default locale.
+          type: string
+          required: false
+      securedBy:
+        - CommerceCloudStandards.ShopperToken

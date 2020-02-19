@@ -1,0 +1,116 @@
+#%RAML 1.0
+title: Shopper Stores
+version: v1
+description: Provides access to stores via search or ID lookup.
+uses:
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.5/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.10/commerce-cloud-standards.raml
+  StoresLib: stores-library.raml
+mediaType: application/problem+json
+baseUri: https://{shortCode}.api.commercecloud.salesforce.com/seller/shopper-stores/{version}/
+baseUriParameters:
+  shortCode:
+    description: Region-specific merchant identifier.
+    example: fd4gt8
+/organizations/{organizationId}:
+  /stores:
+    type: CommerceCloudStandards.Organization
+    get:
+      description: This resource retrieves a list of stores for the given site that are within a configured distance of a geolocation. The distance is interpreted either in miles or kilometers, depending on the distanceUnit input parameter. The location is specified either by directly providing a latitude and longitude coordinate pair, or by providing a country and a postal code. If a postal code is passed, the resource looks in the system's geolocation mappings to find the coordinates for this postal code. If no matching geolocation is found, the resource returns an empty list of stores. If coordinates are passed, the values for country and postal code are ignored.
+      displayName: getStores
+      is: 
+        - ApiStandards.RateLimited:
+            responseStatus: 200
+        - ApiStandards.OffsetPaginated:
+            maxLimit: 50
+            defaultSize: 25
+        - StoresLib.BadRequest
+      responses:
+        '200':
+          description: Returns a list of stores for the given search parameters, up to the paging size, including their distance from the given geolocation and additional information on the pagination of objects.
+          body:
+            type: StoresLib.StoreResult
+            examples:
+              stores-result-example: !include Example/stores-result-example.raml
+        '400':
+          description: Thrown unless either a combination of latitude and longitude or a combination of country code and postal code is provided. Also thrown if an invalid distance_unit is given.
+          body:
+            type: ApiStandards.ErrorResponse
+            examples:
+                !include Example/stores-400-error-example.raml
+
+      queryParameters:
+        siteId:
+          type: CommerceCloudStandards.SiteId
+        latitude:
+          description: The geographical latitude to search for stores (value range -90.00 .. 90.00).
+          type: StoresLib.Latitude
+          required: false
+        longitude:
+          description: The geographical longitude to search for stores (value range -180.00 .. 180.00).
+          type: StoresLib.Longitude
+          required: false
+        countryCode:
+          description: The two letter ISO country code, such as "US".
+          type: StoresLib.CountryCode
+          required: false
+        postalCode:
+          description: The postal code, such as "84121".
+          type: StoresLib.PostalCode
+          required: false
+        distanceUnit:
+          description: The distance unit. Supported values are "mi" (miles) and "km" (kilometers). The default is "km".
+          type: StoresLib.DistanceUnit
+          required: false
+        maxDistance:
+          description: The area (radius) in distanceUnit where stores will be searched.
+          type: StoresLib.Distance
+          required: false
+        limit:
+          description: The maximum number of instances per request. Default value is 25.
+          maximum: 200
+          minimum: 1
+          type: integer
+          format: int32
+          required: false
+        offset:
+          description: The result set index to return the first instance for. Default value is 0.
+          minimum: 0
+          type: integer
+          format: int32
+          required: false
+      
+      securedBy:
+        - CommerceCloudStandards.ShopperToken
+  /stores/{id}:
+      type: CommerceCloudStandards.Organization
+      is: 
+        - StoresLib.NotFound
+        - ApiStandards.RateLimited:
+            responseStatus: 200
+      uriParameters:
+        id:
+          description: The ID of the requested store.
+          maxLength: 256
+          type: string
+      get:
+        description: Returns a store identified by its ID.
+        displayName: getStore
+        responses:
+          '200':
+            description: Returns details about a specific store.
+            body:
+              type: StoresLib.Store
+              examples:
+                !include Example/store-by-id-result-example.raml
+          '404':
+            description: Thrown if the requested store was not found.
+            body:
+              type: ApiStandards.ErrorResponse
+              examples:
+                !include Example/store-by-id-404-example.raml
+        queryParameters:
+          siteId:
+            type: CommerceCloudStandards.SiteId
+        securedBy:
+        - CommerceCloudStandards.ShopperToken

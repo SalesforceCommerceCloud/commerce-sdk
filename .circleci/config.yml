@@ -1,9 +1,12 @@
 jobs:
   build:
+    environment:
+      COMMERCE_SDK_INPUT_DIR: ./test/raml/valid/
     working_directory: ~/build_only
     executor:
       name: node/default
       tag: '10.16'
+    
     steps:
       - checkout
       - node/with-cache:
@@ -17,6 +20,8 @@ jobs:
 
   build-12:
     working_directory: ~/build_only
+    environment:
+      COMMERCE_SDK_INPUT_DIR: ./test/raml/valid/
     executor:
       name: node/default
       tag: '12.14'
@@ -36,59 +41,61 @@ jobs:
     executor:
       name: node/default
       tag: '10.16'
-    environment:
-      EXCHANGE_DOWNLOAD: true
     steps:
-      - run: echo Publish commerce_sdk to npm "$EXCHANGE_DOWNLOAD"
       - checkout
-        # Add read/write ssh key's finger print in order to push the tags
-      - add_ssh_keys:
-          fingerprints:
-            - "78:6d:b4:67:eb:35:d4:a0:63:af:c2:32:f1:94:9a:5f"
       - node/with-cache:
           steps:
             - run: npm install
       - run: npm run build
-      - run: echo -e "$GPG_KEY" | gpg --import
-      - run: git config --global user.email "$GITHUB_PUBLISH_EMAIL"
-      - run: git config --global user.name "$GITHUB_PUBLISH_USER"
-      - run: git config --global user.signingkey $GITHUB_GPG_SIGN_KEY_ID
-      - run: git config --global commit.gpgsign true
       - run:
           name: Create npmrc file to authenticate with npm registry.
           command: echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > ~/.npmrc
       - run: npm run publish
-      - run: sudo npm install -g @octokit/rest
-      - run: node .circleci/create_pr.js
-
 workflows:
   version: 2
   build-and-test:
     jobs:
       - build:
           filters:
-            branches:
-              ignore:
-                - /^release.*/
+            tags:
+              ignore: /^v.*/
       - build-12:
-        filters:
-          branches:
-            ignore:
-              - /^release.*/
-  build-test-and-deploy:
+          filters:
+            tags:
+              ignore: /^v.*/
+  build-test-deploy:
     jobs:
       - build:
           filters:
+            tags:
+              only: /^v.*/
             branches:
-              only:
-                - /^release.*/
-      - hold:
+              ignore: /.*/
+      - build-12:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+      - confirm-publish-if-tagged:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
           type: approval
           requires:
             - build
+            - build-12
       - publish:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
           requires:
-            - hold
+            - confirm-publish-if-tagged
+
 
 orbs:
   node: circleci/node@1.1
