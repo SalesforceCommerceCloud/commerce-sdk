@@ -3,15 +3,18 @@ title: Shopper Stores
 version: v1
 description: Provides access to stores via search or ID lookup.
 uses:
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.5/api-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.6/api-standards.raml
   CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.10/commerce-cloud-standards.raml
   StoresLib: stores-library.raml
-mediaType: application/problem+json
+  
+mediaType: application/json
+protocols: [HTTPS]
 baseUri: https://{shortCode}.api.commercecloud.salesforce.com/seller/shopper-stores/{version}/
 baseUriParameters:
   shortCode:
     description: Region-specific merchant identifier.
     example: fd4gt8
+
 /organizations/{organizationId}:
   /stores:
     type: CommerceCloudStandards.Organization
@@ -22,9 +25,8 @@ baseUriParameters:
         - ApiStandards.RateLimited:
             responseStatus: 200
         - ApiStandards.OffsetPaginated:
-            maxLimit: 50
+            maxLimit: 200
             defaultSize: 25
-        - StoresLib.BadRequest
       responses:
         '200':
           description: Returns a list of stores for the given search parameters, up to the paging size, including their distance from the given geolocation and additional information on the pagination of objects.
@@ -35,10 +37,10 @@ baseUriParameters:
         '400':
           description: Thrown unless either a combination of latitude and longitude or a combination of country code and postal code is provided. Also thrown if an invalid distance_unit is given.
           body:
-            type: ApiStandards.ErrorResponse
-            examples:
-                !include Example/stores-400-error-example.raml
-
+            application/problem+json:
+              type: ApiStandards.ErrorResponse
+              examples:
+                  !include Example/stores-400-error-example.raml
       queryParameters:
         siteId:
           type: CommerceCloudStandards.SiteId
@@ -66,19 +68,6 @@ baseUriParameters:
           description: The area (radius) in distanceUnit where stores will be searched.
           type: StoresLib.Distance
           required: false
-        limit:
-          description: The maximum number of instances per request. Default value is 25.
-          maximum: 200
-          minimum: 1
-          type: integer
-          format: int32
-          required: false
-        offset:
-          description: The result set index to return the first instance for. Default value is 0.
-          minimum: 0
-          type: integer
-          format: int32
-          required: false
       
       securedBy:
         - CommerceCloudStandards.ShopperToken
@@ -102,13 +91,7 @@ baseUriParameters:
             body:
               type: StoresLib.Store
               examples:
-                !include Example/store-by-id-result-example.raml
-          '404':
-            description: Thrown if the requested store was not found.
-            body:
-              type: ApiStandards.ErrorResponse
-              examples:
-                !include Example/store-by-id-404-example.raml
+                store-by-id-result: !include Example/store-by-id-result-example.raml
         queryParameters:
           siteId:
             type: CommerceCloudStandards.SiteId

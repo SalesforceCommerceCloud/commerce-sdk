@@ -2,7 +2,7 @@
 version: v1
 title: Shopper Search
 uses:
-  CommerceCloudStandards: /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.10/commerce-cloud-standards.raml
+  CommerceCloudStandards: /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.12/commerce-cloud-standards.raml
   ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.6/api-standards.raml
   search-types-library: shopper-search-library.raml
     
@@ -45,6 +45,8 @@ baseUriParameters:
               type: ApiStandards.ErrorResponse
               examples:
                   product-search-400-error: !include Examples/product-search-400-error-example.raml
+      securedBy:
+            - CommerceCloudStandards.ShopperToken
       queryParameters:
         siteId:
           type: CommerceCloudStandards.SiteId
@@ -53,62 +55,20 @@ baseUriParameters:
           maxLength: 50
           type: string
           required: false
-        refine_1:
+        refine:
           description: |-
             Parameter that represents a refinement attribute or values pair. Refinement attribute ID and
                         values are separated by '='. Multiple values are supported by a subset of refinement attributes and
                         can be provided by separating them using a pipe (URL
-                        encoded = "|") i.e. refine_1=c_refinementColor=red|green|blue.  Value ranges can be specified like this: refine_1=price=(100..500) Multiple refine parameters can be provided by using the refine parameter name and a counter range 1..9. 
-                        following system refinement attribute ids are supported:
+                        encoded = "|") i.e. refine=c_refinementColor=red|green|blue.  Value ranges can be specified like this: refine=price=(100..500) . Multiple refine parameters can be provided by using the refine as the key i.e refine=price=(0..10)&refine=c_refinementColor=green. The refinements can be a collection of custom defined attributes IDs and the system defined attributes IDs but the search can only accept a total of 9 refinements at a time. 
+                        The following system refinement attribute ids are supported:
                           
                         cgid: Allows refinement per single category ID. Multiple category ids are not supported.
                         price: Allows refinement per single price range. Multiple price ranges are not supported.
                         pmid: Allows refinement per promotion ID.
                         htypes: Allow refinement by including only the provided hit types. Accepted types are 'product', 'master', 'set', 'bundle', 'slicing_group' (deprecated), 'variation_group'.
                         orderable_only: Unavailable products are excluded from the search results if true is set. Multiple refinement values are not supported.                               
-                  
-            In addition, custom attributes are also supported for refinement. Custom attributes are marked by the prefix "c_" (for example "c_refinementColor") 
-          type: string
-          required: false
-        refine_2:
-          description: |-
-            Please refer to the documentation under refine_1.
-          type: string
-          required: false
-        refine_3:
-          description: |-
-            Please refer to the documentation under refine_1.
-          type: string
-          required: false
-        refine_4:
-          description: |-
-            Please refer to the documentation under refine_1.
-          type: string
-          required: false
-        refine_5:
-          description: |-
-            Please refer to the documentation under refine_1.    
-          type: string
-          required: false
-        refine_6:
-          description: |-
-            Please refer to the documentation under refine_1. 
-          type: string
-          required: false
-        refine_7:
-          description: |-
-            Please refer to the documentation under refine_1.
-          type: string
-          required: false
-        refine_8:
-          description: |-
-            Please refer to the documentation under refine_1  
-          type: string
-          required: false
-        refine_9:
-          description: |-
-            Please refer to the documentation under refine_1.
-          type: string
+          type: string[]
           required: false
         sort:
           description: The ID of the sorting option to sort the search hits.
@@ -122,8 +82,6 @@ baseUriParameters:
           description: The locale context.
           type: string
           required: false
-      securedBy:
-        - CommerceCloudStandards.ShopperToken
 
   /search-suggestions:
     type: CommerceCloudStandards.Organization
@@ -151,6 +109,8 @@ baseUriParameters:
               type: ApiStandards.ErrorResponse
               examples:
                 search-suggestion-400-error: !include Examples/search-suggestion-400-error-example.raml
+      securedBy:
+          - CommerceCloudStandards.ShopperToken
       queryParameters:
         siteId:
           type: CommerceCloudStandards.SiteId
@@ -179,5 +139,3 @@ baseUriParameters:
           description: Sets a collection of international preferences for the search, such as language. If no locale is specified fall back to default locale.
           type: string
           required: false
-      securedBy:
-        - CommerceCloudStandards.ShopperToken
