@@ -40,7 +40,7 @@ import {
   WebApiBaseUnitWithEncodesModel
 } from "webapi-parser";
 import _ from "lodash";
-import { RestApi, groupByCategory } from "@commerce-apps/exchange-connector";
+import { RestApi } from "@commerce-apps/exchange-connector";
 
 const templateDirectory = `${__dirname}/../templates`;
 

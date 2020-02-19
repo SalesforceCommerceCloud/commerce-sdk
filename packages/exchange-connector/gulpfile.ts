@@ -6,10 +6,7 @@
  */
 import * as gulp from "gulp";
 
-import log from "fancy-log";
-import del from "del";
 import fs from "fs-extra";
-// import _ from "lodash";
 import * as path from "path";
 
 import {
@@ -25,15 +22,8 @@ import {
 
 require("dotenv").config();
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 import config from "../../build-config";
 import { removeRamlLinks } from "./src/exchangeTools";
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-gulp.task("clean", (cb: any) => {
-  log.info(`Removing ${config.renderDir} directory`);
-  return del([`${config.renderDir}`, "dist"], cb);
-});
 
 async function search(): Promise<RestApi[]> {
   const token = await getBearer(
@@ -64,7 +54,6 @@ async function search(): Promise<RestApi[]> {
     );
   });
   return Promise.all(promises).then((deployedApis: RestApi[]) => {
-    // createVersionFile(deployedApis, config);
     return deployedApis;
   });
 }
@@ -74,7 +63,6 @@ async function search(): Promise<RestApi[]> {
  * Once grouped, renderTemplates task creates one Client per group
  */
 function downloadRamlFromExchange(): Promise<void> {
-  // const downloadDir = tmp.dirSync();
   return search().then(apis => {
     return downloadRestApis(apis, config.inputDir)
       .then(folder => {
@@ -93,7 +81,6 @@ function downloadRamlFromExchange(): Promise<void> {
           JSON.stringify(apiFamilyGroups)
         );
       });
-    // Group RAML files by the key, aka, bounded context/API Family
   });
 }
 

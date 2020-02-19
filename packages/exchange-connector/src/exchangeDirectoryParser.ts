@@ -7,7 +7,6 @@
 import fs from "fs-extra";
 import path from "path";
 import unzipper from "unzipper";
-import { RestApi } from "./exchangeTypes";
 
 function getFiles(directory): fs.Dirent[] {
   return fs.readdirSync(path.join(directory), {
@@ -16,11 +15,12 @@ function getFiles(directory): fs.Dirent[] {
 }
 
 /**
- * TODO: Tests need to be written.  There was only one test for this method and
- *       it just tested that the method did nothing with an empty dir
- * Extracts zip files present in the given directory.
- * zip files are usually downloaded from Anypoint exchange
- * @param directory
+ * @description Extracts zip files present in the given directory.
+ *   zip files are usually downloaded from Anypoint exchange
+ * @export
+ * @param {string} directory Directory we want to download to
+ * @param {boolean} [removeFiles=true] Whether to remove the zip files after extraction
+ * @returns {Promise<void>} Just a promise to indicate we are done.
  */
 export function extractFiles(
   directory: string,

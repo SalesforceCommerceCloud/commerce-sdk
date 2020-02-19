@@ -70,9 +70,9 @@ If you would like to contribute please take a look at our [contributors' guide](
 
 ## Additional Documentation
 
-[Using VSCODE](./docs/vscode.md)
-[Code Generation](./packages/generator/docs/GENERATOR.md)
-[API Version Documentation][./apis/VERSION.md]
+[Using VSCODE](./docs/vscode.md)  
+[Code Generation](./packages/generator/docs/GENERATOR.md)  
+[API Version Documentation](./packages/generator/VERSION.md)  
 
 
 <!-- Markdown link & img dfn's -->

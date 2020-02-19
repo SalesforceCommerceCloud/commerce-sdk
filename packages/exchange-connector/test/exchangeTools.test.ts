@@ -46,7 +46,7 @@ describe("Test groupByCategory method", () => {
     }
   ];
 
-  it("Group Apis (All same category)", () => {
+  it("Group Apis with all same category", () => {
     const safeApisObject = _.cloneDeep(apis);
     safeApisObject.forEach(api => {
       api.categories = {
@@ -59,7 +59,7 @@ describe("Test groupByCategory method", () => {
     });
   });
 
-  it("Group Apis (All same category w/o allowing unclassified)", () => {
+  it("Group Apis with all same category w/o allowing unclassified", () => {
     const safeApisObject = _.cloneDeep(apis);
     safeApisObject.forEach(api => {
       api.categories = {
@@ -72,7 +72,7 @@ describe("Test groupByCategory method", () => {
     });
   });
 
-  it("Group Apis (two categories)", () => {
+  it("Group Apis with two categories", () => {
     const safeApisObject = _.cloneDeep(apis);
 
     safeApisObject[0].categories = {
@@ -94,7 +94,7 @@ describe("Test groupByCategory method", () => {
     });
   });
 
-  it("Group Apis (four categories)", () => {
+  it("Group Apis with four unique categories", () => {
     const safeApisObject = _.cloneDeep(apis);
 
     safeApisObject[0].categories = {
@@ -118,7 +118,7 @@ describe("Test groupByCategory method", () => {
     });
   });
 
-  it("Group Apis (missing category allow unclassified)", () => {
+  it("Group Apis with missing category and allow unclassified", () => {
     const safeApisObject = _.cloneDeep(apis);
 
     safeApisObject[0].categories = {
@@ -139,7 +139,7 @@ describe("Test groupByCategory method", () => {
     });
   });
 
-  it("Group Apis (missing category without allowing unclassified)", () => {
+  it("Group Apis with missing category without allowing unclassified", () => {
     const safeApisObject = _.cloneDeep(apis);
 
     safeApisObject[0].categories = {
@@ -159,7 +159,7 @@ describe("Test groupByCategory method", () => {
     );
   });
 
-  it("Group Apis (wrong category with allowing unclassified)", () => {
+  it("Group Apis with wrong category while allowing unclassified", () => {
     const safeApisObject = _.cloneDeep(apis);
 
     safeApisObject[0].categories = {

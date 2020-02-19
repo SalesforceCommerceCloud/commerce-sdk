@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, salesforce.com, inc.
+ * Copyright (c) 2020, salesforce.com, inc.
  * All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
@@ -10,9 +10,9 @@ import _ from "lodash";
 /**
  * @description Group APIs by a category in exchange
  * @export
- * @param {RestApi[]} apis
- * @param {string} groupBy
- * @param {boolean} [allowUnclassified=true]
+ * @param {RestApi[]} apis An array of apis we want to group
+ * @param {string} groupBy Name of the category we want to group APIs by
+ * @param {boolean} [allowUnclassified=true] If we want to file on grouping if an item is missing the groupBy category
  * @returns {{ [key: string]: RestApi[] }} List of Apis grouped by category
  */
 export function groupByCategory(
@@ -37,8 +37,8 @@ export function groupByCategory(
  * @description Removes links from the api specs as they contain aws api keys
  *
  * @export
- * @param {RestApi[]} apis
- * @returns {RestApi[]}
+ * @param {RestApi[]} apis List of apis to scrub
+ * @returns {RestApi[]} Same list of APIs but without their external links
  */
 export function removeRamlLinks(apis: RestApi[]): RestApi[] {
   const apiCopy = _.cloneDeep(apis);
