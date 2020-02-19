@@ -84,7 +84,8 @@ To view the details of a method or a variable, hover over methods and variables.
 ​
 
 ## Additional Documentation 
-[API Version Documentation](./VERSION.md)
+[API Versions Used](./VERSION.md)
+[Changelog](./CHANGELOG.md)
 
 ## License Information
 The Commerce SDK is licensed under BSD-3-Clause license. See the [license](./LICENSE.txt) for details.
