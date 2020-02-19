@@ -5,8 +5,8 @@
 #### Shopper Search
 *Search/ShopperSearch*  
 
-* **BREAKING** refine_n has query parameters have been removed from productSearch
-* productSearch now has a query parameter of "refine" which accepts and array of refinements
+* **BREAKING** refine_n query parameters have been removed from productSearch
+* productSearch now has a query parameter of "refine" which accepts an array of refinements
 
 #### Shopper Stores
 *Seller/ShopperStores*  
