@@ -1,0 +1,21 @@
+#%RAML 1.0 Trait
+description: This trait represents API behavior for a 404 response when a payment instrument was not found.
+
+uses:
+  DataTypes: ../data-types.raml
+  
+responses:
+  404:
+    description: |
+            The given payment instrument id does not reference an existing payment instrument.
+    body:
+      application/problem+json:
+        type: DataTypes.ErrorResponse
+        example: |
+          {
+            "arguments": {
+              "paymentInstrumentId": "d98550eb1e1cf6db15dd655a9e"
+            },
+            "type": "PaymentInstrumentNotFoundException",
+            "message": "The payment instrument with ID 'd98550eb1e1cf6db15dd655a9e' couldn't be found."
+          }

@@ -48,8 +48,10 @@ To run tests in the generator package only:`npm run test:generator`
 
 ### Documentation
 
-[Using VSCODE](./docs/vscode.md)
-[Code Generation](./packages/generator/docs/GENERATOR.md)
+[Using VSCODE](./docs/vscode.md)  
+[Code Generation](./packages/generator/docs/GENERATOR.md)  
+[API Version Documentation](./packages/generator/VERSION.md)  
+
 
 
 <!-- Markdown link & img dfn's -->

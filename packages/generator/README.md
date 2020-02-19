@@ -80,9 +80,9 @@ To view the details of a method or a variable, hover over methods and variables.
 ![Method Details](./images/MethodDetails.jpg?raw=true "Method Details")
 ​
 
-## Mulesoft Exchange Documentation
-> NOTE: For Beta only, link only works on npmjs
-(Documentation)[./VERSION.md]
+## Additional Documentation 
+[API Versions Used](./VERSION.md)
+[Changelog](./CHANGELOG.md)
 
 ## License
 The Commerce SDK is licensed under BSD-3-Clause license. See the [license](./LICENSE.txt) for details.

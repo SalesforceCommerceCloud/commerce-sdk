@@ -15,6 +15,7 @@ export {
   getSpecificApi,
   getAsset
 } from "./exchangeDownloader";
+export { groupByCategory } from "./exchangeTools";
 export { extractFiles } from "./exchangeDirectoryParser";
 
 export { RestApi } from "./exchangeTypes";
