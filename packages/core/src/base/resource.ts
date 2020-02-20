@@ -6,6 +6,12 @@
  */
 import qs from "qs";
 
+/**
+ * A class to render a flattened URL from the parts including template
+ * parameters. Out of the various options to render an array in a query string,
+ * this class repeats the value for each element of the array,
+ * i.e. { a: [1, 2]} => "?a=1&a=2".
+ */
 export class Resource {
   constructor(
     private baseUri: string,
@@ -37,7 +43,7 @@ export class Resource {
       this.pathParameters
     );
 
-    const queryString = qs.stringify(this.queryParameters);
+    const queryString = qs.stringify(this.queryParameters, { arrayFormat: "repeat" });
 
     return `${renderedBaseUri}${renderedPath}${
       queryString ? "?" : ""
