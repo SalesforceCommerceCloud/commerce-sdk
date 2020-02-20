@@ -82,6 +82,27 @@ describe("Resource class tests", () => {
     );
   });
 
+  it("returns correct url with one query param array single element", () => {
+    assert.strictEqual(
+      new Resource("baseUri", {}, "/path", {}, { q1: ["v1"] }).toString(),
+      "baseUri/path?q1=v1"
+    );
+  });
+
+  it("returns correct url with one query param array two element", () => {
+    assert.strictEqual(
+      new Resource("baseUri", {}, "/path", {}, { q1: ["v1", "v2"] }).toString(),
+      "baseUri/path?q1=v1&q1=v2"
+    );
+  });
+
+  it("returns correct url with one query param array no element", () => {
+    assert.strictEqual(
+      new Resource("baseUri", {}, "/path", {}, { q1: [] }).toString(),
+      "baseUri/path"
+    );
+  });
+
   it("returns correct url with two query param", () => {
     assert.strictEqual(
       new Resource(
@@ -92,6 +113,19 @@ describe("Resource class tests", () => {
         { q1: "v1", query_param_2: "value 2" } // eslint-disable-line
       ).toString(),
       "baseUri/path?q1=v1&query_param_2=value%202"
+    );
+  });
+
+  it("returns correct url with two query param, one of them array", () => {
+    assert.strictEqual(
+      new Resource(
+        "baseUri",
+        {},
+        "/path",
+        {},
+        { q1: ["v1", "v2"], query_param_2: "value 2" } // eslint-disable-line
+      ).toString(),
+      "baseUri/path?q1=v1&q1=v2&query_param_2=value%202"
     );
   });
 
