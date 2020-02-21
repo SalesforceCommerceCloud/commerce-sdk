@@ -1,5 +1,5 @@
 
-import { ShopperToken, stripBearer } from "@commerce-apps/core"
+import { ShopperToken, stripBearer, ResponseError } from "@commerce-apps/core"
 import  * as sdk from "./"
 
 //type of the input parameter of auth function
@@ -33,7 +33,7 @@ export async function getShopperToken (
         body: body
     })) as Response;
     if (!response.ok) {
-        throw new Error(`${response.status}: ${response.statusText}`);
+        throw new ResponseError(response);
     }
     return new ShopperToken(stripBearer(response.headers.get("Authorization")));
 }
