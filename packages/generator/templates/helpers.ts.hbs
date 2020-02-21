@@ -6,14 +6,23 @@ import  * as sdk from "./"
 type authFuncParamType = Parameters<typeof sdk.{{shopperAuthClient}}.Client.prototype.{{shopperAuthApi}}>[0];
 
 /**
- * @description This wraps the parameters for the authCall to retrieve a token. 
+ * @description This wraps the parameters for the authorization call to retrieve a token.
  * That call can be made directly, this is here just for convenience
- *
+ * @example
+ * const clientConfig: ClientConfig = {
+    parameters: {
+        clientId: "XXXXXX",
+        organizationId: "XXXX",
+        shortCode: "XXX",
+        siteId: "XX"
+    }
+   };
+   helpers.getShopperToken(clientConfig, { type: "guest" })
  * @param clientConfig Client configuration properties
  * @param body Post body required for authorization
  * @returns {Promise<ShopperToken>}
  */
-export async function getShopperAuthToken (
+export async function getShopperToken (
     clientConfig: sdk.ClientConfig,
     body: authFuncParamType["body"]
 ): Promise<ShopperToken>{
@@ -32,7 +41,7 @@ export async function getShopperAuthToken (
 const shopperAuthApi = sdk.{{shopperAuthClient}}.Client.prototype.{{shopperAuthApi}};
 
 /**
-* @deprecated Use the "getShopperAuthToken" function instead
+* @deprecated Use the "getShopperToken" function instead
 * @description This wraps the parameters for the authCall to retrieve a token.
 *  That call can be called directly, this is here just for convenience
 * @export
