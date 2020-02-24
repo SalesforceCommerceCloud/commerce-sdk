@@ -93,15 +93,15 @@ const dtoPartial = Handlebars.compile(
 );
 
 function createClient(
-  webApiModels: WebApiBaseUnit[],
+  webApiModel: WebApiBaseUnit,
   boundedContext: string
 ): string {
-  const clientCode: string = clientInstanceTemplate(
+  return clientInstanceTemplate(
     {
       dataTypes: getAllDataTypes(
-        webApiModels as WebApiBaseUnitWithDeclaresModel[]
+        webApiModel as WebApiBaseUnitWithDeclaresModel
       ),
-      models: webApiModels,
+      apiModel: webApiModel,
       apiSpec: boundedContext
     },
     {
@@ -109,13 +109,10 @@ function createClient(
       allowProtoMethodsByDefault: true
     }
   );
-  return clientCode;
 }
 
-function createDto(webApiModels: WebApiBaseUnit[]): string {
-  const types = getAllDataTypes(
-    webApiModels as WebApiBaseUnitWithDeclaresModel[]
-  );
+function createDto(webApiModel: WebApiBaseUnit): string {
+  const types = getAllDataTypes(webApiModel as WebApiBaseUnitWithDeclaresModel);
   return dtoTemplate(types, {
     allowProtoPropertiesByDefault: true,
     allowProtoMethodsByDefault: true
@@ -172,19 +169,19 @@ function renderApi(
   const apiName: string = getApiName(apiModel);
   const apiPath: string = path.join(renderDir, apiName);
   fs.ensureDirSync(apiPath);
-  //TODO: Modify createClient and createDto functions to take a single model object instead of array and get rid of apiModels array
-  const apiModels: WebApiBaseUnitWithEncodesModel[] = [apiModel];
+
   fs.writeFileSync(
     path.join(apiPath, `${apiName}.types.ts`),
-    createDto(apiModels)
+    createDto(apiModel)
   );
   //Resolve model for the end points Using the 'editing' pipeline will retain the declarations in the model
-  const apiModelsForEndPoints: WebApiBaseUnitWithEncodesModel[] = [
-    resolveApiModel(apiModel, "editing")
-  ];
+  const apiModelForEndPoints: WebApiBaseUnitWithEncodesModel = resolveApiModel(
+    apiModel,
+    "editing"
+  );
   fs.writeFileSync(
     path.join(apiPath, `${apiName}.ts`),
-    createClient(apiModelsForEndPoints, apiName)
+    createClient(apiModelForEndPoints, apiName)
   );
   return apiName;
 }

@@ -32,14 +32,12 @@ export class Client extends BaseClient {
     super(config);
 
     if (!!!config.baseUri) {
-      this.clientConfig.baseUri = "{{getBaseUri models.[0] }}";
+      this.clientConfig.baseUri = "{{getBaseUri apiModel}}";
     }
 
   }
 
-{{#each models}}
-    {{> operationsPartial model=. }}
-{{/each}}
+  {{> operationsPartial model=apiModel }}
 
 }
 
