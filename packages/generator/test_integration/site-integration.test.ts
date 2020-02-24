@@ -11,7 +11,6 @@ import chaiAsPromised from "chai-as-promised";
 const BASE_URI =
   "https://anypoint.mulesoft.com/mocking/api/v1/sources/exchange/assets/893f605e-10e2-423a-bdb4-f952f56eb6d8/steelarc-integration/1.0.0/m/s/-/dw/shop/v19_5";
 
-console.log(Shop.ShopApi);
 const client = new Shop.ShopApi({
   baseUri: BASE_URI
 });
