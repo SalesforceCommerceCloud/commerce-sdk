@@ -92,13 +92,13 @@ const dtoPartial = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "dtoPartial.ts.hbs"), "utf8")
 );
 
-function createClient(webApiModels: WebApiBaseUnit[], apiName: string): string {
-  const clientCode: string = clientInstanceTemplate(
+function createClient(webApiModel: WebApiBaseUnit, apiName: string): string {
+  return clientInstanceTemplate(
     {
       dataTypes: getAllDataTypes(
-        webApiModels as WebApiBaseUnitWithDeclaresModel[]
+        webApiModel as WebApiBaseUnitWithDeclaresModel
       ),
-      models: webApiModels,
+      apiModel: webApiModel,
       apiSpec: apiName
     },
     {
@@ -106,13 +106,10 @@ function createClient(webApiModels: WebApiBaseUnit[], apiName: string): string {
       allowProtoMethodsByDefault: true
     }
   );
-  return clientCode;
 }
 
-function createDto(webApiModels: WebApiBaseUnit[]): string {
-  const types = getAllDataTypes(
-    webApiModels as WebApiBaseUnitWithDeclaresModel[]
-  );
+function createDto(webApiModel: WebApiBaseUnit): string {
+  const types = getAllDataTypes(webApiModel as WebApiBaseUnitWithDeclaresModel);
   return dtoTemplate(types, {
     allowProtoPropertiesByDefault: true,
     allowProtoMethodsByDefault: true
@@ -169,19 +166,19 @@ function renderApi(
   const apiName: string = getApiName(apiModel);
   const apiPath: string = path.join(renderDir, apiName);
   fs.ensureDirSync(apiPath);
-  //TODO: Modify createClient and createDto functions to take a single model object instead of array and get rid of apiModels array
-  const apiModels: WebApiBaseUnitWithEncodesModel[] = [apiModel];
+
   fs.writeFileSync(
     path.join(apiPath, `${apiName}.types.ts`),
-    createDto(apiModels)
+    createDto(apiModel)
   );
   //Resolve model for the end points Using the 'editing' pipeline will retain the declarations in the model
-  const apiModelsForEndPoints: WebApiBaseUnitWithEncodesModel[] = [
-    resolveApiModel(apiModel, "editing")
-  ];
+  const apiModelForEndPoints: WebApiBaseUnitWithEncodesModel = resolveApiModel(
+    apiModel,
+    "editing"
+  );
   fs.writeFileSync(
     path.join(apiPath, `${apiName}.ts`),
-    createClient(apiModelsForEndPoints, apiName)
+    createClient(apiModelForEndPoints, apiName)
   );
   return apiName;
 }

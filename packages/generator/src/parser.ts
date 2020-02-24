@@ -73,23 +73,18 @@ export function getReferenceDataTypes(
 }
 
 export function getAllDataTypes(
-  apis: WebApiBaseUnitWithDeclaresModel[]
+  api: WebApiBaseUnitWithDeclaresModel
 ): model.domain.CustomDomainProperty[] {
   let ret: model.domain.CustomDomainProperty[] = [];
   const dataTypes: Set<string> = new Set();
-  apis.forEach(element => {
-    element
-      .references()
-      .forEach((reference: WebApiBaseUnitWithDeclaresModel) => {
-        if (reference.declares) {
-          ret = ret.concat(
-            getDataTypesFromDeclare(reference.declares, dataTypes)
-          );
-        }
-      });
-    ret = ret.concat(getDataTypesFromDeclare(element.declares, dataTypes));
-    getReferenceDataTypes(element.references(), ret, dataTypes);
-  });
+  const temp: model.domain.CustomDomainProperty[] = getDataTypesFromDeclare(
+    api.declares,
+    dataTypes
+  );
+  if (temp != null) {
+    ret = temp;
+  }
+  getReferenceDataTypes(api.references(), ret, dataTypes);
   return ret;
 }
 
