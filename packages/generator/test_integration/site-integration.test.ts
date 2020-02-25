@@ -6,17 +6,17 @@
  */
 "use strict";
 import { Shop } from "../dist";
-import chai from "chai";
+import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
-const expect = chai.expect;
 const BASE_URI =
   "https://anypoint.mulesoft.com/mocking/api/v1/sources/exchange/assets/893f605e-10e2-423a-bdb4-f952f56eb6d8/steelarc-integration/1.0.0/m/s/-/dw/shop/v19_5";
-const client = new Shop.ShopApi.Client({
+
+const client = new Shop.ShopApi({
   baseUri: BASE_URI
 });
 
+// let test: Shop;
 before(() => {
-  chai.should();
   chai.use(chaiAsPromised);
 
   return client.initializeMockService();
@@ -24,7 +24,7 @@ before(() => {
 
 describe("Shop client integration GET tests", () => {
   it("Throws error calling GET with no token", () => {
-    const newLocalClient = new Shop.ShopApi.Client({
+    const newLocalClient = new Shop.ShopApi({
       baseUri: BASE_URI
     });
 
@@ -62,7 +62,7 @@ describe("Shop client integration GET tests", () => {
 
 describe("Shop client integration PUT tests", () => {
   it("Throws error calling PUT with no token", () => {
-    const newLocalClient = new Shop.ShopApi.Client({
+    const newLocalClient = new Shop.ShopApi({
       baseUri: BASE_URI
     });
 
@@ -95,7 +95,7 @@ describe("Shop client integration PUT tests", () => {
 
 describe("Shop client integration PATCH tests", () => {
   it("Throws error calling PATCH with no token", () => {
-    const newLocalClient = new Shop.ShopApi.Client({
+    const newLocalClient = new Shop.ShopApi({
       baseUri: BASE_URI
     });
 
@@ -123,7 +123,7 @@ describe("Shop client integration PATCH tests", () => {
 
 describe("Shop client integration DELETE tests", () => {
   it("Throws error calling DELETE with no token", () => {
-    const newLocalClient = new Shop.ShopApi.Client({
+    const newLocalClient = new Shop.ShopApi({
       baseUri: BASE_URI
     });
 
@@ -139,7 +139,7 @@ describe("Shop client integration DELETE tests", () => {
 
 describe("Shop client integration POST tests", () => {
   it("Throws error calling POST with no token", () => {
-    const newLocalClient = new Shop.ShopApi.Client({
+    const newLocalClient = new Shop.ShopApi({
       baseUri: BASE_URI
     });
 
