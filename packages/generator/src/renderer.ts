@@ -92,17 +92,14 @@ const dtoPartial = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "dtoPartial.ts.hbs"), "utf8")
 );
 
-function createClient(
-  webApiModel: WebApiBaseUnit,
-  boundedContext: string
-): string {
+function createClient(webApiModel: WebApiBaseUnit, apiName: string): string {
   return clientInstanceTemplate(
     {
       dataTypes: getAllDataTypes(
         webApiModel as WebApiBaseUnitWithDeclaresModel
       ),
       apiModel: webApiModel,
-      apiSpec: boundedContext
+      apiSpec: apiName
     },
     {
       allowProtoPropertiesByDefault: true,

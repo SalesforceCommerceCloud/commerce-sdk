@@ -92,7 +92,7 @@ describe("Template helper primitive datatype tests", () => {
       }
     };
 
-    assert.isTrue(getDataType(property) === "defined_type");
+    assert.isTrue(getDataType(property) === "defined_typeT");
   });
 
   it("Returns 'boolean' on boolean linked dataType", () => {
@@ -175,7 +175,7 @@ describe("Template helper Array item type tests", () => {
         }
       }
     };
-    assert.isTrue(getDataType(property) === "Array<defined_type>");
+    assert.isTrue(getDataType(property) === "Array<defined_typeT>");
   });
 
   it("Returns 'Array<any>' on array of object dataType with isLink as false", () => {
@@ -235,7 +235,7 @@ describe("Template helper Array item type tests", () => {
         }
       }
     };
-    assert.isTrue(getArrayElementTypeProperty(property) === "defined_type");
+    assert.isTrue(getArrayElementTypeProperty(property) === "defined_typeT");
   });
 
   it("Returns 'any' on array of defined_type items, but isLink is false", () => {
@@ -324,7 +324,7 @@ describe("Template helper tests array literal definitions like string[], defined
         ]
       }
     };
-    assert.equal(getArrayElementTypeProperty(property), "defined_type");
+    assert.equal(getArrayElementTypeProperty(property), "defined_typeT");
   });
 });
 
@@ -353,7 +353,7 @@ describe("Template helper, response item type tests", () => {
     const response: model.domain.Response = operation.responses[0];
     response.withStatusCode("200");
     response.payloads[0].schema.withName("DefinedType");
-    expect(getReturnPayloadType(operation)).to.equal("Response | DefinedType");
+    expect(getReturnPayloadType(operation)).to.equal("Response | DefinedTypeT");
   });
 
   it("Returns 'Response | void' on defined_type datatype, but with statusCode as 500", () => {
