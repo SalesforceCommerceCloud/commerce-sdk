@@ -60,6 +60,8 @@ To run tests in the generator package only, execute
 npm run test:generator
 ```
 
+These commands will fail if a minimum of 80% coverage is not maintained per source file. Certain files may show 0% coverage in the report when the file does not include testable statements (i.e. files that only contain an interface). These files will not trigger a failure. The coverage is generated using [nyc](https://www.npmjs.com/package/nyc). The configuration is stored within the package.json of each package.
+
 ## Issues
 
 First, check the [open issues](https://github.com/SalesforceCommerceCloud/commerce-sdk/issues) and [Commerce Cloud Developer Center](https://developer.commercecloud.com/) for any open issues related to the issue that you are experiencing. If not already raised please file a new issue [here](https://github.com/SalesforceCommerceCloud/commerce-sdk/issues/new) with all the necessary details. If you require an urgent resolution to your issue please ask your AM/CSM to file a support ticket with Salesforce Commerce.
