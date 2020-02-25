@@ -164,7 +164,7 @@ export const getReturnPayloadType = function(operation: any): string {
       dataTypes.push(
         res.payloads[0].schema.name.value() === "schema"
           ? "Object"
-          : res.payloads[0].schema.name.value()
+          : res.payloads[0].schema.name.value() + "T"
       );
     } else {
       dataTypes.push("void");
@@ -210,7 +210,7 @@ export const getArrayElementTypeProperty = function(property: any): string {
   }
 
   if (isTypeDefined(itemsObject)) {
-    result = itemsObject.inherits[0].linkTarget.name.value();
+    result = itemsObject.inherits[0].linkTarget.name.value() + "T";
   }
 
   if (
@@ -219,7 +219,7 @@ export const getArrayElementTypeProperty = function(property: any): string {
     itemsObject.linkTarget.name !== undefined &&
     itemsObject.linkTarget.name.value !== undefined
   ) {
-    result = itemsObject.linkTarget.name.value();
+    result = itemsObject.linkTarget.name.value() + "T";
   }
 
   return result;
@@ -232,7 +232,7 @@ export const getDataType = function(property: any): string {
     return getDataTypeFromMap(range.dataType.value());
   }
   if (isTypeDefined(range)) {
-    return range.inherits[0].linkTarget.name.value();
+    return range.inherits[0].linkTarget.name.value() + "T";
   }
 
   if (isTypeLinked(range)) {
