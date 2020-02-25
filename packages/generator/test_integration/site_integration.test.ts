@@ -80,13 +80,13 @@ describe("Shop client integration PUT tests", () => {
   it("Returns object calling PUT with valid token and request body", () => {
     return client
       .updateCustomerPassword({
-        rawResponse: true,
         body: {
           // eslint-disable-next-line @typescript-eslint/camelcase
           current_password: "Current password",
           password: ""
         }
-      })
+      },
+      true)
       .then(res => {
         return expect((res as Response).ok).is.true;
       });
@@ -132,7 +132,7 @@ describe("Shop client integration DELETE tests", () => {
 
   it("Returns object calling DELETE with valid token", () => {
     return client
-      .deleteSite({ rawResponse: true })
+      .deleteSite({}, true)
       .then(res => expect((res as Response).ok).to.be.true);
   });
 });

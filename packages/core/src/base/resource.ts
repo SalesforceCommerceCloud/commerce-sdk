@@ -43,7 +43,9 @@ export class Resource {
       this.pathParameters
     );
 
-    const queryString = qs.stringify(this.queryParameters, { arrayFormat: "repeat" });
+    const queryString = qs.stringify(this.queryParameters, {
+      arrayFormat: "repeat"
+    });
 
     return `${renderedBaseUri}${renderedPath}${
       queryString ? "?" : ""
