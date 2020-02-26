@@ -342,34 +342,34 @@ describe("Template helper, response item type tests", () => {
     operation.withResponses([response]);
   });
 
-  it("Returns 'Response | Object' on unknown datatype", () => {
+  it("Returns 'Object' on unknown datatype", () => {
     const response = operation.responses[0];
     response.payloads[0].schema.withName("schema");
     response.withStatusCode("200");
-    expect(getReturnPayloadType(operation)).to.equal("Response | Object");
+    expect(getReturnPayloadType(operation)).to.equal("Object");
   });
 
   it("Returns 'defined_type' on defined_type datatype", () => {
     const response: model.domain.Response = operation.responses[0];
     response.withStatusCode("200");
     response.payloads[0].schema.withName("DefinedType");
-    expect(getReturnPayloadType(operation)).to.equal("Response | DefinedTypeT");
+    expect(getReturnPayloadType(operation)).to.equal("DefinedTypeT");
   });
 
-  it("Returns 'Response | void' on defined_type datatype, but with statusCode as 500", () => {
+  it("Returns 'void' on defined_type datatype, but with statusCode as 500", () => {
     const response: model.domain.Response = operation.responses[0];
     response.withStatusCode("500");
     response.payloads[0].schema.withName("DefinedType");
-    expect(getReturnPayloadType(operation)).to.equal("Response | void");
+    expect(getReturnPayloadType(operation)).to.equal("void");
   });
 
-  it("Returns 'Response | void' without responses", () => {
+  it("Returns 'void' without responses", () => {
     operation.withResponses([]);
-    expect(getReturnPayloadType(operation)).to.equal("Response | void");
+    expect(getReturnPayloadType(operation)).to.equal("void");
   });
 
-  it("Returns 'Response | void' datatype, with response array but with no response codes", () => {
-    expect(getReturnPayloadType(operation)).to.equal("Response | void");
+  it("Returns 'void' datatype, with response array but with no response codes", () => {
+    expect(getReturnPayloadType(operation)).to.equal("void");
   });
 });
 
