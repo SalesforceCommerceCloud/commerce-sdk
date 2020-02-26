@@ -28,10 +28,9 @@ export async function getShopperToken (
 ): Promise<ShopperToken>{
     let client = new sdk.{{shopperAuthClient}}(clientConfig);
 
-    let response = (await client.{{shopperAuthApi}}({
-        rawResponse: true,
+    const response: Response = (await client.{{shopperAuthApi}}({
         body: body
-    })) as Response;
+    }, true));
     if (!response.ok) {
         throw new ResponseError(response);
     }
@@ -63,15 +62,13 @@ export async function getAuthToken<T extends shopperAuthApi>(
     }
     });
 
-    options.rawResponse = true;
-
     // At some point this should go through the same stripping as everything else.
     //  Should be part of the global config story
     delete options.parameters.shortCode;
 
-    let response = await client.authorizeCustomer(options) as Response;
+    const response: Response = await client.authorizeCustomer(options, true);
     if (!response.ok) {
-    throw new Error(`${response.status}: ${response.statusText}`)
+        throw new Error(`${response.status}: ${response.statusText}`)
     }
     return new ShopperToken(stripBearer(response.headers.get("Authorization")));
 }
