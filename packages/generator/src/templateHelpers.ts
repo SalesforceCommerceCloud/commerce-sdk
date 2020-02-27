@@ -18,15 +18,6 @@ import {
 } from "./config";
 
 /**
- * Additional properties are allowed in RAML type definitions using regular expressions
- * We currently support any valid arbitrary property names without any prefixes or suffixes.
- * These properties are rendered using the following semantics
- * const SomeType = { [key: string]: string/boolean/number/SomeOtherType }
- *                      & { definitions for other concrete properties }
- */
-const ADDITIONAL_PROPERTY_REGEX_NAMES = ["//", "/.*/"];
-
-/**
  * Selects the baseUri from an AMF model. TypeScript will not allow access to
  * the data without the proper cast to a WebApi type.
  *
@@ -311,13 +302,13 @@ const getFilteredProperties = function(
  * Gets all properties of the DTO
  *
  * @param dtoTypeModel AMF model of the dto
- * @returns Array of properties in the dto
+ * @returns Array of properties in the dto that are not regular expressions
  */
 export const getProperties = function(
   dtoTypeModel: model.domain.NodeShape | undefined | null
 ): model.domain.PropertyShape[] {
   return getFilteredProperties(dtoTypeModel, propertyName => {
-    return !ADDITIONAL_PROPERTY_REGEX_NAMES.includes(propertyName);
+    return !/^([/^]).*.$/.test(propertyName);
   });
 };
 
@@ -364,19 +355,4 @@ export const isAdditionalPropertiesAllowed = function(
     ramlTypeDefinition.closed.value !== undefined &&
     !ramlTypeDefinition.closed.value()
   );
-};
-
-/**
- * Returns a list of additional properties defined in RAML type.
- * Additional property names use regular expressions.
- *
- * @param dtoTypeModel - AMF model of the dto {model.domain.NodeShape}
- * @returns {model.domain.PropertyShape[]} Array of additional properties
- */
-export const getAdditionalProperties = function(
-  dtoTypeModel: model.domain.NodeShape
-): model.domain.PropertyShape[] {
-  return getFilteredProperties(dtoTypeModel, propertyName => {
-    return ADDITIONAL_PROPERTY_REGEX_NAMES.includes(propertyName);
-  });
 };

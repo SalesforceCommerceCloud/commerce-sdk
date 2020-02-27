@@ -8,11 +8,5 @@
 {{/each}}
 }
 {{~#if (isAdditionalPropertiesAllowed typeDto)}}
-{{#if (getAdditionalProperties typeDto)}}
-{{#each (getAdditionalProperties typeDto)}}
- & { [key: string]: {{#or (eq (getDataType .) "object")}}{{> dtoPartial typeDto=range }}{{else}}{{{getDataType .}}}{{/or}} }
-{{/each}}
-{{else}}
- & { [key: string]: any }
-{{/if}}
+& { [key: string]: any }
 {{/if}}
