@@ -94,6 +94,11 @@ To view the details of a method or a variable, hover over methods and variables.
 ​
 ![Method Details](./images/MethodDetails.jpg?raw=true "Method Details")
 ​
+![Parameter Details](./images/ParameterDetails.jpg?raw=true "Parameter Details")
+
+Autocomplete will also show the available properties of the data returned by SDK methods.
+
+![Result Autocomplete](./images/ResultAutocomplete.jpg?raw=true "Result Autocomplete")
 
 ## Additional Documentation 
 [API Versions Used](./VERSION.md)
