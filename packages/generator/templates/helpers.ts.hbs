@@ -36,39 +36,3 @@ export async function getShopperToken (
     }
     return new ShopperToken(stripBearer(response.headers.get("Authorization")));
 }
-
-type shopperAuthApi = typeof sdk.{{shopperAuthClient}}.prototype.{{shopperAuthApi}};
-
-/**
-* @deprecated Use the "getShopperToken" function instead
-* @description This wraps the parameters for the authCall to retrieve a token.
-*  That call can be called directly, this is here just for convenience
-* @export
-* @template T A template used to extend the parameters of the shopper authentication call
-* @param {(T extends (arg: infer A) => any
-*           ? { parameters: { clientId?: string; shortCode?: string } } & A
-*           : never)} options This provides the type ahead for this parameter properly
-* @returns {Promise<ShopperToken>}
-*/
-export async function getAuthToken<T extends shopperAuthApi>(
-    options: T extends (arg: infer A) => any
-    ? { parameters: { clientId?: string; shortCode?: string } } & A
-    : never
-    ): Promise<ShopperToken> {
-
-    let client = new sdk.{{shopperAuthClient}}({
-    parameters: {
-    shortCode: options.parameters.shortCode
-    }
-    });
-
-    // At some point this should go through the same stripping as everything else.
-    //  Should be part of the global config story
-    delete options.parameters.shortCode;
-
-    const response: Response = await client.authorizeCustomer(options, true);
-    if (!response.ok) {
-        throw new Error(`${response.status}: ${response.statusText}`)
-    }
-    return new ShopperToken(stripBearer(response.headers.get("Authorization")));
-}
