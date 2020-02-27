@@ -30,47 +30,59 @@ To use an SDK client, instantiate an object of that client and configure these p
 ### Sample Code
 ```javascript
 /**
- * Sample TypeScript code shows how Commerce SDK can access Salesforce Commerce
+ * Sample TypeScript code that shows how Commerce SDK can access Salesforce Commerce
  * APIs.
  */
 ​
 // Import the SDK
-import { Product, helpers } from 'commerce-sdk';
+import { ClientConfig, helpers, Search } from "commerce-sdk";
 
-helpers.getAuthToken({
+// Create a configuration to use when creating API clients
+const config:ClientConfig = {
+    headers: {
+        connection: "close"
+    },
     parameters: {
         clientId: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         organizationId: "f_ecom_bblx_stg",
-        shortCode: "staging-001",
+        shortCode: "0dnz6oep",
         siteId: "RefArch"
-    },
-    body: {
-        type: "guest"
     }
-}).then(authToken => {
+}
 
-    // Instantiate a Product client object with configuration parameters.
-    const productClient = new Product.ShopperProduct.Client({
-        parameters: {
-            organizationId: "f_ecom_bblx_stg",
-            shortCode: "staging-001",
-            siteId: "RefArch"
-        },
-        headers: {
-            Authorization: authToken.getBearerHeader()
-        }
-    });
+// Get a JWT to use with Shopper API clients, a guest token in this case
+helpers.getShopperToken(config, { type: "guest" }).then(async (token) => {
 
-    // Retrieve a list of currencies allowed by a merchant.
-    productClient.getProduct({ parameters: { id: "product-id" }})
-        .then(response => {
-            // Do something with the response
-            return response.allowed_currencies;
-        })
-        .catch(error => {
-            // Do something with the error
-            throw new Error(`Error fetching allowed currencies: ${error}`);
+    try {
+        // Add the token to the client configuration
+        config.headers.authorization = token.getBearerHeader();
+
+        // Create a new ShopperSearch API client
+        const searchClient = new Search.ShopperSearch(config);
+
+        // Search for dresses
+        const searchResults = await searchClient.productSearch({
+            parameters: {
+                q: "dress"
+            }
         });
+
+        if (searchResults.total) {
+            const firstResult = searchResults.hits[0];
+            console.log(`${firstResult.productId} ${firstResult.productName}`);
+        } else {
+            console.log("No results for search");
+        }
+
+        return searchResults;
+
+    } catch (e) {
+        console.error(e);
+        console.error(await e.response.text());
+    }
+}).catch(async (e) => {
+    console.error(e);
+    console.error(await e.response.text());
 });
 ```
 
