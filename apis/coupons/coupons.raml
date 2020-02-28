@@ -243,14 +243,7 @@ types:
          enabled - boolean
          
 
-         Note that only searchable attributes can be used in sorting.
-
-         The stats expand value is required to return the following fields in the Coupon document:
-         
-             exported_code_count
-             redemption_count
-             total_codes_count
-         
+         Note that only searchable attributes can be used in sorting.         
       displayName: couponsSearch
       is:
         - ApiStandards.RateLimited2:
@@ -329,15 +322,6 @@ types:
       get:
         description: |-
           Returns coupon information for the given coupon ID.
-
-           The following fields are returned in the Coupon document when specifying the stats expand:
-
-               exported_code_count
-               redemption_count
-               total_codes_count
-
-
-
            If the role to which the user belongs does not have the View_Coupon_Codes permission, then the coupon codes returned are masked.
         displayName: getCoupon
         is:
@@ -358,13 +342,6 @@ types:
             type: string
             required: false
             example: (**)
-          expand:
-            description: An expand key that optionally returns a subset of related attributes.
-            type: array
-            items:
-              type: string
-            required: false
-            example: [stats]
         securedBy:
           - CommerceCloudStandards.AmOAuth2
           - CommerceCloudStandards.BearerToken

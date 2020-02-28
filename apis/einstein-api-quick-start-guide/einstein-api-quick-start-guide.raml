@@ -1,5 +1,5 @@
 #%RAML 1.0
-title: Einstein API Quick Start Guide
+title: Einstein Quick Start Guide
 version: v3
 mediaType: application/json
 protocols:
@@ -416,6 +416,7 @@ types:
       altIdType:
         type: string
         enum:
+          - ''
           - vgroup
         description: The type of alternate identifier.
         required: false
@@ -463,6 +464,7 @@ types:
     type: object
     properties:
       code:
+        example: ValidationError
         type: string
         description: A short error code to classify types of errors.
       errors:
@@ -472,15 +474,19 @@ types:
           type: object
           properties:
             location:
+              example: body
               type: string
               description: The location of the invalid parameter.
             msg:
+              example: Must provide a `products` array.
               type: string
               description: A message describing why the parameter is invalid.
             param:
+              example: products
               type: string
               description: The name of the invalid parameter.
       msg:
+        example: There was a problem validating the request. See `errors`.
         type: string
         description: >-
           A descriptive message about the error you can use to troubleshoot what
@@ -489,12 +495,18 @@ types:
     type: object
     properties:
       name:
+        example: recently-viewed-products
         type: string
         description: The name of the recommender.
       description:
+        example: Recently viewed products.
         type: string
         description: The description of the recommender.
         required: false
+      recommenderType:
+        example: recently-viewed
+        type: string
+        description: The type of the recommender.
   RecommendersResponse:
     type: object
     properties:
@@ -507,41 +519,64 @@ types:
     type: object
     properties:
       displayMessage:
+        example: Recently Viewed
         type: string
         description: Text to (optionally) use to accompany the given recommendations.
         required: false
+      recoUUID:
+        example: 05e0bd80-64eb-4149-ad5a-dfe1996f8f57
+        type: string
+        description: Identifier of this recommendation set.
       recs:
         type: array
         description: The set of recommendations.
         items:
-          type: object
-          properties:
-            id:
-              type: string
-              description: ID of the recommendation.
+          type: Recommendation
+  Recommendation:
+    type: object
+    properties:
+      id:
+        example: prod_123
+        type: string
+        description: ID of the recommendation.
+      product_name:
+        example: Product ABC
+        type: string
+        description: Name of the recommendation.
+      product_url:
+        example: prod_abc.test.com
+        type: string
+        description: Product URL of the recommendation.
+      image_url:
+        example: prod_abc.test.com
+        type: string
+        description: Image URL of the recommendation.
   ZoneResponse:
     type: object
     properties:
       displayMessage:
+        example: Recently Viewed
         type: string
         description: Text to (optionally) use to accompany the given recommendations.
         required: false
+      recoUUID:
+        example: 05e0bd80-64eb-4149-ad5a-dfe1996f8f57
+        type: string
+        description: Identifier of this recommendation set.
       recs:
         type: array
         description: The set of recommendations.
         items:
-          type: object
-          properties:
-            id:
-              type: string
-              description: ID of the recommendation.
+          type: Recommendation
       recommenderName:
+        example: recently-viewed-products
         type: string
         description: The name of the recommender that was used.
   ActivityResponse:
     type: object
     properties:
       uuid:
+        example: ce035cc0-2cbb-4d9e-95ed-c67fa55d1eb8
         type: string
         description: >-
           Unique identifier for the end user. The client application should
@@ -571,4 +606,3 @@ types:
             the array should consist of just one number element.
           items:
             type: string
-            

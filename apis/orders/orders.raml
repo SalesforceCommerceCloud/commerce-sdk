@@ -5,7 +5,7 @@ description: Provides access to Commerce Cloud Digital order related functionali
 version: v1
 protocols: HTTPS
 mediaType: application/json
-baseUri: https://anypoint.mulesoft.com/mocking/api/v1/links/2a968e56-a214-422b-a6e2-61ed41faad5f/checkout/orders/{version} # baseUri: https://{shortCode}.api.commercecloud.salesforce.com/checkout/orders/{version}
+baseUri: https://{shortCode}.api.commercecloud.salesforce.com/checkout/orders/{version}
 baseUriParameters:
   shortCode:
     description: Region-specific merchant identifier.
@@ -14,25 +14,23 @@ baseUriParameters:
 uses:
   StatusCodes: status-codes.raml
   DataTypes: data-types.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.8/commerce-cloud-standards.raml 
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.3/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.12/commerce-cloud-standards.raml 
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.4/api-standards.raml
 
 types:
 '/organizations/{organizationId}':
+  type: CommerceCloudStandards.Organization
   '/orders/{orderNo}':
+    type: CommerceCloudStandards.Organization
     uriParameters:
-      organizationId:
-        description: The organizationId
-        minLength: 1
-        example: "f_ecom_dspk_stg"
       orderNo:
-        description: The order number
+        description: The order number.
         minLength: 1
         type: string
         example: "00000410"
     patch:
       description: Updates the order.
-      displayName: patchSitesByIdOrdersById
+      displayName: updateOrder
       is:
         - StatusCodes.Success
         - StatusCodes.BadRequest
@@ -44,16 +42,17 @@ types:
             responseStatus2: 400
             responseStatus3: 404
       body:
-        application/json:
           type: DataTypes.OrderUpdateRequest
           examples:
               DataTypes.OrderUpdateRequest: !include examples/order-request.raml
       securedBy:
+        - CommerceCloudStandards.BearerToken
         - CommerceCloudStandards.AmOAuth2
     /confirmation-status:
+      type: CommerceCloudStandards.Organization
       put:
         description: Updates the order confirmation status.
-        displayName: putSitesByIdOrdersByIdConfirmationStatus
+        displayName: updateOrderConfirmationStatus
         is:
           - StatusCodes.Success
           - StatusCodes.BadRequest
@@ -69,12 +68,14 @@ types:
             examples:
               DataTypes.OrderConfirmationStatusUpdateRequest: !include examples/order-confirmation-status-request.raml
         securedBy:
+          - CommerceCloudStandards.BearerToken
           - CommerceCloudStandards.AmOAuth2
     /export-status:
+      type: CommerceCloudStandards.Organization
       put:
         description: |-
-          Updates the order export status. Setting the status to EXPORTED will also trigger the finalization of on-order inventory transactions for this order, meaning that all inventory transactions with type on-order will be moved into final inventory transactions. This is only relevant when on-order inventory is turned on for the inventory list ordered products are in.
-        displayName: putSitesByIdOrdersByIdExportStatus
+          Updates the order export status. Setting the status to EXPORTED will also trigger the finalization of on-order inventory transactions for this order, meaning that all inventory transactions with type on-order are moved into final inventory transactions. This is only relevant when on-order inventory is turned on for the inventory list ordered products are in.
+        displayName: updateOrderExportStatus
         is:
           - StatusCodes.Success
           - StatusCodes.BadRequest
@@ -90,11 +91,13 @@ types:
             examples:
               DataTypes.OrderExportStatusUpdateRequest: !include examples/order-export-status-request.raml
         securedBy:
+          - CommerceCloudStandards.BearerToken
           - CommerceCloudStandards.AmOAuth2
     /external-status:
+      type: CommerceCloudStandards.Organization
       put:
         description: Updates the order external status.
-        displayName: putSitesByIdOrdersByIdExternalStatus
+        displayName: updateOrderExternalStatus
         is:
           - StatusCodes.Success
           - StatusCodes.BadRequest
@@ -110,11 +113,13 @@ types:
             examples:
               DataTypes.OrderExternalStatusUpdateRequest: !include examples/order-external-status-request.raml
         securedBy:
+          - CommerceCloudStandards.BearerToken
           - CommerceCloudStandards.AmOAuth2
     /payment-status:
+      type: CommerceCloudStandards.Organization
       put:
         description: Updates the order payment status.
-        displayName: putSitesByIdOrdersByIdPaymentStatus
+        displayName: updateOrderPaymentStatus
         is:
           - StatusCodes.Success
           - StatusCodes.BadRequest
@@ -130,11 +135,13 @@ types:
             examples:
               DataTypes.OrderPaymentStatusUpdateRequest: !include examples/order-payment-status-request.raml
         securedBy:
+          - CommerceCloudStandards.BearerToken
           - CommerceCloudStandards.AmOAuth2
     /shipping-status:
+      type: CommerceCloudStandards.Organization
       put:
         description: Updates the order shipping status.
-        displayName: putSitesByIdOrdersByIdShippingStatus
+        displayName: updateOrderShippingStatus
         is:
           - StatusCodes.Success
           - StatusCodes.BadRequest
@@ -150,12 +157,14 @@ types:
             examples:
               DataTypes.OrderShippingStatusUpdateRequest: !include examples/order-shipping-status-request.raml
         securedBy:
+          - CommerceCloudStandards.BearerToken
           - CommerceCloudStandards.AmOAuth2
     /status:
+      type: CommerceCloudStandards.Organization
       put:
         description: |-
-          Updates the order status. Orders which are in status NEW, OPEN, COMPLETED or CANCELLED can not be set to status CREATED or FAILED.
-        displayName: putSitesByIdOrdersByIdStatus
+          Updates the order status. Orders which are in status NEW, COMPLETED, or CANCELLED can not be set to status CREATED or FAILED.
+        displayName: updateOrderStatus
         is:
           - StatusCodes.Success
           - StatusCodes.BadRequest
@@ -177,17 +186,19 @@ types:
             examples:
               DataTypes.OrderStatusUpdateRequest: !include examples/order-status-request.raml
         securedBy:
+          - CommerceCloudStandards.BearerToken
           - CommerceCloudStandards.AmOAuth2
     '/payment-instruments/{paymentInstrumentId}':
+      type: CommerceCloudStandards.Organization
       uriParameters:
         paymentInstrumentId:
-          description: ID of the payment instrument
+          description: ID of the payment instrument.
           minLength: 1
           type: string
           example: b7679bea661819b2de78b9de7d
       patch:
         description: Updates the payment instrument of an order.
-        displayName: patchSitesByIdOrdersByIdPaymentInstrumentsById
+        displayName: updateOrderPaymentInstrument
         is:
           - StatusCodes.Success
           - StatusCodes.BadRequest
@@ -204,11 +215,13 @@ types:
             examples:
               DataTypes.PaymentInstrumentUpdateRequest: !include examples/order-payment-instrument-request.raml
         securedBy:
+          - CommerceCloudStandards.BearerToken
           - CommerceCloudStandards.AmOAuth2
       /transaction:
+        type: CommerceCloudStandards.Organization
         patch:
           description: Updates the transaction of an order payment instrument.
-          displayName: patchSitesByIdOrdersByIdPaymentInstrumentsByIdTransaction
+          displayName: updateOrderPaymentTransaction
           is:
             - StatusCodes.Success
             - StatusCodes.BadRequest
@@ -225,18 +238,21 @@ types:
               examples:
                 DataTypes.PaymentTransactionUpdateRequest: !include examples/order-payment-transaction-request.raml
           securedBy:
+            - CommerceCloudStandards.BearerToken
             - CommerceCloudStandards.AmOAuth2
     '/shipments/{shipmentId}':
+      type: CommerceCloudStandards.Organization
       uriParameters:
         shipmentId:
-          description: ID of the shipment
+          description: ID of the shipment.
           minLength: 1
           type: string
           example: me
       /shipping-address:
+        type: CommerceCloudStandards.Organization
         put:
           description: Updates (create or replace) the order shipment address.
-          displayName: putSitesByIdOrdersByIdShipmentsByIdShippingAddress
+          displayName: updateOrderShippingAddress
           is:
             - StatusCodes.Success
             - StatusCodes.BadRequest
@@ -253,4 +269,5 @@ types:
               examples:
                 DataTypes.ShippingAddressUpdateRequest: !include examples/order-shipping-address-request.raml
           securedBy:
+            - CommerceCloudStandards.BearerToken
             - CommerceCloudStandards.AmOAuth2

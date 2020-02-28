@@ -79,14 +79,16 @@ describe("Shop client integration PUT tests", () => {
 
   it("Returns object calling PUT with valid token and request body", () => {
     return client
-      .updateCustomerPassword({
-        body: {
-          // eslint-disable-next-line @typescript-eslint/camelcase
-          current_password: "Current password",
-          password: ""
-        }
-      },
-      true)
+      .updateCustomerPassword(
+        {
+          body: {
+            // eslint-disable-next-line @typescript-eslint/camelcase
+            current_password: "Current password",
+            password: ""
+          }
+        },
+        true
+      )
       .then(res => {
         return expect((res as Response).ok).is.true;
       });
