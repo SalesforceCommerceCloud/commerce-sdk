@@ -89,19 +89,19 @@ helpers.getShopperToken(config, { type: "guest" }).then(async (token) => {
 When using an IDE such as VSCode, the autocomplete feature lets you view the available method and class definitions, including parameters.
 ​
 
-<img alt="Autocomplete" src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/packages/generator/images/Autocomplete.jpg?raw=true" /> 
+<img alt="Autocomplete" src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/packages/generator/images/Autocomplete.jpg?raw=true" style="width:1368px;" /> 
 
 To view the details of a method or a variable, hover over methods and variables.
 ​
 
-<img alt="Method Details" src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/packages/generator/images/MethodDetails.jpg?raw=true" style="width:60%;" /> 
+<img alt="Method Details" src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/packages/generator/images/MethodDetails.jpg?raw=true" style="width:766px;" /> 
 
-<img alt="Parameter Details" src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/packages/generator/images/ParameterDetails.jpg?raw=true" style="width:80%" /> 
+<img alt="Parameter Details" src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/packages/generator/images/ParameterDetails.jpg?raw=true" style="width:988px" /> 
 
 Autocomplete will also show the available properties of the data returned by SDK methods.
 
 
-<img alt="Result Autocomplete" src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/packages/generator/images/ResultAutocomplete.jpg?raw=true" /> 
+<img alt="Result Autocomplete" src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/packages/generator/images/ResultAutocomplete.jpg?raw=true" style="width:1256px" /> 
 
 ## Additional Documentation 
 [API Versions Used](./VERSION.md)
