@@ -13,9 +13,9 @@ baseUriParameters:
     example: fd4gt8
 
 uses:
-  dataTypes: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.7/checkout-data-types.raml
+  dataTypes: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.35/checkout-data-types.raml
   ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.4/api-standards.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.9/commerce-cloud-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.12/commerce-cloud-standards.raml
 
   
 types:
@@ -34,7 +34,7 @@ types:
             responseStatus3: 404
       description: |-
         Submits an order based on a prepared basket. The only considered value from the request body is basketId.
-      displayName: postOrders
+      displayName: createOrder
       responses:
         '200':
           description: Success, the response body contains the submitted order.
@@ -61,14 +61,14 @@ types:
           body:
               type: ErrorResponse
               examples:
-                dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.7/examples/error/bad-request-example.raml
+                dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.35/examples/error/bad-request-example.raml
         '404':
           description: |-
             The basket with the given basket ID is unknown.
           body:
               type: ErrorResponse
               examples:
-                dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.7/examples/error/basket-not-found.raml
+                dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.35/examples/error/basket-not-found.raml
       body:
           type: dataTypes.Basket
           examples:
@@ -90,7 +90,7 @@ types:
               responseStatus: 200
               responseStatus2: 404
         description: Gets information for an order.
-        displayName: getOrdersById
+        displayName: getOrder
         responses:
           '200':
             description: Success, the response body contains the order.
@@ -103,7 +103,7 @@ types:
             body:
                 type: ErrorResponse
                 examples:
-                  dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.7/examples/error/basket-not-found.raml
+                  dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.35/examples/error/basket-not-found.raml
         securedBy:
           - CommerceCloudStandards.ShopperToken
       /payment-instruments:
@@ -123,7 +123,7 @@ types:
             The payment instrument is added with the provided details. The payment method must be applicable for the order see GET
             /baskets/{basketId}/payment-methods, if the payment method is 'CREDIT_CARD' a paymentCard must be specified in the request.
 
-          displayName: postOrdersByIdPaymentInstruments
+          displayName: createPaymentInstrumentForOrder
           responses:
             '200':
               description: Success, the response body contains the order with the added payment instrument.
@@ -139,13 +139,13 @@ types:
               body:
                   type: ErrorResponse
                   examples:
-                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.7/examples/error/bad-request-example.raml
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.35/examples/error/bad-request-example.raml
             '404':
               description: The order with the given order number is unknown.
               body:
                   type: ErrorResponse
                   examples:
-                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.7/examples/error/order-not-found.raml
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.35/examples/error/order-not-found.raml
           body:
               type: dataTypes.OrderPaymentInstrumentRequest
               examples:
@@ -161,7 +161,7 @@ types:
                   responseStatus: 200
                   responseStatus2: 404
             description: Removes a payment instrument of an order.
-            displayName: deleteOrdersByIdPaymentInstrumentsById
+            displayName: removePaymentInstrumentFromOrder
             responses:
               '200':
                 description: Success, the response body contains the order without the deleted payment instrument.
@@ -176,7 +176,7 @@ types:
                 body:
                     type: ErrorResponse
                     examples:
-                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.7/examples/error/order-not-found.raml
+                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.35/examples/error/order-not-found.raml
             securedBy:
               - CommerceCloudStandards.ShopperToken
           patch:
@@ -195,7 +195,7 @@ types:
               order see GET /baskets/{basketId}/payment-methods, if the payment method is 'CREDIT_CARD' a
               paymentCard must be specified in the request.
 
-            displayName: patchOrdersByIdPaymentInstrumentsById
+            displayName: updatePaymentInstrumentForOrder
             responses:
               '200':
                 description: Success, the response body contains the order with the updated payment instrument.
@@ -212,7 +212,7 @@ types:
                 body:
                     type: ErrorResponse
                     examples:
-                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.7/examples/error/bad-request-example.raml
+                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.35/examples/error/bad-request-example.raml
               '404':
                 description: |-
                   Possible reasons:
@@ -222,7 +222,7 @@ types:
                 body:
                     type: ErrorResponse
                     examples:
-                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.7/examples/error/order-not-found.raml
+                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.35/examples/error/order-not-found.raml
             body:
                 type: dataTypes.OrderPaymentInstrumentRequest
                 examples:
@@ -245,7 +245,7 @@ types:
                   responseStatus2: 400
                   responseStatus3: 404
           description: Gets the applicable payment methods for an existing order considering the open payment amount only.
-          displayName: getOrdersByIdPaymentMethods
+          displayName: getPaymentMethodsForOrder
           responses:
             '200':
               description: Success, the response body contains the applicable payment methods for the order.
@@ -260,12 +260,12 @@ types:
               body:
                   type: ErrorResponse
                   examples:
-                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.7/examples/error/bad-request-auth.raml
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.35/examples/error/bad-request-auth.raml
             '404':
               description: The order with the given order number is unknown.
               body:
                   type: ErrorResponse
                   examples:
-                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.7/examples/error/order-not-found.raml
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.35/examples/error/order-not-found.raml
           securedBy:
             - CommerceCloudStandards.ShopperToken

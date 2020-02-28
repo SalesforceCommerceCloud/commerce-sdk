@@ -2,19 +2,38 @@
 #In C4E review
 usage: This library provides all order relevant data types
 
+uses:
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.12/commerce-cloud-standards.raml 
+
 types:
-  ErrorResponse: !include ../exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.3/dataTypes/error-response.raml
+  ErrorResponse: !include ../exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.4/dataTypes/error-response.raml
+  CustomProperties:
+    description: |-
+      Type to allow "c_*" as custom properties. Every object which is type of this allows custom properties.
+    properties:
+      /^c_.+$/?:
+        type: any
   OrderUpdateRequest:
     description: Request body to update custom properties.
+    type:
+      [CustomProperties]
+    additionalProperties: true
     properties:
   PaymentInstrumentUpdateRequest:
     description: Request body to update custom properties.
+    type:
+      [CustomProperties]
+    additionalProperties: true
     properties:
   PaymentTransactionUpdateRequest:
     description: Request body to update custom properties.
+    type:
+      [CustomProperties]
+    additionalProperties: true
     properties:
   OrderConfirmationStatusUpdateRequest:
     description: Request body to update the order confirmation status.
+    additionalProperties: false
     properties:
       status:
         description: The new confirmation status for an order.
@@ -24,6 +43,7 @@ types:
           - not_confirmed
   OrderExportStatusUpdateRequest:
     description: Request body to update the order export status.
+    additionalProperties: false
     properties:
       status:
         description: The new export status for an order.
@@ -35,6 +55,7 @@ types:
           - failed
   OrderExternalStatusUpdateRequest:
     description: Request body to update the order external status.
+    additionalProperties: false
     properties:
       status:
         description: The new external status for an order.
@@ -43,6 +64,7 @@ types:
         type: string
   OrderPaymentStatusUpdateRequest:
     description: Request body to update the order payment status.
+    additionalProperties: false
     properties:
       status:
         description: The new payment status for an order.
@@ -53,6 +75,7 @@ types:
           - not_paid
   OrderShippingStatusUpdateRequest:
     description: Request body to update the order shipping status.
+    additionalProperties: false
     properties:
       status:
         description: The new shipping status for an order.
@@ -63,6 +86,7 @@ types:
           - not_shipped
   OrderStatusUpdateRequest:
     description: Request body to update the order status.
+    additionalProperties: false
     properties:
       status:
         description: The new status for an order.
@@ -70,12 +94,14 @@ types:
         enum:
           - created
           - new
-          - open
           - completed
           - cancelled
           - failed
   ShippingAddressUpdateRequest:
     description: Request body to update the shipping address.
+    type:
+      [CustomProperties]
+    additionalProperties: true
     properties:
       address1?:
         type: string
@@ -83,31 +109,31 @@ types:
         type: string
       city?:
         type: string
-      company_name?:
+      companyName?:
         type: string
-      country_code?:
+      countryCode?:
+        type: CommerceCloudStandards.CountryCode
+      firstName?:
         type: string
-      first_name?:
-        type: string
-      full_name?:
+      fullName?:
         type: string
       id?:
         type: string
-      job_title?:
+      jobTitle?:
         type: string
-      last_name?:
+      lastName?:
         type: string
       phone?:
         type: string
-      post_box?:
+      postBox?:
         type: string
-      postal_code?:
+      postalCode?:
         type: string
       salutation?:
         type: string
-      second_name?:
+      secondName?:
         type: string
-      state_code?:
+      stateCode?:
         type: string
       suffix?:
         type: string
