@@ -25,7 +25,6 @@ import {
   getArrayElementTypeProperty,
   getReturnPayloadType,
   getValue,
-  getAdditionalProperties,
   isAdditionalPropertiesAllowed,
   isTypeDefinition,
   isCommonQueryParameter,
@@ -319,8 +318,6 @@ Handlebars.registerHelper("getArrayElementType", getArrayElementTypeProperty);
 Handlebars.registerHelper("getReturnPayloadType", getReturnPayloadType);
 
 Handlebars.registerHelper("getValue", getValue);
-
-Handlebars.registerHelper("getAdditionalProperties", getAdditionalProperties);
 
 Handlebars.registerHelper(
   "isAdditionalPropertiesAllowed",
