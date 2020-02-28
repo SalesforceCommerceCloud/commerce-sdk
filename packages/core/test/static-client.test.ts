@@ -28,6 +28,9 @@ import {
   ResponseError
 } from "../src/base/staticClient";
 
+const CONNECTION_CLOSE = { "connection": "close" };
+const CONNECTION_KEEP_ALIVE = { "connection": "keep-alive" };
+
 describe("base client get test", () => {
   afterEach(nock.cleanAll);
 
@@ -395,6 +398,50 @@ describe("base client test with headers", () => {
       }
     );
   });
+
+  it("makes call with connection header set to close by default", () => {
+    const client = new BaseClient({
+      baseUri: "https://somewhere",
+    });
+    
+    nock("https://somewhere", { reqheaders: CONNECTION_CLOSE })
+      .get("/over/the/rainbow")
+      .reply(200, { mock: "data" });
+
+    return _get({ client: client, path: "/over/the/rainbow" }).then(() => {
+      expect(nock.isDone()).to.be.true;
+    });
+  });
+  
+  it("makes call with the connection header set in the client", () => {
+    const client = new BaseClient({
+      baseUri: "https://somewhere",
+      headers: CONNECTION_KEEP_ALIVE
+    });
+    
+    nock("https://somewhere", { reqheaders: CONNECTION_KEEP_ALIVE })
+      .get("/over/the/rainbow")
+      .reply(200, { mock: "data" });
+
+    return _get({ client: client, path: "/over/the/rainbow" }).then(() => {
+      expect(nock.isDone()).to.be.true;
+    });
+  });
+
+  it("replaces connection header even if it's UpperCamelCase", () => {
+    const client = new BaseClient({
+      baseUri: "https://somewhere",
+      headers: { "Connection": "keep-alive" }
+    });
+    
+    nock("https://somewhere", { reqheaders: CONNECTION_KEEP_ALIVE })
+      .get("/over/the/rainbow")
+      .reply(200, { mock: "data" });
+
+    return _get({ client: client, path: "/over/the/rainbow" }).then(() => {
+      expect(nock.isDone()).to.be.true;
+    });
+  });
 });
 
 describe("base client test with endpoint headers", () => {
@@ -496,6 +543,24 @@ describe("base client test with endpoint headers", () => {
       path: "/over/the/rainbow",
       headers: CONTENT_TYPE_XML,
       body: {}
+    }).then(() => {
+      expect(nock.isDone()).to.be.true;
+    });
+  });
+
+  it("makes call with connection header passed to the get function ", () => {
+    const client = new BaseClient({
+      baseUri: "https://somewhere"
+    });
+    
+    nock("https://somewhere", { reqheaders: CONNECTION_KEEP_ALIVE })
+      .get("/over/the/rainbow")
+      .reply(200, { mock: "data" });
+
+    return _get({
+      client: client,
+      path: "/over/the/rainbow",
+      headers: CONNECTION_KEEP_ALIVE
     }).then(() => {
       expect(nock.isDone()).to.be.true;
     });

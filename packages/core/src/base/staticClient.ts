@@ -57,6 +57,19 @@ async function runFetch(
     ? _.clone(options.client.clientConfig.headers)
     : {};
 
+  // make-fetch-happen sets connection header to keep-alive by default which
+  // keeps node running unless it is explicitly killed.
+  // If the user wants to keep the connection alive they can set the Connection
+  // header to 'keep-clive' and we'll respect it. Otherwise, we set it to false.
+  //
+  // explicitly make connection header lowercase because otherwise 
+  // make-fetch-happen makes it lowercase later, creates an array by merging the 
+  // values, and we end up with two values.
+  fetchOptions.headers.connection = fetchOptions.headers.connection
+    ? fetchOptions.headers.connection : fetchOptions.headers.Connection ?
+      fetchOptions.headers.Connection : "close";
+  delete fetchOptions.headers.Connection;
+
   // if headers have been given for just this call, merge those in
   if (options.headers) {
     _.merge(fetchOptions.headers, options.headers);
