@@ -1,16 +1,29 @@
 # Included Apis
 
+## AI 
+#### [Einstein Recommendations](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/einstein-api-quick-start-guide/3.0.4)
+*API to get Einstein recommendations and send activities to Einstein engine.*<br />
+
+_______________________________________________________________________
+
+## Search 
+#### [Shopper Search](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-search/1.0.10)
+**Mule App Version** 1.0.10<br />
+*Perform product search and provide search suggestions.*<br />
+
+_______________________________________________________________________
+
 ## Checkout 
-#### [Orders](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/orders/1.0.4)
-**Mule App Version** 1.0.4<br />
+#### [Orders](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/orders/1.0.12)
+**Mule App Version** 1.0.12<br />
 *Manage order status and order payment status.*<br />
 
-#### [Shopper Orders](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-orders/0.0.12)
-**Mule App Version** 0.0.12<br />
+#### [Shopper Orders](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-orders/0.0.21)
+**Mule App Version** 0.0.21<br />
 *Finish the shopper checkout experience resulting in an order.*<br />
 
-#### [Shopper Baskets](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-baskets/0.0.13)
-**Mule App Version** 0.0.13<br />
+#### [Shopper Baskets](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-baskets/0.0.34)
+**Mule App Version** 0.0.34<br />
 *Build a checkout experience.*<br />
 
 _______________________________________________________________________
@@ -42,8 +55,8 @@ _______________________________________________________________________
 _______________________________________________________________________
 
 ## Pricing 
-#### [Coupons](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/coupons/1.0.13)
-**Mule App Version** 1.0.13<br />
+#### [Coupons](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/coupons/1.0.14)
+**Mule App Version** 1.0.14<br />
 *Create, update, read, search for, and manage coupons.*<br />
 
 #### [Gift Certificates](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/gift-certificates/1.0.16)
@@ -76,13 +89,6 @@ _______________________________________________________________________
 
 _______________________________________________________________________
 
-## Search 
-#### [Shopper Search](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-search/1.0.10)
-**Mule App Version** 1.0.10<br />
-*Perform product search and provide search suggestions.*<br />
-
-_______________________________________________________________________
-
 ## Seller 
 #### [Shopper Stores](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-stores/1.0.5)
 **Mule App Version** 1.0.5<br />
@@ -92,12 +98,6 @@ _______________________________________________________________________
 
 ## CDN 
 #### [CDN API](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/cdn-api-process-apis/1.0.1)
-
-_______________________________________________________________________
-
-## AI 
-#### [Einstein Recommendations](https://anypoint.mulesoft.com/exchange/893f605e-10e2-423a-bdb4-f952f56eb6d8/einstein-api-quick-start-guide/3.0.2)
-*API to get Einstein recommendations and send activities to Einstein engine.*<br />
 
 _______________________________________________________________________
 
