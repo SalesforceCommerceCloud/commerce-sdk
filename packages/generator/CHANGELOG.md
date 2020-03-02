@@ -4,31 +4,28 @@
 
 ### **Core Functionality**
 
-#### Helpers
+#### Authentication helper changes
 
 * **BREAKING**: helpers.getAuthToken method is replaced by helpers.getShopperToken
-
-#### Client Configuration
-
 * helpers.getShopperToken supports Client Configuration. Refer to [Sample Code](./README.md#Sample Code)
 
-#### Instantiating Clients
+#### API Clients
 
-* **BREAKING**: API client MUST be instantiated using API name, e.g. new Product.ShopperProduct({})
+* **BREAKING**: API client MUST be instantiated using API name, e.g. `new Product.ShopperProduct({})`
 
 #### Endpoint Methods
 
 * **BREAKING**: Raw response option has been moved out of the options
-* Each endpoint now has overloaded function to return raw response
+* Each endpoint now has overloaded method to return raw response
 
 ### **API Changes**
 
 #### Shopper Baskets
 *Checkout/ShopperBaskets*  
 
-* **BREAKING** Endpoint function name changes
+* **BREAKING**: Endpoint method name changes
 
-| **Existing Function Name**      | **New Function Name** |
+| **Existing Method Name** | **New Method Name** |
 | ------------- |-------------|
 | postBaskets | createBasket |
 | deleteBasketsById | deleteBasket |
@@ -57,9 +54,9 @@
 #### Shopper Orders
 *Checkout/ShopperOrders*  
 
-* **BREAKING** Endpoint function name changes
+* **BREAKING**: Endpoint method name changes
 
-| **Existing Function Name**      | **New Function Name** |
+| **Existing Method Name** | **New Method Name** |
 | ------------- |-------------|
 | postOrders | createOrder |
 | getOrdersById | getOrder |
