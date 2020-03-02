@@ -11,12 +11,17 @@
 
 #### API Clients
 
-* **BREAKING**: API client MUST be instantiated using API name, e.g. `new Product.ShopperProduct({})`
+* **BREAKING**: API client MUST be instantiated using API name, e.g. `new Product.ShopperProduct(clientConfig)`
 
 #### Endpoint Methods
 
 * **BREAKING**: Raw response option has been moved out of the options
 * Each endpoint now has overloaded method to return raw response
+
+#### Additional Properties
+
+* Unrestricted type definitions now accepts additonal properties. 
+* Refer to this [article](https://help.mulesoft.com/s/article/How-to-restrict-additional-properties-in-a-RAML) to about additional properties
 
 ### **API Changes**
 
