@@ -2,26 +2,84 @@
 
 ### v1.3.0-alpha.8
 
+### **Core Functionality**
+
 #### Helpers
 
 * **BREAKING**: helpers.getAuthToken method is replaced by helpers.getShopperToken
 
-#### Endpoint Methods
-
-* Raw response option has been moved out of the options
-* Each endpoint now has overloaded function to return raw response
-
 #### Client Configuration
 
-* helpers.getShopperToken supports Client Configuration
+* helpers.getShopperToken supports Client Configuration. Refer to [Sample Code](./README.md#Sample Code)
 
 #### Instantiating Clients
 
 * **BREAKING**: API client MUST be instantiated using API name, e.g. new Product.ShopperProduct({})
 
-#### Updated APIs 
+#### Endpoint Methods
 
-* AI, Checkout, Shopper Orders, Shopper Baskets, and Pricing APIs
+* **BREAKING**: Raw response option has been moved out of the options
+* Each endpoint now has overloaded function to return raw response
+
+### **API Changes**
+
+#### Shopper Baskets
+*Checkout/ShopperBaskets*  
+
+* **BREAKING** Endpoint function name changes
+
+| **Existing Function Name**      | **New Function Name** |
+| ------------- |-------------|
+| postBaskets | createBasket |
+| deleteBasketsById | deleteBasket |
+| getBasketsById | getBasket |
+| patchBasketsById | updateBasket | 
+| putBasketsByIdBillingAddress | updateBillingAddressForBasket | 
+| postBasketsByIdCoupons | addCouponToBasket |
+| deleteBasketsByIdCouponsById | removeCouponFromBasket |
+| putBasketsByIdCustomer | updateCustomerForBasket |
+| postBasketsByIdGiftCertificateItems | addGiftCertificateItemToBasket | 
+| deleteBasketsByIdGiftCertificateItemsById | removeGiftCertificateItemFromBasket |
+| postBasketsByIdItems | addItemToBasket |
+| deleteBasketsByIdItemsById | removeItemFromBasket |
+| patchBasketsByIdItemsById | updateItemInBasket |
+| postBasketsByIdPaymentInstruments | addPaymentInstrumentToBasket |
+| deleteBasketsByIdPaymentInstrumentsById | removePaymentInstrumentFromBasket |
+| getBasketsByIdPaymentMethods | getPaymentMethodsForBasket |
+| postBasketsByIdShipments | createShipmentForBasket |
+| deleteBasketsByIdShipmentsById | removeShipmentFromBasket |
+| patchBasketsByIdShipmentsById | updateShipmentForBasket |
+| putBasketsByIdShipmentsByIdShippingAddress | updateShippingAddressForShipment |
+| putBasketsByIdShipmentsByIdShippingMethod | updateShippingMethodForShipment |
+| getBasketsByIdShipmentsByIdShippingMethods | getShippingMethodsForShipment |
+
+
+#### Shopper Orders
+*Checkout/ShopperOrders*  
+
+* **BREAKING** Endpoint function name changes
+
+| **Existing Function Name**      | **New Function Name** |
+| ------------- |-------------|
+| postOrders | createOrder |
+| getOrdersById | getOrder |
+| postOrdersByIdPaymentInstruments | createPaymentInstrumentForOrder |
+| deleteOrdersByIdPaymentInstrumentsById | removePaymentInstrumentFromOrder |
+| patchOrdersByIdPaymentInstrumentsById | updatePaymentInstrumentForOrder |
+| getOrdersByIdPaymentMethods | getPaymentMethodsForOrder |
+
+#### Einstein Recommendations
+*AI/EinsteinQuickStartGuide*  
+
+* Recommender type has a new recommenderType attribute
+* RecommendationsResponse type has a new recoUUID attribute
+* ZoneResponse type has a new recoUUID attribute
+* Added new Recommendation type
+
+#### Coupons
+*Pricing/Coupons*  
+
+* getCoupon now has an optional query parameter of "expand" which accepts an array of related attributes
 
 _____________________________________________
 
