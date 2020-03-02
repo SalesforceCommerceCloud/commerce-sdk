@@ -25,6 +25,7 @@ import {
   _patch,
   _post,
   _put,
+  getHeader,
   ResponseError
 } from "../src/base/staticClient";
 
@@ -427,21 +428,6 @@ describe("base client test with headers", () => {
       expect(nock.isDone()).to.be.true;
     });
   });
-
-  it("replaces connection header even if it's UpperCamelCase", () => {
-    const client = new BaseClient({
-      baseUri: "https://somewhere",
-      headers: { "Connection": "keep-alive" }
-    });
-    
-    nock("https://somewhere", { reqheaders: CONNECTION_KEEP_ALIVE })
-      .get("/over/the/rainbow")
-      .reply(200, { mock: "data" });
-
-    return _get({ client: client, path: "/over/the/rainbow" }).then(() => {
-      expect(nock.isDone()).to.be.true;
-    });
-  });
 });
 
 describe("base client test with endpoint headers", () => {
@@ -564,5 +550,25 @@ describe("base client test with endpoint headers", () => {
     }).then(() => {
       expect(nock.isDone()).to.be.true;
     });
+  });
+});
+
+describe("Get header", () => {
+  it("should return the header if a header with the same name and same case exists", () => {
+    const headers = {connection: "keep-alive"}
+    const result = getHeader("connection", headers);
+    expect(result).to.equal("connection");
+  });
+
+  it("should return the header if a header with the same name and different case exists", () => {
+    const headers = {Connection: "keep-alive"}
+    const result = getHeader("coNneCtiOn", headers);
+    expect(result).to.equal("Connection");
+  });
+
+  it("should return the passed header if a header with the same name does not exist", () => {
+    const headers = {Con: "keep-alive"}
+    const result = getHeader("Connection", headers);
+    expect(result).to.equal("Connection");
   });
 });
