@@ -1,5 +1,30 @@
 ## CHANGELOG
 
+### v1.3.0-alpha.8
+
+#### Helpers
+
+* **BREAKING**: helpers.getAuthToken method is replaced by helpers.getShopperToken
+
+#### Endpoint Methods
+
+* Raw response option has been moved out of the options
+* Each endpoint now has overloaded function to return raw response
+
+#### Client Configuration
+
+* helpers.getShopperToken supports Client Configuration
+
+#### Instantiating Clients
+
+* **BREAKING**: API client MUST be instantiated using API name, e.g. new Product.ShopperProduct({})
+
+#### Updated APIs 
+
+* AI, Checkout, Shopper Orders, Shopper Baskets, and Pricing APIs
+
+_____________________________________________
+
 ### v1.3.0-alpha.7
 
 #### Shopper Search
