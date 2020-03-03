@@ -29,6 +29,30 @@ async function getObjectFromResponse(response: Response): Promise<object> {
   }
 }
 
+/**
+ * Returns the entry from the headers list that matches the passed header. The
+ * search is case insensitive and the case of the passed header and the list
+ * are preserved. Returns the passed header if no match is found.
+ *
+ * @param header - target header
+ * @param headers - list to search from
+ *
+ * @returns header from the list if there is a match, the header passed otherwise
+ */
+export function getHeader(
+  header: string,
+  headers: { [key: string]: string }
+): string {
+  const headerLowerCase = header.toLowerCase();
+  for (const name in headers) {
+    if (headerLowerCase === name.toLowerCase()) {
+      return name;
+    }
+  }
+
+  return header;
+}
+
 async function runFetch(
   method: "delete" | "get" | "patch" | "post" | "put",
   options: {
@@ -56,6 +80,15 @@ async function runFetch(
   fetchOptions.headers = options.client.clientConfig.headers
     ? _.clone(options.client.clientConfig.headers)
     : {};
+
+  // make-fetch-happen sets connection header to keep-alive by default which
+  // keeps node running unless it is explicitly killed.
+  // If the user wants to keep the connection alive they can set the Connection
+  // header to 'keep-alive' and we'll respect it. Otherwise, we set it to "close".
+  const connectionHeader = getHeader("connection", fetchOptions.headers);
+  if (!fetchOptions.headers[connectionHeader]) {
+    fetchOptions.headers[connectionHeader] = "close";
+  }
 
   // if headers have been given for just this call, merge those in
   if (options.headers) {
