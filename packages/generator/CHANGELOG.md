@@ -20,8 +20,8 @@
 
 #### Additional Properties
 
-* Unrestricted type definitions now accepts additonal properties. 
-* Refer to this [article](https://help.mulesoft.com/s/article/How-to-restrict-additional-properties-in-a-RAML) to about additional properties
+* Unrestricted type definitions now accepts additonal properties
+* Refer to this [article](https://help.mulesoft.com/s/article/How-to-restrict-additional-properties-in-a-RAML) to learn about additional properties
 
 ### **API Changes**
 
