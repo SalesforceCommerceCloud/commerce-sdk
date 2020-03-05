@@ -37,12 +37,12 @@ export class ShopperToken<T> implements IAuthToken {
   public rawToken: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public decodedToken: { [key: string]: any } | string;
-  public body: T;
+  public customerInfo: T;
 
   constructor(dto: T, token: string) {
     this.rawToken = token;
     this.decodedToken = decode(this.rawToken);
-    this.body = dto;
+    this.customerInfo = dto;
   }
 
   /**
@@ -64,9 +64,9 @@ export class ShopperToken<T> implements IAuthToken {
   }
 
   /**
-   * Returns the response body
+   * Returns the customer information
    */
-  getBody(): T {
-    return this.body;
+  getCustomerInfo(): T {
+    return this.customerInfo;
   }
 }

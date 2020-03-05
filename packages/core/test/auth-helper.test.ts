@@ -33,33 +33,33 @@ describe("Test stripBearer", () => {
 });
 
 describe("Test ShopperToken", () => {
-  const body: CustomerT = {
-    authType: 'guest',
-    customerId: 'abZwdk8kyKbrPEVkbesCW0lW5M',
-    preferredLocale: 'en_US'
-  }
+  const customerInfo: CustomerT = {
+    authType: "guest",
+    customerId: "abZwdk8kyKbrPEVkbesCW0lW5M",
+    preferredLocale: "en_US"
+  };
 
   it("ShopperToken happy getAuthToken", () => {
     const token = new ShopperToken(
-      body,
+      customerInfo,
       "eyJfdiI6IjEiLCJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfdiI6IjEiLCJleHAiOjE1ODA0MjQ0OTIsImlhdCI6MTU4MDQyMjY5MiwiaXNzIjoiZjY2ZjBlNGYtZmE0NC00MWViLTliMzUtODlkZTllZTY3ZTcxIiwic3ViIjoie1wiX3ZcIjpcIjFcIixcImN1c3RvbWVyX2luZm9cIjp7XCJjdXN0b21lcl9pZFwiOlwiYWJWYVVnOWR6Z01nQ0N4bzQ2QWl0RTExZVRcIixcImd1ZXN0XCI6dHJ1ZX19In0.dl8XgldAVo8SGRDrrSAdnbD_tnRnfYwIrohjhsPW78JgTif2kukQqnB74RgKHRx6U5CTBee8ktTVwqnmtguRT-MiwW2pFaEJAwkiJcQIyNU2MeoxuxCWmvsdykJzlHk7npUgHiw865EmbgEhwiCaXxbXaKSnJCcdLdvbxTuppzLF0fW-yzpLi4caFUidewTrFoFBUj7M4UpF2gd0DtJhX2YEJCTn5jA4y-ue4oY7Vcp6Y2NpG_mOX_gOmYm_m7hJzKuY4zU90SGc-GYkbBKfRPK3GthTr0LNXVsknydirpsZDI1hlBjrCxNz689-oguljGqJ-Xee399GaNQvEbdzRqik1cTIZxUkiT_MJQsRmv8T9o54ePyUPfzThGKFeVI43-RoGsk4N6kLozoGuuA2m7ODeAVPG-RXOrJ6OdW5zGdPbCUHLWPdCu-IrbqKIwLJZ3rSJh1dm4lgUDmHRHE_ri7tTV7KAguUAi1vAKucPro"
     );
 
     expect(token.getAuthToken()).to.equal(
       "eyJfdiI6IjEiLCJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfdiI6IjEiLCJleHAiOjE1ODA0MjQ0OTIsImlhdCI6MTU4MDQyMjY5MiwiaXNzIjoiZjY2ZjBlNGYtZmE0NC00MWViLTliMzUtODlkZTllZTY3ZTcxIiwic3ViIjoie1wiX3ZcIjpcIjFcIixcImN1c3RvbWVyX2luZm9cIjp7XCJjdXN0b21lcl9pZFwiOlwiYWJWYVVnOWR6Z01nQ0N4bzQ2QWl0RTExZVRcIixcImd1ZXN0XCI6dHJ1ZX19In0.dl8XgldAVo8SGRDrrSAdnbD_tnRnfYwIrohjhsPW78JgTif2kukQqnB74RgKHRx6U5CTBee8ktTVwqnmtguRT-MiwW2pFaEJAwkiJcQIyNU2MeoxuxCWmvsdykJzlHk7npUgHiw865EmbgEhwiCaXxbXaKSnJCcdLdvbxTuppzLF0fW-yzpLi4caFUidewTrFoFBUj7M4UpF2gd0DtJhX2YEJCTn5jA4y-ue4oY7Vcp6Y2NpG_mOX_gOmYm_m7hJzKuY4zU90SGc-GYkbBKfRPK3GthTr0LNXVsknydirpsZDI1hlBjrCxNz689-oguljGqJ-Xee399GaNQvEbdzRqik1cTIZxUkiT_MJQsRmv8T9o54ePyUPfzThGKFeVI43-RoGsk4N6kLozoGuuA2m7ODeAVPG-RXOrJ6OdW5zGdPbCUHLWPdCu-IrbqKIwLJZ3rSJh1dm4lgUDmHRHE_ri7tTV7KAguUAi1vAKucPro"
     );
-    expect(token.getBody()).to.eql(body)
+    expect(token.getCustomerInfo()).to.eql(customerInfo);
   });
 
   it("ShopperToken sad", () => {
-    const token = new ShopperToken(body, "NOT_A_TOKEN");
+    const token = new ShopperToken(customerInfo, "NOT_A_TOKEN");
 
     expect(token.getAuthToken()).to.equal("NOT_A_TOKEN");
     expect(token.decodedToken).to.be.null;
   });
 
   it("ShopperToken getBearer", () => {
-    const token = new ShopperToken(body, "NOT_A_TOKEN");
+    const token = new ShopperToken(customerInfo, "NOT_A_TOKEN");
 
     expect(token.getBearerHeader()).to.equal("Bearer NOT_A_TOKEN");
   });
