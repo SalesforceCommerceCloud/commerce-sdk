@@ -33,14 +33,16 @@ export function stripBearer(header: string): string {
  * @class ShopperToken
  * @implements {IAuthToken}
  */
-export class ShopperToken implements IAuthToken {
+export class ShopperToken<T> implements IAuthToken {
   public rawToken: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public decodedToken: { [key: string]: any } | string;
+  public body: T;
 
-  constructor(token: string) {
+  constructor(dto: T, token: string) {
     this.rawToken = token;
     this.decodedToken = decode(this.rawToken);
+    this.body = dto;
   }
 
   /**
@@ -59,5 +61,12 @@ export class ShopperToken implements IAuthToken {
    */
   getBearerHeader(): string {
     return `Bearer ${this.rawToken}`;
+  }
+
+  /**
+   * Returns the response body
+   */
+  getBody(): T {
+    return this.body;
   }
 }
