@@ -7,323 +7,183 @@
 "use strict";
 
 import {
-  getArrayElementTypeProperty,
-  getDataType,
+  getPropertyDataType,
   getReturnPayloadType,
   getValue,
-  isArrayProperty,
-  isDefinedProperty,
-  isObjectProperty,
-  isPrimitiveProperty,
-  isTypeDefined,
   isOptionalProperty,
   isRequiredProperty,
   isAdditionalPropertiesAllowed,
-  getProperties,
-  isTypeLinked
+  getProperties
 } from "../src/templateHelpers";
 
 import _ from "lodash";
 import { assert, expect } from "chai";
 import { model, AMF } from "amf-client-js";
 
-describe("Template helper primitive datatype tests", () => {
+const getScalarType = function(typeName: string): model.domain.ScalarShape {
+  const scalarType: model.domain.ScalarShape = new model.domain.ScalarShape();
+  scalarType.withDataType(typeName);
+
+  return scalarType;
+};
+
+const getLinkedScalarType = function(typeName: string): model.domain.AnyShape {
+  const rangeLink = getScalarType(typeName);
+
+  const range = new model.domain.ScalarShape();
+  range.withLinkTarget(rangeLink);
+
+  return range;
+};
+
+const getLinkedType = function(typeName: string): model.domain.AnyShape {
+  const linkedType = new model.domain.NodeShape();
+  linkedType.withName(typeName);
+
+  const shape = new model.domain.AnyShape();
+  shape.withLinkTarget(linkedType);
+
+  return shape;
+};
+
+const getInheritedType = function(typeName: string): model.domain.AnyShape {
+  const nodeShape = new model.domain.AnyShape();
+  nodeShape.withInherits([getLinkedType(typeName)]);
+
+  return nodeShape;
+};
+
+const getObjectType = function(): model.domain.NodeShape {
+  const objProperty: model.domain.PropertyShape = new model.domain.PropertyShape();
+  objProperty.withName("test");
+
+  const objType = new model.domain.NodeShape();
+  objType.withProperties([objProperty]);
+
+  return objType;
+};
+
+describe("Template helper datatype tests", () => {
   before(() => {
     return AMF.init();
   });
   it("Returns 'any' on undefined property", () => {
-    assert.isTrue(getDataType(undefined) === "any");
+    expect(getPropertyDataType(undefined)).to.equal("any");
+  });
+
+  it("Returns 'any' on null property", () => {
+    expect(getPropertyDataType(null)).to.equal("any");
   });
 
   it("Returns 'boolean' on boolean dataType", () => {
     const property: model.domain.PropertyShape = new model.domain.PropertyShape();
-    const range: model.domain.ScalarShape = new model.domain.ScalarShape();
+    property.withRange(
+      getScalarType("http://www.w3.org/2001/XMLSchema#boolean")
+    );
 
-    range.withDataType("http://www.w3.org/2001/XMLSchema#boolean");
-    property.withRange(range);
-
-    expect(getDataType(property)).to.equal("boolean");
+    expect(getPropertyDataType(property)).to.equal("boolean");
   });
 
   it("Returns 'number' on float dataType", () => {
     const property: model.domain.PropertyShape = new model.domain.PropertyShape();
-    const range: model.domain.ScalarShape = new model.domain.ScalarShape();
+    property.withRange(getScalarType("http://www.w3.org/2001/XMLSchema#float"));
 
-    range.withDataType("http://www.w3.org/2001/XMLSchema#float");
-    property.withRange(range);
-
-    expect(getDataType(property)).to.equal("number");
-  });
-
-  it("Returns 'any' on undefined dataType", () => {
-    const property: model.domain.PropertyShape = new model.domain.PropertyShape();
-    const range: model.domain.ScalarShape = new model.domain.ScalarShape();
-
-    range.withDataType(undefined);
-    property.withRange(range);
-
-    expect(getDataType(property)).to.equal("any");
-  });
-
-  it("Returns 'object' on object dataType", () => {
-    const property = {
-      range: {
-        properties: { a: "b" }
-      }
-    };
-
-    assert.isTrue(getDataType(property) === "object");
-  });
-
-  it("Returns 'defined_type' on defined_type dataType", () => {
-    const property = {
-      range: {
-        inherits: [
-          {
-            isLink: true,
-            linkTarget: {
-              name: {
-                value: () => "defined_type"
-              }
-            }
-          }
-        ]
-      }
-    };
-
-    assert.isTrue(getDataType(property) === "defined_typeT");
+    expect(getPropertyDataType(property)).to.equal("number");
   });
 
   it("Returns 'boolean' on boolean linked dataType", () => {
     const property: model.domain.PropertyShape = new model.domain.PropertyShape();
-    const range: model.domain.ScalarShape = new model.domain.ScalarShape();
-    const rangeLink: model.domain.ScalarShape = new model.domain.ScalarShape();
-    rangeLink.withDataType("http://www.w3.org/2001/XMLSchema#boolean");
-    range.withLinkTarget(rangeLink);
-    property.withRange(range);
+    property.withRange(
+      getLinkedScalarType("http://www.w3.org/2001/XMLSchema#boolean")
+    );
 
-    expect(getDataType(property)).to.equal("boolean");
+    expect(getPropertyDataType(property)).to.equal("boolean");
   });
-});
 
-describe("Template helper Array item type tests", () => {
-  before(() => {
-    return AMF.init();
-  });
-  it("Returns 'Array<any>' on array of unknown dataType", () => {
+  it("Returns 'any' on undefined dataType", () => {
     const property: model.domain.PropertyShape = new model.domain.PropertyShape();
-    const range: model.domain.ArrayShape = new model.domain.ArrayShape();
-    const item: model.domain.ScalarShape = new model.domain.ScalarShape();
+    property.withRange(getScalarType(undefined));
 
-    item.withDataType("unknown");
-    range.withItems(item);
-    property.withRange(range);
-
-    expect(getDataType(property)).to.equal("Array<any>");
+    expect(getPropertyDataType(property)).to.equal("any");
   });
 
-  it("Returns 'Array<string>' on array of string dataType", () => {
+  it("Returns 'object' on object dataType", () => {
+    const property = new model.domain.PropertyShape();
+    property.withRange(getObjectType());
+
+    assert.isTrue(getPropertyDataType(property) === "object");
+  });
+
+  it("Returns 'defined_type' on inherited object type", () => {
+    const property = new model.domain.PropertyShape();
+    property.withRange(getInheritedType("defined_type"));
+
+    assert.isTrue(getPropertyDataType(property) === "defined_typeT");
+  });
+
+  it("Returns 'defined_type' on linked object type", () => {
+    const property = new model.domain.PropertyShape();
+    property.withRange(getLinkedType("defined_type"));
+
+    assert.isTrue(getPropertyDataType(property) === "defined_typeT");
+  });
+
+  it("Returns 'any' on object type that has no details defined", () => {
+    const property = new model.domain.PropertyShape();
+    property.withRange(new model.domain.AnyShape());
+
+    expect(getPropertyDataType(property)).to.equal("any");
+  });
+
+  it("Returns 'Array<string>' on array of strings", () => {
+    const range: model.domain.ArrayShape = new model.domain.ArrayShape();
+    range.withItems(getScalarType("http://www.w3.org/2001/XMLSchema#string"));
+
     const property: model.domain.PropertyShape = new model.domain.PropertyShape();
-    const range: model.domain.ArrayShape = new model.domain.ArrayShape();
-    const item: model.domain.ScalarShape = new model.domain.ScalarShape();
-
-    item.withDataType("http://www.w3.org/2001/XMLSchema#string");
-    range.withItems(item);
     property.withRange(range);
 
-    expect(getDataType(property)).to.equal("Array<string>");
+    expect(getPropertyDataType(property)).to.equal("Array<string>");
   });
 
-  it("Returns 'Array<number>' on array of double dataType", () => {
+  it("Returns 'Array<defined_type>' on array of linked object types ", () => {
+    const range: model.domain.ArrayShape = new model.domain.ArrayShape();
+    range.withItems(getLinkedType("defined_type"));
+
     const property: model.domain.PropertyShape = new model.domain.PropertyShape();
-    const range: model.domain.ArrayShape = new model.domain.ArrayShape();
-    const item: model.domain.ScalarShape = new model.domain.ScalarShape();
-
-    item.withDataType("http://www.w3.org/2001/XMLSchema#double");
-    range.withItems(item);
     property.withRange(range);
 
-    expect(getDataType(property)).to.equal("Array<number>");
+    expect(getPropertyDataType(property)).to.equal("Array<defined_typeT>");
   });
 
-  it("Returns 'Array<object>' on array of object dataType", () => {
-    const property = {
-      range: {
-        items: {
-          properties: { a: "b" }
-        }
-      }
-    };
-    assert.isTrue(getDataType(property) === "Array<object>");
-  });
+  it("Returns 'Array<string>' on array of linked string types ", () => {
+    const range: model.domain.ArrayShape = new model.domain.ArrayShape();
+    range.withItems(
+      getLinkedScalarType("http://www.w3.org/2001/XMLSchema#string")
+    );
 
-  it("Returns 'Array<defined_type>' on array of defined_type dataType", () => {
-    const property = {
-      range: {
-        items: {
-          inherits: [
-            {
-              isLink: true,
-              linkTarget: {
-                name: {
-                  value: () => "defined_type"
-                }
-              }
-            }
-          ]
-        }
-      }
-    };
-    assert.isTrue(getDataType(property) === "Array<defined_typeT>");
-  });
-
-  it("Returns 'Array<any>' on array of object dataType with isLink as false", () => {
-    const property = {
-      range: {
-        items: {
-          inherits: [
-            {
-              isLink: false,
-              linkTarget: {
-                name: {
-                  value: () => "defined_type"
-                }
-              }
-            }
-          ]
-        }
-      }
-    };
-    assert.isTrue(getDataType(property) === "Array<any>");
-  });
-
-  it("Returns 'Array<any>' on array of object dataType with no value function", () => {
-    const property = {
-      range: {
-        items: {
-          inherits: [
-            {
-              isLink: true,
-              linkTarget: {
-                name: {
-                  noValueFunction: () => "defined_type"
-                }
-              }
-            }
-          ]
-        }
-      }
-    };
-    assert.isTrue(getDataType(property) === "Array<any>");
-  });
-
-  it("Returns 'defined_type' on array of defined_type items", () => {
-    const property = {
-      range: {
-        items: {
-          inherits: [
-            {
-              isLink: true,
-              linkTarget: {
-                name: {
-                  value: () => "defined_type"
-                }
-              }
-            }
-          ]
-        }
-      }
-    };
-    assert.isTrue(getArrayElementTypeProperty(property) === "defined_typeT");
-  });
-
-  it("Returns 'any' on array of defined_type items, but isLink is false", () => {
-    const property = {
-      range: {
-        items: {
-          inherits: [
-            {
-              isLink: false,
-              linkTarget: {
-                name: {
-                  value: () => "defined_type"
-                }
-              }
-            }
-          ]
-        }
-      }
-    };
-    assert.isTrue(getArrayElementTypeProperty(property) === "any");
-  });
-
-  it("Returns 'object' on array of defined_type items, but isLink is undefined", () => {
-    const property = {
-      range: {
-        items: {
-          properties: {
-            a: "string"
-          }
-        }
-      }
-    };
-    assert.isTrue(getArrayElementTypeProperty(property) === "object");
-  });
-
-  it("Returns 'string' on array of defined_type items, but isLink is undefined", () => {
     const property: model.domain.PropertyShape = new model.domain.PropertyShape();
-    const range: model.domain.ArrayShape = new model.domain.ArrayShape();
-    const item: model.domain.ScalarShape = new model.domain.ScalarShape();
-
-    item.withDataType("http://www.w3.org/2001/XMLSchema#string");
-    range.withItems(item);
     property.withRange(range);
 
-    expect(getArrayElementTypeProperty(property)).to.equal("string");
-  });
-});
-
-describe("Template helper tests array literal definitions like string[], defined_type[], etc", () => {
-  it("Returns 'string' on range.items is null", () => {
-    const property = {
-      range: {
-        items: null,
-        inherits: [
-          {
-            items: {
-              dataType: {
-                value: () => "http://www.w3.org/2001/XMLSchema#string"
-              }
-            }
-          }
-        ]
-      }
-    };
-    assert.equal(getArrayElementTypeProperty(property), "string");
+    expect(getPropertyDataType(property)).to.equal("Array<string>");
   });
 
-  it("Returns 'defined_type' on range.items is null and defined_type as data type for array items", () => {
-    const property = {
-      range: {
-        items: null,
-        inherits: [
-          {
-            items: {
-              isLink: true,
-              linkTarget: {
-                name: {
-                  value: () => "defined_type"
-                },
-                dataType: {
-                  value: () => "http://www.w3.org/2001/XMLSchema#string"
-                }
-              }
-            }
-          }
-        ]
-      }
-    };
-    assert.equal(getArrayElementTypeProperty(property), "defined_typeT");
+  it("Returns 'Array<defined_type>' on array of inherited objected type", () => {
+    const inheritedType = new model.domain.ArrayShape();
+    inheritedType.withItems(getLinkedType("defined_type"));
+
+    const arrType = new model.domain.ArrayShape();
+    arrType.withInherits([inheritedType]);
+    const property: model.domain.PropertyShape = new model.domain.PropertyShape();
+    property.withRange(arrType);
+
+    expect(getPropertyDataType(property)).to.equal("Array<defined_typeT>");
+  });
+
+  it("Returns 'any' on unhandled type", () => {
+    const property = new model.domain.PropertyShape();
+    property.withRange(new model.domain.PropertyShape());
+
+    expect(getPropertyDataType(property)).to.equal("any");
   });
 });
 
@@ -369,42 +229,6 @@ describe("Template helper, response item type tests", () => {
 
   it("Returns 'void' datatype, with response array but with no response codes", () => {
     expect(getReturnPayloadType(operation)).to.equal("void");
-  });
-});
-
-describe("Template helper tests for defined type properties", () => {
-  it("Returns 'false' on undefined property", () => {
-    assert.isFalse(isDefinedProperty(undefined));
-  });
-
-  it("Returns 'false' on undefined property range", () => {
-    assert.isFalse(isDefinedProperty({}));
-  });
-});
-
-describe("Template helper tests for primitive type properties", () => {
-  it("Returns 'false' on undefined property", () => {
-    assert.isFalse(isPrimitiveProperty(undefined));
-  });
-
-  it("Returns 'false' on undefined property range", () => {
-    assert.isFalse(isPrimitiveProperty({}));
-  });
-});
-
-describe("Template helper tests for object type properties", () => {
-  it("Returns 'false' on undefined property", () => {
-    assert.isFalse(isObjectProperty(undefined));
-  });
-
-  it("Returns 'false' on undefined property range", () => {
-    assert.isFalse(isObjectProperty({}));
-  });
-});
-
-describe("Template helper tests for Array type properties", () => {
-  it("Returns 'false' on undefined property", () => {
-    assert.isFalse(isArrayProperty(undefined));
   });
 });
 
@@ -469,119 +293,6 @@ describe("Template helper tests to check for optional property", () => {
     const property: model.domain.PropertyShape = new model.domain.PropertyShape();
     property.withMinCount(0);
     expect(isOptionalProperty(property)).to.be.true;
-  });
-});
-
-describe("Template helper tests for defined types", () => {
-  it("Returns 'false' on undefined range", () => {
-    assert.isFalse(isTypeDefined(undefined));
-  });
-
-  it("Returns 'false' on null range property", () => {
-    const property: model.domain.ScalarShape = new model.domain.ScalarShape();
-
-    expect(isTypeDefined(property.dataType)).to.be.false;
-  });
-
-  it("Returns 'false' on presence of items property", () => {
-    const property: model.domain.PropertyShape = new model.domain.PropertyShape();
-    const range: model.domain.ArrayShape = new model.domain.ArrayShape();
-
-    property.withRange(range);
-
-    expect(isTypeDefined(property.range)).to.be.false;
-  });
-
-  it("Returns 'false' on inherits property not being an array", () => {
-    const property: model.domain.PropertyShape = new model.domain.PropertyShape();
-    const range: model.domain.ArrayShape = new model.domain.ArrayShape();
-
-    property.withRange(range);
-
-    expect(isTypeDefined(property.range)).to.be.false;
-  });
-
-  it("Returns 'false' on inherits array is empty", () => {
-    const property: model.domain.PropertyShape = new model.domain.PropertyShape();
-    const range: model.domain.ArrayShape = new model.domain.ArrayShape();
-
-    property.withRange(range);
-
-    expect(isTypeDefined(property.range)).to.be.false;
-  });
-
-  it("Returns 'false' on inherited item is not linked", () => {
-    const property = {
-      range: {
-        inherits: [
-          {
-            isLink: false
-          }
-        ]
-      }
-    };
-    assert.isFalse(isTypeDefined(property.range));
-  });
-
-  it("Returns 'false' on inherited item does not have a link target", () => {
-    const property = {
-      range: {
-        inherits: [
-          {
-            isLink: true
-          }
-        ]
-      }
-    };
-    assert.isFalse(isTypeDefined(property.range));
-  });
-
-  it("Returns 'false' on inherited item does not have linkTarget name", () => {
-    const property = {
-      range: {
-        inherits: [
-          {
-            isLink: true,
-            linkTarget: {}
-          }
-        ]
-      }
-    };
-    assert.isFalse(isTypeDefined(property.range));
-  });
-
-  it("Returns 'false' on inherited item does not have linkTarget name's value function", () => {
-    const property = {
-      range: {
-        inherits: [
-          {
-            isLink: true,
-            linkTarget: {
-              name: {}
-            }
-          }
-        ]
-      }
-    };
-    assert.isFalse(isTypeDefined(property.range));
-  });
-
-  it("Returns 'true' on inherited item have linkTarget name's value function", () => {
-    const property = {
-      range: {
-        inherits: [
-          {
-            isLink: true,
-            linkTarget: {
-              name: {
-                value: () => "defined_type"
-              }
-            }
-          }
-        ]
-      }
-    };
-    assert.isTrue(isTypeDefined(property.range));
   });
 });
 
@@ -755,31 +466,5 @@ describe("Template helper tests for getProperties", () => {
     typeDto.withInherits([inheritedDto]);
 
     verifyProperties([property3, property4, property1], getProperties(typeDto));
-  });
-});
-
-describe("Template helper tests for isTypeLinked", () => {
-  before(() => {
-    return AMF.init();
-  });
-
-  it("Returns false with null type", () => {
-    expect(isTypeLinked(null)).to.be.false;
-  });
-
-  it("Returns false with undefined type", () => {
-    expect(isTypeLinked(undefined)).to.be.false;
-  });
-
-  it("Returns false for type with no link", () => {
-    const type = new model.domain.ScalarShape();
-    expect(isTypeLinked(type)).to.be.false;
-  });
-
-  it("Returns true with the linked type", () => {
-    const type = new model.domain.ScalarShape();
-    const linkedType = new model.domain.ScalarShape();
-    type.withLinkTarget(linkedType);
-    expect(isTypeLinked(type)).to.be.true;
   });
 });
