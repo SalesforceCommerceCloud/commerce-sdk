@@ -1,9 +1,9 @@
 {
 {{#each (getProperties typeDto)}}
 {{#if (isRequiredProperty .)}}
-    {{{getValue name}}}: {{#or (eq (getDataType .) "object")}}{{> dtoPartial typeDto=range }}{{else}}{{{getDataType .}}}{{/or}};
+    {{{getValue name}}}: {{#or (eq (getPropertyDataType .) "object")}}{{> dtoPartial typeDto=range }}{{else}}{{{getPropertyDataType .}}}{{/or}};
 {{else if (isOptionalProperty .)}}
-    {{{getValue name}}}?: {{#or (eq (getDataType .) "object")}}{{> dtoPartial typeDto=range }}{{else}}{{{getDataType .}}}{{/or}};
+    {{{getValue name}}}?: {{#or (eq (getPropertyDataType .) "object")}}{{> dtoPartial typeDto=range }}{{else}}{{{getPropertyDataType .}}}{{/or}};
 {{/if}}
 {{/each}}
 }
