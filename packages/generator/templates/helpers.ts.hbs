@@ -1,9 +1,15 @@
 
-import { ShopperToken, stripBearer, ResponseError } from "@commerce-apps/core"
+import { ShopperToken, stripBearer, ResponseError, getObjectFromResponse } from "@commerce-apps/core"
 import  * as sdk from "./"
 
 //type of the input parameter of auth function
-type authFuncParamType = Parameters<typeof sdk.{{shopperAuthClient}}.prototype.{{shopperAuthApi}}>[0];
+type AuthFuncParamType = Parameters<typeof sdk.{{shopperAuthClient}}.prototype.{{shopperAuthApi}}>[0];
+// get the type(s) wrapped inside the promise
+type Unpacked<T> = T extends Promise<infer U> ? U : T;
+// get the return type of shopperAuthApi 
+type CustomerReturnType = ReturnType<typeof sdk.{{shopperAuthClient}}.prototype.{{shopperAuthApi}}>;
+// get only the dto type by excluding the response type
+type CustomerType = Exclude<Unpacked<CustomerReturnType>, Response>
 
 /**
  * @description This wraps the parameters for the authorization call to retrieve a token.
@@ -24,15 +30,15 @@ type authFuncParamType = Parameters<typeof sdk.{{shopperAuthClient}}.prototype.{
  */
 export async function getShopperToken (
     clientConfig: sdk.ClientConfig,
-    body: authFuncParamType["body"]
-): Promise<ShopperToken>{
+    body: AuthFuncParamType["body"]
+): Promise<ShopperToken<CustomerType>>{
     let client = new sdk.{{shopperAuthClient}}(clientConfig);
 
-    const response: Response = (await client.{{shopperAuthApi}}({
-        body: body
-    }, true));
+    const response: Response = (await client.{{shopperAuthApi}}({body}, true));
     if (!response.ok) {
         throw new ResponseError(response);
     }
-    return new ShopperToken(stripBearer(response.headers.get("Authorization")));
+    const dto: CustomerType = await getObjectFromResponse(response);
+
+    return new ShopperToken(dto, stripBearer(response.headers.get("Authorization")));
 }
