@@ -18,6 +18,7 @@ import {
 import {
   getBaseUri,
   getPropertyDataType,
+  getParameterDataType,
   getReturnPayloadType,
   getValue,
   isAdditionalPropertiesAllowed,
@@ -297,6 +298,8 @@ Handlebars.registerHelper("isCommonQueryParameter", isCommonQueryParameter);
 Handlebars.registerHelper("isCommonPathParameter", isCommonPathParameter);
 
 Handlebars.registerHelper("getPropertyDataType", getPropertyDataType);
+
+Handlebars.registerHelper("getParameterDataType", getParameterDataType);
 
 Handlebars.registerHelper("isTypeDefinition", isTypeDefinition);
 
