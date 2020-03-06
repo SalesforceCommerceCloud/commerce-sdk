@@ -17,12 +17,7 @@ import {
 
 import {
   getBaseUri,
-  isDefinedProperty,
-  getDataType,
-  isPrimitiveProperty,
-  isArrayProperty,
-  isObjectProperty,
-  getArrayElementTypeProperty,
+  getPropertyDataType,
   getReturnPayloadType,
   getValue,
   isAdditionalPropertiesAllowed,
@@ -301,19 +296,9 @@ Handlebars.registerHelper("isCommonQueryParameter", isCommonQueryParameter);
 
 Handlebars.registerHelper("isCommonPathParameter", isCommonPathParameter);
 
-Handlebars.registerHelper("isDefinedProperty", isDefinedProperty);
-
-Handlebars.registerHelper("getDataType", getDataType);
-
-Handlebars.registerHelper("isPrimitive", isPrimitiveProperty);
-
-Handlebars.registerHelper("isArrayProperty", isArrayProperty);
-
-Handlebars.registerHelper("isObjectProperty", isObjectProperty);
+Handlebars.registerHelper("getPropertyDataType", getPropertyDataType);
 
 Handlebars.registerHelper("isTypeDefinition", isTypeDefinition);
-
-Handlebars.registerHelper("getArrayElementType", getArrayElementTypeProperty);
 
 Handlebars.registerHelper("getReturnPayloadType", getReturnPayloadType);
 

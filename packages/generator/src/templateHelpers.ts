@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, salesforce.com, inc.
+ * Copyright (c) 2020, salesforce.com, inc.
  * All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
@@ -55,81 +55,6 @@ export const isCommonQueryParameter = (property: string) =>
     ? commonParameterPositions.queryParameters.includes(property.toString())
     : false;
 
-const isValidProperty = function(property: any): boolean {
-  return (
-    property !== undefined && property !== null && property.range !== undefined
-  );
-};
-
-export const isArrayProperty = function(property: any): boolean {
-  return (
-    isValidProperty(property) &&
-    ((property.range.items !== undefined && property.range.items !== null) ||
-      (property.range.items === null &&
-        Array.isArray(property.range.inherits) &&
-        property.range.inherits.length > 0 &&
-        property.range.inherits[0].items !== undefined))
-  );
-};
-
-export const isTypeDefined = function(range: any): boolean {
-  if (
-    range != null &&
-    !range.items &&
-    Array.isArray(range.inherits) &&
-    range.inherits.length > 0 &&
-    range.inherits[0].isLink &&
-    range.inherits[0].linkTarget &&
-    range.inherits[0].linkTarget.name &&
-    range.inherits[0].linkTarget.name.value !== undefined
-  ) {
-    return true;
-  }
-  return false;
-};
-
-/**
- * Check if the type of the property is linked
- *
- * @param range AMF model that hold the type of the property
- * @returns true if the type of the property is linked
- */
-export const isTypeLinked = function(range: model.domain.Shape): boolean {
-  return (
-    range != null &&
-    range.isLink === true &&
-    range.linkTarget != null &&
-    (range.linkTarget as model.domain.ScalarShape).dataType != null
-  );
-};
-
-const isObject = function(range: any): boolean {
-  return (
-    !isTypeDefined(range) &&
-    range !== undefined &&
-    !range.items &&
-    range.properties !== undefined
-  );
-};
-
-export const isObjectProperty = function(property: any): boolean {
-  return isValidProperty(property) && isObject(property.range);
-};
-
-const isPrimitive = function(range: any): boolean {
-  return (
-    range != null && range.dataType != null && range.dataType.value() != null
-  );
-};
-
-export const isPrimitiveProperty = function(property: any): boolean {
-  return property !== undefined && isPrimitive(property.range);
-};
-
-export const isDefinedProperty = function(property: any): boolean {
-  return property !== undefined && isTypeDefined(property.range);
-};
-
 export const isTypeDefinition = function(obj: any): boolean {
   return (
     obj != null && obj.$classData.name === "amf.client.model.domain.NodeShape"
@@ -174,69 +99,144 @@ const getDataTypeFromMap = function(uuidDataType: string): string {
     : DEFAULT_DATA_TYPE;
 };
 
-const getArrayItemObject = function(range: any): any {
-  let result = undefined;
-  if (range.items !== undefined && range.items !== null) {
-    result = range.items;
-  } else if (
-    range.items === null &&
-    Array.isArray(range.inherits) &&
-    range.inherits.length > 0 &&
-    range.inherits[0].items !== undefined
-  ) {
-    result = range.inherits[0].items;
+/**
+ * Get data type from ScalarShape
+ * @param scalarShape instance of model.domain.ScalarShape
+ * @returns scalar data type if defined otherwise returns a default type
+ */
+const getScalarType = function(scalarShape: model.domain.ScalarShape): string {
+  let dataType: string = undefined;
+  if (scalarShape.dataType != null) {
+    const typeValue = scalarShape.dataType.value();
+    if (typeValue != null) {
+      dataType = getDataTypeFromMap(typeValue);
+    }
   }
-  return result;
+  //check if the type is linked to another scalar type
+  if (
+    dataType == null &&
+    scalarShape.isLink === true &&
+    scalarShape.linkTarget != null
+  ) {
+    dataType = getScalarType(
+      scalarShape.linkTarget as model.domain.ScalarShape
+    );
+  }
+  if (dataType == null) {
+    dataType = DEFAULT_DATA_TYPE;
+  }
+  return dataType;
 };
 
-export const getArrayElementTypeProperty = function(property: any): string {
-  let result = DEFAULT_DATA_TYPE;
-  const itemsObject = getArrayItemObject(property.range);
-  if (isPrimitive(itemsObject)) {
-    result = getDataTypeFromMap(itemsObject.dataType.value());
+/* eslint-disable @typescript-eslint/no-use-before-define */
+/**
+ * Get type of the array
+ * @param arrayShape instance of model.domain.ArrayShape
+ * @returns array type if defined otherwise returns a default type
+ */
+const getArrayType = function(arrayShape: model.domain.ArrayShape): string {
+  let arrItem: model.domain.Shape = arrayShape.items;
+  if (arrItem == null) {
+    if (arrayShape.inherits != null && arrayShape.inherits.length > 0)
+      arrItem = (arrayShape.inherits[0] as model.domain.ArrayShape).items;
   }
-  if (isObject(itemsObject)) {
-    result = OBJECT_DATA_TYPE;
-  }
+  return ARRAY_DATA_TYPE.concat("<")
+    .concat(getDataType(arrItem))
+    .concat(">");
+};
 
-  if (isTypeDefined(itemsObject)) {
-    result = itemsObject.inherits[0].linkTarget.name.value() + "T";
+/**
+ * Get data type that is linked/inherited
+ * @param anyShape instance of model.domain.AnyShape or its subclass
+ * @returns linked/inherited data type
+ */
+const getLinkedType = function(anyShape: model.domain.AnyShape): string {
+  let linkedType: model.domain.DomainElement = undefined;
+  let dataType: string = undefined;
+  //check if type is inherited
+  if (anyShape.inherits != null && anyShape.inherits.length > 0) {
+    if (
+      anyShape.inherits[0] != null &&
+      anyShape.inherits[0].isLink === true &&
+      anyShape.inherits[0].linkTarget != null
+    ) {
+      linkedType = anyShape.inherits[0].linkTarget;
+    }
+  }
+  //check if type is linked
+  if (
+    linkedType == null &&
+    anyShape.isLink === true &&
+    anyShape.linkTarget != null
+  ) {
+    linkedType = anyShape.linkTarget;
   }
 
   if (
-    itemsObject.isLink &&
-    itemsObject.linkTarget !== undefined &&
-    itemsObject.linkTarget.name !== undefined &&
-    itemsObject.linkTarget.name.value !== undefined
+    linkedType != null &&
+    linkedType instanceof model.domain.AnyShape &&
+    linkedType.name != null
   ) {
-    result = itemsObject.linkTarget.name.value() + "T";
+    const temp = linkedType.name.value();
+    if (temp != null) {
+      dataType = temp + "T";
+    }
   }
-
-  return result;
+  return dataType;
 };
 
-export const getDataType = function(property: any): string {
-  const range = property ? property.range : undefined;
-  // check if the property is primitive
-  if (isPrimitive(range)) {
-    return getDataTypeFromMap(range.dataType.value());
+/**
+ * Get object type
+ * @param anyShape instance of model.domain.AnyShape or its subclass
+ * @returns object type if defined otherwise returns a default type
+ */
+const getObjectType = function(anyShape: model.domain.AnyShape): string {
+  let dataType: string = getLinkedType(anyShape);
+  if (dataType == null) {
+    if (
+      anyShape instanceof model.domain.NodeShape &&
+      anyShape.properties != null
+    ) {
+      dataType = OBJECT_DATA_TYPE;
+    } else {
+      dataType = DEFAULT_DATA_TYPE;
+    }
   }
-  if (isTypeDefined(range)) {
-    return range.inherits[0].linkTarget.name.value() + "T";
-  }
+  return dataType;
+};
 
-  if (isTypeLinked(range)) {
-    return getDataTypeFromMap(range.linkTarget.dataType.value());
+/**
+ * Get data type of an element from amf model
+ * @param dtElement instance of model.domain.DomainElement or its subclass
+ * @returns data type if defined otherwise returns a default type
+ */
+const getDataType = function(dtElement: model.domain.DomainElement): string {
+  let dataType: string = undefined;
+  if (dtElement != null) {
+    if (dtElement instanceof model.domain.ScalarShape) {
+      dataType = getScalarType(dtElement);
+    } else if (dtElement instanceof model.domain.ArrayShape) {
+      dataType = getArrayType(dtElement);
+    } else if (dtElement instanceof model.domain.AnyShape) {
+      dataType = getObjectType(dtElement);
+    }
   }
-
-  if (isObject(range)) {
-    return OBJECT_DATA_TYPE;
+  if (dataType == null) {
+    dataType = DEFAULT_DATA_TYPE;
   }
+  return dataType;
+};
 
-  if (isArrayProperty(property)) {
-    return ARRAY_DATA_TYPE.concat("<")
-      .concat(getArrayElementTypeProperty(property))
-      .concat(">");
+/**
+ * Get data type of a property
+ * @param property instance of model.domain.PropertyShape
+ * @returns data type if defined in the property otherwise returns a default type
+ */
+export const getPropertyDataType = function(
+  property: model.domain.PropertyShape
+): string {
+  if (property != null && property.range != null) {
+    return getDataType(property.range);
   }
   return DEFAULT_DATA_TYPE;
 };
