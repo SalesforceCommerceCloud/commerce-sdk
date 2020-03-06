@@ -4,8 +4,11 @@ import  * as sdk from "./"
 
 //type of the input parameter of auth function
 type AuthFuncParamType = Parameters<typeof sdk.{{shopperAuthClient}}.prototype.{{shopperAuthApi}}>[0];
+// get the type(s) wrapped inside the promise
 type Unpacked<T> = T extends Promise<infer U> ? U : T;
-type CustomerReturnType = ReturnType<typeof sdk.Customer.ShopperCustomers.prototype.authorizeCustomer>;
+// get the return type of shopperAuthApi 
+type CustomerReturnType = ReturnType<typeof sdk.{{shopperAuthClient}}.prototype.{{shopperAuthApi}}>;
+// get only the dto type by excluding the response type
 type CustomerType = Exclude<Unpacked<CustomerReturnType>, Response>
 
 /**
