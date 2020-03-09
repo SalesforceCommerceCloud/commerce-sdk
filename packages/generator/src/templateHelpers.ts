@@ -13,7 +13,8 @@ import {
   PRIMITIVE_DATA_TYPE_MAP,
   DEFAULT_DATA_TYPE,
   OBJECT_DATA_TYPE,
-  ARRAY_DATA_TYPE
+  ARRAY_DATA_TYPE,
+  ASSET_OBJECT_MAP
 } from "./config";
 
 /**
@@ -369,3 +370,7 @@ export const isAdditionalPropertiesAllowed = function(
     !ramlTypeDefinition.closed.value()
   );
 };
+
+export const getObjectIdByAssetId = function (assetId: string) {
+  return ASSET_OBJECT_MAP[assetId];
+}
