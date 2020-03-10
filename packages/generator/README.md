@@ -1,6 +1,8 @@
 # commerce-sdk
 
 The Salesforce Commerce SDK allows easy interaction with the Salesforce B2C Commerce platform APIs on the Node.js runtime.
+
+Visit the [Commerce Cloud Developer Center](https://developer.commercecloud.com/) to learn more about Salesforce Commerce. The developer center has API documentation, getting started guides, community forums, and more.
 ​
 ## Prerequisites
 Download and install Node.js and npm [here](https://nodejs.org/en/download/).
@@ -104,7 +106,7 @@ Autocomplete will also show the available properties of the data returned by SDK
 ![Result Autocomplete](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/packages/generator/images/ResultAutocomplete.jpg?raw=true "Result Autocomplete")
 
 ## Additional Documentation 
-[API Versions Used](./VERSION.md)
+[API Documentation](./APICLIENTS.md)  
 [Changelog](./CHANGELOG.md)
 
 ## License Information
