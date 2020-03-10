@@ -20,9 +20,14 @@ export class ResponseError extends Error {
 }
 
 /**
- * Extracts the dto object from the given response object
+ * Returns the dto object from the given response object on status codes 2xx and
+ * 304 (Not Modified). The fetch library make-fetch-happen returns the cached object
+ * on 304 response. This method throws error on any other 3xx responses that are not
+ * automatically handled by make-fetch-happen.
+ * Refer to https://en.wikipedia.org/wiki/List_of_HTTP_status_codes for more information
+ * on HTTP status codes.
  *
- * @param response the response object containing the dto
+ * @param response the response object containing the dto or an error
  *
  * @returns the dto wrapped in a promise
  */
