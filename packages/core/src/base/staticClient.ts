@@ -21,15 +21,15 @@ export class ResponseError extends Error {
 
 /**
  * Extracts the dto object from the given response object
- * 
+ *
  * @param response the response object containing the dto
- * 
+ *
  * @returns the dto wrapped in a promise
  */
 export async function getObjectFromResponse(
   response: Response
 ): Promise<object> {
-  if (response.ok) {
+  if (response.ok || response.status === 304) {
     const text = await response.text();
     // It's ideal to get "{}" for an empty response body, but we won't throw if it's truly empty
     return text ? JSON.parse(text) : {};
