@@ -20,16 +20,21 @@ export class ResponseError extends Error {
 }
 
 /**
- * Extracts the dto object from the given response object
- * 
- * @param response the response object containing the dto
- * 
+ * Returns the dto object from the given response object on status codes 2xx and
+ * 304 (Not Modified). The fetch library make-fetch-happen returns the cached object
+ * on 304 response. This method throws error on any other 3xx responses that are not
+ * automatically handled by make-fetch-happen.
+ * Refer to https://en.wikipedia.org/wiki/List_of_HTTP_status_codes for more information
+ * on HTTP status codes.
+ *
+ * @param response the response object containing the dto or an error
+ *
  * @returns the dto wrapped in a promise
  */
 export async function getObjectFromResponse(
   response: Response
 ): Promise<object> {
-  if (response.ok) {
+  if (response.ok || response.status === 304) {
     const text = await response.text();
     // It's ideal to get "{}" for an empty response body, but we won't throw if it's truly empty
     return text ? JSON.parse(text) : {};
