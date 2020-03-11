@@ -13,6 +13,8 @@ export {
 
 import { _get, _delete, _patch, _post, _put } from "./base/staticClient";
 
+export { getObjectFromResponse } from "./base/staticClient";
+
 export const StaticClient = {
   get: _get,
   delete: _delete,

@@ -13,10 +13,10 @@ import {
   isOptionalProperty,
   isRequiredProperty,
   isAdditionalPropertiesAllowed,
-  getProperties
+  getProperties,
+  getParameterDataType
 } from "../src/templateHelpers";
 
-import _ from "lodash";
 import { assert, expect } from "chai";
 import { model, AMF } from "amf-client-js";
 
@@ -184,6 +184,33 @@ describe("Template helper datatype tests", () => {
     property.withRange(new model.domain.PropertyShape());
 
     expect(getPropertyDataType(property)).to.equal("any");
+  });
+});
+
+describe("Test retrieval of data types for endpoint parameters", () => {
+  before(() => {
+    return AMF.init();
+  });
+  it("Returns 'any' on undefined parameter", () => {
+    expect(getParameterDataType(undefined)).to.equal("any");
+  });
+
+  it("Returns 'any' on null parameter", () => {
+    expect(getParameterDataType(null)).to.equal("any");
+  });
+
+  it("Returns 'any' on parameter with undefined schema", () => {
+    expect(getParameterDataType(new model.domain.Parameter())).to.equal("any");
+  });
+
+  /**
+   * Note: Test cases to get various data types (arrays, objects, etc) are already covered as part of the property data type tests
+   */
+  it("Returns 'boolean' on boolean dataType", () => {
+    const param: model.domain.Parameter = new model.domain.Parameter();
+    param.withSchema(getScalarType("http://www.w3.org/2001/XMLSchema#boolean"));
+
+    expect(getParameterDataType(param)).to.equal("boolean");
   });
 });
 

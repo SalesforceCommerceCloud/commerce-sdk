@@ -5,7 +5,6 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import { model } from "amf-client-js";
-import _ from "lodash";
 import { WebApiBaseUnitWithEncodesModel } from "webapi-parser";
 
 import { commonParameterPositions } from "@commerce-apps/core";
@@ -14,7 +13,8 @@ import {
   PRIMITIVE_DATA_TYPE_MAP,
   DEFAULT_DATA_TYPE,
   OBJECT_DATA_TYPE,
-  ARRAY_DATA_TYPE
+  ARRAY_DATA_TYPE,
+  ASSET_OBJECT_MAP
 } from "./config";
 
 /**
@@ -241,6 +241,20 @@ export const getPropertyDataType = function(
   return DEFAULT_DATA_TYPE;
 };
 
+/**
+ * Get data type of a parameter
+ * @param param instance of model.domain.Parameter
+ * @returns data type if defined in the parameter otherwise returns a default type
+ */
+export const getParameterDataType = function(
+  param: model.domain.Parameter
+): string {
+  if (param != null && param.schema != null) {
+    return getDataType(param.schema);
+  }
+  return DEFAULT_DATA_TYPE;
+};
+
 export const getValue = function(name: any): string {
   if (name !== undefined && name.value) {
     return name.value();
@@ -356,3 +370,7 @@ export const isAdditionalPropertiesAllowed = function(
     !ramlTypeDefinition.closed.value()
   );
 };
+
+export const getObjectIdByAssetId = function (assetId: string) {
+  return ASSET_OBJECT_MAP[assetId];
+}

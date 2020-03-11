@@ -6,9 +6,7 @@ Salesforce Commerce Node.js SDK
 
 ## What is This?
 
-commerce-sdk is a Node.js SDK for Salesforce Commerce. It provides easy access to the Salesforce Commerce platform RESTful APIs.
-
-It is a mono repo containing the tools needed to be a rockstar commerce developer on the Salesforce Commerce platform.
+A mono repo containing packages that generate the Salesforce Commerce SDK. Read more about the SDK [here](./packages/generator/README.md) and the tools in this toolkit in the [Packages](#packages) section.
 
 Visit the [Commerce Cloud Developer Center](https://developer.commercecloud.com/) to learn more about Salesforce Commerce. The developer center has API documentation, getting started guides, community forums, and more.
 
@@ -74,7 +72,7 @@ If you would like to contribute please take a look at our [contributors' guide](
 
 [Using VSCODE](./docs/vscode.md)  
 [Code Generation](./packages/generator/docs/GENERATOR.md)  
-[API Version Documentation](./packages/generator/VERSION.md)  
+[API Documentation](./packages/generator/APICLIENTS.md)  
 
 
 <!-- Markdown link & img dfn's -->

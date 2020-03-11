@@ -8,6 +8,7 @@
 import { Shop } from "../dist";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
+import { assert, IsExact } from "conditional-type-checks";
 const BASE_URI =
   "https://anypoint.mulesoft.com/mocking/api/v1/sources/exchange/assets/893f605e-10e2-423a-bdb4-f952f56eb6d8/steelarc-integration/1.0.0/m/s/-/dw/shop/v19_5";
 
@@ -196,5 +197,17 @@ describe("Shop client integration POST tests", () => {
         }
       })
     ).to.eventually.deep.equal({});
+  });
+});
+
+describe("Test that function parameters have data types", () => {
+  it("Test that function parameters have data types", () => {
+    type funcParam = Parameters<
+      typeof Shop.ShopApi.prototype.searchProducts
+    >[0];
+    type siteIdType = funcParam["parameters"]["siteId"];
+    let temp: siteIdType;
+    //verify that siteId is of type string
+    assert<IsExact<typeof temp, string>>(true);
   });
 });

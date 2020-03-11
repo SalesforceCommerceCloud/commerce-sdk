@@ -18,6 +18,7 @@ import {
 import {
   getBaseUri,
   getPropertyDataType,
+  getParameterDataType,
   getReturnPayloadType,
   getValue,
   isAdditionalPropertiesAllowed,
@@ -26,7 +27,8 @@ import {
   isCommonPathParameter,
   getProperties,
   isRequiredProperty,
-  isOptionalProperty
+  isOptionalProperty,
+  getObjectIdByAssetId
 } from "./templateHelpers";
 import {
   WebApiBaseUnit,
@@ -79,7 +81,7 @@ const dtoTemplate = Handlebars.compile(
 );
 
 const versionTemplate = Handlebars.compile(
-  fs.readFileSync(path.join(templateDirectory, "version.md.hbs"), "utf8")
+  fs.readFileSync(path.join(templateDirectory, "apiclients.md.hbs"), "utf8")
 );
 
 const dtoPartial = Handlebars.compile(
@@ -188,7 +190,7 @@ export function createVersionFile(
 ): void {
   fs.writeFileSync(
     // Write to the directory with the API definitions
-    path.join(__dirname, "..", "VERSION.md"),
+    path.join(__dirname, "..", "APICLIENTS.md"),
     versionTemplate(apis)
   );
 }
@@ -298,6 +300,8 @@ Handlebars.registerHelper("isCommonPathParameter", isCommonPathParameter);
 
 Handlebars.registerHelper("getPropertyDataType", getPropertyDataType);
 
+Handlebars.registerHelper("getParameterDataType", getParameterDataType);
+
 Handlebars.registerHelper("isTypeDefinition", isTypeDefinition);
 
 Handlebars.registerHelper("getReturnPayloadType", getReturnPayloadType);
@@ -318,3 +322,5 @@ Handlebars.registerHelper("getProperties", getProperties);
 Handlebars.registerHelper("isRequiredProperty", isRequiredProperty);
 
 Handlebars.registerHelper("isOptionalProperty", isOptionalProperty);
+
+Handlebars.registerHelper("getObjectIdByAssetId", getObjectIdByAssetId);
