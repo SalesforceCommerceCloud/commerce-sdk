@@ -1,9 +1,35 @@
 # Included Apis
 Each of the following APIs has a corresponding client in the SDK which can be instantiated to communicate with that API. See the [README](./README.md#usage) for examples on how to instantiate, configure and use clients.
 
-## AI 
-#### [Einstein Recommendations](https://developer.commercecloud.com/s/api-details/a003k00000UI4hPAAT)
-*API to get Einstein recommendations and send activities to Einstein engine.*<br />
+## CDN 
+#### [CDN Zones](https://developer.commercecloud.com/s/api-details/a003k00000UIKk2AAH)
+*Extend your eCDN beyond Business Manager configuration.*<br />
+
+_______________________________________________________________________
+
+## Product 
+#### [Products](https://developer.commercecloud.com/s/api-details/a003k00000UHvovAAD)
+**Mule App Version** 0.0.7<br />
+*Create, manage, and search products within a merchandizing system.*<br />
+
+#### [Catalogs](https://developer.commercecloud.com/s/api-details/a003k00000UHvofAAD)
+**Mule App Version** 0.0.9<br />
+*Create, manage, and search categories and catalogs within a merchandizing system.*<br />
+
+#### [Shopper Products](https://developer.commercecloud.com/s/api-details/a003k00000UHvp0AAD)
+**Mule App Version** 0.0.6<br />
+*Let customers view product and category details in shopping apps.*<br />
+
+_______________________________________________________________________
+
+## Customer 
+#### [Customers](https://developer.commercecloud.com/s/api-details/a003k00000UHvouAAD)
+**Mule App Version** 0.0.8<br />
+*Manage customer lists, and search and manage customer groups.*<br />
+
+#### [Shopper Customers](https://developer.commercecloud.com/s/api-details/a003k00000UHvpJAAT)
+**Mule App Version** 0.0.8<br />
+*Let customers log in and manage their profiles and product lists.*<br />
 
 _______________________________________________________________________
 
@@ -11,6 +37,19 @@ _______________________________________________________________________
 #### [Shopper Search](https://developer.commercecloud.com/s/api-details/a003k00000UHwuFAAT)
 **Mule App Version** 1.0.10<br />
 *Perform product search and provide search suggestions.*<br />
+
+_______________________________________________________________________
+
+## Seller 
+#### [Shopper Stores](https://developer.commercecloud.com/s/api-details/a003k00000UHwuPAAT)
+**Mule App Version** 1.0.5<br />
+*Search for a specific store or stores in an area.*<br />
+
+_______________________________________________________________________
+
+## AI 
+#### [Einstein Recommendations](https://developer.commercecloud.com/s/api-details/a003k00000UI4hPAAT)
+*Get Einstein recommendations and send activities to Einstein engine.*<br />
 
 _______________________________________________________________________
 
@@ -26,32 +65,6 @@ _______________________________________________________________________
 #### [Shopper Baskets](https://developer.commercecloud.com/s/api-details/a003k00000UHvpEAAT)
 **Mule App Version** 0.0.34<br />
 *Build a checkout experience.*<br />
-
-_______________________________________________________________________
-
-## Customer 
-#### [Customers](https://developer.commercecloud.com/s/api-details/a003k00000UHvouAAD)
-**Mule App Version** 0.0.8<br />
-*Manage customer lists, and search and manage customer groups.*<br />
-
-#### [Shopper Customers](https://developer.commercecloud.com/s/api-details/a003k00000UHvpJAAT)
-**Mule App Version** 0.0.8<br />
-*Let customers log in and manage their profiles and product lists.*<br />
-
-_______________________________________________________________________
-
-## Product 
-#### [Products](https://developer.commercecloud.com/s/api-details/a003k00000UHvovAAD)
-**Mule App Version** 0.0.7<br />
-*Create, manage, and search products within a merchandizing system.*<br />
-
-#### [Shopper Products](https://developer.commercecloud.com/s/api-details/a003k00000UHvp0AAD)
-**Mule App Version** 0.0.6<br />
-*Let customers view product and category details in shopping apps.*<br />
-
-#### [Catalogs](https://developer.commercecloud.com/s/api-details/a003k00000UHvofAAD)
-**Mule App Version** 0.0.9<br />
-*Create, manage, and search categories and catalogs within a merchandizing system.*<br />
 
 _______________________________________________________________________
 
@@ -87,18 +100,6 @@ _______________________________________________________________________
 #### [Shopper Promotions](https://developer.commercecloud.com/s/api-details/a003k00000UHvp5AAD)
 **Mule App Version** 1.0.15<br />
 *Obtain promotion details.*<br />
-
-_______________________________________________________________________
-
-## Seller 
-#### [Shopper Stores](https://developer.commercecloud.com/s/api-details/a003k00000UHwuPAAT)
-**Mule App Version** 1.0.5<br />
-*Search for a specific store or stores in an area.*<br />
-
-_______________________________________________________________________
-
-## CDN 
-#### [CDN API](https://developer.commercecloud.com/s/api-details/a003k00000UIKk2AAH)
 
 _______________________________________________________________________
 

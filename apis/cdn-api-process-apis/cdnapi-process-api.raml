@@ -1,5 +1,5 @@
 #%RAML 1.0
-title: CDN API
+title: CDN Zones
 
 version: v1
 description: Provides access to Commerce Cloud Digital CDN-related functionality.
@@ -14,7 +14,7 @@ mediaType: application/json
 
 uses:
   ApiStandards: /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.6/api-standards.raml
-  CommerceCloudStandards: /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.10/commerce-cloud-standards.raml
+  CommerceCloudStandards: /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.12/commerce-cloud-standards.raml
 
 types:
   
@@ -73,8 +73,11 @@ traits:
   hasInternalServerErrorResponse: !include traits/HasInternalServerErrorResponse.raml
   hasResourceNotFoundResponse: !include traits/HasResourceNotFoundResponse.raml
   hasBadRequestResponse: !include traits/HasBadRequestResponse.raml
+  hasConflictResponse: !include traits/HasConflictResponse.raml
   
-securedBy: [ CommerceCloudStandards.AmOAuth2 ]
+securedBy: 
+  - CommerceCloudStandards.BearerToken
+  - CommerceCloudStandards.AmOAuth2
 
 /organizations/{organizationId}:
   type: CommerceCloudStandards.Organization
@@ -84,7 +87,7 @@ securedBy: [ CommerceCloudStandards.AmOAuth2 ]
       
       get:
         is: [ApiStandards.OffsetPaginated: {maxLimit: 50, defaultSize: 25}, hasResourceNotFoundResponse]
-        displayName: getZoneInfo
+        displayName: getZonesInfo
         description: Retrieves zone information.
         responses:
           '200':
@@ -111,8 +114,8 @@ securedBy: [ CommerceCloudStandards.AmOAuth2 ]
     
     /{groupId}:
       put:
-        is: [hasBadRequestResponse]
-        displayName: updateWafGroupById
+        is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse, hasBadRequestResponse]
+        displayName: updateWafGroup
         description: Update action or mode of a specific WAF group.
         body:
           application/json:
@@ -127,6 +130,7 @@ securedBy: [ CommerceCloudStandards.AmOAuth2 ]
                 example: !include /examples/waf/wafgroup-put-response.raml
 
   /zones/{zoneId}/waf/rules:
+    is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse]
     get:
       is: [hasResourceNotFoundResponse]
       displayName: getWafRules
@@ -145,8 +149,8 @@ securedBy: [ CommerceCloudStandards.AmOAuth2 ]
             application/json:
               type: WafRulesEnvelope
               example: !include /examples/waf/wafrules-get-response.raml
-
     /{ruleId}:
+      is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse]
       get:
         is: [hasResourceNotFoundResponse]
         displayName: getWafRule
@@ -160,7 +164,7 @@ securedBy: [ CommerceCloudStandards.AmOAuth2 ]
                 example: !include /examples/waf/wafrule-get-response.raml
       put:
         is: [hasBadRequestResponse]
-        displayName: updateWafRuleById
+        displayName: updateWafRule
         description: Update action of a specific WAF rule.
         body:
           application/json:
@@ -175,6 +179,7 @@ securedBy: [ CommerceCloudStandards.AmOAuth2 ]
                 example: !include /examples/waf/wafrule-put-response.raml
 
   /zones/{zoneId}/firewall/rules:
+    is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse]
     get:
       is: [hasResourceNotFoundResponse]
       displayName: getFirewallRules
@@ -188,7 +193,7 @@ securedBy: [ CommerceCloudStandards.AmOAuth2 ]
               example: !include /examples/firewall/firewall-rules-get-response.raml
 
     post:
-      is: [hasBadRequestResponse]
+      is: [hasBadRequestResponse, hasConflictResponse]
       displayName: createFirewallRule
       description: Creates a firewall rule.
       body:
@@ -205,9 +210,10 @@ securedBy: [ CommerceCloudStandards.AmOAuth2 ]
               example: !include /examples/firewall/firewall-rules-post-response.raml
 
     /{firewallRuleId}:
-      is: [hasResourceNotFoundResponse]
+      is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse]
       get:
-        displayName: getFirewallRuleById
+        is: [hasResourceNotFoundResponse]
+        displayName: getFirewallRule
         description: Retrieve a specific firewall rule.
         responses:
           '200':
@@ -218,7 +224,7 @@ securedBy: [ CommerceCloudStandards.AmOAuth2 ]
                 example: !include /examples/firewall/firewall-rule-get-response.raml
       put:
         is: [hasBadRequestResponse]
-        displayName: updateFirewallRuleById
+        displayName: updateFirewallRule
         description: Update a specific firewall rule.
         body:
           application/json:
