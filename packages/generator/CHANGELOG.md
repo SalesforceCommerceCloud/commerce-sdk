@@ -1,5 +1,62 @@
 ## CHANGELOG
 
+### v1.3.0-alpha.9
+
+### **Core Functionality**
+
+#### Authentication helper changes
+
+* ShopperToken now contains customer info from auth response
+    * Potentially breaking if you are currently instantiating a ShopperToken yourself
+
+#### Enhancements
+
+* SDK now returns the cached asset on HTTP 304 response
+* SDK now closes the network connection by default
+    * It can be kept open by passing a Connection header set to keep-alive
+* Parameters in API methods now have specific data types
+
+Example:
+```
+productSearch(
+    options?: {
+        parameters?: {
+        organizationId?: string
+        siteId?: string
+        q?: string
+        refine?: Array<string>
+        sort?: string
+        currency?: string
+        locale?: string
+        offset?: number
+        limit?: number
+        },
+        headers?: { [key: string]: string }
+    }
+): Promise<ProductSearchResultT>;
+```
+
+
+#### Documentation
+* VERSION.md has been renamed to APICLIENTS.md
+    * APICLIENTS.md now links to developer.commercecloud.com
+
+### **API Changes**
+
+#### CDN APIs
+*CDN Zones/CDN API*  
+
+* **BREAKING**: API client `CdnApi` has been renamed to `CdnZones`
+
+* **BREAKING**: Endpoint method name changes
+
+| **Existing Method Name** | **New Method Name** |
+| ------------- |-------------|
+| getZoneInfo | getZonesInfo |
+| updateWafGroupById | updateWafGroup |
+| updateWafRuleById | updateWafRule |
+| updateFirewallRuleById | updateFirewallRule |
+
 ### v1.3.0-alpha.8
 
 ### **Core Functionality**
