@@ -16,26 +16,25 @@
     * It can be kept open by passing a Connection header set to keep-alive
 * Parameters in API methods now have specific data types
 
-Example:
-```
-productSearch(
-    options?: {
-        parameters?: {
-        organizationId?: string
-        siteId?: string
-        q?: string
-        refine?: Array<string>
-        sort?: string
-        currency?: string
-        locale?: string
-        offset?: number
-        limit?: number
-        },
-        headers?: { [key: string]: string }
-    }
-): Promise<ProductSearchResultT>;
-```
-
+    Example:
+    ```
+    productSearch(
+        options?: {
+            parameters?: {
+            organizationId?: string
+            siteId?: string
+            q?: string
+            refine?: Array<string>
+            sort?: string
+            currency?: string
+            locale?: string
+            offset?: number
+            limit?: number
+            },
+            headers?: { [key: string]: string }
+        }
+    ): Promise<ProductSearchResultT>;
+    ```
 
 #### Documentation
 * VERSION.md has been renamed to APICLIENTS.md
@@ -56,6 +55,8 @@ productSearch(
 | updateWafGroupById | updateWafGroup |
 | updateWafRuleById | updateWafRule |
 | updateFirewallRuleById | updateFirewallRule |
+
+_____________________________________________
 
 ### v1.3.0-alpha.8
 
