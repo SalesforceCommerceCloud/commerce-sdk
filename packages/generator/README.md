@@ -39,7 +39,7 @@ import CommerceSdk from "commerce-sdk";
 const { ClientConfig, helpers, Search } = CommerceSdk;
 
 // Older Node.js versions can instead use:
-// const { ClientConfig, helpers, Search } = require("./dist");
+// const { ClientConfig, helpers, Search } = require("commerce-sdk");
 
 // Create a configuration to use when creating API clients
 // In TypeScript, this can be specified as const config:ClientConfig
