@@ -15,6 +15,7 @@ usage: |-
 
     - **`AmOAuth2`:** a securitys scheme for endpoints authenticated against [Account Manager](https://account.demandware.com/dw/account/Home#/) OAuth 2.0.
     - **`ShopperToken`:** a security scheme for endpoints authenticated via Shopper JWTs.
+    - **`BearerToken`:** a security scheme that supplements APIs secured with `AmOAuth2` to support the usage of the mocking service.
 
   # Types
   This project provides the following reusable types. These types are referenced in a plurality of APIs, to the point where it makes sense to have a common definition where the documentation, validation, and usage of them can be well documented.
@@ -41,10 +42,12 @@ usage: |-
 uses:
   Search: Types/search-types.raml
   ApiStandards: Types/pagination-types.raml
+  ISO: Types/ISO-standards.raml
 
 securitySchemes: 
   AmOAuth2: !include SecuritySchemes/am-oauth-2.raml
   ShopperToken: !include SecuritySchemes/shopper-token.raml
+  BearerToken: !include SecuritySchemes/bearer-token.raml
 
 types:
   SiteId:
@@ -56,24 +59,30 @@ types:
   SearchRequest: Search.SearchRequest
   PaginatedSearchResult: Search.PaginatedSearchResult
   SimpleSearchResult: Search.SimpleSearchResult
-
+  
+  CurrencyCode: ISO.Currency
+  Money: ISO.Money
+  LanguageCode: ISO.Language
+  CountryCode: ISO.Country
+  LocaleCode: ISO.Locale
+  
 resourceTypes:
   Organization:
     uriParameters:
       organizationId:
         description: An identifier for the organization the request is being made by.
         example:
-          f_ecom_bcgl_prd
+          f_ecom_zzxy_prd
 
 traits:
   QueryParamsLimit:
     usage: This trait should not be used unless there is no requirement for QueryParamsOffset. Prefer the usage of ApiStandards.OffsetPaginated.
     queryParameters:
-      limit: ApiStandards.Limit
+      limit?: ApiStandards.Limit
   QueryParamsOffset:
     usage: This trait should not be used unless there is no requirement for QueryParamsLimit. Prefer the usage of ApiStandards.OffsetPaginated.
     queryParameters:
-      offset: ApiStandards.Offset
+      offset?: ApiStandards.Offset
   SiteSpecific:
     usage: This trait should be used whenever a resource has the context of a site assoicated with its request. This will add a siteId query parameter
     queryParameters:
