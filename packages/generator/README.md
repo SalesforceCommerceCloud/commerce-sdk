@@ -36,15 +36,16 @@ To use an SDK client, instantiate an object of that client and configure these p
  * APIs.
  */
 ​
-// Import the SDK in TypeScript or newer versions of Node.js
-import CommerceSdk from "commerce-sdk";
+// Import the SDK in TypeScript
+import * as CommerceSdk from "commerce-sdk";
+// For Javascript, use:
+// import as CommerceSdk from "commerce-sdk";
 const { ClientConfig, helpers, Search } = CommerceSdk;
-
 // Older Node.js versions can instead use:
 // const { ClientConfig, helpers, Search } = require("commerce-sdk");
 
 // Create a configuration to use when creating API clients
-// In TypeScript, this can be specified as const config:ClientConfig
+// In TypeScript, let config = new ClientConfig();
 const config = {
     headers: {
         connection: "close"
