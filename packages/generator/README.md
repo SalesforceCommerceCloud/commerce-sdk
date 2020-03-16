@@ -94,6 +94,30 @@ helpers.getShopperToken(config, { type: "guest" }).then(async (token) => {
 });
 ```
 
+## Caching
+
+In-memory caching of responses is enabled by default. This implementation respects [standard cache headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control). To disable caching for a client, set cacheManager to 'null'.
+
+
+
+### Sample Code
+```javascript
+const config = {
+    cacheManager: null,
+    headers: {
+        connection: "close"
+    },
+    parameters: {
+        clientId: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        organizationId: "f_ecom_bblx_stg",
+        shortCode: "0dnz6oep",
+        siteId: "RefArch"
+    }
+}
+```
+
+
+
 When using an IDE such as VSCode, the autocomplete feature lets you view the available method and class definitions, including parameters.
 ​
 
