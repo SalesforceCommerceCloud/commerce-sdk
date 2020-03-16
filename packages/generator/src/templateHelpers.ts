@@ -371,6 +371,6 @@ export const isAdditionalPropertiesAllowed = function(
   );
 };
 
-export const getObjectIdByAssetId = function (assetId: string) {
+export const getObjectIdByAssetId = function(assetId: string) {
   return ASSET_OBJECT_MAP[assetId];
-}
+};
