@@ -14,11 +14,13 @@ import {
   isRequiredProperty,
   isAdditionalPropertiesAllowed,
   getProperties,
-  getParameterDataType
+  getParameterDataType,
+  getRequestPayloadType
 } from "../src/templateHelpers";
 
 import { assert, expect } from "chai";
 import { model, AMF } from "amf-client-js";
+import { ARRAY_DATA_TYPE, OBJECT_DATA_TYPE } from "../src/config";
 
 const getScalarType = function(typeName: string): model.domain.ScalarShape {
   const scalarType: model.domain.ScalarShape = new model.domain.ScalarShape();
@@ -493,5 +495,72 @@ describe("Template helper tests for getProperties", () => {
     typeDto.withInherits([inheritedDto]);
 
     verifyProperties([property3, property4, property1], getProperties(typeDto));
+  });
+});
+
+const getRequestPayloadModel = function(
+  shape: model.domain.Shape
+): model.domain.Request {
+  const payload = new model.domain.Payload();
+  payload.withSchema(shape);
+
+  const reqBody = new model.domain.Request();
+  reqBody.withPayloads([payload]);
+
+  return reqBody;
+};
+
+describe("Template helper tests for getRequestPayloadType", () => {
+  before(() => {
+    return AMF.init();
+  });
+
+  it("Returns 'object' on undefined request model", () => {
+    expect(getRequestPayloadType(undefined)).to.equal(OBJECT_DATA_TYPE);
+  });
+
+  it("Returns 'object' on null request model", () => {
+    expect(getRequestPayloadType(null)).to.equal(OBJECT_DATA_TYPE);
+  });
+
+  it("Returns type defined for request payload", () => {
+    const typeName = "Type1";
+    const shape = new model.domain.NodeShape();
+    shape.withName(typeName);
+    expect(getRequestPayloadType(getRequestPayloadModel(shape))).to.equal(
+      typeName + "T"
+    );
+  });
+
+  it("Returns 'object' when the request payload type name is schema", () => {
+    const shape = new model.domain.NodeShape();
+    shape.withName("schema");
+
+    expect(getRequestPayloadType(getRequestPayloadModel(shape))).to.equal(
+      OBJECT_DATA_TYPE
+    );
+  });
+
+  it("Returns 'object' when name is undefined", () => {
+    const shape = new model.domain.NodeShape();
+    expect(getRequestPayloadType(getRequestPayloadModel(shape))).to.equal(
+      OBJECT_DATA_TYPE
+    );
+  });
+
+  it("Returns array type defined for request payload", () => {
+    const typeName = "Type1";
+    const arrItem = new model.domain.NodeShape();
+    arrItem.withName(typeName);
+
+    const shape = new model.domain.ArrayShape();
+    shape.withItems(arrItem);
+
+    expect(getRequestPayloadType(getRequestPayloadModel(shape))).to.equal(
+      ARRAY_DATA_TYPE.concat("<")
+        .concat(typeName)
+        .concat("T")
+        .concat(">")
+    );
   });
 });

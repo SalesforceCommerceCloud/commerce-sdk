@@ -255,6 +255,37 @@ export const getParameterDataType = function(
   return DEFAULT_DATA_TYPE;
 };
 
+const getPayloadType = function(schema: model.domain.Shape): string {
+  const name = schema.name.value();
+  if (name != null) {
+    if (name === "schema") {
+      return OBJECT_DATA_TYPE;
+    } else {
+      return name + "T";
+    }
+  }
+  return OBJECT_DATA_TYPE;
+};
+
+export const getRequestPayloadType = function(
+  request: model.domain.Request
+): string {
+  if (
+    request != null &&
+    request.payloads != null &&
+    request.payloads.length > 0
+  ) {
+    const payloadSchema: model.domain.Shape = request.payloads[0].schema;
+    if (payloadSchema instanceof model.domain.ArrayShape) {
+      return ARRAY_DATA_TYPE.concat("<")
+        .concat(getPayloadType(payloadSchema.items))
+        .concat(">");
+    }
+    return getPayloadType(payloadSchema);
+  }
+  return OBJECT_DATA_TYPE;
+};
+
 export const getValue = function(name: any): string {
   if (name !== undefined && name.value) {
     return name.value();

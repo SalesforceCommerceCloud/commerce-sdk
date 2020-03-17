@@ -9,6 +9,7 @@ import { Shop } from "../dist";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { assert, IsExact } from "conditional-type-checks";
+
 const BASE_URI =
   "https://anypoint.mulesoft.com/mocking/api/v1/sources/exchange/assets/893f605e-10e2-423a-bdb4-f952f56eb6d8/steelarc-integration/1.0.0/m/s/-/dw/shop/v19_5";
 
@@ -209,5 +210,17 @@ describe("Test that function parameters have data types", () => {
     let temp: siteIdType;
     //verify that siteId is of type string
     assert<IsExact<typeof temp, string>>(true);
+  });
+});
+
+describe("Test that request body has data type defined", () => {
+  it("Test that function parameters have data types", () => {
+    type funcParam = Parameters<
+      typeof Shop.ShopApi.prototype.searchProducts
+    >[0];
+    type reqBodyType = funcParam["body"];
+    let temp: reqBodyType;
+    //verify that siteId is of type string
+    assert<IsExact<typeof temp, Shop.ShopApi.search_request>>(true);
   });
 });
