@@ -139,6 +139,7 @@ async function runFetch(
     fetchOptions.headers["Content-Type"] = CONTENT_TYPE;
   }
 
+  // To disable response caching, set cacheManager to null
   if (options.client.clientConfig.cacheManager) {
     fetchOptions.cacheManager = options.client.clientConfig.cacheManager;
   }
