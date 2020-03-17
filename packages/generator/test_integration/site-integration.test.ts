@@ -220,7 +220,8 @@ describe("Test that request body has data type defined", () => {
     >[0];
     type reqBodyType = funcParam["body"];
     let temp: reqBodyType;
-    //verify that siteId is of type string
+    //verify that temp is of type search_request
+    // eslint-disable-next-line @typescript-eslint/camelcase
     assert<IsExact<typeof temp, Shop.ShopApi.search_request>>(true);
   });
 });
