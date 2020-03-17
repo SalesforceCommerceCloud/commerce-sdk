@@ -5,14 +5,24 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import { default as fetch, Response, RequestInit } from "make-fetch-happen";
-import { Resource } from "./resource";
-import { BaseClient } from "./client";
-const CONTENT_TYPE = "application/json";
 import _ from "lodash";
 
 import DefaultCache = require("make-fetch-happen/cache");
 export { DefaultCache, Response };
 
+import { Resource } from "./resource";
+import { BaseClient } from "./client";
+
+const CONTENT_TYPE = "application/json";
+
+/**
+ * Extends the Error class with the the error being a combination of status code 
+ * and text retrieved from the response.
+ * 
+ * @export
+ * @class ResponseError
+ * @extends Error
+ */
 export class ResponseError extends Error {
   constructor(public response: Response) {
     super(`${response.status} ${response.statusText}`);
@@ -24,12 +34,17 @@ export class ResponseError extends Error {
  * 304 (Not Modified). The fetch library make-fetch-happen returns the cached object
  * on 304 response. This method throws error on any other 3xx responses that are not
  * automatically handled by make-fetch-happen.
+ * 
+ * @remarks
  * Refer to https://en.wikipedia.org/wiki/List_of_HTTP_status_codes for more information
  * on HTTP status codes.
+ * 
+ * @param response - A response object either containing a dto or an error
+ * @returns The DTO wrapped in a promise
+ * 
+ * @throws a ResponseError if the status code of the response is neither 2XX nor 304
  *
- * @param response the response object containing the dto or an error
- *
- * @returns the dto wrapped in a promise
+ * @export
  */
 export async function getObjectFromResponse(
   response: Response
@@ -47,11 +62,12 @@ export async function getObjectFromResponse(
  * Returns the entry from the headers list that matches the passed header. The
  * search is case insensitive and the case of the passed header and the list
  * are preserved. Returns the passed header if no match is found.
- *
- * @param header - target header
- * @param headers - list to search from
- *
- * @returns header from the list if there is a match, the header passed otherwise
+ * 
+ * @param header - Target header
+ * @param headers - List to search from
+ * @returns Header from the list if there is a match, the passed header otherwise
+ * 
+ * @export
  */
 export function getHeader(
   header: string,
@@ -67,6 +83,15 @@ export function getHeader(
   return header;
 }
 
+/**
+ * Makes an HTTP call specified by the method parameter with the options passed.
+ * 
+ * @param method - Type of HTTP operation
+ * @param options - Details to be used for making the HTTP call and processing 
+ * the response
+ * @returns Either the Response object or the DTO inside it wrapped in a promise, 
+ * depending upon options.rawResponse
+ */
 async function runFetch(
   method: "delete" | "get" | "patch" | "post" | "put",
   options: {
@@ -123,6 +148,16 @@ async function runFetch(
   return options.rawResponse ? response : getObjectFromResponse(response);
 }
 
+/**
+ * Performs an HTTP GET operation with the options passed.
+ * 
+ * @param options - Details to be used for making the HTTP call and processing 
+ * the response
+ * @returns Either the Response object or the DTO inside it wrapped in a promise, 
+ * depending upon options.rawResponse
+ * 
+ * @export
+ */
 export function _get(options: {
   client: BaseClient;
   path: string;
@@ -134,6 +169,16 @@ export function _get(options: {
   return runFetch("get", options);
 }
 
+/**
+ * Performs an HTTP DELETE operation with the options passed.
+ * 
+ * @param options - Details to be used for making the HTTP call and processing 
+ * the response
+ * @returns Either the Response object or the DTO inside it wrapped in a promise, 
+ * depending upon options.rawResponse
+ * 
+ * @export
+ */
 export function _delete(options: {
   client: BaseClient;
   path: string;
@@ -145,6 +190,16 @@ export function _delete(options: {
   return runFetch("delete", options);
 }
 
+/**
+ * Performs an HTTP PATCH operation with the options passed.
+ * 
+ * @param options - Details to be used for making the HTTP call and processing 
+ * the response
+ * @returns Either the Response object or the DTO inside it wrapped in a promise, 
+ * depending upon options.rawResponse
+ * 
+ * @export
+ */
 export function _patch(options: {
   client: BaseClient;
   path: string;
@@ -158,6 +213,16 @@ export function _patch(options: {
   return runFetch("patch", options);
 }
 
+/**
+ * Performs an HTTP POST operation with the options passed.
+ * 
+ * @param options - Details to be used for making the HTTP call and processing 
+ * the response
+ * @returns Either the Response object or the DTO inside it wrapped in a promise, 
+ * depending upon options.rawResponse
+ * 
+ * @export
+ */
 export function _post(options: {
   client: BaseClient;
   path: string;
@@ -171,6 +236,16 @@ export function _post(options: {
   return runFetch("post", options);
 }
 
+/**
+ * Performs an HTTP PUT operation with the options passed.
+ * 
+ * @param options - Details to be used for making the HTTP call and processing 
+ * the response
+ * @returns Either the Response object or the DTO inside it wrapped in a promise, 
+ * depending upon options.rawResponse
+ * 
+ * @export
+ */
 export function _put(options: {
   client: BaseClient;
   path: string;

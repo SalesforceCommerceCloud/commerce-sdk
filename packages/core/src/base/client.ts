@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, salesforce.com, inc.
+ * Copyright (c) 2020, salesforce.com, inc.
  * All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
@@ -18,6 +18,15 @@ import { ICacheManager } from "./cacheManager";
 // dotenv config loads environmental variables.
 config();
 
+/**
+ * Defines all the parameters that can be reused by the client. 
+ * 
+ * @remarks
+ * Headers can be overwritten when actual calls are made.
+ * 
+ * @export
+ * @class ClientConfig
+ */
 export class ClientConfig {
   public baseUri?: string;
   public cacheManager?: ICacheManager;
@@ -39,6 +48,12 @@ const DEFAULT_CLIENT_CONFIG: ClientConfig = {
   }
 };
 
+/**
+ * A basic implementation of a client that all the Commerce API clients extend. 
+ *
+ * @export
+ * @class BaseClient
+ */
 export class BaseClient {
   public clientConfig: ClientConfig;
 
@@ -47,6 +62,14 @@ export class BaseClient {
     _.merge(this.clientConfig, DEFAULT_CLIENT_CONFIG, config);
   }
 
+  /**
+   * Initializes a mock service for the client to interact with.
+   * 
+   * @remarks
+   * It is used for testing purposes.
+   * 
+   * @returns A promise of type void
+   */
   async initializeMockService(): Promise<void> {
     try {
       const token = await getBearer(

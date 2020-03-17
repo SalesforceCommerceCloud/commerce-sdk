@@ -7,7 +7,8 @@
 import { decode } from "jsonwebtoken";
 
 /**
- * @description A public interface for auth tokens
+ * A public interface for auth tokens.
+ * 
  * @export
  * @interface IAuthToken
  */
@@ -16,19 +17,21 @@ export interface IAuthToken {
 }
 
 /**
- * @description
+ * Strip "Bearer " from the passed header.
+ * 
+ * @param {string} header - A Bearer token
+ * @returns {string} The token after stripping "Bearer "
+ * 
  * @export
- * @param {string} header
- * @returns {string}
  */
 export function stripBearer(header: string): string {
   return header.replace("Bearer ", "").trim();
 }
 
 /**
- *
- * @description Implements ShopperJWT auth scheme. Gets ShopperJWT Bearer tokens of type
+ * Implements ShopperJWT auth scheme. Gets ShopperJWT Bearer tokens of type
  * `guest` and `credentials`.
+ * 
  * @export
  * @class ShopperToken
  * @implements {IAuthToken}
@@ -46,8 +49,10 @@ export class ShopperToken<T> implements IAuthToken {
   }
 
   /**
-   * @description Returns the JWT Token
-   * @returns {string} JWT Token
+   * Returns the JWT.
+   * 
+   * @returns {string} JWT
+   * 
    * @memberof ShopperToken
    */
   getAuthToken(): string {
@@ -55,8 +60,10 @@ export class ShopperToken<T> implements IAuthToken {
   }
 
   /**
-   * @description Returns a string with 'Bearer' To be used directly in an authorization header
-   * @returns {string}
+   * Returns a Bearer token i.e. `Bearer <JWT>`.
+   * 
+   * @returns {string} The JWT with "Bearer " added to the front
+   * 
    * @memberof ShopperToken
    */
   getBearerHeader(): string {
@@ -64,7 +71,9 @@ export class ShopperToken<T> implements IAuthToken {
   }
 
   /**
-   * Returns the customer information
+   * Retrieves the customer information.
+   * 
+   * @returns Customer information this object is instantiated with
    */
   getCustomerInfo(): T {
     return this.customerInfo;
