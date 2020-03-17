@@ -24,7 +24,6 @@ config();
  * @remarks
  * Headers can be overwritten when actual calls are made.
  * 
- * @export
  * @class ClientConfig
  */
 export class ClientConfig {
@@ -51,7 +50,6 @@ const DEFAULT_CLIENT_CONFIG: ClientConfig = {
 /**
  * A basic implementation of a client that all the Commerce API clients extend. 
  *
- * @export
  * @class BaseClient
  */
 export class BaseClient {

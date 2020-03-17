@@ -12,7 +12,6 @@ import qs from "qs";
  * this class repeats the value for each element of the array,
  * i.e. { a: [1, 2]} => "?a=1&a=2".
  * 
- * @export
  * @class Resource
  */
 export class Resource {

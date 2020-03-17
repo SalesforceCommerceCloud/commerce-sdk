@@ -19,7 +19,6 @@ const CONTENT_TYPE = "application/json";
  * Extends the Error class with the the error being a combination of status code 
  * and text retrieved from the response.
  * 
- * @export
  * @class ResponseError
  * @extends Error
  */
@@ -43,8 +42,6 @@ export class ResponseError extends Error {
  * @returns The DTO wrapped in a promise
  * 
  * @throws a ResponseError if the status code of the response is neither 2XX nor 304
- *
- * @export
  */
 export async function getObjectFromResponse(
   response: Response
@@ -66,8 +63,6 @@ export async function getObjectFromResponse(
  * @param header - Target header
  * @param headers - List to search from
  * @returns Header from the list if there is a match, the passed header otherwise
- * 
- * @export
  */
 export function getHeader(
   header: string,
@@ -156,8 +151,6 @@ async function runFetch(
  * the response
  * @returns Either the Response object or the DTO inside it wrapped in a promise, 
  * depending upon options.rawResponse
- * 
- * @export
  */
 export function _get(options: {
   client: BaseClient;
@@ -177,8 +170,6 @@ export function _get(options: {
  * the response
  * @returns Either the Response object or the DTO inside it wrapped in a promise, 
  * depending upon options.rawResponse
- * 
- * @export
  */
 export function _delete(options: {
   client: BaseClient;
@@ -198,8 +189,6 @@ export function _delete(options: {
  * the response
  * @returns Either the Response object or the DTO inside it wrapped in a promise, 
  * depending upon options.rawResponse
- * 
- * @export
  */
 export function _patch(options: {
   client: BaseClient;
@@ -221,8 +210,6 @@ export function _patch(options: {
  * the response
  * @returns Either the Response object or the DTO inside it wrapped in a promise, 
  * depending upon options.rawResponse
- * 
- * @export
  */
 export function _post(options: {
   client: BaseClient;
@@ -244,8 +231,6 @@ export function _post(options: {
  * the response
  * @returns Either the Response object or the DTO inside it wrapped in a promise, 
  * depending upon options.rawResponse
- * 
- * @export
  */
 export function _put(options: {
   client: BaseClient;

@@ -9,7 +9,6 @@ import { decode } from "jsonwebtoken";
 /**
  * A public interface for auth tokens.
  * 
- * @export
  * @interface IAuthToken
  */
 export interface IAuthToken {
@@ -21,8 +20,6 @@ export interface IAuthToken {
  * 
  * @param {string} header - A Bearer token
  * @returns {string} The token after stripping "Bearer "
- * 
- * @export
  */
 export function stripBearer(header: string): string {
   return header.replace("Bearer ", "").trim();
@@ -32,7 +29,6 @@ export function stripBearer(header: string): string {
  * Implements ShopperJWT auth scheme. Gets ShopperJWT Bearer tokens of type
  * `guest` and `credentials`.
  * 
- * @export
  * @class ShopperToken
  * @implements {IAuthToken}
  */
