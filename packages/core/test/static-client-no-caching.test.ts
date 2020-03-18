@@ -47,26 +47,6 @@ describe("base client cache-control response header (no-cache) tests", () => {
       });
     });
   });
-
-  it("asset cached on missing response cache control header directives", () => {
-    const client = new BaseClient({ baseUri: "https://somewhere" });
-    const scope = nock("https://somewhere")
-      .get("/cached")
-      .reply(200, RESPONSE_DATA);
-
-    return _get({ client: client, path: "/cached" }).then(data => {
-      expect(data).to.eql(RESPONSE_DATA);
-      expect(nock.isDone()).to.be.true;
-      scope.get("/cached").reply(200, RESPONSE_DATA_MODIFIED);
-      return _get({
-        client: client,
-        path: "/cached"
-      }).then(data => {
-        expect(data).to.eql(RESPONSE_DATA_MODIFIED);
-        expect(nock.isDone()).to.be.true;
-      });
-    });
-  });
 });
 
 describe("base client cache-control response header (no-store) tests", () => {
