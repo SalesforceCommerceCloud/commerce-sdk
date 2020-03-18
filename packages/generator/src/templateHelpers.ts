@@ -257,16 +257,21 @@ export const getParameterDataType = function(
 
 const getPayloadType = function(schema: model.domain.Shape): string {
   const name = schema.name.value();
-  if (name != null) {
-    if (name === "schema") {
-      return OBJECT_DATA_TYPE;
-    } else {
-      return name + "T";
-    }
+  if (name == null) {
+    return OBJECT_DATA_TYPE;
   }
-  return OBJECT_DATA_TYPE;
+  if (name === "schema") {
+    return OBJECT_DATA_TYPE;
+  } else {
+    return name + "T";
+  }
 };
 
+/**
+ * Get type of the request body
+ * @param request AMF model of tge request
+ * @returns Type of the request body
+ */
 export const getRequestPayloadType = function(
   request: model.domain.Request
 ): string {
