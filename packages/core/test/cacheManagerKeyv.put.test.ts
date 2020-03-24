@@ -21,7 +21,9 @@ describe("put tests", () => {
   before(() => {
     cacheManager = new CacheManagerKeyv();
     cacheManager.keyv = sinon.stub({
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       get: (key) => { },
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       set: (key, data) => { }
     });
   });
@@ -48,8 +50,6 @@ describe("put tests", () => {
   it("returns response after writing", async () => {
     const body = { "test": "body" };
     const response = new fetch.Response(Buffer.from(JSON.stringify(body)), {});
-    //cacheManager.keyv.get.onFirstCall().returns({ "metadata": { "url": "https://example.com" }})
-    //                     .onSecondCall().returns({ "key": "value" });
     return expect(
       (await cacheManager.put(new fetch.Request("https://example.com"), response)).json()
     ).to.eventually.deep.equal(body);

@@ -21,6 +21,7 @@ describe("delete tests", () => {
   before(() => {
     cacheManager = new CacheManagerKeyv();
     cacheManager.keyv = sinon.stub({
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       delete: (key) => { }
     });
   });
