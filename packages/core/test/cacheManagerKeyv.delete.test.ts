@@ -59,11 +59,6 @@ describe("delete tests", () => {
   });
 
   it("returns true when only metadata match found", async () => {
-    const cacheManager = new CacheManagerKeyv();
-    cacheManager.keyv = sinon.stub({
-        delete: (key) => { }
-    });
-    
     cacheManager.keyv.delete.onFirstCall().returns(true)
                             .onSecondCall().returns(false);
     return expect(
@@ -72,11 +67,6 @@ describe("delete tests", () => {
   });
 
   it("returns true when only content match found", async () => {
-    const cacheManager = new CacheManagerKeyv();
-    cacheManager.keyv = sinon.stub({
-        delete: (key) => { }
-    });
-    
     cacheManager.keyv.delete.onFirstCall().returns(false)
                             .onSecondCall().returns(true);
     return expect(
