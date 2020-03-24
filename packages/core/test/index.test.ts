@@ -5,6 +5,7 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
+// eslint-disable-next-line
 require('@snyk/nodejs-runtime-agent')
 ({projectId: 'b3b2bfc8-18cd-4c09-b5bd-01226cb63b15',
 });
