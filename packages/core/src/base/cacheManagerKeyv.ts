@@ -10,7 +10,7 @@ import fetch = require("minipass-fetch");
 import Keyv = require("keyv");
 import ssri = require("ssri");
 import url = require("url");
-import { ICacheManager } from './cacheManager';
+import { ICacheManager } from "./cacheManager";
 
 const makeCacheKey = req => {
   const parsed = new url.URL(req.url);
@@ -68,14 +68,16 @@ const matchDetails = (req, cached) => {
 export class CacheManagerKeyv implements ICacheManager {
   public keyv;
 
-  constructor(public connection = "redis://localhost:6379") {
-    this.keyv = new Keyv(connection, { "keepAlive": false });
-    this.keyv.on("error", console.error);
+  constructor(public connection?:string) {
+    if (connection) {
+      this.keyv = new Keyv(connection, { keepAlive: false });
+      this.keyv.on("error", console.error);
+    }
   }
 
   // Returns a Promise that resolves to the response associated with the first
   // matching request in the Cache object.
-  async match(req, opts) {
+  async match(req:fetch.Request, opts?:any):Promise<fetch.Response> {
     const metadataKey = getMetadataKey(req);
     const contentKey = getContentKey(req);
     const redisInfo = await this.keyv.get(metadataKey);
@@ -92,7 +94,6 @@ export class CacheManagerKeyv implements ICacheManager {
       redisInfo.integrity,
       redisInfo.time
     );
-    const body = await this.keyv.get(getContentKey(req));
 
     if (
       !matchDetails(req, {
@@ -105,9 +106,8 @@ export class CacheManagerKeyv implements ICacheManager {
     ) {
       console.log("NO EXACT MATCH");
       return;
-    } else {
-      console.log("EXACT MATCH!");
     }
+    console.log("EXACT MATCH!");
     console.log("RETURNING REDIS DATA");
 
     if (req.method === "HEAD") {
@@ -118,8 +118,10 @@ export class CacheManagerKeyv implements ICacheManager {
       });
     }
 
+    const body = await this.keyv.get(getContentKey(req));
+
     return Promise.resolve(
-      new fetch.Response(Buffer.from(body), {
+      new fetch.Response(Buffer.from(JSON.stringify(body)), {
         url: req.url,
         headers: resHeaders,
         status: 200,
@@ -129,10 +131,10 @@ export class CacheManagerKeyv implements ICacheManager {
   }
 
   // Takes both a request and its response and adds it to the given cache.
-  async put(req, response, opts) {
+  async put(req:fetch.Request, response:fetch.Response, opts?):Promise<fetch.Response> {
     opts = opts || {};
-    const size = response.headers.get("content-length");
-console.log(`PUT SIZE ${size}`);
+    const size = response?.headers?.get("content-length");
+    console.log(`PUT SIZE ${size}`);
     const ckey = getContentKey(req);
     const cacheOpts = {
       algorithms: opts.algorithms,
@@ -142,7 +144,7 @@ console.log(`PUT SIZE ${size}`);
         reqHeaders: req.headers.raw(),
         resHeaders: response.headers.raw()
       },
-      size,
+      size
     };
     if (req.method === "HEAD" || response.status === 304) {
       // Update metadata without writing
@@ -174,7 +176,7 @@ console.log(`PUT SIZE ${size}`);
   // Finds the Cache entry whose key is the request, and if found, deletes the
   // Cache entry and returns a Promise that resolves to true. If no Cache entry
   // is found, it returns false.
-  async delete(req, opts) {
+  async delete(req:fetch.Request, opts?):Promise<boolean> {
     opts = opts || {};
     if (typeof opts.memoize === "object") {
       if (opts.memoize.reset) {
@@ -187,9 +189,9 @@ console.log(`PUT SIZE ${size}`);
         });
       }
     }
-    console.log("DELETEING FROM REDIS");
-    await this.keyv.delete(getMetadataKey(req));
-    return await this.keyv.delete(getContentKey(req));
+console.log("DELETEING FROM REDIS");
+    return await this.keyv.delete(getMetadataKey(req)) ||
+      await this.keyv.delete(getContentKey(req));
   }
 
   // Returns a Promise that resolves to an array of all matching requests in the Cache object.
