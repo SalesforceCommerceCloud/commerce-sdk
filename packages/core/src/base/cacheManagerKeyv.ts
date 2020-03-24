@@ -193,25 +193,4 @@ console.log("DELETEING FROM REDIS");
     return await this.keyv.delete(getMetadataKey(req)) ||
       await this.keyv.delete(getContentKey(req));
   }
-
-  // Returns a Promise that resolves to an array of all matching requests in the Cache object.
-  async matchAll(request: object, options: object): Promise<object> {
-    console.log("MATCH ALL FUNCTION");
-    return [{ p: "MATCH ALL" }];
-  }
-
-  // Takes a URL, retrieves it and adds the resulting response object to the given cache. This is functionally equivalent to calling fetch(), then using put() to add the results to the cache.
-  add(request: object): void {
-    console.log("ADD FUNCTION");
-  }
-
-  // Takes an array of URLs, retrieves them, and adds the resulting response objects to the given cache.
-  addAll(requests: object): void {
-    console.log("ADD ALL FUNCTION");
-  }
-
-  // Returns a Promise that resolves to an array of Cache keys.
-  async keys(request: object, options: object) {
-    console.log("KEYS FUNCTION");
-  }
 }
