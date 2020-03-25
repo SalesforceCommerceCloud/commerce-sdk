@@ -68,7 +68,7 @@ const matchDetails = (req, cached) => {
 export class CacheManagerKeyv implements ICacheManager {
   public keyv;
 
-  constructor(public connection?:string) {
+  constructor(public connection?: string) {
     if (connection) {
       this.keyv = new Keyv(connection, { keepAlive: false });
       this.keyv.on("error", console.error);
@@ -77,7 +77,7 @@ export class CacheManagerKeyv implements ICacheManager {
 
   // Returns a Promise that resolves to the response associated with the first
   // matching request in the Cache object.
-  async match(req:fetch.Request, opts?:any):Promise<fetch.Response> {
+  async match(req: fetch.Request, opts?: any): Promise<fetch.Response> {
     const metadataKey = getMetadataKey(req);
     const contentKey = getContentKey(req);
     const redisInfo = await this.keyv.get(metadataKey);
@@ -111,6 +111,7 @@ export class CacheManagerKeyv implements ICacheManager {
     console.log("RETURNING REDIS DATA");
 
     if (req.method === "HEAD") {
+      console.log("IT'S A HEAD REQUEST");
       return new fetch.Response(null, {
         url: req.url,
         headers: resHeaders,
@@ -131,7 +132,11 @@ export class CacheManagerKeyv implements ICacheManager {
   }
 
   // Takes both a request and its response and adds it to the given cache.
-  async put(req:fetch.Request, response:fetch.Response, opts?):Promise<fetch.Response> {
+  async put(
+    req: fetch.Request,
+    response: fetch.Response,
+    opts?
+  ): Promise<fetch.Response> {
     opts = opts || {};
     const size = response?.headers?.get("content-length");
     console.log(`PUT SIZE ${size}`);
@@ -176,21 +181,11 @@ export class CacheManagerKeyv implements ICacheManager {
   // Finds the Cache entry whose key is the request, and if found, deletes the
   // Cache entry and returns a Promise that resolves to true. If no Cache entry
   // is found, it returns false.
-  async delete(req:fetch.Request, opts?):Promise<boolean> {
-    opts = opts || {};
-    if (typeof opts.memoize === "object") {
-      if (opts.memoize.reset) {
-        opts.memoize.reset();
-      } else if (opts.memoize.clear) {
-        opts.memoize.clear();
-      } else {
-        Object.keys(opts.memoize).forEach(k => {
-          opts.memoize[k] = null;
-        });
-      }
-    }
-console.log("DELETEING FROM REDIS");
-    return await this.keyv.delete(getMetadataKey(req)) ||
-      await this.keyv.delete(getContentKey(req));
+  async delete(req: fetch.Request, opts?): Promise<boolean> {
+    console.log("DELETEING FROM REDIS");
+    return (
+      (await this.keyv.delete(getMetadataKey(req))) ||
+      (await this.keyv.delete(getContentKey(req)))
+    );
   }
 }

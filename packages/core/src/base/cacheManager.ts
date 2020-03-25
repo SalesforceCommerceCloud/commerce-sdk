@@ -31,5 +31,4 @@ export interface ICacheManager {
 
   // Returns a Promise that resolves to an array of Cache keys.
   keys?(request: object, options: object);
-
 }
