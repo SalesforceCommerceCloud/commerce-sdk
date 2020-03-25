@@ -40,6 +40,7 @@ const matchDetails = (req, cached) => {
   const vary = cached.resHeaders.get("Vary");
   // https://tools.ietf.org/html/rfc7234#section-4.1
   if (vary) {
+    // A Vary header field-value of "*" always fails to match.
     if (vary.match(/\*/)) {
       return false;
     } else {
