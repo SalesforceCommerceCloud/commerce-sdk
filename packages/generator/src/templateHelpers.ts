@@ -16,6 +16,7 @@ import {
   ARRAY_DATA_TYPE,
   ASSET_OBJECT_MAP
 } from "./config";
+import _ = require("lodash");
 
 /**
  * Selects the baseUri from an AMF model. TypeScript will not allow access to
