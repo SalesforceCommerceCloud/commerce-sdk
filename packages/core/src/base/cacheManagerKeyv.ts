@@ -190,4 +190,12 @@ export class CacheManagerKeyv implements ICacheManager {
       (await this.keyv.delete(getContentKey(req)))
     );
   }
+
+  /**
+   * Redis will attempt to maintain an active connection which prevents Node.js
+   * from exiting. Call this to gracefully close the connection.
+   */
+  async quit():Promise<string> {
+    return this.keyv?.opts?.store?.redis?.quit();
+  }
 }
