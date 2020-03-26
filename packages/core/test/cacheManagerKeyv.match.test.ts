@@ -89,45 +89,37 @@ describe("match tests", () => {
   });
 
   it("returns undefined when vary header is *", async () => {
-    cacheManager.keyv.get
-      .onFirstCall()
-      .returns({
-        metadata: {
-          url: "https://example.com",
-          resHeaders: {
-            vary: "*"
-          }
+    cacheManager.keyv.get.onFirstCall().returns({
+      metadata: {
+        url: "https://example.com",
+        resHeaders: {
+          vary: "*"
         }
-      })
+      }
+    });
 
-    return expect(
-        cacheManager.match(new fetch.Request("https://example.com"))
-    ).to.eventually.be.undefined;
+    return expect(cacheManager.match(new fetch.Request("https://example.com")))
+      .to.eventually.be.undefined;
   });
 
   it("returns undefined when vary header field doesn't match", async () => {
-    cacheManager.keyv.get
-      .onFirstCall()
-      .returns({
-        metadata: {
-          url: "https://example.com",
-          resHeaders: {
-            vary: "accept-encoding",
-            "accept-encoding": "gzip"
-          }
+    cacheManager.keyv.get.onFirstCall().returns({
+      metadata: {
+        url: "https://example.com",
+        resHeaders: {
+          vary: "accept-encoding",
+          "accept-encoding": "gzip"
         }
-      })
+      }
+    });
 
     return expect(
       cacheManager.match(
-        new fetch.Request(
-          "https://example.com",
-          {
-            headers: {
-              "accept-encoding": "compress"
-            }
+        new fetch.Request("https://example.com", {
+          headers: {
+            "accept-encoding": "compress"
           }
-        )
+        })
       )
     ).to.eventually.be.undefined;
   });
@@ -149,10 +141,9 @@ describe("match tests", () => {
       .onSecondCall()
       .returns({ key: "value" });
 
-    const req = new fetch.Request(
-      "https://example.com",
-      { headers: { "accept-encoding": "gzip" } }
-    );
+    const req = new fetch.Request("https://example.com", {
+      headers: { "accept-encoding": "gzip" }
+    });
     return expect(
       (await cacheManager.match(req)).json()
     ).to.eventually.deep.equal({ key: "value" });
