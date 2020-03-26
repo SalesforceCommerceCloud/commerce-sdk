@@ -19,6 +19,7 @@ import {
   getBaseUri,
   getPropertyDataType,
   getParameterDataType,
+  getRequestPayloadType,
   getReturnPayloadType,
   getValue,
   isAdditionalPropertiesAllowed,
@@ -180,18 +181,42 @@ function renderApi(
 }
 
 /**
- * @description
- * @export
+ * Sort API families and their APIs by name
+ * @param apis object with api family name as key and array of apis as an array
+ * @returns Sorted Map<string, RestApi[]> of api family name to its apis that are sorted
+ */
+export function sortApis(apis: {
+  [key: string]: RestApi[];
+}): Map<string, RestApi[]> {
+  //build a sorted Map for api families and its apis
+  const sortedApis = new Map<string, RestApi[]>();
+  const apiFamilyNames = _.keysIn(apis).sort();
+  apiFamilyNames.forEach(apiFamily => {
+    const familyApis = apis[apiFamily];
+    if (familyApis != null) {
+      sortedApis.set(
+        apiFamily,
+        familyApis.sort((a, b) => (a.name > b.name ? 1 : -1))
+      );
+    }
+  });
+  return sortedApis;
+}
+
+/**
+ * Create an MD file with all the APIs
  * @param {RestApi[]} apis
+ * @param dir Directory path to save the rendered file
  */
 export function createVersionFile(
-  apis: { [key: string]: RestApi[] }
+  apis: { [key: string]: RestApi[] },
+  dir: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): void {
   fs.writeFileSync(
     // Write to the directory with the API definitions
-    path.join(__dirname, "..", "APICLIENTS.md"),
-    versionTemplate(apis)
+    path.join(dir, "APICLIENTS.md"),
+    versionTemplate({ apis: sortApis(apis) })
   );
 }
 
@@ -275,8 +300,7 @@ export function renderTemplates(config: any): Promise<void> {
       path.join(config.renderDir, "helpers.ts"),
       createHelpers(config)
     );
-
-    createVersionFile(apiFamilyRamlConfig);
+    createVersionFile(apiFamilyRamlConfig, path.join(config.renderDir, ".."));
   });
 }
 
@@ -302,6 +326,8 @@ Handlebars.registerHelper("getPropertyDataType", getPropertyDataType);
 
 Handlebars.registerHelper("getParameterDataType", getParameterDataType);
 
+Handlebars.registerHelper("getRequestPayloadType", getRequestPayloadType);
+
 Handlebars.registerHelper("isTypeDefinition", isTypeDefinition);
 
 Handlebars.registerHelper("getReturnPayloadType", getReturnPayloadType);
@@ -324,3 +350,11 @@ Handlebars.registerHelper("isRequiredProperty", isRequiredProperty);
 Handlebars.registerHelper("isOptionalProperty", isOptionalProperty);
 
 Handlebars.registerHelper("getObjectIdByAssetId", getObjectIdByAssetId);
+
+Handlebars.registerHelper("eachInMap", (map, block) => {
+  let output = "";
+  for (const [key, value] of map) {
+    output += block.fn({ key, value });
+  }
+  return output;
+});

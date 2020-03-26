@@ -18,8 +18,8 @@
           {{name}}{{#if (or (not (is required "true")) (isCommonQueryParameter name))}}?{{/if}}: {{{ getParameterDataType .}}}
           {{/each}}
         },
-        headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}}, 
-        body: {{default request.payloads.[0].schema.inherits.[0].linkTarget.name "object"}}{{/or}}
+        headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}},
+        body: {{{getRequestPayloadType request}}}{{/or}}
       }
     ): Promise<{{getReturnPayloadType .}}>;
 
@@ -40,7 +40,7 @@
           {{/each}}
         },
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}}, 
-        body: {{default request.payloads.[0].schema.inherits.[0].linkTarget.name "object"}}{{/or}}
+        body: {{{getRequestPayloadType request}}}{{/or}}
       },
       rawResponse?: T
     ): Promise<T extends true ? Response : {{getReturnPayloadType .}}>;
@@ -60,7 +60,7 @@
           {{/each}}
         },
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}}, 
-        body: {{default request.payloads.[0].schema.inherits.[0].linkTarget.name "object"}}{{/or}}
+        body: {{{getRequestPayloadType request}}}{{/or}}
       },
       rawResponse?: boolean,
     ): Promise<Response | {{getReturnPayloadType .}}> {
