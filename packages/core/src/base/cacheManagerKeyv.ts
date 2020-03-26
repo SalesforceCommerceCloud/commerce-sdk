@@ -123,7 +123,7 @@ export class CacheManagerKeyv implements ICacheManager {
     const body = await this.keyv.get(getContentKey(req));
 
     return Promise.resolve(
-      new fetch.Response(Buffer.from(JSON.stringify(body)), {
+      new fetch.Response(Buffer.from(body), {
         url: req.url,
         headers: resHeaders,
         status: 200,
@@ -150,7 +150,8 @@ export class CacheManagerKeyv implements ICacheManager {
         reqHeaders: req.headers.raw(),
         resHeaders: response.headers.raw()
       },
-      size
+      size,
+      time: Date.now()
     };
     if (req.method === "HEAD" || response.status === 304) {
       // Update metadata without writing
