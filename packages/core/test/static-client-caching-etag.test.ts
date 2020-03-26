@@ -22,12 +22,7 @@ before(() => {
   chai.should();
   chai.use(chaiAsPromised);
 
-  client = new BaseClient({
-    baseUri: "https://somewhere",
-    cacheManager: new CacheManagerKeyv("redis://localhost:6379")
-  });
-
-  console.log(client);
+  client = new BaseClient({ baseUri: "https://somewhere" });
 });
 
 beforeEach(() => client.clientConfig.cacheManager?.keyv?.clear());
