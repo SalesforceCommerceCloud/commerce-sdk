@@ -1,0 +1,19 @@
+#%RAML 1.0 Trait
+description: This trait represents API behavior for a 409 response when a order status change is not allowed.
+
+uses:
+  DataTypes: ../data-types.raml
+  
+responses:
+  409:
+    description: |
+            The requested order status change is not allowed.
+    body:
+      application/problem+json:
+        type: DataTypes.ErrorResponse
+        example: |
+          {
+            "title": "Order Status Transition",
+            "type": "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/order-status-transition",
+            "detail": "The order status change from 'NEW' to 'CREATED' for order with number '00001547' is not supported."
+          }

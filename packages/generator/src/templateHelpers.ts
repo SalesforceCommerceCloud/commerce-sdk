@@ -1,11 +1,10 @@
 /*
- * Copyright (c) 2019, salesforce.com, inc.
+ * Copyright (c) 2020, salesforce.com, inc.
  * All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import { model } from "amf-client-js";
-import _ from "lodash";
 import { WebApiBaseUnitWithEncodesModel } from "webapi-parser";
 
 import { commonParameterPositions } from "@commerce-apps/core";
@@ -14,17 +13,9 @@ import {
   PRIMITIVE_DATA_TYPE_MAP,
   DEFAULT_DATA_TYPE,
   OBJECT_DATA_TYPE,
-  ARRAY_DATA_TYPE
+  ARRAY_DATA_TYPE,
+  ASSET_OBJECT_MAP
 } from "./config";
-
-/**
- * Additional properties are allowed in RAML type definitions using regular expressions
- * We currently support any valid arbitrary property names without any prefixes or suffixes.
- * These properties are rendered using the following semantics
- * const SomeType = { [key: string]: string/boolean/number/SomeOtherType }
- *                      & { definitions for other concrete properties }
- */
-const ADDITIONAL_PROPERTY_REGEX_NAMES = ["//", "/.*/"];
 
 /**
  * Selects the baseUri from an AMF model. TypeScript will not allow access to
@@ -64,73 +55,9 @@ export const isCommonQueryParameter = (property: string) =>
     ? commonParameterPositions.queryParameters.includes(property.toString())
     : false;
 
-const isValidProperty = function(property: any): boolean {
-  return (
-    property !== undefined && property !== null && property.range !== undefined
-  );
-};
-
-export const isArrayProperty = function(property: any): boolean {
-  return (
-    isValidProperty(property) &&
-    ((property.range.items !== undefined && property.range.items !== null) ||
-      (property.range.items === null &&
-        Array.isArray(property.range.inherits) &&
-        property.range.inherits.length > 0 &&
-        property.range.inherits[0].items !== undefined))
-  );
-};
-
-export const isTypeDefined = function(range: any): boolean {
-  if (
-    range !== undefined &&
-    !range.items &&
-    Array.isArray(range.inherits) &&
-    range.inherits.length > 0 &&
-    range.inherits[0].isLink &&
-    range.inherits[0].linkTarget &&
-    range.inherits[0].linkTarget.name &&
-    range.inherits[0].linkTarget.name.value !== undefined
-  ) {
-    return true;
-  }
-  return false;
-};
-
-const isObject = function(range: any): boolean {
-  return (
-    !isTypeDefined(range) &&
-    range !== undefined &&
-    !range.items &&
-    range.properties !== undefined
-  );
-};
-
-export const isObjectProperty = function(property: any): boolean {
-  return isValidProperty(property) && isObject(property.range);
-};
-
-const isPrimitive = function(range: any): boolean {
-  return (
-    range !== undefined &&
-    range.dataType !== undefined &&
-    range.dataType.value !== undefined
-  );
-};
-
-export const isPrimitiveProperty = function(property: any): boolean {
-  return property !== undefined && isPrimitive(property.range);
-};
-
-export const isDefinedProperty = function(property: any): boolean {
-  return property !== undefined && isTypeDefined(property.range);
-};
-
 export const isTypeDefinition = function(obj: any): boolean {
   return (
-    obj !== undefined &&
-    (obj.$classData.name === "amf.client.model.domain.NodeShape" ||
-      obj.$classData.name === "amf.client.model.domain.ScalarShape")
+    obj != null && obj.$classData.name === "amf.client.model.domain.NodeShape"
   );
 };
 
@@ -146,14 +73,13 @@ const getPayloadResponses = function(operation: any): model.domain.Response[] {
 
 export const getReturnPayloadType = function(operation: any): string {
   const okResponses = getPayloadResponses(operation);
-  // Always at least provide Response as an option
-  const dataTypes: string[] = ["Response"];
+  const dataTypes: string[] = [];
   okResponses.forEach(res => {
     if (res.payloads.length > 0) {
       dataTypes.push(
         res.payloads[0].schema.name.value() === "schema"
           ? "Object"
-          : res.payloads[0].schema.name.value()
+          : res.payloads[0].schema.name.value() + "T"
       );
     } else {
       dataTypes.push("void");
@@ -173,67 +99,196 @@ const getDataTypeFromMap = function(uuidDataType: string): string {
     : DEFAULT_DATA_TYPE;
 };
 
-const getArrayItemObject = function(range: any): any {
-  let result = undefined;
-  if (range.items !== undefined && range.items !== null) {
-    result = range.items;
-  } else if (
-    range.items === null &&
-    Array.isArray(range.inherits) &&
-    range.inherits.length > 0 &&
-    range.inherits[0].items !== undefined
-  ) {
-    result = range.inherits[0].items;
+/**
+ * Get data type from ScalarShape
+ * @param scalarShape instance of model.domain.ScalarShape
+ * @returns scalar data type if defined otherwise returns a default type
+ */
+const getScalarType = function(scalarShape: model.domain.ScalarShape): string {
+  let dataType: string = undefined;
+  if (scalarShape.dataType != null) {
+    const typeValue = scalarShape.dataType.value();
+    if (typeValue != null) {
+      dataType = getDataTypeFromMap(typeValue);
+    }
   }
-  return result;
+  //check if the type is linked to another scalar type
+  if (
+    dataType == null &&
+    scalarShape.isLink === true &&
+    scalarShape.linkTarget != null
+  ) {
+    dataType = getScalarType(
+      scalarShape.linkTarget as model.domain.ScalarShape
+    );
+  }
+  if (dataType == null) {
+    dataType = DEFAULT_DATA_TYPE;
+  }
+  return dataType;
 };
 
-export const getArrayElementTypeProperty = function(property: any): string {
-  let result = DEFAULT_DATA_TYPE;
-  const itemsObject = getArrayItemObject(property.range);
-  if (isPrimitive(itemsObject)) {
-    result = getDataTypeFromMap(itemsObject.dataType.value());
+/* eslint-disable @typescript-eslint/no-use-before-define */
+/**
+ * Get type of the array
+ * @param arrayShape instance of model.domain.ArrayShape
+ * @returns array type if defined otherwise returns a default type
+ */
+const getArrayType = function(arrayShape: model.domain.ArrayShape): string {
+  let arrItem: model.domain.Shape = arrayShape.items;
+  if (arrItem == null) {
+    if (arrayShape.inherits != null && arrayShape.inherits.length > 0)
+      arrItem = (arrayShape.inherits[0] as model.domain.ArrayShape).items;
   }
-  if (isObject(itemsObject)) {
-    result = OBJECT_DATA_TYPE;
-  }
+  return ARRAY_DATA_TYPE.concat("<")
+    .concat(getDataType(arrItem))
+    .concat(">");
+};
 
-  if (isTypeDefined(itemsObject)) {
-    result = itemsObject.inherits[0].linkTarget.name.value();
+/**
+ * Get data type that is linked/inherited
+ * @param anyShape instance of model.domain.AnyShape or its subclass
+ * @returns linked/inherited data type
+ */
+const getLinkedType = function(anyShape: model.domain.AnyShape): string {
+  let linkedType: model.domain.DomainElement = undefined;
+  let dataType: string = undefined;
+  //check if type is inherited
+  if (anyShape.inherits != null && anyShape.inherits.length > 0) {
+    if (
+      anyShape.inherits[0] != null &&
+      anyShape.inherits[0].isLink === true &&
+      anyShape.inherits[0].linkTarget != null
+    ) {
+      linkedType = anyShape.inherits[0].linkTarget;
+    }
+  }
+  //check if type is linked
+  if (
+    linkedType == null &&
+    anyShape.isLink === true &&
+    anyShape.linkTarget != null
+  ) {
+    linkedType = anyShape.linkTarget;
   }
 
   if (
-    itemsObject.isLink &&
-    itemsObject.linkTarget !== undefined &&
-    itemsObject.linkTarget.name !== undefined &&
-    itemsObject.linkTarget.name.value !== undefined
+    linkedType != null &&
+    linkedType instanceof model.domain.AnyShape &&
+    linkedType.name != null
   ) {
-    result = itemsObject.linkTarget.name.value();
+    const temp = linkedType.name.value();
+    if (temp != null) {
+      dataType = temp + "T";
+    }
   }
-
-  return result;
+  return dataType;
 };
 
-export const getDataType = function(property: any): string {
-  const range = property ? property.range : undefined;
-  // check if the property is primitive
-  if (isPrimitive(range)) {
-    return getDataTypeFromMap(range.dataType.value());
+/**
+ * Get object type
+ * @param anyShape instance of model.domain.AnyShape or its subclass
+ * @returns object type if defined otherwise returns a default type
+ */
+const getObjectType = function(anyShape: model.domain.AnyShape): string {
+  let dataType: string = getLinkedType(anyShape);
+  if (dataType == null) {
+    if (
+      anyShape instanceof model.domain.NodeShape &&
+      anyShape.properties != null
+    ) {
+      dataType = OBJECT_DATA_TYPE;
+    } else {
+      dataType = DEFAULT_DATA_TYPE;
+    }
   }
-  if (isTypeDefined(range)) {
-    return range.inherits[0].linkTarget.name.value();
-  }
+  return dataType;
+};
 
-  if (isObject(range)) {
-    return OBJECT_DATA_TYPE;
+/**
+ * Get data type of an element from amf model
+ * @param dtElement instance of model.domain.DomainElement or its subclass
+ * @returns data type if defined otherwise returns a default type
+ */
+const getDataType = function(dtElement: model.domain.DomainElement): string {
+  let dataType: string = undefined;
+  if (dtElement != null) {
+    if (dtElement instanceof model.domain.ScalarShape) {
+      dataType = getScalarType(dtElement);
+    } else if (dtElement instanceof model.domain.ArrayShape) {
+      dataType = getArrayType(dtElement);
+    } else if (dtElement instanceof model.domain.AnyShape) {
+      dataType = getObjectType(dtElement);
+    }
   }
+  if (dataType == null) {
+    dataType = DEFAULT_DATA_TYPE;
+  }
+  return dataType;
+};
 
-  if (isArrayProperty(property)) {
-    return ARRAY_DATA_TYPE.concat("<")
-      .concat(getArrayElementTypeProperty(property))
-      .concat(">");
+/**
+ * Get data type of a property
+ * @param property instance of model.domain.PropertyShape
+ * @returns data type if defined in the property otherwise returns a default type
+ */
+export const getPropertyDataType = function(
+  property: model.domain.PropertyShape
+): string {
+  if (property != null && property.range != null) {
+    return getDataType(property.range);
   }
   return DEFAULT_DATA_TYPE;
+};
+
+/**
+ * Get data type of a parameter
+ * @param param instance of model.domain.Parameter
+ * @returns data type if defined in the parameter otherwise returns a default type
+ */
+export const getParameterDataType = function(
+  param: model.domain.Parameter
+): string {
+  if (param != null && param.schema != null) {
+    return getDataType(param.schema);
+  }
+  return DEFAULT_DATA_TYPE;
+};
+
+const getPayloadType = function(schema: model.domain.Shape): string {
+  const name = schema.name.value();
+  if (name == null) {
+    return OBJECT_DATA_TYPE;
+  }
+  if (name === "schema") {
+    return OBJECT_DATA_TYPE;
+  } else {
+    return name + "T";
+  }
+};
+
+/**
+ * Get type of the request body
+ * @param request AMF model of tge request
+ * @returns Type of the request body
+ */
+export const getRequestPayloadType = function(
+  request: model.domain.Request
+): string {
+  if (
+    request != null &&
+    request.payloads != null &&
+    request.payloads.length > 0
+  ) {
+    const payloadSchema: model.domain.Shape = request.payloads[0].schema;
+    if (payloadSchema instanceof model.domain.ArrayShape) {
+      return ARRAY_DATA_TYPE.concat("<")
+        .concat(getPayloadType(payloadSchema.items))
+        .concat(">");
+    }
+    return getPayloadType(payloadSchema);
+  }
+  return OBJECT_DATA_TYPE;
 };
 
 export const getValue = function(name: any): string {
@@ -243,53 +298,82 @@ export const getValue = function(name: any): string {
   return null;
 };
 
-const getProperties = function(
-  propertyShapes: model.domain.PropertyShape[],
-  filterEntriesBy: Function
+type propertyFilter = (propertyName: string) => boolean;
+
+/**
+ * Get properties of the DTO (inherited and linked) after applying the given filter criteria
+ *
+ * @param dtoTypeModel AMF model of the dto
+ * @param propertyFilter function to filter properties based on certain criteria
+ */
+const getFilteredProperties = function(
+  dtoTypeModel: model.domain.NodeShape | null | undefined,
+  propertyFilter: propertyFilter
 ): model.domain.PropertyShape[] {
-  return !propertyShapes
-    ? []
-    : propertyShapes.filter(entry => filterEntriesBy(entry));
+  const properties: model.domain.PropertyShape[] = [];
+  const existingProps: Set<string> = new Set();
+
+  while (dtoTypeModel != null) {
+    if (dtoTypeModel.properties != null && dtoTypeModel.properties.length > 0) {
+      dtoTypeModel.properties.forEach(prop => {
+        if (prop != null) {
+          const propName = getValue(prop.name);
+          //ignore duplicate props
+          if (
+            propName != null &&
+            !existingProps.has(propName) &&
+            propertyFilter(propName) === true
+          ) {
+            existingProps.add(propName);
+            properties.push(prop);
+          }
+        }
+      });
+      //Check if there are any inherited properties
+      if (dtoTypeModel.inherits != null && dtoTypeModel.inherits.length > 0) {
+        dtoTypeModel = dtoTypeModel.inherits[0] as model.domain.NodeShape;
+      } else {
+        dtoTypeModel = null;
+      }
+    } else if (
+      dtoTypeModel.isLink === true &&
+      dtoTypeModel.linkTarget != null
+    ) {
+      //check if other DTO is linked
+      dtoTypeModel = dtoTypeModel.linkTarget as model.domain.NodeShape;
+    } else {
+      dtoTypeModel = null;
+    }
+  }
+  return properties;
 };
 
 /**
- * Returns a list of optional properties defined in RAML type.
- * Optional properties have minimum count of 0
- * We ignore optional additional properties which also have minimum count of 0,
- * because of the different semantics used in rendering those properties.
+ * Gets all properties of the DTO
  *
- * @param propertyShapes - Array of properties {model.domain.PropertyShape[]}
- * @returns {model.domain.PropertyShape[]} Array of optional properties
+ * @param dtoTypeModel AMF model of the dto
+ * @returns Array of properties in the dto that are not regular expressions
  */
-export const onlyOptional = function(
-  propertyShapes: model.domain.PropertyShape[]
+export const getProperties = function(
+  dtoTypeModel: model.domain.NodeShape | undefined | null
 ): model.domain.PropertyShape[] {
-  return getProperties(propertyShapes, entry => {
-    return (
-      entry.minCount.value() == 0 &&
-      !ADDITIONAL_PROPERTY_REGEX_NAMES.includes(entry.name.value())
-    );
+  return getFilteredProperties(dtoTypeModel, propertyName => {
+    return !/^([/^]).*.$/.test(propertyName);
   });
 };
 
 /**
- * Returns a list of required properties defined in RAML type.
- * Required properties have minimum count of atleast 1
+ * Check if the property is defined as required.
+ * Required properties have minimum count of at least 1
  * We ignore required additional properties because of the
  * different semantics used in rendering those properties
- *
- * @param propertyShapes - Array of properties {model.domain.PropertyShape[]}
- * @returns {model.domain.PropertyShape[]} Array of required properties
+ * @param property
+ * @returns true if the property is required
  */
-export const onlyRequired = function(
-  propertyShapes: model.domain.PropertyShape[]
-): model.domain.PropertyShape[] {
-  return getProperties(propertyShapes, entry => {
-    return (
-      entry.minCount.value() > 0 &&
-      !ADDITIONAL_PROPERTY_REGEX_NAMES.includes(entry.name.value())
-    );
-  });
+export const isRequiredProperty = function(
+  property: model.domain.PropertyShape
+): boolean {
+  return property != null && property.minCount.value() > 0;
 };
 
 export const getSecurityScheme = function(
@@ -347,18 +431,17 @@ export const getSecurityScheme = function(
 };
 
 /**
- * Returns a list of additional properties defined in RAML type.
- * Additional property names use regular expressions.
- *
- * @param propertyShapes - Array of properties {model.domain.PropertyShape[]}
- * @returns {model.domain.PropertyShape[]} Array of additional properties
+ * Check if the property is optional.
+ * Optional properties have minimum count of 0
+ * We ignore optional additional properties which also have minimum count of 0,
+ * because of the different semantics used in rendering those properties.
+ * @param property
+ * @returns true if the property is optional
  */
-export const onlyAdditional = function(
-  propertyShapes: model.domain.PropertyShape[]
-): model.domain.PropertyShape[] {
-  return getProperties(propertyShapes, entry => {
-    return ADDITIONAL_PROPERTY_REGEX_NAMES.includes(entry.name.value());
-  });
+export const isOptionalProperty = function(
+  property: model.domain.PropertyShape
+): boolean {
+  return property != null && property.minCount.value() == 0;
 };
 
 /**
@@ -376,4 +459,8 @@ export const isAdditionalPropertiesAllowed = function(
     ramlTypeDefinition.closed.value !== undefined &&
     !ramlTypeDefinition.closed.value()
   );
+};
+
+export const getObjectIdByAssetId = function(assetId: string) {
+  return ASSET_OBJECT_MAP[assetId];
 };

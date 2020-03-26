@@ -11,28 +11,26 @@ import {
   getAllDataTypes,
   processApiFamily,
   getApiName,
-  groupByCategory,
+  resolveApiModel,
   getNormalizedName
 } from "./parser";
 
 import {
   getSecurityScheme,
   getBaseUri,
-  isDefinedProperty,
-  getDataType,
-  isPrimitiveProperty,
-  isArrayProperty,
-  isObjectProperty,
-  getArrayElementTypeProperty,
+  getPropertyDataType,
+  getParameterDataType,
+  getRequestPayloadType,
   getReturnPayloadType,
   getValue,
-  onlyRequired,
-  onlyOptional,
-  onlyAdditional,
   isAdditionalPropertiesAllowed,
   isTypeDefinition,
   isCommonQueryParameter,
-  isCommonPathParameter
+  isCommonPathParameter,
+  getProperties,
+  isRequiredProperty,
+  isOptionalProperty,
+  getObjectIdByAssetId
 } from "./templateHelpers";
 import {
   WebApiBaseUnit,
@@ -85,37 +83,31 @@ const dtoTemplate = Handlebars.compile(
 );
 
 const versionTemplate = Handlebars.compile(
-  fs.readFileSync(path.join(templateDirectory, "version.md.hbs"), "utf8")
+  fs.readFileSync(path.join(templateDirectory, "apiclients.md.hbs"), "utf8")
 );
 
 const dtoPartial = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "dtoPartial.ts.hbs"), "utf8")
 );
 
-function createClient(
-  webApiModels: WebApiBaseUnit[],
-  boundedContext: string
-): string {
-  const clientCode: string = clientInstanceTemplate(
+function createClient(webApiModel: WebApiBaseUnit, apiName: string): string {
+  return clientInstanceTemplate(
     {
       dataTypes: getAllDataTypes(
-        webApiModels as WebApiBaseUnitWithDeclaresModel[]
+        webApiModel as WebApiBaseUnitWithDeclaresModel
       ),
-      models: webApiModels,
-      apiSpec: boundedContext
+      apiModel: webApiModel,
+      apiSpec: apiName
     },
     {
       allowProtoPropertiesByDefault: true,
       allowProtoMethodsByDefault: true
     }
   );
-  return clientCode;
 }
 
-function createDto(webApiModels: WebApiBaseUnit[]): string {
-  const types = getAllDataTypes(
-    webApiModels as WebApiBaseUnitWithDeclaresModel[]
-  );
+function createDto(webApiModel: WebApiBaseUnit): string {
+  const types = getAllDataTypes(webApiModel as WebApiBaseUnitWithDeclaresModel);
   return dtoTemplate(types, {
     allowProtoPropertiesByDefault: true,
     allowProtoMethodsByDefault: true
@@ -172,33 +164,60 @@ function renderApi(
   const apiName: string = getApiName(apiModel);
   const apiPath: string = path.join(renderDir, apiName);
   fs.ensureDirSync(apiPath);
-  //TODO: Modify createClient and createDto functions to take a single model object instead of array and get rid of apiModels array
-  const apiModels: WebApiBaseUnitWithEncodesModel[] = [apiModel];
-  fs.writeFileSync(
-    path.join(apiPath, `${apiName}.ts`),
-    createClient(apiModels, apiName)
-  );
+
   fs.writeFileSync(
     path.join(apiPath, `${apiName}.types.ts`),
-    createDto(apiModels)
+    createDto(apiModel)
+  );
+  //Resolve model for the end points Using the 'editing' pipeline will retain the declarations in the model
+  const apiModelForEndPoints: WebApiBaseUnitWithEncodesModel = resolveApiModel(
+    apiModel,
+    "editing"
+  );
+  fs.writeFileSync(
+    path.join(apiPath, `${apiName}.ts`),
+    createClient(apiModelForEndPoints, apiName)
   );
   return apiName;
 }
 
 /**
- * @description
- * @export
+ * Sort API families and their APIs by name
+ * @param apis object with api family name as key and array of apis as an array
+ * @returns Sorted Map<string, RestApi[]> of api family name to its apis that are sorted
+ */
+export function sortApis(apis: {
+  [key: string]: RestApi[];
+}): Map<string, RestApi[]> {
+  //build a sorted Map for api families and its apis
+  const sortedApis = new Map<string, RestApi[]>();
+  const apiFamilyNames = _.keysIn(apis).sort();
+  apiFamilyNames.forEach(apiFamily => {
+    const familyApis = apis[apiFamily];
+    if (familyApis != null) {
+      sortedApis.set(
+        apiFamily,
+        familyApis.sort((a, b) => (a.name > b.name ? 1 : -1))
+      );
+    }
+  });
+  return sortedApis;
+}
+
+/**
+ * Create an MD file with all the APIs
  * @param {RestApi[]} apis
+ * @param dir Directory path to save the rendered file
  */
 export function createVersionFile(
-  apis: RestApi[],
+  apis: { [key: string]: RestApi[] },
+  dir: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  config: { [key: string]: any }
 ): void {
-  const apiFamilyGroups = groupByCategory(apis, config["apiFamily"]);
   fs.writeFileSync(
-    path.join(__dirname, "..", "VERSION.md"),
-    versionTemplate(apiFamilyGroups)
+    // Write to the directory with the API definitions
+    path.join(dir, "APICLIENTS.md"),
+    versionTemplate({ apis: sortApis(apis) })
   );
 }
 
@@ -282,6 +301,7 @@ export function renderTemplates(config: any): Promise<void> {
       path.join(config.renderDir, "helpers.ts"),
       createHelpers(config)
     );
+    createVersionFile(apiFamilyRamlConfig, path.join(config.renderDir, ".."));
   });
 }
 
@@ -303,29 +323,18 @@ Handlebars.registerHelper("isCommonQueryParameter", isCommonQueryParameter);
 
 Handlebars.registerHelper("isCommonPathParameter", isCommonPathParameter);
 
-Handlebars.registerHelper("isDefinedProperty", isDefinedProperty);
+Handlebars.registerHelper("getPropertyDataType", getPropertyDataType);
 
-Handlebars.registerHelper("getDataType", getDataType);
+Handlebars.registerHelper("getParameterDataType", getParameterDataType);
 
-Handlebars.registerHelper("isPrimitive", isPrimitiveProperty);
-
-Handlebars.registerHelper("isArrayProperty", isArrayProperty);
-
-Handlebars.registerHelper("isObjectProperty", isObjectProperty);
+Handlebars.registerHelper("getRequestPayloadType", getRequestPayloadType);
 
 Handlebars.registerHelper("isTypeDefinition", isTypeDefinition);
-
-Handlebars.registerHelper("getArrayElementType", getArrayElementTypeProperty);
 
 Handlebars.registerHelper("getReturnPayloadType", getReturnPayloadType);
 
 Handlebars.registerHelper("getValue", getValue);
 
-Handlebars.registerHelper("onlyRequired", onlyRequired);
-
-Handlebars.registerHelper("onlyOptional", onlyOptional);
-
-Handlebars.registerHelper("onlyAdditional", onlyAdditional);
 
 Handlebars.registerHelper("getSecurityScheme", getSecurityScheme);
 
@@ -337,3 +346,19 @@ Handlebars.registerHelper(
 Handlebars.registerPartial("dtoPartial", dtoPartial);
 
 Handlebars.registerPartial("operationsPartial", operationsPartialTemplate);
+
+Handlebars.registerHelper("getProperties", getProperties);
+
+Handlebars.registerHelper("isRequiredProperty", isRequiredProperty);
+
+Handlebars.registerHelper("isOptionalProperty", isOptionalProperty);
+
+Handlebars.registerHelper("getObjectIdByAssetId", getObjectIdByAssetId);
+
+Handlebars.registerHelper("eachInMap", (map, block) => {
+  let output = "";
+  for (const [key, value] of map) {
+    output += block.fn({ key, value });
+  }
+  return output;
+});

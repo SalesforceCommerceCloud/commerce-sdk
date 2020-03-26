@@ -5,15 +5,7 @@ import _ from "lodash";
 import {
 {{#each dataTypes}}
     {{#if (isTypeDefinition .)}}
-        {{getValue name}},
-    {{/if}}
-{{/each}}
-} from "./{{apiSpec}}.types";
-
-export {
-{{#each dataTypes}}
-    {{#if (isTypeDefinition .)}}
-        {{getValue name}},
+        {{getValue name}}T,
     {{/if}}
 {{/each}}
 } from "./{{apiSpec}}.types";
@@ -27,21 +19,27 @@ export {
 * ClientConfig object. The Client will use that Authorization header for all the
 * operations it is used to perform.
 */
-export class Client extends BaseClient {
+class {{capitalize apiSpec}} extends BaseClient {
   constructor(config: ClientConfig) {
     super(config);
 
     if (!!!config.baseUri) {
-      this.clientConfig.baseUri = "{{getBaseUri models.[0] }}";
+      this.clientConfig.baseUri = "{{getBaseUri apiModel}}";
     }
 
   }
 
-{{#each models}}
-    {{> operationsPartial model=. }}
-{{/each}}
+  {{> operationsPartial model=apiModel }}
 
 }
 
-export default Client;
-export { ClientConfig };
+// eslint-disable-next-line @typescript-eslint/no-namespace
+declare module {{capitalize apiSpec}} {
+  {{#each dataTypes}}
+      {{#if (isTypeDefinition .)}}
+         export type {{getValue name}}={{getValue name}}T
+      {{/if}}
+  {{/each}}
+}
+
+export = {{capitalize apiSpec}}

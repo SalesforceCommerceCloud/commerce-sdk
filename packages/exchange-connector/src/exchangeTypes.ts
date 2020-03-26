@@ -20,7 +20,7 @@ export type RestApi = {
 export type FileInfo = {
   classifier: string;
   packaging: string;
-  externalLink: string;
+  externalLink?: string;
   createdDate: string;
   mainFile: string;
   md5: string;

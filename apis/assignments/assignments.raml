@@ -1,0 +1,388 @@
+#%RAML 1.0
+title: Assignments
+version: v1
+protocols: https
+mediaType: application/json
+baseUri: https://{shortCode}.api.commercecloud.salesforce.com/pricing/assignments/{version}
+baseUriParameters:
+  shortCode:
+    description: A region-specific merchant identifier.
+    example: 0dnz6oep
+description: Management API for assignments.
+
+uses:
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.6/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.12/commerce-cloud-standards.raml
+
+types:
+  Campaign:
+    description: Document representing a campaign.
+    properties:
+      campaignId:
+        description: The ID of the campaign.
+        maxLength: 256
+        minLength: 1
+        type: string
+      coupons:
+        description: The array of assigned coupon IDs, not sorted.
+        type: array
+        items:
+          type: string
+        required: false
+      creationDate:
+        description: Returns the value of attribute 'creationDate'.
+        type: datetime
+        required: false
+      customerGroups:
+        description: The array of assigned customer groups, not sorted.
+        type: array
+        items:
+          type: string
+        required: false
+      description:
+        description: The description of the campaign.
+        maxLength: 4000
+        type: string
+        required: false
+      enabled:
+        description: The enabled flag for campaign.
+        type: boolean
+        required: false
+      endDate:
+        description: The date that the scenario ends.
+        type: datetime
+        required: false
+      lastModified:
+        description: Returns the value of attribute 'lastModified'.
+        type: datetime
+        required: false
+      sourceCodeGroups:
+        description: The array of assigned source code groups, not sorted.
+        type: array
+        items:
+          type: string
+        required: false
+      startDate:
+        description: The date that the scenario begins.
+        type: datetime
+        required: false
+  Promotion:
+    description: |-
+      Document representing a promotion. Unless otherwise stated, attributes of this document are not supported when using
+       the Open Commerce API to update multiple promotions at once.
+    properties:
+      archived:
+        description: |-
+          Determines whether or not this promotion is archived. This attribute is allowed to be updated when using the Open
+           Commerce API to update multiple promotions at once.
+        type: boolean
+        required: false
+      assignmentInformation:
+        description: Information about the assignments, and assignment schedules, of this promotion.
+        type: PromotionAssignmentInformation
+        required: false
+      creationDate:
+        description: Returns the value of attribute 'creationDate'.
+        type: datetime
+        required: false
+      currencyCode:
+        description: |-
+          The ISO 4217 mnemonic code of the currency this promotion is restricted to. If not populated, then there is no
+           currency restriction on the promotion.
+        maxLength: 3
+        type: string
+        required: false
+      disableGloballyExcluded:
+        description: Determines if this promotion ignores the global product exclusions for promotions.
+        type: boolean
+        required: false
+      enabled:
+        description: |-
+          Determines if this promotion is enabled. This attribute is allowed to be updated when using the Open
+           Commerce API to update multiple promotions at once.
+        type: boolean
+        required: false
+      exclusivity:
+        description: |-
+          Determines if the promotion can be combined with other promotions of the same promotion class or if it cannot be
+           combined with any other promotions. This attribute is allowed to be updated when using the Open Commerce API to
+           update multiple promotions at once.
+        type: string
+        enum:
+          - 'no'
+          - class
+          - global
+      id:
+        description: The ID for the promotion.
+        type: string
+      lastModified:
+        description: Returns the value of attribute 'lastModified'.
+        type: datetime
+        required: false
+      name:
+        description: The user supplied name of this promotion, which can be localized.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+      promotionClass:
+        description: |-
+          The class of the promotion. If the promotion class is modified, the promotion rule and all of its values
+           (such as whether or not to disable global product exclusions) are reset.
+        type: string
+        enum:
+          - product
+          - shipping
+          - order
+        required: false
+      tags:
+        description: |-
+          Returns the list of tags assigned to this promotion. If used to set the tags on a promotion, the promotion has the tags passed in the input. Any existing tags are removed.
+        type: array
+        items:
+          type: Tag
+        required: false
+  PromotionAbtestGroupAssignment:
+    properties:
+      abtestDescription:
+        type: string
+      abtestId:
+        type: string
+      enabled:
+        type: boolean
+      schedule:
+        type: Schedule
+      segmentDescription:
+        type: string
+      segmentId:
+        type: string
+  PromotionAssignmentInformation:
+    properties:
+      abtestId:
+        description: |-
+          If there is only one assignment, and that assignment is an A/B test segment, the ID of the A/B test the segment
+           belongs to. Otherwise, empty.
+        type: string
+      abtestSegmentId:
+        description: |-
+          If there is only one assignment, and that assignment is an A/B test segment, the ID of the A/B test segment.
+           Otherwise, empty.
+        type: string
+      active:
+        description: True if the individual assignment, or the multiple assignments, are currently active.
+        type: boolean
+      activeAbtestAssignments:
+        description: A list of currently active A/B tests this is assigned to.
+        type: array
+        items:
+          type: PromotionAbtestGroupAssignment
+      activeCampaignAssignments:
+        description: A list of currently active campaigns this is assigned to.
+        type: array
+        items:
+          type: PromotionCampaignAssignment
+      campaignId:
+        description: If there is only one assignment, and that assignment is a campaign, the ID of the campaign. Otherwise, empty.
+        type: string
+      enabled:
+        type: boolean
+      endDate:
+        description: |-
+          The end date of the container of the assignment (a Campaign or ABTest). If schedule_type is
+           schedule_type : "multiple" or schedule_type : "none", the result is null. Also, a null
+           date returns null.
+        type: datetime
+      schedule:
+        description: |-
+          The schedule of the assignment (a Campaign or ABTest). If schedule_type is
+           schedule_type : "multiple" or schedule_type : "none", the result is null.
+        type: Schedule
+      scheduleType:
+        description: |-
+          If there is only one active assignment, or no active assignments and one upcoming assignment, this is that type
+           of assignment (schedule_type : "campaign" or schedule_type : "abtest"). If there are no
+           assignments, it is schedule_type : "none", otherwise, schedule_type : "multiple".
+        type: string
+        enum:
+          - none
+          - campaign
+          - abtest
+          - multiple
+      startDate:
+        description: |-
+          The start date of the container of the assignment (a Campaign or ABTest). If schedule_type is
+           schedule_type : "multiple" or schedule_type : "none", the result is null. Also, a null
+           date returns null.
+        type: datetime
+      upcomingAbtestAssignments:
+        description: A list of upcoming A/B tests this is assigned to.
+        type: array
+        items:
+          type: PromotionAbtestGroupAssignment
+      upcomingCampaignAssignments:
+        description: A list of upcoming campaigns this is assigned to.
+        type: array
+        items:
+          type: PromotionCampaignAssignment
+  PromotionCampaignAssignment:
+    description: Document representing a promotion campaign assignment.
+    properties:
+      campaign:
+        description: The campaign.
+        type: Campaign
+      campaignId:
+        description: The ID of the campaign.
+        maxLength: 256
+        minLength: 1
+        type: string
+      coupons:
+        description: The sorted array of assigned coupon IDs.
+        type: array
+        items:
+          type: string
+      customerGroups:
+        description: The sorted array of assigned customer groups.
+        type: array
+        items:
+          type: string
+      description:
+        description: The description of the promotion campaign assignment.
+        maxLength: 4000
+        type: string
+      enabled:
+        description: True if the assignment resource is enabled.
+        type: boolean
+      promotion:
+        description: The promotion.
+        type: Promotion
+      promotionId:
+        description: The ID of the promotion.
+        maxLength: 256
+        minLength: 1
+        type: string
+      rank:
+        description: The rank of promotion campaign assignment.
+        type: integer
+        format: int32
+      schedule:
+        description: The schedule of the assignment resource.
+        type: Schedule
+      sourceCodeGroups:
+        description: The sorted array of assigned source code groups.
+        type: array
+        items:
+          type: string
+  Schedule:
+    description: Document representing a time schedule for slots.
+    properties:
+      endDate:
+        description: 'The date to end of validity. ISO8601 date time format: yyyy-MM-dd''T''HH:mm:ssZ.'
+        type: datetime
+      recurrence:
+        description: The recurrence of the schedule by day of week and time of day. Not all schedules support a recurrence.
+        type: Recurrence
+      startDate:
+        description: 'The date to start validity. ISO8601 date time format: yyyy-MM-dd''T''HH:mm:ssZ.'
+        type: datetime
+  Recurrence:
+    description: Document representing a schedule recurrence.
+    properties:
+      dayOfWeek:
+        description: The days of week for recurrence.
+        type: array
+        items:
+          type: string
+          enum:
+            - monday
+            - tuesday
+            - wednesday
+            - thursday
+            - friday
+            - saturday
+            - sunday
+      timeOfDay:
+        description: The time of the day for recurrence.
+        type: TimeOfDay
+  TimeOfDay:
+    description: Document representing a time schedule within a single day.
+    properties:
+      timeFrom:
+        description: |-
+          The time to start from. Time format: HH:mm:ss. Seconds
+           are ignored and set to 0.
+        type: string
+      timeTo:
+        description: |-
+          The time to end on. Time format: HH:mm:ss. Seconds
+           are ignored and set to 0.
+        type: string
+  Tag:
+    description: Document representing a tag.
+    properties:
+      tagId:
+        description: The ID of the tag.
+        type: string                          
+  PromotionCampaignAssignmentSearchResult:
+    description: Document representing a promotion campaign assignment search result.
+    type: CommerceCloudStandards.PaginatedSearchResult
+    properties:
+      hits:
+        description: The sorted array of campaign search hits. Can be empty.
+        type: PromotionCampaignAssignment[]
+'/organizations/{organizationId}/assignments':
+  type: CommerceCloudStandards.Organization
+  post:
+    description: |- 
+      Searches for promotion campaign assignments.
+      
+      The promotioncampaignassignment search document contains a search object that allows filtering on various attributes.
+      
+      The query attribute specifies a complex query that can be used to narrow down the search. attributes are grouped\n into different buckets.  these are the list of searchable attributes with their corresponding buckets:
+        
+         main:
+           
+                rank - integer
+                startDate - date
+                endDate - date
+                          
+                campaign:
+                  
+                  campaignId - string
+                  
+                promotion:
+                    
+                  promotionId - string
+                  description - string
+                  enabled - boolean
+                  
+                special handling:
+                  
+                couponId - string
+                
+                
+                Only fields in the same bucket can be joined using a disjunction (or). For instance, when joining campaignId and rank above, only a conjunction is allowed (and), whereas promotionId and description can be joined to each other using an 'or' because they are in the same bucket. Special handling fields must always use\n conjunctions. If the field is used in a  disjunction (or) that violates this rule, and an exception is thrown.
+                
+                Expands that can be applied for the search request:
+                
+                promotion
+                campaign
+               
+               Note that only searchable attributes (excluding the ones marked with above with an asterisk) can be used in sorting.
+    displayName: assignmentsSearch
+    is:
+     - CommerceCloudStandards.SiteSpecific
+     - ApiStandards.RateLimited:
+          responseStatus: 200
+    responses:
+      '200':
+        description: API Executed Successfully.
+        body:
+          application/json:
+            type: PromotionCampaignAssignmentSearchResult
+    body:
+      application/json:
+        type: CommerceCloudStandards.SearchRequest
+    securedBy:
+      - CommerceCloudStandards.AmOAuth2
+      - CommerceCloudStandards.BearerToken

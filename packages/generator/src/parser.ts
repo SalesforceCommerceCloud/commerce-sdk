@@ -21,32 +21,10 @@ export function processRamlFile(ramlFile: string): Promise<WebApiBaseUnit> {
   amf.plugins.features.AMFValidation.register();
   amf.plugins.document.Vocabularies.register();
 
-  const resolver = new Raml10Resolver();
-
   return amf.Core.init().then(() => {
     const parser = amf.Core.parser("RAML 1.0", "application/yaml");
 
     return parser.parseFileAsync(`file://${ramlFile}`).then(ramlModel => {
-      ramlModel = resolver.resolve(
-        ramlModel,
-
-        /**
-         *
-         * In AMF There are a few pipelines for 'resolution'
-         * The default one is unsurprisingly called 'default'
-         *
-         * By default it will resolve declarations to be inline which we do not want as we want
-         * to be able to use those declarations as well for types.
-         *
-         * Using the 'editing' pipeline will retain those declarations in the model.
-         *
-         * There is a constant of 'core.resolution.pipelines.ResolutionPipeline.EDITING_PIPELINE' from amf but
-         * for some reason I can't use it because it says 'resolution' is undefined
-         *
-         **/
-        "editing"
-      );
-
       return ramlModel as WebApiBaseUnit;
     });
   });
@@ -69,23 +47,44 @@ function getDataTypesFromDeclare(
   return ret;
 }
 
+/**
+ * Get all the referenced data types
+ *
+ * @param apiReferences Array of references
+ * @param dataTypes Array of data types
+ * @param existingDataTypes Set of names of data types, used to de-duplicate the data types
+ */
+export function getReferenceDataTypes(
+  apiReferences: model.document.BaseUnit[],
+  dataTypes: model.domain.CustomDomainProperty[],
+  existingDataTypes: Set<string>
+): void {
+  if (apiReferences == null || apiReferences.length == 0) {
+    return;
+  }
+  apiReferences.forEach((reference: WebApiBaseUnitWithDeclaresModel) => {
+    if (reference.declares) {
+      dataTypes.push(
+        ...getDataTypesFromDeclare(reference.declares, existingDataTypes)
+      );
+    }
+    getReferenceDataTypes(reference.references(), dataTypes, existingDataTypes);
+  });
+}
+
 export function getAllDataTypes(
-  apis: WebApiBaseUnitWithDeclaresModel[]
+  api: WebApiBaseUnitWithDeclaresModel
 ): model.domain.CustomDomainProperty[] {
   let ret: model.domain.CustomDomainProperty[] = [];
   const dataTypes: Set<string> = new Set();
-  apis.forEach(element => {
-    element
-      .references()
-      .forEach((reference: WebApiBaseUnitWithDeclaresModel) => {
-        if (reference.declares) {
-          ret = ret.concat(
-            getDataTypesFromDeclare(reference.declares, dataTypes)
-          );
-        }
-      });
-    ret = ret.concat(getDataTypesFromDeclare(element.declares, dataTypes));
-  });
+  const temp: model.domain.CustomDomainProperty[] = getDataTypesFromDeclare(
+    api.declares,
+    dataTypes
+  );
+  if (temp != null) {
+    ret = temp;
+  }
+  getReferenceDataTypes(api.references(), ret, dataTypes);
   return ret;
 }
 
@@ -109,6 +108,35 @@ export function processApiFamily(
 }
 
 /**
+ * Resolves the AMF model using the given resolution pipeline
+ *
+ * @param apiModel AMF model of the API
+ * @param resolutionPipeline resolution pipeline.
+ *
+ * @returns AMF model after resolving with the given pipeline
+ */
+export function resolveApiModel(
+  apiModel: WebApiBaseUnitWithEncodesModel,
+  resolutionPipeline: "default" | "editing" | "compatibility"
+): WebApiBaseUnitWithEncodesModel {
+  /**
+   * TODO: core.resolution.pipelines.ResolutionPipeline has all the pipelines defined but is throwing an error when used - "Cannot read property 'pipelines' of undefined".
+   *  When this is fixed we should change the type of input param "resolutionPipeline"
+   */
+  if (apiModel == null) {
+    throw new Error("Invalid API model provided to resolve");
+  }
+  if (resolutionPipeline == null) {
+    throw new Error("Invalid resolution pipeline provided to resolve");
+  }
+  const resolver = new Raml10Resolver();
+  return resolver.resolve(
+    apiModel,
+    resolutionPipeline
+  ) as WebApiBaseUnitWithEncodesModel;
+}
+
+/**
  * Get normalized name for the file/directory that is created while rendering the templates
  * @param name File or directory name to normalize
  * @returns a normalized name
@@ -129,30 +157,4 @@ export function getNormalizedName(name: string): string {
 export function getApiName(apiModel: WebApiBaseUnitWithEncodesModel): string {
   const apiName: string = (apiModel.encodes as model.domain.WebApi).name.value();
   return getNormalizedName(apiName);
-}
-
-/**
- * @description
- * @export
- * @param {RestApi[]} apis
- * @param {string} groupBy
- * @param {boolean} [allowUnclassified=true]
- * @returns {{ [key: string]: RestApi[] }}
- */
-export function groupByCategory(
-  apis: RestApi[],
-  groupBy: string,
-  allowUnclassified = true
-): { [key: string]: RestApi[] } {
-  return _.groupBy(apis, api => {
-    // Categories are actually a list.
-    // We are just going to use whatever the first one is for now
-    if (api.categories && groupBy in api.categories) {
-      return api.categories[groupBy][0];
-    } else if (allowUnclassified) {
-      return "unclassified";
-    } else {
-      throw new Error("Unclassified APIs are NOT allowed!");
-    }
-  });
 }

@@ -2,23 +2,68 @@
   {{#each operations}}
     /**
     * {{description}}
+    * 
+    * If you would like to get a raw Response object use the other {{name}} function.
+    * 
+    * @returns A promise of type {{getReturnPayloadType .}}
     */
     {{name}}(
       options{{#or (is method "get") (is method "delete")}}?{{/or}}: {
-        rawResponse?: boolean,
         parameters?: {
           {{#each ../parameters}}
           {{! common parameters can be configured at the client level and therefore are not required }}
-          {{name}}{{#if (isCommonPathParameter name)}}?{{/if}}: any
+          {{name}}{{#if (isCommonPathParameter name)}}?{{/if}}: {{{ getParameterDataType .}}}
           {{/each}}
           {{#each request/queryParameters}}
-          {{name}}{{#if (or (not (is required "true")) (isCommonQueryParameter name))}}?{{/if}}: any
+          {{name}}{{#if (or (not (is required "true")) (isCommonQueryParameter name))}}?{{/if}}: {{{ getParameterDataType .}}}
+          {{/each}}
+        },
+        headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}},
+        body: {{{getRequestPayloadType request}}}{{/or}}
+      }
+    ): Promise<{{getReturnPayloadType .}}>;
+
+    /**
+    * {{description}}
+    *
+    * @returns A promise of type Response if rawResponse is true, a promise of type {{getReturnPayloadType .}} otherwise
+    */
+    {{name}}<T extends boolean>(
+      options{{#or (is method "get") (is method "delete")}}?{{/or}}: {
+        parameters?: {
+          {{#each ../parameters}}
+          {{! common parameters can be configured at the client level and therefore are not required }}
+          {{name}}{{#if (isCommonPathParameter name)}}?{{/if}}: {{{ getParameterDataType .}}}
+          {{/each}}
+          {{#each request/queryParameters}}
+          {{name}}{{#if (or (not (is required "true")) (isCommonQueryParameter name))}}?{{/if}}: {{{ getParameterDataType .}}}
           {{/each}}
         },
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}}, 
-        body: {{default request.payloads.[0].schema.inherits.[0].linkTarget.name "object"}}{{/or}}
-      }
-    ): Promise<{{getReturnPayloadType .}}> {
+        body: {{{getRequestPayloadType request}}}{{/or}}
+      },
+      rawResponse?: T
+    ): Promise<T extends true ? Response : {{getReturnPayloadType .}}>;
+
+    /**
+    * {{description}}
+    */
+    {{name}}(
+      options{{#or (is method "get") (is method "delete")}}?{{/or}}: {
+        parameters?: {
+          {{#each ../parameters}}
+          {{! common parameters can be configured at the client level and therefore are not required }}
+          {{name}}{{#if (isCommonPathParameter name)}}?{{/if}}: {{{ getParameterDataType .}}}
+          {{/each}}
+          {{#each request/queryParameters}}
+          {{name}}{{#if (or (not (is required "true")) (isCommonQueryParameter name))}}?{{/if}}: {{{ getParameterDataType .}}}
+          {{/each}}
+        },
+        headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}}, 
+        body: {{{getRequestPayloadType request}}}{{/or}}
+      },
+      rawResponse?: boolean,
+    ): Promise<Response | {{getReturnPayloadType .}}> {
     
       const parameters = (options && options.parameters) ? options.parameters : {};
       
@@ -45,7 +90,7 @@
       // @ts-ignore
       return StaticClient.{{method}}({
         client: this,
-        rawResponse: (options || {}).rawResponse,
+        rawResponse: rawResponse,
         path: "{{../path}}",
         pathParameters: pathParameters,
         queryParameters: queryParameters,

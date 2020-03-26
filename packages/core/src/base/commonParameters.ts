@@ -12,7 +12,7 @@
 export const commonParameterPositions = {
   baseUriParameters: ["shortCode", "version"],
   pathParameters: ["organizationId"],
-  queryParameters: ["siteId"]
+  queryParameters: ["clientId", "siteId"]
 };
 
 export type CommonParameters = {
