@@ -119,41 +119,4 @@ gulp.task(
   })
 );
 
-gulp.task(
-  "buildOperationList",
-  gulp.series(gulp.series("clean", "downloadRamlFromExchange"), async () => {
-    // require the json written in groupRamls gulpTask
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const ramlGroupConfig = require(path.resolve(
-      path.join(config.inputDir, config.apiConfigFile)
-    ));
-    const apiGroupKeys = _.keysIn(ramlGroupConfig);
 
-    const allApis = {};
-
-    const modelingPromises = [];
-
-    for (const apiGroup of apiGroupKeys) {
-      const familyPromises = processApiFamily(
-        apiGroup,
-        ramlGroupConfig,
-        config.inputDir
-      );
-      fs.ensureDirSync(config.renderDir);
-
-      modelingPromises.push(
-        Promise.all(familyPromises).then(values => {
-          allApis[apiGroup] = values;
-          return;
-        })
-      );
-    }
-
-    return Promise.all(modelingPromises).then(() => {
-      fs.writeFileSync(
-        path.join(config.renderDir, "operationList.csv"),
-        renderOperationList(allApis)
-      );
-    });
-  })
-);

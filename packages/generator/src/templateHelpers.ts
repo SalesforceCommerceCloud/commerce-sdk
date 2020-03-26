@@ -16,7 +16,6 @@ import {
   OBJECT_DATA_TYPE,
   ARRAY_DATA_TYPE
 } from "./config";
-import { AuthSchemes } from "@commerce-apps/core/dist/base/auth-schemes";
 
 /**
  * Additional properties are allowed in RAML type definitions using regular expressions
