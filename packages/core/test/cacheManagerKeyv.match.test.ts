@@ -66,7 +66,7 @@ describe("match tests", () => {
       .onFirstCall()
       .returns({ metadata: { url: "https://example.com" } })
       .onSecondCall()
-      .returns({ key: "value" });
+      .returns(JSON.stringify({ key: "value" }));
     return expect(
       (
         await cacheManager.match(new fetch.Request("https://example.com"))
@@ -139,7 +139,7 @@ describe("match tests", () => {
         }
       })
       .onSecondCall()
-      .returns({ key: "value" });
+      .returns(JSON.stringify({ key: "value" }));
 
     const req = new fetch.Request("https://example.com", {
       headers: { "accept-encoding": "gzip" }
