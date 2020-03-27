@@ -74,6 +74,45 @@ describe("match tests", () => {
     ).to.eventually.deep.equal({ key: "value" });
   });
 
+  it("returns response when exact match found with sorted query params", async () => {
+    cacheManager.keyv.get
+      .onFirstCall()
+      .returns({ metadata: { url: "https://example.com?a=1&b=2" } })
+      .onSecondCall()
+      .returns(JSON.stringify({ key: "value" }));
+    return expect(
+      (
+        await cacheManager.match(new fetch.Request("https://example.com?a=1&b=2"))
+      ).json()
+    ).to.eventually.deep.equal({ key: "value" });
+  });
+
+  it("returns response when exact match found with unsorted query params", async () => {
+    cacheManager.keyv.get
+      .onFirstCall()
+      .returns({ metadata: { url: "https://example.com?a=1&b=2" } })
+      .onSecondCall()
+      .returns(JSON.stringify({ key: "value" }));
+    return expect(
+      (
+        await cacheManager.match(new fetch.Request("https://example.com?b=2&a=1"))
+      ).json()
+    ).to.eventually.deep.equal({ key: "value" });
+  });
+
+  it("returns response when exact match found with more unsorted query params", async () => {
+    cacheManager.keyv.get
+      .onFirstCall()
+      .returns({ metadata: { url: "https://example.com?b=2&a=1" } })
+      .onSecondCall()
+      .returns(JSON.stringify({ key: "value" }));
+    return expect(
+      (
+        await cacheManager.match(new fetch.Request("https://example.com?a=1&b=2"))
+      ).json()
+    ).to.eventually.deep.equal({ key: "value" });
+  });
+
   it("returns response with no body when exact match found when method is head", async () => {
     cacheManager.keyv.get
       .onFirstCall()

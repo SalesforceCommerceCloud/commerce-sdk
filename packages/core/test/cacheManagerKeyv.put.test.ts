@@ -65,6 +65,18 @@ describe("put tests", () => {
     ).to.eventually.deep.equal(body);
   });
 
+  it("returns response after writing with query params", async () => {
+    const url = "https://example.com?b=1&a=2";
+    const body = { test: "body" };
+    const response = new fetch.Response(Buffer.from(JSON.stringify(body)), { url: url });
+    return expect(
+      cacheManager.put(
+          new fetch.Request(url),
+          response
+      )
+    ).to.eventually.deep.include({ url: url });
+  });
+
   it("returns response after writing for head request", async () => {
     const body = { test: "body" };
     const response = new fetch.Response(Buffer.from(JSON.stringify(body)), {});
