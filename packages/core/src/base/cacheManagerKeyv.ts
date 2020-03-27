@@ -10,28 +10,47 @@ import fetch = require("minipass-fetch");
 import Keyv = require("keyv");
 import ssri = require("ssri");
 import url = require("url");
+
 import { ICacheManager } from "./cacheManager";
 
-const normalizeUrl = (urlString: string) => {
+/**
+ * Parses the URL string and sorts query params.
+ *
+ * @param urlString The URL to be normalized
+ */
+const normalizeUrl = (urlString: string): string => {
   const parsed: url.URL = new url.URL(urlString);
   parsed.searchParams.sort();
   return parsed.toString();
 };
 
+/**
+ * Generate the cache key for the request to be cached or retrieved.
+ *
+ * @param req The request to generate a cache key for
+ */
 const makeCacheKey = (req: fetch.Request): string => normalizeUrl(req.url);
 
-const getMetadataKey = req => `request-cache-metadata:${makeCacheKey(req)}`;
+const getMetadataKey = (req: fetch.Request): string =>
+  `request-cache-metadata:${makeCacheKey(req)}`;
 
-const getContentKey = req => `request-cache:${makeCacheKey(req)}`;
+const getContentKey = (req: fetch.Request): string =>
+  `request-cache:${makeCacheKey(req)}`;
 
-const addCacheHeaders = (resHeaders, path, key, hash, time) => {
+const addCacheHeaders = (resHeaders, path, key, hash, time): void => {
   resHeaders.set("X-Local-Cache", encodeURIComponent(path));
   resHeaders.set("X-Local-Cache-Key", encodeURIComponent(key));
   resHeaders.set("X-Local-Cache-Hash", encodeURIComponent(hash));
   resHeaders.set("X-Local-Cache-Time", new Date(time).toUTCString());
 };
 
-const matchDetails = (req, cached) => {
+/**
+ * Check if a cached request is a valid match for a given request.
+ *
+ * @param req The request to find a cached response for
+ * @param cached The cached response
+ */
+const matchDetails = (req: fetch.Request, cached: fetch.Request): boolean => {
   const reqUrl = new url.URL(normalizeUrl(req.url));
   const cacheUrl = new url.URL(normalizeUrl(cached.url));
   const vary = cached.resHeaders.get("Vary");
@@ -73,26 +92,24 @@ export class CacheManagerKeyv implements ICacheManager {
     }
   }
 
-  // Returns a Promise that resolves to the response associated with the first
-  // matching request in the Cache object.
+  /**
+   * Returns a Promise that resolves to the response associated with the first
+   * matching request in the Cache object.
+   *
+   * @param req The request to check for a cached response
+   * @param opts Currently for compatibility
+   */
   async match(req: fetch.Request, opts?: any): Promise<fetch.Response> {
-    const metadataKey = getMetadataKey(req);
-    const contentKey = getContentKey(req);
+    const metadataKey: string = getMetadataKey(req);
+    const contentKey: string = getContentKey(req);
+
+    // No match if there's no metadata for this request
     const redisInfo = await this.keyv.get(metadataKey);
     if (!redisInfo) {
-      console.log("NO MATCH");
       return;
     }
-    console.log(`GOT ${redisInfo.metadata.url}`);
-    const resHeaders = new fetch.Headers(redisInfo.metadata.resHeaders);
-    addCacheHeaders(
-      resHeaders,
-      "",
-      contentKey,
-      redisInfo.integrity,
-      redisInfo.time
-    );
 
+    // No match if the metadata doesn't match
     if (
       !matchDetails(req, {
         url: redisInfo.metadata.url,
@@ -102,14 +119,23 @@ export class CacheManagerKeyv implements ICacheManager {
         integrity: opts && opts.integrity
       })
     ) {
-      console.log("NO EXACT MATCH");
       return;
     }
-    console.log("EXACT MATCH!");
-    console.log("RETURNING REDIS DATA");
 
+    // Add customer headers to the response that include caching info
+    const resHeaders: fetch.Headers = new fetch.Headers(
+      redisInfo.metadata.resHeaders
+    );
+    addCacheHeaders(
+      resHeaders,
+      "",
+      contentKey,
+      redisInfo.integrity,
+      redisInfo.time
+    );
+
+    // Return the response without a body for HEAD requests
     if (req.method === "HEAD") {
-      console.log("IT'S A HEAD REQUEST");
       return new fetch.Response(null, {
         url: req.url,
         headers: resHeaders,
@@ -117,7 +143,8 @@ export class CacheManagerKeyv implements ICacheManager {
       });
     }
 
-    const body = await this.keyv.get(getContentKey(req));
+    // Get the cached response body
+    const body: string = await this.keyv.get(getContentKey(req));
 
     return Promise.resolve(
       new fetch.Response(Buffer.from(body), {
@@ -129,15 +156,20 @@ export class CacheManagerKeyv implements ICacheManager {
     );
   }
 
-  // Takes both a request and its response and adds it to the given cache.
+  /**
+   * Takes both a request and its response and adds it to the given cache.
+   *
+   * @param req The request this is a storing a response for
+   * @param response The response to be stored
+   * @param opts
+   */
   async put(
     req: fetch.Request,
     response: fetch.Response,
-    opts?
+    opts?: any
   ): Promise<fetch.Response> {
     opts = opts || {};
     const size = response?.headers?.get("content-length");
-    console.log(`PUT SIZE ${size}`);
     const ckey = getContentKey(req);
     const cacheOpts = {
       algorithms: opts.algorithms,
@@ -169,7 +201,6 @@ export class CacheManagerKeyv implements ICacheManager {
 
     const body = await response.text();
 
-    console.log("WRITE META TO REDIS");
     await this.keyv.set(getMetadataKey(req), cacheOpts);
 
     await this.keyv.set(getContentKey(req), body);
@@ -177,11 +208,12 @@ export class CacheManagerKeyv implements ICacheManager {
     return Promise.resolve(new fetch.Response(Buffer.from(body), response));
   }
 
-  // Finds the Cache entry whose key is the request, and if found, deletes the
-  // Cache entry and returns a Promise that resolves to true. If no Cache entry
-  // is found, it returns false.
-  async delete(req: fetch.Request, opts?): Promise<boolean> {
-    console.log("DELETEING FROM REDIS");
+  /**
+   * Finds the Cache entry whose key is the request, and if found, deletes the
+   * Cache entry and returns a Promise that resolves to true. If no Cache entry
+   * is found, it returns false.
+   */
+  async delete(req: fetch.Request, opts?: any): Promise<boolean> {
     return (
       (await this.keyv.delete(getMetadataKey(req))) ||
       (await this.keyv.delete(getContentKey(req)))

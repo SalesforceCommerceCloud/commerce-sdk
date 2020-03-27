@@ -22,8 +22,6 @@ before(() => {
   chai.use(chaiAsPromised);
 
   client = new BaseClient({ baseUri: "https://somewhere" });
-
-  console.log(client);
 });
 
 beforeEach(() => client.clientConfig.cacheManager?.keyv?.clear());
