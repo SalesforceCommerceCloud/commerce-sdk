@@ -27,6 +27,8 @@ jobs:
       tag: '12.14'
     steps:
       - checkout
+      - run: |
+        "docker rm --force redis; docker run -dp 6379:6379 --name redis redis:5-alpine"
       - node/with-cache:
           steps:
             - run: npm install
