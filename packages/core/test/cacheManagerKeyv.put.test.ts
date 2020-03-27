@@ -27,9 +27,9 @@ describe("put tests", () => {
     cacheManager = new CacheManagerKeyv();
     cacheManager.keyv = sinon.stub({
       // eslint-disable-next-line @typescript-eslint/no-empty-function
-      get: key => {},
+      get: key => { },
       // eslint-disable-next-line @typescript-eslint/no-empty-function
-      set: (key, data) => {}
+      set: (key, data) => { }
     });
   });
 
