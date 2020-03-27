@@ -12,16 +12,13 @@ import ssri = require("ssri");
 import url = require("url");
 import { ICacheManager } from "./cacheManager";
 
-const makeCacheKey = req => {
-  const parsed = new url.URL(req.url);
-  return url.format({
-    protocol: parsed.protocol,
-    slashes: true,
-    port: parsed.port,
-    hostname: parsed.hostname,
-    pathname: parsed.pathname
-  });
+const normalizeUrl = (urlString: string) => {
+  const parsed: url.URL = new url.URL(urlString);
+  parsed.searchParams.sort();
+  return parsed.toString();
 };
+
+const makeCacheKey = (req: fetch.Request): string => normalizeUrl(req.url);
 
 const getMetadataKey = req => `request-cache-metadata:${makeCacheKey(req)}`;
 
@@ -35,8 +32,8 @@ const addCacheHeaders = (resHeaders, path, key, hash, time) => {
 };
 
 const matchDetails = (req, cached) => {
-  const reqUrl = new url.URL(req.url);
-  const cacheUrl = new url.URL(cached.url);
+  const reqUrl = new url.URL(normalizeUrl(req.url));
+  const cacheUrl = new url.URL(normalizeUrl(cached.url));
   const vary = cached.resHeaders.get("Vary");
   // https://tools.ietf.org/html/rfc7234#section-4.1
   if (vary) {
@@ -195,7 +192,7 @@ export class CacheManagerKeyv implements ICacheManager {
    * Redis will attempt to maintain an active connection which prevents Node.js
    * from exiting. Call this to gracefully close the connection.
    */
-  async quit():Promise<string> {
-    return this.keyv?.opts?.store?.redis?.quit();
+  async quit(): Promise<boolean> {
+    return (await this.keyv?.opts?.store?.redis?.quit()) == "OK";
   }
 }
