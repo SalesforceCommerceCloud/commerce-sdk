@@ -7,8 +7,6 @@
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 
-import fetch = require("minipass-fetch");
-
 import sinon from "sinon";
 
 import { CacheManagerKeyv } from "../src/base/cacheManagerKeyv";
@@ -22,14 +20,6 @@ before(() => {
 
 describe("delete tests", () => {
   let cacheManager;
-/*
-  before(() => {
-    cacheManager.keyv = sinon.stub({
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      quit: key => {}
-    });
-  });
-*/
   beforeEach(() => {
     cacheManager = new CacheManagerKeyv();
     sinon.reset();
@@ -55,12 +45,16 @@ describe("delete tests", () => {
   });
 
   it("returns false when quit isn't OK", async () => {
-    cacheManager.keyv = { opts: { store: { redis: { quit: async () => "other thing" } } } };
+    cacheManager.keyv = {
+      opts: { store: { redis: { quit: async () => "other thing" } } }
+    };
     return expect(cacheManager.quit()).to.eventually.be.false;
   });
 
   it("returns true when called with working redis", async () => {
-    cacheManager.keyv = { opts: { store: { redis: { quit: async () => "OK" } } } };
+    cacheManager.keyv = {
+      opts: { store: { redis: { quit: async () => "OK" } } }
+    };
     return expect(cacheManager.quit()).to.eventually.be.true;
   });
 });
