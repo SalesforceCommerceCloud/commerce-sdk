@@ -11,7 +11,6 @@ import chaiAsPromised from "chai-as-promised";
 import nock from "nock";
 
 import { BaseClient } from "../src/base/client";
-import { CacheManagerKeyv } from "../src/base/cacheManagerKeyv";
 import { _delete, _get, _patch, _post, _put } from "../src/base/staticClient";
 
 const expect = chai.expect;
@@ -22,10 +21,7 @@ before(() => {
   chai.should();
   chai.use(chaiAsPromised);
 
-  client = new BaseClient({
-    baseUri: "https://somewhere",
-    cacheManager: new CacheManagerKeyv("redis://localhost:6379")
-  });
+  client = new BaseClient({ baseUri: "https://somewhere" });
 
   console.log(client);
 });
