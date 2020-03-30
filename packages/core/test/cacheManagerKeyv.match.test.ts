@@ -82,7 +82,9 @@ describe("match tests", () => {
       .returns(JSON.stringify({ key: "value" }));
     return expect(
       (
-        await cacheManager.match(new fetch.Request("https://example.com?a=1&b=2"))
+        await cacheManager.match(
+          new fetch.Request("https://example.com?a=1&b=2")
+        )
       ).json()
     ).to.eventually.deep.equal({ key: "value" });
   });
@@ -95,7 +97,9 @@ describe("match tests", () => {
       .returns(JSON.stringify({ key: "value" }));
     return expect(
       (
-        await cacheManager.match(new fetch.Request("https://example.com?b=2&a=1"))
+        await cacheManager.match(
+          new fetch.Request("https://example.com?b=2&a=1")
+        )
       ).json()
     ).to.eventually.deep.equal({ key: "value" });
   });
@@ -108,7 +112,9 @@ describe("match tests", () => {
       .returns(JSON.stringify({ key: "value" }));
     return expect(
       (
-        await cacheManager.match(new fetch.Request("https://example.com?a=1&b=2"))
+        await cacheManager.match(
+          new fetch.Request("https://example.com?a=1&b=2")
+        )
       ).json()
     ).to.eventually.deep.equal({ key: "value" });
   });

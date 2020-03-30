@@ -14,6 +14,44 @@ import url = require("url");
 import { ICacheManager } from "./cacheManager";
 
 /**
+ * Calculate a reasonable time to live for the response based on the request and response headers.
+ *
+ * @param response The response to calculate the TTL for
+ */
+const getTTL = (response: fetch.Response): number => {
+  const responseControl = response.headers
+    .get("cache-control")
+    ?.toLowerCase()
+    .trim()
+    .split(/\s*,\s*/);
+
+  if (responseControl) {
+    if (responseControl.find("private") || responseControl.find("no-store")) {
+      return 0;
+    }
+
+    const sMaxAgeParts = responseControl
+      .find(value => value.startsWith("s-maxage"))
+      ?.split(/\s*=\s*/);
+    if (sMaxAgeParts.length > 1 && parseInt(sMaxAgeParts[0]) !== NaN) {
+      return parseInt(sMaxAgeParts[0]);
+    }
+
+    const maxAgeParts = responseControl
+      .find(value => value.startsWith("max-age"))
+      ?.split(/\s*=\s*/);
+    if (maxAgeParts.length > 1 && parseInt(maxAgeParts[0]) !== NaN) {
+      return parseInt(maxAgeParts[0]);
+    }
+  }
+
+  const responseExpires = Date.parse(response.headers.get("expires"));
+  const expiresInSeconds = Math.floor((responseExpires - Date.now()) / 1000);
+
+  return expiresInSeconds > 0 ? expiresInSeconds : 0;
+};
+
+/**
  * Parses the URL string and sorts query params.
  *
  * @param urlString The URL to be normalized
@@ -171,6 +209,7 @@ export class CacheManagerKeyv implements ICacheManager {
     opts = opts || {};
     const size = response?.headers?.get("content-length");
     const ckey = getContentKey(req);
+    const ttl = getTTL(response);
     const cacheOpts = {
       algorithms: opts.algorithms,
       integrity: null,
@@ -194,16 +233,24 @@ export class CacheManagerKeyv implements ICacheManager {
         redisInfo.integrity,
         redisInfo.time
       );
-      await this.keyv.set(getMetadataKey(req), cacheOpts);
+      await this.keyv.set(getMetadataKey(req), cacheOpts, ttl);
+
+      // For redis, we'll directly update the ttl of the content otherwise we'll
+      // just have to rewrite it
+      if (this.keyv.opts?.store?.redis) {
+        await this.keyv.opts.store.redis.expire(ckey, ttl);
+      } else {
+        await this.keyv.set(ckey, await this.keyv.get(ckey), ttl);
+      }
 
       return response;
     }
 
     const body = await response.text();
 
-    await this.keyv.set(getMetadataKey(req), cacheOpts);
+    await this.keyv.set(getMetadataKey(req), cacheOpts, ttl);
 
-    await this.keyv.set(getContentKey(req), body);
+    await this.keyv.set(getContentKey(req), body, ttl);
 
     return Promise.resolve(new fetch.Response(Buffer.from(body), response));
   }
@@ -225,6 +272,6 @@ export class CacheManagerKeyv implements ICacheManager {
    * from exiting. Call this to gracefully close the connection.
    */
   async quit(): Promise<boolean> {
-    return (await this.keyv?.opts?.store?.redis?.quit()) == "OK";
+    return (await this.keyv?.opts?.store?.redis?.quit()) === "OK";
   }
 }
