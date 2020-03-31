@@ -26,22 +26,22 @@ const getTTL = (response: fetch.Response): number => {
     .split(/\s*,\s*/);
 
   if (responseControl) {
-    if (responseControl.find("private") || responseControl.find("no-store")) {
+    if (responseControl.includes("private") || responseControl.includes("no-store")) {
       return 0;
     }
 
     const sMaxAgeParts = responseControl
       .find(value => value.startsWith("s-maxage"))
       ?.split(/\s*=\s*/);
-    if (sMaxAgeParts.length > 1 && parseInt(sMaxAgeParts[0]) !== NaN) {
-      return parseInt(sMaxAgeParts[0]);
+    if (sMaxAgeParts?.length > 1 && parseInt(sMaxAgeParts[1]) !== NaN) {
+      return parseInt(sMaxAgeParts[1]);
     }
 
     const maxAgeParts = responseControl
       .find(value => value.startsWith("max-age"))
       ?.split(/\s*=\s*/);
-    if (maxAgeParts.length > 1 && parseInt(maxAgeParts[0]) !== NaN) {
-      return parseInt(maxAgeParts[0]);
+    if (maxAgeParts?.length > 1 && parseInt(maxAgeParts[1]) !== NaN) {
+      return parseInt(maxAgeParts[1]);
     }
   }
 
@@ -208,8 +208,14 @@ export class CacheManagerKeyv implements ICacheManager {
   ): Promise<fetch.Response> {
     opts = opts || {};
     const size = response?.headers?.get("content-length");
-    const ckey = getContentKey(req);
+    const metadataKey = getMetadataKey(req);
+    const contentKey = getContentKey(req);
     const ttl = getTTL(response);
+
+    if (ttl === 0) {
+      return response;
+    }
+
     const cacheOpts = {
       algorithms: opts.algorithms,
       integrity: null,
@@ -223,24 +229,24 @@ export class CacheManagerKeyv implements ICacheManager {
     };
     if (req.method === "HEAD" || response.status === 304) {
       // Update metadata without writing
-      const redisInfo = await this.keyv.get(getMetadataKey(req));
+      const redisInfo = await this.keyv.get(metadataKey);
       // Providing these will bypass content write
       cacheOpts.integrity = redisInfo.integrity;
       addCacheHeaders(
         response.headers,
         "",
-        ckey,
+        contentKey,
         redisInfo.integrity,
         redisInfo.time
       );
-      await this.keyv.set(getMetadataKey(req), cacheOpts, ttl);
+      await this.keyv.set(metadataKey, cacheOpts, ttl);
 
       // For redis, we'll directly update the ttl of the content otherwise we'll
       // just have to rewrite it
       if (this.keyv.opts?.store?.redis) {
-        await this.keyv.opts.store.redis.expire(ckey, ttl);
+        await this.keyv.opts.store.redis.expire(contentKey, ttl);
       } else {
-        await this.keyv.set(ckey, await this.keyv.get(ckey), ttl);
+        await this.keyv.set(contentKey, await this.keyv.get(contentKey), ttl);
       }
 
       return response;
@@ -248,9 +254,9 @@ export class CacheManagerKeyv implements ICacheManager {
 
     const body = await response.text();
 
-    await this.keyv.set(getMetadataKey(req), cacheOpts, ttl);
+    await this.keyv.set(metadataKey, cacheOpts, ttl);
 
-    await this.keyv.set(getContentKey(req), body, ttl);
+    await this.keyv.set(contentKey, body, ttl);
 
     return Promise.resolve(new fetch.Response(Buffer.from(body), response));
   }
