@@ -112,7 +112,7 @@ describe("put tests", () => {
 
   it("returns response with correct cache headers for head request", async () => {
     const body = { test: "body" };
-    const response = new fetch.Response(Buffer.from(JSON.stringify(body)));
+    const response = new fetch.Response(Buffer.from(JSON.stringify(body)), { headers: { "cache-control": "max-age=600" }});
     const url = "https://example.com/";
     const cacheKey = encodeURIComponent(`request-cache:${url}`);
     const hash = "8743b52063cd84097a65d1633f5c74f5";
