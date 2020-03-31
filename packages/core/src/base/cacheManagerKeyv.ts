@@ -14,6 +14,24 @@ import url from "url";
 import { ICacheManager } from "./cacheManager";
 
 /**
+ * List of custom headers we add to cached responses before returning.
+ */
+export const customCacheHeaders = {
+  localCache: "X-Local-Cache",
+  localCacheKey: "X-Local-Cache-Key",
+  localCacheHash: "X-Local-Cache-Hash",
+  localCacheTime: "X-Local-Cache-Time"
+}
+
+const addCacheHeaders = (resHeaders, path, key, hash, time): void => {
+  resHeaders.set(customCacheHeaders.localCache, encodeURIComponent(path));
+  resHeaders.set(customCacheHeaders.localCacheKey, encodeURIComponent(key));
+  resHeaders.set(customCacheHeaders.localCacheHash, encodeURIComponent(hash));
+  resHeaders.set(customCacheHeaders.localCacheTime, new Date(time).toUTCString());
+};
+
+
+/**
  * Calculate a reasonable time to live for the response based on the response headers.
  *
  * @param response The response to calculate the TTL for
@@ -80,13 +98,6 @@ const getMetadataKey = (req: fetch.Request): string =>
 
 const getContentKey = (req: fetch.Request): string =>
   `request-cache:${makeCacheKey(req)}`;
-
-const addCacheHeaders = (resHeaders, path, key, hash, time): void => {
-  resHeaders.set("X-Local-Cache", encodeURIComponent(path));
-  resHeaders.set("X-Local-Cache-Key", encodeURIComponent(key));
-  resHeaders.set("X-Local-Cache-Hash", encodeURIComponent(hash));
-  resHeaders.set("X-Local-Cache-Time", new Date(time).toUTCString());
-};
 
 /**
  * Check if a cached request is a valid match for a given request.
