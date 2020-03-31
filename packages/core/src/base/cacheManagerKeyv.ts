@@ -14,9 +14,11 @@ import url from "url";
 import { ICacheManager } from "./cacheManager";
 
 /**
- * Calculate a reasonable time to live for the response based on the request and response headers.
+ * Calculate a reasonable time to live for the response based on the response headers.
  *
  * @param response The response to calculate the TTL for
+ * 
+ * @returns Time to cache the response in seconds, zero for should not be cached
  */
 const getTTL = (response: fetch.Response): number => {
   const responseControl = response.headers
@@ -55,6 +57,8 @@ const getTTL = (response: fetch.Response): number => {
  * Parses the URL string and sorts query params.
  *
  * @param urlString The URL to be normalized
+ * 
+ * @returns The normalized URL as a string
  */
 const normalizeUrl = (urlString: string): string => {
   const parsed: url.URL = new url.URL(urlString);
@@ -66,6 +70,8 @@ const normalizeUrl = (urlString: string): string => {
  * Generate the cache key for the request to be cached or retrieved.
  *
  * @param req The request to generate a cache key for
+ * 
+ * @returns A string of the cache key
  */
 const makeCacheKey = (req: fetch.Request): string => normalizeUrl(req.url);
 
@@ -87,6 +93,8 @@ const addCacheHeaders = (resHeaders, path, key, hash, time): void => {
  *
  * @param req The request to find a cached response for
  * @param cached The cached response
+ * 
+ * @returns true for a match, false for a miss
  */
 const matchDetails = (req: fetch.Request, cached: fetch.Request): boolean => {
   const reqUrl = new url.URL(normalizeUrl(req.url));
@@ -136,6 +144,8 @@ export class CacheManagerKeyv implements ICacheManager {
    *
    * @param req The request to check for a cached response
    * @param opts Currently for compatibility
+   * 
+   * @returns A valid cached response or undefined
    */
   async match(req: fetch.Request, opts?: any): Promise<fetch.Response> {
     const metadataKey: string = getMetadataKey(req);
@@ -200,6 +210,8 @@ export class CacheManagerKeyv implements ICacheManager {
    * @param req The request this is a storing a response for
    * @param response The response to be stored
    * @param opts
+   * 
+   * @returns The response or copy of the response
    */
   async put(
     req: fetch.Request,
@@ -265,6 +277,11 @@ export class CacheManagerKeyv implements ICacheManager {
    * Finds the Cache entry whose key is the request, and if found, deletes the
    * Cache entry and returns a Promise that resolves to true. If no Cache entry
    * is found, it returns false.
+   * 
+   * @param req The request to try to delete a cached response for
+   * @param opts Compatibility with make-fetch-happen, currently unused
+   * 
+   * @returns true is anything is present to delete, false otherwise
    */
   async delete(req: fetch.Request, opts?: any): Promise<boolean> {
     return (
@@ -276,6 +293,8 @@ export class CacheManagerKeyv implements ICacheManager {
   /**
    * Redis will attempt to maintain an active connection which prevents Node.js
    * from exiting. Call this to gracefully close the connection.
+   * 
+   * @returns true for successful disconnection
    */
   async quit(): Promise<boolean> {
     return (await this.keyv?.opts?.store?.redis?.quit()) === "OK";
