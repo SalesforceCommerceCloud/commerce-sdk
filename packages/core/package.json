@@ -6,9 +6,9 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "pretest": "npm run lint",
-    "redis": "docker rm --force redis; docker run -dp 6379:6379 --name redis redis:5-alpine",
-    "redis:shutdown": "docker rm --force redis",
-    "redis:debug": "docker rm --force redis-debug; docker run -dp 6379:6379 --name redis-debug redis:5-alpine && docker exec -it redis-debug redis-cli monitor",
+    "redis": "docker rm --force redis-commerce-sdk; docker run -dp 6379:6379 --name redis-commerce-sdk redis:5-alpine",
+    "redis:shutdown": "docker rm --force redis-commerce-sdk; docker rm --force redis-commerce-sdk-debug",
+    "redis:debug": "docker rm --force redis-commerce-sdk-debug; docker run -dp 6379:6379 --name redis-commerce-sdk-debug redis:5-alpine && docker exec -it redis-commerce-sdk-debug redis-cli monitor",
     "test": "nyc mocha \"test/**/*.test.ts\" --reporter=xunit --reporter-options output=../../reports_integration/core.xml",
     "test:debug": "nyc mocha \"test/**/*.test.ts\"",
     "build": "tsc",
