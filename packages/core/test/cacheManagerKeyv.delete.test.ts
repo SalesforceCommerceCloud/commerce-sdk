@@ -7,7 +7,7 @@
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 
-import fetch = require("minipass-fetch");
+import fetch from "minipass-fetch";
 
 import sinon from "sinon";
 

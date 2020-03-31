@@ -6,10 +6,10 @@
  */
 "use strict";
 
-import fetch = require("minipass-fetch");
-import Keyv = require("keyv");
-import ssri = require("ssri");
-import url = require("url");
+import fetch from "minipass-fetch";
+import Keyv from "keyv";
+import ssri from "ssri";
+import url from "url";
 
 import { ICacheManager } from "./cacheManager";
 
