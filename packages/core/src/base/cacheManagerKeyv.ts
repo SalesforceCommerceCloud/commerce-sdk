@@ -20,7 +20,7 @@ import { ICacheManager } from "./cacheManager";
  * 
  * @returns Time to cache the response in seconds, zero for should not be cached
  */
-const getTTL = (response: fetch.Response): number => {
+const getTimeToLive = (response: fetch.Response): number => {
   const responseControl = response.headers
     .get("cache-control")
     ?.toLowerCase()
@@ -222,7 +222,7 @@ export class CacheManagerKeyv implements ICacheManager {
     const size = response?.headers?.get("content-length");
     const metadataKey = getMetadataKey(req);
     const contentKey = getContentKey(req);
-    const ttl = getTTL(response);
+    const ttl = getTimeToLive(response);
 
     if (ttl === 0) {
       return response;
