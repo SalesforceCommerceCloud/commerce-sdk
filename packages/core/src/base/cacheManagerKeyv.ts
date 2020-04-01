@@ -21,21 +21,23 @@ export const customCacheHeaders = {
   localCacheKey: "X-Local-Cache-Key",
   localCacheHash: "X-Local-Cache-Hash",
   localCacheTime: "X-Local-Cache-Time"
-}
+};
 
 const addCacheHeaders = (resHeaders, path, key, hash, time): void => {
   resHeaders.set(customCacheHeaders.localCache, encodeURIComponent(path));
   resHeaders.set(customCacheHeaders.localCacheKey, encodeURIComponent(key));
   resHeaders.set(customCacheHeaders.localCacheHash, encodeURIComponent(hash));
-  resHeaders.set(customCacheHeaders.localCacheTime, new Date(time).toUTCString());
+  resHeaders.set(
+    customCacheHeaders.localCacheTime,
+    new Date(time).toUTCString()
+  );
 };
-
 
 /**
  * Calculate a reasonable time to live for the response based on the response headers.
  *
  * @param response The response to calculate the TTL for
- * 
+ *
  * @returns Time to cache the response in seconds, zero for should not be cached
  */
 const getTimeToLive = (response: fetch.Response): number => {
@@ -46,7 +48,10 @@ const getTimeToLive = (response: fetch.Response): number => {
     .split(/\s*,\s*/);
 
   if (responseControl) {
-    if (responseControl.includes("private") || responseControl.includes("no-store")) {
+    if (
+      responseControl.includes("private") ||
+      responseControl.includes("no-store")
+    ) {
       return 0;
     }
 
@@ -75,7 +80,7 @@ const getTimeToLive = (response: fetch.Response): number => {
  * Parses the URL string and sorts query params.
  *
  * @param urlString The URL to be normalized
- * 
+ *
  * @returns The normalized URL as a string
  */
 const normalizeUrl = (urlString: string): string => {
@@ -88,7 +93,7 @@ const normalizeUrl = (urlString: string): string => {
  * Generate the cache key for the request to be cached or retrieved.
  *
  * @param req The request to generate a cache key for
- * 
+ *
  * @returns A string of the cache key
  */
 const makeCacheKey = (req: fetch.Request): string => normalizeUrl(req.url);
@@ -104,7 +109,7 @@ const getContentKey = (req: fetch.Request): string =>
  *
  * @param req The request to find a cached response for
  * @param cached The cached response
- * 
+ *
  * @returns true for a match, false for a miss
  */
 const matchDetails = (req: fetch.Request, cached: fetch.Request): boolean => {
@@ -142,9 +147,19 @@ const matchDetails = (req: fetch.Request, cached: fetch.Request): boolean => {
 export class CacheManagerKeyv implements ICacheManager {
   public keyv;
 
-  constructor(public connection?: string) {
-    if (connection) {
-      this.keyv = new Keyv(connection, { keepAlive: false });
+  constructor(options?: {
+    connection?: string;
+    keyvOptions?: {};
+    keyvStore?: {};
+  }) {
+    if (options?.keyvStore) {
+      this.keyv = new Keyv({ store: options.keyvStore });
+      this.keyv.on("error", console.error);
+      return;
+    }
+
+    if (options?.connection) {
+      this.keyv = new Keyv(options.connection, options.keyvOptions);
       this.keyv.on("error", console.error);
     }
   }
@@ -155,7 +170,7 @@ export class CacheManagerKeyv implements ICacheManager {
    *
    * @param req The request to check for a cached response
    * @param opts Currently for compatibility
-   * 
+   *
    * @returns A valid cached response or undefined
    */
   async match(req: fetch.Request, opts?: any): Promise<fetch.Response> {
@@ -221,7 +236,7 @@ export class CacheManagerKeyv implements ICacheManager {
    * @param req The request this is a storing a response for
    * @param response The response to be stored
    * @param opts
-   * 
+   *
    * @returns The response or copy of the response
    */
   async put(
@@ -264,13 +279,7 @@ export class CacheManagerKeyv implements ICacheManager {
       );
       await this.keyv.set(metadataKey, cacheOpts, ttl);
 
-      // For redis, we'll directly update the ttl of the content otherwise we'll
-      // just have to rewrite it
-      if (this.keyv.opts?.store?.redis) {
-        await this.keyv.opts.store.redis.expire(contentKey, ttl);
-      } else {
-        await this.keyv.set(contentKey, await this.keyv.get(contentKey), ttl);
-      }
+      await this.updateTimeToLiveForKey(contentKey, ttl);
 
       return response;
     }
@@ -288,10 +297,10 @@ export class CacheManagerKeyv implements ICacheManager {
    * Finds the Cache entry whose key is the request, and if found, deletes the
    * Cache entry and returns a Promise that resolves to true. If no Cache entry
    * is found, it returns false.
-   * 
+   *
    * @param req The request to try to delete a cached response for
    * @param opts Compatibility with make-fetch-happen, currently unused
-   * 
+   *
    * @returns true is anything is present to delete, false otherwise
    */
   async delete(req: fetch.Request, opts?: any): Promise<boolean> {
@@ -301,13 +310,7 @@ export class CacheManagerKeyv implements ICacheManager {
     );
   }
 
-  /**
-   * Redis will attempt to maintain an active connection which prevents Node.js
-   * from exiting. Call this to gracefully close the connection.
-   * 
-   * @returns true for successful disconnection
-   */
-  async quit(): Promise<boolean> {
-    return (await this.keyv?.opts?.store?.redis?.quit()) === "OK";
+  async updateTimeToLiveForKey(key: string, ttl: number) {
+    return this.keyv.set(key, await this.keyv.get(key), ttl);
   }
 }

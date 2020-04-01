@@ -9,7 +9,7 @@ import chaiAsPromised from "chai-as-promised";
 
 import sinon from "sinon";
 
-import { CacheManagerKeyv } from "../src/base/cacheManagerKeyv";
+import { CacheManagerRedis } from "../src/base/cacheManagerRedis";
 
 const expect = chai.expect;
 
@@ -18,10 +18,29 @@ before(() => {
   chai.use(chaiAsPromised);
 });
 
-describe("delete tests", () => {
+describe("update ttl tests", () => {
   let cacheManager;
   beforeEach(() => {
-    cacheManager = new CacheManagerKeyv();
+    cacheManager = new CacheManagerRedis();
+    sinon.reset();
+  });
+
+  it("updates ttl on key", async () => {
+    cacheManager.keyv = {
+      opts: {
+        store: { redis: { expire: async (key: string, ttl: number) => 1 } }
+      }
+    };
+    return expect(
+      cacheManager.updateTimeToLiveForKey("key", 100)
+    ).to.eventually.equal(1);
+  });
+});
+
+describe("quit tests", () => {
+  let cacheManager;
+  beforeEach(() => {
+    cacheManager = new CacheManagerRedis();
     sinon.reset();
   });
 

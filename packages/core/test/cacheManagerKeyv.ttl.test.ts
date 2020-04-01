@@ -65,7 +65,12 @@ describe("put tests", () => {
   it("sets ttl to 600 when cache-control is s-maxage is 600", async () => {
     testResponse.headers.set("Cache-Control", "s-maxage=600");
     await cacheManager.put(testRequest, testResponse);
-    sinon.assert.calledWith(cacheManager.keyv.set, sinon.match.string, sinon.match.any, 600);
+    sinon.assert.calledWith(
+      cacheManager.keyv.set,
+      sinon.match.string,
+      sinon.match.any,
+      600
+    );
   });
 
   it("sets ttl to 0 when cache-control is max-age is 0", async () => {
@@ -77,7 +82,12 @@ describe("put tests", () => {
   it("sets ttl to 600 when cache-control is max-age is 600", async () => {
     testResponse.headers.set("Cache-Control", "max-age=600");
     await cacheManager.put(testRequest, testResponse);
-    sinon.assert.calledWith(cacheManager.keyv.set, sinon.match.string, sinon.match.any, 600);
+    sinon.assert.calledWith(
+      cacheManager.keyv.set,
+      sinon.match.string,
+      sinon.match.any,
+      600
+    );
   });
 
   it("sets ttl to 0 when expires is in the past", async () => {
@@ -91,6 +101,11 @@ describe("put tests", () => {
     tomorrow.setDate(tomorrow.getDate() + 1);
     testResponse.headers.set("Expires", tomorrow);
     await cacheManager.put(testRequest, testResponse);
-    sinon.assert.calledWith(cacheManager.keyv.set, sinon.match.string, sinon.match.any, sinon.match.number);
+    sinon.assert.calledWith(
+      cacheManager.keyv.set,
+      sinon.match.string,
+      sinon.match.any,
+      sinon.match.number
+    );
   });
 });
