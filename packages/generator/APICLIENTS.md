@@ -34,19 +34,19 @@ _______________________________________________________________________
 
 ## Pricing
 #### [Assignments](https://developer.commercecloud.com/s/api-details/a003k00000UHvoaAAD)
-**Mule App Version** 1.0.11<br />
+**Mule App Version** 1.0.12<br />
 *Enable merchandisers to search for assignments.*<br />
 #### [Campaigns](https://developer.commercecloud.com/s/api-details/a003k00000UHvobAAD)
-**Mule App Version** 1.0.14<br />
+**Mule App Version** 1.0.15<br />
 *Create, update, and manage campaigns.*<br />
 #### [Coupons](https://developer.commercecloud.com/s/api-details/a003k00000UHvopAAD)
-**Mule App Version** 1.0.14<br />
+**Mule App Version** 1.0.15<br />
 *Create, update, read, search for, and manage coupons.*<br />
 #### [Gift Certificates](https://developer.commercecloud.com/s/api-details/a003k00000UHvozAAD)
-**Mule App Version** 1.0.16<br />
+**Mule App Version** 1.0.17<br />
 *Create, get, and update gift certificates.*<br />
 #### [Promotions](https://developer.commercecloud.com/s/api-details/a003k00000UHvp9AAD)
-**Mule App Version** 1.0.11<br />
+**Mule App Version** 1.0.12<br />
 *Create, get, and update promotions.*<br />
 #### [Shopper Gift Certificates](https://developer.commercecloud.com/s/api-details/a003k00000UHvogAAD)
 **Mule App Version** 1.0.6<br />
@@ -55,7 +55,7 @@ _______________________________________________________________________
 **Mule App Version** 1.0.15<br />
 *Obtain promotion details.*<br />
 #### [Source Code Groups](https://developer.commercecloud.com/s/api-details/a003k00000UHvpTAAT)
-**Mule App Version** 1.0.15<br />
+**Mule App Version** 1.0.16<br />
 *Create, update, delete, and search for source code groups.*<br />
 _______________________________________________________________________
 
