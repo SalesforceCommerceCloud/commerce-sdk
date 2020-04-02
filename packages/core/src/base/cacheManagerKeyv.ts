@@ -146,6 +146,7 @@ const matchDetails = (req: fetch.Request, cached: fetch.Request): boolean => {
  */
 export class CacheManagerKeyv implements ICacheManager {
   public keyv;
+  public uncacheableRequestHeaders: string[] = ["authorization"];
 
   constructor(options?: {
     connection?: string;
@@ -174,6 +175,7 @@ export class CacheManagerKeyv implements ICacheManager {
    * @returns A valid cached response or undefined
    */
   async match(req: fetch.Request, opts?: any): Promise<fetch.Response> {
+    this.stripUncacheableRequestHeaders(req);
     const metadataKey: string = getMetadataKey(req);
     const contentKey: string = getContentKey(req);
 
@@ -245,6 +247,7 @@ export class CacheManagerKeyv implements ICacheManager {
     opts?: any
   ): Promise<fetch.Response> {
     opts = opts || {};
+    this.stripUncacheableRequestHeaders(req);
     const size = response?.headers?.get("content-length");
     const metadataKey = getMetadataKey(req);
     const contentKey = getContentKey(req);
@@ -304,10 +307,18 @@ export class CacheManagerKeyv implements ICacheManager {
    * @returns true is anything is present to delete, false otherwise
    */
   async delete(req: fetch.Request, opts?: any): Promise<boolean> {
+    this.stripUncacheableRequestHeaders(req);
     return (
       (await this.keyv.delete(getMetadataKey(req))) ||
       (await this.keyv.delete(getContentKey(req)))
     );
+  }
+
+  stripUncacheableRequestHeaders(req: fetch.Request): fetch.Request {
+    this.uncacheableRequestHeaders.forEach((header: string) =>
+      req.headers.delete(header)
+    );
+    return req;
   }
 
   async updateTimeToLiveForKey(key: string, ttl: number) {
