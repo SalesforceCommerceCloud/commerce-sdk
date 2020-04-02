@@ -85,5 +85,5 @@ export class BaseClient {
   }
 }
 
-export { Response } from "node-fetch";
+export { Response } from "minipass-fetch";
 export { ResponseError } from "./staticClient";
