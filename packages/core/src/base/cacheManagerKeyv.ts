@@ -175,6 +175,9 @@ export class CacheManagerKeyv implements ICacheManager {
    * @returns A valid cached response or undefined
    */
   async match(req: fetch.Request, opts?: any): Promise<fetch.Response> {
+    if (!req) {
+      throw new Error("Valid request object required to match");
+    }
     this.stripUncacheableRequestHeaders(req);
     const metadataKey: string = getMetadataKey(req);
     const contentKey: string = getContentKey(req);
@@ -247,6 +250,12 @@ export class CacheManagerKeyv implements ICacheManager {
     opts?: any
   ): Promise<fetch.Response> {
     opts = opts || {};
+    if (!req) {
+      throw new Error("Valid request object required to put");
+    }
+    if (!response) {
+      throw new Error("Valid response object required to put");
+    }
     this.stripUncacheableRequestHeaders(req);
     const size = response?.headers?.get("content-length");
     const metadataKey = getMetadataKey(req);
@@ -307,6 +316,9 @@ export class CacheManagerKeyv implements ICacheManager {
    * @returns true is anything is present to delete, false otherwise
    */
   async delete(req: fetch.Request, opts?: any): Promise<boolean> {
+    if (!req) {
+      throw new Error("Valid request object required to delete");
+    }
     this.stripUncacheableRequestHeaders(req);
     return (
       (await this.keyv.delete(getMetadataKey(req))) ||

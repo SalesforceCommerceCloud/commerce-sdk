@@ -39,7 +39,7 @@ describe("put tests", () => {
 
   it("throws when called with a null request", async () => {
     return expect(cacheManager.put(null, null)).to.eventually.be.rejectedWith(
-      "Cannot read property 'url' of null"
+      "Valid request object required to put"
     );
   });
 

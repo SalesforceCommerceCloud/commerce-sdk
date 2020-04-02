@@ -37,7 +37,7 @@ describe("match tests", () => {
 
   it("throws when called with a null request", async () => {
     return expect(cacheManager.match(null)).to.eventually.be.rejectedWith(
-      "Cannot read property 'url' of null"
+      "Valid request object required to match"
     );
   });
 
