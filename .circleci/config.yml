@@ -1,18 +1,4 @@
 jobs:
-  setup_docker1:
-    environment:
-      COMMERCE_SDK_INPUT_DIR: ./test/raml/valid/
-    working_directory: ~/build_only
-    executor:
-      name: node/default
-      tag: '10.16'
-
-    steps:
-      - setup_remote_docker
-      - run:
-          name: Run docker instance
-          command: docker run -dp 6379:6379 --name redis-commerce-sdk redis:5-alpine
-
   build:
     environment:
       COMMERCE_SDK_INPUT_DIR: ./test/raml/valid/
@@ -23,6 +9,10 @@ jobs:
 
     steps:
       - checkout
+      - setup_remote_docker
+      - run:
+          name: Run docker instance
+          command: docker run -dp 6379:6379 --name redis-commerce-sdk redis:5-alpine
       - run: docker container ls
       - run:
           name: Print docker logs
@@ -44,7 +34,10 @@ jobs:
       name: node/default
       tag: '12.14'
     steps:
-      - checkout
+      - setup_remote_docker
+      - run:
+          name: Run docker instance
+          command: docker run -dp 6379:6379 --name redis-commerce-sdk redis:5-alpine
       - run: docker container ls
       - run:
           name: Print docker logs
@@ -77,16 +70,14 @@ workflows:
   version: 2
   build-and-test:
     jobs:
-      - setup_docker1:
+      - build:
           filters:
             tags:
               ignore: /^v.*/
-      - build:
-          requires:
-            - setup_docker1
       - build-12:
-          requires:
-            - setup_docker1
+          filters:
+            tags:
+              ignore: /^v.*/
 
   build-test-deploy:
     jobs:
