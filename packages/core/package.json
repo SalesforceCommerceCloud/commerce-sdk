@@ -11,7 +11,7 @@
     "redis:debug": "docker rm --force redis-commerce-sdk-debug; docker run -dp 6379:6379 --name redis-commerce-sdk-debug redis:5-alpine && docker exec -it redis-commerce-sdk-debug redis-cli monitor",
     "test": "nyc mocha \"test/**/*.test.ts\" --reporter=xunit --reporter-options output=../../reports_integration/core.xml",
     "test:cache": "nyc --check-coverage=false mocha \"test_integration/**/*.ts\" --reporter=xunit --reporter-options output=../../reports/core-integration.xml --retries 2 --timeout 5000",
-    "test:integration": "npm run test:cache",
+    "test:integration": "npm run test:cache || (echo 'test:cache failed' && echo 'Cache container tail 100 debug logs\n----------------------------\nA complete log of this test:cache run can be found in:testCacheDebug.log\n----------------------------\n' && (docker logs redis-commerce-sdk > ../../testCacheDebug.log || docker logs redis-commerce-sdk-debug --tail 50 > ../../testCacheDebug.log) && (docker logs redis-commerce-sdk --tail 50 || docker logs redis-commerce-sdk-debug --tail 50) && exit 1)",
     "test:debug": "nyc mocha \"test/**/*.test.ts\"",
     "build": "tsc",
     "lint": "eslint \"**/*.ts\" --quiet --fix"

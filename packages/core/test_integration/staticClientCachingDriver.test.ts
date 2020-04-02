@@ -17,7 +17,6 @@ import noCacheHeaderTests from "../test/cache/noCacheHeader.tests";
 import { BaseClient } from "../src/base/client";
 
 describe("Redis cache tests", function() {
-  let testFailed = false;
   before(function() {
     chai.should();
     chai.use(chaiAsPromised);
@@ -25,22 +24,8 @@ describe("Redis cache tests", function() {
       baseUri: "https://somewhere"
     });
   });
-  after(function() {
-    if (testFailed) {
-      //dump redis logs
-    }
-  });
   beforeEach(function() {
     this.client.clientConfig.cacheManager?.keyv?.clear();
   });
-  afterEach(function() {
-    if (this.currentTest.state === "failed") {
-      testFailed = true;
-    }
-  });
   cacheTests();
-  // etagTests();
-  // evictionTests();
-  // multipleHeadersTests();
-  // noCacheHeaderTests();
 });
