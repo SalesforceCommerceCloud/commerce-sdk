@@ -9,15 +9,15 @@ jobs:
 
     steps:
       - checkout
-      - setup_remote_docker
-      - run:
-          name: Run redis instance
-          command: docker run -dp 6379:6379 --name redis-commerce-sdk redis:5-alpine
       - node/with-cache:
           steps:
             - run: npm install
       - run: npm run build
       - run: npm run test
+      - setup_remote_docker
+      - run:
+          name: Run redis instance
+          command: docker run -dp 6379:6379 --name redis-commerce-sdk redis:5-alpine
       - run: npm run test:integration
       - store_test_results:
           path: reports
@@ -32,15 +32,15 @@ jobs:
 
     steps:
       - checkout
-      - setup_remote_docker
-      - run:
-          name: Run redis instance
-          command: docker run -dp 6379:6379 --name redis-commerce-sdk redis:5-alpine
       - node/with-cache:
           steps:
             - run: npm install
       - run: npm run build
       - run: npm run test
+      - setup_remote_docker
+      - run:
+          name: Run redis instance
+          command: docker run -dp 6379:6379 --name redis-commerce-sdk redis:5-alpine
       - run: npm run test:integration
       - store_test_results:
           path: reports
