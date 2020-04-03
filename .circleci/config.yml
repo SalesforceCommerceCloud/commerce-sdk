@@ -3,9 +3,9 @@ jobs:
     environment:
       COMMERCE_SDK_INPUT_DIR: ./test/raml/valid/
     working_directory: ~/build_only
-    executor:
-      name: node/default
-      tag: '10.16'
+    docker:
+      - image: circleci/node:10.16.3
+      - image: redis:5-alpine
 
     steps:
       - checkout
@@ -14,10 +14,6 @@ jobs:
             - run: npm install
       - run: npm run build
       - run: npm run test
-      - setup_remote_docker
-      - run:
-          name: Run redis instance
-          command: docker run -dp 6379:6379 --name redis-commerce-sdk redis:5-alpine
       - run: npm run test:integration
       - store_test_results:
           path: reports
@@ -26,9 +22,9 @@ jobs:
     working_directory: ~/build_only
     environment:
       COMMERCE_SDK_INPUT_DIR: ./test/raml/valid/
-    executor:
-      name: node/default
-      tag: '12.14'
+    docker:
+      - image: circleci/node:10.16.3
+      - image: redis:5-alpine
     steps:
       - checkout
       - node/with-cache:
@@ -36,10 +32,6 @@ jobs:
             - run: npm install
       - run: npm run build
       - run: npm run test
-      - setup_remote_docker
-      - run:
-          name: Run redis instance
-          command: docker run -dp 6379:6379 --name redis-commerce-sdk redis:5-alpine
       - run: npm run test:integration
       - store_test_results:
           path: reports
