@@ -223,7 +223,7 @@ export class CacheManagerKeyv implements ICacheManager {
     }
 
     // Get the cached response body
-    const body: string = await this.keyv.get(getContentKey(req));
+    const body: string = await this.keyv.get(contentKey);
 
     return Promise.resolve(
       new fetch.Response(Buffer.from(body), {
