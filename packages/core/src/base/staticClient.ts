@@ -16,9 +16,9 @@ import { BaseClient } from "./client";
 const CONTENT_TYPE = "application/json";
 
 /**
- * Extends the Error class with the the error being a combination of status code 
+ * Extends the Error class with the the error being a combination of status code
  * and text retrieved from the response.
- * 
+ *
  * @class ResponseError
  * @extends Error
  */
@@ -33,14 +33,14 @@ export class ResponseError extends Error {
  * 304 (Not Modified). The fetch library make-fetch-happen returns the cached object
  * on 304 response. This method throws error on any other 3xx responses that are not
  * automatically handled by make-fetch-happen.
- * 
+ *
  * @remarks
  * Refer to https://en.wikipedia.org/wiki/List_of_HTTP_status_codes for more information
  * on HTTP status codes.
- * 
+ *
  * @param response - A response object either containing a dto or an error
  * @returns The DTO wrapped in a promise
- * 
+ *
  * @throws a ResponseError if the status code of the response is neither 2XX nor 304
  */
 export async function getObjectFromResponse(
@@ -59,7 +59,7 @@ export async function getObjectFromResponse(
  * Returns the entry from the headers list that matches the passed header. The
  * search is case insensitive and the case of the passed header and the list
  * are preserved. Returns the passed header if no match is found.
- * 
+ *
  * @param header - Target header
  * @param headers - List to search from
  * @returns Header from the list if there is a match, the passed header otherwise
@@ -80,11 +80,11 @@ export function getHeader(
 
 /**
  * Makes an HTTP call specified by the method parameter with the options passed.
- * 
+ *
  * @param method - Type of HTTP operation
- * @param options - Details to be used for making the HTTP call and processing 
+ * @param options - Details to be used for making the HTTP call and processing
  * the response
- * @returns Either the Response object or the DTO inside it wrapped in a promise, 
+ * @returns Either the Response object or the DTO inside it wrapped in a promise,
  * depending upon options.rawResponse
  */
 async function runFetch(
@@ -146,10 +146,10 @@ async function runFetch(
 
 /**
  * Performs an HTTP GET operation with the options passed.
- * 
- * @param options - Details to be used for making the HTTP call and processing 
+ *
+ * @param options - Details to be used for making the HTTP call and processing
  * the response
- * @returns Either the Response object or the DTO inside it wrapped in a promise, 
+ * @returns Either the Response object or the DTO inside it wrapped in a promise,
  * depending upon options.rawResponse
  */
 export function _get(options: {
@@ -165,10 +165,10 @@ export function _get(options: {
 
 /**
  * Performs an HTTP DELETE operation with the options passed.
- * 
- * @param options - Details to be used for making the HTTP call and processing 
+ *
+ * @param options - Details to be used for making the HTTP call and processing
  * the response
- * @returns Either the Response object or the DTO inside it wrapped in a promise, 
+ * @returns Either the Response object or the DTO inside it wrapped in a promise,
  * depending upon options.rawResponse
  */
 export function _delete(options: {
@@ -184,10 +184,10 @@ export function _delete(options: {
 
 /**
  * Performs an HTTP PATCH operation with the options passed.
- * 
- * @param options - Details to be used for making the HTTP call and processing 
+ *
+ * @param options - Details to be used for making the HTTP call and processing
  * the response
- * @returns Either the Response object or the DTO inside it wrapped in a promise, 
+ * @returns Either the Response object or the DTO inside it wrapped in a promise,
  * depending upon options.rawResponse
  */
 export function _patch(options: {
@@ -205,10 +205,10 @@ export function _patch(options: {
 
 /**
  * Performs an HTTP POST operation with the options passed.
- * 
- * @param options - Details to be used for making the HTTP call and processing 
+ *
+ * @param options - Details to be used for making the HTTP call and processing
  * the response
- * @returns Either the Response object or the DTO inside it wrapped in a promise, 
+ * @returns Either the Response object or the DTO inside it wrapped in a promise,
  * depending upon options.rawResponse
  */
 export function _post(options: {
@@ -226,10 +226,10 @@ export function _post(options: {
 
 /**
  * Performs an HTTP PUT operation with the options passed.
- * 
- * @param options - Details to be used for making the HTTP call and processing 
+ *
+ * @param options - Details to be used for making the HTTP call and processing
  * the response
- * @returns Either the Response object or the DTO inside it wrapped in a promise, 
+ * @returns Either the Response object or the DTO inside it wrapped in a promise,
  * depending upon options.rawResponse
  */
 export function _put(options: {

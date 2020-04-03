@@ -11,7 +11,7 @@ import qs from "qs";
  * parameters. Out of the various options to render an array in a query string,
  * this class repeats the value for each element of the array,
  * i.e. { a: [1, 2]} => "?a=1&a=2".
- * 
+ *
  * @class Resource
  */
 export class Resource {
@@ -25,9 +25,9 @@ export class Resource {
 
   /**
    * Substitutes template parameters in the path with matching parameters.
-   * 
+   *
    * @param path - String containing template parameters
-   * @param parameters - All the parameters that should substitute the template 
+   * @param parameters - All the parameters that should substitute the template
    * parameters
    * @returns Path with actual parameters
    */
@@ -44,7 +44,7 @@ export class Resource {
 
   /**
    * Create a url from a baseUri, path and query parameters.
-   * 
+   *
    * @returns Rendered URL
    */
   toString(): string {

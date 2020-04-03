@@ -19,11 +19,11 @@ import { ICacheManager } from "./cacheManager";
 config();
 
 /**
- * Defines all the parameters that can be reused by the client. 
- * 
+ * Defines all the parameters that can be reused by the client.
+ *
  * @remarks
  * Headers can be overwritten when actual calls are made.
- * 
+ *
  * @class ClientConfig
  */
 export class ClientConfig {
@@ -48,7 +48,7 @@ const DEFAULT_CLIENT_CONFIG: ClientConfig = {
 };
 
 /**
- * A basic implementation of a client that all the Commerce API clients extend. 
+ * A basic implementation of a client that all the Commerce API clients extend.
  *
  * @class BaseClient
  */
@@ -62,10 +62,10 @@ export class BaseClient {
 
   /**
    * Initializes a mock service for the client to interact with.
-   * 
+   *
    * @remarks
    * It is used for testing purposes.
-   * 
+   *
    * @returns A promise of type void
    */
   async initializeMockService(): Promise<void> {
@@ -85,5 +85,5 @@ export class BaseClient {
   }
 }
 
-export { Response } from "node-fetch";
+export { Response } from "minipass-fetch";
 export { ResponseError } from "./staticClient";
