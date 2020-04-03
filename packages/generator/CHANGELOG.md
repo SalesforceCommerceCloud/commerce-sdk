@@ -1,5 +1,28 @@
 ## CHANGELOG
 
+### v1.3.1-alpha.0
+
+### **Core Functionality**
+
+#### Enhancements
+
+* Request body of the endpoints now have data types
+    Example:
+    ```
+    updateOrder(
+            options: {
+              parameters?: {
+                organizationId?: string
+                orderNo: string
+                siteId?: string
+              },
+              headers?: { [key: string]: string },
+              body: OrderUpdateRequestT
+            }
+          ): Promise<void>;
+    ```
+_____________________________________________
+
 ### v1.3.0-alpha.9
 
 ### **Core Functionality**
