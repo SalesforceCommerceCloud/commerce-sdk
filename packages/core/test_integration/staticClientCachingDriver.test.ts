@@ -15,17 +15,22 @@ import multipleHeadersTests from "../test/cache/multipleHeaders.tests";
 import noCacheHeaderTests from "../test/cache/noCacheHeader.tests";
 
 import { BaseClient } from "../src/base/client";
+import { CacheManagerRedis } from "../src/base/cacheManagerRedis";
 
 describe("Redis cache tests", function() {
   before(function() {
     chai.should();
     chai.use(chaiAsPromised);
     this.client = new BaseClient({
-      baseUri: "https://somewhere"
+      baseUri: "https://somewhere",
+      cacheManager: new CacheManagerRedis({
+        connection: "redis://localhost",
+        keyvOptions: { keepAlive: false }
+      })
     });
   });
-  beforeEach(function() {
-    this.client.clientConfig.cacheManager?.keyv?.clear();
+  after(function() {
+    this.client.clientConfig.cacheManager.quit();
   });
   cacheTests();
 });

@@ -78,16 +78,16 @@ export default function() {
           { mock: "data" },
           { Expires: "Sun, 03 May 2015 23:02:37 GMT" }
         );
-      scope
-        .get("/expired")
-        .reply(
-          200,
-          { mock: "newData" },
-          { Expires: "Sun, 03 May 2025 23:02:37 GMT" }
-        );
 
       return _get({ client: this.client, path: "/expired" }).then(data => {
         expect(data).to.eql({ mock: "data" });
+        scope
+          .get("/expired")
+          .reply(
+            200,
+            { mock: "newData" },
+            { Expires: "Sun, 03 May 2025 23:02:37 GMT" }
+          );
         return _get({ client: this.client, path: "/expired" }).then(data => {
           expect(data).to.eql({ mock: "newData" });
           expect(nock.isDone()).to.be.true;
@@ -143,14 +143,19 @@ export default function() {
       const scope = nock("https://somewhere")
         .get("/max-age-no-cache")
         .reply(200, { mock: "data" }, { "Cache-Control": "max-age=604800" });
-      scope
-        .get("/max-age-no-cache")
-        .reply(200, { mock: "newData" }, { "Cache-Control": "max-age=604800" });
 
       return _get({ client: this.client, path: "/max-age-no-cache" }).then(
         data => {
           expect(data).to.eql({ mock: "data" });
-          expect(nock.isDone()).to.be.false;
+          expect(nock.isDone()).to.be.true;
+          scope
+            .get("/max-age-no-cache")
+            .reply(
+              200,
+              { mock: "newData" },
+              { "Cache-Control": "max-age=604800" }
+            );
+
           return _get({
             client: this.client,
             path: "/max-age-no-cache",
