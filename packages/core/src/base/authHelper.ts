@@ -8,7 +8,7 @@ import { decode } from "jsonwebtoken";
 
 /**
  * A public interface for auth tokens.
- * 
+ *
  * @interface IAuthToken
  */
 export interface IAuthToken {
@@ -17,7 +17,7 @@ export interface IAuthToken {
 
 /**
  * Strip "Bearer " from the passed header.
- * 
+ *
  * @param {string} header - A Bearer token
  * @returns {string} The token after stripping "Bearer "
  */
@@ -28,7 +28,7 @@ export function stripBearer(header: string): string {
 /**
  * Implements ShopperJWT auth scheme. Gets ShopperJWT Bearer tokens of type
  * `guest` and `credentials`.
- * 
+ *
  * @class ShopperToken
  * @implements {IAuthToken}
  */
@@ -46,9 +46,9 @@ export class ShopperToken<T> implements IAuthToken {
 
   /**
    * Returns the JWT.
-   * 
+   *
    * @returns {string} JWT
-   * 
+   *
    * @memberof ShopperToken
    */
   getAuthToken(): string {
@@ -57,9 +57,9 @@ export class ShopperToken<T> implements IAuthToken {
 
   /**
    * Returns a Bearer token i.e. `Bearer <JWT>`.
-   * 
+   *
    * @returns {string} The JWT with "Bearer " added to the front
-   * 
+   *
    * @memberof ShopperToken
    */
   getBearerHeader(): string {
@@ -68,7 +68,7 @@ export class ShopperToken<T> implements IAuthToken {
 
   /**
    * Retrieves the customer information.
-   * 
+   *
    * @returns Customer information this object is instantiated with
    */
   getCustomerInfo(): T {

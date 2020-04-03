@@ -6,6 +6,9 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "pretest": "npm run lint",
+    "redis": "docker rm --force redis-commerce-sdk; docker run -dp 6379:6379 --name redis-commerce-sdk redis:5-alpine",
+    "redis:shutdown": "docker rm --force redis-commerce-sdk; docker rm --force redis-commerce-sdk-debug",
+    "redis:debug": "docker rm --force redis-commerce-sdk-debug; docker run -dp 6379:6379 --name redis-commerce-sdk-debug redis:5-alpine && docker exec -it redis-commerce-sdk-debug redis-cli monitor",
     "test": "nyc mocha \"test/**/*.test.ts\" --reporter=xunit --reporter-options output=../../reports_integration/core.xml",
     "test:debug": "nyc mocha \"test/**/*.test.ts\"",
     "build": "tsc",
@@ -101,9 +104,11 @@
   "license": "BSD-3-Clause",
   "gitHead": "2a6031f5f57c4ba5df8bfb5c4ca42b2631befe58",
   "dependencies": {
+    "@keyv/redis": "^2.1.1",
     "@commerce-apps/exchange-connector": "^1.3.1-alpha.0",
     "dotenv": "~8.2.0",
     "jsonwebtoken": "^8.5.1",
+    "keyv": "^4.0.0",
     "lodash": "~4.17.15",
     "make-fetch-happen": "~7.1.0",
     "node-fetch": "~2.6.0",
