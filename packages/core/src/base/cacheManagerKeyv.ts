@@ -320,10 +320,13 @@ export class CacheManagerKeyv implements ICacheManager {
       throw new Error("Valid request object required to delete");
     }
     this.stripUncacheableRequestHeaders(req);
+
     return (
-      (await this.keyv.delete(getMetadataKey(req))) ||
-      (await this.keyv.delete(getContentKey(req)))
-    );
+      await Promise.all([
+        this.keyv.delete(getMetadataKey(req)),
+        this.keyv.delete(getContentKey(req))
+      ])
+    ).includes(true);
   }
 
   stripUncacheableRequestHeaders(req: fetch.Request): fetch.Request {
