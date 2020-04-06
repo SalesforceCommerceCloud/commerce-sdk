@@ -32,8 +32,11 @@ export class CacheManagerRedis extends CacheManagerKeyv {
     super(options);
   }
 
-  async updateTimeToLiveForKey(key: string, ttl: number) {
-    return this.keyv.opts.store.redis.expire(key, ttl);
+  async updateTimeToLiveForKey(key: string, ttlInMilliseconds: number) {
+    return this.keyv.opts.store.redis.expire(
+      key,
+      Math.floor(ttlInMilliseconds ? ttlInMilliseconds / 1000 : 0)
+    );
   }
 
   /**

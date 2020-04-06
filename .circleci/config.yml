@@ -19,12 +19,13 @@ jobs:
           path: reports
 
   build-12:
-    working_directory: ~/build_only
     environment:
       COMMERCE_SDK_INPUT_DIR: ./test/raml/valid/
+    working_directory: ~/build_only
     docker:
-      - image: circleci/node:10.16.3
+      - image: circleci/node:12.16.1
       - image: redis:5-alpine
+
     steps:
       - checkout
       - node/with-cache:
@@ -63,6 +64,7 @@ workflows:
           filters:
             tags:
               ignore: /^v.*/
+
   build-test-deploy:
     jobs:
       - build:

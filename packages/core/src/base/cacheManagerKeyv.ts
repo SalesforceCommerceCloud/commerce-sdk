@@ -40,7 +40,7 @@ const addCacheHeaders = (resHeaders, path, key, hash, time): void => {
  *
  * @returns Time to cache the response in seconds, zero for should not be cached
  */
-const getTimeToLive = (response: fetch.Response): number => {
+const getTimeToLiveInSeconds = (response: fetch.Response): number => {
   const responseControl = response.headers
     .get("cache-control")
     ?.toLowerCase()
@@ -260,9 +260,9 @@ export class CacheManagerKeyv implements ICacheManager {
     const size = response?.headers?.get("content-length");
     const metadataKey = getMetadataKey(req);
     const contentKey = getContentKey(req);
-    const ttl = getTimeToLive(response);
+    const ttlInMilliseconds = getTimeToLiveInSeconds(response) * 1000;
 
-    if (ttl === 0) {
+    if (ttlInMilliseconds === 0) {
       return response;
     }
 
@@ -289,18 +289,18 @@ export class CacheManagerKeyv implements ICacheManager {
         redisInfo.integrity,
         redisInfo.time
       );
-      await this.keyv.set(metadataKey, cacheOpts, ttl);
+      await this.keyv.set(metadataKey, cacheOpts, ttlInMilliseconds);
 
-      await this.updateTimeToLiveForKey(contentKey, ttl);
+      await this.updateTimeToLiveForKey(contentKey, ttlInMilliseconds);
 
       return response;
     }
 
     const body = await response.text();
 
-    await this.keyv.set(metadataKey, cacheOpts, ttl);
+    await this.keyv.set(metadataKey, cacheOpts, ttlInMilliseconds);
 
-    await this.keyv.set(contentKey, body, ttl);
+    await this.keyv.set(contentKey, body, ttlInMilliseconds);
 
     return Promise.resolve(new fetch.Response(Buffer.from(body), response));
   }
@@ -336,7 +336,7 @@ export class CacheManagerKeyv implements ICacheManager {
     return req;
   }
 
-  async updateTimeToLiveForKey(key: string, ttl: number) {
-    return this.keyv.set(key, await this.keyv.get(key), ttl);
+  async updateTimeToLiveForKey(key: string, ttlInMilliseconds: number) {
+    return this.keyv.set(key, await this.keyv.get(key), ttlInMilliseconds);
   }
 }
