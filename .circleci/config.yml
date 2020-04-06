@@ -3,10 +3,10 @@ jobs:
     environment:
       COMMERCE_SDK_INPUT_DIR: ./test/raml/valid/
     working_directory: ~/build_only
-    executor:
-      name: node/default
-      tag: '10.16'
-    
+    docker:
+      - image: circleci/node:10.16.3
+      - image: redis:5-alpine
+
     steps:
       - checkout
       - node/with-cache:
@@ -22,9 +22,9 @@ jobs:
     working_directory: ~/build_only
     environment:
       COMMERCE_SDK_INPUT_DIR: ./test/raml/valid/
-    executor:
-      name: node/default
-      tag: '12.14'
+    docker:
+      - image: circleci/node:10.16.3
+      - image: redis:5-alpine
     steps:
       - checkout
       - node/with-cache:
