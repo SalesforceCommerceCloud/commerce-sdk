@@ -69,7 +69,7 @@ describe("put tests", () => {
       cacheManager.keyv.set,
       sinon.match.string,
       sinon.match.any,
-      600
+      600000
     );
   });
 
@@ -86,7 +86,7 @@ describe("put tests", () => {
       cacheManager.keyv.set,
       sinon.match.string,
       sinon.match.any,
-      600
+      600000
     );
   });
 
