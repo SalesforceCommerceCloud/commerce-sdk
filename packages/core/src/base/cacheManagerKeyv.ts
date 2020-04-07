@@ -55,6 +55,10 @@ const getTimeToLiveInSeconds = (response: fetch.Response): number => {
       return 0;
     }
 
+    if (responseControl.includes("must-revalidate")) {
+      return Number.MAX_SAFE_INTEGER;
+    }
+
     const sMaxAgeParts = responseControl
       .find(value => value.startsWith("s-maxage"))
       ?.split(/\s*=\s*/);
