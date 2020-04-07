@@ -129,9 +129,11 @@ const config = {
 ### Redis cache
 To use a Redis cache, instantiate a CacheManagerRedis object with your Redis URL and put it in your client config object.
 ```javascript
+import { CacheManagerRedis } from "@commerce-apps/core"
+
 const cacheManager = new CacheManagerRedis({ connection: "redis://localhost:6379" });
 const config = {
-    cacheManager,
+    cacheManager: cacheManager,
     parameters: {
         clientId: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         organizationId: "f_ecom_bblx_stg",

@@ -29,3 +29,5 @@ export {
   commonParameterPositions,
   CommonParameters
 } from "./base/commonParameters";
+
+export { CacheManagerRedis } from "./base/cacheManagerRedis";
