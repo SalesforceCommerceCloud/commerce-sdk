@@ -134,15 +134,17 @@ export default function() {
       // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
       // @ts-ignore
       const nowTimestamp = Date.now();
-      const dateExpires = new Date(nowTimestamp + 1800).toUTCString();
+      const dateExpires = new Date(nowTimestamp + 1000).toUTCString();
+
       const scope = nock("https://somewhere")
         .get("/lastmodified")
         .reply(
           200,
           { mock: "data" },
           {
-            "Cache-Control": "must-revalidate,max-age=1",
-            "Last-Modified": dateLastModified
+            "Cache-Control": "must-revalidate",
+            "Last-Modified": dateLastModified,
+            Expires: dateExpires
           }
         );
 
@@ -193,14 +195,14 @@ export default function() {
 
       // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
       // @ts-ignore
-      const dateExpires = new Date(nowTimestamp + 1200).toUTCString();
+      const dateExpires = new Date(nowTimestamp + 1000).toUTCString();
       const scope = nock("https://somewhere")
         .get("/not-modified")
         .reply(
           200,
           { mock: "data" },
           {
-            "Cache-Control": "must-revalidate,max-age=1",
+            "Cache-Control": "must-revalidate",
             "Last-Modified": lastModified,
             Expires: dateExpires
           }

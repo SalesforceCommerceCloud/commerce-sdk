@@ -9,9 +9,6 @@ import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 
 import delayedTests from "../test/cache/delayedTests.tests";
-
-import redisEtagTests from "../test/cache/redisEtag.tests";
-
 import cacheTests from "../test/cache/basic.tests";
 import etagTests from "../test/cache/etag.tests";
 import evictionTests from "../test/cache/eviction.tests";
