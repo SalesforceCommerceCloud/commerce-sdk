@@ -47,9 +47,6 @@ const { ClientConfig, helpers, Search } = CommerceSdk;
 // Create a configuration to use when creating API clients
 // In TypeScript, let config = new ClientConfig();
 const config = {
-    headers: {
-        connection: "close"
-    },
     parameters: {
         clientId: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         organizationId: "f_ecom_bblx_stg",
@@ -94,30 +91,6 @@ helpers.getShopperToken(config, { type: "guest" }).then(async (token) => {
 });
 ```
 
-## Caching
-
-In-memory caching of responses is enabled by default. This implementation respects [standard cache headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control). To disable caching for a client, set cacheManager to 'null'.
-
-
-
-### Sample Code
-```javascript
-const config = {
-    cacheManager: null,
-    headers: {
-        connection: "close"
-    },
-    parameters: {
-        clientId: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        organizationId: "f_ecom_bblx_stg",
-        shortCode: "0dnz6oep",
-        siteId: "RefArch"
-    }
-}
-```
-
-
-
 When using an IDE such as VSCode, the autocomplete feature lets you view the available method and class definitions, including parameters.
 ​
 
@@ -134,6 +107,41 @@ Autocomplete will also show the available properties of the data returned by SDK
 
 
 ![Result Autocomplete](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/packages/generator/images/ResultAutocomplete.jpg?raw=true "Result Autocomplete")
+
+## Caching
+
+The SDK currently supports two types of caches - In-memory and Redis. Both the implementations respect [standard cache headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control). If you would like to use another type of cache, you can write your own implementation of the [CacheManager](../core/src/base/cacheManager.ts)
+
+### In-memory cache
+In-memory caching of responses is enabled by default. To disable caching for a client, set cacheManager to 'null'.
+```javascript
+const config = {
+    cacheManager: null,
+    parameters: {
+        clientId: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        organizationId: "f_ecom_bblx_stg",
+        shortCode: "0dnz6oep",
+        siteId: "RefArch"
+    }
+}
+```
+
+### Redis cache
+To use a Redis cache, instantiate a CacheManagerRedis object with your Redis URL and put it in your client config object.
+```javascript
+import { CacheManagerRedis } from "@commerce-apps/core"
+
+const cacheManager = new CacheManagerRedis({ connection: "redis://localhost:6379" });
+const config = {
+    cacheManager: cacheManager,
+    parameters: {
+        clientId: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        organizationId: "f_ecom_bblx_stg",
+        shortCode: "0dnz6oep",
+        siteId: "RefArch"
+    }
+}
+```
 
 ## Additional Documentation 
 [API Documentation](./APICLIENTS.md)  
