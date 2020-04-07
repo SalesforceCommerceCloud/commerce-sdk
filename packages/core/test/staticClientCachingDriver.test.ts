@@ -10,6 +10,8 @@ import chaiAsPromised from "chai-as-promised";
 
 import cacheTests from "./cache/basic.tests";
 import etagTests from "./cache/etag.tests";
+import delayedTests from "./cache/delayedTests.tests";
+
 import evictionTests from "./cache/eviction.tests";
 import multipleHeadersTests from "./cache/multipleHeaders.tests";
 import noCacheHeaderTests from "./cache/noCacheHeader.tests";
@@ -24,9 +26,10 @@ describe("Default cache tests", function() {
       baseUri: "https://somewhere"
     });
   });
-  cacheTests();
   etagTests();
+  cacheTests();
   evictionTests();
   multipleHeadersTests();
   noCacheHeaderTests();
+  delayedTests();
 });
