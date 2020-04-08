@@ -1495,17 +1495,25 @@ types:
             description: Creates a catalog category using the information provided.
             displayName: createCategoryInCatalog
             is:
-              - CatalogTraits.RateLimited4:
+              - CatalogTraits.RateLimited5:
                   responseStatus: 201
-                  responseStatus2: 400
-                  responseStatus3: 401
-                  responseStatus4: 404
+                  responseStatus2: 200
+                  responseStatus3: 400
+                  responseStatus4: 401
+                  responseStatus5: 404                             
               - CatalogTraits.Unauthorized
               - CatalogTraits.BadRequest
-              - CatalogTraits.NotFound
+              - CatalogTraits.NotFound              
             responses:
               '201':
                 description: Category Created Successfully
+                body:
+                  application/json:
+                    type: Category
+                    examples:
+                      category: !include Examples/single-category.raml
+              '200':
+                description: Category Updated Successfully
                 body:
                   application/json:
                     type: Category
@@ -1660,15 +1668,23 @@ types:
                 with the new assignment with position n+1.
               displayName: assignProductToCategory
               is:
-                - CatalogTraits.RateLimited3:
+                - CatalogTraits.RateLimited4:
                     responseStatus: 201
-                    responseStatus2: 401
-                    responseStatus3: 404
+                    responseStatus2: 200
+                    responseStatus3: 401
+                    responseStatus4: 404
                 - CatalogTraits.Unauthorized
                 - CatalogTraits.NotFound
               responses:
                 '201':
                   description: Assignment Created Successfully
+                  body:
+                    application/json:
+                      type: CategoryProductAssignment
+                      examples:
+                        category-prod-assignment: !include Examples/catalogcategoryprdAssignment-example.raml
+                '200':
+                  description: Assignment Updated Successfully
                   body:
                     application/json:
                       type: CategoryProductAssignment

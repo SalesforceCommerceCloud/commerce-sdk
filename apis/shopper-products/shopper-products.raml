@@ -14,7 +14,7 @@ description: Use the Shop Products & Catalogs API to interact with the API in th
 
 uses:
   ProdTraits: products-traits-library.raml
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.6/api-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.7/api-standards.raml
   CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.10/commerce-cloud-standards.raml
 
 types:
@@ -757,7 +757,7 @@ types:
   type: CommerceCloudStandards.Organization
   /products:
     get:     
-      description: 'Allows access to multiple products by a single request. This convenience resource should be used instead making separated requests, saving bandwidth and CPU time on the server. The URI is the same as requesting a single Product by ID, but multiple IDs wrapped by parentheses and separated are provided. If a parenthesis, or the separator, is part of the identifier itself, it has to be URL encoded. Instead of a single Product document, a result object of Product documents is returned. Note: Only products that are online and assigned to a site catalog are returned. The maximum number of IDs is 24. If none of the products requested are found, the cache-control header defaults to 60 seconds.'
+      description: 'Allows access to multiple products by a single request. Only products that are online and assigned to a site catalog are returned. The maximum number of productIDs that can be requested are 24. Alongwith product details, the availability, images, price, promotion and variations data for the valid products will be included as appropriate.' 
       displayName: getProducts      
       is:
         - CommerceCloudStandards.SiteSpecific:
@@ -769,17 +769,10 @@ types:
         - ProdTraits.BadRequest 
       queryParameters:
           ids: 
-            description: The IDs of the requested products (comma-separated, max 25 IDs).
+            description: The IDs of the requested products (comma-separated, max 24 IDs).
             type: string
             required: true
             example: "apple-ipod-shuffle,apple-ipod-nano"
-          expand:
-            description: The expand parameter. A comma separated list with the allowed values (availability, promotions, options, images, prices, and variations).
-            type: array
-            required: false
-            items:
-              type: string
-            example: [availability,promotions,options,images,prices,variations]
           inventoryIds:
             description: The optional inventory list IDs, for which the availability should be shown (comma-separated, max 5 inventoryListIDs).
             type: string
@@ -813,10 +806,7 @@ types:
         - CommerceCloudStandards.ShopperToken
     /{id}:
       get:
-        description: |-
-          To access a single products resource, you construct a URL with an ID (typically a SKU) for a product. In response, the server returns a corresponding product
-          document, provided the product is online and assigned to a site catalog. The document contains variation attributes
-          (including values) and the variant matrix. This data is provided for both the master and the variant.
+        description: Allows access to product details for a single product ID. Only products that are online and assigned to a site catalog are returned. Along with product details, the availability,images,price,bundled_products,set_products,recommedations,productoptions,variation and promotion data for the products will be included as appropriate.
         displayName: getProduct
         is: 
           - CommerceCloudStandards.SiteSpecific:
@@ -837,13 +827,6 @@ types:
                 examples:
                   product: !include Examples/product-example.raml
         queryParameters:
-          expand:
-            description: The expand parameter. A comma separated list with the allowed values (availability, promotions, options, images, prices, variations, bundled_products, set_products, and recommendations).
-            type: array
-            items:
-              type: string
-            required: false
-            example: [availability,promotions,options,images,prices,variations,bundled_products,set_products,recommendations]
           inventoryIds:
             description: The optional inventory list IDs, for which the availability should be shown (comma-separated, max 5 inventoryListIDs).
             type: string
@@ -955,3 +938,4 @@ types:
           description: The ID of the requested category.
           maxLength: 256
           type: string
+          example: electronics

@@ -14,7 +14,7 @@ description: Use the Data Products API to interact with the API in the context o
 
 uses:
   ProductTraits: data-products-library.raml
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.6/api-standards.raml   
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.7/api-standards.raml   
   CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.12/commerce-cloud-standards.raml
 
 types:
@@ -946,15 +946,24 @@ types:
           description: Creates a product using the information provided. If a product with the same unique identifier exists, it will be cleaned and overwritten unless the header x-dw-validate-existing=true is passed in with the request.
           displayName: createProduct
           is:
-            - ApiStandards.RateLimited3:
+            - ApiStandards.RateLimited5:
                 responseStatus: 201
-                responseStatus2: 400
-                responseStatus3: 401
+                responseStatus2: 200
+                responseStatus3: 200
+                responseStatus4: 400
+                responseStatus5: 401
             - ProductTraits.Unauthorized
             - ProductTraits.BadRequest
           responses:
             '201':
-              description: Product was created or updated successfully.
+              description: Product was created successfully.
+              body:
+                application/json:
+                  type: Product
+                  examples:
+                    productResponse: !include Examples/Data-Product-Expand.raml
+            '200':
+              description: Product was updated successfully.
               body:
                 application/json:
                   type: Product
@@ -977,7 +986,7 @@ types:
             example: apple-ipod-shuffle
       /variant-search:
         post:
-          description: "Searches product variations for master product or variation group product.\n \n The query attribute specifies a complex query that can be used to narrow down the search. This is the list\n of searchable attributes:\n \n id - String\n product_id - String\n name - String\n online - SiteSpecific Boolean\n in_stock - Boolean \n searchable - SiteSpecific Boolean \n ats - Actual available quantity to sell - Double \n variation_attribute.ATTRIBUTE_ID (Ex:variation_attribute.color) - String\n \n Sortable Fields:\n \n id - String\n product_id - String\n name - String\n online - SiteSpecific Boolean\n in_stock - Boolean \n searchable - SiteSpecific Boolean \n ats - Actual available quantity to sell - Double \n \n\n Note:\n The calculated value of \"online\" and \"searchable\" is used in the search/sort.\n A search/sort by the the site specific attributes require the Site ID query parameter to be set.\n They are \"online\", \"in_stock\", \"searchable\" and \"ats\".\n  We assume that every field that starts with variation_attribute. is searchable and dot is followed by ATTRIBUTE_ID\".\n\n\n The list of expansions to retrieve product information. The expand values available are:\n \t\t  \n \t\t\t_base - Basic product information is retrieved. This expand is included by default.\n \t\t\tall - All product information including the following properties are retrieved:\n        \t\n        \t\timage\n        \t\tprice - siteId has to be provided to see this property\n        \t\tprice_currency - siteId has to be provided to see this property\n        \t\n \t\t\tavailability - Information related to the availability of the product variation.  This expand is not included by default.\n        \t\n        \t\tats - siteId has to be provided to see this property\n        \t\tin_stock - siteId has to be provided to see this property\n        \t\tonline - siteId has to be provided to see this property\n        \t\tsearchable\n        \t\n          variations - Information related to product variation is retrieved. This expand is included by default.\n \t\t\tattributes - Information related to product variation attributes is retrieved. This expand is not included by default.\n \t\t  "
+          description: Searches product variations for master product or variation group product.\n \n The query attribute specifies a complex query that can be used to narrow down the search. This is the list\n of searchable attributes:\n \n id - String\n product_id - String\n name - String\n online - SiteSpecific Boolean\n in_stock - Boolean \n searchable - SiteSpecific Boolean \n ats - Actual available quantity to sell - Double \n variation_attribute.ATTRIBUTE_ID (Ex:variation_attribute.color) - String\n \n Sortable Fields:\n \n id - String\n product_id - String\n name - String\n online - SiteSpecific Boolean\n in_stock - Boolean \n searchable - SiteSpecific Boolean \n ats - Actual available quantity to sell - Double \n \n\n Note:\n The calculated value of \"online\" and \"searchable\" is used in the search/sort.\n A search/sort by the the site specific attributes require the Site ID query parameter to be set.\n They are \"online\", \"in_stock\", \"searchable\" and \"ats\".\n  We assume that every field that starts with variation_attribute. is searchable and dot is followed by ATTRIBUTE_ID\".\n\n\n The list of expansions to retrieve product information. The expand values available are:\n \t\t  \n \t\t\t_base - Basic product information is retrieved. This expand is included by default.\n \t\t\tall - All product information including the following properties are retrieved:\n        \t\n        \t\timage\n        \t\tprice - siteId has to be provided to see this property\n        \t\tprice_currency - siteId has to be provided to see this property\n        \t\n \t\t\tavailability - Information related to the availability of the product variation.  This expand is not included by default.\n        \t\n        \t\tats - siteId has to be provided to see this property\n        \t\tin_stock - siteId has to be provided to see this property\n        \t\tonline - siteId has to be provided to see this property\n        \t\tsearchable\n        \t\n          variations - Information related to product variation is retrieved. This expand is included by default.\n \t\t\tattributes - Information related to product variation attributes is retrieved. This expand is not included by default.\n \t\t  
           displayName: searchProductVariations
           is:
             - ApiStandards.RateLimited4:
@@ -1048,7 +1057,7 @@ types:
           description: |-
             Unassign a variation group product from a product master. The variation group product is not
               deleted: it remains as a normal product after unsassign.
-          displayName: deleteVariationGroupForMaster
+          displayName: unassignVariationGroupFromMasterProduct
           is:
             - ApiStandards.RateLimited3:
                 responseStatus: 204
@@ -1093,7 +1102,7 @@ types:
             - CommerceCloudStandards.AmOAuth2
         patch:
           description: Update a variation group for a product master.
-          displayName: updateVariationGroupInMasterProduct
+          displayName: updateVariationGroupForMasterProduct
           is:
             - ApiStandards.RateLimited4:
                 responseStatus: 200
@@ -1123,10 +1132,10 @@ types:
           description: |-
             Assign a variation group for a product master. If the variation group product does not initially exist,
               one is created using the body passed in.
-          displayName: assignVariationGroupForMasterProduct
+          displayName: assignVariationGroupToMasterProduct
           is:
             - ApiStandards.RateLimited4:
-                responseStatus: 201
+                responseStatus: 200
                 responseStatus2: 400
                 responseStatus3: 401
                 responseStatus4: 404
@@ -1134,7 +1143,7 @@ types:
             - ProductTraits.BadRequest
             - ProductTraits.ProductNotFound
           responses:
-            '201':
+            '200':
               description: Successfully assigned a variation group for given product master.
               body:
                 application/json:
@@ -1198,7 +1207,7 @@ types:
           description: |-
             Unassign a variation product from a product master.  The variation product is not deleted: it remains as a
               normal product after unsassign.
-          displayName: deleteVariationForMaster
+          displayName: unassignVariationFromMasterProduct
           is:
             - ApiStandards.RateLimited3:
                 responseStatus: 204
@@ -1243,7 +1252,7 @@ types:
             - CommerceCloudStandards.AmOAuth2
         patch:
           description: Update a variation for a product master.
-          displayName: updateVariationsInMasterProduct
+          displayName: updateVariationForMasterProduct
           is:
             - ApiStandards.RateLimited4:
                 responseStatus: 200
@@ -1273,10 +1282,10 @@ types:
           description: |-
             Assign a variation for a product master.  If the variation product does not initially exist,
               one is created using the body passed in.
-          displayName: createVariationForMasterProduct
+          displayName: assignVariationForMasterProduct
           is:
             - ApiStandards.RateLimited4:
-                responseStatus: 201
+                responseStatus: 200
                 responseStatus2: 400
                 responseStatus3: 401
                 responseStatus4: 404
@@ -1284,8 +1293,8 @@ types:
             - ProductTraits.BadRequest
             - ProductTraits.ProductNotFound
           responses:
-            '201':
-              description: Variation was assigned to  master product successfully.
+            '200':
+              description: Variation in master product was updated successfully.
               body:
                 application/json:
                   type: Variant
@@ -1420,17 +1429,25 @@ types:
           description: Creates a local product option using the information provided or binds a shared product option to the product.
           displayName: createProductOption
           is:
-            - ApiStandards.RateLimited4:
+            - ApiStandards.RateLimited5:
                 responseStatus: 201
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 404
+                responseStatus2: 200
+                responseStatus3: 400
+                responseStatus4: 401
+                responseStatus5: 404
             - ProductTraits.Unauthorized
             - ProductTraits.BadRequest
             - ProductTraits.ProductNotFound
           responses:
             '201':
               description: Created or binded product option successfully.
+              body:
+                application/json:
+                  type: ProductOption
+                  examples: 
+                    productOptionsIdResult: !include Examples/ProductOptionsIdResult.raml
+            '200':
+              description: Updated product option successfully.
               body:
                 application/json:
                   type: ProductOption
@@ -1530,17 +1547,25 @@ types:
         description: Creates a local product option value using the information provided.
         displayName: createProductOptionValue
         is:
-          - ApiStandards.RateLimited4:
+          - ApiStandards.RateLimited5:
               responseStatus: 201
-              responseStatus2: 400
-              responseStatus3: 401
-              responseStatus4: 404
+              responseStatus2: 200
+              responseStatus3: 400
+              responseStatus4: 401
+              responseStatus5: 404
           - ProductTraits.ProductNotFound
           - ProductTraits.Unauthorized
           - ProductTraits.BadRequest
         responses:
           '201':
             description: Created product option value successfully.
+            body:
+              application/json:
+                type: ProductOptionValue
+                examples:
+                  productOptionsValueResult: !include Examples/ProductOptionsValuesResult.raml
+          '200':
+            description: Upsated product option value successfully.
             body:
               application/json:
                 type: ProductOptionValue
@@ -1650,16 +1675,24 @@ types:
         description: Action to create a product variation attribute value.
         displayName: createVariationAttributeValue
         is:
-          - ApiStandards.RateLimited4:
+          - ApiStandards.RateLimited5:
               responseStatus: 201
-              responseStatus2: 400
-              responseStatus3: 401
-              responseStatus4: 404
+              responseStatus2: 200
+              responseStatus3: 400
+              responseStatus4: 401
+              responseStatus5: 404
           - ProductTraits.ProductNotFound
           - ProductTraits.Unauthorized
           - ProductTraits.BadRequest
         responses:
           '201':
+            description: Created product variation attribute value successfully.
+            body:
+              application/json:
+                type: VariationAttributeValue
+                examples:
+                  variantAttributeValuesResult: !include Examples/VariationAttributeValuesIdResult.raml
+          '200':
             description: Created product variation attribute value successfully.
             body:
               application/json:
@@ -1714,6 +1747,9 @@ types:
                 type: VariationAttributes
                 examples: 
                   variantAttributesResult: !include Examples/VariationAttributesResult.raml
+        securedBy:
+          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.AmOAuth2
       /{id}:
         get:
           description: Action to get variation attribute information only for master product.
@@ -1792,16 +1828,24 @@ types:
           description: Creates a variation attribute using the information provided.
           displayName: createVariationAttribute
           is:
-            - ApiStandards.RateLimited4:
+            - ApiStandards.RateLimited5:
                 responseStatus: 201
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 404
+                responseStatus2: 200
+                responseStatus3: 400
+                responseStatus4: 401
+                responseStatus5: 404
             - ProductTraits.ProductNotFound
             - ProductTraits.Unauthorized
             - ProductTraits.BadRequest
           responses:
             '201':
+              description: Created variation attribute successfully.
+              body:
+                application/json:
+                  type: VariationAttribute
+                  examples: 
+                    variantAttributeIdResult: !include Examples/VariationAttributeResult.raml
+            '200':
               description: Created variation attribute successfully.
               body:
                 application/json:

@@ -5,11 +5,12 @@ responses:
       description: |
                 Indicates that the customerId URL parameter does not match the verified customer represented by the JWT token, which is not relevant when using OAuth, or indicates that the provided new address name is already used for the customer.
       body:
-        application/json:
-          type: Error
-          example: {
-            "type": "InvalidCustomerException",
-            "title": "CustomerId URL parameter does not match the verified customer represented by the JWT token.",
-            "detail": "Blah",
-            "instance": "/blah"
-          }
+        application/problem+json:
+          type: ErrorResponse
+          example: |
+            {
+              "title": "Invalid Access Token",
+              "type": "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/invalid-access-token",
+              "detail": "The request is unauthorized, the access token is invalid.",
+              "accessToken": "iI6IjEiLCJhbGciOiJIUzI1NiIsInR5cCI6Ik"
+            }

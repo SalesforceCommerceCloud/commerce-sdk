@@ -589,10 +589,64 @@ types:
           minLength: 1
           type: string
           example: "Site1CustomerList"
-    /{listId}:
+    /{listId}/customers:      
+      post:
+        description: |-
+          Action to create a new customer. The customer is created using the specified credentials and customer
+          information. This action verifies the following:
+          
+          Login acceptance criteria and uniqueness.
+          Mandatory customer properties.
+          
+          If the action fails to create the customer, it returns a 400 fault with an appropriate message.
+        displayName: createCustomerList
+        is:
+          - ApiStandards.RateLimited4:
+              responseStatus: 200
+              responseStatus2: 400
+              responseStatus3: 401
+              responseStatus4: 404
+          - CustomerListsTraits.Unauthorized
+          - CustomerListsTraits.NotFound
+          - CustomerListsTraits.BadRequest
+        responses:
+          '200':
+            description: Success
+            body:
+              application/json:
+                type: Customer
+                examples:
+                  customers-result: !include Examples/post-customers.raml
+        body:
+          application/json:
+            type: Customer
+            examples:
+              body: !include Examples/post-customer-body.raml
+        securedBy:
+          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.AmOAuth2
+      /{customerNo}:
+        delete:
+          description: Deletes the customer, including all related information like the customer addresses.
+          displayName: deleteCustomerFromCustomerList
+          is:
+            - ApiStandards.RateLimited4:
+                responseStatus: 204
+                responseStatus2: 400
+                responseStatus3: 401
+                responseStatus4: 404
+            - CustomerListsTraits.Unauthorized
+            - CustomerListsTraits.NotFound
+            - CustomerListsTraits.BadRequest
+          responses:
+            '204': 
+              description: No Content
+          securedBy:
+            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.AmOAuth2
         get:
-          description: Action to read an existing customer list.
-          displayName: getCustomerList
+          description: Action to get customer information.
+          displayName: getCustomerFromCustomerList
           is:
             - ApiStandards.RateLimited4:
                 responseStatus: 200
@@ -600,310 +654,234 @@ types:
                 responseStatus3: 401
                 responseStatus4: 404
             - CustomerListsTraits.Unauthorized
-            - CustomerListsTraits.BadRequest
             - CustomerListsTraits.NotFound
+            - CustomerListsTraits.BadRequest
           responses:
             '200':
               description: Success
               body:
                 application/json:
-                  type: CustomerList
-                  examples: 
-                    get-result: !include Examples/customer-list-get.raml
+                  type: Customer
+                  examples:
+                    get-customer: !include Examples/post-customers.raml
+          securedBy:
+            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.AmOAuth2
+        patch:
+          description: |-
+            Updates the customer with the specified information. The customer number is allowed to be updated but results in a
+            CustomerNumberAlreadyInUseException if there is another customer with the same customer number existing.
+          displayName: updateCustomerInCustomerList
+          is:
+            - ApiStandards.RateLimited4:
+                responseStatus: 200
+                responseStatus2: 400
+                responseStatus3: 401
+                responseStatus4: 404
+            - CustomerListsTraits.Unauthorized
+            - CustomerListsTraits.NotFound
+            - CustomerListsTraits.BadRequest
+          responses:
+            '200':
+              description: Success
+              body:
+                application/json:
+                  type: Customer
+                  examples:
+                    patch-example: !include Examples/post-customers.raml
+          body:
+            application/json:
+              type: Customer
+              examples:
+                patch-body: !include Examples/post-customer-body.raml
+          securedBy:
+            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.AmOAuth2
+        put:
+          description: |-
+            Action to create a new customer. The customer is created using the specified customer number, credentials, and
+            customer information. This action verifies the following:
+            
+            Login acceptance criteria and uniqueness.
+            Mandatory customer properties.
+            
+            If the action fails to create the customer, it returns a 400 fault with an appropriate message.
+          displayName: createCustomerInCustomerList
+          is:
+            - ApiStandards.RateLimited5:
+                responseStatus: 200
+                responseStatus2: 201
+                responseStatus3: 400
+                responseStatus4: 401
+                responseStatus5: 404
+            - CustomerListsTraits.Unauthorized
+            - CustomerListsTraits.NotFound
+            - CustomerListsTraits.BadRequest
+          responses:
+            '201':
+              description: Created
+              body:
+                application/json:
+                  type: Customer
+                  examples:
+                    put-example: !include Examples/post-customers.raml
+            '200':
+              description: Success
+              body:
+                application/json:
+                  type: Customer
+                  examples:
+                    put-example: !include Examples/post-customers.raml
+          body:
+            application/json:
+              type: Customer
+              examples:
+                put-body: !include Examples/post-customer-body.raml
           securedBy:
             - CommerceCloudStandards.BearerToken
             - CommerceCloudStandards.AmOAuth2
         uriParameters:
-          listId:
-            description: The list ID of the list to return.
+          customerNo:
+            description: The customer number.
             minLength: 1
             type: string
-            example: "Site1CustomerList"
-        /customers:
-          post:
+            example: "D100201"
+        /addresses:
+          get:
             description: |-
-              Action to create a new customer. The customer is created using the specified credentials and customer
-              information. This action verifies the following:
-              
-              Login acceptance criteria and uniqueness.
-              Mandatory customer properties.
-              
-              If the action fails to create the customer, it returns a 400 fault with an appropriate message.
-            displayName: createCustomerList
+              Action that returns a pageable list of all customer addresses. The
+              default page size is 10 customer addresses.
+            displayName: getAddressesForCustomerFromCustomerList
             is:
               - ApiStandards.RateLimited4:
                   responseStatus: 200
                   responseStatus2: 400
                   responseStatus3: 401
                   responseStatus4: 404
+              - CustomerListsTraits.BadRequest
               - CustomerListsTraits.Unauthorized
               - CustomerListsTraits.NotFound
-              - CustomerListsTraits.BadRequest
+              - CustomerListsTraits.offset-paginated:
+                  maxLimit: 50
+                  defaultSize: 25
             responses:
               '200':
                 description: Success
                 body:
                   application/json:
-                    type: Customer
+                    type: CustomerAddressResult
                     examples:
-                      customers-result: !include Examples/post-customers.raml
-            body:
-              application/json:
-                type: Customer
-                examples:
-                  body: !include Examples/post-customer-body.raml
+                      address-example: !include Examples/addresses-get.raml
             securedBy:
               - CommerceCloudStandards.BearerToken
               - CommerceCloudStandards.AmOAuth2
-          /{customerNo}:
+          post:
+            description: |-
+              The action creates a new customer address with the given address
+              information.
+            displayName:  CreateAddressForCustomerInCustomerList
+            is:
+              - ApiStandards.RateLimited4:
+                  responseStatus: 200
+                  responseStatus2: 400
+                  responseStatus3: 401
+                  responseStatus4: 404
+              - CustomerListsTraits.BadRequest
+              - CustomerListsTraits.Unauthorized
+              - CustomerListsTraits.NotFound
+            responses:
+              '200':
+                description: Success
+                body:
+                  application/json:
+                    type: CustomerAddress
+                    examples:
+                      address-example: !include Examples/addresses-post.raml
+            body:
+              application/json:
+                type: CustomerAddress
+                examples:
+                  address-body: !include Examples/addresses-body.raml
+            securedBy:
+              - CommerceCloudStandards.BearerToken
+              - CommerceCloudStandards.AmOAuth2
+          /{addressId}:
+            get:
+              description: |-
+                Action that returns a single customer address from a customer list.
+              displayName: getAddressForCustomerFromCustomerList
+              is:
+                - ApiStandards.RateLimited4:
+                    responseStatus: 200
+                    responseStatus2: 400
+                    responseStatus3: 401
+                    responseStatus4: 404
+                - CustomerListsTraits.BadRequest
+                - CustomerListsTraits.Unauthorized
+                - CustomerListsTraits.NotFound
+              responses:
+                '200':
+                  description: Success
+                  body:
+                    application/json:
+                      type: CustomerAddress
+                      examples:
+                        address-example: !include Examples/address-get.raml
+              securedBy:
+                - CommerceCloudStandards.BearerToken
+                - CommerceCloudStandards.AmOAuth2
             delete:
-              description: Deletes the customer, including all related information like the customer addresses.
-              displayName: deleteCustomerFromCustomerList
+              description: Action which deletes a customer address.
+              displayName: removeAddressForCustomerInCustomerList
               is:
                 - ApiStandards.RateLimited4:
                     responseStatus: 204
                     responseStatus2: 400
                     responseStatus3: 401
                     responseStatus4: 404
+                - CustomerListsTraits.BadRequest
                 - CustomerListsTraits.Unauthorized
                 - CustomerListsTraits.NotFound
-                - CustomerListsTraits.BadRequest
               responses:
                 '204': 
                   description: No Content
               securedBy:
                 - CommerceCloudStandards.BearerToken
                 - CommerceCloudStandards.AmOAuth2
-            get:
-              description: Action to get customer information.
-              displayName: getCustomerFromCustomerList
-              is:
-                - ApiStandards.RateLimited4:
-                    responseStatus: 200
-                    responseStatus2: 400
-                    responseStatus3: 401
-                    responseStatus4: 404
-                - CustomerListsTraits.Unauthorized
-                - CustomerListsTraits.NotFound
-                - CustomerListsTraits.BadRequest
-              responses:
-                '200':
-                  description: Success
-                  body:
-                    application/json:
-                      type: Customer
-                      examples:
-                        get-customer: !include Examples/post-customers.raml
-              securedBy:
-                - CommerceCloudStandards.BearerToken
-                - CommerceCloudStandards.AmOAuth2
             patch:
-              description: |-
-                Updates the customer with the specified information. The customer number is allowed to be updated but results in a
-                CustomerNumberAlreadyInUseException if there is another customer with the same customer number existing.
-              displayName: updateCustomerInCustomerList
+              description: Action which updates an address of a customer with the given address information.
+              displayName: updateAddressForCustomerInCustomerList
               is:
                 - ApiStandards.RateLimited4:
                     responseStatus: 200
                     responseStatus2: 400
                     responseStatus3: 401
                     responseStatus4: 404
+                - CustomerListsTraits.BadRequest
                 - CustomerListsTraits.Unauthorized
                 - CustomerListsTraits.NotFound
-                - CustomerListsTraits.BadRequest
               responses:
                 '200':
                   description: Success
-                  body:
-                    application/json:
-                      type: Customer
-                      examples:
-                        patch-example: !include Examples/post-customers.raml
-              body:
-                application/json:
-                  type: Customer
-                  examples:
-                    patch-body: !include Examples/post-customer-body.raml
-              securedBy:
-                - CommerceCloudStandards.BearerToken
-                - CommerceCloudStandards.AmOAuth2
-            put:
-              description: |-
-                Action to create a new customer. The customer is created using the specified customer number, credentials, and
-                customer information. This action verifies the following:
-                
-                Login acceptance criteria and uniqueness.
-                Mandatory customer properties.
-                
-                If the action fails to create the customer, it returns a 400 fault with an appropriate message.
-              displayName: createCustomerInCustomerList
-              is:
-                - ApiStandards.RateLimited4:
-                    responseStatus: 201
-                    responseStatus2: 400
-                    responseStatus3: 401
-                    responseStatus4: 404
-                - CustomerListsTraits.Unauthorized
-                - CustomerListsTraits.NotFound
-                - CustomerListsTraits.BadRequest
-              responses:
-                '201':
-                  description: Success
-                  body:
-                    application/json:
-                      type: Customer
-                      examples:
-                        put-example: !include Examples/post-customers.raml
-              body:
-                application/json:
-                  type: Customer
-                  examples:
-                    put-body: !include Examples/post-customer-body.raml
-              securedBy:
-                - CommerceCloudStandards.BearerToken
-                - CommerceCloudStandards.AmOAuth2
-            uriParameters:
-              customerNo:
-                description: The customer number.
-                minLength: 1
-                type: string
-                example: "D100201"
-            /addresses:
-              get:
-                description: |-
-                  Action that returns a pageable list of all customer addresses. The
-                  default page size is 10 customer addresses.
-                displayName: getAddressesForCustomerFromCustomerList
-                is:
-                  - ApiStandards.RateLimited4:
-                      responseStatus: 200
-                      responseStatus2: 400
-                      responseStatus3: 401
-                      responseStatus4: 404
-                  - CustomerListsTraits.BadRequest
-                  - CustomerListsTraits.Unauthorized
-                  - CustomerListsTraits.NotFound
-                  - CustomerListsTraits.offset-paginated:
-                      maxLimit: 50
-                      defaultSize: 25
-                responses:
-                  '200':
-                    description: Success
-                    body:
-                      application/json:
-                        type: CustomerAddressResult
-                        examples:
-                          address-example: !include Examples/addresses-get.raml
-                securedBy:
-                  - CommerceCloudStandards.BearerToken
-                  - CommerceCloudStandards.AmOAuth2
-              post:
-                description: |-
-                  The action creates a new customer address with the given address
-                  information.
-                displayName:  createAdressForCustomerInCustomerList
-                is:
-                  - ApiStandards.RateLimited4:
-                      responseStatus: 200
-                      responseStatus2: 400
-                      responseStatus3: 401
-                      responseStatus4: 404
-                  - CustomerListsTraits.BadRequest
-                  - CustomerListsTraits.Unauthorized
-                  - CustomerListsTraits.NotFound
-                responses:
-                  '200':
-                    description: Success
-                    body:
-                      application/json:
-                        type: CustomerAddress
-                        examples:
-                          address-example: !include Examples/addresses-post.raml
-                body:
-                  application/json:
-                    type: CustomerAddress
-                    examples:
-                      address-body: !include Examples/addresses-body.raml
-                securedBy:
-                  - CommerceCloudStandards.BearerToken
-                  - CommerceCloudStandards.AmOAuth2
-              /{addressId}:
-                get:
-                  description: |-
-                    Action that returns a single customer address from a customer list.
-                  displayName: getAddressForCustomerFromCustomerList
-                  is:
-                    - ApiStandards.RateLimited4:
-                        responseStatus: 200
-                        responseStatus2: 400
-                        responseStatus3: 401
-                        responseStatus4: 404
-                    - CustomerListsTraits.BadRequest
-                    - CustomerListsTraits.Unauthorized
-                    - CustomerListsTraits.NotFound
-                  responses:
-                    '200':
-                      description: Success
-                      body:
-                        application/json:
-                          type: CustomerAddress
-                          examples:
-                            address-example: !include Examples/address-get.raml
-                  securedBy:
-                    - CommerceCloudStandards.BearerToken
-                    - CommerceCloudStandards.AmOAuth2
-                delete:
-                  description: Action which deletes a customer address.
-                  displayName: removeAddressForCustomerInCustomerList
-                  is:
-                    - ApiStandards.RateLimited4:
-                        responseStatus: 204
-                        responseStatus2: 400
-                        responseStatus3: 401
-                        responseStatus4: 404
-                    - CustomerListsTraits.BadRequest
-                    - CustomerListsTraits.Unauthorized
-                    - CustomerListsTraits.NotFound
-                  responses:
-                    '204': 
-                      description: No Content
-                  securedBy:
-                    - CommerceCloudStandards.BearerToken
-                    - CommerceCloudStandards.AmOAuth2
-                patch:
-                  description: Action which updates an address of a customer with the given address information.
-                  displayName: updateAddressForCustomerInCustomerList
-                  is:
-                    - ApiStandards.RateLimited4:
-                        responseStatus: 200
-                        responseStatus2: 400
-                        responseStatus3: 401
-                        responseStatus4: 404
-                    - CustomerListsTraits.BadRequest
-                    - CustomerListsTraits.Unauthorized
-                    - CustomerListsTraits.NotFound
-                  responses:
-                    '200':
-                      description: Success
-                      body:
-                        application/json:
-                          type: CustomerAddress
-                          examples:
-                            address: !include Examples/addresses-post.raml
                   body:
                     application/json:
                       type: CustomerAddress
                       examples:
-                        address-body: !include Examples/addresses-body.raml
-                  securedBy:
-                    - CommerceCloudStandards.BearerToken
-                    - CommerceCloudStandards.AmOAuth2
-                uriParameters:
-                  addressId:
-                    description: The address ID.
-                    minLength: 1
-                    type: string
-                    example: "Home"
+                        address: !include Examples/addresses-post.raml
+              body:
+                application/json:
+                  type: CustomerAddress
+                  examples:
+                    address-body: !include Examples/addresses-body.raml
+              securedBy:
+                - CommerceCloudStandards.BearerToken
+                - CommerceCloudStandards.AmOAuth2
+            uriParameters:
+              addressId:
+                description: The address ID.
+                minLength: 1
+                type: string
+                example: "Home"
   /sites/{siteId}/customer-groups:
     get:
       description: Action to get site customer groups.
@@ -1023,6 +1001,13 @@ types:
           - CustomerListsTraits.Forbidden
         responses:
           '201':
+            description: Created
+            body:
+              application/json:
+                type: CustomerGroup
+                examples:
+                  customer_group: !include Examples/put-customer-groups-by-id-example.raml
+          '200':
             description: Success
             body:
               application/json:
@@ -1200,6 +1185,13 @@ types:
               - CustomerListsTraits.Unauthorized
             responses:
               '201':
+                description: Created
+                body:
+                  application/json:
+                    type: CustomerGroupMember
+                    examples:
+                      customer_group_member: !include Examples/put-customer-groups-members-by-id-example.raml
+              '200':
                 description: Success
                 body:
                   application/json:

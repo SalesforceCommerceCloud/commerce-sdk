@@ -6,11 +6,12 @@ responses:
     description: |
             Resource requested not found.
     body:
-      application/json:
-        type: Error
+      application/problem+json:
+        type: ErrorResponse
         example: |
           {
-            "type": "ProductNotFoundException",
-            "title": "No product with ID 'apple-ipod-s' for site 'SiteGenesis' could be found.",
-            "detail": "Resource Not Found"
-          }
+            "title": "Product Not Found",
+            "type": "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/product-not-found",
+            "detail": "No product with ID '1585183329877' could be found.",
+            "productId": "1585183329877"
+           }

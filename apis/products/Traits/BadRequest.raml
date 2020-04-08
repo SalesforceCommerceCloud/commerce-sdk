@@ -5,11 +5,12 @@ responses:
     description: |
             Bad Request. Thrown in case a specified expand parameter value is unknown.
     body:
-      application/json:
-        type: Error
+      application/problem+json:
+        type: ErrorResponse
         example: |
           {
-            "type": "InvalidExpandParameterException",
-            "title": "An invalid expand parameter 'link' was found.",
-            "detail": "The provided expand parameter is not valid"
+            "title": "Unqueryable Field",
+            "type": "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/unqueryable-field",
+            "detail": "The field 'link' can't be queried.",
+            "field": "link"
           }

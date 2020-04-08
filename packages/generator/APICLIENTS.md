@@ -25,10 +25,10 @@ _______________________________________________________________________
 
 ## Customer
 #### [Customers](https://developer.commercecloud.com/s/api-details/a003k00000UHvouAAD)
-**Mule App Version** 0.0.8<br />
+**Mule App Version** 0.0.10<br />
 *Manage customer lists, and search and manage customer groups.*<br />
 #### [Shopper Customers](https://developer.commercecloud.com/s/api-details/a003k00000UHvpJAAT)
-**Mule App Version** 0.0.8<br />
+**Mule App Version** 0.0.17<br />
 *Let customers log in and manage their profiles and product lists.*<br />
 _______________________________________________________________________
 
@@ -61,13 +61,13 @@ _______________________________________________________________________
 
 ## Product
 #### [Catalogs](https://developer.commercecloud.com/s/api-details/a003k00000UHvofAAD)
-**Mule App Version** 0.0.9<br />
+**Mule App Version** 0.0.11<br />
 *Create, manage, and search categories and catalogs within a merchandizing system.*<br />
 #### [Products](https://developer.commercecloud.com/s/api-details/a003k00000UHvovAAD)
-**Mule App Version** 0.0.7<br />
+**Mule App Version** 0.0.10<br />
 *Create, manage, and search products within a merchandizing system.*<br />
 #### [Shopper Products](https://developer.commercecloud.com/s/api-details/a003k00000UHvp0AAD)
-**Mule App Version** 0.0.6<br />
+**Mule App Version** 0.0.11<br />
 *Let customers view product and category details in shopping apps.*<br />
 _______________________________________________________________________
 
