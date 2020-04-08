@@ -5,12 +5,11 @@ responses:
       description: |
                 CustomerId URL parameter does not match the verified customer represented by the JWT token.
       body:
-        application/json:
-          type: Error
+        application/problem+json:
+          type: ErrorResponse
           example: 
             {
-            "type": "Invalid customer.",
-            "title": "Invalid customer.",
-            "detail": "The customer is invalid.",
-            "instance": "Blah"
-          }
+              "title": "Invalid Customer",
+              "type": "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/invalid-customer",
+              "detail": "The customer is invalid."
+            }

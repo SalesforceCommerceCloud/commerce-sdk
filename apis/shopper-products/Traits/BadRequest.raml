@@ -4,12 +4,11 @@ responses:
   400:
     description: Bad Request.
     body:
-      application/json:
-        type: Error
+      application/problem+json:
+        type: ErrorResponse
         example: |
           {
-            "type": "InvalidExpandParameterException",
-            "title": "An invalid expand parameter 'link' was found.",
-            "detail": "No such expand parameter",
-            "instance": ""
+            "title": "Bad Request",
+            "type": "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/validation",
+            "detail": "Maximum number of products you can request in one call is 25."
           }

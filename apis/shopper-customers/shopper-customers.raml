@@ -13,7 +13,7 @@ baseUriParameters:
 description: Let's customers to register, get authorization tokens, reset passwords, add/delete payment instruments, set up a wish list, add, delete, or modify addresses, and so on. 
 
 uses:
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.6/api-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.7/api-standards.raml
   CustomerTraits: Customer-traits-library.raml
   CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.11/commerce-cloud-standards.raml
 
@@ -22,13 +22,12 @@ types:
     description: Document representing the authentication request type.
     properties:
       type:
-        description: 'Type of authentication request: guest, login (credentials), refresh, or session.'
+        description: 'Type of authentication request: guest, credentials or refresh'
         type: string
         enum:
           - guest
           - credentials
           - refresh
-          - session
         required: false
         example: credentials
   Basket:   
@@ -618,28 +617,6 @@ types:
         description: The link title.
         type: string
         example: "title"
-  CustomerAddressResult:
-    description: Result document containing an array of customer addresses.
-    properties:
-      limit:
-        description: The number of returned documents.
-        type: integer
-        format: int32
-        example: 1
-      data:
-        description: The array of customer address documents.
-        type: CustomerAddress[]
-      offset:
-        description: The zero-based index of the first search hit to include in the result.
-        minimum: 0
-        type: integer
-        format: int32
-        example: 0
-      total:
-        description: The total number of documents.
-        type: integer
-        format: int32
-        example: 3
   CustomerInfo:
     description: Document representing information used to identify a customer.
     properties:
@@ -801,24 +778,6 @@ types:
         maxLength: 256
         type: string
         example: "Credit Card"
-  CustomerPaymentInstrumentResult:
-    description: Document representing a customer payment instrument result. The payment data contained is masked where needed for security purposes.
-    properties:
-      limit:
-        description: The number of returned documents.
-        type: integer
-        format: int32
-        example: 3
-      data:
-        description: The customer payment instruments list.
-        type: array
-        items:
-          type: CustomerPaymentInstrument
-      total:
-        description: The total number of documents.
-        type: integer
-        format: int32
-        example: 10
   Discount:
     description: Document representing a discount that was applied to the price.
     properties:
@@ -1004,44 +963,6 @@ types:
         type: number
         format: double
         example: 1.0
-  CustomerProductListItemPurchaseResult:
-    description: Document representing a customer product list purchases result.
-    properties:
-      limit:
-        description: The number of returned documents.
-        type: integer
-        format: int32
-        example: 2
-      data:
-        description: The customer product list item purchases.
-        type: array
-        items:
-          type: CustomerProductListItemPurchase
-      total:
-        description: The total number of documents.
-        type: integer
-        format: int32
-        example: 10
-  CustomerProductListItemResult:
-    description: Document representing a customer product list items result.
-    properties:
-      limit:
-        type: integer
-        format: int32
-        example: 2
-      data:
-        description: The customer product list items.
-        type: CustomerProductListItem[]
-      offset:
-        description: The zero-based index of the first search hit to include in the result.
-        minimum: 0
-        type: integer
-        format: int32
-        example: 1
-      total:
-        type: integer
-        format: int32
-        example: 10
   CustomerProductListRegistrant:
     description: Document representing a customer product list registrant.
     properties:
@@ -1079,6 +1000,22 @@ types:
         type: integer
         format: int32
         example: 3
+  CustomerRegistration:
+    description: Document representing the registration information for a customer.
+    properties:
+      customer:
+        description: The customer registration information. The mandatory properties for registration are login, last name and email.
+        type: Customer
+        example: 
+          {
+            "login": "jsmith",
+            "email":"jsmith@test.com",
+            "last_name":"Smith"
+          }
+      password:
+        description: The login password
+        type: string
+        example: "Abcd!1234"
   GiftCertificateItem:
     description: A gift certificate item.
     properties:
@@ -2903,24 +2840,6 @@ types:
           - product
           - gift_certificate
         example: product
-  PublicProductListItemResult:
-    description: Result document containing an array of product list items.
-    properties:
-      limit:
-        description: The number of returned documents.
-        type: integer
-        format: int32
-        example: 13
-      data:
-        description: The array of product list item documents.
-        type: array
-        items:
-          type: PublicProductListItem
-      total:
-        description: The total number of documents.
-        type: integer
-        format: int32
-        example: 15    
   Recommendation:
     description: Document representing a product recommendation.
     properties:
@@ -3390,11 +3309,11 @@ types:
             application/json:
               type: Customer    
               examples:
-                customer: !include Examples/Customer.raml
+                customer: !include Examples/CustomerRegistrationResponse.raml
       body:
         application/json:
-          type: AuthRequest
-          example: !include Examples/CustomerAuthRequest.raml
+          type: CustomerRegistration
+          example: !include Examples/CustomerRegistrationRequest.raml
       securedBy:
         - CommerceCloudStandards.ShopperToken
     /actions:
@@ -3421,35 +3340,22 @@ types:
             
             Type guest - creates a guest (non-authenticated) customer
             and returns a token for the customer.
+            Request Body for guest : {"type": "guest"}
             Type credentials - authenticates credentials passed in the
             HTTP Authorization:Basic request header, returning a token for a
             successfully authenticated customer, otherwise it throws an
             AuthenticationFailedException.
-            Type session - authenticates the customer (anonymous or registered)
-            based on the dwsid and dwsecuretoken cookies. It returns a token for a
-            successfully authenticated customer, otherwise it throws an
-            AuthenticationFailedException.
+            Request Body for guest : {"type": "credentials"}
             Type refresh - examines the token passed in the HTTP
             Authorization:Bearer request header and when valid returns a new token
             with an updated expiry time.
-            
+            Request Body for guest : {"type": "refresh"}
 
             For a request of type credentials:
             
             Updates profile attributes for the customer (for example,
             "last-visited").
             Handles the maximum number of failed login attempts.
-            
-            For a request of type session:
-            
-            The session and corresponding dwsecuretoken must be active and valid. An expired session can't be
-            used. The dwsecuretoken cookie must have been used for at least one
-            previous HTTPS request with the same dwsid cookie.
-            Does not touch profile attributes for the registered customer (for example,
-            "last-visited"), since this is not a real login.
-            Returns different tokens for multiple requests with the same session ID. Means, there should be
-            only one call per session.
-            
             
             About JWT The token contains 3 sections:
             
@@ -3486,13 +3392,13 @@ types:
               headers:
                 authorization: 
                   type: string
-                  example: 'Bearer xxxxxxxxxxx-xxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxx'
+                  example: 'Bearer eyJfdiI6IjEiLCJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfdiI6IjEiLCJleHAiOjE1ODE3MTM4MzYsImlhdCI6MTU4MTcxMjAzNiwiaXNzIjoiZjY2ZjBlNGYtZmE0NC00MWViLTliMzUtODlkZTllZTY3ZTcxIiwic3ViIjoie1wiX3ZcIjpcIjFcIixcImN1c3RvbWVyX2luZm9cIjp7XCJjdXN0b21lcl9pZFwiOlwiYmRScUlHTzdYeVFZR1JjTTlhbThKQTBHYWJcIixcImd1ZXN0XCI6dHJ1ZX19In0.dl8XgldAVo8SGRDrrSAdnbD_tnRnfYwIrohjhsPW78JsdfsgTif2kukQqnB74RgKHRx6U5CTBee8ktTVwqnmtguRTy6Zh6rbi49JGjiXOvrVFjcqaztf64RUB41sWgQuORV30ic8a5D2bQta-TfsiCZTCBbXaKSnJCcdLdvbxTuppzLF0fW-yzpLi4caFUidewTrFoFBUj7M4UpF2gd0DtJhX2YEJCTn5jA4y-ue4oY7Vcp6Y2NpG_mOX_gOmYm_m7hJzKuY4zU90SGc-GYkbBKfRPK3GthTr0LNXVsknydirpsZDI1hlBjrCxNz689-ogulwX0CfkFVMfuEEr9Ac89UqOyfYkFg6VJ42htDRGVRpZR9T5sG6g49jnvkS9U-3-RoGsk4N6kLozoGuuA2mwZbgOr9uPQAHTGMF4XbA_zjhU62q4xiRFJs-L-ZpRyQfmjy50vHCU9wuriBAdc5zDJo7hjNMQSmsJGA774WTDA'
               description: Success
               body:
                 application/json:
                   type: Customer
                   examples:
-                    customer: !include Examples/guestAuth.raml
+                    customer: !include Examples/guestAuthResponse.raml
           headers:
             Authorization:
               description: |-
@@ -3510,7 +3416,7 @@ types:
             application/json:
               type: AuthRequest
               example:  { 
-                  "type" : "credentials" 
+                  "type" : "guest" 
                 }
     /trusted-system/actions/login:
       post:
@@ -3525,12 +3431,16 @@ types:
           - CustomerTraits.CustomerAuthenticationFailed
         responses:
           '200':
+            headers:
+              authorization: 
+                type: string
+                example: 'Bearer eyJfdiI6IjEiLCJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfdiI6IjEiLCJleHAiOjE1ODE3MTM4MzYsImlhdCI6MTU4MTcxMjAzNiwiaXNzIjoiZjY2ZjBlNGYtZmE0NC00MWViLTliMzUtODlkZTllZTY3ZTcxIiwic3ViIjoie1wiX3ZcIjpcIjFcIixcImN1c3RvbWVyX2luZm9cIjp7XCJjdXN0b21lcl9pZFwiOlwiYmRScUlHTzdYeVFZR1JjTTlhbThKQTBHYWJcIixcImd1ZXN0XCI6dHJ1ZX19In0.dl8XgldAVo8SGRDrrSAdnbD_tnRnfYwIrohjhsPW78JsdfsgTif2kukQqnB74RgKHRx6U5CTBee8ktTVwqnmtguRTy6Zh6rbi49JGjiXOvrVFjcqaztf64RUB41sWgQuORV30ic8a5D2bQta-TfsiCZTCBbXaKSnJCcdLdvbxTuppzLF0fW-yzpLi4caFUidewTrFoFBUj7M4UpF2gd0DtJhX2YEJCTn5jA4y-ue4oY7Vcp6Y2NpG_mOX_gOmYm_m7hJzKuY4zU90SGc-GYkbBKfRPK3GthTr0LNXVsknydirpsZDI1hlBjrCxNz689-ogulwX0CfkFVMfuEEr9Ac89UqOyfYkFg6VJ42htDRGVRpZR9T5sG6g49jnvkS9U-3-RoGsk4N6kLozoGuuA2mwZbgOr9uPQAHTGMF4XbA_zjhU62q4xiRFJs-L-ZpRyQfmjy50vHCU9wuriBAdc5zDJo7hjNMQSmsJGA774WTDA'            
             description: Success
             body:
               application/json:
                 type: Customer
                 examples:
-                  customer: !include Examples/Customer.raml
+                  customer: !include Examples/TrustedAuthResponse.raml
         securedBy:
           - CommerceCloudStandards.BearerToken
           - CommerceCloudStandards.AmOAuth2
@@ -3538,22 +3448,22 @@ types:
           application/json:
             type: TrustedSystemAuthRequest
             example: { 
-                "login" : "guest@email.com",
+                "login" : "f0a43dc2-692a-43bf-b008-e10918ea935d",
                 "clientId": "abdtkZzH6sqInJGIHNR1yUw90A" 
               }
     /password/actions/reset:
       post:
         description: Reset customer password.
-        displayName: postResetPassword
+        displayName: resetPassword
         is:
           - CommerceCloudStandards.SiteSpecific:
           - ApiStandards.RateLimited2:
-              responseStatus: 200
+              responseStatus: 204
               responseStatus2: 400
           - CustomerTraits.BadRequest
         responses:
-          '200':
-            description: Reset password successful.
+          '204':
+            description: Reset password successful. No Content
         securedBy:
             - CommerceCloudStandards.BearerToken
             - CommerceCloudStandards.AmOAuth2
@@ -3563,8 +3473,8 @@ types:
             example: !include Examples/ResetPasswordRequest.raml
     /password/actions/create-reset-token:
       post:
-        description: Create reset password token.
-        displayName: postResetPasswordToken
+        description: Get reset password token.
+        displayName: getResetPasswordToken
         is:
           - CommerceCloudStandards.SiteSpecific:
           - ApiStandards.RateLimited2:
@@ -3585,11 +3495,11 @@ types:
           application/json:
             type: ResetPasswordTokenRequest
             example: {
-              "login": "loginId"
+              "login": "janedoe@test.com"
             }
     /{customerId}:
       get:
-        description: Gets a customer.
+        description: Gets a customer with all existing addresses and payment instruments associated with the requested customer.
         displayName: getCustomer
         is:
           - CommerceCloudStandards.SiteSpecific:
@@ -3599,11 +3509,6 @@ types:
               responseStatus3: 404 
           - CustomerTraits.BadRequest
           - CustomerTraits.NotFound
-        queryParameters:
-          expand:
-            type: string
-            required: false
-            example: "addresses,paymentinstruments"  
         responses:
           '200':
             description: Success
@@ -3631,18 +3536,14 @@ types:
               application/json:
                 type: Customer
                 examples: 
-                  customer: !include Examples/Customer.raml
+                  customer: !include Examples/UpdateCustomerResponse.raml
         securedBy:
           - CommerceCloudStandards.ShopperToken
         body:
           application/json:
             type: Customer
-            example: {
-                "customerNo" : "12323465",
-                "lastName" : "Doe",
-                "email" : "jdoe@yourstore.com",
-                "fax" : "+49 03641 78393 343"
-              }
+            example: 
+              customer: !include Examples/UpdateCustomerRequest.raml
       uriParameters:
         customerId:
           description: The customer ID.
@@ -3650,36 +3551,6 @@ types:
           type: string
           example: abfTEMDZOgi3JPrkHjv9IhoziM
       /addresses:
-        get:
-          description: |-
-            Returns a sorted pageable list of all customer addresses in the address book. The default page size is 10
-            customer addresses. The addresses are sorted so that the preferred address is always sorted first, with the remaining
-            addresses sorted alphabetically by ID.
-          
-            When the customer cannot be found, NotFoundException
-            is thrown in a case of an agent, or an empty result list is returned in a case of JWT.
-          displayName: getCustomerAddresses
-          is:
-            - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
-                responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 404             
-            - CustomerTraits.BadRequest
-            - CustomerTraits.NotFound
-            - CustomerTraits.offset-paginated:
-                maxLimit: 50
-                defaultSize: 25
-          responses:
-            '200':
-              description: Success
-              body:
-                application/json:
-                  type: CustomerAddressResult
-                  examples: 
-                    customerAddressResult: !include Examples/CustomerAddressResult.raml
-          securedBy:
-            - CommerceCloudStandards.ShopperToken
         post:
           description: Creates a new address with the given name for the given customer.
           displayName: createCustomerAddress
@@ -3698,14 +3569,14 @@ types:
                 application/json:
                   type: CustomerAddress
                   examples: 
-                    customerAddress: !include Examples/CustomerAddress.raml
+                    customerAddress: !include Examples/CustomerAddressResponse.raml
           securedBy:
             - CommerceCloudStandards.ShopperToken
           body:
             application/json:
               type: CustomerAddress
               examples: 
-                body: !include Examples/CustomerAddress.raml
+                body: !include Examples/CustomerAddressRequest.raml
         /{addressName}:
           get:
             description: Retrieves a customer's address by address name.
@@ -3724,6 +3595,8 @@ types:
                 body:
                   application/json:
                     type: CustomerAddress
+                    examples:
+                      CustomerAddress: !include Examples/CustomerAddressResponse.raml
             securedBy:
               - CommerceCloudStandards.ShopperToken
           delete:
@@ -3760,21 +3633,21 @@ types:
                   application/json:
                     type: CustomerAddress
                     examples: 
-                      customerAddress: !include Examples/CustomerAddress.raml
+                      customerAddress: !include Examples/CustomerAddressRequest.raml
             securedBy:
               - CommerceCloudStandards.ShopperToken
             body:
               application/json:
                 type: CustomerAddress
                 examples: 
-                  body: !include Examples/CustomerAddress.raml
+                  body: !include Examples/CustomerAddressResponse.raml
           uriParameters:
             addressName:
               description: The name of the address to update.
               maxLength: 256
               minLength: 1
               type: string
-              example: homeAddress
+              example: home_address
     
       /baskets:
         get:
@@ -3865,32 +3738,6 @@ types:
           securedBy:
             - CommerceCloudStandards.ShopperToken
       /payment-instruments:
-        get:
-          description: |-
-            Gets customer payment instruments for an customer. Can be limited to a specific payment
-            method by providing the query parameter paymentMethodId. 
-            
-            When the customer cannot be found NotFoundException
-            is thrown in a case of an agent, but an empty result list is returned in a case of JWT.
-          displayName: getCustomerPaymentInstruments
-          is:
-            - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
-                responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 404
-            - CustomerTraits.BadRequest
-            - CustomerTraits.NotFound
-          responses:
-            '200':
-              description: Success
-              body:
-                application/json:
-                  type: CustomerPaymentInstrumentResult
-                  examples: 
-                    customerPaymentInstrumentResult: !include Examples/CustomerPaymentInstrumentResult.raml
-          securedBy:
-            - CommerceCloudStandards.ShopperToken
         post:
           description: Adds a payment instrument to the customer information.
           displayName: createCustomerPaymentInstrument
@@ -3959,6 +3806,7 @@ types:
               description: The ID of the payment instrument to be retrievedCustomer.
               minLength: 1
               type: string
+              example: cdOLciWbOsYl6aaadkwcsx9xHH
       /product-lists:
         get:
           description: Returns all customer product lists.
@@ -3971,13 +3819,6 @@ types:
                 responseStatus3: 404
             - CustomerTraits.BadRequest
             - CustomerTraits.NotFound
-          queryParameters:
-            expand:
-              type: array
-              items:
-                type: string
-              required: false 
-              example: [product, images, availability] 
           responses:
             '200':
               description: Success
@@ -4006,14 +3847,14 @@ types:
                 application/json:
                   type: CustomerProductList
                   examples: 
-                    customerProductList: !include Examples/CustomerProductList.raml
+                    customerProductList: !include Examples/PostCustomerProductList.raml
           securedBy:
             - CommerceCloudStandards.ShopperToken
           body:
             application/json:
               type: CustomerProductList
               examples: 
-                customerProductList: !include Examples/CustomerProductListRequest.raml
+                customerProductList: !include Examples/PostCustomerProductList.raml
         /{listId}:
           delete:
             description: Deletes a customer product list.
@@ -4032,7 +3873,7 @@ types:
             securedBy:
               - CommerceCloudStandards.ShopperToken
           get:
-            description: Returns a customer product list of the given customer.
+            description: Returns a customer product list of the given customer and the items in the list.
             displayName: getCustomerProductList
             is:
               - CommerceCloudStandards.SiteSpecific:
@@ -4042,13 +3883,6 @@ types:
                   responseStatus3: 404
               - CustomerTraits.BadRequest
               - CustomerTraits.NotFound
-            queryParameters:
-              expand:
-                type: array
-                items:
-                  type: string
-                required: false  
-                example: [product, images, availability]
             responses:
               '200':
                 description: Success
@@ -4056,7 +3890,7 @@ types:
                   application/json:
                     type: CustomerProductList
                     examples: 
-                      customerProductList: !include Examples/CustomerProductList.raml
+                      customerProductList: !include Examples/GetCustomerProductListByListId.raml
             securedBy:
               - CommerceCloudStandards.ShopperToken
           patch:
@@ -4077,7 +3911,7 @@ types:
                   application/json:
                     type: CustomerProductList
                     examples: 
-                      customerProductList: !include Examples/CustomerProductList.raml
+                      customerProductList: !include Examples/UpdateCustomerProductListByListId.raml
             securedBy:
               - CommerceCloudStandards.ShopperToken
             body:
@@ -4094,38 +3928,6 @@ types:
               type: string
               example: bcedkiWbxCM2MaaadkRhB2IBzM
           /items:
-            get:
-              description: |- 
-                Returns a pageable list of all items of a customer's product list. The default page size is 10. 
-              displayName: getCustomerProductListItems
-              is:
-                - CommerceCloudStandards.SiteSpecific:
-                - ApiStandards.RateLimited3:
-                    responseStatus: 200
-                    responseStatus2: 400
-                    responseStatus3: 404
-                - CustomerTraits.BadRequest
-                - CustomerTraits.NotFound
-                - CustomerTraits.offset-paginated:
-                    maxLimit: 50
-                    defaultSize: 10
-              queryParameters:
-                expand:
-                  type: array
-                  items:
-                    type: string
-                  required: false
-                  example: [product, images, availability]
-              responses:
-                '200':
-                  description: Success
-                  body:
-                    application/json:
-                      type: CustomerProductListItemResult
-                      examples: 
-                        customerProductListItemResult: !include Examples/CustomerProductListItemResult.raml
-              securedBy:
-                - CommerceCloudStandards.ShopperToken
             post:
               description: |-
                 Adds an item to the customer's product list. Considered values from the request body are:
@@ -4161,14 +3963,14 @@ types:
                     application/json:
                       type: CustomerProductListItem
                       examples: 
-                        customerProductListItem: !include Examples/CustomerProductListItem.raml
+                        customerProductListItem: !include Examples/UpdateCustomerProductListItem.raml
               securedBy:
                 - CommerceCloudStandards.ShopperToken
               body:
                 application/json:
                   type: CustomerProductListItem
                   examples: 
-                      customerProductListItem: !include Examples/CustomerProductListItemRequest.raml
+                      customerProductListItem: !include Examples/UpdateCustomerProductListItem.raml
             /{itemId}:
               delete:
                 description: Removes an item from a customer product list.
@@ -4185,7 +3987,7 @@ types:
                 securedBy:
                   - CommerceCloudStandards.ShopperToken
               get:
-                description: Returns an item of a customer product list.
+                description: Returns an item of a customer product list and the actual product details like image, availability and price.
                 displayName: getCustomerProductListItem
                 is:
                   - CommerceCloudStandards.SiteSpecific:
@@ -4204,13 +4006,6 @@ types:
                         example: !include Examples/CustomerProductListItem.raml
                 securedBy:
                   - CommerceCloudStandards.ShopperToken
-                queryParameters:
-                  expand:
-                    type: array
-                    items:
-                      type: string
-                    required: false
-                    example: [product, images, availability]   
               patch:
                 description: |-
                   Updates an item of a customer's product list.
@@ -4238,14 +4033,14 @@ types:
                       application/json:
                         type: CustomerProductListItem
                         examples: 
-                          customerProductListItem: !include Examples/CustomerProductListItem.raml
+                          !include Examples/UpdateCustomerProductListItem.raml
                 securedBy:
                   - CommerceCloudStandards.ShopperToken
                 body:
                   application/json:
                     type: CustomerProductListItem
                     examples: 
-                      customerProductListItem: !include Examples/CustomerProductListItemRequest.raml
+                      !include Examples/CustomerProductListItemRequest.raml
               uriParameters:
                 itemId:
                   description: The ID of the product list item to update.
@@ -4255,24 +4050,24 @@ types:
                   example: "nikon-d90-wlens"
   /product-lists:
     get:
-      description: Retrieves all public product lists as defined by the given search term (for example, email, first name, or last name).
+      description: Retrieves all public product lists as defined by the given search term (for example, email OR first name and last name).
       displayName: getPublicProductListsBySearchTerm
       queryParameters:
         email:
           description: The email address of the customer the product lists belong to.
           type: string
           required: false
-          example: ltest@test.org
+          example: jsmith@test.com
         firstName:
           description: The first name of the customer the product lists belong to.
           type: string
           required: false
-          example : ltest
+          example : John
         lastName:
           description: The last name of the customer the product lists belong to.
           type: string
           required: false
-          example: test
+          example: Smith
       is:
         - CommerceCloudStandards.SiteSpecific:
         - ApiStandards.RateLimited4:
@@ -4295,15 +4090,8 @@ types:
         - CommerceCloudStandards.ShopperToken
     /{listId}:
       get:
-        description: Retrieves a public product list by ID.
+        description: Retrieves a public product list by ID and the items under that product list.
         displayName: getPublicProductList
-        queryParameters:
-          expand:
-            type: array
-            items:
-              type: string
-            required: false
-            example: [items,product,images,availability]
         is:
           - CommerceCloudStandards.SiteSpecific:
           - ApiStandards.RateLimited4:
@@ -4330,41 +4118,11 @@ types:
           maxLength: 28
           minLength: 1
           type: string
-          example: ad3276983c7a778ee4644cfa93
+          example: bcqg6iWbw4XEYaaadjixFLTWP0
       /items:
-        get:
-          description: Retrieves the items of a public product list.
-          displayName: getProductListItems
-          queryParameters:
-            expand:
-              type: array
-              items:
-                type: string
-              required: false
-              example: [product, images, availability]
-          is:
-            - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited4:
-                responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 404
-            - CustomerTraits.BadRequest
-            - CustomerTraits.NotFound
-            - CustomerTraits.Unauthorized      
-          responses:
-            '200':
-              description: Success
-              body:
-                application/json:
-                  type: PublicProductListItemResult
-                  examples: 
-                    publicProductListItemResult : !include Examples/productListsIDItems-result-example.raml
-          securedBy:
-            - CommerceCloudStandards.ShopperToken
         /{itemId}:
           get:
-            description: Retrieves an item from a public product list.
+            description: Retrieves an item from a public product list and the actual product details like product, image, availability and price.
             displayName: getProductListItem
             responses:
               '200':
@@ -4374,13 +4132,6 @@ types:
                     type: PublicProductListItem
                     examples: 
                       PublicProductListItem : !include Examples/PublicProductListItem.raml
-            queryParameters:
-              expand:
-                type: array
-                items:
-                  type: string
-                required: false
-                example: [product, images, availability]
             is:
               - CommerceCloudStandards.SiteSpecific:
               - ApiStandards.RateLimited4:
@@ -4398,5 +4149,6 @@ types:
               description: The ID of the item.
               minLength: 1
               type: string
+              example: 023513f915fad06573f330fb0d
 
                       
