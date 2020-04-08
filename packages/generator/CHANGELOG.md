@@ -1,5 +1,41 @@
 ## CHANGELOG
 
+### v1.4.0-beta.0
+
+### **Core Functionality**
+
+#### Enhancements
+
+* Added support for Redis cache
+Example:
+```
+import { CacheManagerRedis } from "@commerce-apps/core"
+
+const cacheManager = new CacheManagerRedis({ connection: "redis://localhost:6379" });
+const config = {
+    cacheManager: cacheManager,
+    parameters: {
+...
+    }
+}
+```
+
+### **API Changes**
+
+#### Product APIs
+*Product API*
+
+* **BREAKING**: Endpoint method name changes
+
+| **Existing Method Name** | **New Method Name** |
+| ------------- |-------------|
+| deleteVariationGroupForMaster | unassignVariationGroupFromMasterProduct |
+| updateVariationGroupInMasterProduct | updateVariationGroupForMasterProduct |
+| assignVariationGroupForMasterProduct | assignVariationGroupToMasterProduct |
+| deleteVariationForMaster | unassignVariationFromMasterProduct |
+| updateVariationsInMasterProduct | updateVariationForMasterProduct |
+| createVariationForMasterProduct | assignVariationForMasterProduct |
+
 ### v1.3.1-alpha.0
 
 ### **Core Functionality**
