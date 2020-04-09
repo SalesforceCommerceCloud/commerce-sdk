@@ -34,7 +34,10 @@ export default function() {
 
         // check cacheManager has the content
         // construct request object with url
-        const request = { url: "https://somewhere/validate-fresh" };
+        const request = {
+          url: "https://somewhere/validate-fresh",
+          headers: { delete: s => s }
+        };
         // options object with cacheManager
         const opts = {
           cacheManager: client.clientConfig.cacheManager
@@ -69,7 +72,10 @@ export default function() {
 
         // check cacheManager has the content
         // construct request object with url
-        const request = { url: "https://somewhere/validate-no-store" };
+        const request = {
+          url: "https://somewhere/validate-no-store",
+          headers: { delete: s => s }
+        };
         // options object with cacheManager
         const opts = {
           cacheManager: client.clientConfig.cacheManager
@@ -114,7 +120,10 @@ export default function() {
           expect(nock.isDone()).to.be.true;
           // check cacheManager has the content
           // construct request object with url
-          const request = { url: "https://somewhere/validate-304-update" };
+          const request = {
+            url: "https://somewhere/validate-304-update",
+            headers: { delete: s => s }
+          };
           // options object with cacheManager
           const opts = {
             cacheManager: client.clientConfig.cacheManager
@@ -149,7 +158,10 @@ export default function() {
 
         // check cacheManager has the content
         // construct request object with url
-        const request = { url: "https://somewhere/evict-modified" };
+        const request = {
+          url: "https://somewhere/evict-modified",
+          headers: { delete: s => s }
+        };
         // options object with cacheManager
         const opts = {
           cacheManager: client.clientConfig.cacheManager

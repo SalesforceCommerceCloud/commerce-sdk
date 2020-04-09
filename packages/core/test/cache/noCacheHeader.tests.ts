@@ -18,6 +18,28 @@ export default function() {
   describe("base client cache-control response header (no-cache) tests", function() {
     afterEach(nock.cleanAll);
 
+    it("asset not cached on response header private", function() {
+      const client = this.client;
+      const scope = nock("https://somewhere")
+        .get("/private")
+        .reply(200, RESPONSE_DATA, { "Cache-Control": "private" });
+
+      return _get({ client: client, path: "/private" }).then(data => {
+        expect(data).to.eql(RESPONSE_DATA);
+        expect(nock.isDone()).to.be.true;
+        scope
+          .get("/private")
+          .reply(200, RESPONSE_DATA_MODIFIED, { "Cache-Control": "private" });
+        return _get({
+          client: client,
+          path: "/private"
+        }).then(data => {
+          expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+          expect(nock.isDone()).to.be.true;
+        });
+      });
+    });
+
     it("asset not cached on response header no-cache", function() {
       const client = this.client;
       const scope = nock("https://somewhere")

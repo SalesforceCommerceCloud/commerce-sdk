@@ -20,7 +20,7 @@ before(() => {
   chai.use(chaiAsPromised);
 });
 
-describe("put tests", () => {
+describe("TTL tests", () => {
   let cacheManager;
   let bodyBuffer;
   let testRequest;
@@ -59,7 +59,11 @@ describe("put tests", () => {
   it("sets ttl to 0 when cache-control is s-maxage is 0", async () => {
     testResponse.headers.set("Cache-Control", "s-maxage=0");
     await cacheManager.put(testRequest, testResponse);
-    sinon.assert.notCalled(cacheManager.keyv.set);
+    sinon.assert.calledWith(
+      cacheManager.keyv.set,
+      sinon.match.string,
+      sinon.match.any
+    );
   });
 
   it("sets ttl to 600 when cache-control is s-maxage is 600", async () => {
@@ -68,15 +72,18 @@ describe("put tests", () => {
     sinon.assert.calledWith(
       cacheManager.keyv.set,
       sinon.match.string,
-      sinon.match.any,
-      600000
+      sinon.match.any
     );
   });
 
   it("sets ttl to 0 when cache-control is max-age is 0", async () => {
     testResponse.headers.set("Cache-Control", "max-age=0");
     await cacheManager.put(testRequest, testResponse);
-    sinon.assert.notCalled(cacheManager.keyv.set);
+    sinon.assert.calledWith(
+      cacheManager.keyv.set,
+      sinon.match.string,
+      sinon.match.any
+    );
   });
 
   it("sets ttl to 600 when cache-control is max-age is 600", async () => {
@@ -85,15 +92,18 @@ describe("put tests", () => {
     sinon.assert.calledWith(
       cacheManager.keyv.set,
       sinon.match.string,
-      sinon.match.any,
-      600000
+      sinon.match.any
     );
   });
 
   it("sets ttl to 0 when expires is in the past", async () => {
     testResponse.headers.set("Expires", "Sat, 13 May 2017 07:00:00 GMT");
     await cacheManager.put(testRequest, testResponse);
-    sinon.assert.notCalled(cacheManager.keyv.set);
+    sinon.assert.calledWith(
+      cacheManager.keyv.set,
+      sinon.match.string,
+      sinon.match.any
+    );
   });
 
   it("sets ttl to something when expires is tomorrow", async () => {
@@ -104,8 +114,7 @@ describe("put tests", () => {
     sinon.assert.calledWith(
       cacheManager.keyv.set,
       sinon.match.string,
-      sinon.match.any,
-      sinon.match.number
+      sinon.match.any
     );
   });
 });

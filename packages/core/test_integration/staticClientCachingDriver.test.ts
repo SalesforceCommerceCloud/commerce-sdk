@@ -33,6 +33,10 @@ describe("Redis cache tests", function() {
   after(function() {
     this.client.clientConfig.cacheManager.quit();
   });
+  cacheTests();
   etagTests();
+  evictionTests();
+  multipleHeadersTests();
+  noCacheHeaderTests();
   delayedTests();
 });

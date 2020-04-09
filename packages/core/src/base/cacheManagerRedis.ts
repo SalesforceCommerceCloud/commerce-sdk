@@ -32,13 +32,6 @@ export class CacheManagerRedis extends CacheManagerKeyv {
     super(options);
   }
 
-  async updateTimeToLiveForKey(key: string, ttlInMilliseconds: number) {
-    return this.keyv.opts.store.redis.expire(
-      key,
-      Math.floor(ttlInMilliseconds ? ttlInMilliseconds / 1000 : 0)
-    );
-  }
-
   /**
    * Redis will attempt to maintain an active connection which prevents Node.js
    * from exiting. Call this to gracefully close the connection.
