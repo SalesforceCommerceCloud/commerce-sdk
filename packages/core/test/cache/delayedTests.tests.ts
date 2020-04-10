@@ -123,7 +123,6 @@ export default function() {
 
   describe("base client last-modified based delayed conditional get tests", function() {
     afterEach(nock.cleanAll);
-    this.timeout(15000);
 
     it("sdk adds if-modified-since header and returns cached content on 304 response", function(done) {
       const client = this.client;
@@ -134,7 +133,8 @@ export default function() {
       // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
       // @ts-ignore
       const nowTimestamp = Date.now();
-      const dateExpires = new Date(nowTimestamp + 1000).toUTCString();
+      //set past expiry, since ttl is not set by default, this asset should be cached
+      const dateExpires = new Date(nowTimestamp - 100000).toUTCString();
 
       const scope = nock("https://somewhere")
         .get("/lastmodified")
@@ -164,17 +164,15 @@ export default function() {
           );
         });
 
-        setTimeout(function() {
-          _get({
-            client: client,
-            path: "/lastmodified"
-          }).then(data => {
-            //ensure content is not empty and equals to the cached content
-            expect(data).to.eql({ mock: "data" });
-            expect(nock.isDone()).to.be.true;
-            done();
-          });
-        }, 2000);
+        _get({
+          client: client,
+          path: "/lastmodified"
+        }).then(data => {
+          //ensure content is not empty and equals to the cached content
+          expect(data).to.eql({ mock: "data" });
+          expect(nock.isDone()).to.be.true;
+          done();
+        });
       });
     });
 
@@ -195,7 +193,7 @@ export default function() {
 
       // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
       // @ts-ignore
-      const dateExpires = new Date(nowTimestamp + 1000).toUTCString();
+      const dateExpires = new Date(nowTimestamp - 100000).toUTCString();
       const scope = nock("https://somewhere")
         .get("/not-modified")
         .reply(
@@ -226,13 +224,24 @@ export default function() {
             );
           },
           {
-            "Cache-Control": "must-revalidate,max-age=1",
+            "Cache-Control": "must-revalidate",
             "Last-Modified": newLastModified,
             Expires: dateExpires
           }
         );
 
-        setTimeout(function() {
+        _get({
+          client: client,
+          path: "/not-modified"
+        }).then(data => {
+          //ensure content is not empty and equals to the cached content
+          expect(data).to.eql({ mock: "data" });
+          expect(nock.isDone()).to.be.true;
+          scope.get("/not-modified").reply(304, function() {
+            expect(this.req.headers["if-modified-since"][0]).to.eql(
+              newLastModified
+            );
+          });
           _get({
             client: client,
             path: "/not-modified"
@@ -240,24 +249,9 @@ export default function() {
             //ensure content is not empty and equals to the cached content
             expect(data).to.eql({ mock: "data" });
             expect(nock.isDone()).to.be.true;
-            scope.get("/not-modified").reply(304, function() {
-              expect(this.req.headers["if-modified-since"][0]).to.eql(
-                newLastModified
-              );
-            });
-            setTimeout(function() {
-              _get({
-                client: client,
-                path: "/not-modified"
-              }).then(data => {
-                //ensure content is not empty and equals to the cached content
-                expect(data).to.eql({ mock: "data" });
-                expect(nock.isDone()).to.be.true;
-                done();
-              });
-            }, 2000);
+            done();
           });
-        }, 2000);
+        });
       });
     });
 
@@ -270,14 +264,14 @@ export default function() {
       const dateLastModified = new Date(nowTimestamp - 10000000).toUTCString();
       // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
       // @ts-ignore
-      const dateExpires = new Date(nowTimestamp + 10000000).toUTCString();
+      const dateExpires = new Date(nowTimestamp - 100000).toUTCString();
       const scope = nock("https://somewhere")
         .get("/lastmodified-since")
         .reply(
           200,
           { mock: "data" },
           {
-            "Cache-Control": "must-revalidate,max-age=1",
+            "Cache-Control": "must-revalidate",
             "Last-Modified": dateLastModified,
             Expires: dateExpires
           }
@@ -300,17 +294,15 @@ export default function() {
           return { mock: "data_modified" };
         });
 
-        setTimeout(function() {
-          _get({
-            client: client,
-            path: "/lastmodified-since"
-          }).then(data => {
-            //ensure content is not empty and equals to the modified content
-            expect(data).to.eql({ mock: "data_modified" });
-            expect(nock.isDone()).to.be.true;
-            done();
-          });
-        }, 2000);
+        _get({
+          client: client,
+          path: "/lastmodified-since"
+        }).then(data => {
+          //ensure content is not empty and equals to the modified content
+          expect(data).to.eql({ mock: "data_modified" });
+          expect(nock.isDone()).to.be.true;
+          done();
+        });
       });
     });
   });

@@ -34,50 +34,24 @@ const addCacheHeaders = (resHeaders, path, key, hash, time): void => {
 };
 
 /**
- * Calculate a reasonable time to live for the response based on the response headers.
+ * Determines the response to be cached or not.
  *
- * @param response The response to calculate the TTL for
+ * @param response The response to determine ability for caching
  *
- * @returns Time to cache the response in seconds, zero for should not be cached
+ * @returns boolean to cache the response or not
  */
-const getTimeToLiveInSeconds = (response: fetch.Response): number => {
+const shouldCache = (response: fetch.Response): boolean => {
   const responseControl = response.headers
     .get("cache-control")
     ?.toLowerCase()
     .trim()
     .split(/\s*,\s*/);
 
-  if (responseControl) {
-    if (
-      responseControl.includes("private") ||
-      responseControl.includes("no-store")
-    ) {
-      return 0;
-    }
-
-    if (responseControl.includes("must-revalidate")) {
-      return Number.MAX_SAFE_INTEGER;
-    }
-
-    const sMaxAgeParts = responseControl
-      .find(value => value.startsWith("s-maxage"))
-      ?.split(/\s*=\s*/);
-    if (sMaxAgeParts?.length > 1 && parseInt(sMaxAgeParts[1]) !== NaN) {
-      return parseInt(sMaxAgeParts[1]);
-    }
-
-    const maxAgeParts = responseControl
-      .find(value => value.startsWith("max-age"))
-      ?.split(/\s*=\s*/);
-    if (maxAgeParts?.length > 1 && parseInt(maxAgeParts[1]) !== NaN) {
-      return parseInt(maxAgeParts[1]);
-    }
-  }
-
-  const responseExpires = Date.parse(response.headers.get("expires"));
-  const expiresInSeconds = Math.floor((responseExpires - Date.now()) / 1000);
-
-  return expiresInSeconds > 0 ? expiresInSeconds : 0;
+  return !(
+    responseControl &&
+    (responseControl.includes("private") ||
+      responseControl.includes("no-store"))
+  );
 };
 
 /**
@@ -264,9 +238,8 @@ export class CacheManagerKeyv implements ICacheManager {
     const size = response?.headers?.get("content-length");
     const metadataKey = getMetadataKey(req);
     const contentKey = getContentKey(req);
-    const ttlInMilliseconds = getTimeToLiveInSeconds(response) * 1000;
 
-    if (ttlInMilliseconds === 0) {
+    if (!shouldCache(response)) {
       return response;
     }
 
@@ -293,18 +266,16 @@ export class CacheManagerKeyv implements ICacheManager {
         redisInfo.integrity,
         redisInfo.time
       );
-      await this.keyv.set(metadataKey, cacheOpts, ttlInMilliseconds);
-
-      await this.updateTimeToLiveForKey(contentKey, ttlInMilliseconds);
+      await this.keyv.set(metadataKey, cacheOpts);
 
       return response;
     }
 
     const body = await response.text();
 
-    await this.keyv.set(metadataKey, cacheOpts, ttlInMilliseconds);
+    await this.keyv.set(metadataKey, cacheOpts);
 
-    await this.keyv.set(contentKey, body, ttlInMilliseconds);
+    await this.keyv.set(contentKey, body);
 
     return Promise.resolve(new fetch.Response(Buffer.from(body), response));
   }
@@ -338,9 +309,5 @@ export class CacheManagerKeyv implements ICacheManager {
       req.headers.delete(header)
     );
     return req;
-  }
-
-  async updateTimeToLiveForKey(key: string, ttlInMilliseconds: number) {
-    return this.keyv.set(key, await this.keyv.get(key), ttlInMilliseconds);
   }
 }
