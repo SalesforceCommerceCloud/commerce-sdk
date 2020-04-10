@@ -40,7 +40,7 @@ const addCacheHeaders = (resHeaders, path, key, hash, time): void => {
  *
  * @returns boolean to cache the response or not
  */
-const isCachable = (response: fetch.Response): boolean => {
+const shouldCache = (response: fetch.Response): boolean => {
   const responseControl = response.headers
     .get("cache-control")
     ?.toLowerCase()
@@ -141,15 +141,6 @@ export class CacheManagerKeyv implements ICacheManager {
       this.keyv = new Keyv(options.connection, options.keyvOptions);
       this.keyv.on("error", console.error);
     }
-
-    if (this.keyv?.opts?.ttl) {
-      //add info log
-      console.log(
-        "Initialized cache with ",
-        this.keyv.opts.ttl,
-        " seconds ttl"
-      );
-    }
   }
 
   /**
@@ -247,9 +238,8 @@ export class CacheManagerKeyv implements ICacheManager {
     const size = response?.headers?.get("content-length");
     const metadataKey = getMetadataKey(req);
     const contentKey = getContentKey(req);
-    const cachable = isCachable(response);
 
-    if (!cachable) {
+    if (!shouldCache(response)) {
       return response;
     }
 
