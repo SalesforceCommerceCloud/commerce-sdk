@@ -34,9 +34,9 @@ const addCacheHeaders = (resHeaders, path, key, hash, time): void => {
 };
 
 /**
- * Calculate a reasonable time to live for the response based on the response headers.
+ * Determines the response to be cached or not.
  *
- * @param response The response to calculate the TTL for
+ * @param response The response to determine ability for caching
  *
  * @returns boolean to cache the response or not
  */
@@ -47,14 +47,11 @@ const isCachable = (response: fetch.Response): boolean => {
     .trim()
     .split(/\s*,\s*/);
 
-  if (
+  return !(
     responseControl &&
     (responseControl.includes("private") ||
       responseControl.includes("no-store"))
-  ) {
-    return false;
-  }
-  return true;
+  );
 };
 
 /**
