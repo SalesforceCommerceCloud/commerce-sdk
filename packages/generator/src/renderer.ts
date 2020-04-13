@@ -119,7 +119,6 @@ function createDto(webApiModel: WebApiBaseUnit): string {
  *
  * @returns The rendered code as a string
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function createIndex(apiFamilies: string[]): string {
   return indexTemplate({
     apiSpec: apiFamilies
@@ -211,7 +210,6 @@ export function sortApis(apis: {
 export function createVersionFile(
   apis: { [key: string]: RestApi[] },
   dir: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): void {
   fs.writeFileSync(
     // Write to the directory with the API definitions
@@ -228,7 +226,7 @@ export function createVersionFile(
  * @param renderDir Directory path to save the rendered API files
  * @returns Promise with the api family name
  */
-function renderApiFamily(
+async function renderApiFamily(
   apiFamily: string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   apiFamilyConfig: any,
@@ -239,72 +237,59 @@ function renderApiFamily(
   const apiFamilyPath: string = path.join(renderDir, apiFamilyFileName);
   fs.ensureDirSync(apiFamilyPath);
 
-  const familyPromises = processApiFamily(
-    apiFamily,
-    apiFamilyConfig,
-    apiRamlDir
+  const familyApis = await Promise.all(
+    processApiFamily(apiFamily, apiFamilyConfig, apiRamlDir)
   );
-  return Promise.all(familyPromises)
-    .then(familyApis => {
-      const apiNames: string[] = [];
-      familyApis.forEach(api => {
-        apiNames.push(
-          renderApi(api as WebApiBaseUnitWithEncodesModel, apiFamilyPath)
-        );
-      });
-      return apiNames;
-    })
-    .then(apiNames => {
-      //export all apis in a family
-      fs.writeFileSync(
-        path.join(apiFamilyPath, `${apiFamilyFileName}.ts`),
-        createApiFamily(apiNames)
-      );
-      return apiFamilyFileName;
-    });
+  const apiNames = familyApis.map(api =>
+    renderApi(api as WebApiBaseUnitWithEncodesModel, apiFamilyPath)
+  );
+  //export all apis in a family
+  fs.writeFileSync(
+    path.join(apiFamilyPath, `${apiFamilyFileName}.ts`),
+    createApiFamily(apiNames)
+  );
+  return apiFamilyFileName;
 }
 
 /**
  * Renders typescript code for the APIs using the pre-defined templates
- * @param config uild config used to build the SDK
+ * @param config Build config used to build the SDK
 
  * @returns Promise<void>
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function renderTemplates(config: any): Promise<void> {
+export async function renderTemplates(config: any): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const apiFamilyRamlConfig = require(path.resolve(
     path.join(config.inputDir, config.apiConfigFile)
   ));
   fs.ensureDirSync(config.renderDir);
   const apiFamilyNames = _.keysIn(apiFamilyRamlConfig);
-  const allPromises: Promise<string>[] = [];
-  apiFamilyNames.forEach((apiFamily: string) => {
-    allPromises.push(
+  const familyNames = await Promise.all(
+    apiFamilyNames.map((apiFamily: string) =>
       renderApiFamily(
         apiFamily,
         apiFamilyRamlConfig,
         config.inputDir,
         config.renderDir
       )
-    );
-  });
-  //create index file that exports all the api families in the root
-  return Promise.all(allPromises).then(familyNames => {
-    fs.writeFileSync(
-      path.join(config.renderDir, "index.ts"),
-      createIndex(familyNames)
-    );
+    )
+  );
 
-    fs.writeFileSync(
-      path.join(config.renderDir, "helpers.ts"),
-      createHelpers(config)
-    );
-    createVersionFile(apiFamilyRamlConfig, path.join(config.renderDir, ".."));
-  });
+  //create index file that exports all the api families in the root
+  fs.writeFileSync(
+    path.join(config.renderDir, "index.ts"),
+    createIndex(familyNames)
+  );
+
+  fs.writeFileSync(
+    path.join(config.renderDir, "helpers.ts"),
+    createHelpers(config)
+  );
+
+  createVersionFile(apiFamilyRamlConfig, path.join(config.renderDir, ".."));
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function renderOperationList(allApis: {
   [key: string]: WebApiBaseUnitWithEncodesModel[];
 }): string {
