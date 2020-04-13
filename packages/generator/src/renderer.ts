@@ -89,6 +89,29 @@ const dtoPartial = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "dtoPartial.ts.hbs"), "utf8")
 );
 
+/**
+ * Sort API families and their APIs by name
+ * @param apis object with api family name as key and array of apis as an array
+ * @returns Sorted Map<string, RestApi[]> of api family name to its apis that are sorted
+ */
+export function sortApis(apis: {
+  [key: string]: RestApi[];
+}): Map<string, RestApi[]> {
+  //build a sorted Map for api families and its apis
+  const sortedApis = new Map<string, RestApi[]>();
+  const apiFamilyNames = _.keysIn(apis).sort();
+  apiFamilyNames.forEach(apiFamily => {
+    const familyApis = apis[apiFamily];
+    if (familyApis != null) {
+      sortedApis.set(
+        apiFamily,
+        familyApis.sort((a, b) => (a.name > b.name ? 1 : -1))
+      );
+    }
+  });
+  return sortedApis;
+}
+
 function createClient(webApiModel: WebApiBaseUnit, apiName: string): string {
   return clientInstanceTemplate(
     {
@@ -139,6 +162,22 @@ function createHelpers(config: any): string {
 }
 
 /**
+ * Create an MD file with all the APIs
+ * @param {RestApi[]} apis
+ * @param dir Directory path to save the rendered file
+ */
+export function createVersionFile(
+  apis: { [key: string]: RestApi[] },
+  dir: string
+): void {
+  fs.writeFileSync(
+    // Write to the directory with the API definitions
+    path.join(dir, "APICLIENTS.md"),
+    versionTemplate({ apis: sortApis(apis) })
+  );
+}
+
+/**
  * Generates code to export all APIs in a API Family
  * @param apiNames Names of all the APIs in the family
  * @returns code to export all APIs in a API Family
@@ -177,45 +216,6 @@ function renderApi(
     createClient(apiModelForEndPoints, apiName)
   );
   return apiName;
-}
-
-/**
- * Sort API families and their APIs by name
- * @param apis object with api family name as key and array of apis as an array
- * @returns Sorted Map<string, RestApi[]> of api family name to its apis that are sorted
- */
-export function sortApis(apis: {
-  [key: string]: RestApi[];
-}): Map<string, RestApi[]> {
-  //build a sorted Map for api families and its apis
-  const sortedApis = new Map<string, RestApi[]>();
-  const apiFamilyNames = _.keysIn(apis).sort();
-  apiFamilyNames.forEach(apiFamily => {
-    const familyApis = apis[apiFamily];
-    if (familyApis != null) {
-      sortedApis.set(
-        apiFamily,
-        familyApis.sort((a, b) => (a.name > b.name ? 1 : -1))
-      );
-    }
-  });
-  return sortedApis;
-}
-
-/**
- * Create an MD file with all the APIs
- * @param {RestApi[]} apis
- * @param dir Directory path to save the rendered file
- */
-export function createVersionFile(
-  apis: { [key: string]: RestApi[] },
-  dir: string
-): void {
-  fs.writeFileSync(
-    // Write to the directory with the API definitions
-    path.join(dir, "APICLIENTS.md"),
-    versionTemplate({ apis: sortApis(apis) })
-  );
 }
 
 /**
