@@ -142,6 +142,10 @@ const config = {
     }
 }
 ```
+#### Memory management
+
+When the specified amount of memory is reached, Redis can be configured to apply an eviction policy. Refer [this article](https://redis.io/topics/lru-cache/) to setup Redis as an LRU cache and to learn more about supported eviction policies. 
+
 
 ## Additional Documentation 
 [API Documentation](./APICLIENTS.md)  
