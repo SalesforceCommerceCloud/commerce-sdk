@@ -81,7 +81,7 @@ const dtoTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "dto.ts.hbs"), "utf8")
 );
 
-const versionTemplate = Handlebars.compile(
+const apiClientsTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "apiclients.md.hbs"), "utf8")
 );
 
@@ -166,15 +166,8 @@ function createHelpers(config: any): string {
  * @param {RestApi[]} apis
  * @param dir Directory path to save the rendered file
  */
-export function createVersionFile(
-  apis: { [key: string]: RestApi[] },
-  dir: string
-): void {
-  fs.writeFileSync(
-    // Write to the directory with the API definitions
-    path.join(dir, "APICLIENTS.md"),
-    versionTemplate({ apis: sortApis(apis) })
-  );
+export function createApiClients(apis: { [key: string]: RestApi[] }): string {
+  return apiClientsTemplate({ apis: sortApis(apis) });
 }
 
 /**
@@ -276,18 +269,25 @@ export async function renderTemplates(config: any): Promise<void> {
     )
   );
 
-  //create index file that exports all the api families in the root
+  // Create files with static filenames
+
+  // Create index file that exports all the API families in the root
   fs.writeFileSync(
     path.join(config.renderDir, "index.ts"),
     createIndex(familyNames)
   );
 
+  // Create file that exports helper functions
   fs.writeFileSync(
     path.join(config.renderDir, "helpers.ts"),
     createHelpers(config)
   );
 
-  createVersionFile(apiFamilyRamlConfig, path.join(config.renderDir, ".."));
+  // Create file documenting available APIs
+  fs.writeFileSync(
+    path.join(config.renderDir, "..", "APICLIENTS.md"),
+    createApiClients(apiFamilyRamlConfig)
+  );
 }
 
 export function renderOperationList(allApis: {
