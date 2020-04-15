@@ -79,7 +79,7 @@ export const getReturnPayloadType = function(operation: any): string {
       dataTypes.push(
         res.payloads[0].schema.name.value() === "schema"
           ? "Object"
-          : res.payloads[0].schema.name.value() + "T"
+          : res.payloads[0].schema.name.value()
       );
     } else {
       dataTypes.push("void");
@@ -140,9 +140,10 @@ const getArrayType = function(arrayShape: model.domain.ArrayShape): string {
     if (arrayShape.inherits != null && arrayShape.inherits.length > 0)
       arrItem = (arrayShape.inherits[0] as model.domain.ArrayShape).items;
   }
-  return ARRAY_DATA_TYPE.concat("<")
-    .concat(getDataType(arrItem))
-    .concat(">");
+  // return ARRAY_DATA_TYPE.concat("<")
+  //   .concat(getDataType(arrItem))
+  //   .concat(">");
+  return `[${getDataType(arrItem)}]`;
 };
 
 /**
@@ -179,7 +180,7 @@ const getLinkedType = function(anyShape: model.domain.AnyShape): string {
   ) {
     const temp = linkedType.name.value();
     if (temp != null) {
-      dataType = temp + "T";
+      dataType = temp;
     }
   }
   return dataType;
@@ -263,7 +264,7 @@ const getPayloadType = function(schema: model.domain.Shape): string {
   if (name === "schema") {
     return OBJECT_DATA_TYPE;
   } else {
-    return name + "T";
+    return name;
   }
 };
 

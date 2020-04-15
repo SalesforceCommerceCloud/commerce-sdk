@@ -6,7 +6,11 @@
  */
 import * as gulp from "gulp";
 import { processApiFamily } from "./src/parser";
-import { renderTemplates, renderOperationList } from "./src/renderer";
+import {
+  renderTemplates,
+  renderOperationList,
+  renderGraphqlSchema
+} from "./src/renderer";
 
 import fs from "fs-extra";
 import _ from "lodash";
@@ -56,6 +60,43 @@ gulp.task("buildOperationList", async () => {
     fs.writeFileSync(
       path.join(config.renderDir, "operationList.yaml"),
       renderOperationList(allApis)
+    );
+  });
+});
+
+gulp.task("buildSchema", async () => {
+  // require the json written in groupRamls gulpTask
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const ramlGroupConfig = require(path.resolve(
+    path.join(config.inputDir, config.apiConfigFile)
+  ));
+  const apiGroupKeys = _.keysIn(ramlGroupConfig);
+
+  let allApis = [];
+
+  const modelingPromises = [];
+
+  for (const apiGroup of apiGroupKeys) {
+    const familyPromises = processApiFamily(
+      apiGroup,
+      ramlGroupConfig,
+      config.inputDir,
+      /^(shopper).*/i
+    );
+    fs.ensureDirSync(config.renderDir);
+
+    modelingPromises.push(
+      Promise.all(familyPromises).then(values => {
+        allApis = [...allApis, ...values];
+        return;
+      })
+    );
+  }
+
+  return Promise.all(modelingPromises).then(() => {
+    fs.writeFileSync(
+      path.join(config.renderDir, "schema.gql"),
+      renderGraphqlSchema(allApis)
     );
   });
 });

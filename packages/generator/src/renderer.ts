@@ -77,6 +77,10 @@ export const renderOperationListTemplate = Handlebars.compile(
   )
 );
 
+export const renderSchemaTemplate = Handlebars.compile(
+  fs.readFileSync(path.join(templateDirectory, "schema.gql.hbs"), "utf8")
+);
+
 const dtoTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "dto.ts.hbs"), "utf8")
 );
@@ -87,6 +91,10 @@ const versionTemplate = Handlebars.compile(
 
 const dtoPartial = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "dtoPartial.ts.hbs"), "utf8")
+);
+
+const schemaPartial = Handlebars.compile(
+  fs.readFileSync(path.join(templateDirectory, "schemapartial.gql.hbs"), "utf8")
 );
 
 function createClient(webApiModel: WebApiBaseUnit, apiName: string): string {
@@ -281,7 +289,6 @@ export function renderTemplates(config: any): Promise<void> {
   });
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function renderOperationList(allApis: {
   [key: string]: WebApiBaseUnitWithEncodesModel[];
 }): string {
@@ -290,6 +297,24 @@ export function renderOperationList(allApis: {
     allowProtoMethodsByDefault: true
   });
   return renderedOperations;
+}
+
+export function renderGraphqlSchema(allApis: WebApiBaseUnit[]): string {
+  let allDataTypes = [];
+  allApis.forEach(api => {
+    allDataTypes = [
+      ...allDataTypes,
+      getAllDataTypes(api as WebApiBaseUnitWithDeclaresModel)
+    ];
+  });
+
+  console.log(allDataTypes);
+  // const types = getAllDataTypes(webApiModel as WebApiBaseUnitWithDeclaresModel);
+  const renderedSchema: string = renderSchemaTemplate(allDataTypes, {
+    allowProtoPropertiesByDefault: true,
+    allowProtoMethodsByDefault: true
+  });
+  return renderedSchema;
 }
 
 // Register helpers
@@ -317,6 +342,8 @@ Handlebars.registerHelper(
 );
 
 Handlebars.registerPartial("dtoPartial", dtoPartial);
+
+Handlebars.registerPartial("schemaPartial", schemaPartial);
 
 Handlebars.registerPartial("operationsPartial", operationsPartialTemplate);
 

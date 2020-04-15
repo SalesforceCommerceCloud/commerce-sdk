@@ -92,16 +92,21 @@ export function processApiFamily(
   apiFamily: string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   apiFamilyConfig: any,
-  inputDir: string
+  inputDir: string,
+  filter = /.*/
 ): Promise<WebApiBaseUnit>[] {
   const promises = [];
   const ramlFileFromFamily = apiFamilyConfig[apiFamily];
   _.map(ramlFileFromFamily, (apiMeta: RestApi) => {
-    promises.push(
-      processRamlFile(
-        path.join(inputDir, apiMeta.assetId, apiMeta.fatRaml.mainFile)
-      )
-    );
+    if (filter.test(apiMeta.name)) {
+      promises.push(
+        processRamlFile(
+          path.join(inputDir, apiMeta.assetId, apiMeta.fatRaml.mainFile)
+        )
+      );
+    } else {
+      console.log("Skipping api because filter.");
+    }
   });
 
   return promises;
