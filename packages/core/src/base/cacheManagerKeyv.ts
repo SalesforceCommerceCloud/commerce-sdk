@@ -12,6 +12,7 @@ import ssri from "ssri";
 import url from "url";
 
 import { ICacheManager } from "./cacheManager";
+import { sdkLogger } from "./sdkLogger";
 
 /**
  * List of custom headers we add to cached responses before returning.
@@ -133,13 +134,13 @@ export class CacheManagerKeyv implements ICacheManager {
   }) {
     if (options?.keyvStore) {
       this.keyv = new Keyv({ store: options.keyvStore });
-      this.keyv.on("error", console.error);
+      this.keyv.on("error", sdkLogger.error);
       return;
     }
 
     if (options?.connection) {
       this.keyv = new Keyv(options.connection, options.keyvOptions);
-      this.keyv.on("error", console.error);
+      this.keyv.on("error", sdkLogger.error);
     }
   }
 
