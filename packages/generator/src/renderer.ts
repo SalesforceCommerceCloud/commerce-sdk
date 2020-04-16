@@ -105,8 +105,7 @@ const dtoPartial = Handlebars.compile(
  * Sort API families and their APIs by name.
  */
 export function sortApis(apis: ApiClientsInfoT[]): void {
-  const compare = (a: string, b: string): number =>
-    a > b ? 1 : a < b ? -1 : 0;
+  const compare = (a: string, b: string): number => (a > b ? 1 : -1);
   // Sort API families
   apis.sort((a, b) => compare(a[0].family, b[0].family));
   // Sort APIs within each family
