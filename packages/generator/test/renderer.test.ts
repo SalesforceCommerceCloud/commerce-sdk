@@ -12,10 +12,10 @@ import path from "path";
 import * as renderer from "../src/renderer";
 import tmp from "tmp";
 import _ from "lodash";
-import { getNormalizedName } from "../src/parser";
+import { getNormalizedName, processApiFamily } from "../src/parser";
 import { RestApi } from "@commerce-apps/exchange-connector";
-import { ApiClientsInfoT } from "../src/renderer";
 import { model } from "amf-client-js";
+import { promises } from "dns";
 /**
  * Tests all the functions that are invoked while rendering templates.
  *
@@ -25,19 +25,19 @@ import { model } from "amf-client-js";
  * Example: We can't mock renderApiFamily function while testing renderTemplates function. To make it work renderTemplates should invoke
  * renderApiFamily as "module.exports.renderApiFamily(..)" which is not desired.
  */
-describe("Render Templates Test", () => {
-  it("Render Templates", () => {
-    const mainDir = tmp.dirSync();
-    const renderDirPath: string = path.join(mainDir.name, "renderedTemplates");
-    fs.ensureDirSync(renderDirPath);
+describe("Rendering Tests", () => {
+  const mainDir = tmp.dirSync();
+  const renderDirPath: string = path.join(mainDir.name, "renderedTemplates");
+  fs.ensureDirSync(renderDirPath);
 
-    const apiInputDir = path.join(__dirname, "/raml/valid");
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const apiConfig = require(path.join(
-      __dirname,
-      "/raml/valid/api-config.json"
-    ));
+  const apiInputDir = path.join(__dirname, "/raml/valid");
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const apiConfig = require(path.join(
+    __dirname,
+    "/raml/valid/api-config.json"
+  ));
 
+  it("Templates are rendered", () => {
     return renderer
       .renderTemplates({
         inputDir: apiInputDir,
@@ -92,9 +92,22 @@ describe("Render Templates Test", () => {
         });
       });
   }).timeout(10000);
+
+  it("Operation list is rendered as valid YAML", async () => {
+    const allApis = {};
+    await Promise.all(
+      _.keysIn(apiConfig).map(async apiGroup => {
+        allApis[apiGroup] = await Promise.all(
+          processApiFamily(apiGroup, apiConfig, apiInputDir)
+        );
+      })
+    );
+    const list = renderer.renderOperationList(allApis);
+    expect(list).to.be.a("string");
+  });
 });
 
-const validateApisOrder = function(apis: ApiClientsInfoT): void {
+const validateApisOrder = function(apis: renderer.ApiClientsInfoT): void {
   expect(apis[0].config.name).to.equal("A");
   expect(apis[1].config.name).to.equal("B");
   expect(apis[2].config.name).to.equal("C");
@@ -121,7 +134,7 @@ describe("Test sorting of APIs", () => {
       assetId: "assignments"
     };
     const m = {} as model.domain.WebApi;
-    const apiFamilies: ApiClientsInfoT[] = [
+    const apiFamilies: renderer.ApiClientsInfoT[] = [
       [
         { family: "Shopper", model: m, config: api1 },
         { family: "Shopper", model: m, config: api2 },
