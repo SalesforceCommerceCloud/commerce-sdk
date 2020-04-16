@@ -14,6 +14,8 @@ import tmp from "tmp";
 import _ from "lodash";
 import { getNormalizedName } from "../src/parser";
 import { RestApi } from "@commerce-apps/exchange-connector";
+import { ApiClientsInfoT } from "../src/renderer";
+import { model } from "amf-client-js";
 /**
  * Tests all the functions that are invoked while rendering templates.
  *
@@ -60,6 +62,7 @@ describe("Render Templates Test", () => {
               )
             )
           ).to.be.true;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const familyAps: any[] = apiConfig[family];
           familyAps.forEach(api => {
             const apiName = getNormalizedName(api.name);
@@ -91,10 +94,10 @@ describe("Render Templates Test", () => {
   }).timeout(10000);
 });
 
-const validateApisOrder = function(apis: RestApi[]): void {
-  expect(apis[0].name).to.equal("A");
-  expect(apis[1].name).to.equal("B");
-  expect(apis[2].name).to.equal("C");
+const validateApisOrder = function(apis: ApiClientsInfoT): void {
+  expect(apis[0].config.name).to.equal("A");
+  expect(apis[1].config.name).to.equal("B");
+  expect(apis[2].config.name).to.equal("C");
 };
 
 describe("Test sorting of APIs", () => {
@@ -117,34 +120,23 @@ describe("Test sorting of APIs", () => {
       groupId: "C",
       assetId: "assignments"
     };
-    const apis = {
-      Shopper: [api1, api2, api3],
-      AI: [api1, api2, api3]
-    };
-
-    const itr = renderer.sortApis(apis).entries();
-    const firstFamily = itr.next().value;
-    expect(firstFamily[0]).to.equal("AI");
-    validateApisOrder(firstFamily[1]);
-    const secondFamily = itr.next().value;
-    expect(secondFamily[0]).to.equal("Shopper");
-    validateApisOrder(secondFamily[1]);
-  });
-
-  it("Test that API family with undefined apis is skipped", () => {
-    const api1: RestApi = {
-      name: "B",
-      id: "B",
-      groupId: "B",
-      assetId: "assignments"
-    };
-    const apis = {
-      Shopper: undefined,
-      AI: [api1]
-    };
-    const sortedApis = renderer.sortApis(apis);
-    expect(sortedApis.size).to.equal(1);
-    const firstFamily = sortedApis.entries().next().value;
-    expect(firstFamily[0]).to.equal("AI");
+    const m = {} as model.domain.WebApi;
+    const apiFamilies: ApiClientsInfoT[] = [
+      [
+        { family: "Shopper", model: m, config: api1 },
+        { family: "Shopper", model: m, config: api2 },
+        { family: "Shopper", model: m, config: api3 }
+      ],
+      [
+        { family: "AI", model: m, config: api3 },
+        { family: "AI", model: m, config: api2 },
+        { family: "AI", model: m, config: api1 }
+      ]
+    ];
+    renderer.sortApis(apiFamilies);
+    expect(apiFamilies[0][0].family).to.equal("AI");
+    expect(apiFamilies[1][0].family).to.equal("Shopper");
+    validateApisOrder(apiFamilies[0]);
+    validateApisOrder(apiFamilies[1]);
   });
 });
