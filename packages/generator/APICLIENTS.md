@@ -1,85 +1,355 @@
-# Included Apis
-Each of the following APIs has a corresponding client in the SDK which can be instantiated to communicate with that API. See the [README](./README.md#usage) for examples on how to instantiate, configure and use clients.
+# Included APIs
+
+Each of the following APIs has a corresponding client in the SDK which can be instantiated to communicate with that API.
 
 ## AI
-#### [Einstein Recommendations](https://developer.commercecloud.com/s/api-details/a003k00000UI4hPAAT)
-*Get Einstein recommendations and send activities to Einstein engine.*<br />
-_______________________________________________________________________
+
+### [Einstein Recommendations](https://developer.commercecloud.com/s/api-details/a003k00000UI4hPAAT)
+
+*Get Einstein recommendations and send activities to Einstein engine.*
+
+To instantiate a client:
+
+```typescript
+import { Ai, ClientConfig } from "commerce-sdk";
+// or
+const { Ai, ClientConfig } = require("commerce-sdk");
+
+const config: ClientConfig = { /* ... */ };
+const einsteinQuickStartGuideClient = new Ai.EinsteinQuickStartGuide(config);
+```
 
 ## CDN
-#### [CDN Zones](https://developer.commercecloud.com/s/api-details/a003k00000UIKk2AAH)
-*Extend your eCDN beyond Business Manager configuration.*<br />
-_______________________________________________________________________
+
+### [CDN Zones](https://developer.commercecloud.com/s/api-details/a003k00000UIKk2AAH)
+
+*Extend your eCDN beyond Business Manager configuration.*
+
+To instantiate a client:
+
+```typescript
+import { Cdn, ClientConfig } from "commerce-sdk";
+// or
+const { Cdn, ClientConfig } = require("commerce-sdk");
+
+const config: ClientConfig = { /* ... */ };
+const cdnZonesClient = new Cdn.CdnZones(config);
+```
 
 ## Checkout
-#### [Orders](https://developer.commercecloud.com/s/api-details/a003k00000UHvp4AAD)
-**Mule App Version** 1.0.12<br />
-*Manage order status and order payment status.*<br />
-#### [Shopper Baskets](https://developer.commercecloud.com/s/api-details/a003k00000UHvpEAAT)
-**Mule App Version** 0.0.34<br />
-*Build a checkout experience.*<br />
-#### [Shopper Orders](https://developer.commercecloud.com/s/api-details/a003k00000UHvpFAAT)
-**Mule App Version** 0.0.21<br />
-*Finish the shopper checkout experience resulting in an order.*<br />
-_______________________________________________________________________
+
+### [Orders](https://developer.commercecloud.com/s/api-details/a003k00000UHvp4AAD)
+
+*Manage order status and order payment status.*
+
+To instantiate a client:
+
+```typescript
+import { Checkout, ClientConfig } from "commerce-sdk";
+// or
+const { Checkout, ClientConfig } = require("commerce-sdk");
+
+const config: ClientConfig = { /* ... */ };
+const ordersClient = new Checkout.Orders(config);
+```
+
+**Mule App Version:** 1.0.12
+
+### [Shopper Baskets](https://developer.commercecloud.com/s/api-details/a003k00000UHvpEAAT)
+
+*Build a checkout experience.*
+
+To instantiate a client:
+
+```typescript
+import { Checkout, ClientConfig } from "commerce-sdk";
+// or
+const { Checkout, ClientConfig } = require("commerce-sdk");
+
+const config: ClientConfig = { /* ... */ };
+const shopperBasketsClient = new Checkout.ShopperBaskets(config);
+```
+
+**Mule App Version:** 0.0.34
+
+### [Shopper Orders](https://developer.commercecloud.com/s/api-details/a003k00000UHvpFAAT)
+
+*Finish the shopper checkout experience resulting in an order.*
+
+To instantiate a client:
+
+```typescript
+import { Checkout, ClientConfig } from "commerce-sdk";
+// or
+const { Checkout, ClientConfig } = require("commerce-sdk");
+
+const config: ClientConfig = { /* ... */ };
+const shopperOrdersClient = new Checkout.ShopperOrders(config);
+```
+
+**Mule App Version:** 0.0.21
 
 ## Customer
-#### [Customers](https://developer.commercecloud.com/s/api-details/a003k00000UHvouAAD)
-**Mule App Version** 0.0.10<br />
-*Manage customer lists, and search and manage customer groups.*<br />
-#### [Shopper Customers](https://developer.commercecloud.com/s/api-details/a003k00000UHvpJAAT)
-**Mule App Version** 0.0.17<br />
-*Let customers log in and manage their profiles and product lists.*<br />
-_______________________________________________________________________
+
+### [Customers](https://developer.commercecloud.com/s/api-details/a003k00000UHvouAAD)
+
+*Manage customer lists, and search and manage customer groups.*
+
+To instantiate a client:
+
+```typescript
+import { Customer, ClientConfig } from "commerce-sdk";
+// or
+const { Customer, ClientConfig } = require("commerce-sdk");
+
+const config: ClientConfig = { /* ... */ };
+const customersClient = new Customer.Customers(config);
+```
+
+**Mule App Version:** 0.0.10
+
+### [Shopper Customers](https://developer.commercecloud.com/s/api-details/a003k00000UHvpJAAT)
+
+*Let customers log in and manage their profiles and product lists.*
+
+To instantiate a client:
+
+```typescript
+import { Customer, ClientConfig } from "commerce-sdk";
+// or
+const { Customer, ClientConfig } = require("commerce-sdk");
+
+const config: ClientConfig = { /* ... */ };
+const shopperCustomersClient = new Customer.ShopperCustomers(config);
+```
+
+**Mule App Version:** 0.0.17
 
 ## Pricing
-#### [Assignments](https://developer.commercecloud.com/s/api-details/a003k00000UHvoaAAD)
-**Mule App Version** 1.0.12<br />
-*Enable merchandisers to search for assignments.*<br />
-#### [Campaigns](https://developer.commercecloud.com/s/api-details/a003k00000UHvobAAD)
-**Mule App Version** 1.0.15<br />
-*Create, update, and manage campaigns.*<br />
-#### [Coupons](https://developer.commercecloud.com/s/api-details/a003k00000UHvopAAD)
-**Mule App Version** 1.0.15<br />
-*Create, update, read, search for, and manage coupons.*<br />
-#### [Gift Certificates](https://developer.commercecloud.com/s/api-details/a003k00000UHvozAAD)
-**Mule App Version** 1.0.17<br />
-*Create, get, and update gift certificates.*<br />
-#### [Promotions](https://developer.commercecloud.com/s/api-details/a003k00000UHvp9AAD)
-**Mule App Version** 1.0.12<br />
-*Create, get, and update promotions.*<br />
-#### [Shopper Gift Certificates](https://developer.commercecloud.com/s/api-details/a003k00000UHvogAAD)
-**Mule App Version** 1.0.6<br />
-*Obtain details about a gift certificate.*<br />
-#### [Shopper Promotions](https://developer.commercecloud.com/s/api-details/a003k00000UHvp5AAD)
-**Mule App Version** 1.0.15<br />
-*Obtain promotion details.*<br />
-#### [Source Code Groups](https://developer.commercecloud.com/s/api-details/a003k00000UHvpTAAT)
-**Mule App Version** 1.0.16<br />
-*Create, update, delete, and search for source code groups.*<br />
-_______________________________________________________________________
+
+### [Assignments](https://developer.commercecloud.com/s/api-details/a003k00000UHvoaAAD)
+
+*Enable merchandisers to search for assignments.*
+
+To instantiate a client:
+
+```typescript
+import { Pricing, ClientConfig } from "commerce-sdk";
+// or
+const { Pricing, ClientConfig } = require("commerce-sdk");
+
+const config: ClientConfig = { /* ... */ };
+const assignmentsClient = new Pricing.Assignments(config);
+```
+
+**Mule App Version:** 1.0.12
+
+### [Campaigns](https://developer.commercecloud.com/s/api-details/a003k00000UHvobAAD)
+
+*Create, update, and manage campaigns.*
+
+To instantiate a client:
+
+```typescript
+import { Pricing, ClientConfig } from "commerce-sdk";
+// or
+const { Pricing, ClientConfig } = require("commerce-sdk");
+
+const config: ClientConfig = { /* ... */ };
+const campaignsClient = new Pricing.Campaigns(config);
+```
+
+**Mule App Version:** 1.0.15
+
+### [Coupons](https://developer.commercecloud.com/s/api-details/a003k00000UHvopAAD)
+
+*Create, update, read, search for, and manage coupons.*
+
+To instantiate a client:
+
+```typescript
+import { Pricing, ClientConfig } from "commerce-sdk";
+// or
+const { Pricing, ClientConfig } = require("commerce-sdk");
+
+const config: ClientConfig = { /* ... */ };
+const couponsClient = new Pricing.Coupons(config);
+```
+
+**Mule App Version:** 1.0.15
+
+### [Gift Certificates](https://developer.commercecloud.com/s/api-details/a003k00000UHvozAAD)
+
+*Create, get, and update gift certificates.*
+
+To instantiate a client:
+
+```typescript
+import { Pricing, ClientConfig } from "commerce-sdk";
+// or
+const { Pricing, ClientConfig } = require("commerce-sdk");
+
+const config: ClientConfig = { /* ... */ };
+const giftCertificatesClient = new Pricing.GiftCertificates(config);
+```
+
+**Mule App Version:** 1.0.17
+
+### [Promotions](https://developer.commercecloud.com/s/api-details/a003k00000UHvp9AAD)
+
+*Create, get, and update promotions.*
+
+To instantiate a client:
+
+```typescript
+import { Pricing, ClientConfig } from "commerce-sdk";
+// or
+const { Pricing, ClientConfig } = require("commerce-sdk");
+
+const config: ClientConfig = { /* ... */ };
+const promotionsClient = new Pricing.Promotions(config);
+```
+
+**Mule App Version:** 1.0.12
+
+### [Shopper Gift Certificates](https://developer.commercecloud.com/s/api-details/a003k00000UHvogAAD)
+
+*Obtain details about a gift certificate.*
+
+To instantiate a client:
+
+```typescript
+import { Pricing, ClientConfig } from "commerce-sdk";
+// or
+const { Pricing, ClientConfig } = require("commerce-sdk");
+
+const config: ClientConfig = { /* ... */ };
+const shopperGiftCertificatesClient = new Pricing.ShopperGiftCertificates(config);
+```
+
+**Mule App Version:** 1.0.6
+
+### [Shopper Promotions](https://developer.commercecloud.com/s/api-details/a003k00000UHvp5AAD)
+
+*Obtain promotion details.*
+
+To instantiate a client:
+
+```typescript
+import { Pricing, ClientConfig } from "commerce-sdk";
+// or
+const { Pricing, ClientConfig } = require("commerce-sdk");
+
+const config: ClientConfig = { /* ... */ };
+const shopperPromotionsClient = new Pricing.ShopperPromotions(config);
+```
+
+**Mule App Version:** 1.0.15
+
+### [Source Code Groups](https://developer.commercecloud.com/s/api-details/a003k00000UHvpTAAT)
+
+*Create, update, delete, and search for source code groups.*
+
+To instantiate a client:
+
+```typescript
+import { Pricing, ClientConfig } from "commerce-sdk";
+// or
+const { Pricing, ClientConfig } = require("commerce-sdk");
+
+const config: ClientConfig = { /* ... */ };
+const sourceCodeGroupsClient = new Pricing.SourceCodeGroups(config);
+```
+
+**Mule App Version:** 1.0.16
 
 ## Product
-#### [Catalogs](https://developer.commercecloud.com/s/api-details/a003k00000UHvofAAD)
-**Mule App Version** 0.0.11<br />
-*Create, manage, and search categories and catalogs within a merchandizing system.*<br />
-#### [Products](https://developer.commercecloud.com/s/api-details/a003k00000UHvovAAD)
-**Mule App Version** 0.0.10<br />
-*Create, manage, and search products within a merchandizing system.*<br />
-#### [Shopper Products](https://developer.commercecloud.com/s/api-details/a003k00000UHvp0AAD)
-**Mule App Version** 0.0.11<br />
-*Let customers view product and category details in shopping apps.*<br />
-_______________________________________________________________________
+
+### [Catalogs](https://developer.commercecloud.com/s/api-details/a003k00000UHvofAAD)
+
+*Create, manage, and search categories and catalogs within a merchandizing system.*
+
+To instantiate a client:
+
+```typescript
+import { Product, ClientConfig } from "commerce-sdk";
+// or
+const { Product, ClientConfig } = require("commerce-sdk");
+
+const config: ClientConfig = { /* ... */ };
+const catalogsClient = new Product.Catalogs(config);
+```
+
+**Mule App Version:** 0.0.11
+
+### [Products](https://developer.commercecloud.com/s/api-details/a003k00000UHvovAAD)
+
+*Create, manage, and search products within a merchandizing system.*
+
+To instantiate a client:
+
+```typescript
+import { Product, ClientConfig } from "commerce-sdk";
+// or
+const { Product, ClientConfig } = require("commerce-sdk");
+
+const config: ClientConfig = { /* ... */ };
+const productsClient = new Product.Products(config);
+```
+
+**Mule App Version:** 0.0.10
+
+### [Shopper Products](https://developer.commercecloud.com/s/api-details/a003k00000UHvp0AAD)
+
+*Let customers view product and category details in shopping apps.*
+
+To instantiate a client:
+
+```typescript
+import { Product, ClientConfig } from "commerce-sdk";
+// or
+const { Product, ClientConfig } = require("commerce-sdk");
+
+const config: ClientConfig = { /* ... */ };
+const shopperProductsClient = new Product.ShopperProducts(config);
+```
+
+**Mule App Version:** 0.0.11
 
 ## Search
-#### [Shopper Search](https://developer.commercecloud.com/s/api-details/a003k00000UHwuFAAT)
-**Mule App Version** 1.0.10<br />
-*Perform product search and provide search suggestions.*<br />
-_______________________________________________________________________
+
+### [Shopper Search](https://developer.commercecloud.com/s/api-details/a003k00000UHwuFAAT)
+
+*Perform product search and provide search suggestions.*
+
+To instantiate a client:
+
+```typescript
+import { Search, ClientConfig } from "commerce-sdk";
+// or
+const { Search, ClientConfig } = require("commerce-sdk");
+
+const config: ClientConfig = { /* ... */ };
+const shopperSearchClient = new Search.ShopperSearch(config);
+```
+
+**Mule App Version:** 1.0.10
 
 ## Seller
-#### [Shopper Stores](https://developer.commercecloud.com/s/api-details/a003k00000UHwuPAAT)
-**Mule App Version** 1.0.5<br />
-*Search for a specific store or stores in an area.*<br />
-_______________________________________________________________________
 
+### [Shopper Stores](https://developer.commercecloud.com/s/api-details/a003k00000UHwuPAAT)
+
+*Search for a specific store or stores in an area.*
+
+To instantiate a client:
+
+```typescript
+import { Seller, ClientConfig } from "commerce-sdk";
+// or
+const { Seller, ClientConfig } = require("commerce-sdk");
+
+const config: ClientConfig = { /* ... */ };
+const shopperStoresClient = new Seller.ShopperStores(config);
+```
+
+**Mule App Version:** 1.0.5
