@@ -413,7 +413,7 @@ export const getObjectIdByAssetId = function(assetId: string): string {
   return ASSET_OBJECT_MAP[assetId];
 };
 
-type NamedObject = { name: { value: () => string } };
+export type NamedObject = { name: { value: () => string } };
 
 export const getName = function(obj: NamedObject): string {
   return obj?.name?.value?.() || "";
@@ -425,5 +425,5 @@ export const getCamelCaseName = function(obj: NamedObject): string {
 
 export const getPascalCaseName = function(obj: NamedObject): string {
   const name = getCamelCaseName(obj);
-  return name[0].toUpperCase() + name.slice(1);
+  return name && name[0].toUpperCase() + name.slice(1);
 };
