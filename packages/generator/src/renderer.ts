@@ -289,7 +289,7 @@ export async function renderTemplates(config: any): Promise<void> {
   // Create index file that exports all the API families in the root
   fs.writeFileSync(
     path.join(config.renderDir, "index.ts"),
-    createIndex([...apiFamilyMap.keys()])
+    createIndex([...apiFamilyMap.keys()].map(name => _.camelCase(name)))
   );
 
   // Create file that exports helper functions
