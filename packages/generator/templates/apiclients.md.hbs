@@ -1,19 +1,30 @@
 # Included APIs
 
-Each of the following APIs has a corresponding client in the SDK which can be instantiated to communicate with that API. See the [README](./README.md#usage) for examples on how to instantiate, configure and use clients.
-{{#eachInMap apis}}
+Each of the following APIs has a corresponding client in the SDK which can be instantiated to communicate with that API.
+{{#each apis}}
 
-## {{{key}}}
-{{#each value}}
+## {{{this.0.family}}}
+{{#each this}}
 
-### [{{{name}}}](https://developer.commercecloud.com/s/api-details/{{{getObjectIdByAssetId assetId}}})
-{{#if version}}
+### [{{{config.name}}}](https://developer.commercecloud.com/s/api-details/{{{getObjectIdByAssetId config.assetId}}})
+{{#if config.description}}
 
-**Mule App Version:** {{{version}}}
+*{{{config.description}}}*
 {{/if}}
-{{#if description}}
 
-*{{{description}}}*
+To instantiate a client:
+
+```typescript
+import { {{{pascalcase family}}}, ClientConfig } from "commerce-sdk";
+// or
+const { {{{pascalcase family}}}, ClientConfig } = require("commerce-sdk");
+
+const config: ClientConfig = { /* ... */ };
+const {{{getCamelCaseName model}}}Client = new {{{pascalcase family}}}.{{{getPascalCaseName model}}}(config);
+```
+{{#if config.version}}
+
+**Mule App Version:** {{{config.version}}}
 {{/if}}
 {{/each}}
-{{/eachInMap}}
+{{/each}}
