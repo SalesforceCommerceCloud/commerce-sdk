@@ -29,7 +29,10 @@ import {
   getProperties,
   isRequiredProperty,
   isOptionalProperty,
-  getObjectIdByAssetId
+  getObjectIdByAssetId,
+  getName,
+  getCamelCaseName,
+  getPascalCaseName
 } from "./templateHelpers";
 import {
   WebApiBaseUnit,
@@ -38,7 +41,16 @@ import {
 } from "webapi-parser";
 import _ from "lodash";
 import { RestApi } from "@commerce-apps/exchange-connector";
+import { model } from "amf-client-js";
 
+/**
+ * Information used to generate APICLIENTS.md.
+ */
+export type ApiClientsInfoT = {
+  model: model.domain.WebApi;
+  family: string;
+  config: RestApi;
+}[];
 const templateDirectory = `${__dirname}/../templates`;
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -81,13 +93,26 @@ const dtoTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "dto.ts.hbs"), "utf8")
 );
 
-const versionTemplate = Handlebars.compile(
+const apiClientsTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "apiclients.md.hbs"), "utf8")
 );
 
 const dtoPartial = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "dtoPartial.ts.hbs"), "utf8")
 );
+
+/**
+ * Sort API families and their APIs by name.
+ */
+export function sortApis(apis: ApiClientsInfoT[]): void {
+  const compare = (a: string, b: string): number => (a > b ? 1 : -1);
+  // Sort API families
+  apis.sort((a, b) => compare(a[0].family, b[0].family));
+  // Sort APIs within each family
+  apis.forEach(details =>
+    details.sort((a, b) => compare(a.config.name, b.config.name))
+  );
+}
 
 function createClient(webApiModel: WebApiBaseUnit, apiName: string): string {
   return clientInstanceTemplate(
@@ -119,7 +144,6 @@ function createDto(webApiModel: WebApiBaseUnit): string {
  *
  * @returns The rendered code as a string
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function createIndex(apiFamilies: string[]): string {
   return indexTemplate({
     apiSpec: apiFamilies
@@ -137,6 +161,32 @@ function createHelpers(config: any): string {
     shopperAuthClient: config.shopperAuthClient,
     shopperAuthApi: config.shopperAuthApi
   });
+}
+
+/**
+ * Render the API Clients markdown file using the Handlebars template
+ * @param {Map<string, WebApiBaseUnit[]>} apiFamilyMap
+ * @param {Object.<string, RestApi[]} apiFamilyConfig
+ * @returns {string} The rendered template
+ */
+export function createApiClients(
+  apiFamilyMap: Map<string, WebApiBaseUnit[]>,
+  apiFamilyConfig: { [key: string]: RestApi[] }
+): string {
+  const apis = Array.from(apiFamilyMap).map(
+    ([family, apiModels]): ApiClientsInfoT => {
+      // Merge model and config into array of objects
+      return apiModels.map((apiModel: WebApiBaseUnitWithEncodesModel, idx) => {
+        return {
+          family, // Included for ease of access within template
+          model: apiModel.encodes as model.domain.WebApi,
+          config: apiFamilyConfig[family][idx]
+        };
+      });
+    }
+  );
+  sortApis(apis);
+  return apiClientsTemplate({ apis });
 }
 
 /**
@@ -181,130 +231,80 @@ function renderApi(
 }
 
 /**
- * Sort API families and their APIs by name
- * @param apis object with api family name as key and array of apis as an array
- * @returns Sorted Map<string, RestApi[]> of api family name to its apis that are sorted
- */
-export function sortApis(apis: {
-  [key: string]: RestApi[];
-}): Map<string, RestApi[]> {
-  //build a sorted Map for api families and its apis
-  const sortedApis = new Map<string, RestApi[]>();
-  const apiFamilyNames = _.keysIn(apis).sort();
-  apiFamilyNames.forEach(apiFamily => {
-    const familyApis = apis[apiFamily];
-    if (familyApis != null) {
-      sortedApis.set(
-        apiFamily,
-        familyApis.sort((a, b) => (a.name > b.name ? 1 : -1))
-      );
-    }
-  });
-  return sortedApis;
-}
-
-/**
- * Create an MD file with all the APIs
- * @param {RestApi[]} apis
- * @param dir Directory path to save the rendered file
- */
-export function createVersionFile(
-  apis: { [key: string]: RestApi[] },
-  dir: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): void {
-  fs.writeFileSync(
-    // Write to the directory with the API definitions
-    path.join(dir, "APICLIENTS.md"),
-    versionTemplate({ apis: sortApis(apis) })
-  );
-}
-
-/**
  * Renders API functions and its types into a typescript file for all the APIs in a family
- * @param apiFamily Name of the API family
- * @param apiFamilyConfig Config of the API family
- * @param apiRamlDir Directory path of API RAML files
- * @param renderDir Directory path to save the rendered API files
- * @returns Promise with the api family name
+ * @param apiFamily - Name of the API family
+ * @param familyApis - Array of AMF models
+ * @param renderDir - Directory path to save the rendered API files
+ * @returns {string[]} List of API names in the API family
  */
 function renderApiFamily(
   apiFamily: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  apiFamilyConfig: any,
-  apiRamlDir: string,
+  familyApis: WebApiBaseUnit[],
   renderDir: string
-): Promise<string> {
+): string[] {
   const apiFamilyFileName = getNormalizedName(apiFamily);
   const apiFamilyPath: string = path.join(renderDir, apiFamilyFileName);
   fs.ensureDirSync(apiFamilyPath);
-
-  const familyPromises = processApiFamily(
-    apiFamily,
-    apiFamilyConfig,
-    apiRamlDir
+  const apiNames = familyApis.map(api =>
+    renderApi(api as WebApiBaseUnitWithEncodesModel, apiFamilyPath)
   );
-  return Promise.all(familyPromises)
-    .then(familyApis => {
-      const apiNames: string[] = [];
-      familyApis.forEach(api => {
-        apiNames.push(
-          renderApi(api as WebApiBaseUnitWithEncodesModel, apiFamilyPath)
-        );
-      });
-      return apiNames;
-    })
-    .then(apiNames => {
-      //export all apis in a family
-      fs.writeFileSync(
-        path.join(apiFamilyPath, `${apiFamilyFileName}.ts`),
-        createApiFamily(apiNames)
-      );
-      return apiFamilyFileName;
-    });
+  // export all APIs in the family
+  fs.writeFileSync(
+    path.join(apiFamilyPath, `${apiFamilyFileName}.ts`),
+    createApiFamily(apiNames)
+  );
+  return apiNames;
 }
 
 /**
  * Renders typescript code for the APIs using the pre-defined templates
- * @param config uild config used to build the SDK
+ * @param config Build config used to build the SDK
 
  * @returns Promise<void>
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function renderTemplates(config: any): Promise<void> {
+export async function renderTemplates(config: any): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const apiFamilyRamlConfig = require(path.resolve(
     path.join(config.inputDir, config.apiConfigFile)
   ));
   fs.ensureDirSync(config.renderDir);
-  const apiFamilyNames = _.keysIn(apiFamilyRamlConfig);
-  const allPromises: Promise<string>[] = [];
-  apiFamilyNames.forEach((apiFamily: string) => {
-    allPromises.push(
-      renderApiFamily(
-        apiFamily,
-        apiFamilyRamlConfig,
-        config.inputDir,
-        config.renderDir
-      )
-    );
-  });
-  //create index file that exports all the api families in the root
-  return Promise.all(allPromises).then(familyNames => {
-    fs.writeFileSync(
-      path.join(config.renderDir, "index.ts"),
-      createIndex(familyNames)
-    );
 
-    fs.writeFileSync(
-      path.join(config.renderDir, "helpers.ts"),
-      createHelpers(config)
-    );
-    createVersionFile(apiFamilyRamlConfig, path.join(config.renderDir, ".."));
-  });
+  const apiFamilyNames = _.keysIn(apiFamilyRamlConfig);
+  const apiFamilyEntries = await Promise.all(
+    apiFamilyNames.map(
+      async (familyName): Promise<[string, WebApiBaseUnit[]]> => {
+        const familyApis = await Promise.all(
+          processApiFamily(familyName, apiFamilyRamlConfig, config.inputDir)
+        );
+        renderApiFamily(familyName, familyApis, config.renderDir);
+        return [familyName, familyApis];
+      }
+    )
+  );
+  const apiFamilyMap = new Map(apiFamilyEntries);
+
+  // Create files with static filenames
+
+  // Create index file that exports all the API families in the root
+  fs.writeFileSync(
+    path.join(config.renderDir, "index.ts"),
+    createIndex([...apiFamilyMap.keys()].map(name => _.camelCase(name)))
+  );
+
+  // Create file that exports helper functions
+  fs.writeFileSync(
+    path.join(config.renderDir, "helpers.ts"),
+    createHelpers(config)
+  );
+
+  // Create file documenting available APIs
+  fs.writeFileSync(
+    path.join(config.renderDir, "..", "APICLIENTS.md"),
+    createApiClients(apiFamilyMap, apiFamilyRamlConfig)
+  );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function renderOperationList(allApis: {
   [key: string]: WebApiBaseUnitWithEncodesModel[];
 }): string {
@@ -351,10 +351,8 @@ Handlebars.registerHelper("isOptionalProperty", isOptionalProperty);
 
 Handlebars.registerHelper("getObjectIdByAssetId", getObjectIdByAssetId);
 
-Handlebars.registerHelper("eachInMap", (map, block) => {
-  let output = "";
-  for (const [key, value] of map) {
-    output += block.fn({ key, value });
-  }
-  return output;
-});
+Handlebars.registerHelper("getName", getName);
+
+Handlebars.registerHelper("getCamelCaseName", getCamelCaseName);
+
+Handlebars.registerHelper("getPascalCaseName", getPascalCaseName);
