@@ -12,21 +12,24 @@ import fetch, { Response } from "node-fetch";
 import path from "path";
 
 import { RestApi, FileInfo, Categories } from "./exchangeTypes";
+import { sdkLogger } from "../../core/src";
 
 const DEFAULT_DOWNLOAD_FOLDER = "download";
 const ANYPOINT_BASE_URI = "https://anypoint.mulesoft.com/exchange/api/v2";
+const ANYPOINT_BASE_URI_WITHOUT_VERSION =
+  "https://anypoint.mulesoft.com/exchange";
 
 export function downloadRestApi(
   restApi: RestApi,
   destinationFolder: string = DEFAULT_DOWNLOAD_FOLDER
 ): Promise<void | Response> {
-  return new Promise((resolve, reject) => {
-    if (!restApi.fatRaml) {
-      reject(
-        new Error(
-          `Fat RAML download information for ${restApi.assetId} is missing`
-        )
+  return new Promise(resolve => {
+    if (!restApi.fatRaml.createdDate) {
+      sdkLogger.warn(
+        `Failed to download '${restApi.name}' RAML as Fat RAML download information is missing.`,
+        `Please download it manually from ${ANYPOINT_BASE_URI_WITHOUT_VERSION}/${restApi.assetId} and update the relevant details in apis/api-config.json`
       );
+      return resolve();
     }
 
     ensureDirSync(destinationFolder);
@@ -54,7 +57,7 @@ export function downloadRestApis(
   const promises: Promise<any>[] = [];
 
   restApi.forEach((api: RestApi) => {
-    promises.push(downloadRestApi(api, destinationFolder));
+    promises.push(exports.downloadRestApi(api, destinationFolder));
   });
 
   return Promise.all(promises).then(() => destinationFolder);
@@ -118,7 +121,10 @@ export function getAsset(accessToken: string, assetId: string): Promise<JSON> {
     }
   }).then(res => {
     if (!res.ok) {
-      throw new Error(`${res.status} - ${res.statusText}`);
+      sdkLogger.warn(
+        `Failed to get information about ${assetId} from exchange: ${res.status} - ${res.statusText}`
+      );
+      return null;
     }
     return res.json();
   });
@@ -164,24 +170,30 @@ export function getVersionByDeployment(
   restApi: RestApi,
   deployment: RegExp
 ): Promise<string> {
-  return getAsset(accessToken, `${restApi.groupId}/${restApi.assetId}`).then(
-    asset => {
+  return exports
+    .getAsset(accessToken, `${restApi.groupId}/${restApi.assetId}`)
+    .then(asset => {
+      if (!asset) {
+        return null;
+      }
+
       let version = null;
       asset["instances"].forEach(
         (instance: { environmentName: string; version: string }) => {
           if (
             instance.environmentName &&
             deployment.test(instance.environmentName) &&
-            version === null
+            !version
           ) {
             version = instance.version;
           }
         }
       );
 
-      return version;
-    }
-  );
+      // If no instance matched the intended deployment get the version info
+      // from the fetched asset.
+      return version || !asset.version ? version : asset.version;
+    });
 }
 
 /**
@@ -199,10 +211,11 @@ export function getSpecificApi(
   assetId: string,
   version: string
 ): Promise<RestApi> {
-  if (version == null) {
-    return null;
-  }
-  return getAsset(accessToken, `${groupId}/${assetId}/${version}`).then(api => {
-    return convertResponseToRestApi(api);
-  });
+  return version
+    ? exports
+        .getAsset(accessToken, `${groupId}/${assetId}/${version}`)
+        .then((api: JSON) => {
+          return api ? convertResponseToRestApi(api) : null;
+        })
+    : null;
 }

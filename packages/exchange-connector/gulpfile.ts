@@ -19,11 +19,32 @@ import {
   getSpecificApi,
   groupByCategory
 } from "./src";
+import { sdkLogger } from "../core";
 
 require("dotenv").config();
 
 import config from "../../build-config";
 import { removeRamlLinks } from "./src/exchangeTools";
+
+/**
+ * Remove all the information that could be invalid so that the SDK is not
+ * generated with incorrect information accidentally. Correct information
+ * needs to be filled manually in 'apis/api-config.json' before the SDK can be
+ * generated.
+ *
+ * @param api The API with incorrect information
+ */
+function removeInvalidInformation(api: RestApi) {
+  api.id = null;
+  api.updatedDate = null;
+  api.version = null;
+  api.fatRaml.createdDate = null;
+  api.fatRaml.md5 = null;
+  api.fatRaml.sha1 = null;
+  if (api.fatRaml.externalLink) {
+    delete api.fatRaml.externalLink;
+  }
+}
 
 async function search(): Promise<RestApi[]> {
   const token = await getBearer(
@@ -46,7 +67,7 @@ async function search(): Promise<RestApi[]> {
           if (neededApi) {
             return neededApi;
           } else {
-            api.version = null;
+            removeInvalidInformation(api);
             return api;
           }
         }
@@ -66,7 +87,7 @@ function downloadRamlFromExchange(): Promise<void> {
   return search().then(apis => {
     return downloadRestApis(apis, config.inputDir)
       .then(folder => {
-        console.log(`Setting config.inputDir to '${folder}'`);
+        sdkLogger.warn(`Setting config.inputDir to '${folder}'`);
         config.inputDir = folder;
         return extractFiles(folder);
       })

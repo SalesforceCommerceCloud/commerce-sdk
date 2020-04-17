@@ -15,6 +15,7 @@ import amf from "amf-client-js";
 import path from "path";
 import _ from "lodash";
 import { RestApi } from "@commerce-apps/exchange-connector";
+import { sdkLogger } from "../../core/src";
 
 export function processRamlFile(ramlFile: string): Promise<WebApiBaseUnit> {
   amf.plugins.document.WebApi.register();
@@ -97,6 +98,10 @@ export function processApiFamily(
   const promises = [];
   const ramlFileFromFamily = apiFamilyConfig[apiFamily];
   _.map(ramlFileFromFamily, (apiMeta: RestApi) => {
+    if(!apiMeta.fatRaml.createdDate) {
+      throw Error(`Some information about '${apiMeta.name}' is missing in 'apis/api-config.json'. 
+      Please ensure that '${apiMeta.name}' RAML and its dependencies are present in 'apis/', and all the required information is present in 'apis/api-config.json'.`);
+    }
     promises.push(
       processRamlFile(
         path.join(inputDir, apiMeta.assetId, apiMeta.fatRaml.mainFile)

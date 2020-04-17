@@ -9,15 +9,20 @@ import {
   downloadRestApis,
   searchExchange,
   getAsset,
-  getVersionByDeployment
-} from "../src/";
+  getVersionByDeployment,
+  getSpecificApi
+} from "../src";
 import { RestApi } from "../src/exchangeTypes";
 import { searchAssetApiResultObject } from "./resources/restApiResponseObjects";
+import * as exchangeDownloader from "../src/exchangeDownloader";
 
 import { expect, default as chai } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import nock from "nock";
 import _ from "lodash";
+import sinon from "sinon";
+import tmp from "tmp";
+import { Response } from "node-fetch";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const assetSearchResults = require("./resources/assetSearch.json");
@@ -32,10 +37,6 @@ before(() => {
   chai.should();
   chai.use(chaiAsPromised);
 });
-
-import tmp from "tmp";
-import { Response } from "node-fetch";
-import { getSpecificApi } from "../dist";
 
 const REST_API: RestApi = {
   id: "8888888/test-api/1.0.0",
@@ -54,10 +55,10 @@ const REST_API: RestApi = {
   version: "1.0.0"
 };
 
-describe("Test downloadRestApi", () => {
+describe("downloadRestApi", () => {
   afterEach(nock.cleanAll);
 
-  it("can download single file", async () => {
+  it("can download a single file", async () => {
     const tmpDir = tmp.dirSync();
 
     nock("https://somewhere")
@@ -67,11 +68,11 @@ describe("Test downloadRestApi", () => {
     const api = _.cloneDeep(REST_API);
 
     return downloadRestApi(api, tmpDir.name).then((res: Response) => {
-      expect(res.status).to.be.equal(200);
+      expect(res.status).to.equal(200);
     });
   });
 
-  it("can download single file, no download dir specified", async () => {
+  it("can download a single file even when no download dir is specified", async () => {
     nock("https://somewhere")
       .get("/fatraml.zip")
       .reply(200);
@@ -79,72 +80,64 @@ describe("Test downloadRestApi", () => {
     const api = _.cloneDeep(REST_API);
 
     return downloadRestApi(api).then((res: Response) => {
-      expect(res.status).to.be.equal(200);
+      expect(res.status).to.equal(200);
     });
   });
 
-  it("throws if no fat raml", async () => {
-    const tmpDir = tmp.dirSync();
-
-    nock("https://somewhere")
-      .get("/fatraml.zip")
-      .reply(200);
-
+  it("doesn't return anything if fat raml information is missing", async () => {
     const api = _.cloneDeep(REST_API);
+    delete api.fatRaml.createdDate;
 
-    delete api.fatRaml;
-
-    return expect(downloadRestApi(api, tmpDir.name)).to.be.rejectedWith(
-      "Fat RAML download information for test-api is missing"
-    );
+    return expect(downloadRestApi(api)).to.eventually.be.undefined;
   });
 });
 
-describe("Test downloadRestApis", () => {
-  afterEach(nock.cleanAll);
+describe("downloadRestApis", () => {
+  beforeEach(sinon.restore);
 
   it("can download multiple files", async () => {
-    const tmpDir = tmp.dirSync();
+    const downloadRestApiStub = sinon
+      .stub(exchangeDownloader, "downloadRestApi")
+      .resolves(new Response("/fatraml.zip"));
+    const dest = "destinationDir";
 
     const apis = [_.cloneDeep(REST_API), _.cloneDeep(REST_API)];
-
     apis[1].fatRaml.externalLink = "https://somewhere/fatraml2.zip";
 
-    const scope = nock("https://somewhere");
-
-    scope.get("/fatraml.zip").reply(200);
-    scope.get("/fatraml2.zip").reply(200);
-
-    return downloadRestApis(apis, tmpDir.name).then(res => {
-      expect(res).to.be.equal(tmpDir.name);
+    return downloadRestApis(apis, dest).then(res => {
+      expect(downloadRestApiStub.calledTwice).to.be.true;
+      expect(res).to.equal(dest);
     });
   });
 
-  it("can download multiple files with no specified dir", async () => {
-    const apis = [_.cloneDeep(REST_API), _.cloneDeep(REST_API)];
+  it("can download multiple files even when no destination folder is provided", async () => {
+    const downloadRestApiStub = sinon
+      .stub(exchangeDownloader, "downloadRestApi")
+      .resolves(new Response("/fatraml.zip"));
 
+    const apis = [_.cloneDeep(REST_API), _.cloneDeep(REST_API)];
     apis[1].fatRaml.externalLink = "https://somewhere/fatraml2.zip";
 
-    const scope = nock("https://somewhere");
-
-    scope.get("/fatraml.zip").reply(200);
-    scope.get("/fatraml2.zip").reply(200);
-
     return downloadRestApis(apis).then(res => {
-      expect(res).to.be.equal("download");
+      expect(downloadRestApiStub.calledTwice).to.be.true;
+      expect(res).to.equal("download");
     });
   });
 
-  it("does nothing on empty list", async () => {
-    const apis = [];
+  it("does nothing when an empty list is passed", async () => {
+    const downloadRestApiStub = sinon.stub(
+      exchangeDownloader,
+      "downloadRestApi"
+    );
 
-    return downloadRestApis(apis).then(res => {
-      expect(res).to.be.equal("download");
+    return downloadRestApis([]).then(res => {
+      expect(downloadRestApiStub.called).to.be.false;
+      expect(res).to.equal("download");
     });
   });
 });
 
-describe("Test searchExchange", () => {
+describe("searchExchange", () => {
   afterEach(nock.cleanAll);
 
   it("can download multiple files", async () => {
@@ -153,30 +146,28 @@ describe("Test searchExchange", () => {
     scope.get("/assets?search=searchString").reply(200, assetSearchResults);
 
     return searchExchange("AUTH_TOKEN", "searchString").then(res => {
-      expect(res).to.be.deep.equal(searchAssetApiResultObject);
+      expect(res).to.deep.equal(searchAssetApiResultObject);
     });
   });
 });
 
-describe("Test getSpecificApi", () => {
-  afterEach(nock.cleanAll);
+describe("getSpecificApi", () => {
+  beforeEach(sinon.restore);
 
-  it("Happy Path", async () => {
-    const scope = nock("https://anypoint.mulesoft.com/exchange/api/v2/assets");
+  it("should return the response in RestApi type", async () => {
+    const getAssetStub = sinon
+      .stub(exchangeDownloader, "getAsset")
+      .resolves(getAssetWithVersion);
 
-    scope
-      .get("/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-customers/0.0.1")
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      .reply(200, getAssetWithVersion);
+    const restApi = getSpecificApi(
+      "AUTH_TOKEN",
+      "893f605e-10e2-423a-bdb4-f952f56eb6d8",
+      "shopper-customers",
+      "0.0.1"
+    );
 
-    return expect(
-      getSpecificApi(
-        "AUTH_TOKEN",
-        "893f605e-10e2-423a-bdb4-f952f56eb6d8",
-        "shopper-customers",
-        "0.0.1"
-      )
-    ).to.eventually.be.deep.equal({
+    expect(getAssetStub.called).to.be.true;
+    return expect(restApi).to.eventually.deep.equal({
       id: "893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-customers/0.0.1",
       name: "Shopper Customers",
       description:
@@ -204,45 +195,120 @@ describe("Test getSpecificApi", () => {
     });
   });
 
-  it("404 Error", async () => {
+  it("should return null if version is not provided", async () => {
+    const getAssetStub = sinon
+      .stub(exchangeDownloader, "getAsset")
+      .resolves(getAssetWithVersion);
+
+    const restApi = getSpecificApi(
+      "AUTH_TOKEN",
+      "893f605e-10e2-423a-bdb4-f952f56eb6d8",
+      "shopper-customers",
+      null
+    );
+
+    expect(getAssetStub.called).to.be.false;
+    return expect(restApi).to.be.null;
+  });
+
+  it("should return null if getAsset returns null", async () => {
+    const getAssetStub = sinon
+      .stub(exchangeDownloader, "getAsset")
+      .resolves(null);
+
+    const restApi = getSpecificApi(
+      "AUTH_TOKEN",
+      "893f605e-10e2-423a-bdb4-f952f56eb6d8",
+      "shopper-customers",
+      "0.0.1"
+    );
+
+    expect(getAssetStub.called).to.be.true;
+    return expect(restApi).to.eventually.be.null;
+  });
+});
+
+describe("getAsset", async () => {
+  afterEach(nock.cleanAll);
+
+  it("should return the requested asset", async () => {
     const scope = nock("https://anypoint.mulesoft.com/exchange/api/v2/assets");
 
     scope
       .get("/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-customers/0.0.1")
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      .reply(404, "Not Found");
+      .reply(200, getAssetWithVersion);
 
     return expect(
-      getSpecificApi(
+      getAsset(
         "AUTH_TOKEN",
-        "893f605e-10e2-423a-bdb4-f952f56eb6d8",
-        "shopper-customers",
-        "0.0.1"
+        "893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-customers/0.0.1"
       )
-    ).to.eventually.rejectedWith("404 - Not Found");
+    ).to.eventually.deep.equal(getAssetWithVersion);
+  });
+
+  it("should return null if it fails to download the asset", () => {
+    const scope = nock("https://anypoint.mulesoft.com/exchange/api/v2/assets");
+
+    scope
+      .get("/893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-customers/0.0.1")
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      .reply(500, "Internal Server Error");
+
+    return expect(
+      getAsset(
+        "AUTH_TOKEN",
+        "893f605e-10e2-423a-bdb4-f952f56eb6d8/shopper-customers/0.0.1"
+      )
+    ).to.eventually.be.null;
   });
 });
 
-describe("Test getVersionByDeployment", () => {
-  afterEach(nock.cleanAll);
+describe("getVersionByDeployment", () => {
+  beforeEach(sinon.restore);
 
-  it("Deployment exists", async () => {
-    const scope = nock("https://anypoint.mulesoft.com/exchange/api/v2/assets");
+  it("returns a version if a deployment exists", async () => {
+    const getAssetStub = sinon
+      .stub(exchangeDownloader, "getAsset")
+      .resolves(getAssetWithoutVersion);
 
-    scope.get("/8888888/test-api").reply(200, getAssetWithoutVersion);
+    const version = getVersionByDeployment(
+      "AUTH_TOKEN",
+      REST_API,
+      /production/i
+    );
 
-    return expect(
-      getVersionByDeployment("AUTH_TOKEN", REST_API, /production/i)
-    ).to.eventually.be.equal("0.0.1");
+    expect(getAssetStub.called).to.be.true;
+    return expect(version).to.eventually.equal("0.0.1");
   });
 
-  it("Deployment does not exist", async () => {
-    const scope = nock("https://anypoint.mulesoft.com/exchange/api/v2/assets");
+  it("returns the asset's version if no matching deployment is found", async () => {
+    const getAssetStub = sinon
+      .stub(exchangeDownloader, "getAsset")
+      .resolves(getAssetWithoutVersion);
 
-    scope.get("/8888888/test-api").reply(200, getAssetWithoutVersion);
+    const version = getVersionByDeployment(
+      "AUTH_TOKEN",
+      REST_API,
+      /NOT AVAILABLE/i
+    );
 
-    return expect(
-      getVersionByDeployment("AUTH_TOKEN", REST_API, /NOT AVAILABLE/i)
-    ).to.eventually.be.equal(null);
+    expect(getAssetStub.called).to.be.true;
+    return expect(version).to.eventually.equal(getAssetWithoutVersion.version);
+  });
+
+  it("returns null if the asset does not exist", async () => {
+    const getAssetStub = sinon
+      .stub(exchangeDownloader, "getAsset")
+      .resolves(null);
+
+    const version = getVersionByDeployment(
+      "AUTH_TOKEN",
+      REST_API,
+      /NOT AVAILABLE/i
+    );
+
+    expect(getAssetStub.called).to.be.true;
+    return expect(version).to.eventually.be.null;
   });
 });
