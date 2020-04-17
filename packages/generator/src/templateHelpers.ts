@@ -9,6 +9,8 @@ import { WebApiBaseUnitWithEncodesModel } from "webapi-parser";
 
 import { commonParameterPositions } from "@commerce-apps/core";
 
+import _ from "lodash";
+
 import {
   PRIMITIVE_DATA_TYPE_MAP,
   DEFAULT_DATA_TYPE,
@@ -407,6 +409,21 @@ export const isAdditionalPropertiesAllowed = function(
   );
 };
 
-export const getObjectIdByAssetId = function(assetId: string) {
+export const getObjectIdByAssetId = function(assetId: string): string {
   return ASSET_OBJECT_MAP[assetId];
+};
+
+export type NamedObject = { name: { value: () => string } };
+
+export const getName = function(obj: NamedObject): string {
+  return obj?.name?.value?.() || "";
+};
+
+export const getCamelCaseName = function(obj: NamedObject): string {
+  return _.camelCase(getName(obj));
+};
+
+export const getPascalCaseName = function(obj: NamedObject): string {
+  const name = getCamelCaseName(obj);
+  return name && name[0].toUpperCase() + name.slice(1);
 };
