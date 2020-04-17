@@ -146,6 +146,15 @@ const config = {
 
 When the specified amount of memory is reached, Redis can be configured to apply an eviction policy. Refer to [this article](https://redis.io/topics/lru-cache/) to setup Redis as an LRU cache and to learn more about supported eviction policies. 
 
+## Logging
+Default log level of the SDK is WARN (warning). SDK uses [loglevel](https://www.npmjs.com/package/loglevel) npm package. All the log levels supported by [loglevel](https://www.npmjs.com/package/loglevel) package are supported in SDK.
+
+To change the loglevel, import sdkLogger and set the level on it.
+```javascript
+import { sdkLogger } from "@commerce-apps/core"
+
+sdkLogger.setLevel(sdkLogger.levels.INFO);
+```
 
 ## Additional Documentation 
 [API Documentation](./APICLIENTS.md)  

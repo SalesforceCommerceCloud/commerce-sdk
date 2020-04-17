@@ -2,7 +2,7 @@
 
 > **Note:** This readme is here to allow a spot for the commerce-sdk readme to be in the root of the package.
 
-* Templates are rendered into the tmpDir specified by [build-config.json](../build-config.json)
+* Templates are rendered into the renderDir specified by [build-config.ts](../../../build-config.ts)
 * Once rendered they are transpiled to the dist directory just like every other package
 
 ## Usage
@@ -39,6 +39,14 @@ In the backend this is running a bunch of gulp tasks to accomplish this.
 Another option is to build a list of operations. Simply run `npm run buildOperationList` to build a list of operations
 
 You can then find this list at `renderedTemplates/operationList.yaml`
+
+## Logging
+Default log level of the Generator is INFO. Generator uses [loglevel](https://www.npmjs.com/package/loglevel) npm package. So all the log levels supported by [loglevel](https://www.npmjs.com/package/loglevel) package are supported in Generator.
+
+To change the loglevel, set the log level in environment variable
+```
+SDK_GENERATOR_LOG_LEVEL=debug
+```
 
 ## Dependencies 
 
