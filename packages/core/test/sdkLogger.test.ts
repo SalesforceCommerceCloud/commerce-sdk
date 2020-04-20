@@ -5,22 +5,21 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import * as chai from "chai";
-import chaiAsPromised from "chai-as-promised";
 import * as log from "loglevel";
-import path from "path";
+import { sdkLogger, COMMERCE_SDK_LOGGER_KEY } from "../src";
 
-const loggerPath = path.join(__dirname, "../src/base/sdkLogger.ts");
-
-before(() => {
-  chai.use(chaiAsPromised);
-});
-
-describe("Test default log level", () => {
-  afterEach(() => {
-    delete require.cache[loggerPath];
+describe("Test log level", () => {
+  it("Test default log level in sdkLogger", async () => {
+    return chai.expect(sdkLogger.getLevel()).to.equal(log.levels.WARN);
   });
-  it("Test default log level for generator", async () => {
-    const logger = await import("../src/base/sdkLogger");
-    return chai.expect(logger.sdkLogger.getLevel()).to.equal(log.levels.WARN);
+  it("Test default log level with getLogger function", async () => {
+    return chai
+      .expect(log.getLogger(COMMERCE_SDK_LOGGER_KEY).getLevel())
+      .to.equal(log.levels.WARN);
+  });
+  it("Test log level change", async () => {
+    const logger = log.getLogger(COMMERCE_SDK_LOGGER_KEY);
+    logger.setLevel(log.levels.DEBUG);
+    return chai.expect(sdkLogger.getLevel()).to.equal(log.levels.DEBUG);
   });
 });

@@ -32,4 +32,4 @@ export {
 } from "./base/commonParameters";
 
 export { CacheManagerRedis } from "./base/cacheManagerRedis";
-export { sdkLogger } from "./base/sdkLogger";
+export { COMMERCE_SDK_LOGGER_KEY, sdkLogger } from "./base/sdkLogger";

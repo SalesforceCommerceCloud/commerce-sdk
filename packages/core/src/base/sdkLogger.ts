@@ -11,4 +11,4 @@ const COMMERCE_SDK_LOGGER_KEY = "COMMERCE_SDK_LOGGER";
 const sdkLogger = log.getLogger(COMMERCE_SDK_LOGGER_KEY);
 sdkLogger.setLevel(log.levels.WARN);
 
-export { sdkLogger };
+export { COMMERCE_SDK_LOGGER_KEY, sdkLogger };
