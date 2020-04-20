@@ -42,6 +42,7 @@ import {
 import _ from "lodash";
 import { RestApi } from "@commerce-apps/exchange-connector";
 import { model } from "amf-client-js";
+import { generatorLogger } from "./logger";
 
 /**
  * Information used to generate APICLIENTS.md.
@@ -303,16 +304,19 @@ export async function renderTemplates(config: any): Promise<void> {
     path.join(config.renderDir, "..", "APICLIENTS.md"),
     createApiClients(apiFamilyMap, apiFamilyRamlConfig)
   );
+  generatorLogger.info(
+    "Successfully rendered code from the APIs: ",
+    config.inputDir
+  );
 }
 
 export function renderOperationList(allApis: {
   [key: string]: WebApiBaseUnitWithEncodesModel[];
 }): string {
-  const renderedOperations: string = renderOperationListTemplate(allApis, {
+  return renderOperationListTemplate(allApis, {
     allowProtoPropertiesByDefault: true,
     allowProtoMethodsByDefault: true
   });
-  return renderedOperations;
 }
 
 // Register helpers
