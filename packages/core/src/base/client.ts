@@ -8,7 +8,9 @@ import _ from "lodash";
 import { config } from "dotenv";
 import tmp from "tmp";
 
-import { getBearer } from "@commerce-apps/exchange-connector";
+import { getBearer } from "@commerce-apps/raml-toolkit";
+
+//import { getBearer } from "@commerce-apps/raml-toolkit";
 
 import { CommonParameters } from "./commonParameters";
 import { DefaultCache } from "./staticClient";
