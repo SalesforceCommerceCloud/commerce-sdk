@@ -18,8 +18,7 @@ describe("Test log level", () => {
       .to.equal(log.levels.WARN);
   });
   it("Test log level change", async () => {
-    const logger = log.getLogger(COMMERCE_SDK_LOGGER_KEY);
-    logger.setLevel(log.levels.DEBUG);
+    sdkLogger.setLevel(sdkLogger.levels.DEBUG);
     return chai.expect(sdkLogger.getLevel()).to.equal(log.levels.DEBUG);
   });
 });
