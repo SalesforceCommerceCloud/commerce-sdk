@@ -151,10 +151,9 @@ Default log level of the SDK is WARN (warning). SDK uses [loglevel](https://www.
 
 To change the loglevel, set the desired level on the SDK logger.
 ```javascript
-import * as CommerceSdk from "commerce-sdk";
-import * as log from "loglevel";
+import { sdkLogger } from "commerce-sdk";
 
-log.getLogger(CommerceSdk.COMMERCE_SDK_LOGGER_KEY).setLevel(log.levels.INFO);
+sdkLogger.setLevel(sdkLogger.levels.INFO);
 ```
 
 ## Additional Documentation 
