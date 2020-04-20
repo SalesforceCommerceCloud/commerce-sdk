@@ -149,7 +149,7 @@ When the specified amount of memory is reached, Redis can be configured to apply
 ## Logging
 Default log level of the SDK is WARN (warning). SDK uses [loglevel](https://www.npmjs.com/package/loglevel) npm package. All the log levels supported by [loglevel](https://www.npmjs.com/package/loglevel) package are supported in SDK.
 
-To change the loglevel, import sdkLogger and set the level on it.
+To change the loglevel, set the desired level on the SDK logger.
 ```javascript
 import * as CommerceSdk from "commerce-sdk";
 import * as log from "loglevel";
