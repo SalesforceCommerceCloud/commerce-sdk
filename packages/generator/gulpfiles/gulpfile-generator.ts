@@ -5,8 +5,8 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import * as gulp from "gulp";
-import { processApiFamily } from "./src/parser";
-import { renderTemplates, renderOperationList } from "./src/renderer";
+import { processApiFamily } from "../src/parser";
+import { renderTemplates, renderOperationList } from "../src/renderer";
 
 import fs from "fs-extra";
 import _ from "lodash";
@@ -15,7 +15,7 @@ import * as path from "path";
 require("dotenv").config();
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-import config from "../../build-config";
+import config from "../../../build-config";
 
 /**
  *  Gulp task that renders typescript code for the APIs using the pre-defined templates

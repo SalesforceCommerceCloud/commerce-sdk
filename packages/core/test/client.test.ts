@@ -6,7 +6,7 @@
  */
 "use strict";
 
-import * as authMock from "@commerce-apps/exchange-connector";
+import * as authMock from "@commerce-apps/raml-toolkit";
 
 import sinon from "sinon";
 

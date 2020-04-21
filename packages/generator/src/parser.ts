@@ -14,7 +14,7 @@ import { model, Raml10Resolver } from "amf-client-js";
 import amf from "amf-client-js";
 import path from "path";
 import _ from "lodash";
-import { RestApi } from "@commerce-apps/exchange-connector";
+import { RestApi } from "@commerce-apps/raml-toolkit";
 
 export function processRamlFile(ramlFile: string): Promise<WebApiBaseUnit> {
   amf.plugins.document.WebApi.register();

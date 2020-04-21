@@ -13,9 +13,8 @@ import * as renderer from "../src/renderer";
 import tmp from "tmp";
 import _ from "lodash";
 import { getNormalizedName, processApiFamily } from "../src/parser";
-import { RestApi } from "@commerce-apps/exchange-connector";
+import { RestApi } from "@commerce-apps/raml-toolkit";
 import { model } from "amf-client-js";
-import { promises } from "dns";
 /**
  * Tests all the functions that are invoked while rendering templates.
  *
