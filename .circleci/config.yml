@@ -17,6 +17,12 @@ jobs:
       - run: npm run test:integration
       - store_test_results:
           path: reports
+      - store_artifacts:
+            path: packages/core/coverage
+            destination: coverage/core
+      - store_artifacts:
+            path: packages/generator/coverage
+            destination: coverage/generator
 
   build-12:
     environment:
@@ -36,7 +42,14 @@ jobs:
       - run: npm run test:integration
       - store_test_results:
           path: reports
+      - store_artifacts:
+            path: packages/core/coverage
+            destination: coverage/core
+      - store_artifacts:
+            path: packages/generator/coverage
+            destination: coverage/generator
 
+  
   publish:
     working_directory: ~/build_and_publish
     executor:
