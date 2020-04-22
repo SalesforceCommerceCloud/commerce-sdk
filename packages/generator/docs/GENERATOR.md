@@ -55,5 +55,36 @@ Dependencies here are used for 2 different things, generation and the sdk itself
   * All devDependencies are used for the code generation only
   * All dependencies are used for the commerce-sdk itself
 
+## Troubleshoot
 
+### Failure to get asset information and download the RAML
 
+Sometimes getting information about an asset and downloading it may fail. When that happens process will not halt and the rest of the assets will still be downloaded. To successfully generate the SDK, missing pieces will have to be filled in manually. Steps to get the required information are following.
+
+#### To get asset information
+
+1. Get an access token from https://anypoint.mulesoft.com/accounts/login with your anypoint username and password. If using curl, use the following command.
+  ```
+  curl "https://anypoint.mulesoft.com/accounts/login" 
+  -X POST 
+  -d '{"username": "<username>", "password": "<password>"}' 
+  -H "Content-Type: application/json"
+  ```
+2. Use the access token to get the asset. It is recommended that you use a tool like Postman for making this request because the response will likely be huge. If using curl, the following command may be used.
+  ```
+  curl "https://anypoint.mulesoft.com/exchange/api/v2/assets/<asset-id>/<version>" 
+  -H "Authorization: Bearer <access-token>"
+  ```
+
+3. Once you have the asset information for the version currently in production, add the missing information for the api in `apis/api-config.json`. Following information will need to be filled.
+  * id
+  * updatedDate
+  * version
+  * fatRaml.createdDate
+  * fatRaml.md5
+  * fatRaml.sha1
+
+4. Once all the information has been added to api-config.json, download the Fat RAML for the api from exchange using the following URL
+`https://anypoint.mulesoft.com/exchange/<group-id>/<asset-id>`
+5. Now, you should have a zip for the api on your machine. Unzip it, rename it to be the asset-id of the api (e.g. shopper-baskets for Shopper Baskets) and move it to apis directory.
+6. Run `npm run build`. It should now successfully generate the SDK.

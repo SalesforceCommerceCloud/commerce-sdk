@@ -97,6 +97,10 @@ export function processApiFamily(
   const promises = [];
   const ramlFileFromFamily = apiFamilyConfig[apiFamily];
   _.map(ramlFileFromFamily, (apiMeta: RestApi) => {
+    if(!apiMeta.id) {
+      throw Error(`Some information about '${apiMeta.name}' is missing in 'apis/api-config.json'. 
+      Please ensure that '${apiMeta.name}' RAML and its dependencies are present in 'apis/', and all the required information is present in 'apis/api-config.json'.`);
+    }
     promises.push(
       processRamlFile(
         path.join(inputDir, apiMeta.assetId, apiMeta.fatRaml.mainFile)

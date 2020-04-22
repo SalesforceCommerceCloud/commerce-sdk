@@ -18,8 +18,10 @@ import {
   getVersionByDeployment,
   getSpecificApi,
   groupByCategory
-} from "@commerce-apps/raml-toolkit/lib/exchange-connector";
-import { removeRamlLinks } from "@commerce-apps/raml-toolkit/lib/exchange-connector/exchangeTools";
+} from "@commerce-apps/raml-toolkit";
+import { removeRamlLinks, removeVersionSpecificInformation } from "@commerce-apps/raml-toolkit";
+import { generatorLogger } from "../src/logger";
+
 
 require("dotenv").config();
 
@@ -46,8 +48,7 @@ async function search(): Promise<RestApi[]> {
           if (neededApi) {
             return neededApi;
           } else {
-            api.version = null;
-            return api;
+            return removeVersionSpecificInformation(api);
           }
         }
       )
@@ -66,7 +67,7 @@ function downloadRamlFromExchange(): Promise<void> {
   return search().then(apis => {
     return downloadRestApis(apis, config.inputDir)
       .then(folder => {
-        console.log(`Setting config.inputDir to '${folder}'`);
+        generatorLogger.info(`Setting config.inputDir to '${folder}'`);
         config.inputDir = folder;
         return extractFiles(folder);
       })
