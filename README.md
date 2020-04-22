@@ -23,6 +23,7 @@ The Core package represents the core functions that call the APIs and interact w
 ### @commerce-apps/exchange-connector
 
 The exchange-connector package downloads RAML files from Anypoint Exchange to build the SDK. It is used by the generator but not the generated SDK. Read more about the exchange-connector package [here](./packages/exchange-connector/README.md).
+> **Note:** `@commerce-apps/exchange-connector` is soon going to be replaced with [@commerce-apps/raml-toolkit](https://www.npmjs.com/package/@commerce-apps/raml-toolkit)
 
 ## Setup
 

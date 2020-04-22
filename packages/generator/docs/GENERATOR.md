@@ -28,13 +28,13 @@ ANYPOINT_PASSWORD=<password>
 
 Simply run `npm run build`
 
-> NOTE: Core and Exchange-Connector must already be built 
+> NOTE: Core must already be built 
 
 In the backend this is running a bunch of gulp tasks to accomplish this.
 
 ### Build Operation List
 
-> NOTE: Core and Exchange-Connector must already be built 
+> NOTE: Core must already be built 
 
 Another option is to build a list of operations. Simply run `npm run buildOperationList` to build a list of operations
 

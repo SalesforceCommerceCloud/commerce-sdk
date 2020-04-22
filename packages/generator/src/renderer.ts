@@ -40,7 +40,7 @@ import {
   WebApiBaseUnitWithEncodesModel
 } from "webapi-parser";
 import _ from "lodash";
-import { RestApi } from "@commerce-apps/exchange-connector";
+import { RestApi } from "@commerce-apps/raml-toolkit";
 import { model } from "amf-client-js";
 import { generatorLogger } from "./logger";
 
