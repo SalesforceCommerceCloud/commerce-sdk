@@ -23,12 +23,12 @@
     "test": "nyc mocha \"test/**/*.test.ts\" --reporter=xunit --reporter-options output=../../reports/generator.xml",
     "test:integration": "nyc --check-coverage=false mocha \"test_integration/**/*.ts\" --retries 2 --timeout 5000 --reporter=xunit --reporter-options output=../../reports/generator-integration.xml",
     "start": "node dist/index.js",
-    "clean": "gulp --gulpfile ./gulpfiles/gulpfile-exchange-connector.ts cleanInputDir",
-    "buildOperationList": "gulp --gulpfile ./gulpfiles/gulpfile-generator.ts buildOperationList",
-    "renderTemplates": "gulp --gulpfile ./gulpfiles/gulpfile-generator.ts renderTemplates",
+    "clean": "gulp --gulpfile ./gulpfiles/downloadRamlsTask.ts cleanInputDir",
+    "buildOperationList": "gulp --gulpfile ./gulpfiles/renderTemplatesTask.ts buildOperationList",
+    "renderTemplates": "gulp --gulpfile ./gulpfiles/renderTemplatesTask.ts renderTemplates",
     "build": "npm run renderTemplates && tsc && eslint dist/** --quiet --fix",
     "lint": "eslint \"**/*.ts\" --quiet --fix",
-    "updateApis": "gulp --gulpfile ./gulpfiles/gulpfile-exchange-connector.ts updateApis"
+    "updateApis": "gulp --gulpfile ./gulpfiles/downloadRamlsTask.ts updateApis"
   },
   "publishConfig": {
     "access": "public"
@@ -122,7 +122,7 @@
   "license": "BSD-3-Clause",
   "gitHead": "2a6031f5f57c4ba5df8bfb5c4ca42b2631befe58",
   "devDependencies": {
-    "@commerce-apps/raml-toolkit": "^0.2.9",
+    "@commerce-apps/raml-toolkit": "^0.3.1",
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
     "@types/gulp": "^4.0.6",
     "chai": "^4.2.0",
