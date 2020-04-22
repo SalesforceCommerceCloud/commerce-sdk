@@ -333,7 +333,7 @@ const config: ClientConfig = { /* ... */ };
 const shopperSearchClient = new Search.ShopperSearch(config);
 ```
 
-**Mule App Version:** 1.0.10
+**Mule App Version:** 1.0.21
 
 ## Seller
 
@@ -352,4 +352,4 @@ const config: ClientConfig = { /* ... */ };
 const shopperStoresClient = new Seller.ShopperStores(config);
 ```
 
-**Mule App Version:** 1.0.5
+**Mule App Version:** 1.0.6
