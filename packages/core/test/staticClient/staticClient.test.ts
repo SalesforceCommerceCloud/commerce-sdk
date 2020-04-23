@@ -18,7 +18,7 @@ before(() => {
   chai.use(chaiAsPromised);
 });
 
-import { BaseClient } from "../src/base/client";
+import { BaseClient } from "../../src/base/client";
 import {
   _delete,
   _get,
@@ -27,7 +27,7 @@ import {
   _put,
   getHeader,
   ResponseError
-} from "../src/base/staticClient";
+} from "../../src/base/staticClient";
 
 const CONNECTION_CLOSE = { connection: "close" };
 const CONNECTION_KEEP_ALIVE = { connection: "keep-alive" };
