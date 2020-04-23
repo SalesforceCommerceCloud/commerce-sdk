@@ -156,6 +156,8 @@ import { sdkLogger } from "commerce-sdk";
 sdkLogger.setLevel(sdkLogger.levels.INFO);
 ```
 
+INFO level logging will enable brief request and response logging.
+
 ## Additional Documentation 
 [API Documentation](./APICLIENTS.md)  
 [Changelog](./CHANGELOG.md)
