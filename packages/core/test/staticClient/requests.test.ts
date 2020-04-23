@@ -40,7 +40,7 @@ describe("Base Client requests", () => {
 
       return _get({ client: client, path: "/over/the/rainbow" }).then(data => {
         expect(data).to.eql({ mock: "data" });
-        expect(nock.isDone()).to.be.true;
+        expect(scope.isDone()).to.be.true;
       });
     });
   });
@@ -61,13 +61,13 @@ describe("Base Client requests", () => {
       return _delete({
         client: client,
         path: "/over/the/rainbow"
-      }).then(res => {
-        expect(nock.isDone()).to.be.true;
+      }).then(() => {
+        expect(scope.isDone()).to.be.true;
       });
     });
 
     it("is not ok when attempting to delete nonexistent resource", () => {
-      const scope = nock("https://somewhere")
+      nock("https://somewhere")
         .delete("/over/the/rainbow")
         .reply(404);
 
@@ -86,8 +86,8 @@ describe("Base Client requests", () => {
         client: client,
         path: "/over/the/{id}",
         pathParameters: { id: "rainbow" }
-      }).then(res => {
-        expect(nock.isDone()).to.be.true;
+      }).then(() => {
+        expect(scope.isDone()).to.be.true;
       });
     });
 
@@ -101,8 +101,8 @@ describe("Base Client requests", () => {
         client: client,
         path: "/over/the",
         queryParameters: { id: "rainbow" }
-      }).then(res => {
-        expect(nock.isDone()).to.be.true;
+      }).then(() => {
+        expect(scope.isDone()).to.be.true;
       });
     });
   });
@@ -124,13 +124,13 @@ describe("Base Client requests", () => {
         client: client,
         path: "/over/the/rainbow",
         body: {}
-      }).then(res => {
-        expect(nock.isDone()).to.be.true;
+      }).then(() => {
+        expect(scope.isDone()).to.be.true;
       });
     });
 
     it("is not ok when attempting to post nonexistent collection", () => {
-      const scope = nock("https://somewhere")
+      nock("https://somewhere")
         .post("/over/the/rainbow")
         .reply(404);
 
@@ -150,8 +150,8 @@ describe("Base Client requests", () => {
         client: client,
         path: "/over/the",
         body: { location: "oz" }
-      }).then(res => {
-        expect(nock.isDone()).to.be.true;
+      }).then(() => {
+        expect(scope.isDone()).to.be.true;
       });
     });
 
@@ -166,8 +166,8 @@ describe("Base Client requests", () => {
         path: "/over",
         queryParameters: { id: "the" },
         body: { content: "rainbow" }
-      }).then(res => {
-        expect(nock.isDone()).to.be.true;
+      }).then(() => {
+        expect(scope.isDone()).to.be.true;
       });
     });
   });
@@ -187,13 +187,13 @@ describe("Base Client requests", () => {
 
       return _put({ client: client, path: "/over/the/rainbow", body: {} }).then(
         () => {
-          expect(nock.isDone()).to.be.true;
+          expect(scope.isDone()).to.be.true;
         }
       );
     });
 
     it("is not ok when attempting to put nonexistent resource", () => {
-      const scope = nock("https://somewhere")
+      nock("https://somewhere")
         .put("/over/the/rainbow")
         .reply(404);
 
@@ -214,7 +214,7 @@ describe("Base Client requests", () => {
         path: "/over/the",
         body: {}
       }).then(() => {
-        expect(nock.isDone()).to.be.true;
+        expect(scope.isDone()).to.be.true;
       });
     });
 
@@ -228,7 +228,7 @@ describe("Base Client requests", () => {
         path: "/over/the",
         body: {}
       }).then(() => {
-        expect(nock.isDone()).to.be.true;
+        expect(scope.isDone()).to.be.true;
       });
     });
 
@@ -244,7 +244,7 @@ describe("Base Client requests", () => {
         queryParameters: { id: "the" },
         body: { content: "rainbow" }
       }).then(() => {
-        expect(nock.isDone()).to.be.true;
+        expect(scope.isDone()).to.be.true;
       });
     });
   });
@@ -267,12 +267,12 @@ describe("Base Client requests", () => {
         path: "/over/the/rainbow",
         body: {}
       }).then(() => {
-        expect(nock.isDone()).to.be.true;
+        expect(scope.isDone()).to.be.true;
       });
     });
 
     it("is not ok when attempting to patch nonexistent resource", () => {
-      const scope = nock("https://somewhere")
+      nock("https://somewhere")
         .patch("/over/the/rainbow")
         .reply(404);
 
@@ -293,7 +293,7 @@ describe("Base Client requests", () => {
         path: "/over/the",
         body: {}
       }).then(() => {
-        expect(nock.isDone()).to.be.true;
+        expect(scope.isDone()).to.be.true;
       });
     });
 
@@ -307,7 +307,7 @@ describe("Base Client requests", () => {
         path: "/over/the",
         body: {}
       }).then(() => {
-        expect(nock.isDone()).to.be.true;
+        expect(scope.isDone()).to.be.true;
       });
     });
 
@@ -323,7 +323,7 @@ describe("Base Client requests", () => {
         queryParameters: { id: "the" },
         body: { content: "rainbow" }
       }).then(() => {
-        expect(nock.isDone()).to.be.true;
+        expect(scope.isDone()).to.be.true;
       });
     });
   });

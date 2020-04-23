@@ -46,7 +46,7 @@ describe("Base Client headers", () => {
         .reply(200, { mock: "data" });
 
       return _get({ client: client, path: "/over/the/rainbow" }).then(() => {
-        expect(nock.isDone()).to.be.true;
+        expect(scope.isDone()).to.be.true;
       });
     });
 
@@ -60,7 +60,7 @@ describe("Base Client headers", () => {
         .reply(200, { mock: "data" });
 
       return _get({ client: client, path: "/over/the/rainbow" }).then(() => {
-        expect(nock.isDone()).to.be.true;
+        expect(scope.isDone()).to.be.true;
       });
     });
 
@@ -78,7 +78,7 @@ describe("Base Client headers", () => {
         path: "/over/the/rainbow",
         body: {}
       }).then(() => {
-        expect(nock.isDone()).to.be.true;
+        expect(scope.isDone()).to.be.true;
       });
     });
 
@@ -96,7 +96,7 @@ describe("Base Client headers", () => {
         path: "/over/the/rainbow",
         body: {}
       }).then(() => {
-        expect(nock.isDone()).to.be.true;
+        expect(scope.isDone()).to.be.true;
       });
     });
 
@@ -105,12 +105,12 @@ describe("Base Client headers", () => {
         baseUri: "https://somewhere"
       });
 
-      nock("https://somewhere", { reqheaders: CONNECTION_CLOSE })
+      const scope = nock("https://somewhere", { reqheaders: CONNECTION_CLOSE })
         .get("/over/the/rainbow")
         .reply(200, { mock: "data" });
 
       return _get({ client: client, path: "/over/the/rainbow" }).then(() => {
-        expect(nock.isDone()).to.be.true;
+        expect(scope.isDone()).to.be.true;
       });
     });
 
@@ -120,12 +120,14 @@ describe("Base Client headers", () => {
         headers: CONNECTION_KEEP_ALIVE
       });
 
-      nock("https://somewhere", { reqheaders: CONNECTION_KEEP_ALIVE })
+      const scope = nock("https://somewhere", {
+        reqheaders: CONNECTION_KEEP_ALIVE
+      })
         .get("/over/the/rainbow")
         .reply(200, { mock: "data" });
 
       return _get({ client: client, path: "/over/the/rainbow" }).then(() => {
-        expect(nock.isDone()).to.be.true;
+        expect(scope.isDone()).to.be.true;
       });
     });
   });
@@ -158,7 +160,7 @@ describe("Base Client headers", () => {
         path: "/over/the/rainbow",
         headers: LANGUAGE_HEADER
       }).then(() => {
-        expect(nock.isDone()).to.be.true;
+        expect(scope.isDone()).to.be.true;
       });
     });
 
@@ -175,7 +177,7 @@ describe("Base Client headers", () => {
         path: "/over/the/rainbow",
         headers: TWO_HEADER
       }).then(() => {
-        expect(nock.isDone()).to.be.true;
+        expect(scope.isDone()).to.be.true;
       });
     });
 
@@ -193,7 +195,7 @@ describe("Base Client headers", () => {
         headers: TWO_HEADER,
         body: {}
       }).then(() => {
-        expect(nock.isDone()).to.be.true;
+        expect(scope.isDone()).to.be.true;
       });
     });
 
@@ -212,7 +214,7 @@ describe("Base Client headers", () => {
         headers: LANGUAGE_HEADER,
         body: {}
       }).then(() => {
-        expect(nock.isDone()).to.be.true;
+        expect(scope.isDone()).to.be.true;
       });
     });
 
@@ -230,7 +232,7 @@ describe("Base Client headers", () => {
         headers: CONTENT_TYPE_XML,
         body: {}
       }).then(() => {
-        expect(nock.isDone()).to.be.true;
+        expect(scope.isDone()).to.be.true;
       });
     });
 
@@ -239,7 +241,9 @@ describe("Base Client headers", () => {
         baseUri: "https://somewhere"
       });
 
-      nock("https://somewhere", { reqheaders: CONNECTION_KEEP_ALIVE })
+      const scope = nock("https://somewhere", {
+        reqheaders: CONNECTION_KEEP_ALIVE
+      })
         .get("/over/the/rainbow")
         .reply(200, { mock: "data" });
 
@@ -248,7 +252,7 @@ describe("Base Client headers", () => {
         path: "/over/the/rainbow",
         headers: CONNECTION_KEEP_ALIVE
       }).then(() => {
-        expect(nock.isDone()).to.be.true;
+        expect(scope.isDone()).to.be.true;
       });
     });
   });
