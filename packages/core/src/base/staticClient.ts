@@ -12,6 +12,7 @@ export { DefaultCache, Response };
 
 import { Resource } from "./resource";
 import { BaseClient } from "./client";
+import { sdkLogger } from "./sdkLogger";
 
 const CONTENT_TYPE = "application/json";
 
@@ -79,6 +80,15 @@ export function getHeader(
 }
 
 /**
+ * Log the request being made.
+ * 
+ * @param resource The resource being requested
+ * @param fetchOptions The options to the fetch call
+ */
+export const formatFetchForInfoLog = 
+  (resource:string, fetchOptions:RequestInit): string => `Request: ${fetchOptions.method.toUpperCase()} ${resource}`;
+
+/**
  * Makes an HTTP call specified by the method parameter with the options passed.
  *
  * @param method - Type of HTTP operation
@@ -138,6 +148,8 @@ async function runFetch(
   if (options.client.clientConfig.cacheManager) {
     fetchOptions.cacheManager = options.client.clientConfig.cacheManager;
   }
+
+  sdkLogger.info(formatFetchForInfoLog(resource, fetchOptions));
 
   const response = await fetch(resource, fetchOptions);
 
