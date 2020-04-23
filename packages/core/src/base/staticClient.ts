@@ -12,7 +12,10 @@ export { DefaultCache, Response };
 
 import { Resource } from "./resource";
 import { BaseClient } from "./client";
+import pkg from "../../package.json";
 
+// Version is from @commerce-apps/core, but it will always match commerce-sdk
+const USER_AGENT = `commerce-sdk@${pkg.version};`;
 const CONTENT_TYPE = "application/json";
 
 /**
@@ -96,6 +99,7 @@ async function runFetch(
     queryParameters?: object;
     headers?: { [key: string]: string };
     rawResponse?: boolean;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     body?: any;
   }
 ): Promise<object> {
@@ -128,6 +132,10 @@ async function runFetch(
   if (options.headers) {
     _.merge(fetchOptions.headers, options.headers);
   }
+
+  // Specify user-agent after merging user headers to avoid being overwritten
+  const userAgentHeader = getHeader("user-agent", fetchOptions.headers);
+  fetchOptions.headers[userAgentHeader] = USER_AGENT;
 
   if (options.body) {
     fetchOptions.body = JSON.stringify(options.body);
