@@ -20,7 +20,13 @@ before(() => {
 });
 
 import { BaseClient } from "../../src/base/client";
-import { _get, _post, getHeader } from "../../src/base/staticClient";
+import {
+  _get,
+  _post,
+  getHeader,
+  stripHeaders,
+  USER_AGENT as USER_AGENT_STR
+} from "../../src/base/staticClient";
 
 // Common parameters used to mock requests
 const MOCK_BASE_URI = "https://somewhere";
@@ -32,6 +38,7 @@ const CONNECTION_KEEP_ALIVE = { connection: "keep-alive" };
 const CONTENT_TYPE_JSON = { "Content-Type": "application/json" };
 const CONTENT_TYPE_XML = { "Content-Type": "text/xml" };
 const LANGUAGE_HEADER = { "Accept-Language": "en-US" };
+const USER_AGENT = { "User-Agent": USER_AGENT_STR };
 
 function createClient(headers?: Headers): BaseClient {
   return new BaseClient({
@@ -118,6 +125,18 @@ describe("Base Client headers", () => {
       const scope = interceptGet(CONNECTION_KEEP_ALIVE);
       return testGetRequest(client, scope);
     });
+
+    it("includes commerce-sdk user agent if none specified", () => {
+      const client = DEFAULT_CLIENT;
+      const scope = interceptGet(USER_AGENT);
+      return testGetRequest(client, scope);
+    });
+
+    it("does not allow user to override user agent", () => {
+      const client = createClient({ "UsEr-AgEnT": "ignored" });
+      const scope = interceptGet(USER_AGENT);
+      return testGetRequest(client, scope);
+    });
   });
 
   describe("Headers specified at endpoint", () => {
@@ -166,6 +185,28 @@ describe("Base Client headers", () => {
       const client = DEFAULT_CLIENT;
       const scope = interceptGet(CONNECTION_KEEP_ALIVE);
       return testGetRequest(client, scope, CONNECTION_KEEP_ALIVE);
+    });
+
+    it("does not allow user to override user agent", () => {
+      const client = DEFAULT_CLIENT;
+      const scope = interceptGet(USER_AGENT);
+      return testGetRequest(client, scope, { "UsEr-AgEnT": "ignored" });
+    });
+  });
+
+  describe("Strip header helper", () => {
+    it("removes all headers that match the target, case insensitive", () => {
+      const headers = { foo: "bar", FOO: "BAR", bar: "baz", BAR: "BAZ" };
+      stripHeaders("FoO", headers);
+      expect(headers).to.deep.equal({
+        bar: "baz",
+        BAR: "BAZ"
+      });
+    });
+    it("does nothing if no headers match the target", () => {
+      const headers = { foo: "bar" };
+      stripHeaders("missing", headers);
+      expect(headers).to.deep.equal({ foo: "bar" });
     });
   });
 
