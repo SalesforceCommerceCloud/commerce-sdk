@@ -85,17 +85,20 @@ export function getHeader(
  * @param resource The resource being requested
  * @param fetchOptions The options to the fetch call
  */
-export const formatFetchForInfoLog = 
-  (resource:string, fetchOptions:RequestInit): string => `Request: ${fetchOptions.method.toUpperCase()} ${resource}`;
+export const formatFetchForInfoLog = (
+  resource: string,
+  fetchOptions: RequestInit
+): string => `Request: ${fetchOptions.method.toUpperCase()} ${resource}`;
 
 /**
  * Format the response received for logging.
  *
  * @param response The response received
  */
-export const formatResponseForInfoLog = (response:Response): string => {
-  const successString = (response.ok || response.status === 304) ? "successful" : "unsuccessful";
-  return `Received ${successString} response: ${response.status} ${response.statusText}`;
+export const formatResponseForInfoLog = (response: Response): string => {
+  const successString =
+    response.ok || response.status === 304 ? "successful" : "unsuccessful";
+  return `Response: ${successString} ${response.status} ${response.statusText}`;
 };
 
 /**
