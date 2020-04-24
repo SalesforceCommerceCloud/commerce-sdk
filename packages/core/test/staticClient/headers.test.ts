@@ -257,20 +257,20 @@ describe("Base Client headers", () => {
     });
   });
 
-  describe("Get header", () => {
-    it("should return the header if a header with the same name and same case exists", () => {
+  describe("Normalized header helper", () => {
+    it("returns the passed header if a header with the same name and same case exists", () => {
       const headers = { connection: "keep-alive" };
       const result = getHeader("connection", headers);
       expect(result).to.equal("connection");
     });
 
-    it("should return the header if a header with the same name and different case exists", () => {
+    it("returns the other header if a header with the same name and different case exists", () => {
       const headers = { Connection: "keep-alive" };
       const result = getHeader("coNneCtiOn", headers);
       expect(result).to.equal("Connection");
     });
 
-    it("should return the passed header if a header with the same name does not exist", () => {
+    it("returns the passed header if a header with the same name does not exist", () => {
       const headers = { Con: "keep-alive" };
       const result = getHeader("Connection", headers);
       expect(result).to.equal("Connection");
