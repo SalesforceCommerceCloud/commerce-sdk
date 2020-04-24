@@ -7,6 +7,7 @@
 "use strict";
 
 import nock from "nock";
+import { Scope, RequestHeaderMatcher } from "nock/types";
 
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
@@ -21,121 +22,107 @@ before(() => {
 import { BaseClient } from "../../src/base/client";
 import { _get, _post, getHeader } from "../../src/base/staticClient";
 
+// Common parameters used to mock requests
+const MOCK_BASE_URI = "https://somewhere";
+const MOCK_PATH = "/over/the/rainbow";
+// Common headers used in tests
+type Headers = Record<string, string>;
 const CONNECTION_CLOSE = { connection: "close" };
 const CONNECTION_KEEP_ALIVE = { connection: "keep-alive" };
+const CONTENT_TYPE_JSON = { "Content-Type": "application/json" };
+const CONTENT_TYPE_XML = { "Content-Type": "text/xml" };
+const LANGUAGE_HEADER = { "Accept-Language": "en-US" };
+
+function createClient(headers?: Headers): BaseClient {
+  return new BaseClient({
+    baseUri: MOCK_BASE_URI,
+    headers
+  });
+}
+
+function interceptGet(reqheaders: Record<string, RequestHeaderMatcher>): Scope {
+  return nock(MOCK_BASE_URI, { reqheaders })
+    .get(MOCK_PATH)
+    .reply(200, {});
+}
+
+function interceptPost(
+  reqheaders: Record<string, RequestHeaderMatcher>
+): Scope {
+  return nock(MOCK_BASE_URI, { reqheaders })
+    .post(MOCK_PATH)
+    .reply(201, {});
+}
+
+async function testGetRequest(
+  client: BaseClient,
+  scope: Scope,
+  headers?: Headers
+): Promise<void> {
+  await _get({ client, headers, path: MOCK_PATH });
+  expect(scope.isDone()).to.be.true;
+}
+
+async function testPostRequest(
+  client: BaseClient,
+  scope: Scope,
+  headers?: Headers
+): Promise<void> {
+  await _post({ client, headers, path: MOCK_PATH, body: {} });
+  expect(scope.isDone()).to.be.true;
+}
 
 describe("Base Client headers", () => {
+  const DEFAULT_CLIENT = createClient();
+
   describe("Headers specified on client", () => {
     afterEach(nock.cleanAll);
 
-    const LANGUAGE_HEADER = { "Accept-Language": "en-US" };
     const TWO_HEADER = {
       "Accept-Language": "en-US",
       "Max-Forwards": "10"
     };
-    const CONTENT_TYPE_JSON = { "Content-Type": "application/json" };
-    const CONTENT_TYPE_XML = { "Content-Type": "text/xml" };
 
     it("makes correct get call with headers", () => {
-      const client = new BaseClient({
-        baseUri: "https://somewhere",
-        headers: LANGUAGE_HEADER
-      });
-      const scope = nock("https://somewhere", { reqheaders: LANGUAGE_HEADER })
-        .get("/over/the/rainbow")
-        .reply(200, { mock: "data" });
-
-      return _get({ client: client, path: "/over/the/rainbow" }).then(() => {
-        expect(scope.isDone()).to.be.true;
-      });
+      const client = createClient(LANGUAGE_HEADER);
+      const scope = interceptGet(LANGUAGE_HEADER);
+      return testGetRequest(client, scope);
     });
 
     it("makes correct call with two headers", () => {
-      const client = new BaseClient({
-        baseUri: "https://somewhere",
-        headers: TWO_HEADER
-      });
-      const scope = nock("https://somewhere", { reqheaders: TWO_HEADER })
-        .get("/over/the/rainbow")
-        .reply(200, { mock: "data" });
-
-      return _get({ client: client, path: "/over/the/rainbow" }).then(() => {
-        expect(scope.isDone()).to.be.true;
-      });
+      const client = createClient(TWO_HEADER);
+      const scope = interceptGet(TWO_HEADER);
+      return testGetRequest(client, scope);
     });
 
     it("makes correct call for post with two headers", () => {
-      const client = new BaseClient({
-        baseUri: "https://somewhere",
-        headers: TWO_HEADER
-      });
-      const scope = nock("https://somewhere", { reqheaders: TWO_HEADER })
-        .post("/over/the/rainbow")
-        .reply(201, {});
-
-      return _post({
-        client: client,
-        path: "/over/the/rainbow",
-        body: {}
-      }).then(() => {
-        expect(scope.isDone()).to.be.true;
-      });
+      const client = createClient(TWO_HEADER);
+      const scope = interceptPost(TWO_HEADER);
+      return testPostRequest(client, scope);
     });
 
     it("cannot overwrite content-type for post", () => {
-      const client = new BaseClient({
-        baseUri: "https://somewhere",
-        headers: CONTENT_TYPE_XML
-      });
-      const scope = nock("https://somewhere", { reqheaders: CONTENT_TYPE_JSON })
-        .post("/over/the/rainbow")
-        .reply(201, {});
-
-      return _post({
-        client: client,
-        path: "/over/the/rainbow",
-        body: {}
-      }).then(() => {
-        expect(scope.isDone()).to.be.true;
-      });
+      const client = createClient(CONTENT_TYPE_XML);
+      const scope = interceptPost(CONTENT_TYPE_JSON);
+      return testPostRequest(client, scope);
     });
 
     it("makes call with connection header set to close by default", () => {
-      const client = new BaseClient({
-        baseUri: "https://somewhere"
-      });
-
-      const scope = nock("https://somewhere", { reqheaders: CONNECTION_CLOSE })
-        .get("/over/the/rainbow")
-        .reply(200, { mock: "data" });
-
-      return _get({ client: client, path: "/over/the/rainbow" }).then(() => {
-        expect(scope.isDone()).to.be.true;
-      });
+      const client = DEFAULT_CLIENT;
+      const scope = interceptGet(CONNECTION_CLOSE);
+      return testGetRequest(client, scope);
     });
 
     it("makes call with the connection header set in the client", () => {
-      const client = new BaseClient({
-        baseUri: "https://somewhere",
-        headers: CONNECTION_KEEP_ALIVE
-      });
-
-      const scope = nock("https://somewhere", {
-        reqheaders: CONNECTION_KEEP_ALIVE
-      })
-        .get("/over/the/rainbow")
-        .reply(200, { mock: "data" });
-
-      return _get({ client: client, path: "/over/the/rainbow" }).then(() => {
-        expect(scope.isDone()).to.be.true;
-      });
+      const client = createClient(CONNECTION_KEEP_ALIVE);
+      const scope = interceptGet(CONNECTION_KEEP_ALIVE);
+      return testGetRequest(client, scope);
     });
   });
 
   describe("Headers specified at endpoint", () => {
     afterEach(nock.cleanAll);
 
-    const LANGUAGE_HEADER = { "Accept-Language": "en-US" };
     const TWO_HEADER = {
       "Accept-Language": "fr-CH",
       "Max-Forwards": "10"
@@ -144,116 +131,41 @@ describe("Base Client headers", () => {
       "Accept-Language": "en-US",
       "Max-Forwards": "10"
     };
-    const CONTENT_TYPE_JSON = { "Content-Type": "application/json" };
-    const CONTENT_TYPE_XML = { "Content-Type": "text/xml" };
 
     it("makes correct get call with endpoint headers", () => {
-      const client = new BaseClient({
-        baseUri: "https://somewhere"
-      });
-      const scope = nock("https://somewhere", { reqheaders: LANGUAGE_HEADER })
-        .get("/over/the/rainbow")
-        .reply(200, { mock: "data" });
-
-      return _get({
-        client: client,
-        path: "/over/the/rainbow",
-        headers: LANGUAGE_HEADER
-      }).then(() => {
-        expect(scope.isDone()).to.be.true;
-      });
+      const client = DEFAULT_CLIENT;
+      const scope = interceptGet(LANGUAGE_HEADER);
+      return testGetRequest(client, scope, LANGUAGE_HEADER);
     });
 
     it("makes correct call with two endpoint headers", () => {
-      const client = new BaseClient({
-        baseUri: "https://somewhere"
-      });
-      const scope = nock("https://somewhere", { reqheaders: TWO_HEADER })
-        .get("/over/the/rainbow")
-        .reply(200, { mock: "data" });
-
-      return _get({
-        client: client,
-        path: "/over/the/rainbow",
-        headers: TWO_HEADER
-      }).then(() => {
-        expect(scope.isDone()).to.be.true;
-      });
+      const client = DEFAULT_CLIENT;
+      const scope = interceptGet(TWO_HEADER);
+      return testGetRequest(client, scope, TWO_HEADER);
     });
 
     it("makes correct call for post with two endpoint headers", () => {
-      const client = new BaseClient({
-        baseUri: "https://somewhere"
-      });
-      const scope = nock("https://somewhere", { reqheaders: TWO_HEADER })
-        .post("/over/the/rainbow")
-        .reply(201, {});
-
-      return _post({
-        client: client,
-        path: "/over/the/rainbow",
-        headers: TWO_HEADER,
-        body: {}
-      }).then(() => {
-        expect(scope.isDone()).to.be.true;
-      });
+      const client = DEFAULT_CLIENT;
+      const scope = interceptPost(TWO_HEADER);
+      return testPostRequest(client, scope, TWO_HEADER);
     });
 
     it("makes correct call for post with client and endpoint headers", () => {
-      const client = new BaseClient({
-        baseUri: "https://somewhere",
-        headers: TWO_HEADER
-      });
-      const scope = nock("https://somewhere", { reqheaders: MERGE_HEADER })
-        .post("/over/the/rainbow")
-        .reply(201, {});
-
-      return _post({
-        client: client,
-        path: "/over/the/rainbow",
-        headers: LANGUAGE_HEADER,
-        body: {}
-      }).then(() => {
-        expect(scope.isDone()).to.be.true;
-      });
+      const client = createClient(TWO_HEADER);
+      const scope = interceptPost(MERGE_HEADER);
+      return testPostRequest(client, scope, LANGUAGE_HEADER);
     });
 
     it("cannot overwrite content-type for post", () => {
-      const client = new BaseClient({
-        baseUri: "https://somewhere"
-      });
-      const scope = nock("https://somewhere", { reqheaders: CONTENT_TYPE_JSON })
-        .post("/over/the/rainbow")
-        .reply(201, {});
-
-      return _post({
-        client: client,
-        path: "/over/the/rainbow",
-        headers: CONTENT_TYPE_XML,
-        body: {}
-      }).then(() => {
-        expect(scope.isDone()).to.be.true;
-      });
+      const client = DEFAULT_CLIENT;
+      const scope = interceptPost(CONTENT_TYPE_JSON);
+      return testPostRequest(client, scope, CONTENT_TYPE_XML);
     });
 
     it("makes call with connection header passed to the get function ", () => {
-      const client = new BaseClient({
-        baseUri: "https://somewhere"
-      });
-
-      const scope = nock("https://somewhere", {
-        reqheaders: CONNECTION_KEEP_ALIVE
-      })
-        .get("/over/the/rainbow")
-        .reply(200, { mock: "data" });
-
-      return _get({
-        client: client,
-        path: "/over/the/rainbow",
-        headers: CONNECTION_KEEP_ALIVE
-      }).then(() => {
-        expect(scope.isDone()).to.be.true;
-      });
+      const client = DEFAULT_CLIENT;
+      const scope = interceptGet(CONNECTION_KEEP_ALIVE);
+      return testGetRequest(client, scope, CONNECTION_KEEP_ALIVE);
     });
   });
 
