@@ -12,6 +12,7 @@ export { DefaultCache, Response };
 
 import { Resource } from "./resource";
 import { BaseClient } from "./client";
+import { sdkLogger } from "./sdkLogger";
 
 const CONTENT_TYPE = "application/json";
 
@@ -79,6 +80,28 @@ export function getHeader(
 }
 
 /**
+ * Format the request being made for logging.
+ *
+ * @param resource The resource being requested
+ * @param fetchOptions The options to the fetch call
+ */
+export const formatFetchForInfoLog = (
+  resource: string,
+  fetchOptions: RequestInit
+): string => `Request: ${fetchOptions.method.toUpperCase()} ${resource}`;
+
+/**
+ * Format the response received for logging.
+ *
+ * @param response The response received
+ */
+export const formatResponseForInfoLog = (response: Response): string => {
+  const successString =
+    response.ok || response.status === 304 ? "successful" : "unsuccessful";
+  return `Response: ${successString} ${response.status} ${response.statusText}`;
+};
+
+/**
  * Makes an HTTP call specified by the method parameter with the options passed.
  *
  * @param method - Type of HTTP operation
@@ -139,7 +162,11 @@ async function runFetch(
     fetchOptions.cacheManager = options.client.clientConfig.cacheManager;
   }
 
+  sdkLogger.info(formatFetchForInfoLog(resource, fetchOptions));
+
   const response = await fetch(resource, fetchOptions);
+
+  sdkLogger.info(formatResponseForInfoLog(response));
 
   return options.rawResponse ? response : getObjectFromResponse(response);
 }
