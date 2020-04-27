@@ -5,6 +5,7 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import { default as fetch, Response, RequestInit } from "make-fetch-happen";
+
 import _ from "lodash";
 
 import DefaultCache = require("make-fetch-happen/cache");
@@ -14,7 +15,10 @@ import { Resource } from "./resource";
 import { BaseClient } from "./client";
 import { sdkLogger } from "./sdkLogger";
 
-const CONTENT_TYPE = "application/json";
+const DEFAULT_HEADERS = {
+  "content-type": "application/json",
+  connection: "close"
+};
 
 /**
  * Extends the Error class with the the error being a combination of status code
@@ -130,36 +134,16 @@ async function runFetch(
     options.queryParameters
   ).toString();
 
-  const fetchOptions: RequestInit = {
-    method: method
+  sdkLogger.info(options.client.clientConfig.headers);
+
+  const fetchOptions = {
+    cacheManager: options.client.clientConfig.cacheManager,
+    method: method,
+    headers: Object.assign(options.client.clientConfig.headers, options.headers)
   };
 
-  fetchOptions.headers = options.client.clientConfig.headers
-    ? _.clone(options.client.clientConfig.headers)
-    : {};
-
-  // make-fetch-happen sets connection header to keep-alive by default which
-  // keeps node running unless it is explicitly killed.
-  // If the user wants to keep the connection alive they can set the Connection
-  // header to 'keep-alive' and we'll respect it. Otherwise, we set it to "close".
-  const connectionHeader = getHeader("connection", fetchOptions.headers);
-  if (!fetchOptions.headers[connectionHeader]) {
-    fetchOptions.headers[connectionHeader] = "close";
-  }
-
-  // if headers have been given for just this call, merge those in
-  if (options.headers) {
-    _.merge(fetchOptions.headers, options.headers);
-  }
-
   if (options.body) {
-    fetchOptions.body = JSON.stringify(options.body);
-    fetchOptions.headers["Content-Type"] = CONTENT_TYPE;
-  }
-
-  // To disable response caching, set cacheManager to null
-  if (options.client.clientConfig.cacheManager) {
-    fetchOptions.cacheManager = options.client.clientConfig.cacheManager;
+    fetchOptions["body"] = JSON.stringify(options.body);
   }
 
   sdkLogger.info(formatFetchForInfoLog(resource, fetchOptions));

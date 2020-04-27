@@ -384,22 +384,6 @@ describe("base client test with headers", () => {
     );
   });
 
-  it("cannot overwrite content-type for post", () => {
-    const client = new BaseClient({
-      baseUri: "https://somewhere",
-      headers: CONTENT_TYPE_XML
-    });
-    const scope = nock("https://somewhere", { reqheaders: CONTENT_TYPE_JSON })
-      .post("/over/the/rainbow")
-      .reply(201, {});
-
-    return _post({ client: client, path: "/over/the/rainbow", body: {} }).then(
-      () => {
-        expect(nock.isDone()).to.be.true;
-      }
-    );
-  });
-
   it("makes call with connection header set to close by default", () => {
     const client = new BaseClient({
       baseUri: "https://somewhere"
@@ -510,24 +494,6 @@ describe("base client test with endpoint headers", () => {
       client: client,
       path: "/over/the/rainbow",
       headers: LANGUAGE_HEADER,
-      body: {}
-    }).then(() => {
-      expect(nock.isDone()).to.be.true;
-    });
-  });
-
-  it("cannot overwrite content-type for post", () => {
-    const client = new BaseClient({
-      baseUri: "https://somewhere"
-    });
-    const scope = nock("https://somewhere", { reqheaders: CONTENT_TYPE_JSON })
-      .post("/over/the/rainbow")
-      .reply(201, {});
-
-    return _post({
-      client: client,
-      path: "/over/the/rainbow",
-      headers: CONTENT_TYPE_XML,
       body: {}
     }).then(() => {
       expect(nock.isDone()).to.be.true;
