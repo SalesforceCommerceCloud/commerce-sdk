@@ -13,7 +13,8 @@ export { DefaultCache, Response };
 import { Resource } from "./resource";
 import { BaseClient } from "./client";
 import { sdkLogger } from "./sdkLogger";
-import pkg from "../../package.json";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const pkg = require("../../package.json");
 
 // Version is from @commerce-apps/core, but it will always match commerce-sdk
 export const USER_AGENT = `commerce-sdk@${pkg.version};`;
