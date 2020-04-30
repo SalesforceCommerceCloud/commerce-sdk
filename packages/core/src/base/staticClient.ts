@@ -136,11 +136,16 @@ async function runFetch(
 
   sdkLogger.info(options.client.clientConfig.headers);
 
-  const fetchOptions = {
+  const fetchOptions: RequestInit = {
     cacheManager: options.client.clientConfig.cacheManager,
     method: method,
     headers: Object.assign(options.client.clientConfig.headers, options.headers)
   };
+
+  // To disable response caching, set cacheManager to null
+  if (options.client.clientConfig.cacheManager) {
+    fetchOptions.cacheManager = options.client.clientConfig.cacheManager;
+  }
 
   if (options.body) {
     fetchOptions["body"] = JSON.stringify(options.body);
