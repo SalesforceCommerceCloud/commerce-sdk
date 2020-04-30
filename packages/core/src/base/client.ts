@@ -7,7 +7,7 @@
 import _ from "lodash";
 import { config } from "dotenv";
 import tmp from "tmp";
-import retry from "retry";
+import { OperationOptions } from "retry";
 
 import { getBearer } from "@commerce-apps/raml-toolkit";
 
@@ -32,7 +32,7 @@ export class ClientConfig {
   public cacheManager?: ICacheManager;
   public headers?: { [key: string]: string };
   public parameters?: CommonParameters;
-  public retrySetting?: retry.OperationOptions;
+  public retrySetting?: OperationOptions;
 }
 
 const DEFAULT_CLIENT_CONFIG: ClientConfig = {

@@ -14,11 +14,7 @@ export { DefaultCache, Response };
 import { Resource } from "./resource";
 import { BaseClient } from "./client";
 import { sdkLogger } from "./sdkLogger";
-
-const DEFAULT_HEADERS = {
-  "content-type": "application/json",
-  connection: "close"
-};
+import { OperationOptions } from "retry";
 
 /**
  * Extends the Error class with the the error being a combination of status code
@@ -123,6 +119,7 @@ async function runFetch(
     queryParameters?: object;
     headers?: { [key: string]: string };
     rawResponse?: boolean;
+    retrySettings?: OperationOptions;
     body?: any;
   }
 ): Promise<object> {
@@ -134,26 +131,31 @@ async function runFetch(
     options.queryParameters
   ).toString();
 
-  sdkLogger.info(options.client.clientConfig.headers);
-
-  const fetchOptions: RequestInit = {
+  // Lets grab all the RequestInit defaults from the clientConfig
+  const defaultsFromClientConfig: RequestInit = {
     cacheManager: options.client.clientConfig.cacheManager,
-    method: method,
-    headers: Object.assign(options.client.clientConfig.headers, options.headers)
+    headers: options.client.clientConfig.headers,
+    retry: options.client.clientConfig.retrySetting
   };
 
-  // To disable response caching, set cacheManager to null
-  if (options.client.clientConfig.cacheManager) {
-    fetchOptions.cacheManager = options.client.clientConfig.cacheManager;
-  }
+  // Let's create a request init object of all configurations in the current request
+  const currentRequest: RequestInit = {
+    method: method,
+    headers: options.headers,
+    retry: options.retrySettings,
+    body: JSON.stringify(options.body)
+  };
 
-  if (options.body) {
-    fetchOptions["body"] = JSON.stringify(options.body);
-  }
+  // This line merges the values and then strips anything that is undefined.
+  //  (NOTE: Not sure we have to, as all tests pass regardless, but going to anyways)
+  const mergedOptions = _.pickBy(
+    _.merge({}, defaultsFromClientConfig, currentRequest),
+    _.identity
+  );
 
-  sdkLogger.info(formatFetchForInfoLog(resource, fetchOptions));
+  sdkLogger.info(formatFetchForInfoLog(resource, mergedOptions));
 
-  const response = await fetch(resource, fetchOptions);
+  const response = await fetch(resource, mergedOptions);
 
   sdkLogger.info(formatResponseForInfoLog(response));
 
