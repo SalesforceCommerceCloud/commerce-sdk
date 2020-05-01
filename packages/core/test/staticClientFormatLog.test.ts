@@ -10,7 +10,7 @@ import { Response, Headers } from "minipass-fetch";
 import sinon from "sinon";
 import fetchToCurl from "fetch-to-curl";
 
-import {logFetch, logResponse, MASK_VALUE} from "../src/base/staticClient";
+import { logFetch, logResponse, MASK_VALUE } from "../src/base/staticClient";
 import { sdkLogger } from "../src/base/sdkLogger";
 
 let logLevel;
@@ -104,7 +104,7 @@ describe("Test debug log messages of fetch data", () => {
     };
     logFetch(resource, options);
 
-    body.password = "****";
+    body.password = MASK_VALUE;
     options.body = JSON.stringify(body);
     sinon.assert.calledWith(spy, getDebugMsgForFetch(resource, options));
   });

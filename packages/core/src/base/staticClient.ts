@@ -17,7 +17,7 @@ import { sdkLogger } from "./sdkLogger";
 
 const CONTENT_TYPE = "application/json";
 //sensitive fields in request body that need to be masked while logging.
-export const SENSITIVE_FIELDS: ReadonlyArray<string> = [
+const SENSITIVE_FIELDS: ReadonlyArray<string> = [
   "password".toLowerCase(),
   "newPassword".toLowerCase(),
   "currentPassword".toLowerCase()
