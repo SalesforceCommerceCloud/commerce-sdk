@@ -6,52 +6,145 @@
  */
 "use strict";
 
-import { Response } from "minipass-fetch";
+import { Response, Headers } from "minipass-fetch";
+import sinon from "sinon";
+import fetchToCurl from "fetch-to-curl";
 
-import chai from "chai";
+import { logFetchInfo, logResponseInfo } from "../src/base/staticClient";
+import { sdkLogger } from "../src/base/sdkLogger";
 
-const expect = chai.expect;
-
+let logLevel;
 before(() => {
-  chai.should();
+  logLevel = sdkLogger.getLevel();
+});
+after(() => {
+  //reset log level
+  sdkLogger.setLevel(logLevel);
 });
 
-import {
-  formatFetchForInfoLog,
-  formatResponseForInfoLog
-} from "../src/base/staticClient";
-
-describe("format fetch for info log tests", () => {
+describe("Test info log messages of fetch data", () => {
+  let spy;
+  before(() => {
+    sdkLogger.setLevel(sdkLogger.levels.INFO);
+    spy = sinon.spy(sdkLogger, "info");
+  });
+  after(() => {
+    sinon.reset();
+  });
   it("formats basic get correctly", () => {
     const resource = "https://example.com/my/endpoint";
     const options = { method: "GET" };
     const output = "Request: GET https://example.com/my/endpoint";
-    return expect(formatFetchForInfoLog(resource, options)).to.eql(output);
+    logFetchInfo(resource, options);
+    sinon.assert.calledWith(spy, output);
   });
 
   it("formats get with query params correctly", () => {
     const resource = "https://example.com/my/endpoint?myparam=value";
     const options = { method: "GET" };
     const output = "Request: GET https://example.com/my/endpoint?myparam=value";
-    return expect(formatFetchForInfoLog(resource, options)).to.eql(output);
+    logFetchInfo(resource, options);
+    sinon.assert.calledWith(spy, output);
   });
 
   it("formats basic POST correctly", () => {
     const resource = "https://example.com/my/endpoint";
     const options = { method: "POST" };
     const output = "Request: POST https://example.com/my/endpoint";
-    return expect(formatFetchForInfoLog(resource, options)).to.eql(output);
+    logFetchInfo(resource, options);
+    sinon.assert.calledWith(spy, output);
   });
 });
 
-describe("format response for info log tests", () => {
+function getDebugMsgForFetch(resource, options): string {
+  return `Request URI: ${resource}\nFetch Options: ${JSON.stringify(
+    options,
+    null,
+    2
+  )}\nCurl: ${fetchToCurl(resource, options)}`;
+}
+describe("Test debug log messages of fetch data", () => {
+  let spy;
+  before(() => {
+    sdkLogger.setLevel(sdkLogger.levels.DEBUG);
+    spy = sinon.spy(sdkLogger, "debug");
+  });
+  after(() => {
+    sinon.reset();
+  });
+  it("formats basic get correctly", () => {
+    const resource = "https://example.com/my/endpoint";
+    const options = { method: "GET" };
+    logFetchInfo(resource, options);
+    sinon.assert.calledWith(spy, getDebugMsgForFetch(resource, options));
+  });
+
+  it("formats get with query params correctly", () => {
+    const resource = "https://example.com/my/endpoint?myparam=value";
+    const options = { method: "GET" };
+    logFetchInfo(resource, options);
+    sinon.assert.calledWith(spy, getDebugMsgForFetch(resource, options));
+  });
+
+  it("formats basic POST correctly", () => {
+    const resource = "https://example.com/my/endpoint";
+    const options = {
+      method: "POST",
+      body: JSON.stringify({ key1: "value1" })
+    };
+    logFetchInfo(resource, options);
+    sinon.assert.calledWith(spy, getDebugMsgForFetch(resource, options));
+  });
+  it("Masks password property in POST data", () => {
+    const resource = "https://example.com/my/endpoint";
+    const body = { key1: "value1", password: "test" };
+    const options = {
+      method: "POST",
+      body: JSON.stringify(body)
+    };
+    logFetchInfo(resource, options);
+
+    body.password = "****";
+    options.body = JSON.stringify(body);
+    sinon.assert.calledWith(spy, getDebugMsgForFetch(resource, options));
+  });
+  it("Masks property containing 'password' in name", () => {
+    const resource = "https://example.com/my/endpoint";
+    const body = {
+      key1: "value1",
+      currentPassword: "test",
+      newPassword: "test"
+    };
+    const options = {
+      method: "POST",
+      body: JSON.stringify(body)
+    };
+    logFetchInfo(resource, options);
+
+    body.currentPassword = "****";
+    body.newPassword = "****";
+    options.body = JSON.stringify(body);
+    sinon.assert.calledWith(spy, getDebugMsgForFetch(resource, options));
+  });
+});
+
+describe("Test info log messages of response data", () => {
+  let spy;
+  before(() => {
+    sdkLogger.setLevel(sdkLogger.levels.INFO);
+    spy = sinon.spy(sdkLogger, "info");
+  });
+  after(() => {
+    sinon.reset();
+  });
   it("formats success response correctly", () => {
     const response: Response = new Response(
       {},
       { status: 200, statusText: "Everything is ok" }
     );
     const output = "Response: successful 200 Everything is ok";
-    return expect(formatResponseForInfoLog(response)).to.eql(output);
+    logResponseInfo(response);
+    sinon.assert.calledWith(spy, output);
   });
 
   it("formats created response correctly", () => {
@@ -60,7 +153,8 @@ describe("format response for info log tests", () => {
       { status: 201, statusText: "Everything is created" }
     );
     const output = "Response: successful 201 Everything is created";
-    return expect(formatResponseForInfoLog(response)).to.eql(output);
+    logResponseInfo(response);
+    sinon.assert.calledWith(spy, output);
   });
 
   it("formats not modified response correctly", () => {
@@ -69,7 +163,8 @@ describe("format response for info log tests", () => {
       { status: 304, statusText: "Everything is the same" }
     );
     const output = "Response: successful 304 Everything is the same";
-    return expect(formatResponseForInfoLog(response)).to.eql(output);
+    logResponseInfo(response);
+    sinon.assert.calledWith(spy, output);
   });
 
   it("formats 404 response correctly", () => {
@@ -78,6 +173,34 @@ describe("format response for info log tests", () => {
       { status: 404, statusText: "Everything is gone" }
     );
     const output = "Response: unsuccessful 404 Everything is gone";
-    return expect(formatResponseForInfoLog(response)).to.eql(output);
+    logResponseInfo(response);
+    sinon.assert.calledWith(spy, output);
+  });
+});
+
+describe("Test debug log messages of response data", () => {
+  let spy;
+  before(() => {
+    sdkLogger.setLevel(sdkLogger.levels.DEBUG);
+    spy = sinon.spy(sdkLogger, "debug");
+  });
+  after(() => {
+    sinon.reset();
+  });
+  it("formats response with headers correctly", () => {
+    const respHeaders = new Headers();
+    respHeaders.append("Content-Type", "application/json");
+    const response: Response = new Response(
+      {},
+      { status: 200, statusText: "Everything is ok", headers: respHeaders }
+    );
+
+    const output = `Response: successful 200 Everything is ok\nResponse Headers: ${JSON.stringify(
+      respHeaders.raw(),
+      null,
+      2
+    )}`;
+    logResponseInfo(response);
+    sinon.assert.calledWith(spy, output);
   });
 });

@@ -179,7 +179,9 @@ export class CacheManagerKeyv implements ICacheManager {
     ) {
       return;
     }
-
+    sdkLogger.debug(
+      `Request found in cache - metadata key: ${metadataKey}, content key: ${contentKey}`
+    );
     // Add customer headers to the response that include caching info
     const resHeaders: fetch.Headers = new fetch.Headers(
       redisInfo.metadata.resHeaders
@@ -255,6 +257,7 @@ export class CacheManagerKeyv implements ICacheManager {
       size,
       time: Date.now()
     };
+    const debugMsg = `Request added to cache - metadata key:${metadataKey}, content key: ${contentKey}`;
     if (req.method === "HEAD" || response.status === 304) {
       // Update metadata without writing
       const redisInfo = await this.keyv.get(metadataKey);
@@ -268,7 +271,7 @@ export class CacheManagerKeyv implements ICacheManager {
         redisInfo.time
       );
       await this.keyv.set(metadataKey, cacheOpts);
-
+      sdkLogger.debug(debugMsg);
       return response;
     }
 
@@ -278,6 +281,7 @@ export class CacheManagerKeyv implements ICacheManager {
 
     await this.keyv.set(contentKey, body);
 
+    sdkLogger.debug(debugMsg);
     return Promise.resolve(new fetch.Response(Buffer.from(body), response));
   }
 
@@ -296,13 +300,16 @@ export class CacheManagerKeyv implements ICacheManager {
       throw new Error("Valid request object required to delete");
     }
     this.stripUncacheableRequestHeaders(req);
-
-    return (
-      await Promise.all([
-        this.keyv.delete(getMetadataKey(req)),
-        this.keyv.delete(getContentKey(req))
-      ])
-    ).includes(true);
+    const metadataKey = getMetadataKey(req);
+    const contentKey = getContentKey(req);
+    const deletedFlag = await Promise.all([
+      this.keyv.delete(metadataKey),
+      this.keyv.delete(contentKey)
+    ]);
+    sdkLogger.debug(
+      `Request deleted from cache - metadata key: ${metadataKey}, content key: ${contentKey}`
+    );
+    return deletedFlag.includes(true);
   }
 
   stripUncacheableRequestHeaders(req: fetch.Request): fetch.Request {

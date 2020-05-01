@@ -13,9 +13,9 @@ export { DefaultCache, Response };
 import { Resource } from "./resource";
 import { BaseClient } from "./client";
 import { sdkLogger } from "./sdkLogger";
+import fetchToCurl from "fetch-to-curl";
 
 const CONTENT_TYPE = "application/json";
-
 /**
  * Extends the Error class with the the error being a combination of status code
  * and text retrieved from the response.
@@ -80,25 +80,70 @@ export function getHeader(
 }
 
 /**
- * Format the request being made for logging.
+ * Masks property value in a json object
+ * @param key The name of the property being masked
+ * @param value Tha value to mask
+ */
+function maskInfo(key, value): string {
+  let maskedValue = value;
+  const lowerCaseKey = key.toLowerCase();
+  if (lowerCaseKey.includes("password") && value) {
+    maskedValue = "****";
+  }
+  return maskedValue;
+}
+
+/**
+ * Log request/fetch details.
  *
  * @param resource The resource being requested
  * @param fetchOptions The options to the fetch call
  */
-export const formatFetchForInfoLog = (
+export function logFetchInfo(
   resource: string,
   fetchOptions: RequestInit
-): string => `Request: ${fetchOptions.method.toUpperCase()} ${resource}`;
+): void {
+  if (sdkLogger.getLevel() <= sdkLogger.levels.DEBUG) {
+    const clonedOptions = _.cloneDeep(fetchOptions);
+    if (clonedOptions.body != null) {
+      //mask sensitive info in the body
+      clonedOptions.body = JSON.stringify(
+        JSON.parse(clonedOptions.body),
+        maskInfo
+      );
+    }
+    sdkLogger.debug(
+      `Request URI: ${resource}\nFetch Options: ${JSON.stringify(
+        clonedOptions,
+        null,
+        2
+      )}\nCurl: ${fetchToCurl(resource, clonedOptions)}`
+    );
+  } else if (sdkLogger.getLevel() <= sdkLogger.levels.INFO) {
+    sdkLogger.info(`Request: ${fetchOptions.method.toUpperCase()} ${resource}`);
+  }
+}
 
 /**
- * Format the response received for logging.
+ * Log response details.
  *
  * @param response The response received
  */
-export const formatResponseForInfoLog = (response: Response): string => {
+export const logResponseInfo = (response: Response): void => {
   const successString =
     response.ok || response.status === 304 ? "successful" : "unsuccessful";
-  return `Response: ${successString} ${response.status} ${response.statusText}`;
+  const msg = `Response: ${successString} ${response.status} ${response.statusText}`;
+  if (sdkLogger.getLevel() <= sdkLogger.levels.DEBUG) {
+    sdkLogger.debug(
+      `${msg}\nResponse Headers: ${JSON.stringify(
+        response.headers.raw(),
+        null,
+        2
+      )}`
+    );
+  } else if (sdkLogger.getLevel() <= sdkLogger.levels.INFO) {
+    sdkLogger.info(msg);
+  }
 };
 
 /**
@@ -162,11 +207,11 @@ async function runFetch(
     fetchOptions.cacheManager = options.client.clientConfig.cacheManager;
   }
 
-  sdkLogger.info(formatFetchForInfoLog(resource, fetchOptions));
+  logFetchInfo(resource, fetchOptions);
 
   const response = await fetch(resource, fetchOptions);
 
-  sdkLogger.info(formatResponseForInfoLog(response));
+  logResponseInfo(response);
 
   return options.rawResponse ? response : getObjectFromResponse(response);
 }
