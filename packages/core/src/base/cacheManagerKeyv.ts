@@ -180,7 +180,7 @@ export class CacheManagerKeyv implements ICacheManager {
       return;
     }
     sdkLogger.debug(
-      `Request found in cache - metadata key: ${metadataKey}, content key: ${contentKey}`
+      `Response found in cache - metadata key: ${metadataKey}, content key: ${contentKey}`
     );
     // Add customer headers to the response that include caching info
     const resHeaders: fetch.Headers = new fetch.Headers(
@@ -257,7 +257,7 @@ export class CacheManagerKeyv implements ICacheManager {
       size,
       time: Date.now()
     };
-    const debugMsg = `Request added to cache - metadata key:${metadataKey}, content key: ${contentKey}`;
+    const debugMsg = `Response added to cache - metadata key:${metadataKey}, content key: ${contentKey}`;
     if (req.method === "HEAD" || response.status === 304) {
       // Update metadata without writing
       const redisInfo = await this.keyv.get(metadataKey);
@@ -307,7 +307,7 @@ export class CacheManagerKeyv implements ICacheManager {
       this.keyv.delete(contentKey)
     ]);
     sdkLogger.debug(
-      `Request deleted from cache - metadata key: ${metadataKey}, content key: ${contentKey}`
+      `Response deleted from cache - metadata key: ${metadataKey}, content key: ${contentKey}`
     );
     return deletedFlag.includes(true);
   }

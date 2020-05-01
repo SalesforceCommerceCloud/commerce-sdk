@@ -6,6 +6,7 @@
  */
 import { default as fetch, Response, RequestInit } from "make-fetch-happen";
 import _ from "lodash";
+import fetchToCurl from "fetch-to-curl";
 
 import DefaultCache = require("make-fetch-happen/cache");
 export { DefaultCache, Response };
@@ -13,9 +14,15 @@ export { DefaultCache, Response };
 import { Resource } from "./resource";
 import { BaseClient } from "./client";
 import { sdkLogger } from "./sdkLogger";
-import fetchToCurl from "fetch-to-curl";
 
 const CONTENT_TYPE = "application/json";
+//sensitive fields in request body that need to be masked while logging.
+export const SENSITIVE_FIELDS: ReadonlyArray<string> = [
+  "password".toLowerCase(),
+  "newPassword".toLowerCase(),
+  "currentPassword".toLowerCase()
+];
+export const MASK_VALUE = "****";
 /**
  * Extends the Error class with the the error being a combination of status code
  * and text retrieved from the response.
@@ -85,12 +92,10 @@ export function getHeader(
  * @param value Tha value to mask
  */
 function maskInfo(key, value): string {
-  let maskedValue = value;
-  const lowerCaseKey = key.toLowerCase();
-  if (lowerCaseKey.includes("password") && value) {
-    maskedValue = "****";
+  if (SENSITIVE_FIELDS.includes(key.toLowerCase()) && value) {
+    return MASK_VALUE;
   }
-  return maskedValue;
+  return value;
 }
 
 /**
@@ -99,10 +104,7 @@ function maskInfo(key, value): string {
  * @param resource The resource being requested
  * @param fetchOptions The options to the fetch call
  */
-export function logFetchInfo(
-  resource: string,
-  fetchOptions: RequestInit
-): void {
+export function logFetch(resource: string, fetchOptions: RequestInit): void {
   if (sdkLogger.getLevel() <= sdkLogger.levels.DEBUG) {
     const clonedOptions = _.cloneDeep(fetchOptions);
     if (clonedOptions.body != null) {
@@ -112,6 +114,7 @@ export function logFetchInfo(
         maskInfo
       );
     }
+
     sdkLogger.debug(
       `Request URI: ${resource}\nFetch Options: ${JSON.stringify(
         clonedOptions,
@@ -129,7 +132,7 @@ export function logFetchInfo(
  *
  * @param response The response received
  */
-export const logResponseInfo = (response: Response): void => {
+export const logResponse = (response: Response): void => {
   const successString =
     response.ok || response.status === 304 ? "successful" : "unsuccessful";
   const msg = `Response: ${successString} ${response.status} ${response.statusText}`;
@@ -207,11 +210,11 @@ async function runFetch(
     fetchOptions.cacheManager = options.client.clientConfig.cacheManager;
   }
 
-  logFetchInfo(resource, fetchOptions);
+  logFetch(resource, fetchOptions);
 
   const response = await fetch(resource, fetchOptions);
 
-  logResponseInfo(response);
+  logResponse(response);
 
   return options.rawResponse ? response : getObjectFromResponse(response);
 }
