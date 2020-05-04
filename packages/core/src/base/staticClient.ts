@@ -16,13 +16,7 @@ import { BaseClient } from "./client";
 import { sdkLogger } from "./sdkLogger";
 
 const CONTENT_TYPE = "application/json";
-//sensitive fields in request body that need to be masked while logging.
-const SENSITIVE_FIELDS: ReadonlyArray<string> = [
-  "password".toLowerCase(),
-  "newPassword".toLowerCase(),
-  "currentPassword".toLowerCase()
-];
-export const MASK_VALUE = "****";
+
 /**
  * Extends the Error class with the the error being a combination of status code
  * and text retrieved from the response.
@@ -87,18 +81,6 @@ export function getHeader(
 }
 
 /**
- * Masks property value in a json object
- * @param key The name of the property being masked
- * @param value Tha value to mask
- */
-function maskInfo(key, value): string {
-  if (SENSITIVE_FIELDS.includes(key.toLowerCase()) && value) {
-    return MASK_VALUE;
-  }
-  return value;
-}
-
-/**
  * Log request/fetch details.
  *
  * @param resource The resource being requested
@@ -106,21 +88,12 @@ function maskInfo(key, value): string {
  */
 export function logFetch(resource: string, fetchOptions: RequestInit): void {
   if (sdkLogger.getLevel() <= sdkLogger.levels.DEBUG) {
-    const clonedOptions = _.cloneDeep(fetchOptions);
-    if (clonedOptions.body != null) {
-      //mask sensitive info in the body
-      clonedOptions.body = JSON.stringify(
-        JSON.parse(clonedOptions.body),
-        maskInfo
-      );
-    }
-
     sdkLogger.debug(
       `Request URI: ${resource}\nFetch Options: ${JSON.stringify(
-        clonedOptions,
+        fetchOptions,
         null,
         2
-      )}\nCurl: ${fetchToCurl(resource, clonedOptions)}`
+      )}\nCurl: ${fetchToCurl(resource, fetchOptions)}`
     );
   } else if (sdkLogger.getLevel() <= sdkLogger.levels.INFO) {
     sdkLogger.info(`Request: ${fetchOptions.method.toUpperCase()} ${resource}`);

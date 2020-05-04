@@ -10,7 +10,7 @@ import { Response, Headers } from "minipass-fetch";
 import sinon from "sinon";
 import fetchToCurl from "fetch-to-curl";
 
-import { logFetch, logResponse, MASK_VALUE } from "../src/base/staticClient";
+import { logFetch, logResponse } from "../src/base/staticClient";
 import { sdkLogger } from "../src/base/sdkLogger";
 
 let logLevel;
@@ -93,37 +93,6 @@ describe("Test debug log messages of fetch data", () => {
       body: JSON.stringify({ key1: "value1" })
     };
     logFetch(resource, options);
-    sinon.assert.calledWith(spy, getDebugMsgForFetch(resource, options));
-  });
-  it("Masks sensitive field in POST data", () => {
-    const resource = "https://example.com/my/endpoint";
-    const body = { key1: "value1", password: "test" };
-    const options = {
-      method: "POST",
-      body: JSON.stringify(body)
-    };
-    logFetch(resource, options);
-
-    body.password = MASK_VALUE;
-    options.body = JSON.stringify(body);
-    sinon.assert.calledWith(spy, getDebugMsgForFetch(resource, options));
-  });
-  it("Case is ignored on property name while masking", () => {
-    const resource = "https://example.com/my/endpoint";
-    const body = {
-      key1: "value1",
-      currentpassword: "test",
-      NewPassword: "test"
-    };
-    const options = {
-      method: "POST",
-      body: JSON.stringify(body)
-    };
-    logFetch(resource, options);
-
-    body.currentpassword = MASK_VALUE;
-    body.NewPassword = MASK_VALUE;
-    options.body = JSON.stringify(body);
     sinon.assert.calledWith(spy, getDebugMsgForFetch(resource, options));
   });
 });
