@@ -25,7 +25,6 @@ import {
   _patch,
   _post,
   _put,
-  getHeader,
   ResponseError
 } from "../src/base/staticClient";
 
@@ -35,16 +34,15 @@ const CONNECTION_KEEP_ALIVE = { connection: "keep-alive" };
 describe("base client get test", () => {
   afterEach(nock.cleanAll);
 
-  it("makes correct call", () => {
-    const client = new BaseClient({ baseUri: "https://somewhere" });
-    const scope = nock("https://somewhere")
-      .get("/over/the/rainbow")
+  it("makes correct call", async () => {
+    const client = new BaseClient({ baseUri: "https://get.test" });
+    nock("https://get.test")
+      .get("/get")
       .reply(200, { mock: "data" });
 
-    return _get({ client: client, path: "/over/the/rainbow" }).then(data => {
-      expect(data).to.eql({ mock: "data" });
-      expect(nock.isDone()).to.be.true;
-    });
+    const data = await _get({ client: client, path: "/get" });
+    expect(data).to.eql({ mock: "data" });
+    expect(nock.isDone()).to.be.true;
   });
 });
 
@@ -52,61 +50,58 @@ describe("base client delete test", () => {
   let client;
 
   beforeEach(() => {
-    client = new BaseClient({ baseUri: "https://somewhere" });
+    client = new BaseClient({ baseUri: "https://delete.test" });
   });
   afterEach(nock.cleanAll);
 
-  it("deletes resource and returns 200", () => {
-    const scope = nock("https://somewhere")
-      .delete("/over/the/rainbow")
+  it("deletes resource and returns 200", async () => {
+    nock("https://delete.test")
+      .delete("/delete")
       .reply(200);
 
-    return _delete({
+    await _delete({
       client: client,
-      path: "/over/the/rainbow"
-    }).then(res => {
-      expect(nock.isDone()).to.be.true;
+      path: "/delete"
     });
+    expect(nock.isDone()).to.be.true;
   });
 
   it("is not ok when attempting to delete nonexistent resource", () => {
-    const scope = nock("https://somewhere")
-      .delete("/over/the/rainbow")
+    nock("https://delete.test")
+      .delete("/delete/404")
       .reply(404);
 
     return _delete({
       client: client,
-      path: "/over/the/rainbow"
+      path: "/delete/404"
     }).should.eventually.be.rejectedWith(ResponseError);
   });
 
-  it("deletes resource with id and returns 200", () => {
-    const scope = nock("https://somewhere")
-      .delete("/over/the/rainbow")
+  it("deletes resource with id and returns 200", async () => {
+    nock("https://delete.test")
+      .delete("/delete/200")
       .reply(200);
 
-    return _delete({
+    await _delete({
       client: client,
-      path: "/over/the/{id}",
-      pathParameters: { id: "rainbow" }
-    }).then(res => {
-      expect(nock.isDone()).to.be.true;
+      path: "/delete/{id}",
+      pathParameters: { id: "200" }
     });
+    expect(nock.isDone()).to.be.true;
   });
 
-  it("deletes resource with id in query param and returns 200", () => {
-    const scope = nock("https://somewhere")
-      .delete("/over/the")
-      .query({ id: "rainbow" })
+  it("deletes resource with id in query param and returns 200", async () => {
+    nock("https://delete.test")
+      .delete("/delete")
+      .query({ id: "200" })
       .reply(200);
 
-    return _delete({
+    await _delete({
       client: client,
-      path: "/over/the",
-      queryParameters: { id: "rainbow" }
-    }).then(res => {
-      expect(nock.isDone()).to.be.true;
+      path: "/delete",
+      queryParameters: { id: "200" }
     });
+    expect(nock.isDone()).to.be.true;
   });
 });
 
@@ -114,64 +109,67 @@ describe("base client post test", () => {
   let client;
 
   beforeEach(() => {
-    client = new BaseClient({ baseUri: "https://somewhere" });
+    client = new BaseClient({ baseUri: "https://post.test" });
   });
   afterEach(nock.cleanAll);
 
-  it("post resource and returns 201", () => {
-    const scope = nock("https://somewhere")
-      .post("/over/the/rainbow")
+  it("post resource and returns 201", async () => {
+    nock("https://post.test")
+      .post("/post/201")
       .reply(201);
 
-    return _post({
+    await _post({
       client: client,
-      path: "/over/the/rainbow",
+      path: "/post/201",
       body: {}
-    }).then(res => {
-      expect(nock.isDone()).to.be.true;
     });
+    expect(nock.isDone()).to.be.true;
   });
 
   it("is not ok when attempting to post nonexistent collection", () => {
-    const scope = nock("https://somewhere")
-      .post("/over/the/rainbow")
+    nock("https://post.test")
+      .post("/post/404")
       .reply(404);
 
     return _post({
       client: client,
-      path: "/over/the/rainbow",
+      path: "/post/404",
       body: { location: "oz" }
     }).should.eventually.be.rejectedWith(ResponseError);
   });
 
-  it("post resource with body and returns 201", () => {
-    const scope = nock("https://somewhere")
-      .post("/over/the")
-      .reply(201);
+  it("post resource with body and returns 201", async () => {
+    nock("https://post.test")
+      .post("/post/201")
+      .reply(201, function(url, body) {
+        return body;
+      });
 
-    return _post({
+    const response = await _post({
       client: client,
-      path: "/over/the",
+      path: "/post/201",
       body: { location: "oz" }
-    }).then(res => {
-      expect(nock.isDone()).to.be.true;
     });
+    expect(nock.isDone()).to.be.true;
+    expect(response).to.be.deep.equal({ location: "oz" });
   });
 
-  it("post resource with site id in query param, body and returns 201", () => {
-    const scope = nock("https://somewhere")
-      .post("/over")
-      .query({ id: "the" })
-      .reply(201);
+  it("post resource with site id in query param, body and returns 201", async () => {
+    nock("https://post.test")
+      .post("/post/create")
+      .query({ id: "something" })
+      .reply(201, function(url, body) {
+        return body;
+      });
 
-    return _post({
+    const response = await _post({
       client: client,
-      path: "/over",
-      queryParameters: { id: "the" },
-      body: { content: "rainbow" }
-    }).then(res => {
-      expect(nock.isDone()).to.be.true;
+      path: "/post/create",
+      queryParameters: { id: "something" },
+      body: { content: "new" }
     });
+    expect(nock.isDone()).to.be.true;
+    expect(response).to.be.deep.equal({ content: "new" });
   });
 });
 
@@ -179,76 +177,85 @@ describe("base client put test", () => {
   let client;
 
   beforeEach(() => {
-    client = new BaseClient({ baseUri: "https://somewhere" });
+    client = new BaseClient({ baseUri: "https://put.test" });
   });
   afterEach(nock.cleanAll);
 
-  it("put resource and returns 201", () => {
-    const scope = nock("https://somewhere")
-      .put("/over/the/rainbow")
-      .reply(201);
+  it("put resource and returns 201", async () => {
+    nock("https://put.test")
+      .put("/put")
+      .reply(201, function(url, body) {
+        return body;
+      });
 
-    return _put({ client: client, path: "/over/the/rainbow", body: {} }).then(
-      () => {
-        expect(nock.isDone()).to.be.true;
-      }
-    );
+    const response = await _put({
+      client: client,
+      path: "/put",
+      body: { something: "foo" }
+    });
+    expect(nock.isDone()).to.be.true;
+    expect(response).to.be.deep.equal({ something: "foo" });
   });
 
   it("is not ok when attempting to put nonexistent resource", () => {
-    const scope = nock("https://somewhere")
-      .put("/over/the/rainbow")
+    nock("https://put.test")
+      .put("/put/404")
       .reply(404);
 
     return _put({
       client: client,
-      path: "/over/the/rainbow",
+      path: "/put/404",
       body: {}
     }).should.eventually.be.rejectedWith(ResponseError);
   });
 
-  it("put resource with body and returns 200", () => {
-    const scope = nock("https://somewhere")
-      .put("/over/the")
-      .reply(200);
+  it("put resource with body and returns 200", async () => {
+    nock("https://put.test")
+      .put("/with-body/200")
+      .reply(200, function(url, body) {
+        return body;
+      });
 
-    return _put({
+    const response = await _put({
       client: client,
-      path: "/over/the",
-      body: {}
-    }).then(() => {
-      expect(nock.isDone()).to.be.true;
+      path: "/with-body/200",
+      body: { body: "is_here" }
     });
+    expect(nock.isDone()).to.be.true;
+    expect(response).to.be.deep.equal({ body: "is_here" });
   });
 
-  it("put resource with body and returns 204", () => {
-    const scope = nock("https://somewhere")
-      .put("/over/the")
-      .reply(204);
+  it("put resource with body and returns 204", async () => {
+    nock("https://put.test")
+      .put("/with/body/204")
+      .reply(204, function(url, body) {
+        return body;
+      });
 
-    return _put({
+    await _put({
       client: client,
-      path: "/over/the",
+      path: "/with/body/204",
       body: {}
-    }).then(() => {
-      expect(nock.isDone()).to.be.true;
     });
+    expect(nock.isDone()).to.be.true;
   });
 
-  it("put resource with site id in query param, body and returns 201", () => {
-    const scope = nock("https://somewhere")
-      .put("/over")
-      .query({ id: "the" })
-      .reply(201);
+  it("put resource with site id in query param, body and returns 201", async () => {
+    nock("https://put.test")
+      .put("/with-id/201")
+      .query({ id: "foo" })
+      .reply(201, function(url, body) {
+        return body;
+      });
 
-    return _put({
+    const response = await _put({
       client: client,
-      path: "/over",
-      queryParameters: { id: "the" },
+      path: "/with-id/201",
+      queryParameters: { id: "foo" },
       body: { content: "rainbow" }
-    }).then(() => {
-      expect(nock.isDone()).to.be.true;
     });
+    expect(nock.isDone()).to.be.true;
+    expect(response).to.be.deep.equal({ content: "rainbow" });
   });
 });
 
@@ -256,76 +263,70 @@ describe("base client patch test", () => {
   let client;
 
   beforeEach(() => {
-    client = new BaseClient({ baseUri: "https://somewhere" });
+    client = new BaseClient({ baseUri: "https://patch.test" });
   });
   afterEach(nock.cleanAll);
 
-  it("patch resource and returns 200", () => {
-    const scope = nock("https://somewhere")
-      .patch("/over/the/rainbow")
+  it("patch resource and returns 200", async () => {
+    nock("https://patch.test")
+      .patch("/patch/200")
       .reply(200);
 
-    return _patch({ client: client, path: "/over/the/rainbow", body: {} }).then(
-      () => {
-        expect(nock.isDone()).to.be.true;
-      }
-    );
+    await _patch({ client: client, path: "/patch/200", body: {} });
+    expect(nock.isDone()).to.be.true;
   });
 
   it("is not ok when attempting to patch nonexistent resource", () => {
-    const scope = nock("https://somewhere")
-      .patch("/over/the/rainbow")
+    nock("https://patch.test")
+      .patch("/patch/404")
       .reply(404);
 
     return _patch({
       client: client,
-      path: "/over/the/rainbow",
+      path: "/patch/404",
       body: {}
     }).should.eventually.be.rejectedWith(ResponseError);
   });
 
-  it("patch resource with body and returns 200", () => {
-    const scope = nock("https://somewhere")
-      .patch("/over/the")
+  it("patch resource with body and returns 200", async () => {
+    nock("https://patch.test")
+      .patch("/with-body/200")
       .reply(200);
 
-    return _patch({
+    await _patch({
       client: client,
-      path: "/over/the",
+      path: "/with-body/200",
       body: {}
-    }).then(() => {
-      expect(nock.isDone()).to.be.true;
     });
+    expect(nock.isDone()).to.be.true;
   });
 
-  it("patch resource with body and returns 204", () => {
-    const scope = nock("https://somewhere")
-      .patch("/over/the")
+  it("patch resource with body and returns 204", async () => {
+    nock("https://patch.test")
+      .patch("/with-body/204")
       .reply(204);
 
-    return _patch({
+    await _patch({
       client: client,
-      path: "/over/the",
+      path: "/with-body/204",
       body: {}
-    }).then(() => {
-      expect(nock.isDone()).to.be.true;
     });
+    expect(nock.isDone()).to.be.true;
   });
 
-  it("patch resource with site id in query param, body and returns 200", () => {
-    const scope = nock("https://somewhere")
-      .patch("/over")
+  it("patch resource with site id in query param, body and returns 200", async () => {
+    nock("https://patch.test")
+      .patch("/with-id")
       .query({ id: "the" })
       .reply(200);
 
-    return _patch({
+    await _patch({
       client: client,
-      path: "/over",
+      path: "/with-id",
       queryParameters: { id: "the" },
       body: { content: "rainbow" }
-    }).then(() => {
-      expect(nock.isDone()).to.be.true;
     });
+    expect(nock.isDone()).to.be.true;
   });
 });
 
@@ -337,80 +338,71 @@ describe("base client test with headers", () => {
     "Accept-Language": "en-US",
     "Max-Forwards": "10"
   };
-  const CONTENT_TYPE_JSON = { "Content-Type": "application/json" };
-  const CONTENT_TYPE_XML = { "Content-Type": "text/xml" };
 
-  it("makes correct get call with headers", () => {
+  it("makes correct get call with headers", async () => {
     const client = new BaseClient({
-      baseUri: "https://somewhere",
+      baseUri: "https://headers.test",
       headers: LANGUAGE_HEADER
     });
-    const scope = nock("https://somewhere", { reqheaders: LANGUAGE_HEADER })
-      .get("/over/the/rainbow")
+    nock("https://headers.test", { reqheaders: LANGUAGE_HEADER })
+      .get("/get/headers")
       .reply(200, { mock: "data" });
 
-    return _get({ client: client, path: "/over/the/rainbow" }).then(() => {
-      expect(nock.isDone()).to.be.true;
-    });
+    await _get({ client: client, path: "/get/headers" });
+    expect(nock.isDone()).to.be.true;
   });
 
-  it("makes correct call with two headers", () => {
+  it("makes correct call with two headers", async () => {
     const client = new BaseClient({
-      baseUri: "https://somewhere",
+      baseUri: "https://headers.test",
       headers: TWO_HEADER
     });
-    const scope = nock("https://somewhere", { reqheaders: TWO_HEADER })
-      .get("/over/the/rainbow")
+    nock("https://headers.test", { reqheaders: TWO_HEADER })
+      .get("/get/two/headers")
       .reply(200, { mock: "data" });
 
-    return _get({ client: client, path: "/over/the/rainbow" }).then(() => {
-      expect(nock.isDone()).to.be.true;
-    });
+    await _get({ client: client, path: "/get/two/headers" });
+    expect(nock.isDone()).to.be.true;
   });
 
-  it("makes correct call for post with two headers", () => {
+  it("makes correct call for post with two headers", async () => {
     const client = new BaseClient({
-      baseUri: "https://somewhere",
+      baseUri: "https://headers.test",
       headers: TWO_HEADER
     });
-    const scope = nock("https://somewhere", { reqheaders: TWO_HEADER })
-      .post("/over/the/rainbow")
+    nock("https://headers.test", { reqheaders: TWO_HEADER })
+      .post("/post/two/headers")
       .reply(201, {});
 
-    return _post({ client: client, path: "/over/the/rainbow", body: {} }).then(
-      () => {
-        expect(nock.isDone()).to.be.true;
-      }
-    );
+    await _post({ client: client, path: "/post/two/headers", body: {} });
+    expect(nock.isDone()).to.be.true;
   });
 
-  it("makes call with connection header set to close by default", () => {
+  it("makes call with connection header set to close by default", async () => {
     const client = new BaseClient({
-      baseUri: "https://somewhere"
+      baseUri: "https://headers.test"
     });
 
-    nock("https://somewhere", { reqheaders: CONNECTION_CLOSE })
-      .get("/over/the/rainbow")
+    nock("https://headers.test", { reqheaders: CONNECTION_CLOSE })
+      .get("/connection/close")
       .reply(200, { mock: "data" });
 
-    return _get({ client: client, path: "/over/the/rainbow" }).then(() => {
-      expect(nock.isDone()).to.be.true;
-    });
+    await _get({ client: client, path: "/connection/close" });
+    expect(nock.isDone()).to.be.true;
   });
 
-  it("makes call with the connection header set in the client", () => {
+  it("makes call with the connection header set in the client", async () => {
     const client = new BaseClient({
-      baseUri: "https://somewhere",
+      baseUri: "https://headers.test",
       headers: CONNECTION_KEEP_ALIVE
     });
 
-    nock("https://somewhere", { reqheaders: CONNECTION_KEEP_ALIVE })
-      .get("/over/the/rainbow")
+    nock("https://headers.test", { reqheaders: CONNECTION_KEEP_ALIVE })
+      .get("/connection/alive")
       .reply(200, { mock: "data" });
 
-    return _get({ client: client, path: "/over/the/rainbow" }).then(() => {
-      expect(nock.isDone()).to.be.true;
-    });
+    await _get({ client: client, path: "/connection/alive" });
+    expect(nock.isDone()).to.be.true;
   });
 });
 
@@ -426,115 +418,130 @@ describe("base client test with endpoint headers", () => {
     "Accept-Language": "en-US",
     "Max-Forwards": "10"
   };
-  const CONTENT_TYPE_JSON = { "Content-Type": "application/json" };
-  const CONTENT_TYPE_XML = { "Content-Type": "text/xml" };
 
-  it("makes correct get call with endpoint headers", () => {
+  it("makes correct get call with endpoint headers", async () => {
     const client = new BaseClient({
-      baseUri: "https://somewhere"
+      baseUri: "https://ep.headers.test"
     });
-    const scope = nock("https://somewhere", { reqheaders: LANGUAGE_HEADER })
-      .get("/over/the/rainbow")
+    nock("https://ep.headers.test", { reqheaders: LANGUAGE_HEADER })
+      .get("/get/with/language")
       .reply(200, { mock: "data" });
 
-    return _get({
+    await _get({
       client: client,
-      path: "/over/the/rainbow",
+      path: "/get/with/language",
       headers: LANGUAGE_HEADER
-    }).then(() => {
-      expect(nock.isDone()).to.be.true;
     });
+    expect(nock.isDone()).to.be.true;
   });
 
-  it("makes correct call with two endpoint headers", () => {
+  it("makes correct call with two endpoint headers", async () => {
     const client = new BaseClient({
-      baseUri: "https://somewhere"
+      baseUri: "https://ep.headers.test"
     });
-    const scope = nock("https://somewhere", { reqheaders: TWO_HEADER })
-      .get("/over/the/rainbow")
+    nock("https://ep.headers.test", { reqheaders: TWO_HEADER })
+      .get("/get/two/headers")
       .reply(200, { mock: "data" });
 
-    return _get({
+    await _get({
       client: client,
-      path: "/over/the/rainbow",
+      path: "/get/two/headers",
       headers: TWO_HEADER
-    }).then(() => {
-      expect(nock.isDone()).to.be.true;
     });
+    expect(nock.isDone()).to.be.true;
   });
 
-  it("makes correct call for post with two endpoint headers", () => {
+  it("makes correct call for post with two endpoint headers", async () => {
     const client = new BaseClient({
-      baseUri: "https://somewhere"
+      baseUri: "https://ep.headers.test"
     });
-    const scope = nock("https://somewhere", { reqheaders: TWO_HEADER })
-      .post("/over/the/rainbow")
+    nock("https://ep.headers.test", { reqheaders: TWO_HEADER })
+      .post("/post/two/headers")
       .reply(201, {});
 
-    return _post({
+    await _post({
       client: client,
-      path: "/over/the/rainbow",
+      path: "/post/two/headers",
       headers: TWO_HEADER,
       body: {}
-    }).then(() => {
-      expect(nock.isDone()).to.be.true;
     });
+    expect(nock.isDone()).to.be.true;
   });
 
-  it("makes correct call for post with client and endpoint headers", () => {
+  it("makes correct call for post with client and endpoint headers", async () => {
     const client = new BaseClient({
-      baseUri: "https://somewhere",
+      baseUri: "https://ep.headers.test",
       headers: TWO_HEADER
     });
-    const scope = nock("https://somewhere", { reqheaders: MERGE_HEADER })
-      .post("/over/the/rainbow")
+    nock("https://ep.headers.test", { reqheaders: MERGE_HEADER })
+      .post("/post/with/header")
       .reply(201, {});
 
-    return _post({
+    await _post({
       client: client,
-      path: "/over/the/rainbow",
+      path: "/post/with/header",
       headers: LANGUAGE_HEADER,
       body: {}
-    }).then(() => {
-      expect(nock.isDone()).to.be.true;
     });
+    expect(nock.isDone()).to.be.true;
   });
 
-  it("makes call with connection header passed to the get function ", () => {
+  it("makes call with connection header passed to the get function ", async () => {
     const client = new BaseClient({
-      baseUri: "https://somewhere"
+      baseUri: "https://ep.headers.test"
     });
 
-    nock("https://somewhere", { reqheaders: CONNECTION_KEEP_ALIVE })
-      .get("/over/the/rainbow")
+    nock("https://ep.headers.test", { reqheaders: CONNECTION_KEEP_ALIVE })
+      .get("/connection/header")
       .reply(200, { mock: "data" });
 
-    return _get({
+    await _get({
       client: client,
-      path: "/over/the/rainbow",
+      path: "/connection/header",
       headers: CONNECTION_KEEP_ALIVE
-    }).then(() => {
-      expect(nock.isDone()).to.be.true;
     });
+    expect(nock.isDone()).to.be.true;
   });
 });
 
-describe("Get header", () => {
-  it("should return the header if a header with the same name and same case exists", () => {
-    const headers = { connection: "keep-alive" };
-    const result = getHeader("connection", headers);
-    expect(result).to.equal("connection");
+describe("client override testing", () => {
+  afterEach(nock.cleanAll);
+
+  it("Overriding a header works", async () => {
+    const client = new BaseClient({
+      baseUri: "https://override.test",
+      headers: { Authorization: "Testing" }
+    });
+
+    nock("https://override.test")
+      .get("/auth/changed")
+      .matchHeader("Authorization", "Changed")
+      .reply(200, {});
+
+    await _get({
+      client: client,
+      path: "/auth/changed",
+      headers: { Authorization: "Changed" }
+    });
+    expect(nock.isDone()).to.be.true;
   });
 
-  it("should return the header if a header with the same name and different case exists", () => {
-    const headers = { Connection: "keep-alive" };
-    const result = getHeader("coNneCtiOn", headers);
-    expect(result).to.equal("Connection");
-  });
+  it("Overriding a header works with different casing", async () => {
+    const client = new BaseClient({
+      baseUri: "https://override.test",
+      headers: { authorization: "Testing" }
+    });
 
-  it("should return the passed header if a header with the same name does not exist", () => {
-    const headers = { Con: "keep-alive" };
-    const result = getHeader("Connection", headers);
-    expect(result).to.equal("Connection");
+    nock("https://override.test")
+      .get("/auth/changed/casing")
+      .matchHeader("Authorization", "Changed")
+      .reply(200, {});
+
+    await _get({
+      client: client,
+      path: "/auth/changed/casing",
+      headers: { Authorization: "Changed" }
+    });
+    expect(nock.isDone()).to.be.true;
   });
 });

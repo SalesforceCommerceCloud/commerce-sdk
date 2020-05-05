@@ -32,7 +32,7 @@ export class ClientConfig {
   public cacheManager?: ICacheManager;
   public headers?: { [key: string]: string };
   public parameters?: CommonParameters;
-  public retrySetting?: OperationOptions;
+  public retrySettings?: OperationOptions;
 }
 
 const DEFAULT_CLIENT_CONFIG: ClientConfig = {

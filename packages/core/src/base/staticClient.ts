@@ -11,6 +11,8 @@ import _ from "lodash";
 import DefaultCache = require("make-fetch-happen/cache");
 export { DefaultCache, Response };
 
+import { Headers } from "minipass-fetch";
+
 import { Resource } from "./resource";
 import { BaseClient } from "./client";
 import { sdkLogger } from "./sdkLogger";
@@ -54,29 +56,6 @@ export async function getObjectFromResponse(
   } else {
     throw new ResponseError(response);
   }
-}
-
-/**
- * Returns the entry from the headers list that matches the passed header. The
- * search is case insensitive and the case of the passed header and the list
- * are preserved. Returns the passed header if no match is found.
- *
- * @param header - Target header
- * @param headers - List to search from
- * @returns Header from the list if there is a match, the passed header otherwise
- */
-export function getHeader(
-  header: string,
-  headers: { [key: string]: string }
-): string {
-  const headerLowerCase = header.toLowerCase();
-  for (const name in headers) {
-    if (headerLowerCase === name.toLowerCase()) {
-      return name;
-    }
-  }
-
-  return header;
 }
 
 /**
@@ -134,29 +113,39 @@ async function runFetch(
   // Lets grab all the RequestInit defaults from the clientConfig
   const defaultsFromClientConfig: RequestInit = {
     cacheManager: options.client.clientConfig.cacheManager,
-    headers: options.client.clientConfig.headers,
-    retry: options.client.clientConfig.retrySetting
+    retry: options.client.clientConfig.retrySettings
   };
 
   // Let's create a request init object of all configurations in the current request
-  const currentRequest: RequestInit = {
+  const currentOptionsFromRequest: RequestInit = {
     method: method,
-    headers: options.headers,
     retry: options.retrySettings,
     body: JSON.stringify(options.body)
   };
 
-  // This line merges the values and then strips anything that is undefined.
-  //  (NOTE: Not sure we have to, as all tests pass regardless, but going to anyways)
-  const mergedOptions = _.pickBy(
-    _.merge({}, defaultsFromClientConfig, currentRequest),
-    _.identity
+  // Merging like this will copy items into a new object, this removes the need to clone and then merge as we were before.
+  let finalOptions = _.merge(
+    {},
+    defaultsFromClientConfig,
+    currentOptionsFromRequest
   );
 
-  sdkLogger.info(formatFetchForInfoLog(resource, mergedOptions));
+  // Headers are treated separately to be able to move them into their own object.
+  const headers = new Headers(_.merge({}, options.client.clientConfig.headers));
 
-  const response = await fetch(resource, mergedOptions);
+  for (const [header, value] of Object.entries(options.headers || {})) {
+    headers.set(header, value);
+  }
+  finalOptions["headers"] = headers;
 
+  // This line merges the values and then strips anything that is undefined.
+  //  (NOTE: Not sure we have to, as all tests pass regardless, but going to anyways)
+  finalOptions = _.pickBy(finalOptions, _.identity);
+
+  sdkLogger.setLevel(sdkLogger.levels.DEBUG);
+
+  sdkLogger.info(formatFetchForInfoLog(resource, finalOptions));
+  const response = await fetch(resource, finalOptions);
   sdkLogger.info(formatResponseForInfoLog(response));
 
   return options.rawResponse ? response : getObjectFromResponse(response);
