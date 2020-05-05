@@ -544,4 +544,96 @@ describe("client override testing", () => {
     });
     expect(nock.isDone()).to.be.true;
   });
+
+  it("Merge headers together", async () => {
+    const client = new BaseClient({
+      baseUri: "https://override.test",
+      headers: { "X-Custom-Header": "Custom" }
+    });
+
+    nock("https://override.test")
+      .get("/merge/headers")
+      .matchHeader("Authorization", "Changed")
+      .matchHeader("X-Custom-Header", "Custom")
+      .reply(200, {});
+
+    await _get({
+      client: client,
+      path: "/merge/headers",
+      headers: { Authorization: "Changed" }
+    });
+    expect(nock.isDone()).to.be.true;
+  });
+});
+
+describe("retry settings test", () => {
+  let client: BaseClient;
+  beforeEach(() => {
+    client = new BaseClient({
+      baseUri: "https://retry.test",
+      retrySettings: {
+        // This means 3 total calls are made
+        retries: 2,
+        maxTimeout: 200,
+        minTimeout: 100
+      }
+    });
+  });
+  afterEach(nock.cleanAll);
+
+  it("Tries 3 times", async () => {
+    const failure = nock("https://retry.test")
+      .get("/three")
+      .twice()
+      .reply(503);
+
+    const success = nock("https://retry.test")
+      .get("/three")
+      .reply(200, {});
+
+    await _get({
+      client: client,
+      path: "/three"
+    });
+    expect(failure.isDone()).to.be.true;
+    expect(success.isDone()).to.be.true;
+  });
+
+  it("Disable retry for a call", async () => {
+    const failure = nock("https://retry.test")
+      .get("/no-retry")
+      .reply(503);
+
+    const success = nock("https://retry.test")
+      .get("/no-retry")
+      .reply(200, {});
+
+    await _get({
+      client: client,
+      path: "/no-retry",
+      retrySettings: {
+        retries: 0
+      }
+    }).should.eventually.be.rejectedWith(ResponseError);
+    expect(failure.isDone()).to.be.true;
+    expect(success.pendingMocks()).to.be.not.empty;
+  });
+
+  it("Doesn't try 4 times", async () => {
+    const failure = nock("https://retry.test")
+      .get("/four")
+      .thrice()
+      .reply(503);
+
+    const success = nock("https://retry.test")
+      .get("/four")
+      .reply(200, {});
+
+    await _get({
+      client: client,
+      path: "/four"
+    }).should.eventually.be.rejectedWith(ResponseError);
+    expect(failure.isDone()).to.be.true;
+    expect(success.pendingMocks()).to.be.not.empty;
+  });
 });

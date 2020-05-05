@@ -165,6 +165,7 @@ export function _get(options: {
   pathParameters?: object;
   queryParameters?: object;
   headers?: { [key: string]: string };
+  retrySettings?: OperationOptions;
   rawResponse?: boolean;
 }): Promise<object> {
   return runFetch("get", options);
@@ -184,6 +185,7 @@ export function _delete(options: {
   pathParameters?: object;
   queryParameters?: object;
   headers?: { [key: string]: string };
+  retrySettings?: OperationOptions;
   rawResponse?: boolean;
 }): Promise<object> {
   return runFetch("delete", options);
@@ -203,6 +205,7 @@ export function _patch(options: {
   pathParameters?: object;
   queryParameters?: object;
   headers?: { [key: string]: string };
+  retrySettings?: OperationOptions;
   rawResponse?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;
@@ -224,6 +227,7 @@ export function _post(options: {
   pathParameters?: object;
   queryParameters?: object;
   headers?: { [key: string]: string };
+  retrySettings?: OperationOptions;
   rawResponse?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;
@@ -245,6 +249,7 @@ export function _put(options: {
   pathParameters?: object;
   queryParameters?: object;
   headers?: { [key: string]: string };
+  retrySettings?: OperationOptions;
   rawResponse?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;
