@@ -7,6 +7,7 @@
 import { default as fetch, Response, RequestInit } from "make-fetch-happen";
 
 import _ from "lodash";
+import fetchToCurl from "fetch-to-curl";
 
 import DefaultCache = require("make-fetch-happen/cache");
 export { DefaultCache, Response };
@@ -58,26 +59,44 @@ export async function getObjectFromResponse(
   }
 }
 
+
 /**
- * Format the request being made for logging.
+ * Log request/fetch details.
  *
  * @param resource The resource being requested
  * @param fetchOptions The options to the fetch call
  */
-export const formatFetchForInfoLog = (
-  resource: string,
-  fetchOptions: RequestInit
-): string => `Request: ${fetchOptions.method.toUpperCase()} ${resource}`;
+export function logFetch(resource: string, fetchOptions: RequestInit): void {
+  if (sdkLogger.getLevel() <= sdkLogger.levels.DEBUG) {
+    sdkLogger.debug(
+      `Request URI: ${resource}\nFetch Options: ${JSON.stringify(
+        fetchOptions,
+        null,
+        2
+      )}\nCurl: ${fetchToCurl(resource, fetchOptions)}`
+    );
+  } else if (sdkLogger.getLevel() <= sdkLogger.levels.INFO) {
+    sdkLogger.info(`Request: ${fetchOptions.method.toUpperCase()} ${resource}`);
+  }
+}
 
 /**
- * Format the response received for logging.
+ * Log response details.
  *
  * @param response The response received
  */
-export const formatResponseForInfoLog = (response: Response): string => {
+export const logResponse = (response: Response): void => {
   const successString =
     response.ok || response.status === 304 ? "successful" : "unsuccessful";
-  return `Response: ${successString} ${response.status} ${response.statusText}`;
+  const msg = `Response: ${successString} ${response.status} ${response.statusText}`;
+  sdkLogger.info(msg);
+  sdkLogger.debug(
+    `Response Headers: ${JSON.stringify(
+      response.headers.raw(),
+      null,
+      2
+    )}`
+  );
 };
 
 /**
@@ -142,11 +161,9 @@ async function runFetch(
   //  (NOTE: Not sure we have to, as all tests pass regardless, but going to anyways)
   finalOptions = _.pickBy(finalOptions, _.identity);
 
-  sdkLogger.setLevel(sdkLogger.levels.DEBUG);
-
-  sdkLogger.info(formatFetchForInfoLog(resource, finalOptions));
+  logFetch(resource, finalOptions);
   const response = await fetch(resource, finalOptions);
-  sdkLogger.info(formatResponseForInfoLog(response));
+  logResponse(response);
 
   return options.rawResponse ? response : getObjectFromResponse(response);
 }

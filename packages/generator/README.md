@@ -227,6 +227,13 @@ sdkLogger.setLevel(sdkLogger.levels.INFO);
 ```
 
 INFO level logging will enable brief request and response logging.
+DEBUG level logging will enable logging of 
+ * fetch options
+ * curl command of the request
+ * response (response body is not included)
+ * cache operations
+  
+**Note:** Debug level logging may expose sensitive data in the logs 
 
 ## Additional Documentation 
 [API Documentation](./APICLIENTS.md)  
