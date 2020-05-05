@@ -59,7 +59,6 @@ export async function getObjectFromResponse(
   }
 }
 
-
 /**
  * Log request/fetch details.
  *
@@ -91,11 +90,7 @@ export const logResponse = (response: Response): void => {
   const msg = `Response: ${successString} ${response.status} ${response.statusText}`;
   sdkLogger.info(msg);
   sdkLogger.debug(
-    `Response Headers: ${JSON.stringify(
-      response.headers.raw(),
-      null,
-      2
-    )}`
+    `Response Headers: ${JSON.stringify(response.headers.raw(), null, 2)}`
   );
 };
 
