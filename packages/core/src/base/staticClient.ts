@@ -6,6 +6,7 @@
  */
 import { default as fetch, Response, RequestInit } from "make-fetch-happen";
 import _ from "lodash";
+import fetchToCurl from "fetch-to-curl";
 
 import DefaultCache = require("make-fetch-happen/cache");
 export { DefaultCache, Response };
@@ -102,25 +103,45 @@ export function stripHeaders(
 }
 
 /**
- * Format the request being made for logging.
+ * Log request/fetch details.
  *
  * @param resource The resource being requested
  * @param fetchOptions The options to the fetch call
  */
-export const formatFetchForInfoLog = (
-  resource: string,
-  fetchOptions: RequestInit
-): string => `Request: ${fetchOptions.method.toUpperCase()} ${resource}`;
+export function logFetch(resource: string, fetchOptions: RequestInit): void {
+  if (sdkLogger.getLevel() <= sdkLogger.levels.DEBUG) {
+    sdkLogger.debug(
+      `Request URI: ${resource}\nFetch Options: ${JSON.stringify(
+        fetchOptions,
+        null,
+        2
+      )}\nCurl: ${fetchToCurl(resource, fetchOptions)}`
+    );
+  } else if (sdkLogger.getLevel() <= sdkLogger.levels.INFO) {
+    sdkLogger.info(`Request: ${fetchOptions.method.toUpperCase()} ${resource}`);
+  }
+}
 
 /**
- * Format the response received for logging.
+ * Log response details.
  *
  * @param response The response received
  */
-export const formatResponseForInfoLog = (response: Response): string => {
+export const logResponse = (response: Response): void => {
   const successString =
     response.ok || response.status === 304 ? "successful" : "unsuccessful";
-  return `Response: ${successString} ${response.status} ${response.statusText}`;
+  const msg = `Response: ${successString} ${response.status} ${response.statusText}`;
+  if (sdkLogger.getLevel() <= sdkLogger.levels.DEBUG) {
+    sdkLogger.debug(
+      `${msg}\nResponse Headers: ${JSON.stringify(
+        response.headers.raw(),
+        null,
+        2
+      )}`
+    );
+  } else if (sdkLogger.getLevel() <= sdkLogger.levels.INFO) {
+    sdkLogger.info(msg);
+  }
 };
 
 /**
@@ -191,11 +212,11 @@ async function runFetch(
     fetchOptions.cacheManager = options.client.clientConfig.cacheManager;
   }
 
-  sdkLogger.info(formatFetchForInfoLog(resource, fetchOptions));
+  logFetch(resource, fetchOptions);
 
   const response = await fetch(resource, fetchOptions);
 
-  sdkLogger.info(formatResponseForInfoLog(response));
+  logResponse(response);
 
   return options.rawResponse ? response : getObjectFromResponse(response);
 }

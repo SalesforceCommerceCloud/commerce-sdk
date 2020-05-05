@@ -8,6 +8,15 @@ import * as chai from "chai";
 import * as log from "loglevel";
 import { sdkLogger, COMMERCE_SDK_LOGGER_KEY } from "../src";
 
+let logLevel;
+before(() => {
+  logLevel = sdkLogger.getLevel();
+});
+after(() => {
+  //reset log level
+  sdkLogger.setLevel(logLevel);
+});
+
 describe("Test log level", () => {
   it("Test default log level in sdkLogger", async () => {
     return chai.expect(sdkLogger.getLevel()).to.equal(log.levels.WARN);
