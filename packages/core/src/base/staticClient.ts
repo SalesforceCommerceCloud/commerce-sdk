@@ -6,6 +6,7 @@
  */
 import { default as fetch, Response, RequestInit } from "make-fetch-happen";
 import _ from "lodash";
+import fetchToCurl from "fetch-to-curl";
 
 import DefaultCache = require("make-fetch-happen/cache");
 export { DefaultCache, Response };
@@ -13,7 +14,11 @@ export { DefaultCache, Response };
 import { Resource } from "./resource";
 import { BaseClient } from "./client";
 import { sdkLogger } from "./sdkLogger";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const pkg = require("../../package.json");
 
+// Version is from @commerce-apps/core, but it will always match commerce-sdk
+export const USER_AGENT = `commerce-sdk@${pkg.version};`;
 const CONTENT_TYPE = "application/json";
 
 /**
@@ -80,25 +85,63 @@ export function getHeader(
 }
 
 /**
- * Format the request being made for logging.
+ * Deletes all headers in the list that match the given header, case insensitive.
+ *
+ * @param header - Target header
+ * @param headers - List to search from
+ */
+export function stripHeaders(
+  header: string,
+  headers: Record<string, string>
+): void {
+  const headerLowerCase = header.toLowerCase();
+  for (const name in headers) {
+    if (headerLowerCase === name.toLowerCase()) {
+      delete headers[name];
+    }
+  }
+}
+
+/**
+ * Log request/fetch details.
  *
  * @param resource The resource being requested
  * @param fetchOptions The options to the fetch call
  */
-export const formatFetchForInfoLog = (
-  resource: string,
-  fetchOptions: RequestInit
-): string => `Request: ${fetchOptions.method.toUpperCase()} ${resource}`;
+export function logFetch(resource: string, fetchOptions: RequestInit): void {
+  if (sdkLogger.getLevel() <= sdkLogger.levels.DEBUG) {
+    sdkLogger.debug(
+      `Request URI: ${resource}\nFetch Options: ${JSON.stringify(
+        fetchOptions,
+        null,
+        2
+      )}\nCurl: ${fetchToCurl(resource, fetchOptions)}`
+    );
+  } else if (sdkLogger.getLevel() <= sdkLogger.levels.INFO) {
+    sdkLogger.info(`Request: ${fetchOptions.method.toUpperCase()} ${resource}`);
+  }
+}
 
 /**
- * Format the response received for logging.
+ * Log response details.
  *
  * @param response The response received
  */
-export const formatResponseForInfoLog = (response: Response): string => {
+export const logResponse = (response: Response): void => {
   const successString =
     response.ok || response.status === 304 ? "successful" : "unsuccessful";
-  return `Response: ${successString} ${response.status} ${response.statusText}`;
+  const msg = `Response: ${successString} ${response.status} ${response.statusText}`;
+  if (sdkLogger.getLevel() <= sdkLogger.levels.DEBUG) {
+    sdkLogger.debug(
+      `${msg}\nResponse Headers: ${JSON.stringify(
+        response.headers.raw(),
+        null,
+        2
+      )}`
+    );
+  } else if (sdkLogger.getLevel() <= sdkLogger.levels.INFO) {
+    sdkLogger.info(msg);
+  }
 };
 
 /**
@@ -119,6 +162,7 @@ async function runFetch(
     queryParameters?: object;
     headers?: { [key: string]: string };
     rawResponse?: boolean;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     body?: any;
   }
 ): Promise<object> {
@@ -152,6 +196,12 @@ async function runFetch(
     _.merge(fetchOptions.headers, options.headers);
   }
 
+  // Delete all user-specified user agents to prevent an override
+  // (Multiple can be specified by using different casing)
+  stripHeaders("user-agent", fetchOptions.headers);
+  // Specify user agent using lower case in order to override make-fetch-happen
+  fetchOptions.headers["user-agent"] = USER_AGENT;
+
   if (options.body) {
     fetchOptions.body = JSON.stringify(options.body);
     fetchOptions.headers["Content-Type"] = CONTENT_TYPE;
@@ -162,11 +212,11 @@ async function runFetch(
     fetchOptions.cacheManager = options.client.clientConfig.cacheManager;
   }
 
-  sdkLogger.info(formatFetchForInfoLog(resource, fetchOptions));
+  logFetch(resource, fetchOptions);
 
   const response = await fetch(resource, fetchOptions);
 
-  sdkLogger.info(formatResponseForInfoLog(response));
+  logResponse(response);
 
   return options.rawResponse ? response : getObjectFromResponse(response);
 }

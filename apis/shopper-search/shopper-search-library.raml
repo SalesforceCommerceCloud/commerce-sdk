@@ -3,6 +3,10 @@
 traits:
    badRequest: !include Traits/badRequestTrait.raml
   
+uses:
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.12/commerce-cloud-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.6/api-standards.raml
+  
 types:
   #types for product-search resource
   ProductRef:
@@ -16,8 +20,7 @@ types:
     description: Document representing a product search hit.
     properties:
       currency:
-        description: The ISO 4217 mnemonic code of the currency.
-        type: string
+        type: CommerceCloudStandards.CurrencyCode
         required: false
       hitType:
         description: The type information for the search hit.
@@ -145,6 +148,7 @@ types:
           type: ProductSearchRefinementValue
         required: false
 
+
   ProductSearchSortingOption:
     description: Document representing a product search sorting option.
     properties:
@@ -238,17 +242,8 @@ types:
     properties:
       limit:
         description: The number of returned documents.
-        type: integer
+        type: ApiStandards.Limit
         format: int32
-      data:
-        type: array
-        items:
-          type: object
-        required: false
-      fetchData:
-        type: integer
-        format: int32
-        required: false
       hits:
         description: The sorted array of search hits. This array can be empty.
         type: array
@@ -284,7 +279,7 @@ types:
       offset:
         description: The zero-based index of the first search hit to include in the result.
         minimum: 0
-        type: integer
+        type: ApiStandards.Offset
         format: int32
       total:
         description: The total number of documents.
@@ -366,8 +361,7 @@ types:
     description: Document representing a product search hit.
     properties:
       currency:
-        description: The ISO 4217 mnemonic code of the currency.
-        type: string
+        type: CommerceCloudStandards.CurrencyCode
       image:
         description: The first image of the product hit for the configured viewtype.
         type: Image
