@@ -17,7 +17,7 @@ before(() => {
 
 describe("Test default log level", () => {
   afterEach(() => {
-    //delete the loaded module
+    //delete the loaded module from cache
     delete require.cache[loggerPath];
   });
   it("Test default log level for generator", async () => {
