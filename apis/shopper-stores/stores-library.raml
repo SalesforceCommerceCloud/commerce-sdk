@@ -3,6 +3,10 @@
 traits:
   NotFound: !include Traits/not-found-trait.raml
 
+uses:
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.6/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.12/commerce-cloud-standards.raml
+
 types:
   Longitude:
     description: The longitude of the store.
@@ -16,11 +20,6 @@ types:
     minimum: -90
     type: number
     format: double
-  CountryCode:
-    description: The country code of the store.
-    type: string
-    maxLength: 2
-    minLength: 2
   PostalCode:
     description: The postal code of the store.
     maxLength: 10
@@ -57,7 +56,7 @@ types:
         type: string
         required: false
       countryCode:
-        type: CountryCode
+        type: CommerceCloudStandards.CountryCode
         required: false
       distance:
         type: Distance
@@ -130,7 +129,7 @@ types:
     properties:
       limit:
         description: The number of search results in the current page.
-        type: integer
+        type: ApiStandards.Limit
         format: int32
       data:
         description: The list of stores in the search result.
@@ -140,7 +139,7 @@ types:
       offset:
         description: The zero-based index of the first search result to include in the document.
         minimum: 0
-        type: integer
+        type: ApiStandards.Offset
         format: int32
       total:
         description: The total number of search results.
