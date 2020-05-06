@@ -14,7 +14,11 @@ export { DefaultCache, Response };
 import { Resource } from "./resource";
 import { BaseClient } from "./client";
 import { sdkLogger } from "./sdkLogger";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const pkg = require("../../package.json");
 
+// Version is from @commerce-apps/core, but it will always match commerce-sdk
+export const USER_AGENT = `commerce-sdk@${pkg.version};`;
 const CONTENT_TYPE = "application/json";
 
 /**
@@ -81,6 +85,24 @@ export function getHeader(
 }
 
 /**
+ * Deletes all headers in the list that match the given header, case insensitive.
+ *
+ * @param header - Target header
+ * @param headers - List to search from
+ */
+export function stripHeaders(
+  header: string,
+  headers: Record<string, string>
+): void {
+  const headerLowerCase = header.toLowerCase();
+  for (const name in headers) {
+    if (headerLowerCase === name.toLowerCase()) {
+      delete headers[name];
+    }
+  }
+}
+
+/**
  * Log request/fetch details.
  *
  * @param resource The resource being requested
@@ -140,6 +162,7 @@ async function runFetch(
     queryParameters?: object;
     headers?: { [key: string]: string };
     rawResponse?: boolean;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     body?: any;
   }
 ): Promise<object> {
@@ -172,6 +195,12 @@ async function runFetch(
   if (options.headers) {
     _.merge(fetchOptions.headers, options.headers);
   }
+
+  // Delete all user-specified user agents to prevent an override
+  // (Multiple can be specified by using different casing)
+  stripHeaders("user-agent", fetchOptions.headers);
+  // Specify user agent using lower case in order to override make-fetch-happen
+  fetchOptions.headers["user-agent"] = USER_AGENT;
 
   if (options.body) {
     fetchOptions.body = JSON.stringify(options.body);
