@@ -2,9 +2,9 @@
 version: v1
 title: Shopper Search
 uses:
-  CommerceCloudStandards: /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.12/commerce-cloud-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.12/commerce-cloud-standards.raml
   ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.6/api-standards.raml
-  search-types-library: shopper-search-library.raml
+  SearchTypeLibrary: shopper-search-library.raml
     
 mediaType: application/json
 protocols: [HTTPS]
@@ -12,7 +12,10 @@ baseUri: https://{shortCode}.api.commercecloud.salesforce.com/search/shopper-sea
 baseUriParameters:
   shortCode:
     description: Region-specific merchant identifier.
-    example: fd4gt8
+    example: 0dnz6oep
+    pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
+
+description: Provides clients 
 
 /organizations/{organizationId}:
   /product-search:
@@ -26,8 +29,6 @@ baseUriParameters:
           - ApiStandards.RateLimited2:
               responseStatus: 200
               responseStatus2: 400
-          - ApiStandards.RateLimited:
-              responseStatus: 200
           - ApiStandards.OffsetPaginated:
               maxLimit: 200
               defaultSize: 25
@@ -35,11 +36,11 @@ baseUriParameters:
         '200':
           description: Product search successfully returned results.
           body:
-            type: search-types-library.ProductSearchResult
+            type: SearchTypeLibrary.ProductSearchResult
             examples:
               product_search: !include Examples/product-search-result-example.raml
         '400':
-          description: Thrown if a price refinement parameter is malformed.
+          description: Thrown if a price refinement parameter is malformed or the refinement limit is exceeded.
           body:
             application/problem+json:
               type: ApiStandards.ErrorResponse
@@ -60,7 +61,7 @@ baseUriParameters:
             Parameter that represents a refinement attribute or values pair. Refinement attribute ID and
                         values are separated by '='. Multiple values are supported by a subset of refinement attributes and
                         can be provided by separating them using a pipe (URL
-                        encoded = "|") i.e. refine=c_refinementColor=red|green|blue.  Value ranges can be specified like this: refine=price=(100..500) . Multiple refine parameters can be provided by using the refine as the key i.e refine=price=(0..10)&refine=c_refinementColor=green. The refinements can be a collection of custom defined attributes IDs and the system defined attributes IDs but the search can only accept a total of 9 refinements at a time. 
+                        encoded = "|") i.e. refine=c_refinementColor=red|green|blue. Value ranges can be specified like this: refine=price=(100..500) . Multiple refine parameters can be provided by using the refine as the key i.e refine=price=(0..10)&refine=c_refinementColor=green. The refinements can be a collection of custom defined attributes IDs and the system defined attributes IDs but the search can only accept a total of 9 refinements at a time.
                         The following system refinement attribute ids are supported:
                           
                         cgid: Allows refinement per single category ID. Multiple category ids are not supported.
@@ -76,11 +77,10 @@ baseUriParameters:
           required: false
         currency:
           description: The currency mnemonic specified for price. This parameter is effective only if the returned results contain prices.
-          type: string
+          type: CommerceCloudStandards.CurrencyCode
           required: false
         locale:
-          description: The locale context.
-          type: string
+          type: CommerceCloudStandards.LocaleCode
           required: false
 
   /search-suggestions:
@@ -93,13 +93,11 @@ baseUriParameters:
           - ApiStandards.RateLimited2:
               responseStatus: 200
               responseStatus2: 400
-          - ApiStandards.RateLimited:
-              responseStatus: 200
       responses:
         '200':
           description: Search suggestions are successfully returned.
           body:
-            type: search-types-library.SuggestionResult
+            type: SearchTypeLibrary.SuggestionResult
             examples:
               search_suggestion: !include Examples/search-suggestion-result-example.raml
         '400':
@@ -132,10 +130,8 @@ baseUriParameters:
           example: 5
         currency:
           description: The currency code specified for price. This parameter is effective only for product suggestions.
-          type: string
+          type: CommerceCloudStandards.CurrencyCode
           required: false
-          example: EUR
         locale:
-          description: Sets a collection of international preferences for the search, such as language. If no locale is specified fall back to default locale.
-          type: string
+          type: CommerceCloudStandards.LocaleCode
           required: false
