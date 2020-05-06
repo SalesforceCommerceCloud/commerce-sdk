@@ -18,7 +18,7 @@ before(() => {
   chai.use(chaiAsPromised);
 });
 
-import { BaseClient } from "../src/base/client";
+import { BaseClient } from "../../src/base/client";
 import {
   _delete,
   _get,
@@ -26,7 +26,7 @@ import {
   _post,
   _put,
   Response
-} from "../src/base/staticClient";
+} from "../../src/base/staticClient";
 
 describe("rawResponse tests", () => {
   let client;

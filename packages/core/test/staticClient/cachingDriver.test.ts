@@ -8,15 +8,15 @@
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 
-import cacheTests from "./cache/basic.tests";
-import etagTests from "./cache/etag.tests";
-import delayedTests from "./cache/delayedTests.tests";
+import cacheTests from "../cache/basic.tests";
+import etagTests from "../cache/etag.tests";
+import delayedTests from "../cache/delayedTests.tests";
 
-import evictionTests from "./cache/eviction.tests";
-import multipleHeadersTests from "./cache/multipleHeaders.tests";
-import noCacheHeaderTests from "./cache/noCacheHeader.tests";
+import evictionTests from "../cache/eviction.tests";
+import multipleHeadersTests from "../cache/multipleHeaders.tests";
+import noCacheHeaderTests from "../cache/noCacheHeader.tests";
 
-import { BaseClient } from "../src/base/client";
+import { BaseClient } from "../../src/base/client";
 
 describe("Default cache tests", function() {
   before(function() {
