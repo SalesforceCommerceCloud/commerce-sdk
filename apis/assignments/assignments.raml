@@ -45,7 +45,7 @@ types:
         type: string
         required: false
       enabled:
-        description: The enabled flag for campaign.
+        description: The enabled flag for the campaign.
         type: boolean
         required: false
       endDate:
@@ -189,20 +189,20 @@ types:
         type: boolean
       endDate:
         description: |-
-          The end date of the container of the assignment (a Campaign or ABTest). If schedule_type is
-           schedule_type : "multiple" or schedule_type : "none", the result is null. Also, a null
+          The end date of the container of the assignment (a Campaign or ABTest). If scheduleType is
+           scheduleType : "multiple" or scheduleType : "none", the result is null. Also, a null
            date returns null.
         type: datetime
       schedule:
         description: |-
-          The schedule of the assignment (a Campaign or ABTest). If schedule_type is
-           schedule_type : "multiple" or schedule_type : "none", the result is null.
+          The schedule of the assignment (a Campaign or ABTest). If scheduleType is
+           scheduleType : "multiple" or scheduleType : "none", the result is null.
         type: Schedule
       scheduleType:
         description: |-
           If there is only one active assignment, or no active assignments and one upcoming assignment, this is that type
-           of assignment (schedule_type : "campaign" or schedule_type : "abtest"). If there are no
-           assignments, it is schedule_type : "none", otherwise, schedule_type : "multiple".
+           of assignment (scheduleType : "campaign" or scheduleType : "abtest"). If there are no
+           assignments, it is scheduleType : "none", otherwise, scheduleType : "multiple".
         type: string
         enum:
           - none
@@ -211,8 +211,8 @@ types:
           - multiple
       startDate:
         description: |-
-          The start date of the container of the assignment (a Campaign or ABTest). If schedule_type is
-           schedule_type : "multiple" or schedule_type : "none", the result is null. Also, a null
+          The start date of the container of the assignment (a Campaign or ABTest). If scheduleType is
+           scheduleType : "multiple" or scheduleType : "none", the result is null. Also, a null
            date returns null.
         type: datetime
       upcomingAbtestAssignments:
@@ -333,42 +333,52 @@ types:
 '/organizations/{organizationId}/assignments':
   type: CommerceCloudStandards.Organization
   post:
-    description: |- 
-      Searches for promotion campaign assignments.
+    description: | 
+      Searches for promotion campaign assignments. 
       
-      The promotioncampaignassignment search document contains a search object that allows filtering on various attributes.
+      The promotion campaign assignment search document contains a search object that allows filtering on various attributes. 
       
-      The query attribute specifies a complex query that can be used to narrow down the search. attributes are grouped\n into different buckets.  these are the list of searchable attributes with their corresponding buckets:
+      The query attribute specifies a complex query that can be used to narrow down the search. Attributes are grouped into different buckets. 
+      
+      The following is a list of searchable attributes with their corresponding buckets:
         
-         main:
-           
-                rank - integer
-                startDate - date
-                endDate - date
+        main:
+        
+        | Attribute | Type |
+        |-----------|--------|
+        | rank| Integer |
+        | startDate | Date |
+        | endDate | Date | 
                           
-                campaign:
+        campaign:
+        
+        | Attribute | Type |
+        |-----------|--------|
+        | campaign| String |
                   
-                  campaignId - string
+        promotion:
+        
+        | Attribute | Type |
+        |-----------|--------|
+        | promotionId| String |
+        | description | String |
+        | enabled | Boolean |             
                   
-                promotion:
-                    
-                  promotionId - string
-                  description - string
-                  enabled - boolean
-                  
-                special handling:
-                  
-                couponId - string
+        special handling:
+        
+        | Attribute | Type |
+        |-----------|--------|
+        | couponId| String |         
+          
+      Only fields in the same bucket can be joined using a disjunction (or). For instance, when joining campaignId and rank, only a conjunction (and) is allowed, whereas promotionId and description can be joined to each other using a disjunction because they are in the same bucket. Special handling fields must always use conjunctions. If the field is used in a disjunction that violates this rule, an exception is thrown. 
                 
-                
-                Only fields in the same bucket can be joined using a disjunction (or). For instance, when joining campaignId and rank above, only a conjunction is allowed (and), whereas promotionId and description can be joined to each other using an 'or' because they are in the same bucket. Special handling fields must always use\n conjunctions. If the field is used in a  disjunction (or) that violates this rule, and an exception is thrown.
-                
-                Expands that can be applied for the search request:
-                
-                promotion
-                campaign
+      
+      Expands that can be applied for the search request:
+        
+        - promotion
+        - campaign
                
-               Note that only searchable attributes (excluding the ones marked with above with an asterisk) can be used in sorting.
+      Note that only searchable attributes can be used in sorting.
     displayName: assignmentsSearch
     is:
      - CommerceCloudStandards.SiteSpecific

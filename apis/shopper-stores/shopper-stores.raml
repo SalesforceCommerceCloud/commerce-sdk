@@ -4,7 +4,7 @@ version: v1
 description: Provides access to stores via search or ID lookup.
 uses:
   ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.6/api-standards.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.10/commerce-cloud-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.12/commerce-cloud-standards.raml
   StoresLib: stores-library.raml
   
 mediaType: application/json
@@ -14,6 +14,7 @@ baseUriParameters:
   shortCode:
     description: Region-specific merchant identifier.
     example: fd4gt8
+    pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
 
 /organizations/{organizationId}:
   /stores:
@@ -54,7 +55,7 @@ baseUriParameters:
           required: false
         countryCode:
           description: The two letter ISO country code, such as "US".
-          type: StoresLib.CountryCode
+          type: CommerceCloudStandards.CountryCode
           required: false
         postalCode:
           description: The postal code, such as "84121".
@@ -68,9 +69,9 @@ baseUriParameters:
           description: The area (radius) in distanceUnit where stores will be searched.
           type: StoresLib.Distance
           required: false
-      
       securedBy:
         - CommerceCloudStandards.ShopperToken
+
   /stores/{id}:
       type: CommerceCloudStandards.Organization
       is: 
