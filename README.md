@@ -1,16 +1,16 @@
-# commerce-sdk
-
-Salesforce Commerce Node.js SDK
+# Salesforce Commerce Node.js SDK
 
 [![CircleCI][circleci-image]][circleci-url]
 
 ## What is This
 
-A mono repo containing packages that generate the Salesforce Commerce SDK. Read more about the SDK [here](./packages/generator/README.md) and the tools in this toolkit in the [Packages](#packages) section.
+A monorepo containing packages that generate the Salesforce Commerce SDK. Read more about the SDK [here](./packages/generator/README.md) and the tools in this toolkit in the [Packages](#packages) section.
 
 Visit the [Commerce Cloud Developer Center](https://developer.commercecloud.com/) to learn more about Salesforce Commerce. The developer center has API documentation, getting started guides, community forums, and more.
 
 ## Packages
+
+> **Note**: This repository formerly contained @commerce-apps/exchange-connector. That package has been deprecated, and its functionality has been moved to [@commerce-apps/raml-toolkit](https://npmjs.com/package/@commerce-apps/raml-toolkit).
 
 ### commerce-sdk
 
@@ -19,11 +19,6 @@ The generator package is responsible for generating the SDK from RAML files. Sin
 ### @commerce-apps/core
 
 The Core package represents the core functions that call the APIs and interact with Salesforce Commerce. It is used by the SDK. Read more about the core package [here](./packages/generator/README.md).
-
-### @commerce-apps/exchange-connector
-
-The exchange-connector package downloads RAML files from Anypoint Exchange to build the SDK. It is used by the generator but not the generated SDK. Read more about the exchange-connector package [here](./packages/exchange-connector/README.md).
-> **Note:** `@commerce-apps/exchange-connector` is soon going to be replaced with [@commerce-apps/raml-toolkit](https://www.npmjs.com/package/@commerce-apps/raml-toolkit)
 
 ## Setup
 
@@ -55,12 +50,6 @@ To run tests in the core package only, execute
 
 ```bash
 npm run test:core
-```
-
-To run tests in the exchange-connector package only, execute
-
-```bash
-npm run test:ec
 ```
 
 To run tests in the generator package only, execute
