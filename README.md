@@ -24,11 +24,13 @@ The Core package represents the core functions that call the APIs and interact w
 
 All of these commands can be run from either the repo root or the package root.
 
-    # To setup
-    npm install
+```bash
+# To setup
+npm install
 
-    # To build
-    npm run build
+# To build
+npm run build
+```
 
 ## Running Tests
 
