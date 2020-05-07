@@ -4,7 +4,7 @@ Salesforce Commerce Node.js SDK
 
 [![CircleCI][circleci-image]][circleci-url]
 
-## What is This?
+## What is This
 
 A mono repo containing packages that generate the Salesforce Commerce SDK. Read more about the SDK [here](./packages/generator/README.md) and the tools in this toolkit in the [Packages](#packages) section.
 
@@ -36,25 +36,35 @@ All of these commands can be run from either the repo root or the package root.
     npm run build
 
 ## Running Tests
+
 > **Note:** Instructions in the Setup section are prerequisites for this section
 
 To run tests in all the packages, execute
+
 ```bash
 npm test
 ```
+
 To print the detailed test results and errors on the console, execute
+
 ```bash
 npm run test:debug
 ```
+
 To run tests in the core package only, execute
+
 ```bash
 npm run test:core
 ```
+
 To run tests in the exchange-connector package only, execute
+
 ```bash
 npm run test:ec
 ```
+
 To run tests in the generator package only, execute
+
 ```bash
 npm run test:generator
 ```
@@ -75,8 +85,6 @@ If you would like to contribute please take a look at our [contributors' guide](
 [Code Generation](./packages/generator/docs/GENERATOR.md)  
 [API Documentation](./packages/generator/APICLIENTS.md)  
 
-
 <!-- Markdown link & img dfn's -->
 [circleci-image]: https://circleci.com/gh/SalesforceCommerceCloud/commerce-sdk.svg?style=svg&circle-token=c68cee5cb20ee75f00cbda1b0eec5b5484c58b2a
 [circleci-url]: https://circleci.com/gh/SalesforceCommerceCloud/commerce-sdk
-
