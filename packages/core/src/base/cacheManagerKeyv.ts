@@ -257,7 +257,7 @@ export class CacheManagerKeyv implements ICacheManager {
       size,
       time: Date.now()
     };
-    const debugMsg = `Response added to cache - metadata key:${metadataKey}, content key: ${contentKey}`;
+    const debugMsg = `Response added to cache - metadata key: ${metadataKey}, content key: ${contentKey}`;
     if (req.method === "HEAD" || response.status === 304) {
       // Update metadata without writing
       const redisInfo = await this.keyv.get(metadataKey);
