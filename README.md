@@ -4,7 +4,7 @@
 
 ## What is This
 
-A monorepo containing packages that generate the Salesforce Commerce SDK. Read more about the SDK [here](./packages/generator/README.md) and the tools in this toolkit in the [Packages](#packages) section.
+A monorepo containing packages that generate the Salesforce Commerce SDK. Read more about the SDK [here](./packages/generator/README.md).
 
 Visit the [Commerce Cloud Developer Center](https://developer.commercecloud.com/) to learn more about Salesforce Commerce. The developer center has API documentation, getting started guides, community forums, and more.
 
