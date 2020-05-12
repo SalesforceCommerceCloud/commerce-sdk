@@ -1,4 +1,51 @@
 ## CHANGELOG
+### v1.4.1-beta.0
+### **API Changes**
+
+#### Product APIs
+*Customer API*
+* **BREAKING**: Removed endpoint method changes
+
+  **Removed**:
+  * getCustomerList
+
+*Product API*
+
+* **BREAKING**: Endpoint method name changes
+
+    **Changed**:
+    
+    | **Existing Method Name** | **New Method Name** |
+    | ------------- |-------------|
+    | deleteVariationGroupForMaster | unassignVariationGroupFromMasterProduct |
+    | updateVariationGroupInMasterProduct | updateVariationGroupForMasterProduct |
+    | assignVariationGroupForMasterProduct | assignVariationGroupToMasterProduct |
+    | deleteVariationForMaster | unassignVariationFromMasterProduct |
+    | updateVariationsInMasterProduct | updateVariationForMasterProduct |
+    | createVariationForMasterProduct | assignVariationForMasterProduct |
+
+*Shopper Customer API*
+* **BREAKING**: Removed endpoint method changes
+
+    **Removed**:
+    * getCustomerAddresses
+    * getCustomerPaymentInstruments
+    * getCustomerProductListItems
+
+    **Changed**:
+    
+    | **Existing Method Name** | **New Method Name** |
+    | ------------- |-------------|
+    | postResetPasswordToken | getResetPasswordToken |
+
+### **Core Functionality**
+
+#### Enhancements
+
+* SDK does not set TTL for cached assets based on the HTTP headers
+* Added logging capability
+* Exchange Connector is deprecated on commerce-sdk in favor of the raml-toolkit
+* Examples of client instantiations have been added to APICLIENTS.md 
 
 ### v1.4.0-beta.0
 
