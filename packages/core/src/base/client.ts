@@ -15,6 +15,11 @@ import { CommonParameters } from "./commonParameters";
 import { DefaultCache } from "./staticClient";
 export { DefaultCache };
 import { ICacheManager } from "./cacheManager";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const pkg = require("../../package.json");
+
+// Version is from @commerce-apps/core, but it will always match commerce-sdk
+export const USER_AGENT = `commerce-sdk@${pkg.version}`;
 
 // dotenv config loads environmental variables.
 config();
@@ -31,6 +36,7 @@ export class ClientConfig {
   public baseUri?: string;
   public cacheManager?: ICacheManager;
   public headers?: { [key: string]: string };
+  public appendHeaders?: { [key: string]: string };
   public parameters?: CommonParameters;
   public retrySettings?: OperationOptions;
 }
@@ -43,6 +49,12 @@ const DEFAULT_CLIENT_CONFIG: ClientConfig = {
   headers: {
     "content-type": "application/json",
     connection: "close"
+  },
+  // These are headers that are always Added to all calls
+  // The can still technically be disabled by overwriting this in the config.
+  // This is something I am okay with as it is an explicit action. And think we should avoid magic that prevent explicit actions.
+  appendHeaders: {
+    "user-agent": USER_AGENT
   },
   parameters: {
     // Ideally, when version is set as a parameter in the baseUri, it's gets

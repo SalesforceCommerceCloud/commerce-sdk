@@ -57,7 +57,7 @@ describe("Test info log messages of fetch data", () => {
 });
 
 function getDebugMsgForFetch(resource, options): string {
-  return `Request URI: ${resource}\nFetch Options: ${JSON.stringify(
+  return `Fetch Options: ${JSON.stringify(
     options,
     null,
     2

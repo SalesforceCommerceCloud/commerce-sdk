@@ -66,17 +66,14 @@ export async function getObjectFromResponse(
  * @param fetchOptions The options to the fetch call
  */
 export function logFetch(resource: string, fetchOptions: RequestInit): void {
-  if (sdkLogger.getLevel() <= sdkLogger.levels.DEBUG) {
-    sdkLogger.debug(
-      `Request URI: ${resource}\nFetch Options: ${JSON.stringify(
-        fetchOptions,
-        null,
-        2
-      )}\nCurl: ${fetchToCurl(resource, fetchOptions)}`
-    );
-  } else if (sdkLogger.getLevel() <= sdkLogger.levels.INFO) {
-    sdkLogger.info(`Request: ${fetchOptions.method.toUpperCase()} ${resource}`);
-  }
+  sdkLogger.info(`Request: ${fetchOptions.method.toUpperCase()} ${resource}`);
+  sdkLogger.debug(
+    `Fetch Options: ${JSON.stringify(
+      fetchOptions,
+      null,
+      2
+    )}\nCurl: ${fetchToCurl(resource, fetchOptions)}`
+  );
 }
 
 /**
@@ -113,6 +110,7 @@ async function runFetch(
     headers?: { [key: string]: string };
     rawResponse?: boolean;
     retrySettings?: OperationOptions;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     body?: any;
   }
 ): Promise<object> {
@@ -147,9 +145,18 @@ async function runFetch(
   // Headers are treated separately to be able to move them into their own object.
   const headers = new Headers(_.merge({}, options.client.clientConfig.headers));
 
+  // Overwrite client header defaults with headers in call
   for (const [header, value] of Object.entries(options.headers || {})) {
     headers.set(header, value);
   }
+
+  // These are headers that are always added to all calls and cannot be disabled.
+  for (const [header, value] of Object.entries(
+    options.client.clientConfig.appendHeaders
+  )) {
+    headers.append(header, value);
+  }
+
   finalOptions["headers"] = headers;
 
   // This line merges the values and then strips anything that is undefined.
