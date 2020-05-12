@@ -2,7 +2,7 @@
 
 [![CircleCI][circleci-image]][circleci-url]
 
-## What is This
+## What is This?
 
 A monorepo containing packages that generate the Salesforce Commerce SDK. Read more about the SDK [here](./packages/generator/README.md).
 
