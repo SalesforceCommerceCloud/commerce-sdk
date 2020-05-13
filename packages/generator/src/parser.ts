@@ -50,9 +50,9 @@ function getDataTypesFromDeclare(
 /**
  * Get all the referenced data types
  *
- * @param apiReferences Array of references
- * @param dataTypes Array of data types
- * @param existingDataTypes Set of names of data types, used to de-duplicate the data types
+ * @param apiReferences - Array of references
+ * @param dataTypes - Array of data types
+ * @param existingDataTypes - Set of names of data types, used to de-duplicate the data types
  */
 export function getReferenceDataTypes(
   apiReferences: model.document.BaseUnit[],
@@ -114,8 +114,8 @@ export function processApiFamily(
 /**
  * Resolves the AMF model using the given resolution pipeline
  *
- * @param apiModel AMF model of the API
- * @param resolutionPipeline resolution pipeline.
+ * @param apiModel - AMF model of the API
+ * @param resolutionPipeline - resolution pipeline.
  *
  * @returns AMF model after resolving with the given pipeline
  */
@@ -142,7 +142,7 @@ export function resolveApiModel(
 
 /**
  * Get normalized name for the file/directory that is created while rendering the templates
- * @param name File or directory name to normalize
+ * @param name - File or directory name to normalize
  * @returns a normalized name
  */
 export function getNormalizedName(name: string): string {
@@ -155,7 +155,7 @@ export function getNormalizedName(name: string): string {
 /**
  * Returns API name from the AMF model in Pascal Case ("Shopper Customers" is returned as "ShopperCustomers")
  *
- * @param apiModel AMF Model of the API
+ * @param apiModel - AMF Model of the API
  * @returns Name of the API
  */
 export function getApiName(apiModel: WebApiBaseUnitWithEncodesModel): string {

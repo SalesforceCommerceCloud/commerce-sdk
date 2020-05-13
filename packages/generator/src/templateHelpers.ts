@@ -23,7 +23,7 @@ import {
  * Selects the baseUri from an AMF model. TypeScript will not allow access to
  * the data without the proper cast to a WebApi type.
  *
- * @param property A model from the the AMF parser
+ * @param property - A model from the the AMF parser
  */
 export const getBaseUri = function(
   property: WebApiBaseUnitWithEncodesModel
@@ -36,7 +36,7 @@ export const getBaseUri = function(
 /**
  * Checks if a path parameter is one of the set that are configurable at the client level
  *
- * @param property The string name of the parameter to check
+ * @param property - The string name of the parameter to check
  *
  * @returns true if the parameter is a common parameter
  */
@@ -48,7 +48,7 @@ export const isCommonPathParameter = (property: string) =>
 /**
  * Checks if a query parameter is one of the set that are configurable at the client level
  *
- * @param property The string name of the parameter to check
+ * @param property - The string name of the parameter to check
  *
  * @returns true if the parameter is a common parameter
  */
@@ -103,7 +103,7 @@ const getDataTypeFromMap = function(uuidDataType: string): string {
 
 /**
  * Get data type from ScalarShape
- * @param scalarShape instance of model.domain.ScalarShape
+ * @param scalarShape - instance of model.domain.ScalarShape
  * @returns scalar data type if defined otherwise returns a default type
  */
 const getScalarType = function(scalarShape: model.domain.ScalarShape): string {
@@ -133,7 +133,7 @@ const getScalarType = function(scalarShape: model.domain.ScalarShape): string {
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /**
  * Get type of the array
- * @param arrayShape instance of model.domain.ArrayShape
+ * @param arrayShape - instance of model.domain.ArrayShape
  * @returns array type if defined otherwise returns a default type
  */
 const getArrayType = function(arrayShape: model.domain.ArrayShape): string {
@@ -149,7 +149,7 @@ const getArrayType = function(arrayShape: model.domain.ArrayShape): string {
 
 /**
  * Get data type that is linked/inherited
- * @param anyShape instance of model.domain.AnyShape or its subclass
+ * @param anyShape - instance of model.domain.AnyShape or its subclass
  * @returns linked/inherited data type
  */
 const getLinkedType = function(anyShape: model.domain.AnyShape): string {
@@ -189,7 +189,7 @@ const getLinkedType = function(anyShape: model.domain.AnyShape): string {
 
 /**
  * Get object type
- * @param anyShape instance of model.domain.AnyShape or its subclass
+ * @param anyShape - instance of model.domain.AnyShape or its subclass
  * @returns object type if defined otherwise returns a default type
  */
 const getObjectType = function(anyShape: model.domain.AnyShape): string {
@@ -209,7 +209,7 @@ const getObjectType = function(anyShape: model.domain.AnyShape): string {
 
 /**
  * Get data type of an element from amf model
- * @param dtElement instance of model.domain.DomainElement or its subclass
+ * @param dtElement - instance of model.domain.DomainElement or its subclass
  * @returns data type if defined otherwise returns a default type
  */
 const getDataType = function(dtElement: model.domain.DomainElement): string {
@@ -231,7 +231,7 @@ const getDataType = function(dtElement: model.domain.DomainElement): string {
 
 /**
  * Get data type of a property
- * @param property instance of model.domain.PropertyShape
+ * @param property - instance of model.domain.PropertyShape
  * @returns data type if defined in the property otherwise returns a default type
  */
 export const getPropertyDataType = function(
@@ -245,7 +245,7 @@ export const getPropertyDataType = function(
 
 /**
  * Get data type of a parameter
- * @param param instance of model.domain.Parameter
+ * @param param - instance of model.domain.Parameter
  * @returns data type if defined in the parameter otherwise returns a default type
  */
 export const getParameterDataType = function(
@@ -271,7 +271,7 @@ const getPayloadType = function(schema: model.domain.Shape): string {
 
 /**
  * Get type of the request body
- * @param request AMF model of tge request
+ * @param request - AMF model of tge request
  * @returns Type of the request body
  */
 export const getRequestPayloadType = function(
@@ -305,8 +305,8 @@ type propertyFilter = (propertyName: string) => boolean;
 /**
  * Get properties of the DTO (inherited and linked) after applying the given filter criteria
  *
- * @param dtoTypeModel AMF model of the dto
- * @param propertyFilter function to filter properties based on certain criteria
+ * @param dtoTypeModel - AMF model of the dto
+ * @param propertyFilter - function to filter properties based on certain criteria
  */
 const getFilteredProperties = function(
   dtoTypeModel: model.domain.NodeShape | null | undefined,
@@ -353,7 +353,7 @@ const getFilteredProperties = function(
 /**
  * Gets all properties of the DTO
  *
- * @param dtoTypeModel AMF model of the dto
+ * @param dtoTypeModel - AMF model of the dto
  * @returns Array of properties in the dto that are not regular expressions
  */
 export const getProperties = function(
@@ -369,7 +369,7 @@ export const getProperties = function(
  * Required properties have minimum count of at least 1
  * We ignore required additional properties because of the
  * different semantics used in rendering those properties
- * @param property
+ * @param property -
  * @returns true if the property is required
  */
 export const isRequiredProperty = function(
@@ -383,7 +383,7 @@ export const isRequiredProperty = function(
  * Optional properties have minimum count of 0
  * We ignore optional additional properties which also have minimum count of 0,
  * because of the different semantics used in rendering those properties.
- * @param property
+ * @param property -
  * @returns true if the property is optional
  */
 export const isOptionalProperty = function(
@@ -396,7 +396,7 @@ export const isOptionalProperty = function(
  * Returns whether additional properties are allowed for a given RAML type.
  *
  * @param ramlTypeDefinition - Any RAML type definition
- * @returns {boolean} true if additional properties are allowed, false otherwise
+ * @returns true if additional properties are allowed, false otherwise
  */
 export const isAdditionalPropertiesAllowed = function(
   ramlTypeDefinition: any
@@ -431,7 +431,7 @@ export const getPascalCaseName = function(obj: NamedObject): string {
 /**
  * Certain characters need to be handled for TSDoc.
  *
- * @param str The string to be formatted for TSDoc
+ * @param str - The string to be formatted for TSDoc
  *
  * @returns string reformatted for TSDoc
  */
