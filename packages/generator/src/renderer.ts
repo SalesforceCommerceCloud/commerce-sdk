@@ -32,7 +32,8 @@ import {
   getObjectIdByAssetId,
   getName,
   getCamelCaseName,
-  getPascalCaseName
+  getPascalCaseName,
+  formatForTsDoc
 } from "./templateHelpers";
 import {
   WebApiBaseUnit,
@@ -360,3 +361,5 @@ Handlebars.registerHelper("getName", getName);
 Handlebars.registerHelper("getCamelCaseName", getCamelCaseName);
 
 Handlebars.registerHelper("getPascalCaseName", getPascalCaseName);
+
+Handlebars.registerHelper("formatForTsDoc", formatForTsDoc);

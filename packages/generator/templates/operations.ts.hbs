@@ -1,11 +1,24 @@
 {{#each model.encodes.endPoints}}
   {{#each operations}}
     /**
-    * {{description}}
+    * {{{ formatForTsDoc description }}}
     * 
     * If you would like to get a raw Response object use the other {{name}} function.
     * 
-    * @returns A promise of type {{getReturnPayloadType .}}
+    * @param options - An object containing the options for this method.
+    {{#each ../parameters }}
+    * @param options.parameters.{{{name}}} {{{prepend (append (getParameterDataType .) "}") "{"}}}{{#if (getValue description)}} - {{{getValue description}}}{{/if}}
+    {{/each}}
+    {{#each request/queryParameters}}
+    * @param options.parameters.{{{name}}} {{{prepend (append (getParameterDataType .) "}") "{"}}}{{#if (getValue description)}} - {{{getValue description}}}{{/if}}
+    {{/each}}
+    * @param options.headers - An object literal of key value pairs of the headers to be
+    * sent with this request.
+    {{#or (is method "patch") (is method "post") (is method "put")}}
+    * @param options.body - The data to send as the request body.
+    {{/or}}
+    *
+    * @returns A promise of type {{getReturnPayloadType .}}.
     */
     {{name}}(
       options{{#or (is method "get") (is method "delete")}}?{{/or}}: {
@@ -24,9 +37,23 @@
     ): Promise<{{getReturnPayloadType .}}>;
 
     /**
-    * {{description}}
+    * {{{ formatForTsDoc description }}}
     *
-    * @returns A promise of type Response if rawResponse is true, a promise of type {{getReturnPayloadType .}} otherwise
+    * @param options - An object containing the options for this method.
+    {{#each ../parameters }}
+    * @param options.parameters.{{{name}}} {{{prepend (append (getParameterDataType .) "}") "{"}}}{{#if (getValue description)}} - {{{getValue description}}}{{/if}}
+    {{/each}}
+    {{#each request/queryParameters}}
+    * @param options.parameters.{{{name}}} {{{prepend (append (getParameterDataType .) "}") "{"}}}{{#if (getValue description)}} - {{{getValue description}}}{{/if}}
+    {{/each}}
+    * @param options.headers - An object literal of key value pairs of the headers to be
+    * sent with this request.
+    {{#or (is method "patch") (is method "post") (is method "put")}}
+    * @param options.body - The data to send as the request body.
+    {{/or}}
+    * @param rawResponse {boolean} - Set to true to return entire Response object instead of DTO.
+    *
+    * @returns A promise of type Response if rawResponse is true, a promise of type {{getReturnPayloadType .}} otherwise.
     */
     {{name}}<T extends boolean>(
       options{{#or (is method "get") (is method "delete")}}?{{/or}}: {
@@ -45,9 +72,6 @@
       rawResponse?: T
     ): Promise<T extends true ? Response : {{getReturnPayloadType .}}>;
 
-    /**
-    * {{description}}
-    */
     {{name}}(
       options{{#or (is method "get") (is method "delete")}}?{{/or}}: {
         parameters?: {

@@ -427,3 +427,23 @@ export const getPascalCaseName = function(obj: NamedObject): string {
   const name = getCamelCaseName(obj);
   return name && name[0].toUpperCase() + name.slice(1);
 };
+
+/**
+ * Certain characters need to be handled for TSDoc.
+ *
+ * @param str The string to be formatted for TSDoc
+ *
+ * @returns string reformatted for TSDoc
+ */
+export const formatForTsDoc = function(str:string): string {
+  // Brackets are special to TSDoc and less than / greater than are interpreted as HTML
+  const symbolsEscaped = str.toString().replace(/([^\\])(["{}<>]+)/g, (m) => Array.from(m).join("\\"));
+  // Double escaped newlines are replaced with real newlines
+  const newlinesUnescaped = symbolsEscaped.replace(/\\n/g, "\n");
+  // Double escaped tabs are replaced with a single space
+  const tabsUnescaped = newlinesUnescaped.replace(/(\\t)+/g, " ");
+  // Collapse leading whitespace of 4 or more to avoid triggering code block formatting
+  const collapsedLeadingWhitespace = tabsUnescaped.replace(/\n {4,}/g, "\n   ");
+
+  return collapsedLeadingWhitespace;
+}
