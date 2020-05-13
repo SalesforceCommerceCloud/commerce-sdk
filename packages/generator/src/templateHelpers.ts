@@ -435,9 +435,11 @@ export const getPascalCaseName = function(obj: NamedObject): string {
  *
  * @returns string reformatted for TSDoc
  */
-export const formatForTsDoc = function(str:string): string {
+export const formatForTsDoc = function(str: string): string {
   // Brackets are special to TSDoc and less than / greater than are interpreted as HTML
-  const symbolsEscaped = str.toString().replace(/([^\\])(["{}<>]+)/g, (m) => Array.from(m).join("\\"));
+  const symbolsEscaped = str
+    .toString()
+    .replace(/([^\\])(["{}<>]+)/g, m => Array.from(m).join("\\"));
   // Double escaped newlines are replaced with real newlines
   const newlinesUnescaped = symbolsEscaped.replace(/\\n/g, "\n");
   // Double escaped tabs are replaced with a single space
@@ -446,4 +448,4 @@ export const formatForTsDoc = function(str:string): string {
   const collapsedLeadingWhitespace = tabsUnescaped.replace(/\n {4,}/g, "\n   ");
 
   return collapsedLeadingWhitespace;
-}
+};
