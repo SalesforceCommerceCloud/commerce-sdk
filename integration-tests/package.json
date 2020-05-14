@@ -1,0 +1,53 @@
+{
+  "name": "commerce-sdk-integration-test",
+  "version": "1.4.1-beta.0",
+  "description": "Salesforce Commerce Cloud SDK Integration Test",
+  "homepage": "https://developer.commercecloud.com/s/",
+  "scripts": {
+    "test": "nyc --check-coverage=false mocha \"test_integration/*.test.ts\" --retries 2 --timeout 5000 --reporter=xunit --reporter-options output=../reports/integration.xml",
+    "fetch:internal": "npm pack ../packages/core && npm pack ../packages/generator && npm install ",
+    "test:integration": "npm run fetch:internal &&  npm run test",
+    "test:integration:redis": "fetch:internal && npm run redis --prefix ../packages/core && npm run test; npm run redis:shutdown --prefix ../packages/core",
+    "test:integration:redis:debug": "fetch:internal && npm run redis --prefix ../packages/core && npm run test; npm run redis:shutdown:debug --prefix ../packages/core"
+  },
+  "dependencies": {
+    "@commerce-apps/core": "file:./commerce-apps-core-1.4.1-beta.0.tgz",
+    "commerce-sdk": "file:./commerce-sdk-1.4.1-beta.0.tgz"
+  },
+  "nyc": {
+    "extends": "@istanbuljs/nyc-config-typescript",
+    "include": [
+      "node_modules/commerce-sdk/**/*.js",
+      "node_modules/@commerce-apps/core/**/*.js"
+    ],
+    "reporter": [
+      "lcov",
+      "text"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "all": true,
+    "check-coverage": true,
+    "branches": 80,
+    "functions": 80,
+    "lines": 80,
+    "statements": -10,
+    "per-file": true,
+    "excludeNodeModules": false
+  },
+  "mocha": {
+    "forbidOnly": true,
+    "require": [
+      "source-map-support/register",
+      "ts-node/register"
+    ],
+    "colors": true
+  },
+  "devDependencies": {
+    "mocha": "^7.1.2",
+    "nyc": "^15.0.1",
+    "source-map-support": "^0.5.19",
+    "ts-node": "^8.10.1"
+  }
+}
