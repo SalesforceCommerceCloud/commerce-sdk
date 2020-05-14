@@ -150,13 +150,6 @@ async function runFetch(
     headers.set(header, value);
   }
 
-  // These are headers that are always added to all calls and cannot be disabled.
-  for (const [header, value] of Object.entries(
-    options.client.clientConfig.appendHeaders
-  )) {
-    headers.append(header, value);
-  }
-
   finalOptions["headers"] = headers;
 
   // This line merges the values and then strips anything that is undefined.

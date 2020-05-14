@@ -120,42 +120,6 @@ describe("Base Client headers", () => {
       await _get({ client: client, path: "/client/connection/alive" });
       expect(nock.isDone()).to.be.true;
     });
-
-    it("Cannot overwrite user-agent from baseClient", async () => {
-      const client = new BaseClient({
-        baseUri: "https://override.test",
-        headers: { "user-agent": "additional" }
-      });
-
-      nock("https://override.test")
-        .get("/client/user-agent/override")
-        .matchHeader("user-agent", `additional, ${USER_AGENT_STR}`)
-        .reply(200, {});
-
-      await _get({
-        client: client,
-        path: "/client/user-agent/override"
-      });
-      expect(nock.isDone()).to.be.true;
-    });
-
-    it("Can disable user-agent if you really really try", async () => {
-      const client = new BaseClient({
-        baseUri: "https://override.test",
-        appendHeaders: { "user-agent": "override" }
-      });
-
-      nock("https://override.test")
-        .get("/client/user-agent/disable")
-        .matchHeader("user-agent", "override")
-        .reply(200, {});
-
-      await _get({
-        client: client,
-        path: "/client/user-agent/disable"
-      });
-      expect(nock.isDone()).to.be.true;
-    });
   });
 
   describe("Headers specified at endpoint", () => {
@@ -290,24 +254,6 @@ describe("Base Client headers", () => {
         client: client,
         path: "/merge/headers",
         headers: { Authorization: "Changed" }
-      });
-      expect(nock.isDone()).to.be.true;
-    });
-
-    it("Cannot overwrite user-agent with different cases", async () => {
-      const client = new BaseClient({
-        baseUri: "https://override.test"
-      });
-
-      nock("https://override.test")
-        .get("/user-agent/override")
-        .matchHeader("user-agent", `additional, ${USER_AGENT_STR}`)
-        .reply(200, {});
-
-      await _get({
-        client: client,
-        path: "/user-agent/override",
-        headers: { "UsEr-AgEnT": "additional" }
       });
       expect(nock.isDone()).to.be.true;
     });

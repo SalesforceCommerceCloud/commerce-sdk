@@ -36,7 +36,6 @@ export class ClientConfig {
   public baseUri?: string;
   public cacheManager?: ICacheManager;
   public headers?: { [key: string]: string };
-  public appendHeaders?: { [key: string]: string };
   public parameters?: CommonParameters;
   public retrySettings?: OperationOptions;
 }
@@ -48,12 +47,7 @@ const DEFAULT_CLIENT_CONFIG: ClientConfig = {
   ),
   headers: {
     "content-type": "application/json",
-    connection: "close"
-  },
-  // These are headers that are always Added to all calls
-  // The can still technically be disabled by overwriting this in the config.
-  // This is something I am okay with as it is an explicit action. And think we should avoid magic that prevents explicit actions.
-  appendHeaders: {
+    connection: "close",
     "user-agent": USER_AGENT
   },
   parameters: {
