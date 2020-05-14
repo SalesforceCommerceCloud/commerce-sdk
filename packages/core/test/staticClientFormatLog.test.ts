@@ -57,7 +57,7 @@ describe("Test info log messages of fetch data", () => {
 });
 
 function getDebugMsgForFetch(resource, options): string {
-  return `Request URI: ${resource}\nFetch Options: ${JSON.stringify(
+  return `Fetch Options: ${JSON.stringify(
     options,
     null,
     2
@@ -164,7 +164,7 @@ describe("Test debug log messages of response data", () => {
       { status: 200, statusText: "Everything is ok", headers: respHeaders }
     );
 
-    const output = `Response: successful 200 Everything is ok\nResponse Headers: ${JSON.stringify(
+    const output = `Response Headers: ${JSON.stringify(
       respHeaders.raw(),
       null,
       2

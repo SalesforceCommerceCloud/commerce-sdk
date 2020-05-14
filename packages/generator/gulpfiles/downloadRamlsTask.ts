@@ -19,9 +19,11 @@ import {
   getSpecificApi,
   groupByCategory
 } from "@commerce-apps/raml-toolkit";
-import { removeRamlLinks, removeVersionSpecificInformation } from "@commerce-apps/raml-toolkit";
+import {
+  removeRamlLinks,
+  removeVersionSpecificInformation
+} from "@commerce-apps/raml-toolkit";
 import { generatorLogger } from "../src/logger";
-
 
 require("dotenv").config();
 

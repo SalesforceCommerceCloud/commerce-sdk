@@ -146,6 +146,76 @@ const config = {
 
 When the specified amount of memory is reached, Redis can be configured to apply an eviction policy. Refer to [this article](https://redis.io/topics/lru-cache/) to setup Redis as an LRU cache and to learn more about supported eviction policies. 
 
+## Retry Policies
+We are utilizing the node-retry package to facilitate request retries.  The retry type definition looks as follows as taken from the node-retry package.
+
+```typescript
+type RetrySettings = {
+    /**
+     * Whether to retry forever.
+     * @default false
+     */
+    forever?: boolean;
+    /**
+     * Whether to [unref](https://nodejs.org/api/timers.html#timers_unref) the setTimeout's.
+     * @default false
+     */
+    unref?: boolean;
+    /**
+     * The maximum time (in milliseconds) that the retried operation is allowed to run.
+     * @default Infinity
+     */
+    maxRetryTime?: number;
+    /**
+     * The maximum amount of times to retry the operation.
+     * @default 10
+     */
+    retries?: number;
+        /**
+     * The exponential factor to use.
+     * @default 2
+     */
+    factor?: number;
+    /**
+     * The number of milliseconds before starting the first retry.
+     * @default 1000
+     */
+    minTimeout?: number;
+    /**
+     * The maximum number of milliseconds between two retries.
+     * @default Infinity
+     */
+    maxTimeout?: number;
+    /**
+     * Randomizes the timeouts by multiplying a factor between 1-2.
+     * @default false
+     */
+    randomize?: boolean;
+}
+```
+
+All of these options can either be set on a per client or per request basis.
+
+Example:
+```javascript
+
+    productClient = new Product({
+      retrySettings: {
+          
+        // This means 3 total calls are made
+        retries: 2,
+
+        // Max wait between retries
+        maxTimeout: 200,
+
+        // Min wait between retries
+        minTimeout: 100
+      }
+    }
+
+```
+
+
 ## Logging
 Default log level of the SDK is WARN (warning). SDK uses [loglevel](https://www.npmjs.com/package/loglevel) npm package. All the log levels supported by [loglevel](https://www.npmjs.com/package/loglevel) package are supported in SDK.
 
