@@ -32,6 +32,7 @@
           {{name}}{{#if (or (not (is required "true")) (isCommonQueryParameter name))}}?{{/if}}: {{{ getParameterDataType .}}}
           {{/each}}
         },
+        retrySettings?: OperationOptions,
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}},
         body: {{{getRequestPayloadType request}}}{{/or}}
       }
@@ -68,6 +69,7 @@
           {{name}}{{#if (or (not (is required "true")) (isCommonQueryParameter name))}}?{{/if}}: {{{ getParameterDataType .}}}
           {{/each}}
         },
+        retrySettings?: OperationOptions,
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}}, 
         body: {{{getRequestPayloadType request}}}{{/or}}
       },
@@ -105,6 +107,7 @@
           {{name}}{{#if (or (not (is required "true")) (isCommonQueryParameter name))}}?{{/if}}: {{{ getParameterDataType .}}}
           {{/each}}
         },
+        retrySettings?: OperationOptions,
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}}, 
         body: {{{getRequestPayloadType request}}}{{/or}}
       },
@@ -140,6 +143,7 @@
         path: "{{../path}}",
         pathParameters: pathParameters,
         queryParameters: queryParameters,
+        retrySettings: (options || {}).retrySettings,
         headers: (options || {}).headers{{#or (is method "patch") (is method "post") (is method "put")}}, 
         body: (options || {}).body{{/or}}
       });

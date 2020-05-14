@@ -5,21 +5,19 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import { default as fetch, Response, RequestInit } from "make-fetch-happen";
+
 import _ from "lodash";
 import fetchToCurl from "fetch-to-curl";
 
 import DefaultCache = require("make-fetch-happen/cache");
 export { DefaultCache, Response };
 
+import { Headers } from "minipass-fetch";
+
 import { Resource } from "./resource";
 import { BaseClient } from "./client";
 import { sdkLogger } from "./sdkLogger";
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const pkg = require("../../package.json");
-
-// Version is from @commerce-apps/core, but it will always match commerce-sdk
-export const USER_AGENT = `commerce-sdk@${pkg.version};`;
-const CONTENT_TYPE = "application/json";
+import { OperationOptions } from "retry";
 
 /**
  * Extends the Error class with the the error being a combination of status code
@@ -62,64 +60,20 @@ export async function getObjectFromResponse(
 }
 
 /**
- * Returns the entry from the headers list that matches the passed header. The
- * search is case insensitive and the case of the passed header and the list
- * are preserved. Returns the passed header if no match is found.
- *
- * @param header - Target header
- * @param headers - List to search from
- * @returns Header from the list if there is a match, the passed header otherwise
- */
-export function getHeader(
-  header: string,
-  headers: { [key: string]: string }
-): string {
-  const headerLowerCase = header.toLowerCase();
-  for (const name in headers) {
-    if (headerLowerCase === name.toLowerCase()) {
-      return name;
-    }
-  }
-
-  return header;
-}
-
-/**
- * Deletes all headers in the list that match the given header, case insensitive.
- *
- * @param header - Target header
- * @param headers - List to search from
- */
-export function stripHeaders(
-  header: string,
-  headers: Record<string, string>
-): void {
-  const headerLowerCase = header.toLowerCase();
-  for (const name in headers) {
-    if (headerLowerCase === name.toLowerCase()) {
-      delete headers[name];
-    }
-  }
-}
-
-/**
  * Log request/fetch details.
  *
  * @param resource The resource being requested
  * @param fetchOptions The options to the fetch call
  */
 export function logFetch(resource: string, fetchOptions: RequestInit): void {
-  if (sdkLogger.getLevel() <= sdkLogger.levels.DEBUG) {
-    sdkLogger.debug(
-      `Request URI: ${resource}\nFetch Options: ${JSON.stringify(
-        fetchOptions,
-        null,
-        2
-      )}\nCurl: ${fetchToCurl(resource, fetchOptions)}`
-    );
-  } else if (sdkLogger.getLevel() <= sdkLogger.levels.INFO) {
-    sdkLogger.info(`Request: ${fetchOptions.method.toUpperCase()} ${resource}`);
-  }
+  sdkLogger.info(`Request: ${fetchOptions.method.toUpperCase()} ${resource}`);
+  sdkLogger.debug(
+    `Fetch Options: ${JSON.stringify(
+      fetchOptions,
+      null,
+      2
+    )}\nCurl: ${fetchToCurl(resource, fetchOptions)}`
+  );
 }
 
 /**
@@ -131,17 +85,10 @@ export const logResponse = (response: Response): void => {
   const successString =
     response.ok || response.status === 304 ? "successful" : "unsuccessful";
   const msg = `Response: ${successString} ${response.status} ${response.statusText}`;
-  if (sdkLogger.getLevel() <= sdkLogger.levels.DEBUG) {
-    sdkLogger.debug(
-      `${msg}\nResponse Headers: ${JSON.stringify(
-        response.headers.raw(),
-        null,
-        2
-      )}`
-    );
-  } else if (sdkLogger.getLevel() <= sdkLogger.levels.INFO) {
-    sdkLogger.info(msg);
-  }
+  sdkLogger.info(msg);
+  sdkLogger.debug(
+    `Response Headers: ${JSON.stringify(response.headers.raw(), null, 2)}`
+  );
 };
 
 /**
@@ -162,6 +109,7 @@ async function runFetch(
     queryParameters?: object;
     headers?: { [key: string]: string };
     rawResponse?: boolean;
+    retrySettings?: OperationOptions;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     body?: any;
   }
@@ -174,48 +122,42 @@ async function runFetch(
     options.queryParameters
   ).toString();
 
-  const fetchOptions: RequestInit = {
-    method: method
+  // Lets grab all the RequestInit defaults from the clientConfig
+  const defaultsFromClientConfig: RequestInit = {
+    cacheManager: options.client.clientConfig.cacheManager,
+    retry: options.client.clientConfig.retrySettings
   };
 
-  fetchOptions.headers = options.client.clientConfig.headers
-    ? _.clone(options.client.clientConfig.headers)
-    : {};
+  // Let's create a request init object of all configurations in the current request
+  const currentOptionsFromRequest: RequestInit = {
+    method: method,
+    retry: options.retrySettings,
+    body: JSON.stringify(options.body)
+  };
 
-  // make-fetch-happen sets connection header to keep-alive by default which
-  // keeps node running unless it is explicitly killed.
-  // If the user wants to keep the connection alive they can set the Connection
-  // header to 'keep-alive' and we'll respect it. Otherwise, we set it to "close".
-  const connectionHeader = getHeader("connection", fetchOptions.headers);
-  if (!fetchOptions.headers[connectionHeader]) {
-    fetchOptions.headers[connectionHeader] = "close";
+  // Merging like this will copy items into a new object, this removes the need to clone and then merge as we were before.
+  let finalOptions = _.merge(
+    {},
+    defaultsFromClientConfig,
+    currentOptionsFromRequest
+  );
+
+  // Headers are treated separately to be able to move them into their own object.
+  const headers = new Headers(_.merge({}, options.client.clientConfig.headers));
+
+  // Overwrite client header defaults with headers in call
+  for (const [header, value] of Object.entries(options.headers || {})) {
+    headers.set(header, value);
   }
 
-  // if headers have been given for just this call, merge those in
-  if (options.headers) {
-    _.merge(fetchOptions.headers, options.headers);
-  }
+  finalOptions["headers"] = headers;
 
-  // Delete all user-specified user agents to prevent an override
-  // (Multiple can be specified by using different casing)
-  stripHeaders("user-agent", fetchOptions.headers);
-  // Specify user agent using lower case in order to override make-fetch-happen
-  fetchOptions.headers["user-agent"] = USER_AGENT;
+  // This line merges the values and then strips anything that is undefined.
+  //  (NOTE: Not sure we have to, as all tests pass regardless, but going to anyways)
+  finalOptions = _.pickBy(finalOptions, _.identity);
 
-  if (options.body) {
-    fetchOptions.body = JSON.stringify(options.body);
-    fetchOptions.headers["Content-Type"] = CONTENT_TYPE;
-  }
-
-  // To disable response caching, set cacheManager to null
-  if (options.client.clientConfig.cacheManager) {
-    fetchOptions.cacheManager = options.client.clientConfig.cacheManager;
-  }
-
-  logFetch(resource, fetchOptions);
-
-  const response = await fetch(resource, fetchOptions);
-
+  logFetch(resource, finalOptions);
+  const response = await fetch(resource, finalOptions);
   logResponse(response);
 
   return options.rawResponse ? response : getObjectFromResponse(response);
@@ -235,6 +177,7 @@ export function _get(options: {
   pathParameters?: object;
   queryParameters?: object;
   headers?: { [key: string]: string };
+  retrySettings?: OperationOptions;
   rawResponse?: boolean;
 }): Promise<object> {
   return runFetch("get", options);
@@ -254,6 +197,7 @@ export function _delete(options: {
   pathParameters?: object;
   queryParameters?: object;
   headers?: { [key: string]: string };
+  retrySettings?: OperationOptions;
   rawResponse?: boolean;
 }): Promise<object> {
   return runFetch("delete", options);
@@ -273,6 +217,7 @@ export function _patch(options: {
   pathParameters?: object;
   queryParameters?: object;
   headers?: { [key: string]: string };
+  retrySettings?: OperationOptions;
   rawResponse?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;
@@ -294,6 +239,7 @@ export function _post(options: {
   pathParameters?: object;
   queryParameters?: object;
   headers?: { [key: string]: string };
+  retrySettings?: OperationOptions;
   rawResponse?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;
@@ -315,6 +261,7 @@ export function _put(options: {
   pathParameters?: object;
   queryParameters?: object;
   headers?: { [key: string]: string };
+  retrySettings?: OperationOptions;
   rawResponse?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;
