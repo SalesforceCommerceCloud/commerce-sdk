@@ -52,7 +52,7 @@ const DEFAULT_CLIENT_CONFIG: ClientConfig = {
   },
   // These are headers that are always Added to all calls
   // The can still technically be disabled by overwriting this in the config.
-  // This is something I am okay with as it is an explicit action. And think we should avoid magic that prevent explicit actions.
+  // This is something I am okay with as it is an explicit action. And think we should avoid magic that prevents explicit actions.
   appendHeaders: {
     "user-agent": USER_AGENT
   },
