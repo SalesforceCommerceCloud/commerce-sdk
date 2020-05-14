@@ -16,6 +16,13 @@ import path from "path";
 import _ from "lodash";
 import { RestApi } from "@commerce-apps/raml-toolkit";
 
+/**
+ * Parses a RAML file to an AMF model
+ *
+ * @param ramlFile - Path to the RAML file to parse
+ *
+ * @returns The resulting AMF model
+ */
 export function processRamlFile(ramlFile: string): Promise<WebApiBaseUnit> {
   amf.plugins.document.WebApi.register();
   amf.plugins.features.AMFValidation.register();
@@ -72,6 +79,13 @@ export function getReferenceDataTypes(
   });
 }
 
+/**
+ * Extract all of the delcared data types from an AMF model.
+ *
+ * @param api - The model to extract data types from
+ *
+ * @returns data types from model
+ */
 export function getAllDataTypes(
   api: WebApiBaseUnitWithDeclaresModel
 ): model.domain.CustomDomainProperty[] {
@@ -88,6 +102,15 @@ export function getAllDataTypes(
   return ret;
 }
 
+/**
+ * Read all the RAML files for an API family and process into AML models.
+ *
+ * @param apiFamily - The name of the API family
+ * @param apiFamilyConfig - The API family config
+ * @param inputDir - The path to read the RAML files from
+ *
+ * @returns a list of promises that will resolve to the AMF models
+ */
 export function processApiFamily(
   apiFamily: string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

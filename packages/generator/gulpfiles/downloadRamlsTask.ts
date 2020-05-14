@@ -29,6 +29,12 @@ require("dotenv").config();
 
 import config from "../../../build-config";
 
+/**
+ * Gets information about all the apis from exchange that match config.search,
+ * for the version deployed in the config.exchangeDeploymentRegex environment.
+ * If it fails to get information about the deployed version of an api, it
+ * removes all the version specific information from `config.apiConfigFile`.
+ */
 async function search(): Promise<RestApi[]> {
   const token = await getBearer(
     process.env.ANYPOINT_USERNAME,

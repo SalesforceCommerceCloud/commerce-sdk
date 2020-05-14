@@ -57,6 +57,13 @@ export const isCommonQueryParameter = (property: string) =>
     ? commonParameterPositions.queryParameters.includes(property.toString())
     : false;
 
+/**
+ * Checks the node is a type definition.
+ *
+ * @param obj - The node to check
+ *
+ * @returns true if the node is a type definition, false if not
+ */
 export const isTypeDefinition = function(obj: any): boolean {
   return (
     obj != null && obj.$classData.name === "amf.client.model.domain.NodeShape"
@@ -73,6 +80,13 @@ const getPayloadResponses = function(operation: any): model.domain.Response[] {
   return okResponses;
 };
 
+/**
+ * Find the return type info for an operation.
+ *
+ * @param operation - The operation to get the return type for
+ *
+ * @returns a string for the data type returned by the successful operation
+ */
 export const getReturnPayloadType = function(operation: any): string {
   const okResponses = getPayloadResponses(operation);
   const dataTypes: string[] = [];
@@ -293,6 +307,13 @@ export const getRequestPayloadType = function(
   return OBJECT_DATA_TYPE;
 };
 
+/**
+ * Helper to extract the value from the AMF field.
+ *
+ * @param name - The field to extract the value from
+ *
+ * @returns the string of the value
+ */
 export const getValue = function(name: any): string {
   if (name !== undefined && name.value) {
     return name.value();
@@ -409,20 +430,48 @@ export const isAdditionalPropertiesAllowed = function(
   );
 };
 
+/**
+ * Gets custom object id associated with the specified assetId.
+ *
+ * @param assetId - The assetId to look up
+ *
+ * @returns The custom object id as a string
+ */
 export const getObjectIdByAssetId = function(assetId: string): string {
   return ASSET_OBJECT_MAP[assetId];
 };
 
 export type NamedObject = { name: { value: () => string } };
 
+/**
+ * Convert a name object to a string.
+ *
+ * @param obj - The name object to convert to a string
+ *
+ * @returns the converted name as a string
+ */
 export const getName = function(obj: NamedObject): string {
   return obj?.name?.value?.() || "";
 };
 
+/**
+ * Convert a name to lower camel case.
+ *
+ * @param obj - The name object to convert to lower camel case
+ *
+ * @returns the converted name as a string
+ */
 export const getCamelCaseName = function(obj: NamedObject): string {
   return _.camelCase(getName(obj));
 };
 
+/**
+ * Convert a name to PascalCase.
+ *
+ * @param obj - The name object to convert the name from
+ *
+ * @returns the converted name as a string
+ */
 export const getPascalCaseName = function(obj: NamedObject): string {
   const name = getCamelCaseName(obj);
   return name && name[0].toUpperCase() + name.slice(1);

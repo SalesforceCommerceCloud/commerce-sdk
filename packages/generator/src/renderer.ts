@@ -116,6 +116,14 @@ export function sortApis(apis: ApiClientsInfoT[]): void {
   );
 }
 
+/**
+ * Creates the code for a client from an AMF model.
+ *
+ * @param webApiModel - The AMF model to create the client from
+ * @param apiName - The name of the API
+ *
+ * @returns the code for the client as a string
+ */
 function createClient(webApiModel: WebApiBaseUnit, apiName: string): string {
   return clientInstanceTemplate(
     {
@@ -132,6 +140,13 @@ function createClient(webApiModel: WebApiBaseUnit, apiName: string): string {
   );
 }
 
+/**
+ * Create the DTO definitions from an AMF model.
+ *
+ * @param webApiModel - The AMF model to create DTO definitions from
+ *
+ * @returns the code for the DTO definitions as a string
+ */
 function createDto(webApiModel: WebApiBaseUnit): string {
   const types = getAllDataTypes(webApiModel as WebApiBaseUnitWithDeclaresModel);
   return dtoTemplate(types, {
@@ -311,6 +326,13 @@ export async function renderTemplates(config: any): Promise<void> {
   );
 }
 
+/**
+ * Build the list of operations from a list of AMF models.
+ *
+ * @param allApis - key/value of APIs
+ *
+ * @returns list of operations as string
+ */
 export function renderOperationList(allApis: {
   [key: string]: WebApiBaseUnitWithEncodesModel[];
 }): string {
