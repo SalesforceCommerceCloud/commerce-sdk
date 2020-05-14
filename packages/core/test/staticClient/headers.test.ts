@@ -7,8 +7,6 @@
 "use strict";
 
 import nock from "nock";
-import { Scope, RequestHeaderMatcher } from "nock/types";
-
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 
@@ -19,69 +17,18 @@ before(() => {
   chai.use(chaiAsPromised);
 });
 
-import { BaseClient } from "../../src/base/client";
 import {
-  _get,
-  _post,
-  getHeader,
-  stripHeaders,
+  BaseClient,
   USER_AGENT as USER_AGENT_STR
-} from "../../src/base/staticClient";
+} from "../../src/base/client";
+import { _get, _post } from "../../src/base/staticClient";
 
-// Common parameters used to mock requests
-const MOCK_BASE_URI = "https://somewhere";
-const MOCK_PATH = "/over/the/rainbow";
 // Common headers used in tests
-type Headers = Record<string, string>;
 const CONNECTION_CLOSE = { connection: "close" };
 const CONNECTION_KEEP_ALIVE = { connection: "keep-alive" };
-const CONTENT_TYPE_JSON = { "Content-Type": "application/json" };
-const CONTENT_TYPE_XML = { "Content-Type": "text/xml" };
 const LANGUAGE_HEADER = { "Accept-Language": "en-US" };
-const USER_AGENT = { "User-Agent": USER_AGENT_STR };
-
-function createClient(headers?: Headers): BaseClient {
-  return new BaseClient({
-    baseUri: MOCK_BASE_URI,
-    headers
-  });
-}
-
-function interceptGet(reqheaders: Record<string, RequestHeaderMatcher>): Scope {
-  return nock(MOCK_BASE_URI, { reqheaders })
-    .get(MOCK_PATH)
-    .reply(200, {});
-}
-
-function interceptPost(
-  reqheaders: Record<string, RequestHeaderMatcher>
-): Scope {
-  return nock(MOCK_BASE_URI, { reqheaders })
-    .post(MOCK_PATH)
-    .reply(201, {});
-}
-
-async function testGetRequest(
-  client: BaseClient,
-  scope: Scope,
-  headers?: Headers
-): Promise<void> {
-  await _get({ client, headers, path: MOCK_PATH });
-  expect(scope.isDone()).to.be.true;
-}
-
-async function testPostRequest(
-  client: BaseClient,
-  scope: Scope,
-  headers?: Headers
-): Promise<void> {
-  await _post({ client, headers, path: MOCK_PATH, body: {} });
-  expect(scope.isDone()).to.be.true;
-}
 
 describe("Base Client headers", () => {
-  const DEFAULT_CLIENT = createClient();
-
   describe("Headers specified on client", () => {
     afterEach(nock.cleanAll);
 
@@ -90,58 +37,95 @@ describe("Base Client headers", () => {
       "Max-Forwards": "10"
     };
 
-    it("makes correct get call with headers", () => {
-      const client = createClient(LANGUAGE_HEADER);
-      const scope = interceptGet(LANGUAGE_HEADER);
-      return testGetRequest(client, scope);
+    it("makes correct get call with headers", async () => {
+      const client = new BaseClient({
+        baseUri: "https://headers.test",
+        headers: LANGUAGE_HEADER
+      });
+      nock("https://headers.test", { reqheaders: LANGUAGE_HEADER })
+        .get("/client/get/headers")
+        .reply(200, { mock: "data" });
+
+      await _get({ client: client, path: "/client/get/headers" });
+      expect(nock.isDone()).to.be.true;
     });
 
-    it("makes correct call with two headers", () => {
-      const client = createClient(TWO_HEADER);
-      const scope = interceptGet(TWO_HEADER);
-      return testGetRequest(client, scope);
+    it("makes correct call with two headers", async () => {
+      const client = new BaseClient({
+        baseUri: "https://headers.test",
+        headers: TWO_HEADER
+      });
+      nock("https://headers.test", { reqheaders: TWO_HEADER })
+        .get("/client/get/two/headers")
+        .reply(200, { mock: "data" });
+
+      await _get({ client: client, path: "/client/get/two/headers" });
+      expect(nock.isDone()).to.be.true;
     });
 
-    it("makes correct call for post with two headers", () => {
-      const client = createClient(TWO_HEADER);
-      const scope = interceptPost(TWO_HEADER);
-      return testPostRequest(client, scope);
+    it("makes correct call for post with two headers", async () => {
+      const client = new BaseClient({
+        baseUri: "https://headers.test",
+        headers: TWO_HEADER
+      });
+      nock("https://headers.test", { reqheaders: TWO_HEADER })
+        .post("/client/post/two/headers")
+        .reply(201, {});
+
+      await _post({
+        client: client,
+        path: "/client/post/two/headers",
+        body: {}
+      });
+      expect(nock.isDone()).to.be.true;
     });
 
-    it("cannot overwrite content-type for post", () => {
-      const client = createClient(CONTENT_TYPE_XML);
-      const scope = interceptPost(CONTENT_TYPE_JSON);
-      return testPostRequest(client, scope);
+    it("makes call with connection header set to close by default", async () => {
+      const client = new BaseClient({
+        baseUri: "https://headers.test"
+      });
+
+      nock("https://headers.test", { reqheaders: CONNECTION_CLOSE })
+        .get("/client/connection/close")
+        .reply(200, { mock: "data" });
+
+      await _get({ client: client, path: "/client/connection/close" });
+      expect(nock.isDone()).to.be.true;
     });
 
-    it("makes call with connection header set to close by default", () => {
-      const client = DEFAULT_CLIENT;
-      const scope = interceptGet(CONNECTION_CLOSE);
-      return testGetRequest(client, scope);
+    it("makes call with the connection header set in the client", async () => {
+      const client = new BaseClient({
+        baseUri: "https://headers.test",
+        headers: CONNECTION_KEEP_ALIVE
+      });
+
+      nock("https://headers.test", { reqheaders: CONNECTION_KEEP_ALIVE })
+        .get("/client/connection/alive")
+        .reply(200, { mock: "data" });
+
+      await _get({ client: client, path: "/client/connection/alive" });
+      expect(nock.isDone()).to.be.true;
     });
 
-    it("makes call with the connection header set in the client", () => {
-      const client = createClient(CONNECTION_KEEP_ALIVE);
-      const scope = interceptGet(CONNECTION_KEEP_ALIVE);
-      return testGetRequest(client, scope);
-    });
+    it("makes call with the connection header set in the client", async () => {
+      const client = new BaseClient({
+        baseUri: "https://headers.test",
+        headers: CONNECTION_KEEP_ALIVE
+      });
 
-    it("includes commerce-sdk user agent if none specified", () => {
-      const client = DEFAULT_CLIENT;
-      const scope = interceptGet(USER_AGENT);
-      return testGetRequest(client, scope);
-    });
+      nock("https://headers.test", { reqheaders: CONNECTION_KEEP_ALIVE })
+        .get("/client/connection/alive")
+        .reply(200, { mock: "data" });
 
-    it("does not allow user to override user agent", () => {
-      const client = createClient({ "UsEr-AgEnT": "ignored" });
-      const scope = interceptGet(USER_AGENT);
-      return testGetRequest(client, scope);
+      await _get({ client: client, path: "/client/connection/alive" });
+      expect(nock.isDone()).to.be.true;
     });
   });
 
   describe("Headers specified at endpoint", () => {
     afterEach(nock.cleanAll);
 
+    const LANGUAGE_HEADER = { "Accept-Language": "en-US" };
     const TWO_HEADER = {
       "Accept-Language": "fr-CH",
       "Max-Forwards": "10"
@@ -151,82 +135,127 @@ describe("Base Client headers", () => {
       "Max-Forwards": "10"
     };
 
-    it("makes correct get call with endpoint headers", () => {
-      const client = DEFAULT_CLIENT;
-      const scope = interceptGet(LANGUAGE_HEADER);
-      return testGetRequest(client, scope, LANGUAGE_HEADER);
-    });
-
-    it("makes correct call with two endpoint headers", () => {
-      const client = DEFAULT_CLIENT;
-      const scope = interceptGet(TWO_HEADER);
-      return testGetRequest(client, scope, TWO_HEADER);
-    });
-
-    it("makes correct call for post with two endpoint headers", () => {
-      const client = DEFAULT_CLIENT;
-      const scope = interceptPost(TWO_HEADER);
-      return testPostRequest(client, scope, TWO_HEADER);
-    });
-
-    it("makes correct call for post with client and endpoint headers", () => {
-      const client = createClient(TWO_HEADER);
-      const scope = interceptPost(MERGE_HEADER);
-      return testPostRequest(client, scope, LANGUAGE_HEADER);
-    });
-
-    it("cannot overwrite content-type for post", () => {
-      const client = DEFAULT_CLIENT;
-      const scope = interceptPost(CONTENT_TYPE_JSON);
-      return testPostRequest(client, scope, CONTENT_TYPE_XML);
-    });
-
-    it("makes call with connection header passed to the get function ", () => {
-      const client = DEFAULT_CLIENT;
-      const scope = interceptGet(CONNECTION_KEEP_ALIVE);
-      return testGetRequest(client, scope, CONNECTION_KEEP_ALIVE);
-    });
-
-    it("does not allow user to override user agent", () => {
-      const client = DEFAULT_CLIENT;
-      const scope = interceptGet(USER_AGENT);
-      return testGetRequest(client, scope, { "UsEr-AgEnT": "ignored" });
-    });
-  });
-
-  describe("Strip header helper", () => {
-    it("removes all headers that match the target, case insensitive", () => {
-      const headers = { foo: "bar", FOO: "BAR", bar: "baz", BAR: "BAZ" };
-      stripHeaders("FoO", headers);
-      expect(headers).to.deep.equal({
-        bar: "baz",
-        BAR: "BAZ"
+    it("makes correct get call with endpoint headers", async () => {
+      const client = new BaseClient({
+        baseUri: "https://headers.test"
       });
-    });
-    it("does nothing if no headers match the target", () => {
-      const headers = { foo: "bar" };
-      stripHeaders("missing", headers);
-      expect(headers).to.deep.equal({ foo: "bar" });
-    });
-  });
+      nock("https://headers.test", { reqheaders: LANGUAGE_HEADER })
+        .get("/get/with/language")
+        .reply(200, { mock: "data" });
 
-  describe("Normalized header helper", () => {
-    it("returns the passed header if a header with the same name and same case exists", () => {
-      const headers = { connection: "keep-alive" };
-      const result = getHeader("connection", headers);
-      expect(result).to.equal("connection");
+      await _get({
+        client: client,
+        path: "/get/with/language",
+        headers: LANGUAGE_HEADER
+      });
+      expect(nock.isDone()).to.be.true;
     });
 
-    it("returns the other header if a header with the same name and different case exists", () => {
-      const headers = { Connection: "keep-alive" };
-      const result = getHeader("coNneCtiOn", headers);
-      expect(result).to.equal("Connection");
+    it("makes correct call with two endpoint headers", async () => {
+      const client = new BaseClient({
+        baseUri: "https://headers.test"
+      });
+      nock("https://headers.test", { reqheaders: TWO_HEADER })
+        .get("/get/two/headers")
+        .reply(200, { mock: "data" });
+
+      await _get({
+        client: client,
+        path: "/get/two/headers",
+        headers: TWO_HEADER
+      });
+      expect(nock.isDone()).to.be.true;
     });
 
-    it("returns the passed header if a header with the same name does not exist", () => {
-      const headers = { Con: "keep-alive" };
-      const result = getHeader("Connection", headers);
-      expect(result).to.equal("Connection");
+    it("makes correct call for post with two endpoint headers", async () => {
+      const client = new BaseClient({
+        baseUri: "https://headers.test"
+      });
+      nock("https://headers.test", { reqheaders: TWO_HEADER })
+        .post("/post/two/headers")
+        .reply(201, {});
+
+      await _post({
+        client: client,
+        path: "/post/two/headers",
+        headers: TWO_HEADER,
+        body: {}
+      });
+      expect(nock.isDone()).to.be.true;
+    });
+
+    it("makes correct call for post with client and endpoint headers", async () => {
+      const client = new BaseClient({
+        baseUri: "https://headers.test",
+        headers: TWO_HEADER
+      });
+      nock("https://headers.test", { reqheaders: MERGE_HEADER })
+        .post("/post/with/header")
+        .reply(201, {});
+
+      await _post({
+        client: client,
+        path: "/post/with/header",
+        headers: LANGUAGE_HEADER,
+        body: {}
+      });
+      expect(nock.isDone()).to.be.true;
+    });
+
+    it("Overriding a header works with different casing", async () => {
+      const client = new BaseClient({
+        baseUri: "https://override.test",
+        headers: { authorization: "Testing" }
+      });
+
+      nock("https://override.test")
+        .get("/auth/changed/casing")
+        .matchHeader("Authorization", "Changed")
+        .reply(200, {});
+
+      await _get({
+        client: client,
+        path: "/auth/changed/casing",
+        headers: { Authorization: "Changed" }
+      });
+      expect(nock.isDone()).to.be.true;
+    });
+
+    it("makes call with connection header passed to the get function ", async () => {
+      const client = new BaseClient({
+        baseUri: "https://headers.test"
+      });
+
+      nock("https://headers.test", { reqheaders: CONNECTION_KEEP_ALIVE })
+        .get("/connection/header")
+        .reply(200, { mock: "data" });
+
+      await _get({
+        client: client,
+        path: "/connection/header",
+        headers: CONNECTION_KEEP_ALIVE
+      });
+      expect(nock.isDone()).to.be.true;
+    });
+
+    it("Merge headers together", async () => {
+      const client = new BaseClient({
+        baseUri: "https://override.test",
+        headers: { "X-Custom-Header": "Custom" }
+      });
+
+      nock("https://override.test")
+        .get("/merge/headers")
+        .matchHeader("Authorization", "Changed")
+        .matchHeader("X-Custom-Header", "Custom")
+        .reply(200, {});
+
+      await _get({
+        client: client,
+        path: "/merge/headers",
+        headers: { Authorization: "Changed" }
+      });
+      expect(nock.isDone()).to.be.true;
     });
   });
 });
