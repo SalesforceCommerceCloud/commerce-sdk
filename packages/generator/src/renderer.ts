@@ -182,8 +182,10 @@ function createHelpers(config: any): string {
 
 /**
  * Render the API Clients markdown file using the Handlebars template
- * @param apiFamilyMap -
- * @param apiFamilyConfig -
+ *
+ * @param apiFamilyMap - Collection of API names and the AMF models associated with each API
+ * @param apiFamilyConfig - The API family config
+ *
  * @returns The rendered template
  */
 export function createApiClients(
