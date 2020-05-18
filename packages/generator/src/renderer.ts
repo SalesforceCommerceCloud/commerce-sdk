@@ -32,7 +32,8 @@ import {
   getObjectIdByAssetId,
   getName,
   getCamelCaseName,
-  getPascalCaseName
+  getPascalCaseName,
+  formatForTsDoc
 } from "./templateHelpers";
 import {
   WebApiBaseUnit,
@@ -115,6 +116,14 @@ export function sortApis(apis: ApiClientsInfoT[]): void {
   );
 }
 
+/**
+ * Creates the code for a client from an AMF model.
+ *
+ * @param webApiModel - The AMF model to create the client from
+ * @param apiName - The name of the API
+ *
+ * @returns the code for the client as a string
+ */
 function createClient(webApiModel: WebApiBaseUnit, apiName: string): string {
   return clientInstanceTemplate(
     {
@@ -131,6 +140,13 @@ function createClient(webApiModel: WebApiBaseUnit, apiName: string): string {
   );
 }
 
+/**
+ * Create the DTO definitions from an AMF model.
+ *
+ * @param webApiModel - The AMF model to create DTO definitions from
+ *
+ * @returns the code for the DTO definitions as a string
+ */
 function createDto(webApiModel: WebApiBaseUnit): string {
   const types = getAllDataTypes(webApiModel as WebApiBaseUnitWithDeclaresModel);
   return dtoTemplate(types, {
@@ -141,7 +157,7 @@ function createDto(webApiModel: WebApiBaseUnit): string {
 
 /**
  * Generates code to export all API families to index.ts
- * @param apiFamilies The list of api families we used to generate the code
+ * @param apiFamilies - The list of api families we used to generate the code
  *
  * @returns The rendered code as a string
  */
@@ -166,9 +182,11 @@ function createHelpers(config: any): string {
 
 /**
  * Render the API Clients markdown file using the Handlebars template
- * @param {Map<string, WebApiBaseUnit[]>} apiFamilyMap
- * @param {Object.<string, RestApi[]} apiFamilyConfig
- * @returns {string} The rendered template
+ *
+ * @param apiFamilyMap - Collection of API names and the AMF models associated with each API
+ * @param apiFamilyConfig - The API family config
+ *
+ * @returns The rendered template
  */
 export function createApiClients(
   apiFamilyMap: Map<string, WebApiBaseUnit[]>,
@@ -192,7 +210,7 @@ export function createApiClients(
 
 /**
  * Generates code to export all APIs in a API Family
- * @param apiNames Names of all the APIs in the family
+ * @param apiNames - Names of all the APIs in the family
  * @returns code to export all APIs in a API Family
  */
 function createApiFamily(apiNames: string[]): string {
@@ -203,8 +221,8 @@ function createApiFamily(apiNames: string[]): string {
 
 /**
  * Renders API functions and its types into a typescript file
- * @param apiModel AMF Model of the API
- * @param renderDir Directory path at which the rendered API files are saved
+ * @param apiModel - AMF Model of the API
+ * @param renderDir - Directory path at which the rendered API files are saved
  * @returns Name of the API
  */
 function renderApi(
@@ -236,7 +254,7 @@ function renderApi(
  * @param apiFamily - Name of the API family
  * @param familyApis - Array of AMF models
  * @param renderDir - Directory path to save the rendered API files
- * @returns {string[]} List of API names in the API family
+ * @returns List of API names in the API family
  */
 function renderApiFamily(
   apiFamily: string,
@@ -259,7 +277,7 @@ function renderApiFamily(
 
 /**
  * Renders typescript code for the APIs using the pre-defined templates
- * @param config Build config used to build the SDK
+ * @param config - Build config used to build the SDK
 
  * @returns Promise<void>
  */
@@ -310,6 +328,13 @@ export async function renderTemplates(config: any): Promise<void> {
   );
 }
 
+/**
+ * Build the list of operations from a list of AMF models.
+ *
+ * @param allApis - key/value of APIs
+ *
+ * @returns list of operations as string
+ */
 export function renderOperationList(allApis: {
   [key: string]: WebApiBaseUnitWithEncodesModel[];
 }): string {
@@ -360,3 +385,5 @@ Handlebars.registerHelper("getName", getName);
 Handlebars.registerHelper("getCamelCaseName", getCamelCaseName);
 
 Handlebars.registerHelper("getPascalCaseName", getPascalCaseName);
+
+Handlebars.registerHelper("formatForTsDoc", formatForTsDoc);

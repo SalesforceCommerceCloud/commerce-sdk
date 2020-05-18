@@ -12,21 +12,22 @@ type CustomerReturnType = ReturnType<typeof sdk.{{shopperAuthClient}}.prototype.
 type CustomerType = Exclude<Unpacked<CustomerReturnType>, Response>
 
 /**
- * @description This wraps the parameters for the authorization call to retrieve a token.
+ * This wraps the parameters for the authorization call to retrieve a token.
  * That call can be made directly, this is here just for convenience
- * @example
+ * ```ts
  * const clientConfig: ClientConfig = {
-    parameters: {
-        clientId: "XXXXXX",
-        organizationId: "XXXX",
-        shortCode: "XXX",
-        siteId: "XX"
-    }
-   };
-   helpers.getShopperToken(clientConfig, { type: "guest" })
- * @param clientConfig Client configuration properties
- * @param body Post body required for authorization
- * @returns {Promise<ShopperToken>}
+ *  parameters: {
+ *      clientId: "XXXXXX",
+ *      organizationId: "XXXX",
+ *      shortCode: "XXX",
+ *      siteId: "XX"
+ *  }
+ * };
+ * helpers.getShopperToken(clientConfig, { type: "guest" })
+ * ```
+ * @param clientConfig - Client configuration properties
+ * @param body - Post body required for authorization
+ * @returns the retrieved Shopper token
  */
 export async function getShopperToken (
     clientConfig: sdk.ClientConfig,

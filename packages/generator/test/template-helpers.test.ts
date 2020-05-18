@@ -362,6 +362,12 @@ describe("Template helper tests for isAdditionalPropertiesAllowed", () => {
   });
 });
 
+/**
+ * Compare two property lists and throw if they don't.
+ *
+ * @param expectedProps - The expected property list
+ * @param actualProps - The actual property list
+ */
 function verifyProperties(
   expectedProps: model.domain.PropertyShape[],
   actualProps: model.domain.PropertyShape[]
