@@ -4,7 +4,6 @@
   "description": "Salesforce Commerce Cloud SDK Integration Test",
   "homepage": "https://developer.commercecloud.com/s/",
   "scripts": {
-    "depcheck": "depcheck",
     "redis": "docker rm --force redis-commerce-sdk; docker run -dp 6379:6379 --name redis-commerce-sdk redis:5-alpine",
     "redis:shutdown": "docker rm --force redis-commerce-sdk",
     "redis:debug": "docker rm --force redis-commerce-sdk-debug; docker run -dp 6379:6379 --name redis-commerce-sdk-debug redis:5-alpine && docker exec -it redis-commerce-sdk-debug redis-cli monitor",
@@ -12,10 +11,7 @@
     "test:basic": "nyc --check-coverage=false mocha \"tests/basic/*.test.ts\" --retries 2 --timeout 5000 --reporter=xunit --reporter-options output=../reports/integration.xml",
     "test:redis": "nyc --check-coverage=false mocha \"tests/redis/*.test.ts\" --retries 2 --timeout 5000 --reporter=xunit --reporter-options output=../reports/integration.xml",
     "pack:sdk": "npm pack ../packages/core && npm pack ../packages/generator && npm install",
-    "test": "npm run test:cache:redis; npm run test:basic",
-    "test:cache:basic": "npm run pack:sdk && npm run test:basic",
-    "test:cache:redis": "npm run pack:sdk && npm run redis && npm run test:redis; npm run redis:shutdown",
-    "test:integration:redis:debug": "npm run pack:sdk && npm run test:redis"
+    "test": "npm run test:basic && npm run test:redis"
   },
   "nyc": {
     "extends": "@istanbuljs/nyc-config-typescript",
