@@ -23,7 +23,7 @@ import {
  * Selects the baseUri from an AMF model. TypeScript will not allow access to
  * the data without the proper cast to a WebApi type.
  *
- * @param property A model from the the AMF parser
+ * @param property - A model from the the AMF parser
  */
 export const getBaseUri = function(
   property: WebApiBaseUnitWithEncodesModel
@@ -36,7 +36,7 @@ export const getBaseUri = function(
 /**
  * Checks if a path parameter is one of the set that are configurable at the client level
  *
- * @param property The string name of the parameter to check
+ * @param property - The string name of the parameter to check
  *
  * @returns true if the parameter is a common parameter
  */
@@ -48,7 +48,7 @@ export const isCommonPathParameter = (property: string) =>
 /**
  * Checks if a query parameter is one of the set that are configurable at the client level
  *
- * @param property The string name of the parameter to check
+ * @param property - The string name of the parameter to check
  *
  * @returns true if the parameter is a common parameter
  */
@@ -57,6 +57,13 @@ export const isCommonQueryParameter = (property: string) =>
     ? commonParameterPositions.queryParameters.includes(property.toString())
     : false;
 
+/**
+ * Checks the node is a type definition.
+ *
+ * @param obj - The node to check
+ *
+ * @returns true if the node is a type definition, false if not
+ */
 export const isTypeDefinition = function(obj: any): boolean {
   return (
     obj != null && obj.$classData.name === "amf.client.model.domain.NodeShape"
@@ -73,6 +80,13 @@ const getPayloadResponses = function(operation: any): model.domain.Response[] {
   return okResponses;
 };
 
+/**
+ * Find the return type info for an operation.
+ *
+ * @param operation - The operation to get the return type for
+ *
+ * @returns a string for the data type returned by the successful operation
+ */
 export const getReturnPayloadType = function(operation: any): string {
   const okResponses = getPayloadResponses(operation);
   const dataTypes: string[] = [];
@@ -103,7 +117,7 @@ const getDataTypeFromMap = function(uuidDataType: string): string {
 
 /**
  * Get data type from ScalarShape
- * @param scalarShape instance of model.domain.ScalarShape
+ * @param scalarShape - instance of model.domain.ScalarShape
  * @returns scalar data type if defined otherwise returns a default type
  */
 const getScalarType = function(scalarShape: model.domain.ScalarShape): string {
@@ -133,7 +147,7 @@ const getScalarType = function(scalarShape: model.domain.ScalarShape): string {
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /**
  * Get type of the array
- * @param arrayShape instance of model.domain.ArrayShape
+ * @param arrayShape - instance of model.domain.ArrayShape
  * @returns array type if defined otherwise returns a default type
  */
 const getArrayType = function(arrayShape: model.domain.ArrayShape): string {
@@ -149,7 +163,7 @@ const getArrayType = function(arrayShape: model.domain.ArrayShape): string {
 
 /**
  * Get data type that is linked/inherited
- * @param anyShape instance of model.domain.AnyShape or its subclass
+ * @param anyShape - instance of model.domain.AnyShape or its subclass
  * @returns linked/inherited data type
  */
 const getLinkedType = function(anyShape: model.domain.AnyShape): string {
@@ -189,7 +203,7 @@ const getLinkedType = function(anyShape: model.domain.AnyShape): string {
 
 /**
  * Get object type
- * @param anyShape instance of model.domain.AnyShape or its subclass
+ * @param anyShape - instance of model.domain.AnyShape or its subclass
  * @returns object type if defined otherwise returns a default type
  */
 const getObjectType = function(anyShape: model.domain.AnyShape): string {
@@ -209,7 +223,7 @@ const getObjectType = function(anyShape: model.domain.AnyShape): string {
 
 /**
  * Get data type of an element from amf model
- * @param dtElement instance of model.domain.DomainElement or its subclass
+ * @param dtElement - instance of model.domain.DomainElement or its subclass
  * @returns data type if defined otherwise returns a default type
  */
 const getDataType = function(dtElement: model.domain.DomainElement): string {
@@ -231,7 +245,7 @@ const getDataType = function(dtElement: model.domain.DomainElement): string {
 
 /**
  * Get data type of a property
- * @param property instance of model.domain.PropertyShape
+ * @param property - instance of model.domain.PropertyShape
  * @returns data type if defined in the property otherwise returns a default type
  */
 export const getPropertyDataType = function(
@@ -245,7 +259,7 @@ export const getPropertyDataType = function(
 
 /**
  * Get data type of a parameter
- * @param param instance of model.domain.Parameter
+ * @param param - instance of model.domain.Parameter
  * @returns data type if defined in the parameter otherwise returns a default type
  */
 export const getParameterDataType = function(
@@ -271,7 +285,7 @@ const getPayloadType = function(schema: model.domain.Shape): string {
 
 /**
  * Get type of the request body
- * @param request AMF model of tge request
+ * @param request - AMF model of tge request
  * @returns Type of the request body
  */
 export const getRequestPayloadType = function(
@@ -293,6 +307,13 @@ export const getRequestPayloadType = function(
   return OBJECT_DATA_TYPE;
 };
 
+/**
+ * Helper to extract the value from the AMF field.
+ *
+ * @param name - The field to extract the value from
+ *
+ * @returns the string of the value
+ */
 export const getValue = function(name: any): string {
   if (name !== undefined && name.value) {
     return name.value();
@@ -305,8 +326,8 @@ type propertyFilter = (propertyName: string) => boolean;
 /**
  * Get properties of the DTO (inherited and linked) after applying the given filter criteria
  *
- * @param dtoTypeModel AMF model of the dto
- * @param propertyFilter function to filter properties based on certain criteria
+ * @param dtoTypeModel - AMF model of the dto
+ * @param propertyFilter - function to filter properties based on certain criteria
  */
 const getFilteredProperties = function(
   dtoTypeModel: model.domain.NodeShape | null | undefined,
@@ -353,7 +374,7 @@ const getFilteredProperties = function(
 /**
  * Gets all properties of the DTO
  *
- * @param dtoTypeModel AMF model of the dto
+ * @param dtoTypeModel - AMF model of the dto
  * @returns Array of properties in the dto that are not regular expressions
  */
 export const getProperties = function(
@@ -369,7 +390,7 @@ export const getProperties = function(
  * Required properties have minimum count of at least 1
  * We ignore required additional properties because of the
  * different semantics used in rendering those properties
- * @param property
+ * @param property -
  * @returns true if the property is required
  */
 export const isRequiredProperty = function(
@@ -383,7 +404,7 @@ export const isRequiredProperty = function(
  * Optional properties have minimum count of 0
  * We ignore optional additional properties which also have minimum count of 0,
  * because of the different semantics used in rendering those properties.
- * @param property
+ * @param property -
  * @returns true if the property is optional
  */
 export const isOptionalProperty = function(
@@ -396,7 +417,7 @@ export const isOptionalProperty = function(
  * Returns whether additional properties are allowed for a given RAML type.
  *
  * @param ramlTypeDefinition - Any RAML type definition
- * @returns {boolean} true if additional properties are allowed, false otherwise
+ * @returns true if additional properties are allowed, false otherwise
  */
 export const isAdditionalPropertiesAllowed = function(
   ramlTypeDefinition: any
@@ -409,21 +430,71 @@ export const isAdditionalPropertiesAllowed = function(
   );
 };
 
+/**
+ * Gets custom object id associated with the specified assetId.
+ *
+ * @param assetId - The assetId to look up
+ *
+ * @returns The custom object id as a string
+ */
 export const getObjectIdByAssetId = function(assetId: string): string {
   return ASSET_OBJECT_MAP[assetId];
 };
 
 export type NamedObject = { name: { value: () => string } };
 
+/**
+ * Convert a name object to a string.
+ *
+ * @param obj - The name object to convert to a string
+ *
+ * @returns the converted name as a string
+ */
 export const getName = function(obj: NamedObject): string {
   return obj?.name?.value?.() || "";
 };
 
+/**
+ * Convert a name to lower camel case.
+ *
+ * @param obj - The name object to convert to lower camel case
+ *
+ * @returns the converted name as a string
+ */
 export const getCamelCaseName = function(obj: NamedObject): string {
   return _.camelCase(getName(obj));
 };
 
+/**
+ * Convert a name to PascalCase.
+ *
+ * @param obj - The name object to convert the name from
+ *
+ * @returns the converted name as a string
+ */
 export const getPascalCaseName = function(obj: NamedObject): string {
   const name = getCamelCaseName(obj);
   return name && name[0].toUpperCase() + name.slice(1);
+};
+
+/**
+ * Certain characters need to be handled for TSDoc.
+ *
+ * @param str - The string to be formatted for TSDoc
+ *
+ * @returns string reformatted for TSDoc
+ */
+export const formatForTsDoc = function(str: string): string {
+  // Brackets are special to TSDoc and less than / greater than are interpreted as HTML
+  const symbolsEscaped = str
+    .toString()
+    .replace(/([^\\])(["{}<>]+)/g, m => Array.from(m).join("\\"));
+  // Double escaped newlines are replaced with real newlines
+  const newlinesUnescaped = symbolsEscaped.replace(/\\n/g, "\n");
+  // Double escaped tabs are replaced with a single space
+  const tabsUnescaped = newlinesUnescaped.replace(/(\\t)+/g, " ");
+  // Collapse leading whitespace of 4 or more to avoid triggering code block formatting
+  const collapsedLeadingWhitespace = tabsUnescaped.replace(/\n {4,}/g, "\n   ");
+
+  return collapsedLeadingWhitespace;
 };
