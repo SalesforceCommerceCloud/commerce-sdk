@@ -9,7 +9,7 @@ import { Checkout} from "commerce-sdk";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { assert, IsExact } from "conditional-type-checks";
-import { commonParameterPositions } from "@commerce-apps/core";
+import { stripBearer } from "@commerce-apps/core";
 
 const BASE_URI =
   "https://anypoint.mulesoft.com/mocking/api/v1/sources/exchange/assets/893f605e-10e2-423a-bdb4-f952f56eb6d8/steelarc-integration/1.0.0/m/s/-/dw/shop/v19_5";
@@ -25,6 +25,10 @@ before(() => {
 
 describe("Shop client integration GET tests", () => {
   it("Throws error calling GET with no token", () => {
+
+    expect(stripBearer("Bearer 123456")).to.equal("123456");
+
+
     const newLocalClient = new Checkout.ShopperBaskets({
       baseUri: BASE_URI
     });
