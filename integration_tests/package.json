@@ -1,0 +1,59 @@
+{
+  "name": "commerce-sdk-integration-test",
+  "version": "1.4.1-beta.0",
+  "description": "Salesforce Commerce Cloud SDK Integration Test",
+  "homepage": "https://developer.commercecloud.com/s/",
+  "scripts": {
+    "redis": "docker rm --force redis-commerce-sdk; docker run -dp 6379:6379 --name redis-commerce-sdk redis:5-alpine",
+    "redis:shutdown": "docker rm --force redis-commerce-sdk",
+    "redis:debug": "docker rm --force redis-commerce-sdk-debug; docker run -dp 6379:6379 --name redis-commerce-sdk-debug redis:5-alpine && docker exec -it redis-commerce-sdk-debug redis-cli monitor",
+    "redis:debug:shutdown": "docker rm --force redis-commerce-sdk-debug",
+    "test": "nyc --check-coverage=false mocha \"tests/basic/*.test.ts\" --retries 2 --timeout 5000 --reporter=xunit --reporter-options output=../reports/integration.xml",
+    "test:redis": "nyc --check-coverage=false mocha \"tests/redis/*.test.ts\" --retries 2 --timeout 5000 --reporter=xunit --reporter-options output=../reports/integration.xml",
+    "pack:sdk": "npm pack ../packages/core && npm pack ../packages/generator && npm install",
+    "test:all": "npm run test:cache:redis; npm run test",
+    "test:cache:basic": "npm run pack:sdk && npm run test",
+    "test:cache:redis": "npm run pack:sdk && npm run redis && npm run test:redis; npm run redis:shutdown",
+    "test:integration:redis:debug": "npm run pack:sdk && npm run test:redis"
+  },
+  "dependencies": {
+    "@commerce-apps/core": "file:commerce-apps-core-1.4.1-beta.0.tgz",
+    "commerce-sdk": "file:commerce-sdk-1.4.1-beta.0.tgz"
+  },
+  "nyc": {
+    "extends": "@istanbuljs/nyc-config-typescript",
+    "include": [
+      "node_modules/commerce-sdk/**/*.js",
+      "node_modules/@commerce-apps/core/**/*.js"
+    ],
+    "reporter": [
+      "lcov",
+      "text"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "all": true,
+    "check-coverage": true,
+    "branches": 80,
+    "functions": 80,
+    "lines": 80,
+    "statements": -10,
+    "per-file": true,
+    "excludeNodeModules": false
+  },
+  "mocha": {
+    "forbidOnly": true,
+    "require": [
+      "source-map-support/register",
+      "ts-node/register"
+    ],
+    "colors": true
+  },
+  "devDependencies": {
+    "mocha": "^7.1.2",
+    "nyc": "^15.0.1",
+    "source-map-support": "^0.5.19",
+    "ts-node": "^8.10.1"
+  }
+}
