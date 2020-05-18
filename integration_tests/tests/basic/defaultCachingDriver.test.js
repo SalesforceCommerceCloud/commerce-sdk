@@ -8,7 +8,7 @@
 
 const chai = require("chai");
 const chaiAsPromised = require("chai-as-promised");
-const commerceCore = require("@commerce-apps/core");
+const { BaseClient } = require("@commerce-apps/core");
 const cacheTests = require("../cache/basic.tests");
 const etagTests = require("../cache/etag.tests");
 const evictionTests = require("../cache/eviction.tests");
@@ -20,7 +20,7 @@ describe("Default cache tests", function() {
   before(function() {
     chai.should();
     chai.use(chaiAsPromised);
-    this.client = new commerceCore.BaseClient({
+    this.client = new BaseClient({
       baseUri: "https://somewhere"
     });
   });

@@ -5,16 +5,16 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 "use strict";
-import chai from "chai";
-import chaiAsPromised from "chai-as-promised";
 
-import cacheTests from "../cache/basic.tests";
-import { BaseClient, CacheManagerRedis } from "@commerce-apps/core";
-import etagTests from "../cache/etag.tests";
-import evictionTests from "../cache/eviction.tests";
-import multipleHeadersTests from "../cache/multipleHeaders.tests";
-import noCacheHeaderTests from "../cache/noCacheHeader.tests";
-import delayedTests from "../cache/delayedTests.tests";
+const chai = require("chai");
+const chaiAsPromised = require("chai-as-promised");
+const { BaseClient, CacheManagerRedis } = require("@commerce-apps/core");
+const cacheTests = require("../cache/basic.tests");
+const etagTests = require("../cache/etag.tests");
+const evictionTests = require("../cache/eviction.tests");
+const multipleHeadersTests = require("../cache/multipleHeaders.tests");
+const noCacheHeaderTests = require("../cache/noCacheHeader.tests");
+const delayedTests = require("../cache/delayedTests.tests");
 
 describe("Redis cache tests", function() {
   before(function() {
@@ -37,5 +37,4 @@ describe("Redis cache tests", function() {
   multipleHeadersTests();
   noCacheHeaderTests();
   delayedTests();
-
 });
