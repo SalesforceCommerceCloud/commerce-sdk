@@ -12,7 +12,6 @@
     "test:basic": "nyc --check-coverage=false mocha \"tests/basic/*.test.ts\" --retries 2 --timeout 5000 --reporter=xunit --reporter-options output=../reports/integration.xml",
     "test:redis": "nyc --check-coverage=false mocha \"tests/redis/*.test.ts\" --retries 2 --timeout 5000 --reporter=xunit --reporter-options output=../reports/integration.xml",
     "pack:sdk": "npm pack ../packages/core && npm pack ../packages/generator && npm install",
-    "postinstall": "npm run depcheck",
     "test": "npm run test:cache:redis; npm run test:basic",
     "test:cache:basic": "npm run pack:sdk && npm run test:basic",
     "test:cache:redis": "npm run pack:sdk && npm run redis && npm run test:redis; npm run redis:shutdown",
