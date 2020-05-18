@@ -7,6 +7,7 @@
 "use strict";
 
 import chai from "chai";
+import nock from "nock";
 
 import { BaseClient } from "@commerce-apps/core";
 import { StaticClient } from "@commerce-apps/core";

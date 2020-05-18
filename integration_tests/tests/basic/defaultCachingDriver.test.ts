@@ -5,6 +5,8 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 "use strict";
+import chai from "chai";
+import chaiAsPromised from "chai-as-promised";
 import cacheTests from "../cache/basic.tests";
 import { BaseClient } from "@commerce-apps/core";
 import etagTests from "../cache/etag.tests";
