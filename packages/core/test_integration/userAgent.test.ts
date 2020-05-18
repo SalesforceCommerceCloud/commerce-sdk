@@ -6,7 +6,7 @@
  */
 "use strict";
 import chai from "chai";
-import { USER_AGENT } from "../src/base/staticClient";
+import { USER_AGENT } from "../src/base/client";
 // Using an import statement causes issues with TypeScript,
 // so we have to use require with the package.json
 // eslint-disable-next-line @typescript-eslint/no-var-requires
