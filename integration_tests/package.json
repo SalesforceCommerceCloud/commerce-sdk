@@ -8,17 +8,12 @@
     "redis:shutdown": "docker rm --force redis-commerce-sdk",
     "redis:debug": "docker rm --force redis-commerce-sdk-debug; docker run -dp 6379:6379 --name redis-commerce-sdk-debug redis:5-alpine && docker exec -it redis-commerce-sdk-debug redis-cli monitor",
     "redis:debug:shutdown": "docker rm --force redis-commerce-sdk-debug",
-    "test:basic": "nyc --check-coverage=false mocha \"tests/basic/*.test.ts\" --retries 2 --timeout 5000 --reporter=xunit --reporter-options output=../reports/integration.xml",
+    "test:basic": "nyc --check-coverage=false mocha \"tests/basic/*.test.js\" --retries 2 --timeout 5000 --reporter=xunit --reporter-options output=../reports/integration.xml",
     "test:redis": "nyc --check-coverage=false mocha \"tests/redis/*.test.ts\" --retries 2 --timeout 5000 --reporter=xunit --reporter-options output=../reports/integration.xml",
     "pack:sdk": "npm pack ../packages/core && npm pack ../packages/generator && npm install",
     "test": "npm run test:basic && npm run test:redis"
   },
   "nyc": {
-    "extends": "@istanbuljs/nyc-config-typescript",
-    "include": [
-      "node_modules/commerce-sdk/**/*.js",
-      "node_modules/@commerce-apps/core/**/*.js"
-    ],
     "reporter": [
       "lcov",
       "text"

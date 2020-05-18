@@ -5,12 +5,12 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 "use strict";
-import chai from "chai";
-import nock from "nock";
 
-import { StaticClient } from "@commerce-apps/core";
+const chai = require("chai");
+const nock = require("nock");
+const { StaticClient }= require("@commerce-apps/core");
 
-export default function() {
+module.exports = function() {
   const expect = chai.expect;
 
   describe("base client etag based delayed conditional get tests", function() {

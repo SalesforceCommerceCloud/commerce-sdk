@@ -5,12 +5,13 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 "use strict";
-import chai from "chai";
-import nock from "nock";
 
-import { StaticClient } from "@commerce-apps/core";
+const chai = require("chai");
+const nock = require("nock");
 
-export default function() {
+const { StaticClient }= require("@commerce-apps/core");
+
+module.exports = function() {
   const expect = chai.expect;
   const RESPONSE_DATA = { mock: "data" };
   const RESPONSE_DATA_MODIFIED = { mock: "data_modified" };
