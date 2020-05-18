@@ -8,8 +8,12 @@
 
 const chai = require("chai");
 const nock = require("nock");
-const { StaticClient }= require("@commerce-apps/core");
+const { StaticClient } = require("@commerce-apps/core");
 
+/**
+ * Integration tests with 2 seconds delay to verify the cached content
+ * for Salesforce Commerce SDK cache manager interface.
+ */
 module.exports = function() {
   const expect = chai.expect;
 
@@ -127,11 +131,7 @@ module.exports = function() {
     it("sdk adds if-modified-since header and returns cached content on 304 response", function(done) {
       const client = this.client;
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
       const dateLastModified = new Date(Date.now() - 10000000).toUTCString();
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
       const nowTimestamp = Date.now();
       //set past expiry, since ttl is not set by default, this asset should be cached
       const dateExpires = new Date(nowTimestamp - 100000).toUTCString();
@@ -178,21 +178,10 @@ module.exports = function() {
 
     it("sdk adds updated if-modified-since header on 304 response", function(done) {
       const client = this.client;
-
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
       const nowTimestamp = Date.now();
-
       const lastModified = new Date(nowTimestamp - 20000000).toUTCString();
-
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
       const newLastModified = new Date(nowTimestamp - 10000000).toUTCString();
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
       const dateExpires = new Date(nowTimestamp - 100000).toUTCString();
       const scope = nock("https://somewhere")
         .get("/not-modified")
@@ -258,12 +247,7 @@ module.exports = function() {
     it("sdk adds if-modified-since header and returns modified content on 200 response", function(done) {
       const client = this.client;
       const nowTimestamp = Date.now();
-
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
       const dateLastModified = new Date(nowTimestamp - 10000000).toUTCString();
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
       const dateExpires = new Date(nowTimestamp - 100000).toUTCString();
       const scope = nock("https://somewhere")
         .get("/lastmodified-since")
@@ -306,4 +290,4 @@ module.exports = function() {
       });
     });
   });
-}
+};

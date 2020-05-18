@@ -10,7 +10,10 @@ const chai = require("chai");
 const nock = require("nock");
 
 const { StaticClient } = require("@commerce-apps/core");
-
+/**
+ * Etag tests to verify conditional retrievals
+ * for Salesforce Commerce SDK cache manager interface.
+ */
 module.exports = function() {
   const expect = chai.expect;
 
@@ -93,8 +96,6 @@ module.exports = function() {
     afterEach(nock.cleanAll);
 
     it("sdk does not add if-modified-since header and returns cached content on 200 response", function() {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
       const dateExpires = new Date(new Date() + 10000000).toUTCString();
       const scope = nock("https://somewhere")
         .get("/no-lastmodified-header")
@@ -136,11 +137,7 @@ module.exports = function() {
     });
 
     it("sdk does not add if-modified-since header on cached content w/o Expires header", function() {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
       const dateLastModified = new Date(new Date() - 10000000).toUTCString();
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
       const dateExpires = new Date(new Date() + 10000000).toUTCString();
       const scope = nock("https://somewhere")
         .get("/missing-expires-header")
@@ -179,4 +176,4 @@ module.exports = function() {
       });
     });
   });
-}
+};

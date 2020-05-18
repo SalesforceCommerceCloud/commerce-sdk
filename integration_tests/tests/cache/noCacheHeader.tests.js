@@ -9,8 +9,12 @@
 const chai = require("chai");
 const nock = require("nock");
 
-const { StaticClient }= require("@commerce-apps/core");
+const { StaticClient } = require("@commerce-apps/core");
 
+/**
+ * Basic tests that verifies cached content in absence of cache headers
+ * for Salesforce Commerce SDK cache manager interface.
+ */
 module.exports = function() {
   const expect = chai.expect;
   const RESPONSE_DATA = { mock: "data" };
@@ -25,20 +29,22 @@ module.exports = function() {
         .get("/private")
         .reply(200, RESPONSE_DATA, { "Cache-Control": "private" });
 
-      return StaticClient.get({ client: client, path: "/private" }).then(data => {
-        expect(data).to.eql(RESPONSE_DATA);
-        expect(nock.isDone()).to.be.true;
-        scope
-          .get("/private")
-          .reply(200, RESPONSE_DATA_MODIFIED, { "Cache-Control": "private" });
-        return StaticClient.get({
-          client: client,
-          path: "/private"
-        }).then(data => {
-          expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+      return StaticClient.get({ client: client, path: "/private" }).then(
+        data => {
+          expect(data).to.eql(RESPONSE_DATA);
           expect(nock.isDone()).to.be.true;
-        });
-      });
+          scope
+            .get("/private")
+            .reply(200, RESPONSE_DATA_MODIFIED, { "Cache-Control": "private" });
+          return StaticClient.get({
+            client: client,
+            path: "/private"
+          }).then(data => {
+            expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+            expect(nock.isDone()).to.be.true;
+          });
+        }
+      );
     });
 
     it("asset not cached on response header no-cache", function() {
@@ -47,20 +53,22 @@ module.exports = function() {
         .get("/no-cache")
         .reply(200, RESPONSE_DATA, { "Cache-Control": "no-cache" });
 
-      return StaticClient.get({ client: client, path: "/no-cache" }).then(data => {
-        expect(data).to.eql(RESPONSE_DATA);
-        expect(nock.isDone()).to.be.true;
-        scope
-          .get("/no-cache")
-          .reply(200, RESPONSE_DATA_MODIFIED, { "Cache-Control": "no-cache" });
-        return StaticClient.get({
-          client: client,
-          path: "/no-cache"
-        }).then(data => {
-          expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+      return StaticClient.get({ client: client, path: "/no-cache" }).then(
+        data => {
+          expect(data).to.eql(RESPONSE_DATA);
           expect(nock.isDone()).to.be.true;
-        });
-      });
+          scope.get("/no-cache").reply(200, RESPONSE_DATA_MODIFIED, {
+            "Cache-Control": "no-cache"
+          });
+          return StaticClient.get({
+            client: client,
+            path: "/no-cache"
+          }).then(data => {
+            expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+            expect(nock.isDone()).to.be.true;
+          });
+        }
+      );
     });
   });
 
@@ -73,20 +81,22 @@ module.exports = function() {
         .get("/no-store")
         .reply(200, RESPONSE_DATA, { "Cache-Control": "no-store" });
 
-      return StaticClient.get({ client: client, path: "/no-store" }).then(data => {
-        expect(data).to.eql(RESPONSE_DATA);
-        expect(nock.isDone()).to.be.true;
-        scope
-          .get("/no-store")
-          .reply(200, RESPONSE_DATA_MODIFIED, { "Cache-Control": "no-store" });
-        return StaticClient.get({
-          client: client,
-          path: "/no-store"
-        }).then(data => {
-          expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+      return StaticClient.get({ client: client, path: "/no-store" }).then(
+        data => {
+          expect(data).to.eql(RESPONSE_DATA);
           expect(nock.isDone()).to.be.true;
-        });
-      });
+          scope.get("/no-store").reply(200, RESPONSE_DATA_MODIFIED, {
+            "Cache-Control": "no-store"
+          });
+          return StaticClient.get({
+            client: client,
+            path: "/no-store"
+          }).then(data => {
+            expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+            expect(nock.isDone()).to.be.true;
+          });
+        }
+      );
     });
   });
 
@@ -101,7 +111,10 @@ module.exports = function() {
           Expires: "Wed, 18 Mar 2000 00:00:00 GMT"
         });
 
-      return StaticClient.get({ client: client, path: "/invalid-expires" }).then(data => {
+      return StaticClient.get({
+        client: client,
+        path: "/invalid-expires"
+      }).then(data => {
         expect(data).to.eql(RESPONSE_DATA);
         expect(nock.isDone()).to.be.true;
         scope.get("/invalid-expires").reply(200, RESPONSE_DATA_MODIFIED);
@@ -123,18 +136,20 @@ module.exports = function() {
           Expires: "Wed, 18 Mar 2050 00:00:00 GMT"
         });
 
-      return StaticClient.get({ client: client, path: "/valid-expires" }).then(data => {
-        expect(data).to.eql(RESPONSE_DATA);
-        expect(nock.isDone()).to.be.true;
-        scope.get("/valid-expires").reply(200, RESPONSE_DATA_MODIFIED);
-        return StaticClient.get({
-          client: client,
-          path: "/valid-expires"
-        }).then(data => {
+      return StaticClient.get({ client: client, path: "/valid-expires" }).then(
+        data => {
           expect(data).to.eql(RESPONSE_DATA);
-          expect(nock.isDone()).to.be.false;
-        });
-      });
+          expect(nock.isDone()).to.be.true;
+          scope.get("/valid-expires").reply(200, RESPONSE_DATA_MODIFIED);
+          return StaticClient.get({
+            client: client,
+            path: "/valid-expires"
+          }).then(data => {
+            expect(data).to.eql(RESPONSE_DATA);
+            expect(nock.isDone()).to.be.false;
+          });
+        }
+      );
     });
 
     it("asset not cached on response headers Expires and no-cache", function() {
@@ -233,7 +248,10 @@ module.exports = function() {
           "Cache-Control": "max-age=-1"
         });
 
-      return StaticClient.get({ client: client, path: "/invalid-max-age" }).then(data => {
+      return StaticClient.get({
+        client: client,
+        path: "/invalid-max-age"
+      }).then(data => {
         expect(data).to.eql(RESPONSE_DATA);
         expect(nock.isDone()).to.be.true;
         scope.get("/invalid-max-age").reply(200, RESPONSE_DATA_MODIFIED);
@@ -255,18 +273,20 @@ module.exports = function() {
           "Cache-Control": "max-age=0"
         });
 
-      return StaticClient.get({ client: client, path: "/max-age-zero" }).then(data => {
-        expect(data).to.eql(RESPONSE_DATA);
-        expect(nock.isDone()).to.be.true;
-        scope.get("/max-age-zero").reply(200, RESPONSE_DATA_MODIFIED);
-        return StaticClient.get({
-          client: client,
-          path: "/max-age-zero"
-        }).then(data => {
-          expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+      return StaticClient.get({ client: client, path: "/max-age-zero" }).then(
+        data => {
+          expect(data).to.eql(RESPONSE_DATA);
           expect(nock.isDone()).to.be.true;
-        });
-      });
+          scope.get("/max-age-zero").reply(200, RESPONSE_DATA_MODIFIED);
+          return StaticClient.get({
+            client: client,
+            path: "/max-age-zero"
+          }).then(data => {
+            expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+            expect(nock.isDone()).to.be.true;
+          });
+        }
+      );
     });
 
     it("asset cached on response header max-age=10000000", function() {
@@ -277,7 +297,10 @@ module.exports = function() {
           "Cache-Control": "max-age=10000000"
         });
 
-      return StaticClient.get({ client: client, path: "/max-age-10000000" }).then(data => {
+      return StaticClient.get({
+        client: client,
+        path: "/max-age-10000000"
+      }).then(data => {
         expect(data).to.eql(RESPONSE_DATA);
         expect(nock.isDone()).to.be.true;
         scope.get("/max-age-10000000").reply(200, RESPONSE_DATA_MODIFIED);
@@ -345,4 +368,4 @@ module.exports = function() {
       });
     });
   });
-}
+};

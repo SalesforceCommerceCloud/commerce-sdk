@@ -9,8 +9,12 @@
 const chai = require("chai");
 const nock = require("nock");
 
-const { StaticClient }= require("@commerce-apps/core");
+const { StaticClient } = require("@commerce-apps/core");
 
+/**
+ * Cache eviction tests to verify cached content
+ * for Salesforce Commerce SDK cache manager interface.
+ */
 module.exports = function() {
   const expect = chai.expect;
   const RESPONSE_DATA = { mock: "data" };
@@ -47,8 +51,6 @@ module.exports = function() {
         return client.clientConfig.cacheManager
           .match(request, opts)
           .then(res => {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-            // @ts-ignore
             return res.json().then(resData => {
               // ensure response data is cached
               expect(resData).to.eql(RESPONSE_DATA);
@@ -132,11 +134,7 @@ module.exports = function() {
           return client.clientConfig.cacheManager
             .match(request, opts)
             .then(res => {
-              // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-              // @ts-ignore
               expect(res.headers.get("etag")).to.eql("etag_modified");
-              // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-              // @ts-ignore
               expect(res.headers.get("newHeader")).to.eql("a new header");
             });
         });
@@ -171,8 +169,6 @@ module.exports = function() {
         return client.clientConfig.cacheManager
           .match(request, opts)
           .then(res => {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-            // @ts-ignore
             return res.json().then(resData => {
               // ensure response data is cached
               expect(resData).to.eql(RESPONSE_DATA);
@@ -192,8 +188,6 @@ module.exports = function() {
                 return client.clientConfig.cacheManager
                   .match(request, opts)
                   .then(res => {
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-                    // @ts-ignore
                     return res.json().then(resData => {
                       expect(resData).to.eql(RESPONSE_DATA_MODIFIED);
                     });
@@ -204,4 +198,4 @@ module.exports = function() {
       });
     });
   });
-}
+};

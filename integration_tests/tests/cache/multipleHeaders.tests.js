@@ -9,8 +9,12 @@
 const chai = require("chai");
 const nock = require("nock");
 
-const { StaticClient }= require("@commerce-apps/core");
+const { StaticClient } = require("@commerce-apps/core");
 
+/**
+ * Cache header tests with multiple cache directives
+ * for Salesforce Commerce SDK cache manager interface.
+ */
 module.exports = function() {
   const expect = chai.expect;
 
@@ -28,22 +32,23 @@ module.exports = function() {
           "Cache-Control": "no-cache, no-store, max-age=100000"
         });
 
-      return StaticClient.get({ client: client, path: "/fetch-fresh-no-etag" }).then(
-        data => {
-          expect(data).to.eql(RESPONSE_DATA);
+      return StaticClient.get({
+        client: client,
+        path: "/fetch-fresh-no-etag"
+      }).then(data => {
+        expect(data).to.eql(RESPONSE_DATA);
+        expect(nock.isDone()).to.be.true;
+        scope.get("/fetch-fresh-no-etag").reply(200, RESPONSE_DATA_MODIFIED, {
+          "Cache-Control": "no-cache"
+        });
+        return StaticClient.get({
+          client: client,
+          path: "/fetch-fresh-no-etag"
+        }).then(data => {
+          expect(data).to.eql(RESPONSE_DATA_MODIFIED);
           expect(nock.isDone()).to.be.true;
-          scope.get("/fetch-fresh-no-etag").reply(200, RESPONSE_DATA_MODIFIED, {
-            "Cache-Control": "no-cache"
-          });
-          return StaticClient.get({
-            client: client,
-            path: "/fetch-fresh-no-etag"
-          }).then(data => {
-            expect(data).to.eql(RESPONSE_DATA_MODIFIED);
-            expect(nock.isDone()).to.be.true;
-          });
-        }
-      );
+        });
+      });
     });
 
     it("asset not cached on response headers no-cache, no-store and valid max-age, etag", function() {
@@ -55,28 +60,29 @@ module.exports = function() {
           Etag: "etag"
         });
 
-      return StaticClient.get({ client: client, path: "/fetch-fresh-with-etag" }).then(
-        data => {
-          expect(data).to.eql(RESPONSE_DATA);
-          expect(nock.isDone()).to.be.true;
-          scope.get("/fetch-fresh-with-etag").reply(
-            200,
-            function() {
-              expect(this.req.headers["if-none-match"]).to.be.undefined;
-              return RESPONSE_DATA_MODIFIED;
-            },
-            {}
-          );
+      return StaticClient.get({
+        client: client,
+        path: "/fetch-fresh-with-etag"
+      }).then(data => {
+        expect(data).to.eql(RESPONSE_DATA);
+        expect(nock.isDone()).to.be.true;
+        scope.get("/fetch-fresh-with-etag").reply(
+          200,
+          function() {
+            expect(this.req.headers["if-none-match"]).to.be.undefined;
+            return RESPONSE_DATA_MODIFIED;
+          },
+          {}
+        );
 
-          return StaticClient.get({
-            client: client,
-            path: "/fetch-fresh-with-etag"
-          }).then(data => {
-            expect(data).to.eql(RESPONSE_DATA_MODIFIED);
-            expect(nock.isDone()).to.be.true;
-          });
-        }
-      );
+        return StaticClient.get({
+          client: client,
+          path: "/fetch-fresh-with-etag"
+        }).then(data => {
+          expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+          expect(nock.isDone()).to.be.true;
+        });
+      });
     });
 
     it("asset not cached on response headers no-cache, no-store and valid Expires, etag", function() {
@@ -90,29 +96,30 @@ module.exports = function() {
           Etag: "etag"
         });
 
-      return StaticClient.get({ client: client, path: "/fetch-fresh-with-expires" }).then(
-        data => {
-          expect(data).to.eql(RESPONSE_DATA);
-          expect(nock.isDone()).to.be.true;
-          scope.get("/fetch-fresh-with-expires").reply(
-            200,
-            function() {
-              expect(this.req.headers["if-none-match"]).to.be.undefined;
-              expect(this.req.headers["if-modified-since"]).to.be.undefined;
-              return RESPONSE_DATA_MODIFIED;
-            },
-            {}
-          );
+      return StaticClient.get({
+        client: client,
+        path: "/fetch-fresh-with-expires"
+      }).then(data => {
+        expect(data).to.eql(RESPONSE_DATA);
+        expect(nock.isDone()).to.be.true;
+        scope.get("/fetch-fresh-with-expires").reply(
+          200,
+          function() {
+            expect(this.req.headers["if-none-match"]).to.be.undefined;
+            expect(this.req.headers["if-modified-since"]).to.be.undefined;
+            return RESPONSE_DATA_MODIFIED;
+          },
+          {}
+        );
 
-          return StaticClient.get({
-            client: client,
-            path: "/fetch-fresh-with-expires"
-          }).then(data => {
-            expect(data).to.eql(RESPONSE_DATA_MODIFIED);
-            expect(nock.isDone()).to.be.true;
-          });
-        }
-      );
+        return StaticClient.get({
+          client: client,
+          path: "/fetch-fresh-with-expires"
+        }).then(data => {
+          expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+          expect(nock.isDone()).to.be.true;
+        });
+      });
     });
   });
 
@@ -128,26 +135,28 @@ module.exports = function() {
           EtAg: "etag"
         });
 
-      return StaticClient.get({ client: client, path: "/fetch-cached" }).then(data => {
-        expect(data).to.eql(RESPONSE_DATA);
-        expect(nock.isDone()).to.be.true;
-        // this nock is never called
-        scope.get("/fetch-cached").reply(
-          304,
-          function() {
-            expect(this.req.headers["if-none-match"]).to.be.undefined;
-            return undefined;
-          },
-          {}
-        );
-        return StaticClient.get({
-          client: client,
-          path: "/fetch-cached"
-        }).then(data => {
+      return StaticClient.get({ client: client, path: "/fetch-cached" }).then(
+        data => {
           expect(data).to.eql(RESPONSE_DATA);
-          expect(nock.isDone()).to.be.false;
-        });
-      });
+          expect(nock.isDone()).to.be.true;
+          // this nock is never called
+          scope.get("/fetch-cached").reply(
+            304,
+            function() {
+              expect(this.req.headers["if-none-match"]).to.be.undefined;
+              return undefined;
+            },
+            {}
+          );
+          return StaticClient.get({
+            client: client,
+            path: "/fetch-cached"
+          }).then(data => {
+            expect(data).to.eql(RESPONSE_DATA);
+            expect(nock.isDone()).to.be.false;
+          });
+        }
+      );
     });
 
     it("asset re-validated on response headers max-age=0 with etag", function() {
@@ -192,27 +201,28 @@ module.exports = function() {
           EtAg: "EtAg"
         });
 
-      return StaticClient.get({ client: client, path: "/fetch-cached-with-no-cache" }).then(
-        data => {
+      return StaticClient.get({
+        client: client,
+        path: "/fetch-cached-with-no-cache"
+      }).then(data => {
+        expect(data).to.eql(RESPONSE_DATA);
+        expect(nock.isDone()).to.be.true;
+        scope.get("/fetch-cached-with-no-cache").reply(
+          304,
+          function() {
+            expect(this.req.headers["if-none-match"][0]).to.eql("EtAg");
+            return undefined;
+          },
+          {}
+        );
+        return StaticClient.get({
+          client: client,
+          path: "/fetch-cached-with-no-cache"
+        }).then(data => {
           expect(data).to.eql(RESPONSE_DATA);
           expect(nock.isDone()).to.be.true;
-          scope.get("/fetch-cached-with-no-cache").reply(
-            304,
-            function() {
-              expect(this.req.headers["if-none-match"][0]).to.eql("EtAg");
-              return undefined;
-            },
-            {}
-          );
-          return StaticClient.get({
-            client: client,
-            path: "/fetch-cached-with-no-cache"
-          }).then(data => {
-            expect(data).to.eql(RESPONSE_DATA);
-            expect(nock.isDone()).to.be.true;
-          });
-        }
-      );
+        });
+      });
     });
 
     it("asset not cached on response headers no-store with etag", function() {
@@ -224,27 +234,28 @@ module.exports = function() {
           EtAg: "EtAg"
         });
 
-      return StaticClient.get({ client: client, path: "/fetch-cached-with-no-store" }).then(
-        data => {
-          expect(data).to.eql(RESPONSE_DATA);
+      return StaticClient.get({
+        client: client,
+        path: "/fetch-cached-with-no-store"
+      }).then(data => {
+        expect(data).to.eql(RESPONSE_DATA);
+        expect(nock.isDone()).to.be.true;
+        scope.get("/fetch-cached-with-no-store").reply(
+          200,
+          function() {
+            expect(this.req.headers["if-none-match"]).to.be.undefined;
+            return RESPONSE_DATA_MODIFIED;
+          },
+          {}
+        );
+        return StaticClient.get({
+          client: client,
+          path: "/fetch-cached-with-no-store"
+        }).then(data => {
+          expect(data).to.eql(RESPONSE_DATA_MODIFIED);
           expect(nock.isDone()).to.be.true;
-          scope.get("/fetch-cached-with-no-store").reply(
-            200,
-            function() {
-              expect(this.req.headers["if-none-match"]).to.be.undefined;
-              return RESPONSE_DATA_MODIFIED;
-            },
-            {}
-          );
-          return StaticClient.get({
-            client: client,
-            path: "/fetch-cached-with-no-store"
-          }).then(data => {
-            expect(data).to.eql(RESPONSE_DATA_MODIFIED);
-            expect(nock.isDone()).to.be.true;
-          });
-        }
-      );
+        });
+      });
     });
   });
 
@@ -262,28 +273,29 @@ module.exports = function() {
           EtAg: "etag"
         });
 
-      return StaticClient.get({ client: client, path: "/fetch-fresh-invalid-expiry" }).then(
-        data => {
+      return StaticClient.get({
+        client: client,
+        path: "/fetch-fresh-invalid-expiry"
+      }).then(data => {
+        expect(data).to.eql(RESPONSE_DATA);
+        expect(nock.isDone()).to.be.true;
+        // this nock is never called
+        scope.get("/fetch-fresh-invalid-expiry").reply(
+          200,
+          function() {
+            expect(this.req.headers["if-none-match"]).to.eql("etag");
+            return RESPONSE_DATA_MODIFIED;
+          },
+          {}
+        );
+        return StaticClient.get({
+          client: client,
+          path: "/fetch-fresh-invalid-expiry"
+        }).then(data => {
           expect(data).to.eql(RESPONSE_DATA);
-          expect(nock.isDone()).to.be.true;
-          // this nock is never called
-          scope.get("/fetch-fresh-invalid-expiry").reply(
-            200,
-            function() {
-              expect(this.req.headers["if-none-match"]).to.eql("etag");
-              return RESPONSE_DATA_MODIFIED;
-            },
-            {}
-          );
-          return StaticClient.get({
-            client: client,
-            path: "/fetch-fresh-invalid-expiry"
-          }).then(data => {
-            expect(data).to.eql(RESPONSE_DATA);
-            expect(nock.isDone()).to.be.false;
-          });
-        }
-      );
+          expect(nock.isDone()).to.be.false;
+        });
+      });
     });
 
     it("asset cached on response headers no-cache, etag and past Expiry", function() {
@@ -297,30 +309,31 @@ module.exports = function() {
           EtaG: "EtaG"
         });
 
-      return StaticClient.get({ client: client, path: "/fetch-fresh-past-expiry" }).then(
-        data => {
-          expect(data).to.eql(RESPONSE_DATA);
+      return StaticClient.get({
+        client: client,
+        path: "/fetch-fresh-past-expiry"
+      }).then(data => {
+        expect(data).to.eql(RESPONSE_DATA);
+        expect(nock.isDone()).to.be.true;
+        scope.get("/fetch-fresh-past-expiry").reply(
+          200,
+          function() {
+            expect(this.req.headers["if-none-match"][0]).to.eql("EtaG");
+            expect(this.req.headers["if-modified-since"][0]).to.eql(
+              "Wed, 18 Mar 2000 00:00:00 GMT"
+            );
+            return RESPONSE_DATA_MODIFIED;
+          },
+          {}
+        );
+        return StaticClient.get({
+          client: client,
+          path: "/fetch-fresh-past-expiry"
+        }).then(data => {
+          expect(data).to.eql(RESPONSE_DATA_MODIFIED);
           expect(nock.isDone()).to.be.true;
-          scope.get("/fetch-fresh-past-expiry").reply(
-            200,
-            function() {
-              expect(this.req.headers["if-none-match"][0]).to.eql("EtaG");
-              expect(this.req.headers["if-modified-since"][0]).to.eql(
-                "Wed, 18 Mar 2000 00:00:00 GMT"
-              );
-              return RESPONSE_DATA_MODIFIED;
-            },
-            {}
-          );
-          return StaticClient.get({
-            client: client,
-            path: "/fetch-fresh-past-expiry"
-          }).then(data => {
-            expect(data).to.eql(RESPONSE_DATA_MODIFIED);
-            expect(nock.isDone()).to.be.true;
-          });
-        }
-      );
+        });
+      });
     });
 
     it("asset cached on response headers etag and past Expiry", function() {
@@ -360,4 +373,4 @@ module.exports = function() {
       });
     });
   });
-}
+};
