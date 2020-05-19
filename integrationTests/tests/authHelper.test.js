@@ -9,9 +9,6 @@ const chai = require("chai");
 const chaiAsPromised = require("chai-as-promised");
 const { stripBearer } = require("@commerce-apps/core");
 
-
-
-// let test: Shop;
 before(() => {
   chai.use(chaiAsPromised);
 });
