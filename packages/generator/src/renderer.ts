@@ -105,6 +105,8 @@ const dtoPartial = Handlebars.compile(
 
 /**
  * Sort API families and their APIs by name.
+ *
+ * @param apis -
  */
 export function sortApis(apis: ApiClientsInfoT[]): void {
   const compare = (a: string, b: string): number => (a > b ? 1 : -1);
@@ -157,6 +159,7 @@ function createDto(webApiModel: WebApiBaseUnit): string {
 
 /**
  * Generates code to export all API families to index.ts
+ *
  * @param apiFamilies - The list of api families we used to generate the code
  *
  * @returns The rendered code as a string
@@ -170,6 +173,7 @@ function createIndex(apiFamilies: string[]): string {
 /**
  * Generates helper methods for the SDK (Syntactical sugar)
  *
+ * @param config -
  * @returns The rendered code as a string
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -210,6 +214,7 @@ export function createApiClients(
 
 /**
  * Generates code to export all APIs in a API Family
+ *
  * @param apiNames - Names of all the APIs in the family
  * @returns code to export all APIs in a API Family
  */
@@ -221,6 +226,7 @@ function createApiFamily(apiNames: string[]): string {
 
 /**
  * Renders API functions and its types into a typescript file
+ *
  * @param apiModel - AMF Model of the API
  * @param renderDir - Directory path at which the rendered API files are saved
  * @returns Name of the API
@@ -251,6 +257,7 @@ function renderApi(
 
 /**
  * Renders API functions and its types into a typescript file for all the APIs in a family
+ *
  * @param apiFamily - Name of the API family
  * @param familyApis - Array of AMF models
  * @param renderDir - Directory path to save the rendered API files
@@ -277,8 +284,9 @@ function renderApiFamily(
 
 /**
  * Renders typescript code for the APIs using the pre-defined templates
+ *
  * @param config - Build config used to build the SDK
-
+ 
  * @returns Promise<void>
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -318,10 +326,11 @@ export async function renderTemplates(config: any): Promise<void> {
   );
 
   // Create file documenting available APIs
-  fs.writeFileSync(
-    path.join(config.renderDir, "..", "APICLIENTS.md"),
-    createApiClients(apiFamilyMap, apiFamilyRamlConfig)
-  );
+  // TODO: Remove generation of APICLIENTS.md from build
+  // fs.writeFileSync(
+  //   path.join(config.renderDir, "..", "APICLIENTS.md"),
+  //   createApiClients(apiFamilyMap, apiFamilyRamlConfig)
+  // );
   generatorLogger.info(
     "Successfully rendered code from the APIs: ",
     config.inputDir

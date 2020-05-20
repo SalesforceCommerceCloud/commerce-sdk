@@ -19,6 +19,8 @@ const config: ClientConfig = { /* ... */ };
 const einsteinQuickStartGuideClient = new Ai.EinsteinQuickStartGuide(config);
 ```
 
+**Mule App Version:** 3.0.7
+
 ## CDN
 
 ### [CDN Zones](https://developer.commercecloud.com/s/api-details/a003k00000UIKk2AAH)
@@ -35,6 +37,8 @@ const { Cdn, ClientConfig } = require("commerce-sdk");
 const config: ClientConfig = { /* ... */ };
 const cdnZonesClient = new Cdn.CdnZones(config);
 ```
+
+**Mule App Version:** 1.0.5
 
 ## Checkout
 
