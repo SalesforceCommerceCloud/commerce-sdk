@@ -1,4 +1,10 @@
 ## CHANGELOG
+
+### v1.4.3-beta.1
+
+* Quick fix in the CI config to ensure the proper package is deployed to NPM
+
+
 ### v1.4.3-beta.0
 
 ### **Core Functionality** 

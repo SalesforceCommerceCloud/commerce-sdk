@@ -11,7 +11,6 @@ The Core package provides a variety of functions that make interacting with Sale
 ## Setup
 
 Execute the following commands to install dependencies and build core.
-
     # To setup
     npm install
 
