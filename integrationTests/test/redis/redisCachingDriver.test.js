@@ -9,12 +9,12 @@
 const chai = require("chai");
 const chaiAsPromised = require("chai-as-promised");
 const { BaseClient, CacheManagerRedis } = require("@commerce-apps/core");
-const cacheTests = require("../cache/basic.tests");
-const etagTests = require("../cache/etag.tests");
-const evictionTests = require("../cache/eviction.tests");
-const multipleHeadersTests = require("../cache/multipleHeaders.tests");
-const noCacheHeaderTests = require("../cache/noCacheHeader.tests");
-const delayedTests = require("../cache/delayedTests.tests");
+const cacheTests = require("../cache/basic.test.helper");
+const etagTests = require("../cache/etag.test.helper");
+const evictionTests = require("../cache/eviction.test.helper");
+const multipleHeadersTests = require("../cache/multipleHeaders.test.helper");
+const noCacheHeaderTests = require("../cache/noCacheHeader.test.helper");
+const delayedTests = require("../cache/delayedTests.test.helper");
 
 describe("Redis cache tests", function() {
   before(function() {
