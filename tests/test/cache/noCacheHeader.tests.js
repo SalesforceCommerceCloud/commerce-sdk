@@ -31,7 +31,7 @@ module.exports = function() {
 
       return StaticClient.get({ client: client, path: "/private" }).then(
         data => {
-          expect(data).to.eql(RESPONSE_DATA);
+          expect(data).to.deep.equal(RESPONSE_DATA);
           expect(nock.isDone()).to.be.true;
           scope
             .get("/private")
@@ -40,7 +40,7 @@ module.exports = function() {
             client: client,
             path: "/private"
           }).then(data => {
-            expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+            expect(data).to.deep.equal(RESPONSE_DATA_MODIFIED);
             expect(nock.isDone()).to.be.true;
           });
         }
@@ -55,7 +55,7 @@ module.exports = function() {
 
       return StaticClient.get({ client: client, path: "/no-cache" }).then(
         data => {
-          expect(data).to.eql(RESPONSE_DATA);
+          expect(data).to.deep.equal(RESPONSE_DATA);
           expect(nock.isDone()).to.be.true;
           scope.get("/no-cache").reply(200, RESPONSE_DATA_MODIFIED, {
             "Cache-Control": "no-cache"
@@ -64,7 +64,7 @@ module.exports = function() {
             client: client,
             path: "/no-cache"
           }).then(data => {
-            expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+            expect(data).to.deep.equal(RESPONSE_DATA_MODIFIED);
             expect(nock.isDone()).to.be.true;
           });
         }
@@ -83,7 +83,7 @@ module.exports = function() {
 
       return StaticClient.get({ client: client, path: "/no-store" }).then(
         data => {
-          expect(data).to.eql(RESPONSE_DATA);
+          expect(data).to.deep.equal(RESPONSE_DATA);
           expect(nock.isDone()).to.be.true;
           scope.get("/no-store").reply(200, RESPONSE_DATA_MODIFIED, {
             "Cache-Control": "no-store"
@@ -92,7 +92,7 @@ module.exports = function() {
             client: client,
             path: "/no-store"
           }).then(data => {
-            expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+            expect(data).to.deep.equal(RESPONSE_DATA_MODIFIED);
             expect(nock.isDone()).to.be.true;
           });
         }
@@ -115,14 +115,14 @@ module.exports = function() {
         client: client,
         path: "/invalid-expires"
       }).then(data => {
-        expect(data).to.eql(RESPONSE_DATA);
+        expect(data).to.deep.equal(RESPONSE_DATA);
         expect(nock.isDone()).to.be.true;
         scope.get("/invalid-expires").reply(200, RESPONSE_DATA_MODIFIED);
         return StaticClient.get({
           client: client,
           path: "/invalid-expires"
         }).then(data => {
-          expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+          expect(data).to.deep.equal(RESPONSE_DATA_MODIFIED);
           expect(nock.isDone()).to.be.true;
         });
       });
@@ -138,14 +138,14 @@ module.exports = function() {
 
       return StaticClient.get({ client: client, path: "/valid-expires" }).then(
         data => {
-          expect(data).to.eql(RESPONSE_DATA);
+          expect(data).to.deep.equal(RESPONSE_DATA);
           expect(nock.isDone()).to.be.true;
           scope.get("/valid-expires").reply(200, RESPONSE_DATA_MODIFIED);
           return StaticClient.get({
             client: client,
             path: "/valid-expires"
           }).then(data => {
-            expect(data).to.eql(RESPONSE_DATA);
+            expect(data).to.deep.equal(RESPONSE_DATA);
             expect(nock.isDone()).to.be.false;
           });
         }
@@ -165,7 +165,7 @@ module.exports = function() {
         client: client,
         path: "/valid-expires-with-no-cache"
       }).then(data => {
-        expect(data).to.eql(RESPONSE_DATA);
+        expect(data).to.deep.equal(RESPONSE_DATA);
         expect(nock.isDone()).to.be.true;
         scope
           .get("/valid-expires-with-no-cache")
@@ -174,7 +174,7 @@ module.exports = function() {
           client: client,
           path: "/valid-expires-with-no-cache"
         }).then(data => {
-          expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+          expect(data).to.deep.equal(RESPONSE_DATA_MODIFIED);
           expect(nock.isDone()).to.be.true;
         });
       });
@@ -193,7 +193,7 @@ module.exports = function() {
         client: client,
         path: "/valid-expires-with-no-store"
       }).then(data => {
-        expect(data).to.eql(RESPONSE_DATA);
+        expect(data).to.deep.equal(RESPONSE_DATA);
         expect(nock.isDone()).to.be.true;
         scope
           .get("/valid-expires-with-no-store")
@@ -202,7 +202,7 @@ module.exports = function() {
           client: client,
           path: "/valid-expires-with-no-store"
         }).then(data => {
-          expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+          expect(data).to.deep.equal(RESPONSE_DATA_MODIFIED);
           expect(nock.isDone()).to.be.true;
         });
       });
@@ -221,7 +221,7 @@ module.exports = function() {
         client: client,
         path: "/valid-expires-with-invalid-max-age"
       }).then(data => {
-        expect(data).to.eql(RESPONSE_DATA);
+        expect(data).to.deep.equal(RESPONSE_DATA);
         expect(nock.isDone()).to.be.true;
         scope
           .get("/valid-expires-with-invalid-max-age")
@@ -230,7 +230,7 @@ module.exports = function() {
           client: client,
           path: "/valid-expires-with-invalid-max-age"
         }).then(data => {
-          expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+          expect(data).to.deep.equal(RESPONSE_DATA_MODIFIED);
           expect(nock.isDone()).to.be.true;
         });
       });
@@ -252,14 +252,14 @@ module.exports = function() {
         client: client,
         path: "/invalid-max-age"
       }).then(data => {
-        expect(data).to.eql(RESPONSE_DATA);
+        expect(data).to.deep.equal(RESPONSE_DATA);
         expect(nock.isDone()).to.be.true;
         scope.get("/invalid-max-age").reply(200, RESPONSE_DATA_MODIFIED);
         return StaticClient.get({
           client: client,
           path: "/invalid-max-age"
         }).then(data => {
-          expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+          expect(data).to.deep.equal(RESPONSE_DATA_MODIFIED);
           expect(nock.isDone()).to.be.true;
         });
       });
@@ -275,14 +275,14 @@ module.exports = function() {
 
       return StaticClient.get({ client: client, path: "/max-age-zero" }).then(
         data => {
-          expect(data).to.eql(RESPONSE_DATA);
+          expect(data).to.deep.equal(RESPONSE_DATA);
           expect(nock.isDone()).to.be.true;
           scope.get("/max-age-zero").reply(200, RESPONSE_DATA_MODIFIED);
           return StaticClient.get({
             client: client,
             path: "/max-age-zero"
           }).then(data => {
-            expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+            expect(data).to.deep.equal(RESPONSE_DATA_MODIFIED);
             expect(nock.isDone()).to.be.true;
           });
         }
@@ -301,14 +301,14 @@ module.exports = function() {
         client: client,
         path: "/max-age-10000000"
       }).then(data => {
-        expect(data).to.eql(RESPONSE_DATA);
+        expect(data).to.deep.equal(RESPONSE_DATA);
         expect(nock.isDone()).to.be.true;
         scope.get("/max-age-10000000").reply(200, RESPONSE_DATA_MODIFIED);
         return StaticClient.get({
           client: client,
           path: "/max-age-10000000"
         }).then(data => {
-          expect(data).to.eql(RESPONSE_DATA);
+          expect(data).to.deep.equal(RESPONSE_DATA);
           expect(nock.isDone()).to.be.false;
         });
       });
@@ -326,7 +326,7 @@ module.exports = function() {
         client: client,
         path: "/max-age-10000000-and-no-cache"
       }).then(data => {
-        expect(data).to.eql(RESPONSE_DATA);
+        expect(data).to.deep.equal(RESPONSE_DATA);
         expect(nock.isDone()).to.be.true;
         scope
           .get("/max-age-10000000-and-no-cache")
@@ -335,7 +335,7 @@ module.exports = function() {
           client: client,
           path: "/max-age-10000000-and-no-cache"
         }).then(data => {
-          expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+          expect(data).to.deep.equal(RESPONSE_DATA_MODIFIED);
           expect(nock.isDone()).to.be.true;
         });
       });
@@ -353,7 +353,7 @@ module.exports = function() {
         client: client,
         path: "/max-age-10000000-and-no-store"
       }).then(data => {
-        expect(data).to.eql(RESPONSE_DATA);
+        expect(data).to.deep.equal(RESPONSE_DATA);
         expect(nock.isDone()).to.be.true;
         scope
           .get("/max-age-10000000-and-no-store")
@@ -362,7 +362,7 @@ module.exports = function() {
           client: client,
           path: "/max-age-10000000-and-no-store"
         }).then(data => {
-          expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+          expect(data).to.deep.equal(RESPONSE_DATA_MODIFIED);
           expect(nock.isDone()).to.be.true;
         });
       });

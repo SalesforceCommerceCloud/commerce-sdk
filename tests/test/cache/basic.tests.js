@@ -26,13 +26,13 @@ module.exports = function() {
 
       return StaticClient.get({ client: this.client, path: "/once" }).then(
         data => {
-          expect(data).to.eql({ mock: "data" });
+          expect(data).to.deep.equal({ mock: "data" });
           expect(nock.isDone()).to.be.true;
         }
       );
     });
 
-    it("does not get from cache with request max-age=0", async function() {
+    it("does not get from cache with request max-age=0", function() {
       const scope = nock("https://somewhere")
         .get("/max-age-zero")
         .reply(200, { mock: "data" }, { "Cache-Control": "max-age=0" });
@@ -40,18 +40,20 @@ module.exports = function() {
         .get("/max-age-zero")
         .reply(200, { mock: "newData" }, { "Cache-Control": "max-age=0" });
 
-      let data = await StaticClient.get({
+      return StaticClient.get({
         client: this.client,
         path: "/max-age-zero"
+      }).then(data => {
+        expect(data).to.deep.equal({ mock: "data" });
+        expect(nock.isDone()).to.be.false;
+        return StaticClient.get({
+          client: this.client,
+          path: "/max-age-zero"
+        }).then(data => {
+          expect(data).to.deep.equal({ mock: "newData" });
+          expect(nock.isDone()).to.be.true;
+        });
       });
-      expect(data).to.eql({ mock: "data" });
-      data = await StaticClient.get({
-        client: this.client,
-        path: "/max-age-zero"
-      });
-      expect(data).to.eql({ mock: "newData" });
-      expect(nock.isDone()).to.be.true;
-      return true;
     });
 
     it("gets from cache with response expires fresh", function() {
@@ -72,10 +74,10 @@ module.exports = function() {
 
       return StaticClient.get({ client: this.client, path: "/fresh" }).then(
         data => {
-          expect(data).to.eql({ mock: "data" });
+          expect(data).to.deep.equal({ mock: "data" });
           return StaticClient.get({ client: this.client, path: "/fresh" }).then(
             data => {
-              expect(data).to.eql({ mock: "data" });
+              expect(data).to.deep.equal({ mock: "data" });
               expect(nock.isDone()).to.be.false;
             }
           );
@@ -94,7 +96,7 @@ module.exports = function() {
 
       return StaticClient.get({ client: this.client, path: "/expired" }).then(
         data => {
-          expect(data).to.eql({ mock: "data" });
+          expect(data).to.deep.equal({ mock: "data" });
           scope
             .get("/expired")
             .reply(
@@ -106,7 +108,7 @@ module.exports = function() {
             client: this.client,
             path: "/expired"
           }).then(data => {
-            expect(data).to.eql({ mock: "newData" });
+            expect(data).to.deep.equal({ mock: "newData" });
             expect(nock.isDone()).to.be.true;
           });
         }
@@ -123,13 +125,13 @@ module.exports = function() {
 
       return StaticClient.get({ client: this.client, path: "/max-age" }).then(
         data => {
-          expect(data).to.eql({ mock: "data" });
+          expect(data).to.deep.equal({ mock: "data" });
           expect(nock.isDone()).to.be.false;
           return StaticClient.get({
             client: this.client,
             path: "/max-age"
           }).then(data => {
-            expect(data).to.eql({ mock: "data" });
+            expect(data).to.deep.equal({ mock: "data" });
             expect(nock.isDone()).to.be.false;
           });
         }
@@ -152,13 +154,13 @@ module.exports = function() {
         client: client,
         path: "/max-age-null-cache"
       }).then(data => {
-        expect(data).to.eql({ mock: "data" });
+        expect(data).to.deep.equal({ mock: "data" });
         expect(nock.isDone()).to.be.false;
         return StaticClient.get({
           client: client,
           path: "/max-age-null-cache"
         }).then(data => {
-          expect(data).to.eql({ mock: "newData" });
+          expect(data).to.deep.equal({ mock: "newData" });
           expect(nock.isDone()).to.be.true;
         });
       });
@@ -173,7 +175,7 @@ module.exports = function() {
         client: this.client,
         path: "/max-age-no-cache"
       }).then(data => {
-        expect(data).to.eql({ mock: "data" });
+        expect(data).to.deep.equal({ mock: "data" });
         expect(nock.isDone()).to.be.true;
         scope
           .get("/max-age-no-cache")
@@ -188,7 +190,7 @@ module.exports = function() {
           path: "/max-age-no-cache",
           headers: { "Cache-Control": "no-cache" }
         }).then(data => {
-          expect(data).to.eql({ mock: "newData" });
+          expect(data).to.deep.equal({ mock: "newData" });
           expect(nock.isDone()).to.be.true;
         });
       });
@@ -207,14 +209,14 @@ module.exports = function() {
         path: "/post-max-age",
         body: {}
       }).then(data => {
-        expect(data).to.eql({ mock: "data" });
+        expect(data).to.deep.equal({ mock: "data" });
         expect(nock.isDone()).to.be.false;
         return StaticClient.post({
           client: this.client,
           path: "/post-max-age",
           body: {}
         }).then(data => {
-          expect(data).to.eql({ mock: "newData" });
+          expect(data).to.deep.equal({ mock: "newData" });
           expect(nock.isDone()).to.be.true;
         });
       });
@@ -233,14 +235,14 @@ module.exports = function() {
         path: "/patch-max-age",
         body: {}
       }).then(data => {
-        expect(data).to.eql({ mock: "data" });
+        expect(data).to.deep.equal({ mock: "data" });
         expect(nock.isDone()).to.be.false;
         return StaticClient.patch({
           client: this.client,
           path: "/patch-max-age",
           body: {}
         }).then(data => {
-          expect(data).to.eql({ mock: "newData" });
+          expect(data).to.deep.equal({ mock: "newData" });
           expect(nock.isDone()).to.be.true;
         });
       });
@@ -259,14 +261,14 @@ module.exports = function() {
         path: "/put-max-age",
         body: {}
       }).then(data => {
-        expect(data).to.eql({ mock: "data" });
+        expect(data).to.deep.equal({ mock: "data" });
         expect(nock.isDone()).to.be.false;
         return StaticClient.put({
           client: this.client,
           path: "/put-max-age",
           body: {}
         }).then(data => {
-          expect(data).to.eql({ mock: "newData" });
+          expect(data).to.deep.equal({ mock: "newData" });
           expect(nock.isDone()).to.be.true;
         });
       });

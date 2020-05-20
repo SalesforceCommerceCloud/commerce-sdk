@@ -53,7 +53,7 @@ module.exports = function() {
           .then(res => {
             return res.json().then(resData => {
               // ensure response data is cached
-              expect(resData).to.eql(RESPONSE_DATA);
+              expect(resData).to.deep.equal(RESPONSE_DATA);
             });
           });
       });
@@ -111,7 +111,7 @@ module.exports = function() {
           304,
           function() {
             //verify if sdk adds if-none-match header
-            expect(this.req.headers["if-none-match"][0]).to.eql("etag");
+            expect(this.req.headers["if-none-match"][0]).to.deep.equal("etag");
           },
           { ETag: "etag_modified", newHeader: "a new header" }
         );
@@ -134,8 +134,8 @@ module.exports = function() {
           return client.clientConfig.cacheManager
             .match(request, opts)
             .then(res => {
-              expect(res.headers.get("etag")).to.eql("etag_modified");
-              expect(res.headers.get("newHeader")).to.eql("a new header");
+              expect(res.headers.get("etag")).to.deep.equal("etag_modified");
+              expect(res.headers.get("newHeader")).to.deep.equal("a new header");
             });
         });
       });
@@ -171,11 +171,11 @@ module.exports = function() {
           .then(res => {
             return res.json().then(resData => {
               // ensure response data is cached
-              expect(resData).to.eql(RESPONSE_DATA);
+              expect(resData).to.deep.equal(RESPONSE_DATA);
               //define fresh response
               scope.get("/evict-modified").reply(200, function() {
                 //verify if sdk adds if-none-match header
-                expect(this.req.headers["if-none-match"][0]).to.eql("etag");
+                expect(this.req.headers["if-none-match"][0]).to.deep.equal("etag");
                 return RESPONSE_DATA_MODIFIED;
               });
               return StaticClient.get({
@@ -189,7 +189,7 @@ module.exports = function() {
                   .match(request, opts)
                   .then(res => {
                     return res.json().then(resData => {
-                      expect(resData).to.eql(RESPONSE_DATA_MODIFIED);
+                      expect(resData).to.deep.equal(RESPONSE_DATA_MODIFIED);
                     });
                   });
               });

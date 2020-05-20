@@ -36,7 +36,7 @@ module.exports = function() {
         client: client,
         path: "/fetch-fresh-no-etag"
       }).then(data => {
-        expect(data).to.eql(RESPONSE_DATA);
+        expect(data).to.deep.equal(RESPONSE_DATA);
         expect(nock.isDone()).to.be.true;
         scope.get("/fetch-fresh-no-etag").reply(200, RESPONSE_DATA_MODIFIED, {
           "Cache-Control": "no-cache"
@@ -45,7 +45,7 @@ module.exports = function() {
           client: client,
           path: "/fetch-fresh-no-etag"
         }).then(data => {
-          expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+          expect(data).to.deep.equal(RESPONSE_DATA_MODIFIED);
           expect(nock.isDone()).to.be.true;
         });
       });
@@ -64,7 +64,7 @@ module.exports = function() {
         client: client,
         path: "/fetch-fresh-with-etag"
       }).then(data => {
-        expect(data).to.eql(RESPONSE_DATA);
+        expect(data).to.deep.equal(RESPONSE_DATA);
         expect(nock.isDone()).to.be.true;
         scope.get("/fetch-fresh-with-etag").reply(
           200,
@@ -79,7 +79,7 @@ module.exports = function() {
           client: client,
           path: "/fetch-fresh-with-etag"
         }).then(data => {
-          expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+          expect(data).to.deep.equal(RESPONSE_DATA_MODIFIED);
           expect(nock.isDone()).to.be.true;
         });
       });
@@ -100,7 +100,7 @@ module.exports = function() {
         client: client,
         path: "/fetch-fresh-with-expires"
       }).then(data => {
-        expect(data).to.eql(RESPONSE_DATA);
+        expect(data).to.deep.equal(RESPONSE_DATA);
         expect(nock.isDone()).to.be.true;
         scope.get("/fetch-fresh-with-expires").reply(
           200,
@@ -116,7 +116,7 @@ module.exports = function() {
           client: client,
           path: "/fetch-fresh-with-expires"
         }).then(data => {
-          expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+          expect(data).to.deep.equal(RESPONSE_DATA_MODIFIED);
           expect(nock.isDone()).to.be.true;
         });
       });
@@ -137,7 +137,7 @@ module.exports = function() {
 
       return StaticClient.get({ client: client, path: "/fetch-cached" }).then(
         data => {
-          expect(data).to.eql(RESPONSE_DATA);
+          expect(data).to.deep.equal(RESPONSE_DATA);
           expect(nock.isDone()).to.be.true;
           // this nock is never called
           scope.get("/fetch-cached").reply(
@@ -152,7 +152,7 @@ module.exports = function() {
             client: client,
             path: "/fetch-cached"
           }).then(data => {
-            expect(data).to.eql(RESPONSE_DATA);
+            expect(data).to.deep.equal(RESPONSE_DATA);
             expect(nock.isDone()).to.be.false;
           });
         }
@@ -172,12 +172,12 @@ module.exports = function() {
         client: client,
         path: "/fetch-cached-with-max-age-0"
       }).then(data => {
-        expect(data).to.eql(RESPONSE_DATA);
+        expect(data).to.deep.equal(RESPONSE_DATA);
         expect(nock.isDone()).to.be.true;
         scope.get("/fetch-cached-with-max-age-0").reply(
           304,
           function() {
-            expect(this.req.headers["if-none-match"][0]).to.eql("etag");
+            expect(this.req.headers["if-none-match"][0]).to.deep.equal("etag");
             return undefined;
           },
           {}
@@ -186,7 +186,7 @@ module.exports = function() {
           client: client,
           path: "/fetch-cached-with-max-age-0"
         }).then(data => {
-          expect(data).to.eql(RESPONSE_DATA);
+          expect(data).to.deep.equal(RESPONSE_DATA);
           expect(nock.isDone()).to.be.true;
         });
       });
@@ -205,12 +205,12 @@ module.exports = function() {
         client: client,
         path: "/fetch-cached-with-no-cache"
       }).then(data => {
-        expect(data).to.eql(RESPONSE_DATA);
+        expect(data).to.deep.equal(RESPONSE_DATA);
         expect(nock.isDone()).to.be.true;
         scope.get("/fetch-cached-with-no-cache").reply(
           304,
           function() {
-            expect(this.req.headers["if-none-match"][0]).to.eql("EtAg");
+            expect(this.req.headers["if-none-match"][0]).to.deep.equal("EtAg");
             return undefined;
           },
           {}
@@ -219,7 +219,7 @@ module.exports = function() {
           client: client,
           path: "/fetch-cached-with-no-cache"
         }).then(data => {
-          expect(data).to.eql(RESPONSE_DATA);
+          expect(data).to.deep.equal(RESPONSE_DATA);
           expect(nock.isDone()).to.be.true;
         });
       });
@@ -238,7 +238,7 @@ module.exports = function() {
         client: client,
         path: "/fetch-cached-with-no-store"
       }).then(data => {
-        expect(data).to.eql(RESPONSE_DATA);
+        expect(data).to.deep.equal(RESPONSE_DATA);
         expect(nock.isDone()).to.be.true;
         scope.get("/fetch-cached-with-no-store").reply(
           200,
@@ -252,7 +252,7 @@ module.exports = function() {
           client: client,
           path: "/fetch-cached-with-no-store"
         }).then(data => {
-          expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+          expect(data).to.deep.equal(RESPONSE_DATA_MODIFIED);
           expect(nock.isDone()).to.be.true;
         });
       });
@@ -277,13 +277,13 @@ module.exports = function() {
         client: client,
         path: "/fetch-fresh-invalid-expiry"
       }).then(data => {
-        expect(data).to.eql(RESPONSE_DATA);
+        expect(data).to.deep.equal(RESPONSE_DATA);
         expect(nock.isDone()).to.be.true;
         // this nock is never called
         scope.get("/fetch-fresh-invalid-expiry").reply(
           200,
           function() {
-            expect(this.req.headers["if-none-match"]).to.eql("etag");
+            expect(this.req.headers["if-none-match"]).to.deep.equal("etag");
             return RESPONSE_DATA_MODIFIED;
           },
           {}
@@ -292,7 +292,7 @@ module.exports = function() {
           client: client,
           path: "/fetch-fresh-invalid-expiry"
         }).then(data => {
-          expect(data).to.eql(RESPONSE_DATA);
+          expect(data).to.deep.equal(RESPONSE_DATA);
           expect(nock.isDone()).to.be.false;
         });
       });
@@ -313,13 +313,13 @@ module.exports = function() {
         client: client,
         path: "/fetch-fresh-past-expiry"
       }).then(data => {
-        expect(data).to.eql(RESPONSE_DATA);
+        expect(data).to.deep.equal(RESPONSE_DATA);
         expect(nock.isDone()).to.be.true;
         scope.get("/fetch-fresh-past-expiry").reply(
           200,
           function() {
-            expect(this.req.headers["if-none-match"][0]).to.eql("EtaG");
-            expect(this.req.headers["if-modified-since"][0]).to.eql(
+            expect(this.req.headers["if-none-match"][0]).to.deep.equal("EtaG");
+            expect(this.req.headers["if-modified-since"][0]).to.deep.equal(
               "Wed, 18 Mar 2000 00:00:00 GMT"
             );
             return RESPONSE_DATA_MODIFIED;
@@ -330,7 +330,7 @@ module.exports = function() {
           client: client,
           path: "/fetch-fresh-past-expiry"
         }).then(data => {
-          expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+          expect(data).to.deep.equal(RESPONSE_DATA_MODIFIED);
           expect(nock.isDone()).to.be.true;
         });
       });
@@ -350,13 +350,13 @@ module.exports = function() {
         client: client,
         path: "/fetch-fresh-past-expiry-no-cache"
       }).then(data => {
-        expect(data).to.eql(RESPONSE_DATA);
+        expect(data).to.deep.equal(RESPONSE_DATA);
         expect(nock.isDone()).to.be.true;
         scope.get("/fetch-fresh-past-expiry-no-cache").reply(
           200,
           function() {
-            expect(this.req.headers["if-none-match"][0]).to.eql("EtaG");
-            expect(this.req.headers["if-modified-since"][0]).to.eql(
+            expect(this.req.headers["if-none-match"][0]).to.deep.equal("EtaG");
+            expect(this.req.headers["if-modified-since"][0]).to.deep.equal(
               "Wed, 18 Mar 2000 00:00:00 GMT"
             );
             return RESPONSE_DATA_MODIFIED;
@@ -367,7 +367,7 @@ module.exports = function() {
           client: client,
           path: "/fetch-fresh-past-expiry-no-cache"
         }).then(data => {
-          expect(data).to.eql(RESPONSE_DATA_MODIFIED);
+          expect(data).to.deep.equal(RESPONSE_DATA_MODIFIED);
           expect(nock.isDone()).to.be.true;
         });
       });

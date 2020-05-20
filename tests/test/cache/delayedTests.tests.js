@@ -37,13 +37,13 @@ module.exports = function() {
         path: "/unmodified"
       }).then(data => {
         //ensure response body is correct from server
-        expect(data).to.eql({ mock: "data" });
+        expect(data).to.deep.equal({ mock: "data" });
         //ensure all http calls are done
         //expect(nock.isDone()).to.be.true;
 
         scope.get("/unmodified").reply(304, function() {
           //verify if sdk adds if-none-match header
-          expect(this.req.headers["if-none-match"][0]).to.eql("etag");
+          expect(this.req.headers["if-none-match"][0]).to.deep.equal("etag");
         });
 
         setTimeout(function() {
@@ -52,7 +52,7 @@ module.exports = function() {
             path: "/unmodified"
           }).then(data => {
             //ensure content is not empty and equals to the cached content
-            expect(data).to.eql({ mock: "data" });
+            expect(data).to.deep.equal({ mock: "data" });
             expect(nock.isDone()).to.be.true;
             done();
           });
@@ -76,14 +76,14 @@ module.exports = function() {
         path: "/modified"
       }).then(data => {
         //ensure response body is correct from server
-        expect(data).to.eql({ mock: "data" });
+        expect(data).to.deep.equal({ mock: "data" });
         //ensure all http calls are done
         expect(nock.isDone()).to.be.true;
 
         scope.get("/modified").reply(
           304,
           function() {
-            expect(this.req.headers["if-none-match"][0]).to.eql("etag");
+            expect(this.req.headers["if-none-match"][0]).to.deep.equal("etag");
           },
           { ETag: "new etag", "Cache-Control": "must-revalidate, max-age=1" }
         );
@@ -94,13 +94,13 @@ module.exports = function() {
             path: "/modified"
           }).then(data => {
             //ensure content is not empty and equals to the cached content
-            expect(data).to.eql({ mock: "data" });
+            expect(data).to.deep.equal({ mock: "data" });
             expect(nock.isDone()).to.be.true;
 
             scope.get("/modified").reply(
               304,
               function() {
-                expect(this.req.headers["if-none-match"][0]).to.eql("new etag");
+                expect(this.req.headers["if-none-match"][0]).to.deep.equal("new etag");
               },
               {
                 ETag: "new etag",
@@ -114,7 +114,7 @@ module.exports = function() {
                 path: "/modified"
               }).then(data => {
                 //ensure content is not empty and equals to the cached content
-                expect(data).to.eql({ mock: "data" });
+                expect(data).to.deep.equal({ mock: "data" });
                 expect(nock.isDone()).to.be.true;
                 done();
               });
@@ -154,12 +154,12 @@ module.exports = function() {
         path: "/lastmodified"
       }).then(data => {
         //ensure response body is correct from server
-        expect(data).to.eql({ mock: "data" });
+        expect(data).to.deep.equal({ mock: "data" });
         //ensure all http calls are done
         expect(nock.isDone()).to.be.true;
 
         scope.get("/lastmodified").reply(304, function() {
-          expect(this.req.headers["if-modified-since"][0]).to.eql(
+          expect(this.req.headers["if-modified-since"][0]).to.deep.equal(
             dateLastModified
           );
         });
@@ -169,7 +169,7 @@ module.exports = function() {
           path: "/lastmodified"
         }).then(data => {
           //ensure content is not empty and equals to the cached content
-          expect(data).to.eql({ mock: "data" });
+          expect(data).to.deep.equal({ mock: "data" });
           expect(nock.isDone()).to.be.true;
           done();
         });
@@ -201,14 +201,14 @@ module.exports = function() {
         path: "/not-modified"
       }).then(data => {
         //ensure response body is correct from server
-        expect(data).to.eql({ mock: "data" });
+        expect(data).to.deep.equal({ mock: "data" });
         //ensure all http calls are done
         expect(nock.isDone()).to.be.true;
 
         scope.get("/not-modified").reply(
           304,
           function() {
-            expect(this.req.headers["if-modified-since"][0]).to.eql(
+            expect(this.req.headers["if-modified-since"][0]).to.deep.equal(
               lastModified
             );
           },
@@ -224,10 +224,10 @@ module.exports = function() {
           path: "/not-modified"
         }).then(data => {
           //ensure content is not empty and equals to the cached content
-          expect(data).to.eql({ mock: "data" });
+          expect(data).to.deep.equal({ mock: "data" });
           expect(nock.isDone()).to.be.true;
           scope.get("/not-modified").reply(304, function() {
-            expect(this.req.headers["if-modified-since"][0]).to.eql(
+            expect(this.req.headers["if-modified-since"][0]).to.deep.equal(
               newLastModified
             );
           });
@@ -236,7 +236,7 @@ module.exports = function() {
             path: "/not-modified"
           }).then(data => {
             //ensure content is not empty and equals to the cached content
-            expect(data).to.eql({ mock: "data" });
+            expect(data).to.deep.equal({ mock: "data" });
             expect(nock.isDone()).to.be.true;
             done();
           });
@@ -267,12 +267,12 @@ module.exports = function() {
         path: "/lastmodified-since"
       }).then(data => {
         //ensure response body is correct from server
-        expect(data).to.eql({ mock: "data" });
+        expect(data).to.deep.equal({ mock: "data" });
         //ensure all http calls are done
         expect(nock.isDone()).to.be.true;
 
         scope.get("/lastmodified-since").reply(200, function() {
-          expect(this.req.headers["if-modified-since"][0]).to.eql(
+          expect(this.req.headers["if-modified-since"][0]).to.deep.equal(
             dateLastModified
           );
           return { mock: "data_modified" };
@@ -283,7 +283,7 @@ module.exports = function() {
           path: "/lastmodified-since"
         }).then(data => {
           //ensure content is not empty and equals to the modified content
-          expect(data).to.eql({ mock: "data_modified" });
+          expect(data).to.deep.equal({ mock: "data_modified" });
           expect(nock.isDone()).to.be.true;
           done();
         });

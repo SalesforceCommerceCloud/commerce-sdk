@@ -31,7 +31,7 @@ module.exports = function() {
         path: "/modified"
       }).then(data => {
         //ensure response body is correct from server
-        expect(data).to.eql({ mock: "data" });
+        expect(data).to.deep.equal({ mock: "data" });
         //ensure all http calls are done
         expect(nock.isDone()).to.be.true;
 
@@ -48,7 +48,7 @@ module.exports = function() {
           path: "/modified"
         }).then(data => {
           //ensure content is not empty and equals to the modified content
-          expect(data).to.eql({ mock: "data_modified" });
+          expect(data).to.deep.equal({ mock: "data_modified" });
           expect(nock.isDone()).to.be.true;
         });
       });
@@ -65,7 +65,7 @@ module.exports = function() {
         path: "/cached"
       }).then(data => {
         //ensure response body is correct from server
-        expect(data).to.eql({ mock: "data" });
+        expect(data).to.deep.equal({ mock: "data" });
         //ensure all http calls are done
         expect(nock.isDone()).to.be.true;
 
@@ -84,7 +84,7 @@ module.exports = function() {
           path: "/cached"
         }).then(data => {
           //ensure content is not empty and equals to the cached content
-          expect(data).to.eql({ mock: "data" });
+          expect(data).to.deep.equal({ mock: "data" });
           // Nock is not done as one of the mock is never called
           expect(nock.isDone()).to.be.false;
         });
@@ -114,7 +114,7 @@ module.exports = function() {
         path: "/no-lastmodified-header"
       }).then(data => {
         //ensure response body is correct from server
-        expect(data).to.eql({ mock: "data" });
+        expect(data).to.deep.equal({ mock: "data" });
         //ensure all http calls are done
         expect(nock.isDone()).to.be.true;
 
@@ -129,7 +129,7 @@ module.exports = function() {
           path: "/no-lastmodified-header"
         }).then(data => {
           //ensure content is not empty and equals to the cached content
-          expect(data).to.eql({ mock: "data" });
+          expect(data).to.deep.equal({ mock: "data" });
           // Nock is not as one http request is declared and not called
           expect(nock.isDone()).to.be.false;
         });
@@ -156,7 +156,7 @@ module.exports = function() {
         path: "/missing-expires-header"
       }).then(data => {
         //ensure response body is correct from server
-        expect(data).to.eql({ mock: "data" });
+        expect(data).to.deep.equal({ mock: "data" });
         //ensure all http calls are done
         expect(nock.isDone()).to.be.true;
 
@@ -170,7 +170,7 @@ module.exports = function() {
           path: "/missing-expires-header"
         }).then(data => {
           //ensure content is not empty and equals to the cached content
-          expect(data).to.eql({ mock: "data" });
+          expect(data).to.deep.equal({ mock: "data" });
           expect(nock.isDone()).to.be.false;
         });
       });
