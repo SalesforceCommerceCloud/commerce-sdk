@@ -1,4 +1,33 @@
 ## CHANGELOG
+### v1.4.2-beta.0
+
+### **Core Functionality** 
+
+* Exposed logger configuration to user
+```javascript
+import { sdkLogger } from "@commerce-sdk"
+
+# To set log level
+sdkLogger.setLevel(sdkLogger.levels.INFO);
+```
+* User-agent now defaults to `commerce-sdk@${VERSION}`
+* Retry settings has been exposed.  README.md has more details.
+Example:
+```javascript
+    productClient = new Product({
+      retrySettings: {
+        // This means 3 total calls are made
+        retries: 2,
+        // Max wait between retries
+        maxTimeout: 200,
+        // Min wait between retries
+        minTimeout: 100
+      }
+    }
+```
+* Exchange connector has been removed from the commerce-sdk repository
+* Method prototype documentation has been improved
+
 ### v1.4.1-beta.0
 ### **API Changes**
 
