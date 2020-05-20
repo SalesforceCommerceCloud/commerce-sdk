@@ -3,32 +3,35 @@
   "version": "1.4.1-beta.0",
   "description": "Salesforce Commerce Cloud SDK Integration Test",
   "homepage": "https://developer.commercecloud.com/s/",
+  "private": true,
   "scripts": {
     "depcheck": "depcheck",
-    "lint": "eslint \"**/*.ts\" --quiet --fix",
+    "lint": "eslint . --ext .ts,.js --quiet --fix",
     "pretest": "npm run lint && npm run depcheck",
     "test": "nyc mocha \"tests/*.test.*\"",
-    "fetch:internal": "npm pack ../packages/core && npm pack ../packages/generator && npm install ",
-    "test:integration": "npm run fetch:internal &&  npm run test",
-    "test:integration:redis": "fetch:internal && npm run redis --prefix ../packages/core && npm run test; npm run redis:shutdown --prefix ../packages/core",
-    "test:integration:redis:debug": "fetch:internal && npm run redis --prefix ../packages/core && npm run test; npm run redis:shutdown:debug --prefix ../packages/core"
+    "bundle:core": "npm pack ../packages/core && mv commerce-apps-core*.tgz commerce-apps-core.tgz",
+    "bundle:sdk": "npm pack ../packages/generator && mv commerce-sdk-*.tgz commerce-sdk.tgz",
+    "bundle:install": "npm run bundle:core && npm run bundle:sdk && npm install",
+    "test:integration": "npm run bundle:install &&  npm run test",
+    "test:integration:redis": "bundle:sdk && npm run redis --prefix ../packages/core && npm run test; npm run redis:shutdown --prefix ../packages/core",
+    "test:integration:redis:debug": "bundle:sdk && npm run redis --prefix ../packages/core && npm run test; npm run redis:shutdown:debug --prefix ../packages/core"
   },
   "dependencies": {
-    "@commerce-apps/core": "file:./commerce-apps-core-1.4.1-beta.0.tgz",
-    "commerce-sdk": "file:./commerce-sdk-1.4.1-beta.0.tgz"
+    "@commerce-apps/core": "file:./commerce-apps-core.tgz",
+    "commerce-sdk": "file:./commerce-sdk.tgz"
   },
   "nyc": {
     "all": true,
     "cache": false,
     "include": [
-      "node_modules/@commerce-apps/core/dist/**"
+      "node_modules/@commerce-apps/core/dist/**",
+      "node_modules/commerce-sdk/dist/**"
     ],
     "excludeNodeModules": false,
     "source-map": false,
     "per-file": true,
     "reporter": [
-      "lcov",
-      "text"
+      "lcov"
     ]
   },
   "mocha": {
@@ -46,6 +49,9 @@
     ],
     "plugins": [
       "@typescript-eslint",
+      "@typescript-eslint/eslint-plugin",
+      "tsdoc",
+      "jsdoc",
       "header"
     ],
     "parserOptions": {
@@ -53,10 +59,28 @@
       "sourceType": "module"
     },
     "rules": {
+      "jsdoc/require-param-name": "error",
+      "jsdoc/require-returns-check": "error",
+      "jsdoc/require-returns-description": "error",
+      "tsdoc/syntax": "error",
       "@typescript-eslint/interface-name-prefix": [
         "error",
         {
           "prefixWithI": "always"
+        }
+      ],
+      "jsdoc/require-jsdoc": [
+        "error",
+        {
+          "publicOnly": true,
+          "require": {
+            "ArrowFunctionExpression": true,
+            "ClassDeclaration": true,
+            "ClassExpression": true,
+            "FunctionDeclaration": true,
+            "FunctionExpression": true,
+            "MethodDefinition": true
+          }
         }
       ],
       "header/header": [
@@ -74,11 +98,25 @@
           " "
         ]
       ]
-    }
+    },
+    "overrides": [
+      {
+        "files": [
+          "**/*.js"
+        ],
+        "rules": {
+          "tsdoc/syntax": "off",
+          "@typescript-eslint/interface-name-prefix": "off",
+          "@typescript-eslint/no-var-requires": "off"
+        }
+      }
+    ]
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^2.30.0",
     "@typescript-eslint/parser": "^2.30.0",
+    "eslint-plugin-jsdoc": "^25.4.2",
+    "eslint-plugin-tsdoc": "^0.2.4",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "conditional-type-checks": "^1.0.5",
