@@ -1,5 +1,5 @@
 ## CHANGELOG
-### v1.4.2-beta.0
+### v1.4.3-beta.0
 
 ### **Core Functionality** 
 
