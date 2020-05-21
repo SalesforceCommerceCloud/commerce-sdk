@@ -4,11 +4,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import {
-  WebApiBaseUnit,
-  WebApiBaseUnitWithDeclaresModel,
-  WebApiBaseUnitWithEncodesModel
-} from "webapi-parser";
 
 import { model, Raml10Resolver } from "amf-client-js";
 import amf from "amf-client-js";
@@ -23,7 +18,9 @@ import { RestApi } from "@commerce-apps/raml-toolkit";
  *
  * @returns The resulting AMF model
  */
-export function processRamlFile(ramlFile: string): Promise<WebApiBaseUnit> {
+export function processRamlFile(
+  ramlFile: string
+): Promise<amf.model.document.BaseUnit> {
   amf.plugins.document.WebApi.register();
   amf.plugins.features.AMFValidation.register();
   amf.plugins.document.Vocabularies.register();
@@ -32,7 +29,7 @@ export function processRamlFile(ramlFile: string): Promise<WebApiBaseUnit> {
     const parser = amf.Core.parser("RAML 1.0", "application/yaml");
 
     return parser.parseFileAsync(`file://${ramlFile}`).then(ramlModel => {
-      return ramlModel as WebApiBaseUnit;
+      return ramlModel as amf.model.document.BaseUnit;
     });
   });
 }
@@ -69,14 +66,20 @@ export function getReferenceDataTypes(
   if (apiReferences == null || apiReferences.length == 0) {
     return;
   }
-  apiReferences.forEach((reference: WebApiBaseUnitWithDeclaresModel) => {
-    if (reference.declares) {
-      dataTypes.push(
-        ...getDataTypesFromDeclare(reference.declares, existingDataTypes)
+  apiReferences.forEach(
+    (reference: model.document.BaseUnit & amf.model.document.DeclaresModel) => {
+      if (reference.declares) {
+        dataTypes.push(
+          ...getDataTypesFromDeclare(reference.declares, existingDataTypes)
+        );
+      }
+      getReferenceDataTypes(
+        reference.references(),
+        dataTypes,
+        existingDataTypes
       );
     }
-    getReferenceDataTypes(reference.references(), dataTypes, existingDataTypes);
-  });
+  );
 }
 
 /**
@@ -87,7 +90,7 @@ export function getReferenceDataTypes(
  * @returns data types from model
  */
 export function getAllDataTypes(
-  api: WebApiBaseUnitWithDeclaresModel
+  api: model.document.BaseUnit & amf.model.document.DeclaresModel
 ): model.domain.CustomDomainProperty[] {
   let ret: model.domain.CustomDomainProperty[] = [];
   const dataTypes: Set<string> = new Set();
@@ -116,7 +119,7 @@ export function processApiFamily(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   apiFamilyConfig: any,
   inputDir: string
-): Promise<WebApiBaseUnit>[] {
+): Promise<model.document.BaseUnit>[] {
   const promises = [];
   const ramlFileFromFamily = apiFamilyConfig[apiFamily];
   _.map(ramlFileFromFamily, (apiMeta: RestApi) => {
@@ -143,9 +146,9 @@ export function processApiFamily(
  * @returns AMF model after resolving with the given pipeline
  */
 export function resolveApiModel(
-  apiModel: WebApiBaseUnitWithEncodesModel,
+  apiModel: model.document.BaseUnit & amf.model.document.EncodesModel,
   resolutionPipeline: "default" | "editing" | "compatibility"
-): WebApiBaseUnitWithEncodesModel {
+): model.document.BaseUnit & amf.model.document.EncodesModel {
   /**
    * TODO: core.resolution.pipelines.ResolutionPipeline has all the pipelines defined but is throwing an error when used - "Cannot read property 'pipelines' of undefined".
    *  When this is fixed we should change the type of input param "resolutionPipeline"
@@ -160,11 +163,12 @@ export function resolveApiModel(
   return resolver.resolve(
     apiModel,
     resolutionPipeline
-  ) as WebApiBaseUnitWithEncodesModel;
+  ) as model.document.BaseUnit & amf.model.document.EncodesModel;
 }
 
 /**
  * Get normalized name for the file/directory that is created while rendering the templates
+ *
  * @param name - File or directory name to normalize
  * @returns a normalized name
  */
@@ -181,7 +185,9 @@ export function getNormalizedName(name: string): string {
  * @param apiModel - AMF Model of the API
  * @returns Name of the API
  */
-export function getApiName(apiModel: WebApiBaseUnitWithEncodesModel): string {
+export function getApiName(
+  apiModel: model.document.BaseUnit & amf.model.document.EncodesModel
+): string {
   const apiName: string = (apiModel.encodes as model.domain.WebApi).name.value();
   return getNormalizedName(apiName);
 }

@@ -35,11 +35,7 @@ import {
   getPascalCaseName,
   formatForTsDoc
 } from "./templateHelpers";
-import {
-  WebApiBaseUnit,
-  WebApiBaseUnitWithDeclaresModel,
-  WebApiBaseUnitWithEncodesModel
-} from "webapi-parser";
+
 import _ from "lodash";
 import { RestApi } from "@commerce-apps/raml-toolkit";
 import { model } from "amf-client-js";
@@ -126,11 +122,15 @@ export function sortApis(apis: ApiClientsInfoT[]): void {
  *
  * @returns the code for the client as a string
  */
-function createClient(webApiModel: WebApiBaseUnit, apiName: string): string {
+function createClient(
+  webApiModel: model.document.BaseUnit,
+  apiName: string
+): string {
   return clientInstanceTemplate(
     {
       dataTypes: getAllDataTypes(
-        webApiModel as WebApiBaseUnitWithDeclaresModel
+        webApiModel as model.document.BaseUnit &
+          model.document.BaseUnitWithDeclaresModel
       ),
       apiModel: webApiModel,
       apiSpec: apiName
@@ -149,8 +149,11 @@ function createClient(webApiModel: WebApiBaseUnit, apiName: string): string {
  *
  * @returns the code for the DTO definitions as a string
  */
-function createDto(webApiModel: WebApiBaseUnit): string {
-  const types = getAllDataTypes(webApiModel as WebApiBaseUnitWithDeclaresModel);
+function createDto(webApiModel: model.document.BaseUnit): string {
+  const types = getAllDataTypes(
+    webApiModel as model.document.BaseUnit &
+      model.document.BaseUnitWithDeclaresModel
+  );
   return dtoTemplate(types, {
     allowProtoPropertiesByDefault: true,
     allowProtoMethodsByDefault: true
@@ -193,19 +196,25 @@ function createHelpers(config: any): string {
  * @returns The rendered template
  */
 export function createApiClients(
-  apiFamilyMap: Map<string, WebApiBaseUnit[]>,
+  apiFamilyMap: Map<string, model.document.BaseUnit[]>,
   apiFamilyConfig: { [key: string]: RestApi[] }
 ): string {
   const apis = Array.from(apiFamilyMap).map(
     ([family, apiModels]): ApiClientsInfoT => {
       // Merge model and config into array of objects
-      return apiModels.map((apiModel: WebApiBaseUnitWithEncodesModel, idx) => {
-        return {
-          family, // Included for ease of access within template
-          model: apiModel.encodes as model.domain.WebApi,
-          config: apiFamilyConfig[family][idx]
-        };
-      });
+      return apiModels.map(
+        (
+          apiModel: model.document.BaseUnit &
+            model.document.BaseUnitWithEncodesModel,
+          idx
+        ) => {
+          return {
+            family, // Included for ease of access within template
+            model: apiModel.encodes as model.domain.WebApi,
+            config: apiFamilyConfig[family][idx]
+          };
+        }
+      );
     }
   );
   sortApis(apis);
@@ -232,7 +241,7 @@ function createApiFamily(apiNames: string[]): string {
  * @returns Name of the API
  */
 function renderApi(
-  apiModel: WebApiBaseUnitWithEncodesModel,
+  apiModel: model.document.BaseUnit & model.document.BaseUnitWithEncodesModel,
   renderDir: string
 ): string {
   const apiName: string = getApiName(apiModel);
@@ -244,7 +253,8 @@ function renderApi(
     createDto(apiModel)
   );
   //Resolve model for the end points Using the 'editing' pipeline will retain the declarations in the model
-  const apiModelForEndPoints: WebApiBaseUnitWithEncodesModel = resolveApiModel(
+  const apiModelForEndPoints: model.document.BaseUnit &
+    model.document.BaseUnitWithEncodesModel = resolveApiModel(
     apiModel,
     "editing"
   );
@@ -265,14 +275,17 @@ function renderApi(
  */
 function renderApiFamily(
   apiFamily: string,
-  familyApis: WebApiBaseUnit[],
+  familyApis: model.document.BaseUnit[],
   renderDir: string
 ): string[] {
   const apiFamilyFileName = getNormalizedName(apiFamily);
   const apiFamilyPath: string = path.join(renderDir, apiFamilyFileName);
   fs.ensureDirSync(apiFamilyPath);
   const apiNames = familyApis.map(api =>
-    renderApi(api as WebApiBaseUnitWithEncodesModel, apiFamilyPath)
+    renderApi(
+      api as model.document.BaseUnit & model.document.BaseUnitWithEncodesModel,
+      apiFamilyPath
+    )
   );
   // export all APIs in the family
   fs.writeFileSync(
@@ -300,7 +313,7 @@ export async function renderTemplates(config: any): Promise<void> {
   const apiFamilyNames = _.keysIn(apiFamilyRamlConfig);
   const apiFamilyEntries = await Promise.all(
     apiFamilyNames.map(
-      async (familyName): Promise<[string, WebApiBaseUnit[]]> => {
+      async (familyName): Promise<[string, model.document.BaseUnit[]]> => {
         const familyApis = await Promise.all(
           processApiFamily(familyName, apiFamilyRamlConfig, config.inputDir)
         );
@@ -345,7 +358,8 @@ export async function renderTemplates(config: any): Promise<void> {
  * @returns list of operations as string
  */
 export function renderOperationList(allApis: {
-  [key: string]: WebApiBaseUnitWithEncodesModel[];
+  [key: string]: model.document.BaseUnit &
+    model.document.BaseUnitWithEncodesModel[];
 }): string {
   return renderOperationListTemplate(allApis, {
     allowProtoPropertiesByDefault: true,
