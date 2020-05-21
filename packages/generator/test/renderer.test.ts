@@ -85,8 +85,9 @@ describe("Rendering Tests", () => {
                 )
               )
             ).to.be.true;
-            expect(fs.existsSync(path.join(mainDir.name, "APICLIENTS.md"))).to
-              .be.true;
+            // TODO: Needs to be moved to when we update the API's from updateApis.
+            // expect(fs.existsSync(path.join(mainDir.name, "APICLIENTS.md"))).to
+            //   .be.true;
           });
         });
       });
