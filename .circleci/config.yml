@@ -59,7 +59,10 @@ jobs:
       - test
 
   publish:
-    executor: node-10
+    executor:
+      name: node/default
+      tag: '10.20.1'
+    working_directory: ~/publish
     steps:
       - build
       - run:
@@ -83,7 +86,7 @@ workflows:
       - build-node-14:
           filters:
             tags:
-              only: /^v.*/
+              ignore: /^v.*/
 
   build-test-deploy:
     jobs:
