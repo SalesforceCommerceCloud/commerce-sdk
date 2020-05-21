@@ -18,7 +18,6 @@ const delayedTests = require("../cache/delayedTests.test.helper");
 
 describe("Default cache tests", function() {
   before(function() {
-    chai.should();
     chai.use(chaiAsPromised);
     this.client = new BaseClient({
       baseUri: "https://somewhere"
