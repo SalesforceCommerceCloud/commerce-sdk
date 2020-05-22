@@ -6,17 +6,21 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "depcheck": "depcheck",
+    "lint": "eslint \"**/*.ts\" --quiet --fix",
     "pretest": "npm run lint && npm run depcheck",
+
+    "build": "tsc",
+    "test": "nyc mocha \"test/**/*.test.ts\" --reporter=xunit --reporter-options output=../../reports/core.xml",
+    "test:debug": "nyc mocha \"test/**/*.test.ts\"",
+    "test:cache": "nyc --check-coverage=false mocha \"test_integration/**/*.ts\" --reporter=xunit --reporter-options output=../../reports/core-integration.xml --retries 2 --timeout 5000",
+    "clean": "rm -rf package-lock.json && rm -rf dist",
+    "clean:node": "rm -rf node_modules",
+    "clean:all": "npm run clean && npm run clean:node",
     "redis": "docker rm --force redis-commerce-sdk; docker run -dp 6379:6379 --name redis-commerce-sdk redis:5-alpine",
     "redis:shutdown": "docker rm --force redis-commerce-sdk",
     "redis:debug": "docker rm --force redis-commerce-sdk-debug; docker run -dp 6379:6379 --name redis-commerce-sdk-debug redis:5-alpine && docker exec -it redis-commerce-sdk-debug redis-cli monitor",
     "redis:debug:shutdown": "docker rm --force redis-commerce-sdk-debug",
-    "test": "nyc mocha \"test/**/*.test.ts\" --reporter=xunit --reporter-options output=../../reports/core.xml",
-    "test:cache": "nyc --check-coverage=false mocha \"test_integration/**/*.ts\" --reporter=xunit --reporter-options output=../../reports/core-integration.xml --retries 2 --timeout 5000",
-    "test:integration": "npm run test:cache",
-    "test:debug": "nyc mocha \"test/**/*.test.ts\"",
-    "build": "tsc",
-    "lint": "eslint \"**/*.ts\" --quiet --fix",
+
     "snyk-protect": "snyk protect",
     "prepare": "npm run snyk-protect"
   },
