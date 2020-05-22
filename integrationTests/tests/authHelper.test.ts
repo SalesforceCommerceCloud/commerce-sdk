@@ -6,11 +6,10 @@
  */
 "use strict";
 import chai, { expect } from "chai";
-import chaiAsPromised from "chai-as-promised";
 import { stripBearer } from "@commerce-apps/core";
 
 before(() => {
-  chai.use(chaiAsPromised);
+  chai.use();
 });
 
 describe("TS: Auth Helper Strip Bearer", () => {
