@@ -8,11 +8,7 @@
 const chai = require("chai");
 const { stripBearer } = require("@commerce-apps/core");
 
-before(() => {
-  chai.use(chaiAsPromised);
-});
-
-describe("JS: Auth Helper Strip Bearer", () => {
+describe("JS: Auth Helper Strip 0Bearer", () => {
   it("Successfully strips the prefix of `Bearer ` from the supplied string", () => {
     chai.expect(stripBearer("Bearer 123456")).to.equal("123456");
   });

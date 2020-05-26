@@ -8,10 +8,6 @@
 import chai, { expect } from "chai";
 import { stripBearer } from "@commerce-apps/core";
 
-before(() => {
-  chai.use();
-});
-
 describe("TS: Auth Helper Strip Bearer", () => {
   it("Successfully strips the prefix of `Bearer ` from the supplied string", () => {
     expect(stripBearer("Bearer 123456")).to.equal("123456");
