@@ -13,7 +13,6 @@
     "redis:shutdown": "npm run redis:shutdown --prefix ../packages/core",
     "redis:debug": "npm run redis:debug --prefix ../packages/core",
     "redis:debug:shutdown": "npm run redis:debug:shutdown --prefix ../packages/core",
-
     "bundle:core": "npm pack ../packages/core && mv commerce-apps-core*.tgz commerce-apps-core.tgz",
     "bundle:sdk": "npm pack ../packages/generator && mv commerce-sdk-*.tgz commerce-sdk.tgz",
     "bundle:all": "npm run bundle:core && npm run bundle:sdk",
@@ -22,16 +21,15 @@
     "test:integration": "npm run test",
     "test:integration:redis": "npm run redis && npm run test; npm run redis:shutdown",
     "test:integration:redis:debug": "npm run redis:debug && npm run test; npm run redis:debug:shutdown",
-    "test:integration:bundle": "npm run bundle:clean:install &&  npm run test",
-    "test:integration:bundle:redis": "bundle:clean:install && npm run redis && npm run test; npm run redis:shutdown",
-    "test:integration:bundle:redis:debug": "bundle:clean:install && npm run redis:debug && npm run test; npm run redis:debug:shutdown",
+    "test:integration:bundle": "npm run bundle:install &&  npm run test",
+    "test:integration:bundle:redis": "bundle:install && npm run redis && npm run test; npm run redis:shutdown",
+    "test:integration:bundle:redis:debug": "bundle:install && npm run redis:debug && npm run test; npm run redis:debug:shutdown",
     "clean": "rm -rf commerce-*.tgz",
     "clean:node": "rm -rf node_modules",
     "clean:all": "npm run clean && npm run clean:node"
   },
   "dependencies": {
-    "@commerce-apps/core": "file:./commerce-apps-core.tgz",
-    "commerce-sdk": "file:./commerce-sdk.tgz"
+    "@commerce-apps/core": "file:./commerce-apps-core.tgz"
   },
   "nyc": {
     "all": true,
@@ -131,15 +129,12 @@
     "eslint-plugin-jsdoc": "^25.4.2",
     "eslint-plugin-tsdoc": "^0.2.4",
     "chai": "^4.2.0",
-    "chai-as-promised": "^7.1.1",
-    "conditional-type-checks": "^1.0.5",
     "depcheck": "^0.9.2",
     "eslint": "^7.0.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-header": "^3.0.0",
     "eslint-plugin-prettier": "^3.1.3",
     "esm": "^3.2.25",
-    "jsonwebtoken": "^8.5.1",
     "mocha": "^7.1.2",
     "nyc": "^15.0.1"
   }
