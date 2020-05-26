@@ -25,9 +25,21 @@ export class CacheManagerRedis extends CacheManagerKeyv {
     clusterConfig?: {};
   }) {
     if (options?.clusterConfig) {
-      options.keyvStore = new KeyvRedis(
-        new Redis.Cluster(options.clusterConfig)
-      );
+      // TODO: Remove workaround when luster support is added (hopefully soon):
+      // https://github.com/lukechilds/keyv-redis/pull/37
+      // The workaround below can be replaced with the following code:
+      // options.keyvStore = new KeyvRedis(
+      //   new Redis.Cluster(options.clusterConfig)
+      // );
+
+      // KeyvRedis does not directly support Redis clusters, but clusters have
+      // the same interface as normal Redis instances, so we can replace the
+      // the KeyvRedis default instance with our own cluster
+      const keyvStore = new KeyvRedis();
+      // We don't want to use the default connection, so we have to close it
+      keyvStore.redis?.quit();
+      keyvStore.redis = new Redis.Cluster(options.clusterConfig);
+      options.keyvStore = keyvStore;
     }
     super(options);
   }

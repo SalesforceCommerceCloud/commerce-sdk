@@ -18,6 +18,7 @@ import { Resource } from "./resource";
 import { BaseClient } from "./client";
 import { sdkLogger } from "./sdkLogger";
 import { OperationOptions } from "retry";
+import Redis from "ioredis";
 
 /**
  * Extends the Error class with the the error being a combination of status code
@@ -70,7 +71,8 @@ export function logFetch(resource: string, fetchOptions: RequestInit): void {
   sdkLogger.debug(
     `Fetch Options: ${JSON.stringify(
       fetchOptions,
-      null,
+      // Redis clusters have circular references and can't be converted to JSON
+      (key, val) => (val instanceof Redis.Cluster ? "<Redis Cluster>" : val),
       2
     )}\nCurl: ${fetchToCurl(resource, fetchOptions)}`
   );
