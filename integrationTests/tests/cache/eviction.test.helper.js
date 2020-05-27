@@ -135,7 +135,9 @@ module.exports = function() {
             .match(request, opts)
             .then(res => {
               expect(res.headers.get("etag")).to.deep.equal("etag_modified");
-              expect(res.headers.get("newHeader")).to.deep.equal("a new header");
+              expect(res.headers.get("newHeader")).to.deep.equal(
+                "a new header"
+              );
             });
         });
       });
@@ -175,7 +177,9 @@ module.exports = function() {
               //define fresh response
               scope.get("/evict-modified").reply(200, function() {
                 //verify if sdk adds if-none-match header
-                expect(this.req.headers["if-none-match"][0]).to.deep.equal("etag");
+                expect(this.req.headers["if-none-match"][0]).to.deep.equal(
+                  "etag"
+                );
                 return RESPONSE_DATA_MODIFIED;
               });
               return StaticClient.get({

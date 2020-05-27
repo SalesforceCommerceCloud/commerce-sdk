@@ -100,7 +100,9 @@ module.exports = function() {
             scope.get("/modified").reply(
               304,
               function() {
-                expect(this.req.headers["if-none-match"][0]).to.deep.equal("new etag");
+                expect(this.req.headers["if-none-match"][0]).to.deep.equal(
+                  "new etag"
+                );
               },
               {
                 ETag: "new etag",
