@@ -1,5 +1,9 @@
 ## CHANGELOG
-### v1.4.3-beta.0
+### v1.4.4-beta.0
+
+### **API Changes**
+
+* Einstein APIs have been removed from the SDK.
 
 ### **Core Functionality** 
 

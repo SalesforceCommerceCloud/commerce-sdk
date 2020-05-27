@@ -2,25 +2,6 @@
 
 Each of the following APIs has a corresponding client in the SDK which can be instantiated to communicate with that API.
 
-## AI
-
-### [Einstein Recommendations](https://developer.commercecloud.com/s/api-details/a003k00000UI4hPAAT)
-
-*Get Einstein recommendations and send activities to Einstein engine.*
-
-To instantiate a client:
-
-```typescript
-import { Ai, ClientConfig } from "commerce-sdk";
-// or
-const { Ai, ClientConfig } = require("commerce-sdk");
-
-const config: ClientConfig = { /* ... */ };
-const einsteinQuickStartGuideClient = new Ai.EinsteinQuickStartGuide(config);
-```
-
-**Mule App Version:** 3.0.7
-
 ## CDN
 
 ### [CDN Zones](https://developer.commercecloud.com/s/api-details/a003k00000UIKk2AAH)
