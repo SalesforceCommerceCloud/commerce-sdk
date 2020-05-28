@@ -20,7 +20,7 @@ module.exports = function() {
     afterEach(nock.cleanAll);
 
     it("makes correct call once", function() {
-      const scope = nock("https://somewhere")
+      nock("https://somewhere")
         .get("/once")
         .reply(200, { mock: "data" });
 

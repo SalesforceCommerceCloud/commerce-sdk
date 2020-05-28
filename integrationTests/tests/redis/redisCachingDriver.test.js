@@ -6,8 +6,6 @@
  */
 "use strict";
 
-const chai = require("chai");
-const chaiAsPromised = require("chai-as-promised");
 const { BaseClient, CacheManagerRedis } = require("@commerce-apps/core");
 const cacheTests = require("../cache/basic.test.helper");
 const etagTests = require("../cache/etag.test.helper");
@@ -18,7 +16,6 @@ const delayedTests = require("../cache/delayedTests.test.helper");
 
 describe("Redis cache tests", function() {
   before(function() {
-    chai.use(chaiAsPromised);
     this.client = new BaseClient({
       baseUri: "https://somewhere",
       cacheManager: new CacheManagerRedis({
