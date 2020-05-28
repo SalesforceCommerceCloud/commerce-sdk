@@ -7,14 +7,13 @@
 "use strict";
 
 import fs from "fs-extra";
-import { expect } from "chai";
+import { assert, expect } from "chai";
 import path from "path";
 import * as renderer from "../src/renderer";
 import tmp from "tmp";
 import _ from "lodash";
-import { getNormalizedName, processApiFamily } from "../src/parser";
-import { RestApi } from "@commerce-apps/raml-toolkit";
-import { model } from "amf-client-js";
+import { getNormalizedName, model, RestApi } from "@commerce-apps/raml-toolkit";
+
 /**
  * Tests all the functions that are invoked while rendering templates.
  *
@@ -98,12 +97,22 @@ describe("Rendering Tests", () => {
     await Promise.all(
       _.keysIn(apiConfig).map(async apiGroup => {
         allApis[apiGroup] = await Promise.all(
-          processApiFamily(apiGroup, apiConfig, apiInputDir)
+          renderer.processApiFamily(apiGroup, apiConfig, apiInputDir)
         );
       })
     );
     const list = renderer.renderOperationList(allApis);
     expect(list).to.be.a("string");
+  });
+
+  it("Throws error when id is missing", async () => {
+    // expect().to.be.rejected was not working here
+    try {
+      await renderer.processApiFamily("test", { test: { id: "" } }, "");
+    } catch (e) {
+      return;
+    }
+    assert.fail();
   });
 });
 

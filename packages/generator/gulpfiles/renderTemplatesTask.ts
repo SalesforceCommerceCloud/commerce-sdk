@@ -5,8 +5,11 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import * as gulp from "gulp";
-import { processApiFamily } from "../src/parser";
-import { renderTemplates, renderOperationList } from "../src/renderer";
+import {
+  processApiFamily,
+  renderTemplates,
+  renderOperationList
+} from "../src/renderer";
 
 import fs from "fs-extra";
 import _ from "lodash";

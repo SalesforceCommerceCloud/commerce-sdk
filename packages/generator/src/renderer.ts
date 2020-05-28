@@ -9,11 +9,11 @@ import path from "path";
 import Handlebars from "handlebars";
 import {
   getAllDataTypes,
-  processApiFamily,
+  parseRamlFile,
   getApiName,
   resolveApiModel,
   getNormalizedName
-} from "./parser";
+} from "@commerce-apps/raml-toolkit";
 
 import {
   getBaseUri,
@@ -38,7 +38,7 @@ import {
 
 import _ from "lodash";
 import { RestApi } from "@commerce-apps/raml-toolkit";
-import { model } from "amf-client-js";
+import { model } from "@commerce-apps/raml-toolkit";
 import { generatorLogger } from "./logger";
 
 /**
@@ -188,6 +188,8 @@ function createHelpers(config: any): string {
 }
 
 /**
+ * TODO:This is currently unused by will be put back into play by W-7557976
+ *
  * Render the API Clients markdown file using the Handlebars template
  *
  * @param apiFamilyMap - Collection of API names and the AMF models associated with each API
@@ -195,6 +197,7 @@ function createHelpers(config: any): string {
  *
  * @returns The rendered template
  */
+/*
 export function createApiClients(
   apiFamilyMap: Map<string, model.document.BaseUnit[]>,
   apiFamilyConfig: { [key: string]: RestApi[] }
@@ -220,6 +223,7 @@ export function createApiClients(
   sortApis(apis);
   return apiClientsTemplate({ apis });
 }
+*/
 
 /**
  * Generates code to export all APIs in a API Family
@@ -293,6 +297,38 @@ function renderApiFamily(
     createApiFamily(apiNames)
   );
   return apiNames;
+}
+
+/**
+ * Read all the RAML files for an API family and process into AML models.
+ *
+ * @param apiFamily - The name of the API family
+ * @param apiFamilyConfig - The API family config
+ * @param inputDir - The path to read the RAML files from
+ *
+ * @returns a list of promises that will resolve to the AMF models
+ */
+export function processApiFamily(
+  apiFamily: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  apiFamilyConfig: any,
+  inputDir: string
+): Promise<model.document.BaseUnit>[] {
+  const promises = [];
+  const ramlFileFromFamily = apiFamilyConfig[apiFamily];
+  _.map(ramlFileFromFamily, (apiMeta: RestApi) => {
+    if (!apiMeta.id) {
+      throw Error(`Some information about '${apiMeta.name}' is missing in 'apis/api-config.json'. 
+      Please ensure that '${apiMeta.name}' RAML and its dependencies are present in 'apis/', and all the required information is present in 'apis/api-config.json'.`);
+    }
+    promises.push(
+      parseRamlFile(
+        path.join(inputDir, apiMeta.assetId, apiMeta.fatRaml.mainFile)
+      )
+    );
+  });
+
+  return promises;
 }
 
 /**
