@@ -25,7 +25,7 @@ export class CacheManagerRedis extends CacheManagerKeyv {
     clusterConfig?: {};
   }) {
     if (options?.clusterConfig) {
-      // TODO: Remove workaround when luster support is added (hopefully soon):
+      // TODO: Remove workaround when cluster support is added (hopefully soon):
       // https://github.com/lukechilds/keyv-redis/pull/37
       // The workaround below can be replaced with the following code:
       // options.keyvStore = new KeyvRedis(
