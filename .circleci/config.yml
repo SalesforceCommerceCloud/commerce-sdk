@@ -1,8 +1,6 @@
 # DEFAULTS
 defaults: &defaults
   working_directory: ~/build_only
-  environment:
-    COMMERCE_SDK_INPUT_DIR: ../test/raml/valid/
 
 # COMMANDS
 commands:
@@ -15,8 +13,7 @@ commands:
       - run: npm run build
   test:
     steps:
-      - run: npm run test
-      - run: npm run test:integration
+      - run: npm run test:all
       - store_test_results:
           path: reports
 
