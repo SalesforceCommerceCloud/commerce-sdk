@@ -37,6 +37,7 @@ To use an SDK client, instantiate an object of that client and configure these p
  */
 ​
 // Import the SDK in TypeScript
+// tsc requires the --esModuleInterop flag for this
 import * as CommerceSdk from "commerce-sdk";
 // For Javascript, use:
 // import as CommerceSdk from "commerce-sdk";
@@ -45,8 +46,8 @@ const { ClientConfig, helpers, Search } = CommerceSdk;
 // const { ClientConfig, helpers, Search } = require("commerce-sdk");
 
 // Create a configuration to use when creating API clients
-// In TypeScript, let config = new ClientConfig();
-const config = {
+let config = new ClientConfig();
+config = {
     parameters: {
         clientId: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         organizationId: "f_ecom_bblx_stg",
