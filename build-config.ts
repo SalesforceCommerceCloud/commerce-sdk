@@ -5,8 +5,6 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-require("dotenv").config();
-
 export default {
   inputDir: process.env.COMMERCE_SDK_INPUT_DIR || `${__dirname}/apis`,
   renderDir: process.env.COMMERCE_SDK_RENDER_DIR || `${__dirname}/packages/generator/renderedTemplates`,
