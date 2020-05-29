@@ -41,7 +41,7 @@ export class CacheManagerRedis extends CacheManagerKeyv {
       const keyvStore = new KeyvRedis(new Redis({ lazyConnect: true }));
       keyvStore.redis = new Redis.Cluster(options.clusterConfig);
       // Copied from KeyvRedis constructor
-      keyvStore.redis.on("error", err => keyvStore.emit("error", err));
+      keyvStore.redis.on("error", keyvStore.emit.bind(keyvStore, "error"));
       options.keyvStore = keyvStore;
     }
     super(options);
