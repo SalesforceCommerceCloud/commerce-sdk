@@ -70,7 +70,8 @@ helpers.getShopperToken(config, { type: "guest" }).then(async (token) => {
         // Search for dresses
         const searchResults = await searchClient.productSearch({
             parameters: {
-                q: "dress"
+                q: "dress",
+                limit: 5
             }
         });
 
