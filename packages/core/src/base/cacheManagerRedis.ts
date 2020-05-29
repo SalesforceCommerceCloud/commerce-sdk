@@ -33,12 +33,15 @@ export class CacheManagerRedis extends CacheManagerKeyv {
       // );
 
       // KeyvRedis does not directly support Redis clusters, but clusters have
-      // the same interface as normal Redis instances, so we can replace the
-      // the KeyvRedis default instance with our own cluster
-      const keyvStore = new KeyvRedis();
-      // We don't want to use the default connection, so we have to close it
-      keyvStore.redis?.quit();
+      // the same interface as normal Redis instances, so we can pass a Redis
+      // instance to the constructor and then replace it with a cluster.
+      // If we don't pass a Redis instance to KeyvRedis, it will create one by
+      // default and attempt to connect. By passing our own instance, we can set
+      // lazyConnect and avoid connecting to something unknown/missing.
+      const keyvStore = new KeyvRedis(new Redis({ lazyConnect: true }));
       keyvStore.redis = new Redis.Cluster(options.clusterConfig);
+      // Copied from KeyvRedis constructor
+      keyvStore.redis.on("error", err => keyvStore.emit("error", err));
       options.keyvStore = keyvStore;
     }
     super(options);
