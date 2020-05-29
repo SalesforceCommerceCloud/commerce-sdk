@@ -48,6 +48,7 @@ const { ClientConfig, helpers, Search } = CommerceSdk;
 // Create a configuration to use when creating API clients
 let config = new ClientConfig();
 config = {
+    headers: {},
     parameters: {
         clientId: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         organizationId: "f_ecom_bblx_stg",
