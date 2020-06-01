@@ -80,7 +80,7 @@ const apiFamilyTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "apiFamily.ts.hbs"), "utf8")
 );
 
-export const renderOperationListTemplate = Handlebars.compile(
+const operationListTemplate = Handlebars.compile(
   fs.readFileSync(
     path.join(templateDirectory, "operationList.yaml.hbs"),
     "utf8"
@@ -389,7 +389,7 @@ export async function renderTemplates(config: any): Promise<void> {
 export function renderOperationList(allApis: {
   [key: string]: model.document.BaseUnitWithEncodesModel[];
 }): string {
-  return renderOperationListTemplate(allApis, {
+  return operationListTemplate(allApis, {
     allowProtoPropertiesByDefault: true,
     allowProtoMethodsByDefault: true
   });
