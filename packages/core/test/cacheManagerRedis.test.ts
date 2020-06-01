@@ -8,15 +8,12 @@ import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 
 import sinon from "sinon";
+import Redis from "ioredis";
 
 import { CacheManagerRedis } from "../src/base/cacheManagerRedis";
 
+chai.use(chaiAsPromised);
 const expect = chai.expect;
-
-before(() => {
-  chai.should();
-  chai.use(chaiAsPromised);
-});
 
 describe("quit tests", () => {
   let cacheManager;
@@ -46,15 +43,36 @@ describe("quit tests", () => {
 
   it("returns false when quit isn't OK", async () => {
     cacheManager.keyv = {
-      opts: { store: { redis: { quit: async () => "other thing" } } }
+      opts: {
+        store: { redis: { quit: async (): Promise<string> => "other thing" } }
+      }
     };
     return expect(cacheManager.quit()).to.eventually.be.false;
   });
 
   it("returns true when called with working redis", async () => {
     cacheManager.keyv = {
-      opts: { store: { redis: { quit: async () => "OK" } } }
+      opts: { store: { redis: { quit: async (): Promise<string> => "OK" } } }
     };
     return expect(cacheManager.quit()).to.eventually.be.true;
+  });
+});
+
+describe("Redis connections", () => {
+  it("creates a Redis instance when correct config is passed", () => {
+    const cacheManager = new CacheManagerRedis({
+      connection: "redis://localhost"
+    });
+    expect(cacheManager.keyv.opts.store.redis).to.be.an.instanceOf(Redis);
+    return cacheManager.quit();
+  });
+  it("creates a Redis cluster when correct config is passed", () => {
+    const cacheManager = new CacheManagerRedis({
+      clusterConfig: [{}]
+    });
+    expect(cacheManager.keyv.opts.store.redis).to.be.an.instanceOf(
+      Redis.Cluster
+    );
+    return cacheManager.quit();
   });
 });
