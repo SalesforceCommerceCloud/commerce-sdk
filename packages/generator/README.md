@@ -46,8 +46,7 @@ const { ClientConfig, helpers, Search } = CommerceSdk;
 // const { ClientConfig, helpers, Search } = require("commerce-sdk");
 
 // Create a configuration to use when creating API clients
-let config = new ClientConfig();
-config = {
+const config = {
     headers: {},
     parameters: {
         clientId: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -62,7 +61,7 @@ helpers.getShopperToken(config, { type: "guest" }).then(async (token) => {
 
     try {
         // Add the token to the client configuration
-        config.headers.authorization = token.getBearerHeader();
+        config.headers["authorization"] = token.getBearerHeader();
 
         // Create a new ShopperSearch API client
         const searchClient = new Search.ShopperSearch(config);
