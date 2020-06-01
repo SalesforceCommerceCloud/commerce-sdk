@@ -134,14 +134,12 @@ export class CacheManagerKeyv implements ICacheManager {
   }) {
     if (options?.keyvStore) {
       this.keyv = new Keyv({ store: options.keyvStore });
-      this.keyv.on("error", sdkLogger.error);
-      return;
-    }
-
-    if (options?.connection) {
+    } else if (options?.connection) {
       this.keyv = new Keyv(options.connection, options.keyvOptions);
-      this.keyv.on("error", sdkLogger.error);
+    } else {
+      this.keyv = new Keyv(options?.keyvOptions);
     }
+    this.keyv.on("error", sdkLogger.error);
   }
 
   /**
