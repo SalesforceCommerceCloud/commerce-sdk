@@ -37,16 +37,17 @@ To use an SDK client, instantiate an object of that client and configure these p
  */
 ​
 // Import the SDK in TypeScript
+// tsc requires the --esModuleInterop flag for this
 import * as CommerceSdk from "commerce-sdk";
 // For Javascript, use:
-// import as CommerceSdk from "commerce-sdk";
+// import CommerceSdk from "commerce-sdk";
 const { ClientConfig, helpers, Search } = CommerceSdk;
 // Older Node.js versions can instead use:
 // const { ClientConfig, helpers, Search } = require("commerce-sdk");
 
 // Create a configuration to use when creating API clients
-// In TypeScript, let config = new ClientConfig();
 const config = {
+    headers: {},
     parameters: {
         clientId: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         organizationId: "f_ecom_bblx_stg",
@@ -60,7 +61,7 @@ helpers.getShopperToken(config, { type: "guest" }).then(async (token) => {
 
     try {
         // Add the token to the client configuration
-        config.headers.authorization = token.getBearerHeader();
+        config.headers["authorization"] = token.getBearerHeader();
 
         // Create a new ShopperSearch API client
         const searchClient = new Search.ShopperSearch(config);
@@ -68,7 +69,8 @@ helpers.getShopperToken(config, { type: "guest" }).then(async (token) => {
         // Search for dresses
         const searchResults = await searchClient.productSearch({
             parameters: {
-                q: "dress"
+                q: "dress",
+                limit: 5
             }
         });
 
