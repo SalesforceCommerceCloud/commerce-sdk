@@ -40,7 +40,7 @@ To use an SDK client, instantiate an object of that client and configure these p
 // tsc requires the --esModuleInterop flag for this
 import * as CommerceSdk from "commerce-sdk";
 // For Javascript, use:
-// import as CommerceSdk from "commerce-sdk";
+// import CommerceSdk from "commerce-sdk";
 const { ClientConfig, helpers, Search } = CommerceSdk;
 // Older Node.js versions can instead use:
 // const { ClientConfig, helpers, Search } = require("commerce-sdk");
