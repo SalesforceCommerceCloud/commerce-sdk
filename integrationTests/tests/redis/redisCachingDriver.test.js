@@ -7,12 +7,12 @@
 "use strict";
 
 const { BaseClient, CacheManagerRedis } = require("@commerce-apps/core");
-const cacheTests = require("../cache/basic.test.helper");
-const etagTests = require("../cache/etag.test.helper");
-const evictionTests = require("../cache/eviction.test.helper");
-const multipleHeadersTests = require("../cache/multipleHeaders.test.helper");
-const noCacheHeaderTests = require("../cache/noCacheHeader.test.helper");
-const delayedTests = require("../cache/delayedTests.test.helper");
+const cacheTests = require("../cacheHelpers/basic.test.helper");
+const etagTests = require("../cacheHelpers/etag.test.helper");
+const evictionTests = require("../cacheHelpers/eviction.test.helper");
+const multipleHeadersTests = require("../cacheHelpers/multipleHeaders.test.helper");
+const noCacheHeaderTests = require("../cacheHelpers/noCacheHeader.test.helper");
+const delayedTests = require("../cacheHelpers/delayedTests.test.helper");
 
 describe("Redis cache tests", function() {
   before(function() {
