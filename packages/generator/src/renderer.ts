@@ -102,7 +102,7 @@ const dtoPartial = Handlebars.compile(
 /**
  * Sort API families and their APIs by name.
  *
- * @param apis -
+ * @param apis - Array of API info used to generate API clients file.
  */
 export function sortApis(apis: ApiClientsInfoT[]): void {
   const compare = (a: string, b: string): number => (a > b ? 1 : -1);
@@ -161,27 +161,27 @@ function createDto(webApiModel: model.document.BaseUnit): string {
 /**
  * Generates code to export all API families to index.ts
  *
- * @param apiFamilies - The list of api families we used to generate the code
+ * @param familyNames - The list of api families we used to generate the code
  *
  * @returns The rendered code as a string
  */
-function createIndex(apiFamilies: string[]): string {
+function createIndex(familyNames: string[]): string {
   return indexTemplate({
-    apiSpec: apiFamilies
+    apiSpec: familyNames
   });
 }
 
 /**
  * Generates helper methods for the SDK (Syntactical sugar)
  *
- * @param config -
+ * @param buildConfig - Config used to build the SDK
  * @returns The rendered code as a string
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function createHelpers(config: any): string {
+function createHelpers(buildConfig: any): string {
   return helpersTemplate({
-    shopperAuthClient: config.shopperAuthClient,
-    shopperAuthApi: config.shopperAuthApi
+    shopperAuthClient: buildConfig.shopperAuthClient,
+    shopperAuthApi: buildConfig.shopperAuthApi
   });
 }
 
@@ -190,31 +190,26 @@ function createHelpers(config: any): string {
  *
  * Render the API Clients markdown file using the Handlebars template
  *
- * @param apiFamilyMap - Collection of API names and the AMF models associated with each API
- * @param apiFamilyConfig - The API family config
+ * @param apiModelMap - Collection of API names and the AMF models associated with each API
+ * @param apiConfig - The API family config
  *
  * @returns The rendered template
  */
 /*
 export function createApiClients(
-  apiFamilyMap: Map<string, model.document.BaseUnit[]>,
-  apiFamilyConfig: { [key: string]: RestApi[] }
+  apiModelMap: Map<string, WebApiBaseUnit[]>,
+  apiConfig: { [familyName: string]: RestApi[] }
 ): string {
-  const apis = Array.from(apiFamilyMap).map(
-    ([family, apiModels]): ApiClientsInfoT => {
+  const apis = Array.from(apiModelMap).map(
+    ([familyName, apiModels]): ApiClientsInfoT => {
       // Merge model and config into array of objects
-      return apiModels.map(
-        (
-          apiModel: model.document.BaseUnitWithEncodesModel,
-          idx
-        ) => {
-          return {
-            family, // Included for ease of access within template
-            model: apiModel.encodes as model.domain.WebApi,
-            config: apiFamilyConfig[family][idx]
-          };
-        }
-      );
+      return apiModels.map((apiModel: WebApiBaseUnitWithEncodesModel, idx) => {
+        return {
+          family: familyName, // Included for ease of access within template
+          model: apiModel.encodes as model.domain.WebApi,
+          config: apiConfig[familyName][idx]
+        };
+      });
     }
   );
   sortApis(apis);
@@ -268,25 +263,25 @@ function renderApi(
 /**
  * Renders API functions and its types into a typescript file for all the APIs in a family
  *
- * @param apiFamily - Name of the API family
- * @param familyApis - Array of AMF models
+ * @param familyName - Name of the API family
+ * @param models - Array of AMF models
  * @param renderDir - Directory path to save the rendered API files
  * @returns List of API names in the API family
  */
 function renderApiFamily(
-  apiFamily: string,
-  familyApis: model.document.BaseUnit[],
+  familyName: string,
+  models: model.document.BaseUnit[],
   renderDir: string
 ): string[] {
-  const apiFamilyFileName = getNormalizedName(apiFamily);
-  const apiFamilyPath: string = path.join(renderDir, apiFamilyFileName);
-  fs.ensureDirSync(apiFamilyPath);
-  const apiNames = familyApis.map(api =>
-    renderApi(api as model.document.BaseUnitWithEncodesModel, apiFamilyPath)
+  const fileName = getNormalizedName(familyName);
+  const filePath: string = path.join(renderDir, fileName);
+  fs.ensureDirSync(filePath);
+  const apiNames = models.map(api =>
+    renderApi(api as model.document.BaseUnitWithEncodesModel, filePath)
   );
   // export all APIs in the family
   fs.writeFileSync(
-    path.join(apiFamilyPath, `${apiFamilyFileName}.ts`),
+    path.join(filePath, `${fileName}.ts`),
     createApiFamily(apiNames)
   );
   return apiNames;
@@ -327,44 +322,42 @@ export function processApiFamily(
 /**
  * Renders typescript code for the APIs using the pre-defined templates
  *
- * @param config - Build config used to build the SDK
- 
- * @returns Promise<void>
+ * @param buildConfig - Config used to build the SDK
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function renderTemplates(config: any): Promise<void> {
+export async function renderTemplates(buildConfig: any): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const apiFamilyRamlConfig = require(path.resolve(
-    path.join(config.inputDir, config.apiConfigFile)
+  const apiConfig = require(path.resolve(
+    path.join(buildConfig.inputDir, buildConfig.apiConfigFile)
   ));
-  fs.ensureDirSync(config.renderDir);
+  fs.ensureDirSync(buildConfig.renderDir);
 
-  const apiFamilyNames = _.keysIn(apiFamilyRamlConfig);
-  const apiFamilyEntries = await Promise.all(
+  const apiFamilyNames = _.keysIn(apiConfig);
+  const apiModelEntries = await Promise.all(
     apiFamilyNames.map(
       async (familyName): Promise<[string, model.document.BaseUnit[]]> => {
-        const familyApis = await Promise.all(
-          processApiFamily(familyName, apiFamilyRamlConfig, config.inputDir)
+        const apiModels = await Promise.all(
+          processApiFamily(familyName, apiConfig, buildConfig.inputDir)
         );
-        renderApiFamily(familyName, familyApis, config.renderDir);
-        return [familyName, familyApis];
+        renderApiFamily(familyName, apiModels, buildConfig.renderDir);
+        return [familyName, apiModels];
       }
     )
   );
-  const apiFamilyMap = new Map(apiFamilyEntries);
+  const apiModelMap = new Map(apiModelEntries);
 
   // Create files with static filenames
 
   // Create index file that exports all the API families in the root
   fs.writeFileSync(
-    path.join(config.renderDir, "index.ts"),
-    createIndex([...apiFamilyMap.keys()].map(name => _.camelCase(name)))
+    path.join(buildConfig.renderDir, "index.ts"),
+    createIndex([...apiModelMap.keys()].map(name => _.camelCase(name)))
   );
 
   // Create file that exports helper functions
   fs.writeFileSync(
-    path.join(config.renderDir, "helpers.ts"),
-    createHelpers(config)
+    path.join(buildConfig.renderDir, "helpers.ts"),
+    createHelpers(buildConfig)
   );
 
   // Create file documenting available APIs
@@ -375,7 +368,7 @@ export async function renderTemplates(config: any): Promise<void> {
   // );
   generatorLogger.info(
     "Successfully rendered code from the APIs: ",
-    config.inputDir
+    buildConfig.inputDir
   );
 }
 
