@@ -27,7 +27,9 @@
     "clean:all": "npm run clean:node",
     "buildOperationList": "gulp --gulpfile ./gulpfiles/renderTemplatesTask.ts buildOperationList",
     "renderTemplates": "gulp --gulpfile ./gulpfiles/renderTemplatesTask.ts renderTemplates",
-    "updateApis": "gulp --gulpfile ./gulpfiles/downloadRamlsTask.ts updateApis",
+    "updateApis": "npm run updateApisOnly && npm run updateApiDocs",
+    "updateApiDocs": "gulp --gulpfile ./gulpfiles/renderTemplatesTask.ts renderApiClients",
+    "updateApisOnly": "gulp --gulpfile ./gulpfiles/downloadRamlsTask.ts updateApis",
     "snyk-protect": "snyk protect",
     "prepare": "npm run snyk-protect"
   },
