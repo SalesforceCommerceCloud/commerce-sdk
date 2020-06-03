@@ -29,8 +29,9 @@ describe("test exports", () => {
   it("can import CacheManagerRedis", () => expect(CacheManagerRedis).to.exist);
 
   it("can import ClientConfig", () => expect(ClientConfig).to.exist);
- 
-  it("can import COMMERCE_SDK_LOGGER_KEY", () => expect(COMMERCE_SDK_LOGGER_KEY).to.exist);
+
+  it("can import COMMERCE_SDK_LOGGER_KEY", () =>
+    expect(COMMERCE_SDK_LOGGER_KEY).to.exist);
 
   it("can import commonParameterPositions", () =>
     expect(commonParameterPositions).to.exist);
