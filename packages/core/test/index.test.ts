@@ -15,7 +15,7 @@ import {
   Response,
   ResponseError,
   sdkLogger,
-  shopperToken,
+  ShopperToken,
   StaticClient,
   stripBearer
 } from "../src";
@@ -44,7 +44,7 @@ describe("test exports", () => {
 
   it("can import sdkLogger", () => expect(sdkLogger).to.exist);
 
-  it("can import shopperToken", () => expect(shopperToken).to.exist);
+  it("can import ShopperToken", () => expect(ShopperToken).to.exist);
 
   it("can import StaticClient.get", () => expect(StaticClient.get).to.exist);
 
