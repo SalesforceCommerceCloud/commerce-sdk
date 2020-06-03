@@ -105,12 +105,11 @@ const dtoPartial = Handlebars.compile(
  * @param apis - Array of API info used to generate API clients file.
  */
 export function sortApis(apis: ApiClientsInfoT[]): void {
-  const compare = (a: string, b: string): number => (a > b ? 1 : -1);
   // Sort API families
-  apis.sort((a, b) => compare(a[0].family, b[0].family));
+  apis.sort((a, b) => a[0].family.localeCompare(b[0].family));
   // Sort APIs within each family
   apis.forEach(details =>
-    details.sort((a, b) => compare(a.config.name, b.config.name))
+    details.sort((a, b) => a.config.name.localeCompare(b.config.name))
   );
 }
 
