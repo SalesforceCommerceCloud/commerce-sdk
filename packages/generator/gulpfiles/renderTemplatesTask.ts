@@ -40,7 +40,7 @@ gulp.task("buildOperationList", async () => {
   const modelingPromises = [];
 
   for (const apiGroup of apiGroupKeys) {
-    const familyPromises = processApiFamily(
+    const familyPromise = processApiFamily(
       apiGroup,
       ramlGroupConfig,
       config.inputDir
@@ -48,7 +48,7 @@ gulp.task("buildOperationList", async () => {
     fs.ensureDirSync(config.renderDir);
 
     modelingPromises.push(
-      Promise.all(familyPromises).then(values => {
+      familyPromise.then(values => {
         allApis[apiGroup] = values;
         return;
       })

@@ -301,7 +301,7 @@ export function processApiFamily(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   apiFamilyConfig: any,
   inputDir: string
-): Promise<model.document.BaseUnit>[] {
+): Promise<model.document.BaseUnit[]> {
   const promises = [];
   const ramlFileFromFamily = apiFamilyConfig[apiFamily];
   _.map(ramlFileFromFamily, (apiMeta: RestApi) => {
@@ -316,7 +316,7 @@ export function processApiFamily(
     );
   });
 
-  return promises;
+  return Promise.all(promises);
 }
 
 /**
@@ -336,8 +336,10 @@ export async function renderTemplates(buildConfig: any): Promise<void> {
   const apiModelEntries = await Promise.all(
     apiFamilyNames.map(
       async (familyName): Promise<[string, model.document.BaseUnit[]]> => {
-        const apiModels = await Promise.all(
-          processApiFamily(familyName, apiConfig, buildConfig.inputDir)
+        const apiModels = await processApiFamily(
+          familyName,
+          apiConfig,
+          buildConfig.inputDir
         );
         renderApiFamily(familyName, apiModels, buildConfig.renderDir);
         return [familyName, apiModels];
