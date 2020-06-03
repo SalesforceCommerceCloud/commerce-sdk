@@ -8,25 +8,31 @@ import * as gulp from "gulp";
 import {
   processApiFamily,
   renderTemplates,
-  renderOperationList
+  renderOperationList,
+  renderApiClients
 } from "../src/renderer";
 
 import fs from "fs-extra";
 import _ from "lodash";
-import * as path from "path";
+import path from "path";
 
 require("dotenv").config();
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 import config from "../../../build-config";
 
 /**
- *  Gulp task that renders typescript code for the APIs using the pre-defined templates
+ *  Renders the TypeScript code for the APIs using the pre-defined templates
  */
-gulp.task("renderTemplates", async () => {
-  return renderTemplates(config);
-});
+gulp.task("renderTemplates", async () => renderTemplates(config));
 
+/**
+ * Renders an API documentation file.
+ */
+gulp.task("renderApiClients", async () => renderApiClients(config));
+
+/**
+ * Renders an operation list file.
+ */
 gulp.task("buildOperationList", async () => {
   // require the json written in groupRamls gulpTask
   // eslint-disable-next-line @typescript-eslint/no-var-requires

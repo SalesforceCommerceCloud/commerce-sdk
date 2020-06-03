@@ -41,6 +41,19 @@ import { RestApi } from "@commerce-apps/raml-toolkit";
 import { model } from "@commerce-apps/raml-toolkit";
 import { generatorLogger } from "./logger";
 
+interface IApiConfig {
+  [familyName: string]: RestApi[];
+}
+interface IBuildConfig {
+  inputDir: string;
+  renderDir: string;
+  apiFamily: string;
+  exchangeSearch: string;
+  apiConfigFile: string;
+  shopperAuthClient: string;
+  shopperAuthApi: string;
+  exchangeDeploymentRegex: RegExp;
+}
 /**
  * Information used to generate APICLIENTS.md.
  */
@@ -49,6 +62,11 @@ export type ApiClientsInfoT = {
   family: string;
   config: RestApi;
 }[];
+/**
+ * The name of an API family and its associated AMF models.
+ */
+type ApiModelTupleT = [string, model.document.BaseUnit[]];
+
 const templateDirectory = `${__dirname}/../templates`;
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -56,6 +74,8 @@ require("handlebars-helpers")({ handlebars: Handlebars }, [
   "string",
   "comparison"
 ]);
+
+// HANDLEBARS TEMPLATES
 
 const operationsPartialTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "operations.ts.hbs"), "utf8")
@@ -99,6 +119,8 @@ const dtoPartial = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "dtoPartial.ts.hbs"), "utf8")
 );
 
+// HELPER FUNCTIONS
+
 /**
  * Sort API families and their APIs by name.
  *
@@ -114,176 +136,14 @@ export function sortApis(apis: ApiClientsInfoT[]): void {
 }
 
 /**
- * Creates the code for a client from an AMF model.
- *
- * @param webApiModel - The AMF model to create the client from
- * @param apiName - The name of the API
- *
- * @returns the code for the client as a string
- */
-function createClient(
-  webApiModel: model.document.BaseUnit,
-  apiName: string
-): string {
-  return clientInstanceTemplate(
-    {
-      dataTypes: getAllDataTypes(
-        webApiModel as model.document.BaseUnitWithDeclaresModel
-      ),
-      apiModel: webApiModel,
-      apiSpec: apiName
-    },
-    {
-      allowProtoPropertiesByDefault: true,
-      allowProtoMethodsByDefault: true
-    }
-  );
-}
-
-/**
- * Create the DTO definitions from an AMF model.
- *
- * @param webApiModel - The AMF model to create DTO definitions from
- *
- * @returns the code for the DTO definitions as a string
- */
-function createDto(webApiModel: model.document.BaseUnit): string {
-  const types = getAllDataTypes(
-    webApiModel as model.document.BaseUnitWithDeclaresModel
-  );
-  return dtoTemplate(types, {
-    allowProtoPropertiesByDefault: true,
-    allowProtoMethodsByDefault: true
-  });
-}
-
-/**
- * Generates code to export all API families to index.ts
- *
- * @param familyNames - The list of api families we used to generate the code
- *
- * @returns The rendered code as a string
- */
-function createIndex(familyNames: string[]): string {
-  return indexTemplate({
-    apiSpec: familyNames
-  });
-}
-
-/**
- * Generates helper methods for the SDK (Syntactical sugar)
+ * Loads the API family config from the location specified in the build config.
  *
  * @param buildConfig - Config used to build the SDK
- * @returns The rendered code as a string
+ * @returns The API family config
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function createHelpers(buildConfig: any): string {
-  return helpersTemplate({
-    shopperAuthClient: buildConfig.shopperAuthClient,
-    shopperAuthApi: buildConfig.shopperAuthApi
-  });
-}
-
-/**
- * TODO:This is currently unused by will be put back into play by W-7557976
- *
- * Render the API Clients markdown file using the Handlebars template
- *
- * @param apiModelMap - Collection of API names and the AMF models associated with each API
- * @param apiConfig - The API family config
- *
- * @returns The rendered template
- */
-/*
-export function createApiClients(
-  apiModelMap: Map<string, WebApiBaseUnit[]>,
-  apiConfig: { [familyName: string]: RestApi[] }
-): string {
-  const apis = Array.from(apiModelMap).map(
-    ([familyName, apiModels]): ApiClientsInfoT => {
-      // Merge model and config into array of objects
-      return apiModels.map((apiModel: WebApiBaseUnitWithEncodesModel, idx) => {
-        return {
-          family: familyName, // Included for ease of access within template
-          model: apiModel.encodes as model.domain.WebApi,
-          config: apiConfig[familyName][idx]
-        };
-      });
-    }
-  );
-  sortApis(apis);
-  return apiClientsTemplate({ apis });
-}
-*/
-
-/**
- * Generates code to export all APIs in a API Family
- *
- * @param apiNames - Names of all the APIs in the family
- * @returns code to export all APIs in a API Family
- */
-function createApiFamily(apiNames: string[]): string {
-  return apiFamilyTemplate({
-    apiNamesInFamily: apiNames
-  });
-}
-
-/**
- * Renders API functions and its types into a typescript file
- *
- * @param apiModel - AMF Model of the API
- * @param renderDir - Directory path at which the rendered API files are saved
- * @returns Name of the API
- */
-function renderApi(
-  apiModel: model.document.BaseUnitWithEncodesModel,
-  renderDir: string
-): string {
-  const apiName: string = getApiName(apiModel);
-  const apiPath: string = path.join(renderDir, apiName);
-  fs.ensureDirSync(apiPath);
-
-  fs.writeFileSync(
-    path.join(apiPath, `${apiName}.types.ts`),
-    createDto(apiModel)
-  );
-  //Resolve model for the end points Using the 'editing' pipeline will retain the declarations in the model
-  const apiModelForEndPoints: model.document.BaseUnitWithEncodesModel = resolveApiModel(
-    apiModel,
-    "editing"
-  );
-  fs.writeFileSync(
-    path.join(apiPath, `${apiName}.ts`),
-    createClient(apiModelForEndPoints, apiName)
-  );
-  return apiName;
-}
-
-/**
- * Renders API functions and its types into a typescript file for all the APIs in a family
- *
- * @param familyName - Name of the API family
- * @param models - Array of AMF models
- * @param renderDir - Directory path to save the rendered API files
- * @returns List of API names in the API family
- */
-function renderApiFamily(
-  familyName: string,
-  models: model.document.BaseUnit[],
-  renderDir: string
-): string[] {
-  const fileName = getNormalizedName(familyName);
-  const filePath: string = path.join(renderDir, fileName);
-  fs.ensureDirSync(filePath);
-  const apiNames = models.map(api =>
-    renderApi(api as model.document.BaseUnitWithEncodesModel, filePath)
-  );
-  // export all APIs in the family
-  fs.writeFileSync(
-    path.join(filePath, `${fileName}.ts`),
-    createApiFamily(apiNames)
-  );
-  return apiNames;
+function loadApiConfig(buildConfig: IBuildConfig): IApiConfig {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  return require(path.resolve(buildConfig.inputDir, buildConfig.apiConfigFile));
 }
 
 /**
@@ -319,40 +179,242 @@ export function processApiFamily(
 }
 
 /**
+ * Processes the RAML files specified by the given config into AMF models,
+ * and groups them by API family.
+ *
+ * @param apiConfig - The API family config
+ * @param buildConfig - Config used to build the SDK
+ * @returns An array of tuples for each API family containing the API family's
+ * name and associated AMF models
+ */
+async function getApiModelTuples(
+  apiConfig: IApiConfig,
+  buildConfig: IBuildConfig
+): Promise<ApiModelTupleT[]> {
+  const promises = _.keysIn(apiConfig).map(
+    async (familyName): Promise<ApiModelTupleT> => {
+      return [
+        familyName,
+        await processApiFamily(familyName, apiConfig, buildConfig.inputDir)
+      ];
+    }
+  );
+  return Promise.all(promises);
+}
+
+// TEMPLATE FILLING FUNCTIONS
+
+/**
+ * Creates the code for a client from an AMF model.
+ *
+ * @param webApiModel - The AMF model to create the client from
+ * @param apiName - The name of the API
+ *
+ * @returns The rendered code for the client as a string
+ */
+function createClient(
+  webApiModel: model.document.BaseUnit,
+  apiName: string
+): string {
+  return clientInstanceTemplate(
+    {
+      dataTypes: getAllDataTypes(
+        webApiModel as model.document.BaseUnitWithDeclaresModel
+      ),
+      apiModel: webApiModel,
+      apiSpec: apiName
+    },
+    {
+      allowProtoPropertiesByDefault: true,
+      allowProtoMethodsByDefault: true
+    }
+  );
+}
+
+/**
+ * Create the DTO definitions from an AMF model.
+ *
+ * @param webApiModel - The AMF model to create DTO definitions from
+ *
+ * @returns The rendered code for the DTO definitions as a string
+ */
+function createDto(webApiModel: model.document.BaseUnit): string {
+  const types = getAllDataTypes(
+    webApiModel as model.document.BaseUnitWithDeclaresModel
+  );
+  return dtoTemplate(types, {
+    allowProtoPropertiesByDefault: true,
+    allowProtoMethodsByDefault: true
+  });
+}
+
+/**
+ * Create the code to export all API families from an index file.
+ *
+ * @param apiModelTuples - List of API names and the AMF models associated with each API
+ * @returns The rendered code as a string
+ */
+function createIndex(apiModelTuples: ApiModelTupleT[]): string {
+  return indexTemplate({
+    apiSpec: apiModelTuples.map(([familyName]) => _.camelCase(familyName))
+  });
+}
+
+/**
+ * Create the helper methods for the SDK (syntactical sugar).
+ *
+ * @param buildConfig - Config used to build the SDK
+ * @returns The rendered code as a string
+ */
+function createHelpers(buildConfig: IBuildConfig): string {
+  return helpersTemplate({
+    shopperAuthClient: buildConfig.shopperAuthClient,
+    shopperAuthApi: buildConfig.shopperAuthApi
+  });
+}
+
+/**
+ * Create the file documenting the available APIs.
+ *
+ * @param apiModelTuples - List of API names and the AMF models associated with each API
+ * @param apiConfig - The API family config
+ * @returns The rendered template as a string
+ */
+export function createApiClients(
+  apiModelTuples: ApiModelTupleT[],
+  apiConfig: IApiConfig
+): string {
+  const apis = apiModelTuples.map(
+    ([familyName, apiModels]): ApiClientsInfoT => {
+      // Merge model and config into array of objects
+      return apiModels.map(
+        (apiModel: model.document.BaseUnitWithEncodesModel, idx) => {
+          return {
+            family: familyName, // Included for ease of access within template
+            model: apiModel.encodes as model.domain.WebApi,
+            config: apiConfig[familyName][idx]
+          };
+        }
+      );
+    }
+  );
+  sortApis(apis);
+  return apiClientsTemplate({ apis });
+}
+
+/**
+ * Creates the code to export all APIs in a API Family.
+ *
+ * @param apiNames - Names of all the APIs in the family
+ * @returns The rendered code as a string
+ */
+function createApiFamily(apiNames: string[]): string {
+  return apiFamilyTemplate({
+    apiNamesInFamily: apiNames
+  });
+}
+
+// FILE CREATION FUNCTIONS
+
+/**
+ * Renders API functions and types into a TypeScript file for a single API.
+ *
+ * @param apiModel - AMF Model of the API
+ * @param renderDir - Directory path at which the rendered API files are saved
+ * @returns The name of the API
+ */
+function renderApi(
+  apiModel: model.document.BaseUnitWithEncodesModel,
+  renderDir: string
+): string {
+  const apiName: string = getApiName(apiModel);
+  const apiPath: string = path.join(renderDir, apiName);
+  fs.ensureDirSync(apiPath);
+
+  fs.writeFileSync(
+    path.join(apiPath, `${apiName}.types.ts`),
+    createDto(apiModel)
+  );
+  //Resolve model for the end points Using the 'editing' pipeline will retain the declarations in the model
+  const apiModelForEndPoints: model.document.BaseUnitWithEncodesModel = resolveApiModel(
+    apiModel,
+    "editing"
+  );
+  fs.writeFileSync(
+    path.join(apiPath, `${apiName}.ts`),
+    createClient(apiModelForEndPoints, apiName)
+  );
+  return apiName;
+}
+
+/**
+ * Renders API functions and types into a TypeScript file for all the APIs in a family.
+ *
+ * @param familyName - Name of the API family
+ * @param models - Array of AMF models
+ * @param renderDir - Directory path to save the rendered API files
+ * @returns List of API names in the API family
+ */
+function renderApiFamily(
+  familyName: string,
+  models: model.document.BaseUnit[],
+  renderDir: string
+): string[] {
+  const fileName = getNormalizedName(familyName);
+  const filePath: string = path.join(renderDir, fileName);
+  fs.ensureDirSync(filePath);
+  const apiNames = models.map(api =>
+    renderApi(api as model.document.BaseUnitWithEncodesModel, filePath)
+  );
+  // export all APIs in the family
+  fs.writeFileSync(
+    path.join(filePath, `${fileName}.ts`),
+    createApiFamily(apiNames)
+  );
+  return apiNames;
+}
+
+/**
  * Renders typescript code for the APIs using the pre-defined templates
  *
  * @param buildConfig - Config used to build the SDK
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function renderTemplates(buildConfig: any): Promise<void> {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const apiConfig = require(path.resolve(
-    path.join(buildConfig.inputDir, buildConfig.apiConfigFile)
-  ));
+export async function renderApiClients(
+  buildConfig: IBuildConfig
+): Promise<void> {
+  const apiConfig = loadApiConfig(buildConfig);
   fs.ensureDirSync(buildConfig.renderDir);
 
-  const apiFamilyNames = _.keysIn(apiConfig);
-  const apiModelEntries = await Promise.all(
-    apiFamilyNames.map(
-      async (familyName): Promise<[string, model.document.BaseUnit[]]> => {
-        const apiModels = await processApiFamily(
-          familyName,
-          apiConfig,
-          buildConfig.inputDir
-        );
-        renderApiFamily(familyName, apiModels, buildConfig.renderDir);
-        return [familyName, apiModels];
-      }
-    )
-  );
-  const apiModelMap = new Map(apiModelEntries);
+  const apiModelTuples = await getApiModelTuples(apiConfig, buildConfig);
 
-  // Create files with static filenames
+  fs.writeFileSync(
+    path.join(buildConfig.renderDir, "../APICLIENTS.md"),
+    createApiClients(apiModelTuples, apiConfig)
+  );
+}
+
+/**
+ * Renders the TypeScript code for the APIs using the pre-defined templates.
+ *
+ * @param buildConfig - Config used to build the SDK
+ */
+export async function renderTemplates(
+  buildConfig: IBuildConfig
+): Promise<void> {
+  const apiConfig = loadApiConfig(buildConfig);
+  fs.ensureDirSync(buildConfig.renderDir);
+
+  const apiModelTuples = await getApiModelTuples(apiConfig, buildConfig);
+
+  // Create dynamic files
+  apiModelTuples.forEach(([familyName, apiModels]) => {
+    renderApiFamily(familyName, apiModels, buildConfig.renderDir);
+  });
 
   // Create index file that exports all the API families in the root
   fs.writeFileSync(
     path.join(buildConfig.renderDir, "index.ts"),
-    createIndex([...apiModelMap.keys()].map(name => _.camelCase(name)))
+    createIndex(apiModelTuples)
   );
 
   // Create file that exports helper functions
@@ -361,12 +423,6 @@ export async function renderTemplates(buildConfig: any): Promise<void> {
     createHelpers(buildConfig)
   );
 
-  // Create file documenting available APIs
-  // TODO: Remove generation of APICLIENTS.md from build
-  // fs.writeFileSync(
-  //   path.join(config.renderDir, "..", "APICLIENTS.md"),
-  //   createApiClients(apiFamilyMap, apiFamilyRamlConfig)
-  // );
   generatorLogger.info(
     "Successfully rendered code from the APIs: ",
     buildConfig.inputDir
@@ -374,7 +430,7 @@ export async function renderTemplates(buildConfig: any): Promise<void> {
 }
 
 /**
- * Build the list of operations from a list of AMF models.
+ * Renders the list of operations from a list of AMF models.
  *
  * @param allApis - key/value of APIs
  *
