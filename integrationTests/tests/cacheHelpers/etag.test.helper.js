@@ -1,16 +1,20 @@
 /*
- * Copyright (c) 2019, salesforce.com, inc.
+ * Copyright (c) 2020, salesforce.com, inc.
  * All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 "use strict";
-import chai from "chai";
-import nock from "nock";
 
-import { _get } from "../../src/base/staticClient";
+const chai = require("chai");
+const nock = require("nock");
 
-export default function() {
+const { StaticClient } = require("@commerce-apps/core");
+/**
+ * Etag tests to verify conditional retrievals
+ * for Salesforce Commerce SDK cache manager interface.
+ */
+module.exports = function() {
   const expect = chai.expect;
 
   describe("base client etag based conditional get tests", function() {
@@ -22,12 +26,12 @@ export default function() {
         .reply(200, { mock: "data" }, { ETag: "etag" });
 
       // make first request and get response from server
-      return _get({
+      return StaticClient.get({
         client: this.client,
         path: "/modified"
       }).then(data => {
         //ensure response body is correct from server
-        expect(data).to.eql({ mock: "data" });
+        expect(data).to.deep.equal({ mock: "data" });
         //ensure all http calls are done
         expect(nock.isDone()).to.be.true;
 
@@ -39,12 +43,12 @@ export default function() {
           { ETag: "new etag" }
         );
 
-        return _get({
+        return StaticClient.get({
           client: this.client,
           path: "/modified"
         }).then(data => {
           //ensure content is not empty and equals to the modified content
-          expect(data).to.eql({ mock: "data_modified" });
+          expect(data).to.deep.equal({ mock: "data_modified" });
           expect(nock.isDone()).to.be.true;
         });
       });
@@ -56,12 +60,12 @@ export default function() {
         .reply(200, { mock: "data" }, { "Cache-Control": "max-age=100000000" });
 
       // make first request and get response from server
-      return _get({
+      return StaticClient.get({
         client: this.client,
         path: "/cached"
       }).then(data => {
         //ensure response body is correct from server
-        expect(data).to.eql({ mock: "data" });
+        expect(data).to.deep.equal({ mock: "data" });
         //ensure all http calls are done
         expect(nock.isDone()).to.be.true;
 
@@ -75,12 +79,12 @@ export default function() {
           { "Cache-Control": "max-age=100000000" }
         );
 
-        return _get({
+        return StaticClient.get({
           client: this.client,
           path: "/cached"
         }).then(data => {
           //ensure content is not empty and equals to the cached content
-          expect(data).to.eql({ mock: "data" });
+          expect(data).to.deep.equal({ mock: "data" });
           // Nock is not done as one of the mock is never called
           expect(nock.isDone()).to.be.false;
         });
@@ -92,8 +96,6 @@ export default function() {
     afterEach(nock.cleanAll);
 
     it("sdk does not add if-modified-since header and returns cached content on 200 response", function() {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
       const dateExpires = new Date(new Date() + 10000000).toUTCString();
       const scope = nock("https://somewhere")
         .get("/no-lastmodified-header")
@@ -107,12 +109,12 @@ export default function() {
         );
 
       // make first request and get response from server
-      return _get({
+      return StaticClient.get({
         client: this.client,
         path: "/no-lastmodified-header"
       }).then(data => {
         //ensure response body is correct from server
-        expect(data).to.eql({ mock: "data" });
+        expect(data).to.deep.equal({ mock: "data" });
         //ensure all http calls are done
         expect(nock.isDone()).to.be.true;
 
@@ -122,12 +124,12 @@ export default function() {
           return { mock: "data_modified" };
         });
 
-        return _get({
+        return StaticClient.get({
           client: this.client,
           path: "/no-lastmodified-header"
         }).then(data => {
           //ensure content is not empty and equals to the cached content
-          expect(data).to.eql({ mock: "data" });
+          expect(data).to.deep.equal({ mock: "data" });
           // Nock is not as one http request is declared and not called
           expect(nock.isDone()).to.be.false;
         });
@@ -135,11 +137,7 @@ export default function() {
     });
 
     it("sdk does not add if-modified-since header on cached content w/o Expires header", function() {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
       const dateLastModified = new Date(new Date() - 10000000).toUTCString();
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
       const dateExpires = new Date(new Date() + 10000000).toUTCString();
       const scope = nock("https://somewhere")
         .get("/missing-expires-header")
@@ -153,12 +151,12 @@ export default function() {
         );
 
       // make first request and get response from server
-      return _get({
+      return StaticClient.get({
         client: this.client,
         path: "/missing-expires-header"
       }).then(data => {
         //ensure response body is correct from server
-        expect(data).to.eql({ mock: "data" });
+        expect(data).to.deep.equal({ mock: "data" });
         //ensure all http calls are done
         expect(nock.isDone()).to.be.true;
 
@@ -167,15 +165,15 @@ export default function() {
           expect(this.req.headers["if-modified-since"]).to.be.null;
         });
 
-        return _get({
+        return StaticClient.get({
           client: this.client,
           path: "/missing-expires-header"
         }).then(data => {
           //ensure content is not empty and equals to the cached content
-          expect(data).to.eql({ mock: "data" });
+          expect(data).to.deep.equal({ mock: "data" });
           expect(nock.isDone()).to.be.false;
         });
       });
     });
   });
-}
+};

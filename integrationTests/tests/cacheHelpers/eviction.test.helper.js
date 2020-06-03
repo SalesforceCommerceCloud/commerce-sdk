@@ -1,16 +1,21 @@
 /*
- * Copyright (c) 2019, salesforce.com, inc.
+ * Copyright (c) 2020, salesforce.com, inc.
  * All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 "use strict";
-import chai from "chai";
-import nock from "nock";
 
-import { _get } from "../../src/base/staticClient";
+const chai = require("chai");
+const nock = require("nock");
 
-export default function() {
+const { StaticClient } = require("@commerce-apps/core");
+
+/**
+ * Cache eviction tests to verify cached content
+ * for Salesforce Commerce SDK cache manager interface.
+ */
+module.exports = function() {
   const expect = chai.expect;
   const RESPONSE_DATA = { mock: "data" };
   const RESPONSE_DATA_MODIFIED = { mock: "data_modified" };
@@ -25,7 +30,7 @@ export default function() {
         .reply(200, RESPONSE_DATA, { ETag: "etag" });
 
       // make first request and get response from server
-      return _get({
+      return StaticClient.get({
         client: client,
         path: "/validate-fresh"
       }).then(function() {
@@ -46,11 +51,9 @@ export default function() {
         return client.clientConfig.cacheManager
           .match(request, opts)
           .then(res => {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-            // @ts-ignore
             return res.json().then(resData => {
               // ensure response data is cached
-              expect(resData).to.eql(RESPONSE_DATA);
+              expect(resData).to.deep.equal(RESPONSE_DATA);
             });
           });
       });
@@ -63,7 +66,7 @@ export default function() {
         .reply(200, RESPONSE_DATA, { "Cache-Control": "no-store" });
 
       // make first request and get response from server
-      return _get({
+      return StaticClient.get({
         client: client,
         path: "/validate-no-store"
       }).then(function() {
@@ -96,7 +99,7 @@ export default function() {
         .reply(200, RESPONSE_DATA, { ETag: "etag" });
 
       // make first request and get response from server
-      return _get({
+      return StaticClient.get({
         client: client,
         path: "/validate-304-update"
       }).then(function() {
@@ -108,11 +111,11 @@ export default function() {
           304,
           function() {
             //verify if sdk adds if-none-match header
-            expect(this.req.headers["if-none-match"][0]).to.eql("etag");
+            expect(this.req.headers["if-none-match"][0]).to.deep.equal("etag");
           },
           { ETag: "etag_modified", newHeader: "a new header" }
         );
-        return _get({
+        return StaticClient.get({
           client: client,
           path: "/validate-304-update"
         }).then(function() {
@@ -131,12 +134,10 @@ export default function() {
           return client.clientConfig.cacheManager
             .match(request, opts)
             .then(res => {
-              // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-              // @ts-ignore
-              expect(res.headers.get("etag")).to.eql("etag_modified");
-              // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-              // @ts-ignore
-              expect(res.headers.get("newHeader")).to.eql("a new header");
+              expect(res.headers.get("etag")).to.deep.equal("etag_modified");
+              expect(res.headers.get("newHeader")).to.deep.equal(
+                "a new header"
+              );
             });
         });
       });
@@ -149,7 +150,7 @@ export default function() {
         .reply(200, RESPONSE_DATA, { ETag: "etag" });
 
       // make first request and get response from server
-      return _get({
+      return StaticClient.get({
         client: client,
         path: "/evict-modified"
       }).then(function() {
@@ -170,18 +171,18 @@ export default function() {
         return client.clientConfig.cacheManager
           .match(request, opts)
           .then(res => {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-            // @ts-ignore
             return res.json().then(resData => {
               // ensure response data is cached
-              expect(resData).to.eql(RESPONSE_DATA);
+              expect(resData).to.deep.equal(RESPONSE_DATA);
               //define fresh response
               scope.get("/evict-modified").reply(200, function() {
                 //verify if sdk adds if-none-match header
-                expect(this.req.headers["if-none-match"][0]).to.eql("etag");
+                expect(this.req.headers["if-none-match"][0]).to.deep.equal(
+                  "etag"
+                );
                 return RESPONSE_DATA_MODIFIED;
               });
-              return _get({
+              return StaticClient.get({
                 client: client,
                 path: "/evict-modified"
               }).then(function() {
@@ -191,10 +192,8 @@ export default function() {
                 return client.clientConfig.cacheManager
                   .match(request, opts)
                   .then(res => {
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-                    // @ts-ignore
                     return res.json().then(resData => {
-                      expect(resData).to.eql(RESPONSE_DATA_MODIFIED);
+                      expect(resData).to.deep.equal(RESPONSE_DATA_MODIFIED);
                     });
                   });
               });
@@ -203,4 +202,4 @@ export default function() {
       });
     });
   });
-}
+};
