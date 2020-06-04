@@ -80,6 +80,26 @@ const getPayloadResponses = function(operation: any): model.domain.Response[] {
 };
 
 /**
+ * Given a payload, extract the types.
+ *
+ * @param payload - Contains schema(s) from which to extract the type(s).
+ * @returns string representation of the datatypes in the payload
+ */
+export function extractTypeFromPayload(payload: model.domain.Payload): string {
+  if (payload.schema.name.value() === "schema") {
+    return "Object";
+  }
+  if ((payload.schema as model.domain.UnionShape).anyOf !== undefined) {
+    const union: string[] = [];
+    (payload.schema as model.domain.UnionShape).anyOf.forEach(element => {
+      union.push(element.name.value() + "T");
+    });
+    return union.join(" | ");
+  }
+  return payload.schema.name.value() + "T";
+}
+
+/**
  * Find the return type info for an operation.
  *
  * @param operation - The operation to get the return type for
@@ -89,13 +109,10 @@ const getPayloadResponses = function(operation: any): model.domain.Response[] {
 export const getReturnPayloadType = function(operation: any): string {
   const okResponses = getPayloadResponses(operation);
   const dataTypes: string[] = [];
+
   okResponses.forEach(res => {
     if (res.payloads.length > 0) {
-      dataTypes.push(
-        res.payloads[0].schema.name.value() === "schema"
-          ? "Object"
-          : res.payloads[0].schema.name.value() + "T"
-      );
+      dataTypes.push(extractTypeFromPayload(res.payloads[0]));
     } else {
       dataTypes.push("void");
     }
