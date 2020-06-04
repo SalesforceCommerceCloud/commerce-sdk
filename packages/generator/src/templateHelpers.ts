@@ -93,9 +93,7 @@ export const getReturnPayloadType = function(operation: any): string {
 
   okResponses.forEach(res => {
     if (res.payloads.length > 0) {
-      dataTypes.push(
-        extractTypeFromPayload(res.payloads[0])
-      );
+      dataTypes.push(extractTypeFromPayload(res.payloads[0]));
     } else {
       dataTypes.push("void");
     }
@@ -116,6 +114,7 @@ const getDataTypeFromMap = function(uuidDataType: string): string {
 
 /**
  * Get data type from ScalarShape
+ *
  * @param scalarShape - instance of model.domain.ScalarShape
  * @returns scalar data type if defined otherwise returns a default type
  */
@@ -146,6 +145,7 @@ const getScalarType = function(scalarShape: model.domain.ScalarShape): string {
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /**
  * Get type of the array
+ *
  * @param arrayShape - instance of model.domain.ArrayShape
  * @returns array type if defined otherwise returns a default type
  */
@@ -162,6 +162,7 @@ const getArrayType = function(arrayShape: model.domain.ArrayShape): string {
 
 /**
  * Get data type that is linked/inherited
+ *
  * @param anyShape - instance of model.domain.AnyShape or its subclass
  * @returns linked/inherited data type
  */
@@ -202,6 +203,7 @@ const getLinkedType = function(anyShape: model.domain.AnyShape): string {
 
 /**
  * Get object type
+ *
  * @param anyShape - instance of model.domain.AnyShape or its subclass
  * @returns object type if defined otherwise returns a default type
  */
@@ -222,6 +224,7 @@ const getObjectType = function(anyShape: model.domain.AnyShape): string {
 
 /**
  * Get data type of an element from amf model
+ *
  * @param dtElement - instance of model.domain.DomainElement or its subclass
  * @returns data type if defined otherwise returns a default type
  */
@@ -244,6 +247,7 @@ const getDataType = function(dtElement: model.domain.DomainElement): string {
 
 /**
  * Get data type of a property
+ *
  * @param property - instance of model.domain.PropertyShape
  * @returns data type if defined in the property otherwise returns a default type
  */
@@ -258,6 +262,7 @@ export const getPropertyDataType = function(
 
 /**
  * Get data type of a parameter
+ *
  * @param param - instance of model.domain.Parameter
  * @returns data type if defined in the parameter otherwise returns a default type
  */
@@ -284,6 +289,7 @@ const getPayloadType = function(schema: model.domain.Shape): string {
 
 /**
  * Get type of the request body
+ *
  * @param request - AMF model of tge request
  * @returns Type of the request body
  */
@@ -389,6 +395,7 @@ export const getProperties = function(
  * Required properties have minimum count of at least 1
  * We ignore required additional properties because of the
  * different semantics used in rendering those properties
+ *
  * @param property -
  * @returns true if the property is required
  */
@@ -403,6 +410,7 @@ export const isRequiredProperty = function(
  * Optional properties have minimum count of 0
  * We ignore optional additional properties which also have minimum count of 0,
  * because of the different semantics used in rendering those properties.
+ *
  * @param property -
  * @returns true if the property is optional
  */
@@ -500,20 +508,20 @@ export const formatForTsDoc = function(str: string): string {
 
 /**
  * Given a payload, extract the types.
+ *
  * @param payload - Contains schema(s) from which to extract the type(s).
  * @returns string representation of the datatypes in the payload
  */
 export function extractTypeFromPayload(payload: model.domain.Payload): string {
-  if(payload.schema.name.value() === "schema"){
-     return "Object";
+  if (payload.schema.name.value() === "schema") {
+    return "Object";
   }
-  if((payload.schema as model.domain.UnionShape).anyOf !== undefined){
-    const union:string[] = [];
-    (payload.schema as model.domain.UnionShape).anyOf.forEach( element => {
-      union.push(element.name.value()+"T");
-    })
-    return union.join(" | ")
+  if ((payload.schema as model.domain.UnionShape).anyOf !== undefined) {
+    const union: string[] = [];
+    (payload.schema as model.domain.UnionShape).anyOf.forEach(element => {
+      union.push(element.name.value() + "T");
+    });
+    return union.join(" | ");
   }
   return payload.schema.name.value() + "T";
 }
-
