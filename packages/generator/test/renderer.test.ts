@@ -114,7 +114,7 @@ describe("Rendering Tests", () => {
   });
 });
 
-const validateApisOrder = function(apis: renderer.ApiClientsInfoT): void {
+const validateApisOrder = function(apis: renderer.IApiClientsInfo[]): void {
   expect(apis[0].config.name).to.equal("A");
   expect(apis[1].config.name).to.equal("B");
   expect(apis[2].config.name).to.equal("C");
@@ -141,7 +141,7 @@ describe("Test sorting of APIs", () => {
       assetId: "assignments"
     };
     const m = {} as model.domain.WebApi;
-    const apiFamilies: renderer.ApiClientsInfoT[] = [
+    const apiFamilies: renderer.IApiClientsInfo[][] = [
       [
         { family: "Shopper", model: m, config: api1 },
         { family: "Shopper", model: m, config: api2 },

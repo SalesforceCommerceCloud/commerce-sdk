@@ -57,11 +57,11 @@ interface IBuildConfig {
 /**
  * Information used to generate APICLIENTS.md.
  */
-export type ApiClientsInfoT = {
+export interface IApiClientsInfo {
   model: model.domain.WebApi;
   family: string;
   config: RestApi;
-}[];
+}
 /**
  * The name of an API family and its associated AMF models.
  */
@@ -126,7 +126,7 @@ const dtoPartial = Handlebars.compile(
  *
  * @param apis - Array of API info used to generate API clients file.
  */
-export function sortApis(apis: ApiClientsInfoT[]): void {
+export function sortApis(apis: IApiClientsInfo[][]): void {
   // Sort API families
   apis.sort((a, b) => a[0].family.localeCompare(b[0].family));
   // Sort APIs within each family
@@ -285,7 +285,7 @@ export function createApiClients(
   apiConfig: IApiConfig
 ): string {
   const apis = apiModelTuples.map(
-    ([familyName, apiModels]): ApiClientsInfoT => {
+    ([familyName, apiModels]): IApiClientsInfo[] => {
       // Merge model and config into array of objects
       return apiModels.map(
         (apiModel: model.document.BaseUnitWithEncodesModel, idx) => {
