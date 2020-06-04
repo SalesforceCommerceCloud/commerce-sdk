@@ -165,6 +165,7 @@ export function resolveApiModel(
 
 /**
  * Get normalized name for the file/directory that is created while rendering the templates
+ *
  * @param name - File or directory name to normalize
  * @returns a normalized name
  */
