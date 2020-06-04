@@ -7,13 +7,13 @@
 "use strict";
 
 import { expect } from "chai";
-import { default as amf, model } from "amf-client-js";
+import amf, { model } from "amf-client-js";
 
 import { getBaseUri } from "../src/templateHelpers";
 
 amf.plugins.document.WebApi.register();
 
-describe("Test getBaseUri template help function", () => {
+describe("getBaseUri template helper function", () => {
   it("returns an empty string for null input", () => {
     expect(getBaseUri(null)).to.equal("");
   });

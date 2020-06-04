@@ -394,8 +394,8 @@ export async function renderTemplates(config: any): Promise<void> {
  * @returns list of operations as string
  */
 export function renderOperationList(allApis: {
-  [key: string]: model.document.BaseUnit &
-    model.document.BaseUnitWithEncodesModel[];
+  [key: string]: (model.document.BaseUnit &
+    model.document.BaseUnitWithEncodesModel)[];
 }): string {
   return renderOperationListTemplate(allApis, {
     allowProtoPropertiesByDefault: true,
