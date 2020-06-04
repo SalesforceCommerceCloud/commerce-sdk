@@ -106,8 +106,8 @@ describe("Rendering Tests", () => {
   });
 
   it("Throws error when id is missing", () => {
-    expect(
-      () => renderer.processApiFamily("test", { test: { id: "" } }, "")
+    expect(() =>
+      renderer.processApiFamily("test", { test: { id: "" } }, "")
     ).to.throw();
   });
 });

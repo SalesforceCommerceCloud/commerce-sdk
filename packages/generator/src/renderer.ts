@@ -129,8 +129,7 @@ function createClient(
   return clientInstanceTemplate(
     {
       dataTypes: getAllDataTypes(
-        webApiModel as model.document.BaseUnit &
-          model.document.BaseUnitWithDeclaresModel
+        webApiModel as model.document.BaseUnitWithDeclaresModel
       ),
       apiModel: webApiModel,
       apiSpec: apiName
@@ -151,8 +150,7 @@ function createClient(
  */
 function createDto(webApiModel: model.document.BaseUnit): string {
   const types = getAllDataTypes(
-    webApiModel as model.document.BaseUnit &
-      model.document.BaseUnitWithDeclaresModel
+    webApiModel as model.document.BaseUnitWithDeclaresModel
   );
   return dtoTemplate(types, {
     allowProtoPropertiesByDefault: true,
@@ -207,8 +205,7 @@ export function createApiClients(
       // Merge model and config into array of objects
       return apiModels.map(
         (
-          apiModel: model.document.BaseUnit &
-            model.document.BaseUnitWithEncodesModel,
+          apiModel: model.document.BaseUnitWithEncodesModel,
           idx
         ) => {
           return {
@@ -245,7 +242,7 @@ function createApiFamily(apiNames: string[]): string {
  * @returns Name of the API
  */
 function renderApi(
-  apiModel: model.document.BaseUnit & model.document.BaseUnitWithEncodesModel,
+  apiModel: model.document.BaseUnitWithEncodesModel,
   renderDir: string
 ): string {
   const apiName: string = getApiName(apiModel);
@@ -257,8 +254,7 @@ function renderApi(
     createDto(apiModel)
   );
   //Resolve model for the end points Using the 'editing' pipeline will retain the declarations in the model
-  const apiModelForEndPoints: model.document.BaseUnit &
-    model.document.BaseUnitWithEncodesModel = resolveApiModel(
+  const apiModelForEndPoints: model.document.BaseUnitWithEncodesModel = resolveApiModel(
     apiModel,
     "editing"
   );
@@ -286,10 +282,7 @@ function renderApiFamily(
   const apiFamilyPath: string = path.join(renderDir, apiFamilyFileName);
   fs.ensureDirSync(apiFamilyPath);
   const apiNames = familyApis.map(api =>
-    renderApi(
-      api as model.document.BaseUnit & model.document.BaseUnitWithEncodesModel,
-      apiFamilyPath
-    )
+    renderApi(api as model.document.BaseUnitWithEncodesModel, apiFamilyPath)
   );
   // export all APIs in the family
   fs.writeFileSync(
@@ -394,8 +387,7 @@ export async function renderTemplates(config: any): Promise<void> {
  * @returns list of operations as string
  */
 export function renderOperationList(allApis: {
-  [key: string]: (model.document.BaseUnit &
-    model.document.BaseUnitWithEncodesModel)[];
+  [key: string]: model.document.BaseUnitWithEncodesModel[];
 }): string {
   return renderOperationListTemplate(allApis, {
     allowProtoPropertiesByDefault: true,
