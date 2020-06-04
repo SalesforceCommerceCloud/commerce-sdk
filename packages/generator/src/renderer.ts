@@ -286,7 +286,7 @@ export function createApiClients(
 ): string {
   const apis = apiModelTuples.map(
     ([familyName, apiModels]): IApiClientsInfo[] => {
-      // Merge model and config into array of objects
+      // Merge model and config into array of data used by template
       return apiModels.map(
         (apiModel: model.document.BaseUnitWithEncodesModel, idx) => {
           return {
