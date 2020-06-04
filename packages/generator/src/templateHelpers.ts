@@ -81,6 +81,26 @@ const getPayloadResponses = function(operation: any): model.domain.Response[] {
 };
 
 /**
+ * Given a payload, extract the types.
+ *
+ * @param payload - Contains schema(s) from which to extract the type(s).
+ * @returns string representation of the datatypes in the payload
+ */
+export function extractTypeFromPayload(payload: model.domain.Payload): string {
+  if (payload.schema.name.value() === "schema") {
+    return "Object";
+  }
+  if ((payload.schema as model.domain.UnionShape).anyOf !== undefined) {
+    const union: string[] = [];
+    (payload.schema as model.domain.UnionShape).anyOf.forEach(element => {
+      union.push(element.name.value() + "T");
+    });
+    return union.join(" | ");
+  }
+  return payload.schema.name.value() + "T";
+}
+
+/**
  * Find the return type info for an operation.
  *
  * @param operation - The operation to get the return type for
@@ -505,23 +525,3 @@ export const formatForTsDoc = function(str: string): string {
 
   return collapsedLeadingWhitespace;
 };
-
-/**
- * Given a payload, extract the types.
- *
- * @param payload - Contains schema(s) from which to extract the type(s).
- * @returns string representation of the datatypes in the payload
- */
-export function extractTypeFromPayload(payload: model.domain.Payload): string {
-  if (payload.schema.name.value() === "schema") {
-    return "Object";
-  }
-  if ((payload.schema as model.domain.UnionShape).anyOf !== undefined) {
-    const union: string[] = [];
-    (payload.schema as model.domain.UnionShape).anyOf.forEach(element => {
-      union.push(element.name.value() + "T");
-    });
-    return union.join(" | ");
-  }
-  return payload.schema.name.value() + "T";
-}
