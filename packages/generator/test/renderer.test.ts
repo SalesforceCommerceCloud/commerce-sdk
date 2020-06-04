@@ -7,7 +7,7 @@
 "use strict";
 
 import fs from "fs-extra";
-import { assert, expect } from "chai";
+import chai, { assert, expect } from "chai";
 import path from "path";
 import * as renderer from "../src/renderer";
 import tmp from "tmp";
@@ -105,14 +105,10 @@ describe("Rendering Tests", () => {
     expect(list).to.be.a("string");
   });
 
-  it("Throws error when id is missing", async () => {
-    // expect().to.be.rejected was not working here
-    try {
-      await renderer.processApiFamily("test", { test: { id: "" } }, "");
-    } catch (e) {
-      return;
-    }
-    assert.fail();
+  it("Throws error when id is missing", () => {
+    expect(
+      () => Promise.all(renderer.processApiFamily("test", { test: { id: "" } }, ""))
+    ).to.throw();
   });
 });
 
