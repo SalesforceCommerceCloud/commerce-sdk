@@ -7,7 +7,7 @@
 import * as gulp from "gulp";
 import {
   renderTemplates,
-  buildOperationList,
+  renderOperationList,
   renderApiClients
 } from "../src/renderer";
 
@@ -28,4 +28,4 @@ gulp.task("renderApiClients", async () => renderApiClients(config));
 /**
  * Renders an operation list file.
  */
-gulp.task("buildOperationList", async () => buildOperationList(config));
+gulp.task("renderOperationList", async () => renderOperationList(config));

@@ -314,6 +314,21 @@ function createApiFamily(apiNames: string[]): string {
   });
 }
 
+/**
+ * Creates a list of operations available from a list of AMF models.
+ *
+ * @param allApis - key/value of APIs
+ * @returns The list of operations as string
+ */
+export function createOperationList(allApis: {
+  [key: string]: model.document.BaseUnitWithEncodesModel[];
+}): string {
+  return operationListTemplate(allApis, {
+    allowProtoPropertiesByDefault: true,
+    allowProtoMethodsByDefault: true
+  });
+}
+
 // FILE CREATION FUNCTIONS
 
 /**
@@ -430,28 +445,11 @@ export async function renderTemplates(
 }
 
 /**
- * Renders the list of operations from a list of AMF models.
+ * Renders a YAML file with a list of operations available in the SDK.
  *
- * @param allApis - key/value of APIs
- *
- * @returns list of operations as string
+ * @param config - Config used to build the SDK
  */
-export function renderOperationList(allApis: {
-  [key: string]: model.document.BaseUnitWithEncodesModel[];
-}): string {
-  return operationListTemplate(allApis, {
-    allowProtoPropertiesByDefault: true,
-    allowProtoMethodsByDefault: true
-  });
-}
-
-/**
- * Builds the operation list.
- *
- * @param config -
- * @returns Promise that resolved on successful build
- */
-export async function buildOperationList(config: IBuildConfig): Promise<void> {
+export async function renderOperationList(config: IBuildConfig): Promise<void> {
   // require the json written in groupRamls gulpTask
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const ramlGroupConfig = require(path.resolve(
@@ -482,7 +480,7 @@ export async function buildOperationList(config: IBuildConfig): Promise<void> {
   return Promise.all(modelingPromises).then(() => {
     fs.writeFileSync(
       path.join(config.renderDir, "operationList.yaml"),
-      renderOperationList(allApis)
+      createOperationList(allApis)
     );
   });
 }

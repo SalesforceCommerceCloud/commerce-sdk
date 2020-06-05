@@ -103,7 +103,7 @@ describe("Rendering Tests", () => {
         );
       })
     );
-    const list = renderer.renderOperationList(allApis);
+    const list = renderer.createOperationList(allApis);
     expect(list).to.be.a("string");
   });
 
