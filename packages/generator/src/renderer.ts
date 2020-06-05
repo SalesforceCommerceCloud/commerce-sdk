@@ -65,7 +65,10 @@ export interface IApiClientsInfo {
 /**
  * The name of an API family and its associated AMF models.
  */
-type ApiModelTupleT = [string, model.document.BaseUnit[]];
+type ApiModelTupleT = [
+  string,
+  model.document.BaseUnitWithDeclaresModelAndEncodesModel[]
+];
 
 const templateDirectory = `${__dirname}/../templates`;
 
@@ -160,7 +163,7 @@ export function processApiFamily(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   apiFamilyConfig: any,
   inputDir: string
-): Promise<model.document.BaseUnit[]> {
+): Promise<model.document.BaseUnitWithDeclaresModelAndEncodesModel[]> {
   const promises = [];
   const ramlFileFromFamily = apiFamilyConfig[apiFamily];
   _.map(ramlFileFromFamily, (apiMeta: RestApi) => {
@@ -213,14 +216,12 @@ async function getApiModelTuples(
  * @returns The rendered code for the client as a string
  */
 function createClient(
-  webApiModel: model.document.BaseUnit,
+  webApiModel: model.document.BaseUnitWithDeclaresModel,
   apiName: string
 ): string {
   return clientInstanceTemplate(
     {
-      dataTypes: getAllDataTypes(
-        webApiModel as model.document.BaseUnitWithDeclaresModel
-      ),
+      dataTypes: getAllDataTypes(webApiModel),
       apiModel: webApiModel,
       apiSpec: apiName
     },
@@ -238,10 +239,10 @@ function createClient(
  *
  * @returns The rendered code for the DTO definitions as a string
  */
-function createDto(webApiModel: model.document.BaseUnit): string {
-  const types = getAllDataTypes(
-    webApiModel as model.document.BaseUnitWithDeclaresModel
-  );
+function createDto(
+  webApiModel: model.document.BaseUnitWithDeclaresModel
+): string {
+  const types = getAllDataTypes(webApiModel);
   return dtoTemplate(types, {
     allowProtoPropertiesByDefault: true,
     allowProtoMethodsByDefault: true
@@ -287,15 +288,13 @@ export function createApiClients(
   const apis = apiModelTuples.map(
     ([familyName, apiModels]): IApiClientsInfo[] => {
       // Merge model and config into array of data used by template
-      return apiModels.map(
-        (apiModel: model.document.BaseUnitWithEncodesModel, idx) => {
-          return {
-            family: familyName, // Included for ease of access within template
-            model: apiModel.encodes as model.domain.WebApi,
-            config: apiConfig[familyName][idx]
-          };
-        }
-      );
+      return apiModels.map((apiModel, idx) => {
+        return {
+          family: familyName, // Included for ease of access within template
+          model: apiModel.encodes as model.domain.WebApi,
+          config: apiConfig[familyName][idx]
+        };
+      });
     }
   );
   sortApis(apis);
@@ -321,6 +320,8 @@ function createApiFamily(apiNames: string[]): string {
  * @returns The list of operations as string
  */
 export function createOperationList(allApis: {
+  // NOTE: The requirement for WithEncodesModel, rather than just BaseUnit is
+  // in the Handlebars template, not in any TypeScript code.
   [key: string]: model.document.BaseUnitWithEncodesModel[];
 }): string {
   return operationListTemplate(allApis, {
@@ -339,7 +340,7 @@ export function createOperationList(allApis: {
  * @returns The name of the API
  */
 function renderApi(
-  apiModel: model.document.BaseUnitWithEncodesModel,
+  apiModel: model.document.BaseUnitWithDeclaresModelAndEncodesModel,
   renderDir: string
 ): string {
   const apiName: string = getApiName(apiModel);
@@ -351,13 +352,15 @@ function renderApi(
     createDto(apiModel)
   );
   //Resolve model for the end points Using the 'editing' pipeline will retain the declarations in the model
-  const apiModelForEndPoints: model.document.BaseUnitWithEncodesModel = resolveApiModel(
-    apiModel,
-    "editing"
-  );
+  // TODO: resolveApiModel *should* return type BaseUnit, but it currently does not.
+  // When that is fixed (in raml-toolkit), this `unknown` can be removed.
+  const apiModelForEndPoints: unknown = resolveApiModel(apiModel, "editing");
   fs.writeFileSync(
     path.join(apiPath, `${apiName}.ts`),
-    createClient(apiModelForEndPoints, apiName)
+    createClient(
+      apiModelForEndPoints as model.document.BaseUnitWithDeclaresModel,
+      apiName
+    )
   );
   return apiName;
 }
@@ -372,15 +375,13 @@ function renderApi(
  */
 function renderApiFamily(
   familyName: string,
-  models: model.document.BaseUnit[],
+  models: model.document.BaseUnitWithDeclaresModelAndEncodesModel[],
   renderDir: string
 ): string[] {
   const fileName = getNormalizedName(familyName);
   const filePath: string = path.join(renderDir, fileName);
   fs.ensureDirSync(filePath);
-  const apiNames = models.map(api =>
-    renderApi(api as model.document.BaseUnitWithEncodesModel, filePath)
-  );
+  const apiNames = models.map(api => renderApi(api, filePath));
   // export all APIs in the family
   fs.writeFileSync(
     path.join(filePath, `${fileName}.ts`),
@@ -448,6 +449,7 @@ export async function renderTemplates(
  * Renders a YAML file with a list of operations available in the SDK.
  *
  * @param config - Config used to build the SDK
+ * @returns A promise that resolves on completion
  */
 export async function renderOperationList(config: IBuildConfig): Promise<void> {
   // require the json written in groupRamls gulpTask
