@@ -6,28 +6,26 @@
  */
 import * as gulp from "gulp";
 import * as path from "path";
-
 import fs from "fs-extra";
+import _ from "lodash";
 
 import {
+  downloadRestApis,
   extractFiles,
   getBearer,
-  searchExchange,
-  downloadRestApis,
-  RestApi,
   getVersionByDeployment,
   getSpecificApi,
-  groupByCategory
-} from "@commerce-apps/raml-toolkit";
-import {
+  groupByCategory,
   removeRamlLinks,
-  removeVersionSpecificInformation
+  removeVersionSpecificInformation,
+  RestApi,
+  searchExchange
 } from "@commerce-apps/raml-toolkit";
+import config from "../../../build-config";
+import { diffNewAndArchivedRamlFiles } from "../src/gulpfileHelpers";
 import { generatorLogger } from "../src/logger";
 
 require("dotenv").config();
-
-import config from "../../../build-config";
 
 /**
  * Gets information about all the apis from exchange that match config.search,
@@ -93,13 +91,30 @@ function downloadRamlFromExchange(): Promise<void> {
   });
 }
 
-gulp.task("cleanInputDir", async () => {
-  return fs.removeSync(path.join(config.inputDir));
+gulp.task("diffRamlFiles", async () => {
+  const result = await diffNewAndArchivedRamlFiles(
+    config.apiBackupDir,
+    config.inputDir,
+    path.join(config.apiBackupDir, config.apiConfigFile),
+    path.join(config.inputDir, config.apiConfigFile)
+  );
+  return fs.writeFile(config.diffFile, JSON.stringify(result));
+});
+
+gulp.task("cleanup", async () => {
+  fs.removeSync(path.join(config.apiBackupDir));
+  fs.removeSync(config.diffFile);
+  return fs.moveSync(
+    path.join(config.inputDir),
+    path.join(config.apiBackupDir)
+  );
+});
+
+gulp.task("downloadRamlFiles", async () => {
+  return downloadRamlFromExchange();
 });
 
 gulp.task(
   "updateApis",
-  gulp.series("cleanInputDir", async () => {
-    return downloadRamlFromExchange();
-  })
+  gulp.series("cleanup", "downloadRamlFiles", "diffRamlFiles")
 );

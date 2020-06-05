@@ -24,7 +24,7 @@ import {
 } from "../src/templateHelpers";
 
 import { assert, expect } from "chai";
-import { model, AMF } from "amf-client-js";
+import { model, AMF } from "@commerce-apps/raml-toolkit";
 import { ARRAY_DATA_TYPE, OBJECT_DATA_TYPE } from "../src/config";
 
 const getScalarType = function(typeName: string): model.domain.ScalarShape {
