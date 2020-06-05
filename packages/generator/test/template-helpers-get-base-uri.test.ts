@@ -7,27 +7,25 @@
 "use strict";
 
 import { expect } from "chai";
-import * as lib from "webapi-parser";
-const wap = lib.WebApiParser;
-const domain = lib.model.domain;
+import amf, { model } from "amf-client-js";
 
 import { getBaseUri } from "../src/templateHelpers";
 
-describe("Test getBaseUri template help function", () => {
-  before(() => wap.init());
+amf.plugins.document.WebApi.register();
 
+describe("getBaseUri template helper function", () => {
   it("returns an empty string for null input", () => {
     expect(getBaseUri(null)).to.equal("");
   });
 
   it("returns an empty string for empty model", () => {
-    expect(getBaseUri(new lib.webapi.WebApiDocument())).to.equal("");
+    expect(getBaseUri(new model.document.Document())).to.equal("");
   });
 
   it("returns correct base uri", async () => {
-    const api = new domain.WebApi();
+    const api: model.domain.WebApi = new model.domain.WebApi();
     api.withServer("test-url-value");
-    const model = new lib.webapi.WebApiDocument().withEncodes(api);
-    expect(getBaseUri(model)).to.equal("test-url-value");
+    const testModel = new model.document.Document().withEncodes(api);
+    expect(getBaseUri(testModel)).to.equal("test-url-value");
   });
 });

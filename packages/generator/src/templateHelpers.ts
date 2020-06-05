@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import { model } from "amf-client-js";
-import { WebApiBaseUnitWithEncodesModel } from "webapi-parser";
+import { model } from "@commerce-apps/raml-toolkit";
 
 import { commonParameterPositions } from "@commerce-apps/core";
 
@@ -26,7 +25,7 @@ import {
  * @param property - A model from the the AMF parser
  */
 export const getBaseUri = function(
-  property: WebApiBaseUnitWithEncodesModel
+  property: model.document.BaseUnitWithEncodesModel
 ): string {
   return property && property.encodes
     ? (property.encodes as model.domain.WebApi).servers[0].url.value()
