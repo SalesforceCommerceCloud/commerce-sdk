@@ -445,6 +445,48 @@ export function renderOperationList(allApis: {
   });
 }
 
+/**
+ * Builds the operation list.
+ *
+ * @param config -
+ * @returns Promise that resolved on successful build
+ */
+export async function buildOperationList(config: IBuildConfig): Promise<void> {
+  // require the json written in groupRamls gulpTask
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const ramlGroupConfig = require(path.resolve(
+    path.join(config.inputDir, config.apiConfigFile)
+  ));
+  const apiGroupKeys = _.keysIn(ramlGroupConfig);
+
+  const allApis = {};
+
+  const modelingPromises = [];
+
+  for (const apiGroup of apiGroupKeys) {
+    const familyPromise = processApiFamily(
+      apiGroup,
+      ramlGroupConfig,
+      config.inputDir
+    );
+    fs.ensureDirSync(config.renderDir);
+
+    modelingPromises.push(
+      familyPromise.then(values => {
+        allApis[apiGroup] = values;
+        return;
+      })
+    );
+  }
+
+  return Promise.all(modelingPromises).then(() => {
+    fs.writeFileSync(
+      path.join(config.renderDir, "operationList.yaml"),
+      renderOperationList(allApis)
+    );
+  });
+}
+
 // Register helpers
 Handlebars.registerHelper("getBaseUri", getBaseUri);
 

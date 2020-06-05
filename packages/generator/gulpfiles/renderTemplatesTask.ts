@@ -6,15 +6,10 @@
  */
 import * as gulp from "gulp";
 import {
-  processApiFamily,
   renderTemplates,
-  renderOperationList,
+  buildOperationList,
   renderApiClients
 } from "../src/renderer";
-
-import fs from "fs-extra";
-import _ from "lodash";
-import path from "path";
 
 require("dotenv").config();
 
@@ -33,38 +28,4 @@ gulp.task("renderApiClients", async () => renderApiClients(config));
 /**
  * Renders an operation list file.
  */
-gulp.task("buildOperationList", async () => {
-  // require the json written in groupRamls gulpTask
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const ramlGroupConfig = require(path.resolve(
-    path.join(config.inputDir, config.apiConfigFile)
-  ));
-  const apiGroupKeys = _.keysIn(ramlGroupConfig);
-
-  const allApis = {};
-
-  const modelingPromises = [];
-
-  for (const apiGroup of apiGroupKeys) {
-    const familyPromise = processApiFamily(
-      apiGroup,
-      ramlGroupConfig,
-      config.inputDir
-    );
-    fs.ensureDirSync(config.renderDir);
-
-    modelingPromises.push(
-      familyPromise.then(values => {
-        allApis[apiGroup] = values;
-        return;
-      })
-    );
-  }
-
-  return Promise.all(modelingPromises).then(() => {
-    fs.writeFileSync(
-      path.join(config.renderDir, "operationList.yaml"),
-      renderOperationList(allApis)
-    );
-  });
-});
+gulp.task("buildOperationList", async () => buildOperationList(config));
