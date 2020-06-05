@@ -200,6 +200,23 @@ async function getApiModelTuples(
   return Promise.all(promises);
 }
 
+/**
+ * Converts an array of entries into a plain object, like Object.fromEntries().
+ *
+ * @param entries - An array of key/value pairs to convert into an object
+ * @returns The object created
+ *
+ * NOTE: This function can be replaced with Object.fromEntries when support for
+ * node versions prior to 12 is dropped.
+ */
+function objectFromEntries<T>(entries: [string, T][]): Record<string, T> {
+  const object = {};
+  entries.forEach(([key, value]) => {
+    object[key] = value;
+  });
+  return object;
+}
+
 // TEMPLATE FILLING FUNCTIONS
 
 /**
@@ -443,43 +460,20 @@ export async function renderTemplates(
 /**
  * Renders a YAML file with a list of operations available in the SDK.
  *
- * @param config - Config used to build the SDK
- * @returns A promise that resolves on completion
+ * @param buildConfig - Config used to build the SDK
  */
-export async function renderOperationList(config: IBuildConfig): Promise<void> {
-  // require the json written in groupRamls gulpTask
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const ramlGroupConfig = require(path.resolve(
-    path.join(config.inputDir, config.apiConfigFile)
-  ));
-  const apiGroupKeys = _.keysIn(ramlGroupConfig);
+export async function renderOperationList(
+  buildConfig: IBuildConfig
+): Promise<void> {
+  const apiConfig = loadApiConfig(buildConfig);
+  fs.ensureDirSync(buildConfig.renderDir);
 
-  const allApis = {};
+  const apiModelTuples = await getApiModelTuples(apiConfig, buildConfig);
 
-  const modelingPromises = [];
-
-  for (const apiGroup of apiGroupKeys) {
-    const familyPromise = processApiFamily(
-      apiGroup,
-      ramlGroupConfig,
-      config.inputDir
-    );
-    fs.ensureDirSync(config.renderDir);
-
-    modelingPromises.push(
-      familyPromise.then(values => {
-        allApis[apiGroup] = values;
-        return;
-      })
-    );
-  }
-
-  return Promise.all(modelingPromises).then(() => {
-    fs.writeFileSync(
-      path.join(config.renderDir, "operationList.yaml"),
-      createOperationList(allApis)
-    );
-  });
+  fs.writeFileSync(
+    path.join(buildConfig.renderDir, "operationList.yaml"),
+    createOperationList(objectFromEntries(apiModelTuples))
+  );
 }
 
 // Register helpers
