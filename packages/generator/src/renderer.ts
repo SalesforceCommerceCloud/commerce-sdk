@@ -152,30 +152,25 @@ function loadApiConfig(buildConfig: IBuildConfig): IApiConfig {
 /**
  * Read all the RAML files for an API family and process into AML models.
  *
- * @param apiFamily - The name of the API family
- * @param apiFamilyConfig - The API family config
+ * @param familyName - The name of the API family
+ * @param apiConfig - The API family config
  * @param inputDir - The path to read the RAML files from
- *
  * @returns a list of promises that will resolve to the AMF models
  */
 export function processApiFamily(
-  apiFamily: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  apiFamilyConfig: any,
+  familyName: string,
+  apiConfig: IApiConfig,
   inputDir: string
 ): Promise<model.document.BaseUnitWithDeclaresModelAndEncodesModel[]> {
-  const promises = [];
-  const ramlFileFromFamily = apiFamilyConfig[apiFamily];
-  _.map(ramlFileFromFamily, (apiMeta: RestApi) => {
+  const promises = apiConfig[familyName].map(async apiMeta => {
     if (!apiMeta.id) {
-      throw Error(`Some information about '${apiMeta.name}' is missing in 'apis/api-config.json'. 
+      throw new Error(`Some information about '${apiMeta.name}' is missing in 'apis/api-config.json'. 
       Please ensure that '${apiMeta.name}' RAML and its dependencies are present in 'apis/', and all the required information is present in 'apis/api-config.json'.`);
     }
-    promises.push(
-      parseRamlFile(
-        path.join(inputDir, apiMeta.assetId, apiMeta.fatRaml.mainFile)
-      )
+    const apiModel = await parseRamlFile(
+      path.join(inputDir, apiMeta.assetId, apiMeta.fatRaml.mainFile)
     );
+    return apiModel as model.document.BaseUnitWithDeclaresModelAndEncodesModel;
   });
 
   return Promise.all(promises);
