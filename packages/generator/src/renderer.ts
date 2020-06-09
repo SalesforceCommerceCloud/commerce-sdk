@@ -12,9 +12,11 @@ import {
   parseRamlFile,
   getApiName,
   resolveApiModel,
-  getNormalizedName
+  getNormalizedName,
+  RestApi,
+  model
 } from "@commerce-apps/raml-toolkit";
-
+import _ from "lodash";
 import {
   getBaseUri,
   getPropertyDataType,
@@ -35,10 +37,6 @@ import {
   getPascalCaseName,
   formatForTsDoc
 } from "./templateHelpers";
-
-import _ from "lodash";
-import { RestApi } from "@commerce-apps/raml-toolkit";
-import { model } from "@commerce-apps/raml-toolkit";
 import { generatorLogger } from "./logger";
 
 interface IApiConfig {
@@ -164,10 +162,9 @@ export function processApiFamily(
       throw new Error(`Some information about '${apiMeta.name}' is missing in 'apis/api-config.json'. 
       Please ensure that '${apiMeta.name}' RAML and its dependencies are present in 'apis/', and all the required information is present in 'apis/api-config.json'.`);
     }
-    const apiModel = await parseRamlFile(
+    return parseRamlFile(
       path.join(inputDir, apiMeta.assetId, apiMeta.fatRaml.mainFile)
     );
-    return apiModel;
   });
 
   return Promise.all(promises);
@@ -329,8 +326,7 @@ function createApiFamily(apiNames: string[]): string {
  * @returns The list of operations as string
  */
 export function createOperationList(allApis: {
-  // NOTE: The requirement for WithEncodesModel, rather than just BaseUnit is
-  // in the Handlebars template, not in any TypeScript code.
+  // NOTE: No TypeScript uses EncodesModel, but the Handlebars template does
   [key: string]: model.document.BaseUnitWithEncodesModel[];
 }): string {
   return operationListTemplate(allApis, {
@@ -411,6 +407,7 @@ export async function renderApiClients(
     path.join(buildConfig.renderDir, "../APICLIENTS.md"),
     createApiClients(apiModelTuples, apiConfig)
   );
+  generatorLogger.info("Successfully generated APICLIENTS.md");
 }
 
 /**
