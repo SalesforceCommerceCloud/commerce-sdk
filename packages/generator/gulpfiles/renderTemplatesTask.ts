@@ -8,7 +8,7 @@ import * as gulp from "gulp";
 import {
   renderTemplates,
   renderOperationList,
-  renderApiClients
+  renderDocumentation
 } from "../src/renderer";
 
 require("dotenv").config();
@@ -21,9 +21,9 @@ import config from "../../../build-config";
 gulp.task("renderTemplates", async () => renderTemplates(config));
 
 /**
- * Renders an API documentation file.
+ * Renders the API documentation.
  */
-gulp.task("renderApiClients", async () => renderApiClients(config));
+gulp.task("renderDocumentation", async () => renderDocumentation(config));
 
 /**
  * Renders an operation list file.

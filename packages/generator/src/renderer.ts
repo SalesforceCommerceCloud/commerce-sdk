@@ -395,7 +395,7 @@ function renderApiFamily(
  *
  * @param buildConfig - Config used to build the SDK
  */
-export async function renderApiClients(
+export async function renderDocumentation(
   buildConfig: IBuildConfig
 ): Promise<void> {
   const apiConfig = loadApiConfig(buildConfig);
