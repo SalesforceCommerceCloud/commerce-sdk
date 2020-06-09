@@ -65,10 +65,7 @@ export interface IApiClientsInfo {
 /**
  * The name of an API family and its associated AMF models.
  */
-type ApiModelTupleT = [
-  string,
-  model.document.BaseUnitWithDeclaresModelAndEncodesModel[]
-];
+type ApiModelTupleT = [string, model.document.Document[]];
 
 const templateDirectory = `${__dirname}/../templates`;
 
@@ -161,7 +158,7 @@ export function processApiFamily(
   familyName: string,
   apiConfig: IApiConfig,
   inputDir: string
-): Promise<model.document.BaseUnitWithDeclaresModelAndEncodesModel[]> {
+): Promise<model.document.Document[]> {
   const promises = apiConfig[familyName].map(async apiMeta => {
     if (!apiMeta.id) {
       throw new Error(`Some information about '${apiMeta.name}' is missing in 'apis/api-config.json'. 
@@ -170,7 +167,7 @@ export function processApiFamily(
     const apiModel = await parseRamlFile(
       path.join(inputDir, apiMeta.assetId, apiMeta.fatRaml.mainFile)
     );
-    return apiModel as model.document.BaseUnitWithDeclaresModelAndEncodesModel;
+    return apiModel;
   });
 
   return Promise.all(promises);
@@ -352,7 +349,7 @@ export function createOperationList(allApis: {
  * @returns The name of the API
  */
 function renderApi(
-  apiModel: model.document.BaseUnitWithDeclaresModelAndEncodesModel,
+  apiModel: model.document.Document,
   renderDir: string
 ): string {
   const apiName: string = getApiName(apiModel);
@@ -363,16 +360,11 @@ function renderApi(
     path.join(apiPath, `${apiName}.types.ts`),
     createDto(apiModel)
   );
-  //Resolve model for the end points Using the 'editing' pipeline will retain the declarations in the model
-  // TODO: resolveApiModel *should* return type BaseUnit, but it currently does not.
-  // When that is fixed (in raml-toolkit), this `unknown` can be removed.
-  const apiModelForEndPoints: unknown = resolveApiModel(apiModel, "editing");
+  // Resolve model for the end points using the 'editing' pipeline will retain the declarations in the model
+  const apiModelForEndPoints = resolveApiModel(apiModel, "editing");
   fs.writeFileSync(
     path.join(apiPath, `${apiName}.ts`),
-    createClient(
-      apiModelForEndPoints as model.document.BaseUnitWithDeclaresModel,
-      apiName
-    )
+    createClient(apiModelForEndPoints, apiName)
   );
   return apiName;
 }
@@ -387,7 +379,7 @@ function renderApi(
  */
 function renderApiFamily(
   familyName: string,
-  models: model.document.BaseUnitWithDeclaresModelAndEncodesModel[],
+  models: model.document.Document[],
   renderDir: string
 ): string[] {
   const fileName = getNormalizedName(familyName);
