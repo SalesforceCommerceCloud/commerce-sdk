@@ -7,37 +7,28 @@
 
 ## Usage
 
-### Using real endpoints
+### Updating the APIs
 
-> By default *ALL* build commands use local files for testing purposes. In order to build the actual SDK you need to run the build with the environmental variable of `EXCHANGE_DOWNLOAD` set to `1`
+You will need Anypoint credentials to download the APIs. Add them to your environment configuration or create a .env file in the [gulpfiles](../gulpfiles) directory. Set the following environment variables:
 
-For example
-
-```bash
-  # To build sdk
-  EXCHANGE_DOWNLOAD=1 npm run build
-```
-
-Additionally you need credentials for exchange to download the APIs.  This can be found in a .env file or in your environmental configuration.
-
-For example
-
-```sh
+```txt
 ANYPOINT_USERNAME=<username>
 ANYPOINT_PASSWORD=<password>
 ```
 
+Once you have configured your environment variables, simply run `npm run updateApis`.
+
 ### Building the SDK
 
-Simply run `npm run build`
+If you want to build with the latest versions of the APIs, first [update the APIs](#updating-the-apis). After that, or if you want to build with the APIs already in the repository, run `npm run build`.
 
-> NOTE: Core must already be built
+> NOTE: Core must already be built.
 
 In the backend this is running a bunch of gulp tasks to accomplish this.
 
 ### Build Operation List
 
-> NOTE: Core must already be built
+> NOTE: Core must already be built.
 
 Another option is to build a list of operations. Simply run `npm run buildOperationList` to build a list of operations
 
@@ -47,7 +38,7 @@ You can then find this list at `renderedTemplates/operationList.yaml`
 
 Default log level of the Generator is INFO. Generator uses [loglevel](https://www.npmjs.com/package/loglevel) npm package. So all the log levels supported by [loglevel](https://www.npmjs.com/package/loglevel) package are supported in Generator.
 
-To change the loglevel, set the log level in environment variable
+To change the loglevel, set the log level environment variable:
 
 ```sh
 SDK_GENERATOR_LOG_LEVEL=debug
@@ -55,7 +46,7 @@ SDK_GENERATOR_LOG_LEVEL=debug
 
 ## Dependencies
 
-Dependencies here are used for 2 different things, generation and the sdk itself.  This is an important distinction devDependencies are not distributed.
+Dependencies here are used for 2 different things, generation and the sdk itself.  This is an important distinction as devDependencies are not distributed.
 
 * All devDependencies are used for the code generation only
 * All dependencies are used for the commerce-sdk itself
