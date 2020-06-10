@@ -7,12 +7,15 @@
 "use strict";
 
 import fs from "fs-extra";
-import { expect } from "chai";
+import { default as chai, expect } from "chai";
 import path from "path";
 import * as renderer from "../src/renderer";
 import tmp from "tmp";
 import _ from "lodash";
 import { getNormalizedName, model, RestApi } from "@commerce-apps/raml-toolkit";
+import chaiAsPromised from "chai-as-promised";
+
+chai.use(chaiAsPromised);
 
 /**
  * Tests all the functions that are invoked while rendering templates.
@@ -98,8 +101,7 @@ describe("Rendering Tests", () => {
     await Promise.all(
       _.keysIn(apiConfig).map(async apiGroup => {
         allApis[apiGroup] = await renderer.processApiFamily(
-          apiGroup,
-          apiConfig,
+          apiConfig[apiGroup],
           apiInputDir
         );
       })
@@ -109,9 +111,9 @@ describe("Rendering Tests", () => {
   });
 
   it("Throws error when id is missing", () => {
-    expect(() =>
-      renderer.processApiFamily("test", { test: { id: "" } }, "")
-    ).to.throw();
+    expect(
+      renderer.processApiFamily(([{ id: "" }] as unknown) as RestApi[], "")
+    ).to.eventually.be.rejected;
   });
 });
 
