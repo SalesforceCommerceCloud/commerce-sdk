@@ -7,7 +7,7 @@
 "use strict";
 
 import fs from "fs-extra";
-import chai, { assert, expect } from "chai";
+import { expect } from "chai";
 import path from "path";
 import * as renderer from "../src/renderer";
 import tmp from "tmp";
@@ -44,7 +44,8 @@ describe("Rendering Tests", () => {
         exchangeSearch: 'category:"CC Visibility" = "External"',
         apiConfigFile: "api-config.json",
         shopperAuthClient: "Customer.ShopperCustomers",
-        shopperAuthApi: "authorizeCustomer"
+        shopperAuthApi: "authorizeCustomer",
+        exchangeDeploymentRegex: /test/
       })
       .then(() => {
         expect(fs.existsSync(path.join(renderDirPath, "index.ts"))).to.be.true;
