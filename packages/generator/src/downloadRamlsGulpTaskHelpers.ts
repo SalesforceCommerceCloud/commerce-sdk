@@ -31,7 +31,7 @@ export function listRamlsFromConfig(configPath: string): string[] {
 }
 
 /**
- * Compares the arrays and returns all the common and exclusive elements.
+ * Compares two arrays and returns their intersection and symmetric difference.
  *
  * @param leftArr - One of the arrays being compared
  * @param rightArr - The other array being compared
