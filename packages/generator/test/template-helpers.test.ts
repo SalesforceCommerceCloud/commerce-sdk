@@ -24,7 +24,7 @@ import {
 } from "../src/templateHelpers";
 
 import { assert, expect } from "chai";
-import { model, AMF } from "@commerce-apps/raml-toolkit";
+import { model, amf } from "@commerce-apps/raml-toolkit";
 import { ARRAY_DATA_TYPE, OBJECT_DATA_TYPE } from "../src/config";
 
 const getScalarType = function(typeName: string): model.domain.ScalarShape {
@@ -72,7 +72,7 @@ const getObjectType = function(): model.domain.NodeShape {
 
 describe("Template helper datatype tests", () => {
   before(() => {
-    return AMF.init();
+    return amf.AMF.init();
   });
   it("Returns 'any' on undefined property", () => {
     expect(getPropertyDataType(undefined)).to.equal("any");
@@ -196,7 +196,7 @@ describe("Template helper datatype tests", () => {
 
 describe("Test retrieval of data types for endpoint parameters", () => {
   before(() => {
-    return AMF.init();
+    return amf.AMF.init();
   });
   it("Returns 'any' on undefined parameter", () => {
     expect(getParameterDataType(undefined)).to.equal("any");
@@ -224,7 +224,7 @@ describe("Test retrieval of data types for endpoint parameters", () => {
 describe("Template helper, response item type tests", () => {
   const operation: model.domain.Operation = new model.domain.Operation();
   before(() => {
-    return AMF.init();
+    return amf.AMF.init();
   });
   beforeEach(() => {
     const response: model.domain.Response = new model.domain.Response();
@@ -332,7 +332,7 @@ describe("Template helper tests to check for optional property", () => {
 
 describe("Template helper tests for isAdditionalPropertiesAllowed", () => {
   before(() => {
-    return AMF.init();
+    return amf.AMF.init();
   });
 
   it("Returns false on undefined RAML type", () => {
@@ -385,7 +385,7 @@ function verifyProperties(
 
 describe("Template helper tests for getProperties", () => {
   before(() => {
-    return AMF.init();
+    return amf.AMF.init();
   });
 
   it("Returns empty array on undefined model", () => {
@@ -523,7 +523,7 @@ const getRequestPayloadModel = function(
 
 describe("Template helper tests for getRequestPayloadType", () => {
   before(() => {
-    return AMF.init();
+    return amf.AMF.init();
   });
 
   it("Returns 'object' on undefined request model", () => {
@@ -646,7 +646,7 @@ describe("Template helper tests for name helpers", () => {
 describe("Template helper to extract type from payload", () => {
   let payload: model.domain.Payload;
   before(() => {
-    return AMF.init();
+    return amf.AMF.init();
   });
 
   beforeEach(() => {

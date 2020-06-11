@@ -7,11 +7,11 @@
 "use strict";
 
 import { expect } from "chai";
-import { model, plugins } from "@commerce-apps/raml-toolkit";
+import { amf, model } from "@commerce-apps/raml-toolkit";
 
 import { getBaseUri } from "../src/templateHelpers";
 
-plugins.document.WebApi.register();
+amf.plugins.document.WebApi.register();
 
 describe("getBaseUri template helper function", () => {
   it("returns an empty string for null input", () => {
