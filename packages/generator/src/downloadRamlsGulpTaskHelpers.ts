@@ -35,7 +35,6 @@ export function listRamlsFromConfig(configPath: string): string[] {
  *
  * @param leftArr - One of the arrays being compared
  * @param rightArr - The other array being compared
- * elements that are not common otherwise
  *
  * @returns An array each for all the common, exclusive to left and exclusive to
  * right elements. 
