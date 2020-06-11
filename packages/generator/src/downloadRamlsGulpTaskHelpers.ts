@@ -31,24 +31,35 @@ export function listRamlsFromConfig(configPath: string): string[] {
 }
 
 /**
- * Compares the arrays to find any common or exclusive elements
+ * Compares the arrays and returns all the common and exclusive elements.
  *
- * @param array1 - One of the arrays being compared
- * @param array2 - The other array being compared
- * @param common - Return all the elements that are common if true, all the
+ * @param leftArr - One of the arrays being compared
+ * @param rightArr - The other array being compared
  * elements that are not common otherwise
  *
- * @returns An array of RAML files that are common or not common in both the
- * arrays
+ * @returns An array each for all the common, exclusive to left and exclusive to
+ * right elements. 
  */
-function compareArrays(
-  array1: string[],
-  array2: string[],
-  common: boolean
-): string[] {
-  return array1.filter(raml =>
-    common ? array2.includes(raml) : !array2.includes(raml)
-  );
+function compareArrays<T>(leftArr: T[], rightArr: T[]): {
+  leftOnly: T[];
+  rightOnly: T[];
+  common: T[];
+} {
+  const left = new Set(leftArr);
+  const right = new Set(rightArr);
+  const common = new Set<T>();
+  left.forEach(val => {
+    if (right.has(val)) {
+      left.delete(val);
+      right.delete(val);
+      common.add(val);
+    }
+  });
+  return {
+    leftOnly: [...left],
+    rightOnly: [...right],
+    common: [...common]
+  };
 }
 
 /**
@@ -103,25 +114,18 @@ export async function diffNewAndArchivedRamlFiles(
 ): Promise<RamlDiff[]> {
   const oldRamls = listRamlsFromConfig(path.join(oldApiDir, configFile));
   const newRamls = listRamlsFromConfig(path.join(newApiDir, configFile));
-
-  const commonRamls = compareArrays(oldRamls, newRamls, true);
+  const ramls = compareArrays(oldRamls, newRamls);
 
   const result: RamlDiff[] = await diffCommonRamls(
     oldApiDir,
     newApiDir,
-    commonRamls
+    ramls.common
   );
 
-  const removedRamls: RamlDiff[] = compareArrays(
-    oldRamls,
-    commonRamls,
-    false
-  ).map(r => ({ file: r, message: "This RAML has been removed" }));
-  const addedRamls: RamlDiff[] = compareArrays(
-    newRamls,
-    commonRamls,
-    false
-  ).map(r => ({ file: r, message: "This RAML has been added recently" }));
+  const removedRamls: RamlDiff[] = ramls.leftOnly
+    .map(r => ({ file: r, message: "This RAML has been removed" }));
+  const addedRamls: RamlDiff[] = ramls.rightOnly
+    .map(r => ({ file: r, message: "This RAML has been added recently" }));
 
   return result.concat(removedRamls, addedRamls);
 }

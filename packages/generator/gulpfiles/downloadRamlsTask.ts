@@ -27,6 +27,9 @@ import { generatorLogger } from "../src/logger";
 
 require("dotenv").config();
 
+const apiBackupDir = path.join(config.updateApiDir, "apiBackup");
+const diffFile = path.join(config.updateApiDir, "ramlDiff.json");
+
 /**
  * Gets information about all the apis from exchange that match config.search,
  * for the version deployed in the config.exchangeDeploymentRegex environment.
@@ -67,20 +70,19 @@ async function search(): Promise<RestApi[]> {
 
 gulp.task("diffRamlFiles", async () => {
   const result = await diffNewAndArchivedRamlFiles(
-    config.apiBackupDir,
+    apiBackupDir,
     config.inputDir,
-    path.join(config.apiConfigFile)
+    config.apiConfigFile
   );
-  return fs.writeJson(config.diffFile, result);
+  return fs.writeJson(diffFile, result);
 });
 
 /**
- * Makes a backup of the apis directory and deletes the existing diff file
+ * Cleans up the temp working dir and makes a back up of the apis
  */
 gulp.task("backupApis", async () => {
-  fs.removeSync(path.join(config.apiBackupDir));
-  fs.removeSync(config.diffFile);
-  return fs.moveSync(config.inputDir, config.apiBackupDir);
+  fs.removeSync(config.updateApiDir);
+  return fs.moveSync(config.inputDir, apiBackupDir);
 });
 
 /**
