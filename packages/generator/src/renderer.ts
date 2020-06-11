@@ -139,7 +139,9 @@ export function sortApis(apis: IApiClientsInfo[][]): void {
  * @param buildConfig - Config used to build the SDK
  * @returns The API family config
  */
-function loadApiConfig(buildConfig: IBuildConfig): IApiConfig {
+export function loadApiConfig(
+  buildConfig: Pick<IBuildConfig, "apiConfigFile" | "inputDir">
+): IApiConfig {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   return require(path.resolve(buildConfig.inputDir, buildConfig.apiConfigFile));
 }
@@ -151,7 +153,7 @@ function loadApiConfig(buildConfig: IBuildConfig): IApiConfig {
  * @param inputDir - The path to read the RAML files from
  * @returns a list of promises that will resolve to the AMF models
  */
-export function processApiFamily(
+export async function processApiFamily(
   apiFamily: RestApi[],
   inputDir: string
 ): Promise<model.document.Document[]> {
@@ -177,9 +179,9 @@ export function processApiFamily(
  * @returns An array of tuples for each API family containing the API family's
  * name and associated AMF models
  */
-async function getApiModelTuples(
+export async function getApiModelTuples(
   apiConfig: IApiConfig,
-  buildConfig: IBuildConfig
+  buildConfig: Pick<IBuildConfig, "inputDir">
 ): Promise<ApiModelTupleT[]> {
   const promises = _.keysIn(apiConfig).map(
     async (familyName): Promise<ApiModelTupleT> => {
@@ -201,7 +203,9 @@ async function getApiModelTuples(
  * NOTE: This function can be replaced with Object.fromEntries when support for
  * node versions prior to 12 is dropped.
  */
-function objectFromEntries<T>(entries: [string, T][]): Record<string, T> {
+export function objectFromEntries<T>(
+  entries: [string, T][]
+): Record<string, T> {
   const object = {};
   entries.forEach(([key, value]) => {
     object[key] = value;
