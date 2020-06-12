@@ -9,6 +9,7 @@ import { expect } from "chai";
 import path from "path";
 import tmp from "tmp";
 import fs from "fs-extra";
+import { safeLoad as parseYaml } from "js-yaml";
 
 describe("Renderers", () => {
   const DEFAULT_CONFIG = {
@@ -55,6 +56,32 @@ describe("Renderers", () => {
     before(async () => renderer.renderOperationList(DEFAULT_CONFIG));
     it("generates operations file", () => {
       expectFileToExist("operationList.yaml");
+    });
+
+    it("generates valid YAML", () => {
+      const yaml = fs.readFileSync(
+        path.join(DEFAULT_CONFIG.renderDir, "operationList.yaml"),
+        "utf8"
+      );
+      expect(parseYaml(yaml)).to.deep.equal({
+        Shop: {
+          "Shop API": {
+            getSite: "get /site",
+            deleteSite: "delete /site",
+            searchProducts: "post /product-search",
+            updateCustomerPassword: "put /password",
+            updateCustomerProductListItem: "patch /patch/{itemId}"
+          }
+        },
+        Customer: {
+          "Shopper Customers": {
+            invalidateCustomerAuth:
+              "delete /organizations/{organizationId}/customers/auth",
+            authorizeCustomer:
+              "post /organizations/{organizationId}/customers/auth"
+          }
+        }
+      });
     });
   });
 });
