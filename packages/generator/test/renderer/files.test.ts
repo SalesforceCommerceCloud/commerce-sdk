@@ -10,6 +10,11 @@ import path from "path";
 import tmp from "tmp";
 import fs from "fs-extra";
 import { safeLoad as parseYaml } from "js-yaml";
+import _ from "lodash";
+import { CLIEngine } from "eslint";
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const pkg = require("../../package.json");
 
 describe("Renderers", () => {
   const CONFIG = {
@@ -29,7 +34,21 @@ describe("Renderers", () => {
   };
 
   describe("renderTemplates", async () => {
-    before(async () => renderer.renderTemplates(CONFIG));
+    let eslintConfig;
+    before("Rendering", async () => renderer.renderTemplates(CONFIG));
+    before("Linter Setup", () => {
+      eslintConfig = _.cloneDeep(pkg.eslintConfig);
+      const override = eslintConfig.overrides?.find(or => {
+        return or.files.includes("dist/**");
+      });
+      if (!override) {
+        throw new Error(
+          "No eslint overrides found for the generated files. Do the tests need to be updated?"
+        );
+      }
+      _.merge(eslintConfig.rules, override.rules);
+    });
+
     it("generates TypeScript files", () => {
       expectFileToExist("index.ts");
       expectFileToExist("helpers.ts");
@@ -37,6 +56,35 @@ describe("Renderers", () => {
       expectFileToExist("shop/shopApi/shopApi.types.ts");
       expectFileToExist("customer/shopperCustomers/shopperCustomers.ts");
       expectFileToExist("customer/shopperCustomers/shopperCustomers.types.ts");
+    });
+
+    it("generates valid TypeScript", () => {
+      // The build script for the SDK runs `eslint --quiet --fix`. This only
+      // reports fatal errors. There is no equivalent option for `quiet` in the
+      // CLIEngine, so we must manually check linting results for fatal errors.
+      // See: https://eslint.org/docs/developer-guide/nodejs-api#cliengine
+      // (Docs may be inaccurate as we're currently on an older version.)
+      const cli = new CLIEngine({
+        baseConfig: eslintConfig,
+        extensions: [".ts"],
+        fix: true,
+        useEslintrc: false
+      });
+      function expectValidTypeScript(file: string): void {
+        const linted = cli.executeOnFiles([path.join(CONFIG.renderDir, file)]);
+        const messages = linted.results.flatMap(r => r.messages);
+        const fatal = messages.some(msg => msg.fatal);
+        expect(fatal, `Fatal linting errors in ${file}`).to.be.false;
+      }
+
+      expectValidTypeScript("index.ts");
+      expectValidTypeScript("helpers.ts");
+      expectValidTypeScript("shop/shopApi/shopApi.ts");
+      expectValidTypeScript("shop/shopApi/shopApi.types.ts");
+      expectValidTypeScript("customer/shopperCustomers/shopperCustomers.ts");
+      expectValidTypeScript(
+        "customer/shopperCustomers/shopperCustomers.types.ts"
+      );
     });
   });
 
@@ -47,6 +95,7 @@ describe("Renderers", () => {
     const renderDir = path.join(CONFIG.renderDir, "subdirectory");
     const config = Object.assign({}, CONFIG, { renderDir });
     before(async () => renderer.renderDocumentation(config));
+
     it("generates documentation files", () => {
       expectFileToExist("APICLIENTS.md");
     });
@@ -54,6 +103,7 @@ describe("Renderers", () => {
 
   describe("renderOperationsList", () => {
     before(async () => renderer.renderOperationList(CONFIG));
+
     it("generates operations file", () => {
       expectFileToExist("operationList.yaml");
     });
