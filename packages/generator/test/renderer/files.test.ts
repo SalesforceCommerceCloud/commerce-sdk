@@ -12,7 +12,7 @@ import fs from "fs-extra";
 import { safeLoad as parseYaml } from "js-yaml";
 
 describe("Renderers", () => {
-  const DEFAULT_CONFIG = {
+  const CONFIG = {
     inputDir: path.join(__dirname, "../raml/valid"),
     renderDir: tmp.dirSync().name,
     apiFamily: "CC API Family",
@@ -23,13 +23,13 @@ describe("Renderers", () => {
     exchangeDeploymentRegex: /test/
   };
   const expectFileToExist = (file: string): void => {
-    const filePath = path.join(DEFAULT_CONFIG.renderDir, file);
+    const filePath = path.join(CONFIG.renderDir, file);
     const exists = fs.pathExistsSync(filePath);
     expect(exists, `File not found: ${file}`).to.be.true;
   };
 
   describe("renderTemplates", async () => {
-    before(async () => renderer.renderTemplates(DEFAULT_CONFIG));
+    before(async () => renderer.renderTemplates(CONFIG));
     it("generates TypeScript files", () => {
       expectFileToExist("index.ts");
       expectFileToExist("helpers.ts");
@@ -44,8 +44,8 @@ describe("Renderers", () => {
     // This renderer creates the file outside the directory specified by the
     // config, so in order to stay within our tmp dir, we have to specify a
     // subdirectory, even though it's not used.
-    const renderDir = path.join(DEFAULT_CONFIG.renderDir, "subdirectory");
-    const config = Object.assign({}, DEFAULT_CONFIG, { renderDir });
+    const renderDir = path.join(CONFIG.renderDir, "subdirectory");
+    const config = Object.assign({}, CONFIG, { renderDir });
     before(async () => renderer.renderDocumentation(config));
     it("generates documentation files", () => {
       expectFileToExist("APICLIENTS.md");
@@ -53,14 +53,14 @@ describe("Renderers", () => {
   });
 
   describe("renderOperationsList", () => {
-    before(async () => renderer.renderOperationList(DEFAULT_CONFIG));
+    before(async () => renderer.renderOperationList(CONFIG));
     it("generates operations file", () => {
       expectFileToExist("operationList.yaml");
     });
 
     it("generates valid YAML", () => {
       const yaml = fs.readFileSync(
-        path.join(DEFAULT_CONFIG.renderDir, "operationList.yaml"),
+        path.join(CONFIG.renderDir, "operationList.yaml"),
         "utf8"
       );
       expect(parseYaml(yaml)).to.deep.equal({
