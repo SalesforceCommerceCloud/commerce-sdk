@@ -56,7 +56,7 @@ describe("Renderers", () => {
       expectFileToExist("shop/shopApi/shopApi.types.ts");
       expectFileToExist("customer/shopperCustomers/shopperCustomers.ts");
       expectFileToExist("customer/shopperCustomers/shopperCustomers.types.ts");
-    });
+    }).timeout(10000);
 
     it("generates valid TypeScript", () => {
       // The build script for the SDK runs `eslint --quiet --fix`. This only
@@ -85,8 +85,8 @@ describe("Renderers", () => {
       expectValidTypeScript(
         "customer/shopperCustomers/shopperCustomers.types.ts"
       );
-    });
-  }).timeout(10000);
+    }).timeout(10000);
+  });
 
   describe("renderDocumentation", () => {
     // This renderer creates the file outside the directory specified by the
