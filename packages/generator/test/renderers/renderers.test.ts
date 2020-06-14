@@ -86,7 +86,7 @@ describe("Renderers", () => {
         "customer/shopperCustomers/shopperCustomers.types.ts"
       );
     });
-  });
+  }).timeout(10000);
 
   describe("renderDocumentation", () => {
     // This renderer creates the file outside the directory specified by the
