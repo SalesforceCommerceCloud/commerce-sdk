@@ -72,8 +72,9 @@ describe("Renderers", () => {
       });
       function expectValidTypeScript(file: string): void {
         const linted = cli.executeOnFiles([path.join(CONFIG.renderDir, file)]);
-        const messages = linted.results.flatMap(r => r.messages);
-        const fatal = messages.some(msg => msg.fatal);
+        const fatal = linted.results.some(result => {
+          return result.messages.some(msg => msg.fatal);
+        });
         expect(fatal, `Fatal linting errors in ${file}`).to.be.false;
       }
 
