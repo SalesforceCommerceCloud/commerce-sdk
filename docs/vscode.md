@@ -56,9 +56,6 @@ What if you want to troubleshoot a part of the rendering that is happening when 
         "type": "node",
         "request": "launch",
         "name": "Gulp task (Download Files)",
-        "env": {
-            "EXCHANGE_DOWNLOAD": "1"
-        },
         "envFile": "${workspaceFolder}/.env",
         "program": "${workspaceFolder}/node_modules/gulp/bin/gulp.js",
         "args": [
