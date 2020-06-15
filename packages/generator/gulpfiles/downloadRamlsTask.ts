@@ -6,28 +6,29 @@
  */
 import * as gulp from "gulp";
 import * as path from "path";
-
 import fs from "fs-extra";
+import _ from "lodash";
 
 import {
+  downloadRestApis,
   extractFiles,
   getBearer,
-  searchExchange,
-  downloadRestApis,
-  RestApi,
   getVersionByDeployment,
   getSpecificApi,
-  groupByCategory
-} from "@commerce-apps/raml-toolkit";
-import {
+  groupByCategory,
   removeRamlLinks,
-  removeVersionSpecificInformation
+  removeVersionSpecificInformation,
+  RestApi,
+  searchExchange
 } from "@commerce-apps/raml-toolkit";
+import config from "../../../build-config";
+import { diffNewAndArchivedRamlFiles } from "../src/downloadRamlsGulpTaskHelpers";
 import { generatorLogger } from "../src/logger";
 
 require("dotenv").config();
 
-import config from "../../../build-config";
+const apiBackupDir = path.join(config.updateApiDir, "apiBackup");
+const diffFile = path.join(config.updateApiDir, "ramlDiff.json");
 
 /**
  * Gets information about all the apis from exchange that match config.search,
@@ -69,13 +70,30 @@ async function search(): Promise<RestApi[]> {
   });
 }
 
+gulp.task("diffRamlFiles", async () => {
+  const result = await diffNewAndArchivedRamlFiles(
+    apiBackupDir,
+    config.inputDir,
+    config.apiConfigFile
+  );
+  return fs.writeJson(diffFile, result);
+});
+
+/**
+ * Cleans up the temp working dir and makes a back up of the apis
+ */
+gulp.task("backupApis", async () => {
+  fs.removeSync(config.updateApiDir);
+  return fs.moveSync(config.inputDir, apiBackupDir);
+});
+
 /**
  * Groups RAML files for the given key (API Family, a.k.a Bounded Context).
  * Once grouped, renderTemplates task creates one Client per group
  *
  * @returns Promise that resolves on completion.
  */
-function downloadRamlFromExchange(): Promise<void> {
+gulp.task("downloadRamlFiles", async () => {
   return search().then(apis => {
     return downloadRestApis(apis, config.inputDir)
       .then(folder => {
@@ -95,15 +113,9 @@ function downloadRamlFromExchange(): Promise<void> {
         );
       });
   });
-}
-
-gulp.task("cleanInputDir", async () => {
-  return fs.removeSync(path.join(config.inputDir));
 });
 
 gulp.task(
   "updateApis",
-  gulp.series("cleanInputDir", async () => {
-    return downloadRamlFromExchange();
-  })
+  gulp.series("backupApis", "downloadRamlFiles", "diffRamlFiles")
 );
