@@ -9,6 +9,7 @@ require("dotenv").config();
 
 export default {
   inputDir: process.env.COMMERCE_SDK_INPUT_DIR || `${__dirname}/apis`,
+  updateApiDir: process.env.COMMERCE_SDK_UPDATE_API_DIR || `${__dirname}/updateApiTmpDir`,
   renderDir: process.env.COMMERCE_SDK_RENDER_DIR || `${__dirname}/packages/generator/renderedTemplates`,
   apiFamily: process.env.COMMERCE_SDK_API_FAMILY || "CC API Family",
   exchangeSearch: process.env.COMMERCE_SDK_EXCHANGE_SEARCH || 'category:"CC Visibility" = "External"',

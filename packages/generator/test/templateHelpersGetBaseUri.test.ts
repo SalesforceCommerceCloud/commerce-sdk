@@ -7,7 +7,7 @@
 "use strict";
 
 import { expect } from "chai";
-import amf, { model } from "amf-client-js";
+import { amf, model } from "@commerce-apps/raml-toolkit";
 
 import { getBaseUri } from "../src/templateHelpers";
 
