@@ -15,6 +15,7 @@ import { CommonParameters } from "./commonParameters";
 import { DefaultCache } from "./staticClient";
 export { DefaultCache };
 import { ICacheManager } from "./cacheManager";
+import { CacheManagerKeyv } from "./cacheManagerKeyv";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require("../../package.json");
 
@@ -42,9 +43,7 @@ export class ClientConfig {
 
 const DEFAULT_CLIENT_CONFIG: ClientConfig = {
   // Enables cacache for local caching in temp dir by default, unsafeCleanup == rm -rf on exit
-  cacheManager: new DefaultCache(
-    tmp.dirSync({ prefix: "cache-", unsafeCleanup: true }).name
-  ),
+  cacheManager: new CacheManagerKeyv( { keyvStore: new Map() }),
   headers: {
     "content-type": "application/json",
     connection: "close",
