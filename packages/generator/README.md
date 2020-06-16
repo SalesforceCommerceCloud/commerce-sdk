@@ -112,7 +112,7 @@ Autocomplete will also show the available properties of the data returned by SDK
 
 ## Caching
 
-The SDK currently supports two types of caches - In-memory and Redis. Both the implementations respect [standard cache headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control). If you would like to use another type of cache, you can write your own implementation of the [CacheManager](../core/src/base/cacheManager.ts). You can refer to this [default cache manager](../core/src/base/cacheManagerKeyv.ts) when trying to design your own implementation.  
+The SDK currently supports two types of caches - In-memory and Redis. Both the implementations respect [standard cache headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control). If you would like to use another type of cache, you can write your own implementation of the [CacheManager](../core/src/base/cacheManager.ts). You can refer to this [default cache manager](../core/src/base/cacheManagerKeyv.ts) when designing your implementation.  
 
 ### Cache storage adapter
 
