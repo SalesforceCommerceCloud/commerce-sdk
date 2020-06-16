@@ -19,11 +19,12 @@ import {
   NamedObject,
   getName,
   getCamelCaseName,
-  getPascalCaseName
+  getPascalCaseName,
+  extractTypeFromPayload
 } from "../src/templateHelpers";
 
 import { assert, expect } from "chai";
-import { model, AMF } from "amf-client-js";
+import { model, amf } from "@commerce-apps/raml-toolkit";
 import { ARRAY_DATA_TYPE, OBJECT_DATA_TYPE } from "../src/config";
 
 const getScalarType = function(typeName: string): model.domain.ScalarShape {
@@ -71,7 +72,7 @@ const getObjectType = function(): model.domain.NodeShape {
 
 describe("Template helper datatype tests", () => {
   before(() => {
-    return AMF.init();
+    return amf.AMF.init();
   });
   it("Returns 'any' on undefined property", () => {
     expect(getPropertyDataType(undefined)).to.equal("any");
@@ -195,7 +196,7 @@ describe("Template helper datatype tests", () => {
 
 describe("Test retrieval of data types for endpoint parameters", () => {
   before(() => {
-    return AMF.init();
+    return amf.AMF.init();
   });
   it("Returns 'any' on undefined parameter", () => {
     expect(getParameterDataType(undefined)).to.equal("any");
@@ -223,7 +224,7 @@ describe("Test retrieval of data types for endpoint parameters", () => {
 describe("Template helper, response item type tests", () => {
   const operation: model.domain.Operation = new model.domain.Operation();
   before(() => {
-    return AMF.init();
+    return amf.AMF.init();
   });
   beforeEach(() => {
     const response: model.domain.Response = new model.domain.Response();
@@ -331,7 +332,7 @@ describe("Template helper tests to check for optional property", () => {
 
 describe("Template helper tests for isAdditionalPropertiesAllowed", () => {
   before(() => {
-    return AMF.init();
+    return amf.AMF.init();
   });
 
   it("Returns false on undefined RAML type", () => {
@@ -384,7 +385,7 @@ function verifyProperties(
 
 describe("Template helper tests for getProperties", () => {
   before(() => {
-    return AMF.init();
+    return amf.AMF.init();
   });
 
   it("Returns empty array on undefined model", () => {
@@ -522,7 +523,7 @@ const getRequestPayloadModel = function(
 
 describe("Template helper tests for getRequestPayloadType", () => {
   before(() => {
-    return AMF.init();
+    return amf.AMF.init();
   });
 
   it("Returns 'object' on undefined request model", () => {
@@ -639,5 +640,67 @@ describe("Template helper tests for name helpers", () => {
         expect(getName(item as NamedObject)).to.equal(emptyStr)
       );
     });
+  });
+});
+
+describe("Template helper to extract type from payload", () => {
+  let payload: model.domain.Payload;
+  before(() => {
+    return amf.AMF.init();
+  });
+
+  beforeEach(() => {
+    payload = new model.domain.Payload();
+  });
+
+  it("Get Schema when name is schema", () => {
+    const schema = new model.domain.SchemaShape();
+    payload.withSchema(schema);
+    payload.schema.withName("schema");
+    expect(extractTypeFromPayload(payload)).to.equal("Object");
+  });
+
+  it("Get Schema from payload when type is Schema", () => {
+    const schema = new model.domain.SchemaShape();
+    payload.withSchema(schema);
+    payload.schema.withName("Foo");
+    expect(extractTypeFromPayload(payload)).to.equal("FooT");
+  });
+
+  it("Get Schema from payload when type is not set and schema anyOf is populated with one type", () => {
+    const schema = new model.domain.UnionShape();
+    const shape1 = new model.domain.AnyShape();
+    shape1.withName("Foo");
+
+    schema.withAnyOf([shape1]);
+    payload.withSchema(schema);
+
+    expect(extractTypeFromPayload(payload)).to.equal("FooT");
+  });
+
+  it("Get Schema from payload when type is not set and schema anyOf is populated with multiple types", () => {
+    const schema = new model.domain.UnionShape();
+    const shape1 = new model.domain.AnyShape();
+    shape1.withName("Foo");
+
+    const shape2 = new model.domain.AnyShape();
+    shape2.withName("Baa");
+
+    schema.withAnyOf([shape1, shape2]);
+    payload.withSchema(schema);
+
+    expect(extractTypeFromPayload(payload)).to.equal("FooT | BaaT");
+  });
+
+  it("Fail to get Schema when schema is not set", () => {
+    expect(() => extractTypeFromPayload(payload)).to.throw();
+  });
+
+  it("Fail to get Schema when payload is null", () => {
+    expect(() => extractTypeFromPayload(null)).to.throw();
+  });
+
+  it("Fail to get Schema when payload is undefined", () => {
+    expect(() => extractTypeFromPayload(undefined)).to.throw();
   });
 });
