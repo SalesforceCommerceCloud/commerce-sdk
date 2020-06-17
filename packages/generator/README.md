@@ -112,7 +112,27 @@ Autocomplete will also show the available properties of the data returned by SDK
 
 ## Caching
 
-The SDK currently supports two types of caches - In-memory and Redis. Both the implementations respect [standard cache headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control). If you would like to use another type of cache, you can write your own implementation of the [CacheManager](../core/src/base/cacheManager.ts)
+The SDK currently supports two types of caches - In-memory and Redis. Both the implementations respect [standard cache headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control). If you would like to use another type of cache, you can write your own implementation of the [CacheManager](../core/src/base/cacheManager.ts). You can refer to this [default cache manager](../core/src/base/cacheManagerKeyv.ts) when designing your implementation.  
+
+### Cache storage adapter
+
+The default cache storage limits to 10,000 distinct entities before applying a simple [least recently used](https://en.m.wikipedia.org/wiki/Cache_replacement_policies#Least_Recently_Used_.28LRU.29) policy for cache replacement. You can change the limit by creating a [quick-lru](https://www.npmjs.com/package/quick-lru) storage adapter.
+```javascript
+import { CacheManagerKeyv } from "@commerce-apps/core";
+import { QuickLRU } from "quick-lru";
+
+const cacheManagerKeyv = new CacheManagerKeyv({ keyvStore: new QuickLRU({ maxSize: 50000 })});
+const config = {
+     cacheManager: cacheManagerKeyv,
+     parameters: {
+         clientId: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+         organizationId: "f_ecom_bblx_stg",
+         shortCode: "0dnz6oep",
+         siteId: "RefArch"
+     }
+ }
+ ```
+Refer to these [directions](https://www.npmjs.com/package/keyv#third-party-storage-adapters) to create your own cache storage adapter.
 
 ### In-memory cache
 In-memory caching of responses is enabled by default. To disable caching for a client, set cacheManager to 'null'.
