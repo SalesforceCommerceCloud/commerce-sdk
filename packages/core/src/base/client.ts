@@ -5,16 +5,15 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import _ from "lodash";
+import QuickLRU from "quick-lru";
 import { config } from "dotenv";
-import tmp from "tmp";
 import { OperationOptions } from "retry";
 
 import { getBearer } from "@commerce-apps/raml-toolkit";
 
 import { CommonParameters } from "./commonParameters";
-import { DefaultCache } from "./staticClient";
-export { DefaultCache };
 import { ICacheManager } from "./cacheManager";
+import { CacheManagerKeyv } from "./cacheManagerKeyv";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require("../../package.json");
 
@@ -41,10 +40,12 @@ export class ClientConfig {
 }
 
 const DEFAULT_CLIENT_CONFIG: ClientConfig = {
-  // Enables cacache for local caching in temp dir by default, unsafeCleanup == rm -rf on exit
-  cacheManager: new DefaultCache(
-    tmp.dirSync({ prefix: "cache-", unsafeCleanup: true }).name
-  ),
+  // Enables quick-lru for local caching by default
+  // Limits to 10000 unique entities to cache before
+  // replacing least recently used (LRU) entities
+  cacheManager: new CacheManagerKeyv({
+    keyvStore: new QuickLRU({ maxSize: 10000 })
+  }),
   headers: {
     "content-type": "application/json",
     connection: "close",
