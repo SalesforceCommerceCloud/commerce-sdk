@@ -35,6 +35,8 @@ const diffFile = path.join(config.updateApiDir, "ramlDiff.json");
  * for the version deployed in the config.exchangeDeploymentRegex environment.
  * If it fails to get information about the deployed version of an api, it
  * removes all the version specific information from `config.apiConfigFile`.
+ *
+ * @returns Information about the APIs found.
  */
 async function search(): Promise<RestApi[]> {
   const token = await getBearer(
@@ -88,6 +90,8 @@ gulp.task("backupApis", async () => {
 /**
  * Groups RAML files for the given key (API Family, a.k.a Bounded Context).
  * Once grouped, renderTemplates task creates one Client per group
+ *
+ * @returns Promise that resolves on completion.
  */
 gulp.task("downloadRamlFiles", async () => {
   return search().then(apis => {

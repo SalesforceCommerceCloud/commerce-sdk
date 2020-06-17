@@ -30,7 +30,7 @@ In the backend this is running a bunch of gulp tasks to accomplish this.
 
 > NOTE: Core must already be built.
 
-Another option is to build a list of operations. Simply run `npm run buildOperationList` to build a list of operations
+Another option is to build a list of operations. Simply run `npm run renderOperationList` to build a list of operations.
 
 You can then find this list at `renderedTemplates/operationList.yaml`
 
@@ -40,7 +40,7 @@ Default log level of the Generator is INFO. Generator uses [loglevel](https://ww
 
 To change the loglevel, set the log level environment variable:
 
-```sh
+```txt
 SDK_GENERATOR_LOG_LEVEL=debug
 ```
 

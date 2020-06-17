@@ -5,8 +5,6 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-require("dotenv").config();
-
 export default {
   inputDir: process.env.COMMERCE_SDK_INPUT_DIR || `${__dirname}/apis`,
   updateApiDir: process.env.COMMERCE_SDK_UPDATE_API_DIR || `${__dirname}/updateApiTmpDir`,

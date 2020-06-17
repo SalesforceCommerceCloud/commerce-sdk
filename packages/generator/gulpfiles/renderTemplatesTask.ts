@@ -6,59 +6,26 @@
  */
 import * as gulp from "gulp";
 import {
-  processApiFamily,
   renderTemplates,
-  renderOperationList
+  renderOperationList,
+  renderDocumentation
 } from "../src/renderer";
-
-import fs from "fs-extra";
-import _ from "lodash";
-import * as path from "path";
 
 require("dotenv").config();
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 import config from "../../../build-config";
 
 /**
- *  Gulp task that renders typescript code for the APIs using the pre-defined templates
+ *  Renders the TypeScript code for the APIs using the pre-defined templates
  */
-gulp.task("renderTemplates", async () => {
-  return renderTemplates(config);
-});
+gulp.task("renderTemplates", async () => renderTemplates(config));
 
-gulp.task("buildOperationList", async () => {
-  // require the json written in groupRamls gulpTask
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const ramlGroupConfig = require(path.resolve(
-    path.join(config.inputDir, config.apiConfigFile)
-  ));
-  const apiGroupKeys = _.keysIn(ramlGroupConfig);
+/**
+ * Renders the API documentation.
+ */
+gulp.task("renderDocumentation", async () => renderDocumentation(config));
 
-  const allApis = {};
-
-  const modelingPromises = [];
-
-  for (const apiGroup of apiGroupKeys) {
-    const familyPromises = processApiFamily(
-      apiGroup,
-      ramlGroupConfig,
-      config.inputDir
-    );
-    fs.ensureDirSync(config.renderDir);
-
-    modelingPromises.push(
-      Promise.all(familyPromises).then(values => {
-        allApis[apiGroup] = values;
-        return;
-      })
-    );
-  }
-
-  return Promise.all(modelingPromises).then(() => {
-    fs.writeFileSync(
-      path.join(config.renderDir, "operationList.yaml"),
-      renderOperationList(allApis)
-    );
-  });
-});
+/**
+ * Renders an operation list file.
+ */
+gulp.task("renderOperationList", async () => renderOperationList(config));

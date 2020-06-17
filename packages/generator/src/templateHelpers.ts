@@ -23,6 +23,7 @@ import {
  * the data without the proper cast to a WebApi type.
  *
  * @param property - A model from the the AMF parser
+ * @returns the base URI of the model
  */
 export const getBaseUri = function(
   property: model.document.BaseUnitWithEncodesModel
@@ -39,7 +40,7 @@ export const getBaseUri = function(
  *
  * @returns true if the parameter is a common parameter
  */
-export const isCommonPathParameter = (property: string) =>
+export const isCommonPathParameter = (property: string): boolean =>
   property
     ? commonParameterPositions.pathParameters.includes(property.toString())
     : false;
@@ -51,7 +52,7 @@ export const isCommonPathParameter = (property: string) =>
  *
  * @returns true if the parameter is a common parameter
  */
-export const isCommonQueryParameter = (property: string) =>
+export const isCommonQueryParameter = (property: string): boolean =>
   property
     ? commonParameterPositions.queryParameters.includes(property.toString())
     : false;
@@ -63,13 +64,16 @@ export const isCommonQueryParameter = (property: string) =>
  *
  * @returns true if the node is a type definition, false if not
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isTypeDefinition = function(obj: any): boolean {
   return (
     obj != null && obj.$classData.name === "amf.client.model.domain.NodeShape"
   );
 };
 
-const getPayloadResponses = function(operation: any): model.domain.Response[] {
+const getPayloadResponses = function(
+  operation: model.domain.Operation
+): model.domain.Response[] {
   const okResponses = [];
   for (const res of operation.responses) {
     if (res.statusCode.nonEmpty && res.statusCode.value().startsWith("2")) {
@@ -106,7 +110,9 @@ export function extractTypeFromPayload(payload: model.domain.Payload): string {
  *
  * @returns a string for the data type returned by the successful operation
  */
-export const getReturnPayloadType = function(operation: any): string {
+export const getReturnPayloadType = function(
+  operation: model.domain.Operation
+): string {
   const okResponses = getPayloadResponses(operation);
   const dataTypes: string[] = [];
 
@@ -338,11 +344,12 @@ export const getRequestPayloadType = function(
  *
  * @returns the string of the value
  */
-export const getValue = function(name: any): string {
-  if (name !== undefined && name.value) {
-    return name.value();
+export const getValue = function<T>(name: model.ValueField<T>): string {
+  let value;
+  if (typeof name?.value === "function") {
+    value = name.value();
   }
-  return null;
+  return value == null ? null : `${value}`;
 };
 
 type propertyFilter = (propertyName: string) => boolean;
@@ -352,6 +359,7 @@ type propertyFilter = (propertyName: string) => boolean;
  *
  * @param dtoTypeModel - AMF model of the dto
  * @param propertyFilter - function to filter properties based on certain criteria
+ * @returns The filtered list of properties
  */
 const getFilteredProperties = function(
   dtoTypeModel: model.domain.NodeShape | null | undefined,
@@ -446,6 +454,7 @@ export const isOptionalProperty = function(
  * @returns true if additional properties are allowed, false otherwise
  */
 export const isAdditionalPropertiesAllowed = function(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ramlTypeDefinition: any
 ): boolean {
   return (
