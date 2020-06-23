@@ -1,4 +1,31 @@
 ## CHANGELOG
+### v1.4.5-beta.0
+
+### **API Changes**
+
+* SDK now contains new Shopper Login API
+
+#### Shopper APIs
+
+*Shopper Baskets API*
+
+* New endpoints
+
+| **Endpoint Name** | **Description** |
+| ------------- |-------------|
+| addTaxForBasket | Enables external taxation for the specified basket |
+| addTaxForBasketItem | Add tax items in external tax mode |
+| getTaxesFromBasket | Retrieves taxes for specified basket |
+
+*Shopper Orders API*
+
+* New endpoints
+
+| **Endpoint Name** | **Description** |
+| ------------- |-------------|
+| getTaxesFromOrder | Retrieves external taxes for the specified order |
+
+
 ### v1.4.4-beta.0
 
 ### **API Changes**
