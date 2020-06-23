@@ -8,11 +8,12 @@ baseUriParameters:
   shortCode:
     description: A region-specific merchant identifier.
     example: 0dnz6oep
+    pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
 description: Management API for assignments.
 
 uses:
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.6/api-standards.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.12/commerce-cloud-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.9/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml
 
 types:
   Campaign:
@@ -371,12 +372,7 @@ types:
         | couponId| String |         
           
       Only fields in the same bucket can be joined using a disjunction (or). For instance, when joining campaignId and rank, only a conjunction (and) is allowed, whereas promotionId and description can be joined to each other using a disjunction because they are in the same bucket. Special handling fields must always use conjunctions. If the field is used in a disjunction that violates this rule, an exception is thrown. 
-                
-      
-      Expands that can be applied for the search request:
-        
-        - promotion
-        - campaign
+
                
       Note that only searchable attributes can be used in sorting.
     displayName: assignmentsSearch
@@ -394,5 +390,5 @@ types:
       application/json:
         type: CommerceCloudStandards.SearchRequest
     securedBy:
-      - CommerceCloudStandards.BearerToken
+      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions ] }
       - CommerceCloudStandards.AmOAuth2

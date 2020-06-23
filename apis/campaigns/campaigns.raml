@@ -5,14 +5,15 @@ protocols: https
 mediaType: application/json
 baseUri: https://{shortCode}.api.commercecloud.salesforce.com/pricing/campaigns/{version}
 baseUriParameters:
-    shortCode:
-      description: A customer region-specific identifier.
-      example: fd4gt8
-description: Use the Data Campaign API to interact with the API in the context of a Business Manager to get Campaigns.
+  shortCode:
+    description: A region-specific merchant identifier.
+    example: 0dnz6oep
+    pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
+description: Use the Data Campaign API to interact with the API, in the context of a Business Manager, to get Campaigns.
 
 uses:
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.6/api-standards.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.12/commerce-cloud-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.9/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml
   CampaignsTraits: campaigns-traits-library.raml
 
 types:
@@ -104,21 +105,17 @@ types:
 
         | Attribute | Type | Sortable |
         |-----------|--------|----------|
-        | campaign_id | String | yes |
+        | campaignId | String | yes |
         | description | String | yes |
         | enabled | Boolean | yes |
-        | coupon_id | String | no |
-        | customer_group | String | no |
-        | source_code | String | no |
-        | start_date | Date | no |
-        | end_date | Date | no |
-        | last_modified | Date | no |
+        | couponId | String | no |
+        | customerGroup | String | no |
+        | sourceCode | String | no |
+        | startDate | Date | no |
+        | endDate | Date | no |
+        | lastModified | Date | no |
 
         These fields can only be used in queries as conjunctions (using `AND`). If the field is used in a disjunction (`OR`), an exception is thrown.
-
-        ## Supported Expands
-
-        This API does not support any expands.
     displayName: campaignsSearch
     is:
         - ApiStandards.RateLimited2:
@@ -142,7 +139,7 @@ types:
       application/json:
         type: CommerceCloudStandards.SearchRequest
     securedBy:
-      - CommerceCloudStandards.BearerToken
+      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions ] }
       - CommerceCloudStandards.AmOAuth2
   '/{campaignId}':
     uriParameters:
@@ -161,7 +158,7 @@ types:
         '204':
           description: Campaign deleted successfully.
       securedBy:
-        - CommerceCloudStandards.BearerToken
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
         - CommerceCloudStandards.AmOAuth2
     get:
       description: Action to get campaign information.
@@ -180,7 +177,7 @@ types:
               examples:
                 campaignGetResponse: !include Examples/get-campaign-example.raml
       securedBy:
-        - CommerceCloudStandards.BearerToken
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions ] }
         - CommerceCloudStandards.AmOAuth2
     patch:
       description: Updates the campaign with the specified information.
@@ -206,7 +203,7 @@ types:
           examples:
             campaignPatchRequest: !include Examples/patch-campaign-request.raml
       securedBy:
-        - CommerceCloudStandards.BearerToken
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
         - CommerceCloudStandards.AmOAuth2
     put:
       description: Creates a campaign using the information provided.
@@ -230,5 +227,5 @@ types:
           examples:
             campaignPutRequest: !include Examples/put-campaign-request.raml
       securedBy:
-        - CommerceCloudStandards.BearerToken
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
         - CommerceCloudStandards.AmOAuth2

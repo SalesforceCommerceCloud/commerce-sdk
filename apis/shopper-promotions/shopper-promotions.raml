@@ -8,11 +8,12 @@ baseUri: https://{shortCode}.api.commercecloud.salesforce.com/pricing/shopper-pr
 baseUriParameters:
   shortCode:
     description: A region-specific merchant identifier.
-    example: fd4gt8
+    example: 0dnz6oep
+    pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
 uses:
   PromotionTraits: promotion-traits-library.raml
-  ApiStandards: /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.6/api-standards.raml    
-  CommerceCloudStandards: /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.10/commerce-cloud-standards.raml
+  ApiStandards: /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.9/api-standards.raml    
+  CommerceCloudStandards: /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml
 
 types:
   Promotion:
@@ -112,7 +113,7 @@ types:
         type: string
         required: false      
     securedBy:
-      - CommerceCloudStandards.ShopperToken
+      - CommerceCloudStandards.ShopperToken: { scopes: [ sfcc.shopper-promotions ] }
   '/campaigns/{campaignId}':
     type: CommerceCloudStandards.Organization
     uriParameters:
@@ -170,4 +171,4 @@ types:
           required: false
           example: USD
       securedBy:
-        - CommerceCloudStandards.ShopperToken
+        - CommerceCloudStandards.ShopperToken: { scopes: [ sfcc.shopper-promotions ] }
