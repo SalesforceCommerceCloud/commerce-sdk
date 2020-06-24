@@ -10,8 +10,8 @@ baseUriParameters:
       example: 0dnz6oep
 description: Use Data Gift Certificates API to interact with the API in the context of a site to create, get, search one or all gift certificates.
 uses:
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.6/api-standards.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.12/commerce-cloud-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.9/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml
   GiftCertificateTraits: gift-certificate-traits-library.raml
 types:
   AccountTransaction:
@@ -118,14 +118,14 @@ types:
         type: string
         required: false
         example: |
-          Regina Phalange
+          Jane Doe
       senderName:
         description: The sender of the gift certificate.
         maxLength: 256
         type: string
         required: false
         example: |
-          Phoebe Buffay
+          John Smith
       status:
         description: |-
           The status of the gift certificate.
@@ -228,31 +228,33 @@ types:
         example:
               GiftCertificate: !include Examples/gift-certificate-create-example.raml
     securedBy:
-      - CommerceCloudStandards.BearerToken
+      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.gift-certificates.rw ] }
       - CommerceCloudStandards.AmOAuth2
   post:
     description: |-
         Searches for gift certificates. The query attribute specifies a complex query that can be used to narrow down the search. These are the list of searchable attributes:
          
-         merchant_id - String
-         masked_gift_certificate_code* - String
-         order_no - String
-         sender_name - String
-         recipient_name - String
-         recipient_email - String
-         status - String
-         enabled - Boolean
-         message - String
-         description - String
-         creation_date - Date
-         currency_mnemonic* - String
+        | Attribute | Type | Sortable |
+        |-----------|--------|----------|
+        | merchantId | String | yes |
+        | maskedGiftCertificateCode * | String | no |
+        | orderNo | String | yes |
+        | senderName | String | yes |
+        | recipientName | String | yes |
+        | recipientEmail | String | yes |
+        | status | String | yes |
+        | enabled | Boolean | yes |
+        | message | String | yes |
+        | description | String | yes |
+        | creationDate | Date | yes |
+        | currencyMnemonic ** | String | yes |
          
-         * masked_gift_certificate_code, also known as just code, can only be used in a term query.  If a
+        ## Notes:
+          * *`maskedGiftCertificateCode`, also known as just code, can only be used in a term query.  If a
          four-character code is supplied, it is assumed that the search is on the unmasked portion of the code, otherwise
          the full code must be matched.  Text queries are not allowed.
-         * currency_mnemonic can only be joined with other attributes using a conjunction (AND).
-
-         Note that only searchable attributes can be used in sorting.  The code attribute cannot be used for sorting.
+          * **`currencyMnemonic` can only be joined with other attributes using a conjunction (`AND`).
+          * Only searchable attributes can be used in sorting.
     displayName: giftCertificatesSearch
     is:
         - GiftCertificateTraits.MalformedQuery
@@ -274,7 +276,7 @@ types:
       application/json:
         type: CommerceCloudStandards.SearchRequest
     securedBy:
-         - CommerceCloudStandards.BearerToken
+         - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.gift-certificates ] }
          - CommerceCloudStandards.AmOAuth2
 /organizations/{organizationId}/gift-certificates/{merchantId}:
   type: CommerceCloudStandards.Organization
@@ -298,8 +300,8 @@ types:
             application/json:
               type: GiftCertificate
       securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.gift-certificates.rw ] }
         - CommerceCloudStandards.AmOAuth2
-        - CommerceCloudStandards.BearerToken
   get:
       description: Action to get gift certificate information using merchant ID.
       displayName: getGiftCertificate
@@ -319,7 +321,7 @@ types:
         '404':
           description: Thrown in case the gift certificate does not exist matching the given merchant ID.
       securedBy:
-        - CommerceCloudStandards.BearerToken
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.gift-certificates ] }
         - CommerceCloudStandards.AmOAuth2
   patch:
       description: Updates the gift certificate with the specified information using merchant ID.
@@ -350,5 +352,5 @@ types:
           example:
             patchGiftCertificate: !include Examples/gift-certificate-update-example.raml
       securedBy:
-         - CommerceCloudStandards.BearerToken
+         - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.gift-certificates.rw ] }
          - CommerceCloudStandards.AmOAuth2

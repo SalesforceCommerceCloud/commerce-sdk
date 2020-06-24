@@ -3,37 +3,29 @@
 usage: This library provides all order relevant data types
 
 uses:
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.12/commerce-cloud-standards.raml 
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.15/commerce-cloud-standards.raml 
 
 types:
-  ErrorResponse: !include ../exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.4/dataTypes/error-response.raml
-  CustomProperties:
-    description: |-
-      Type to allow "c_*" as custom properties. Every object which is type of this allows custom properties.
-    properties:
-      /^c_.+$/?:
-        type: any
+  ErrorResponse: !include ../exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.8/dataTypes/error-response.raml
   OrderUpdateRequest:
     description: Request body to update custom properties.
     type:
-      [CustomProperties]
-    additionalProperties: true
+      CommerceCloudStandards.OpenObject
     properties:
   PaymentInstrumentUpdateRequest:
     description: Request body to update custom properties.
     type:
-      [CustomProperties]
-    additionalProperties: true
+      CommerceCloudStandards.OpenObject
     properties:
   PaymentTransactionUpdateRequest:
     description: Request body to update custom properties.
     type:
-      [CustomProperties]
-    additionalProperties: true
+      CommerceCloudStandards.OpenObject
     properties:
   OrderConfirmationStatusUpdateRequest:
     description: Request body to update the order confirmation status.
-    additionalProperties: false
+    type:
+      CommerceCloudStandards.ClosedObject
     properties:
       status:
         description: The new confirmation status for an order.
@@ -43,7 +35,8 @@ types:
           - not_confirmed
   OrderExportStatusUpdateRequest:
     description: Request body to update the order export status.
-    additionalProperties: false
+    type:
+      CommerceCloudStandards.ClosedObject
     properties:
       status:
         description: The new export status for an order.
@@ -55,7 +48,8 @@ types:
           - failed
   OrderExternalStatusUpdateRequest:
     description: Request body to update the order external status.
-    additionalProperties: false
+    type:
+      CommerceCloudStandards.ClosedObject
     properties:
       status:
         description: The new external status for an order.
@@ -64,7 +58,8 @@ types:
         type: string
   OrderPaymentStatusUpdateRequest:
     description: Request body to update the order payment status.
-    additionalProperties: false
+    type:
+      CommerceCloudStandards.ClosedObject
     properties:
       status:
         description: The new payment status for an order.
@@ -75,7 +70,8 @@ types:
           - not_paid
   OrderShippingStatusUpdateRequest:
     description: Request body to update the order shipping status.
-    additionalProperties: false
+    type:
+      CommerceCloudStandards.ClosedObject
     properties:
       status:
         description: The new shipping status for an order.
@@ -86,7 +82,8 @@ types:
           - not_shipped
   OrderStatusUpdateRequest:
     description: Request body to update the order status.
-    additionalProperties: false
+    type:
+      CommerceCloudStandards.ClosedObject
     properties:
       status:
         description: The new status for an order.
@@ -100,8 +97,7 @@ types:
   ShippingAddressUpdateRequest:
     description: Request body to update the shipping address.
     type:
-      [CustomProperties]
-    additionalProperties: true
+      CommerceCloudStandards.OpenObject
     properties:
       address1?:
         type: string

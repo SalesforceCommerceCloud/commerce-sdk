@@ -38,7 +38,7 @@ const config: ClientConfig = { /* ... */ };
 const ordersClient = new Checkout.Orders(config);
 ```
 
-**Mule App Version:** 1.0.12
+**Mule App Version:** 1.0.14
 
 ### [Shopper Baskets](https://developer.commercecloud.com/s/api-details/a003k00000UHvpEAAT)
 
@@ -55,7 +55,7 @@ const config: ClientConfig = { /* ... */ };
 const shopperBasketsClient = new Checkout.ShopperBaskets(config);
 ```
 
-**Mule App Version:** 0.0.34
+**Mule App Version:** 0.0.41
 
 ### [Shopper Orders](https://developer.commercecloud.com/s/api-details/a003k00000UHvpFAAT)
 
@@ -72,13 +72,13 @@ const config: ClientConfig = { /* ... */ };
 const shopperOrdersClient = new Checkout.ShopperOrders(config);
 ```
 
-**Mule App Version:** 0.0.21
+**Mule App Version:** 0.0.25
 
 ## Customer
 
 ### [Customers](https://developer.commercecloud.com/s/api-details/a003k00000UHvouAAD)
 
-*Manage customer lists, and search and manage customer groups.*
+*Manage customer information within a customer list.*
 
 To instantiate a client:
 
@@ -127,7 +127,7 @@ const config: ClientConfig = { /* ... */ };
 const assignmentsClient = new Pricing.Assignments(config);
 ```
 
-**Mule App Version:** 1.0.13
+**Mule App Version:** 1.0.14
 
 ### [Campaigns](https://developer.commercecloud.com/s/api-details/a003k00000UHvobAAD)
 
@@ -144,7 +144,7 @@ const config: ClientConfig = { /* ... */ };
 const campaignsClient = new Pricing.Campaigns(config);
 ```
 
-**Mule App Version:** 1.0.15
+**Mule App Version:** 1.0.16
 
 ### [Coupons](https://developer.commercecloud.com/s/api-details/a003k00000UHvopAAD)
 
@@ -161,7 +161,7 @@ const config: ClientConfig = { /* ... */ };
 const couponsClient = new Pricing.Coupons(config);
 ```
 
-**Mule App Version:** 1.0.15
+**Mule App Version:** 1.0.16
 
 ### [Gift Certificates](https://developer.commercecloud.com/s/api-details/a003k00000UHvozAAD)
 
@@ -178,7 +178,7 @@ const config: ClientConfig = { /* ... */ };
 const giftCertificatesClient = new Pricing.GiftCertificates(config);
 ```
 
-**Mule App Version:** 1.0.17
+**Mule App Version:** 1.0.18
 
 ### [Promotions](https://developer.commercecloud.com/s/api-details/a003k00000UHvp9AAD)
 
@@ -195,7 +195,7 @@ const config: ClientConfig = { /* ... */ };
 const promotionsClient = new Pricing.Promotions(config);
 ```
 
-**Mule App Version:** 1.0.12
+**Mule App Version:** 1.0.13
 
 ### [Shopper Gift Certificates](https://developer.commercecloud.com/s/api-details/a003k00000UHvogAAD)
 
@@ -212,7 +212,7 @@ const config: ClientConfig = { /* ... */ };
 const shopperGiftCertificatesClient = new Pricing.ShopperGiftCertificates(config);
 ```
 
-**Mule App Version:** 1.0.6
+**Mule App Version:** 1.0.7
 
 ### [Shopper Promotions](https://developer.commercecloud.com/s/api-details/a003k00000UHvp5AAD)
 
@@ -229,7 +229,7 @@ const config: ClientConfig = { /* ... */ };
 const shopperPromotionsClient = new Pricing.ShopperPromotions(config);
 ```
 
-**Mule App Version:** 1.0.15
+**Mule App Version:** 1.0.16
 
 ### [Source Code Groups](https://developer.commercecloud.com/s/api-details/a003k00000UHvpTAAT)
 
@@ -246,7 +246,7 @@ const config: ClientConfig = { /* ... */ };
 const sourceCodeGroupsClient = new Pricing.SourceCodeGroups(config);
 ```
 
-**Mule App Version:** 1.0.16
+**Mule App Version:** 1.0.17
 
 ## Product
 

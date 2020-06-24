@@ -7,15 +7,16 @@ baseUri: https://{shortCode}.api.commercecloud.salesforce.com/pricing/coupons/{v
 baseUriParameters:
   shortCode:
     description: A region-specific merchant identifier.
-    example: 0dnz6oep    
+    example: 0dnz6oep
+    pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$ 
 
 description: APIs to support the creation, modification, and deletion of coupon codes.
 mediaType: application/json
 
 uses:
   CouponTraits: coupons-traits-library.raml
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.6/api-standards.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.12/commerce-cloud-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.9/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml
 
 types:
   Coupon:
@@ -234,14 +235,14 @@ types:
 
          The Coupon Search document contains a search object that allows filtering on various attributes.
 
-         The query attribute specifies a complex query that can be used to narrow down the search. These are the list
-         of searchable attributes:
+         The query attribute specifies a complex query that can be used to narrow down the search with the following searchable attributes:
          
-         coupon_id - String
-         description - String
-         type - one of {"single_code", "multiple_codes", "system_codes"}
-         enabled - boolean
-         
+        | Attribute | Type |
+        |-----------|--------|
+        | couponId| String |
+        | description | String |
+        | type | one of {"single_code", "multiple_codes", "system_codes"} |
+        | enabled | Boolean |        
 
          Note that only searchable attributes can be used in sorting.         
       displayName: couponsSearch
@@ -261,7 +262,7 @@ types:
         application/json:
           type: CommerceCloudStandards.SearchRequest
       securedBy:
-        - CommerceCloudStandards.BearerToken
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions ] }
         - CommerceCloudStandards.AmOAuth2
     '/redemptions':
       is:
@@ -273,18 +274,18 @@ types:
           The Coupon Redemption Search document contains a search object that allows filtering on various attributes.
           
 
-          The query attribute specifies a complex query that can be used to narrow down the search. These are the list
-          of searchable attributes:
+          The query attribute specifies a complex query that can be used to narrow down the search with the following searchable attributes:
           
-              code - String
-              coupon_id - String
-              customer_email - String
-              order_no - String
-          
+            | Attribute | Type |
+            |-----------|--------|
+            | code| String |
+            | couponId | String |
+            | customerEmail | String |
+            | orderNo | String |
 
           Note that only searchable attributes can be used in sorting.
 
-          If the role to which the user belongs does not have View_Coupon_Codes permission, then the coupon codes returned will be masked.
+          If the user role does not have the `View_Coupon_Codes` permission, then the coupon codes returned are masked.
         displayName: couponRedemptionsSearch
         is:
         - ApiStandards.RateLimited2:
@@ -302,7 +303,7 @@ types:
           application/json:
             type: CommerceCloudStandards.SearchRequest
         securedBy:
-          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions ] }
           - CommerceCloudStandards.AmOAuth2
     '/{couponId}':
       is:
@@ -317,12 +318,12 @@ types:
           '204':
             description: API returned successfully.
         securedBy:
-          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
           - CommerceCloudStandards.AmOAuth2
       get:
         description: |-
           Returns coupon information for the given coupon ID.
-           If the role to which the user belongs does not have the View_Coupon_Codes permission, then the coupon codes returned are masked.
+           If the user role does not have the View_Coupon_Codes permission, then the coupon codes returned are masked.
         displayName: getCoupon
         is:
           - CouponTraits.CouponNotFound
@@ -336,14 +337,8 @@ types:
               application/json:
                 type: Coupon
                 example: !include Examples/put_sites_siteid_coupons_couponid.raml
-        queryParameters:
-          select:
-            description: The fields that you want to select.
-            type: string
-            required: false
-            example: (**)
         securedBy:
-          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions ] }
           - CommerceCloudStandards.AmOAuth2
       patch:
         description: Updates the coupon with the specified information.
@@ -378,7 +373,7 @@ types:
           application/json:
             type: Coupon
         securedBy:
-          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
           - CommerceCloudStandards.AmOAuth2
       put:
         description: |-
@@ -415,7 +410,7 @@ types:
           application/json:
             type: Coupon
         securedBy:
-          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
           - CommerceCloudStandards.AmOAuth2
       uriParameters:
         couponId:
@@ -448,7 +443,7 @@ types:
                   type: CouponCodes
                   example: !include Examples/get_sites_siteid_coupons_couponid_codes.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions ] }
             - CommerceCloudStandards.AmOAuth2
         post:
           description: Add or delete (modify) multiple codes to and from the supplied coupon.
@@ -479,5 +474,5 @@ types:
             application/json:
               type: CouponMultiCodesRequest
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
             - CommerceCloudStandards.AmOAuth2

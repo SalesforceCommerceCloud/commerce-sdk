@@ -13,8 +13,8 @@ description: Management API to create and modify Promotions.
 
 uses:
     DataPromotionTraits: promotions-traits-library.raml
-    ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.6/api-standards.raml
-    CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.12/commerce-cloud-standards.raml
+    ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.9/api-standards.raml
+    CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml
 
 types:
   Campaign:
@@ -198,21 +198,21 @@ types:
         type: boolean
       endDate:
         description: |-
-          The end date of the container of the assignment (a Campaign or ABTest). If schedule_type is
-           schedule_type : "multiple" or schedule_type : "none", then then result is null. Also, a null
+          The end date of the container of the assignment (a Campaign or ABTest). If scheduleType is
+           scheduleType : "multiple" or scheduleType : "none", then then result is null. Also, a null
            date returns null.
         type: datetime
         required: false
       schedule:
         description: |-
-          The schedule of the assignment (a Campaign or ABTest). If schedule_type is
-           schedule_type : "multiple" or schedule_type : "none", then then result is null.
+          The schedule of the assignment (a Campaign or ABTest). If scheduleType is
+           scheduleType : "multiple" or scheduleType : "none", then then result is null.
         type: Schedule
       scheduleType:
         description: |-
           If there is only one active assignment, or no active assignments and one upcoming assignment, this is that type
-           of assignment (schedule_type : "campaign" or schedule_type : "abtest"). If there are no
-           assignments, it is schedule_type : "none", otherwise, schedule_type : "multiple".
+           of assignment (scheduleType : "campaign" or scheduleType : "abtest"). If there are no
+           assignments, it is scheduleType : "none", otherwise, scheduleType : "multiple".
         type: string
         enum:
           - none
@@ -221,8 +221,8 @@ types:
           - multiple
       startDate:
         description: |-
-          The start date of the container of the assignment (a Campaign or ABTest). If schedule_type is
-           schedule_type : "multiple" or schedule_type : "none", then then result is null. Also, a null
+          The start date of the container of the assignment (a Campaign or ABTest). If scheduleType is
+           scheduleType : "multiple" or scheduleType : "none", then then result is null. Also, a null
            date returns null.
         type: datetime
         required: false
@@ -362,20 +362,24 @@ types:
          
          The SearchRequest document contains a search object that allows filtering on various attributes.
          
-         The query attribute specifies a complex query that can be used to narrow down the search. These are the searchable
+         The query attribute specifies a complex query that can be used to narrow down the search using the following searchable
          attributes:
          
-         id - String
-         name - String
-         currency_code - String
-         exclusivity - String
-         enabled - Boolean
+          | Attribute | Type |
+          |-----------|--------|
+          | id | String |
+          | name | String |
+          | currecyCode |  String |
+          | exclusivity |  String |
+          | enabled | Boolean |
          
          Note that only searchable attributes can be used in sorting. Additionally, the following attribute can be used to
          sort:
          
-         promotion_class - String
-         
+          | Attribute | Type |
+          |-----------|--------|
+          | promotionClass | String |
+
       displayName: promotionsSearch
       is:
         - ApiStandards.RateLimited2:
@@ -393,7 +397,7 @@ types:
         application/json:
           type: CommerceCloudStandards.SearchRequest
       securedBy:
-        - CommerceCloudStandards.BearerToken
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions ] }
         - CommerceCloudStandards.AmOAuth2
     '/{id}':
       is:
@@ -416,7 +420,7 @@ types:
             '204':
               description: Deleted the promotion successfully.
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
             - CommerceCloudStandards.AmOAuth2
       get:
           description: Action to get promotion information.
@@ -435,7 +439,7 @@ types:
                   examples:
                     promotionGetResponse: !include Examples/get-promotion-response.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions ] }
             - CommerceCloudStandards.AmOAuth2
       patch:
           description: Updates the promotion with the specified information.
@@ -462,7 +466,7 @@ types:
               examples: 
                 promotionPatchRequest: !include Examples/patch-promotion-request.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
             - CommerceCloudStandards.AmOAuth2
       put:
           description: Creates a promotion using the information provided.
@@ -486,5 +490,5 @@ types:
               examples:
                 promotionPutRequest: !include Examples/put-promotion-request.raml
           securedBy:  
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
             - CommerceCloudStandards.AmOAuth2
