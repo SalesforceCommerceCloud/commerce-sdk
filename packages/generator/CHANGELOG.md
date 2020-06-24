@@ -25,6 +25,10 @@
 | ------------- |-------------|
 | getTaxesFromOrder | Retrieves external taxes for the specified order |
 
+### **Bug Fixes**
+
+* Fixed default cache issue when the HTTP response is large
+
 
 ### v1.4.4-beta.0
 
