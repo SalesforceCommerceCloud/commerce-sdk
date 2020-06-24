@@ -7,7 +7,6 @@
 import * as gulp from "gulp";
 import * as path from "path";
 import fs from "fs-extra";
-import _ from "lodash";
 
 import {
   downloadRestApis,

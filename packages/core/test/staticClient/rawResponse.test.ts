@@ -38,7 +38,7 @@ describe("rawResponse tests", () => {
 
   it("makes correct call for true", () => {
     const client = new BaseClient({ baseUri: "https://somewhere" });
-    const scope = nock("https://somewhere")
+    nock("https://somewhere")
       .get("/over/the/rainbow")
       .reply(200, { mock: "data" });
 
@@ -54,7 +54,7 @@ describe("rawResponse tests", () => {
 
   it("makes correct call for false", () => {
     const client = new BaseClient({ baseUri: "https://somewhere" });
-    const scope = nock("https://somewhere")
+    nock("https://somewhere")
       .get("/over/the/rainbow")
       .reply(200, { mock: "data" });
 
@@ -70,7 +70,7 @@ describe("rawResponse tests", () => {
 
   it("makes correct call for null", () => {
     const client = new BaseClient({ baseUri: "https://somewhere" });
-    const scope = nock("https://somewhere")
+    nock("https://somewhere")
       .get("/over/the/rainbow")
       .reply(200, { mock: "data" });
 
@@ -85,7 +85,7 @@ describe("rawResponse tests", () => {
   });
 
   it("deletes resource and returns 200", () => {
-    const scope = nock("https://somewhere")
+    nock("https://somewhere")
       .delete("/over/the/rainbow")
       .reply(200);
 
@@ -100,7 +100,7 @@ describe("rawResponse tests", () => {
   });
 
   it("is not ok when attempting to delete nonexistent resource", () => {
-    const scope = nock("https://somewhere")
+    nock("https://somewhere")
       .delete("/over/the/rainbow")
       .reply(404);
 
@@ -116,7 +116,7 @@ describe("rawResponse tests", () => {
   });
 
   it("post resource and returns 201", () => {
-    const scope = nock("https://somewhere")
+    nock("https://somewhere")
       .post("/over/the/rainbow")
       .reply(201);
 
@@ -132,7 +132,7 @@ describe("rawResponse tests", () => {
   });
 
   it("is not ok when attempting to post nonexistent collection", () => {
-    const scope = nock("https://somewhere")
+    nock("https://somewhere")
       .post("/over/the/rainbow")
       .reply(404);
 
@@ -149,7 +149,7 @@ describe("rawResponse tests", () => {
   });
 
   it("put resource and returns 201", () => {
-    const scope = nock("https://somewhere")
+    nock("https://somewhere")
       .put("/over/the/rainbow")
       .reply(201);
 
@@ -165,7 +165,7 @@ describe("rawResponse tests", () => {
   });
 
   it("is not ok when attempting to put nonexistent resource", () => {
-    const scope = nock("https://somewhere")
+    nock("https://somewhere")
       .put("/over/the/rainbow")
       .reply(404);
 
@@ -182,7 +182,7 @@ describe("rawResponse tests", () => {
   });
 
   it("patch resource and returns 200", () => {
-    const scope = nock("https://somewhere")
+    nock("https://somewhere")
       .patch("/over/the/rainbow")
       .reply(200);
 
@@ -198,7 +198,7 @@ describe("rawResponse tests", () => {
   });
 
   it("is not ok when attempting to patch nonexistent resource", () => {
-    const scope = nock("https://somewhere")
+    nock("https://somewhere")
       .patch("/over/the/rainbow")
       .reply(404);
 

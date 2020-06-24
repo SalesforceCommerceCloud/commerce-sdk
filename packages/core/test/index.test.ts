@@ -10,7 +10,6 @@ import {
   ClientConfig,
   COMMERCE_SDK_LOGGER_KEY,
   commonParameterPositions,
-  CommonParameters,
   getObjectFromResponse,
   Response,
   ResponseError,
