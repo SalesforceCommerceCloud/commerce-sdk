@@ -7,13 +7,14 @@ baseUri: 'https://{shortCode}.api.commercecloud.salesforce.com/pricing/source-co
 baseUriParameters:
   shortCode:
     description: A region-specific merchant identifier.
-    example: 0ndz6oep
+    example: 0dnz6oep
+    pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
 description: APIs to support the creation, update, deletions and search of source code groups.
 
 uses:
   SourceCodeGroupTraits: data-source-code-group-traits-library.raml
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.6/api-standards.raml
-  CommerceCloudStandards:  exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.12/commerce-cloud-standards.raml  
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.9/api-standards.raml
+  CommerceCloudStandards:  exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml  
 
 types:
   SourceCodeGroup:
@@ -112,10 +113,16 @@ types:
           Expression is a value for the "Source Code Specification" may be literal source code, or it may contain wildcards.
            Literal code is simply the literal code. Valid characters are letters and numbers (no spaces).
            A wildcard allows a single source code specification to match multiple source codes. The following wildcards are supported:
-           ? - Matches any single alpha-numeric character. For example: the source code specification 'ABC?' would match 'ABCD' or 'ABC3', but not 'ABCDE'.
-           * - Matches any sequence of alpha-numeric characters. For example: the source code specification 'ABC*' would match 'ABCD', 'ABCDE', or 'ABC123'.
-           [n1..n2] - Matches any number from n1 through and including n2.
-           For example: the source code specification 'ABC[3..22]' would match 'ABC3', 'ABC4' or 'ABC22', but not 'ABC33' or 'ABCD'.
+          
+           * ? - Matches any single alpha-numeric character. 
+              
+              For example: the source code specification 'ABC?' would match 'ABCD' or 'ABC3', but not 'ABCDE'.
+           * \* - Matches any sequence of alpha-numeric characters. 
+              
+              For example: the source code specification 'ABC*' would match 'ABCD', 'ABCDE', or 'ABC123'.
+           * [n1..n2] - Matches any number from n1 through and including n2.
+              
+              For example: the source code specification 'ABC[3..22]' would match 'ABC3', 'ABC4' or 'ABC22', but not 'ABC33' or 'ABCD'.
         type: string
         example: 'televisions[1..10000]'
 
@@ -131,7 +138,7 @@ types:
       '204':
         description: API returned successfully.
     securedBy:
-      - CommerceCloudStandards.BearerToken
+      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.source-codes.rw ] }
       - CommerceCloudStandards.AmOAuth2
   get:
     description: Action to retrieve source code group information.
@@ -149,16 +156,8 @@ types:
           application/json:
             type: SourceCodeGroup
             example: !include Examples/get_source_code_groups_id.raml
-    queryParameters:
-      expand:
-        description: The query parameter takes an expansion list to include extra information, such as specifications.
-        type: array
-        items:
-          type: string
-        required: false
-        example: [stats]
     securedBy:
-      - CommerceCloudStandards.BearerToken
+      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.source-codes ] }
       - CommerceCloudStandards.AmOAuth2
   patch:
     description: Updates the source code group with the specified information.
@@ -180,7 +179,7 @@ types:
       application/json:
         type: SourceCodeGroup
     securedBy:
-      - CommerceCloudStandards.BearerToken
+      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.source-codes.rw ] }
       - CommerceCloudStandards.AmOAuth2
   put:
     description: Creates a source code group using the information provided.
@@ -204,7 +203,7 @@ types:
       application/json:
         type: SourceCodeGroup
     securedBy:
-      - CommerceCloudStandards.BearerToken
+      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.source-codes.rw ] }
       - CommerceCloudStandards.AmOAuth2
   uriParameters:
     id:
@@ -215,37 +214,33 @@ types:
       example: MySourceCodeGroup
 '/organizations/{organizationId}/source-code-groups':
   post:
-    description: |-
+    description: |
       Searches for source code groups.
        
-       The query attribute specifies a complex query that can be used to narrow down the search. These are the list
-       of searchable attributes:
-       
-       id - String
-       description - String
-       source_code* - String 
-       start_time - DateTime
-       end_time - DateTime
-       creation_date - DateTime
-       enabled - Boolean
-       active* - Boolean 
-       
-
-       * - These fields can only be used in Queries as conjunctions (using AND).  If the field is used in a disjunction
-       (OR) an exception will be thrown.
-       
-       The output of the query can also be sorted. These are the list of sortable attributes:
-       
-       id - String
-       description - String
-       enabled - Boolean
-       creation_date - DateTime
-       
-       
-       Expands that can be applied for the search request
-       
-       specifications - String
-       
+      The query attribute specifies a complex query that can be used to narrow down the search with the following searchable attributes:
+        
+        | Attribute | Type |
+        |-----------|--------|
+        | id| String |
+        | description | String |
+        | sourceCode | String |
+        | startTime | DateTime |
+        | endTime | DateTime |
+        | creationDate | DateTime |
+        | enabled | Boolean |
+        | active | Boolean |
+        
+      The sourceCode and active fields can only be used in Queries as conjunctions (using AND). If the field is used in a disjunction
+      (OR) an exception will be thrown.
+      
+      The output of the query can also be sorted, with the following sortable attributes:
+        
+        | Attribute | Type |
+        |-----------|--------|
+        | id| String |
+        | description | String |
+        | enabled | Boolean |
+        | creationDate | DateTime |      
     displayName: sourceCodeGroupsSearch
     is:
       - SourceCodeGroupTraits.InvalidQuery
@@ -267,5 +262,5 @@ types:
       application/json:
         type: CommerceCloudStandards.SearchRequest
     securedBy:
-      - CommerceCloudStandards.BearerToken
+      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.source-codes ] }
       - CommerceCloudStandards.AmOAuth2
