@@ -26,10 +26,10 @@ describe("put tests", () => {
   before(() => {
     cacheManager = new CacheManagerKeyv();
     cacheManager.keyv = sinon.stub({
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      get: key => {},
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      set: (key, data) => {}
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      get: key => undefined,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      set: (key, data) => undefined
     });
   });
 

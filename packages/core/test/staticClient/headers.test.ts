@@ -17,10 +17,7 @@ before(() => {
   chai.use(chaiAsPromised);
 });
 
-import {
-  BaseClient,
-  USER_AGENT as USER_AGENT_STR
-} from "../../src/base/client";
+import { BaseClient } from "../../src/base/client";
 import { _get, _post } from "../../src/base/staticClient";
 
 // Common headers used in tests

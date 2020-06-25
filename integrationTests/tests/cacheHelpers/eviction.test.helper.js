@@ -25,7 +25,7 @@ module.exports = function() {
 
     it("cache manager caches asset on HTTP 200 response", function() {
       const client = this.client;
-      const scope = nock("https://somewhere")
+      nock("https://somewhere")
         .get("/validate-fresh")
         .reply(200, RESPONSE_DATA, { ETag: "etag" });
 
@@ -61,7 +61,7 @@ module.exports = function() {
 
     it("cache manager does not cache asset on no-store response header", function() {
       const client = this.client;
-      const scope = nock("https://somewhere")
+      nock("https://somewhere")
         .get("/validate-no-store")
         .reply(200, RESPONSE_DATA, { "Cache-Control": "no-store" });
 
