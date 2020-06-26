@@ -45,7 +45,6 @@ describe("Shop client integration GET tests", () => {
   });
 
   it("Returns object calling - GET with token and unknown query parameter", () => {
-    // eslint-disable-next-line @typescript-eslint/camelcase
     return client
       .getSite({
         // eslint-disable-next-line @typescript-eslint/camelcase

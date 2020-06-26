@@ -6,19 +6,13 @@
  */
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
+chai.use(chaiAsPromised);
 
 import fetch from "minipass-fetch";
 
 import sinon from "sinon";
 
 import { CacheManagerKeyv } from "../src/base/cacheManagerKeyv";
-
-const expect = chai.expect;
-
-before(() => {
-  chai.should();
-  chai.use(chaiAsPromised);
-});
 
 describe("TTL tests", () => {
   let cacheManager;
@@ -30,10 +24,10 @@ describe("TTL tests", () => {
   before(() => {
     cacheManager = new CacheManagerKeyv();
     cacheManager.keyv = sinon.stub({
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      get: key => {},
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      set: (key, data, expires) => {}
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      get: key => undefined,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      set: (key, data, expires) => undefined
     });
   });
 

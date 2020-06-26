@@ -5,7 +5,7 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 "use strict";
-import chai, { expect } from "chai";
+import { expect } from "chai";
 import { stripBearer } from "@commerce-apps/core";
 
 describe("TS: Auth Helper Strip Bearer", () => {

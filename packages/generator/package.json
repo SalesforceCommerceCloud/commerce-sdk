@@ -18,7 +18,8 @@
   ],
   "scripts": {
     "depcheck": "depcheck",
-    "lint": "eslint . --ext .ts --quiet --fix",
+    "lint": "npm run lint:dev -- --quiet",
+    "lint:dev": "eslint . --ext .ts --fix",
     "pretest": "npm run lint && npm run depcheck",
     "build": "npm run renderTemplates && tsc && eslint dist --ext .ts,.js --quiet --fix",
     "test": "nyc mocha \"test/**/*.test.ts\" --reporter=xunit --reporter-options output=../../reports/generator.xml",
@@ -90,6 +91,7 @@
       "ecmaVersion": 2018,
       "sourceType": "module"
     },
+    "reportUnusedDisableDirectives": true,
     "rules": {
       "@typescript-eslint/interface-name-prefix": [
         "error",
@@ -147,7 +149,8 @@
         "rules": {
           "@typescript-eslint/camelcase": "warn",
           "@typescript-eslint/ban-ts-ignore": "warn",
-          "@typescript-eslint/no-var-requires": "warn"
+          "@typescript-eslint/no-var-requires": "warn",
+          "@typescript-eslint/no-explicit-any": "off"
         }
       }
     ]

@@ -37,9 +37,12 @@ export function listRamlsFromConfig(configPath: string): string[] {
  * @param rightArr - The other array being compared
  *
  * @returns An array each for all the common, exclusive to left and exclusive to
- * right elements. 
+ * right elements.
  */
-function compareArrays<T>(leftArr: T[], rightArr: T[]): {
+function compareArrays<T>(
+  leftArr: T[],
+  rightArr: T[]
+): {
   leftOnly: T[];
   rightOnly: T[];
   common: T[];
@@ -69,6 +72,7 @@ function compareArrays<T>(leftArr: T[], rightArr: T[]): {
  * @param dir1 - One of the directories with raml files
  * @param dir2 - The other directory with raml files
  * @param commonRamls - List of all the ramls to be compared
+ * @returns An array of differences
  */
 async function diffCommonRamls(
   dir1: string,
@@ -121,10 +125,14 @@ export async function diffNewAndArchivedRamlFiles(
     ramls.common
   );
 
-  const removedRamls: RamlDiff[] = ramls.leftOnly
-    .map(r => ({ file: r, message: "This RAML has been removed" }));
-  const addedRamls: RamlDiff[] = ramls.rightOnly
-    .map(r => ({ file: r, message: "This RAML has been added recently" }));
+  const removedRamls: RamlDiff[] = ramls.leftOnly.map(r => ({
+    file: r,
+    message: "This RAML has been removed"
+  }));
+  const addedRamls: RamlDiff[] = ramls.rightOnly.map(r => ({
+    file: r,
+    message: "This RAML has been added recently"
+  }));
 
   return result.concat(removedRamls, addedRamls);
 }

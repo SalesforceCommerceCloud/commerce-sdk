@@ -142,7 +142,6 @@ export function sortApis(apis: IApiClientsInfo[][]): void {
 export function loadApiConfig(
   buildConfig: Pick<IBuildConfig, "apiConfigFile" | "inputDir">
 ): IApiConfig {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
   return require(path.resolve(buildConfig.inputDir, buildConfig.apiConfigFile));
 }
 
