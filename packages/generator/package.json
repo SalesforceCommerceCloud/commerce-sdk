@@ -24,6 +24,7 @@
     "build": "npm run renderTemplates && tsc && eslint dist --ext .ts,.js --quiet --fix",
     "test": "nyc mocha \"test/**/*.test.ts\" --reporter=xunit --reporter-options output=../../reports/generator.xml",
     "test:debug": "nyc mocha \"test/**/*.test.ts\"",
+    "doc": "typedoc --mode modules --out ../../docs renderedTemplates/** --tsconfig tsconfig.json --external-modulemap  \".*/renderedTemplates/([\\w\\-_]+)/\"",
     "clean:node": "rm -rf node_modules",
     "clean:all": "npm run clean:node",
     "renderOperationList": "gulp --gulpfile ./gulpfiles/renderTemplatesTask.ts renderOperationList",
@@ -189,7 +190,8 @@
   "dependencies": {
     "@commerce-apps/core": "^1.4.5-beta.0",
     "lodash": "^4.17.15",
-    "retry": "^0.12.0"
+    "retry": "^0.12.0",
+    "typedoc-plugin-external-module-map": "^1.2.1"
   },
   "snyk": true
 }
