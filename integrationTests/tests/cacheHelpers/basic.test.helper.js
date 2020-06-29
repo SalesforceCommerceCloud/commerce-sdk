@@ -8,7 +8,7 @@
 
 const chai = require("chai");
 const nock = require("nock");
-const { StaticClient, BaseClient } = require("../../../packages/core/dist");
+const { StaticClient, BaseClient } = require("@commerce-apps/core");
 
 /**
  * Basic tests for Salesforce Commerce SDK cache manager interface.
