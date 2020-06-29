@@ -17,12 +17,8 @@ before(() => {
   chai.use(chaiAsPromised);
 });
 
-import {
-  BaseClient,
-  USER_AGENT as USER_AGENT_STR
-} from "../../src/base/client";
-import { _get, _post, exportHeadersAsMap } from "../../src/base/staticClient";
-import { Headers } from "minipass-fetch";
+import { BaseClient } from "../../src/base/client";
+import { _get, _post } from "../../src/base/staticClient";
 
 // Common headers used in tests
 const CONNECTION_CLOSE = { connection: "close" };
@@ -257,32 +253,6 @@ describe("Base Client headers", () => {
         headers: { Authorization: "Changed" }
       });
       expect(nock.isDone()).to.be.true;
-    });
-  });
-
-  describe("getObjectFromResponse", () => {
-
-    it("should return a map of headers", () => {
-      const headersMap = {
-        authorization: "Bearer token",
-        connection: "close"
-      }
-      const headers = new Headers(headersMap);
-
-      expect(exportHeadersAsMap(headers)).to.deep.equal(headersMap);
-    });
-
-    it("should return a comma separated list if a header has multiple values", () => {
-      const headersMap = {
-        accept: "text/plain, text/html"
-      }
-      const headers: Headers = new Headers(headersMap);
-
-      expect(exportHeadersAsMap(headers)).to.deep.equal(headersMap);
-    });
-
-    it("should return an empty map if no headers are passed", () => {
-      expect(exportHeadersAsMap(new Headers())).to.deep.equal({});
     });
   });
 });

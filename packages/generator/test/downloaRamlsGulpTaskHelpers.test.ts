@@ -21,7 +21,7 @@ describe("diffNewAndArchivedRamlFiles", () => {
   let rightDir: string;
   let leftApiConfigFile: string;
   let rightApiConfigFile: string;
-  let apiConfig: any;
+  let apiConfig: Record<string, unknown>;
   let diffRamlStub: sinon.SinonStub;
 
   const API_CONFIG_FILE_NAME = "api-config.json";

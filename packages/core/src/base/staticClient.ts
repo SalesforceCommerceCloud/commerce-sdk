@@ -12,7 +12,7 @@ import fetchToCurl from "fetch-to-curl";
 import DefaultCache = require("make-fetch-happen/cache");
 export { DefaultCache, Response };
 
-import { Headers, HeadersIterator } from "minipass-fetch";
+import { Headers } from "minipass-fetch";
 
 import { Resource } from "./resource";
 import { BaseClient } from "./client";
@@ -94,30 +94,6 @@ export const logResponse = (response: Response): void => {
 };
 
 /**
- * Exports a minipass-fetch Headers object as a map.
- * 
- * minipass-fetch Headers class has a function to convert a Headers object into
- * a map. But that function creates an array of values for each header. 
- * `http-cache-semantics`, a package used by `make-fetch-happen` to manipulate
- * headers expects them to be comma separated strings.
- *
- * @param headers - a minipass-fetch Headers object
- *
- * @returns a map of headers
- */
-export function exportHeadersAsMap(headers: Headers) {
-  const res = {};
-  const keysIterator: HeadersIterator = headers.keys();
-  let key = keysIterator.next();
-  while (!key.done) {
-    res[key.value] = headers.get(key.value);
-    key = keysIterator.next();
-  }
-
-  return res;
-}
-
-/**
  * Makes an HTTP call specified by the method parameter with the options passed.
  *
  * @param method - Type of HTTP operation
@@ -183,7 +159,10 @@ async function runFetch(
   finalOptions = _.pickBy(finalOptions, _.identity);
 
   logFetch(resource, finalOptions);
-  finalOptions.headers = exportHeadersAsMap(finalOptions.headers);
+  // Convert Headers object into a regular object. `http-cache-semantics`, a 
+  // package used by `make-fetch-happen` to manipulate headers expects headers
+  // to be regular objects.
+  finalOptions.headers = _.fromPairs([...headers]);
   const response = await fetch(resource, finalOptions);
   logResponse(response);
 

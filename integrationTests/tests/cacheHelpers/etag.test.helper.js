@@ -138,7 +138,6 @@ module.exports = function() {
 
     it("sdk does not add if-modified-since header on cached content w/o Expires header", function() {
       const dateLastModified = new Date(new Date() - 10000000).toUTCString();
-      const dateExpires = new Date(new Date() + 10000000).toUTCString();
       const scope = nock("https://somewhere")
         .get("/missing-expires-header")
         .reply(

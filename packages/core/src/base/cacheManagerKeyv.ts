@@ -151,6 +151,7 @@ export class CacheManagerKeyv implements ICacheManager {
    *
    * @returns A valid cached response or undefined
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async match(req: fetch.Request, opts?: any): Promise<fetch.Response> {
     if (!req) {
       throw new Error("Valid request object required to match");
@@ -226,6 +227,7 @@ export class CacheManagerKeyv implements ICacheManager {
   async put(
     req: fetch.Request,
     response: fetch.Response,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     opts?: any
   ): Promise<fetch.Response> {
     opts = opts || {};
@@ -293,6 +295,7 @@ export class CacheManagerKeyv implements ICacheManager {
    *
    * @returns true is anything is present to delete, false otherwise
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
   async delete(req: fetch.Request, opts?: any): Promise<boolean> {
     if (!req) {
       throw new Error("Valid request object required to delete");
