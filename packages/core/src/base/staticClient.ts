@@ -159,6 +159,10 @@ async function runFetch(
   finalOptions = _.pickBy(finalOptions, _.identity);
 
   logFetch(resource, finalOptions);
+  // Convert Headers object into a regular object. `http-cache-semantics`, a 
+  // package used by `make-fetch-happen` to manipulate headers expects headers
+  // to be regular objects.
+  finalOptions.headers = _.fromPairs([...headers]);
   const response = await fetch(resource, finalOptions);
   logResponse(response);
 
