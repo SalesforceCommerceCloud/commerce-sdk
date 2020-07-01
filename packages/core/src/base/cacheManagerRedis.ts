@@ -8,6 +8,7 @@
 
 import Redis from "ioredis";
 import KeyvRedis from "@keyv/redis";
+import Keyv from "keyv";
 
 import { CacheManagerKeyv } from "./cacheManagerKeyv";
 
@@ -17,12 +18,12 @@ import { CacheManagerKeyv } from "./cacheManagerKeyv";
  * docs: https://developer.mozilla.org/en-US/docs/Web/API/Cache
  * https://www.npmjs.com/package/keyv
  */
-export class CacheManagerRedis extends CacheManagerKeyv {
+export class CacheManagerRedis<T> extends CacheManagerKeyv<T> {
   constructor(options?: {
     connection?: string;
-    keyvOptions?: {};
-    keyvStore?: {};
-    clusterConfig?: {};
+    keyvOptions?: Keyv.Options<T>;
+    keyvStore?: Keyv.Store<T>;
+    clusterConfig?: Redis.ClusterNode[];
   }) {
     if (options?.clusterConfig) {
       // TODO: Remove workaround when cluster support is added (hopefully soon):
