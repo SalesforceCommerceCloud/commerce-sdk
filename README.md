@@ -79,4 +79,3 @@ If you would like to contribute please take a look at our [contributors' guide](
 <!-- Markdown link & img dfn's -->
 [circleci-image]: https://circleci.com/gh/SalesforceCommerceCloud/commerce-sdk.svg?style=svg&circle-token=c68cee5cb20ee75f00cbda1b0eec5b5484c58b2a
 [circleci-url]: https://circleci.com/gh/SalesforceCommerceCloud/commerce-sdk
-
