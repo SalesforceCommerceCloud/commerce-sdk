@@ -190,109 +190,113 @@ helpers.getShopperToken(config, { <span class="hljs-attr">type</span>: <span cla
 				​</p>
 				<p><img src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/packages/generator/images/MethodDetails.jpg?raw=true" alt="Method Details" title="Method Details"></p>
 				<p><img src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/packages/generator/images/ParameterDetails.jpg?raw=true" alt="Parameter Details" title="Parameter Details"></p>
-				<p>Autocomplete will also show the available properties of the data returned by SDK methods.</p>
+				<p>Autocomplete also shows the available properties of the data returned by SDK methods.</p>
 				<p><img src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/packages/generator/images/ResultAutocomplete.jpg?raw=true" alt="Result Autocomplete" title="Result Autocomplete"></p>
 				<a href="#caching" id="caching" style="color: inherit; text-decoration: none;">
 					<h2>Caching</h2>
 				</a>
-				<p>The SDK currently supports two types of caches - In-memory and Redis. Both the implementations respect <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control">standard cache headers</a>. If you would like to use another type of cache, you can write your own implementation of the <a href="../core/src/base/cacheManager.ts">CacheManager</a>. You can refer to this <a href="../core/src/base/cacheManagerKeyv.ts">default cache manager</a> when designing your implementation.  </p>
+				<p>The SDK currently supports two types of caches - In-memory and Redis. Both the implementations respect <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control">standard cache headers</a>. To use another type of cache, write your own implementation of the <a href="../core/src/base/cacheManager.ts">CacheManager</a>. See the <a href="../core/src/base/cacheManagerKeyv.ts">default cache manager</a> to design your implementation.</p>
 				<a href="#cache-storage-adapter" id="cache-storage-adapter" style="color: inherit; text-decoration: none;">
 					<h3>Cache storage adapter</h3>
 				</a>
-				<p>The default cache storage limits to 10,000 distinct entities before applying a simple <a href="https://en.m.wikipedia.org/wiki/Cache_replacement_policies#Least_Recently_Used_.28LRU.29">least recently used</a> policy for cache replacement. You can change the limit by creating a <a href="https://www.npmjs.com/package/quick-lru">quick-lru</a> storage adapter.</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { CacheManagerKeyv } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@commerce-apps/core&quot;</span>;
-<span class="hljs-keyword">import</span> { QuickLRU } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;quick-lru&quot;</span>;
+				<p>The default cache storage limits to 10,000 distinct entities before applying a simple <a href="https://en.m.wikipedia.org/wiki/Cache_replacement_policies#Least_Recently_Used_.28LRU.29">least recently used</a> policy for cache replacement. The limit can be changed by creating a <a href="https://www.npmjs.com/package/quick-lru">quick-lru</a> storage adapter.</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { CacheManagerKeyv } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@commerce-apps/core&#x27;</span>;
+<span class="hljs-keyword">import</span> { QuickLRU } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;quick-lru&#x27;</span>;
 
-<span class="hljs-keyword">const</span> cacheManagerKeyv = <span class="hljs-keyword">new</span> CacheManagerKeyv({ <span class="hljs-attr">keyvStore</span>: <span class="hljs-keyword">new</span> QuickLRU({ <span class="hljs-attr">maxSize</span>: <span class="hljs-number">50000</span> })});
+<span class="hljs-keyword">const</span> cacheManagerKeyv = <span class="hljs-keyword">new</span> CacheManagerKeyv({
+  <span class="hljs-attr">keyvStore</span>: <span class="hljs-keyword">new</span> QuickLRU({ <span class="hljs-attr">maxSize</span>: <span class="hljs-number">50000</span> }),
+});
 <span class="hljs-keyword">const</span> config = {
-     <span class="hljs-attr">cacheManager</span>: cacheManagerKeyv,
-     <span class="hljs-attr">parameters</span>: {
-         <span class="hljs-attr">clientId</span>: <span class="hljs-string">&quot;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&quot;</span>,
-         <span class="hljs-attr">organizationId</span>: <span class="hljs-string">&quot;f_ecom_bblx_stg&quot;</span>,
-         <span class="hljs-attr">shortCode</span>: <span class="hljs-string">&quot;0dnz6oep&quot;</span>,
-         <span class="hljs-attr">siteId</span>: <span class="hljs-string">&quot;RefArch&quot;</span>
-     }
- }</code></pre>
-				<p>Refer to these <a href="https://www.npmjs.com/package/keyv#third-party-storage-adapters">directions</a> to create your own cache storage adapter.</p>
+  <span class="hljs-attr">cacheManager</span>: cacheManagerKeyv,
+  <span class="hljs-attr">parameters</span>: {
+    <span class="hljs-attr">clientId</span>: <span class="hljs-string">&#x27;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&#x27;</span>,
+    <span class="hljs-attr">organizationId</span>: <span class="hljs-string">&#x27;f_ecom_bblx_stg&#x27;</span>,
+    <span class="hljs-attr">shortCode</span>: <span class="hljs-string">&#x27;0dnz6oep&#x27;</span>,
+    <span class="hljs-attr">siteId</span>: <span class="hljs-string">&#x27;RefArch&#x27;</span>,
+  },
+};</code></pre>
+				<p>See these <a href="https://www.npmjs.com/package/keyv#third-party-storage-adapters">directions</a> to create a cache storage adapter.</p>
 				<a href="#in-memory-cache" id="in-memory-cache" style="color: inherit; text-decoration: none;">
 					<h3>In-memory cache</h3>
 				</a>
 				<p>In-memory caching of responses is enabled by default. To disable caching for a client, set cacheManager to &#39;null&#39;.</p>
 				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> config = {
-    <span class="hljs-attr">cacheManager</span>: <span class="hljs-literal">null</span>,
-    <span class="hljs-attr">parameters</span>: {
-        <span class="hljs-attr">clientId</span>: <span class="hljs-string">&quot;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&quot;</span>,
-        <span class="hljs-attr">organizationId</span>: <span class="hljs-string">&quot;f_ecom_bblx_stg&quot;</span>,
-        <span class="hljs-attr">shortCode</span>: <span class="hljs-string">&quot;0dnz6oep&quot;</span>,
-        <span class="hljs-attr">siteId</span>: <span class="hljs-string">&quot;RefArch&quot;</span>
-    }
-}</code></pre>
+  <span class="hljs-attr">cacheManager</span>: <span class="hljs-literal">null</span>,
+  <span class="hljs-attr">parameters</span>: {
+    <span class="hljs-attr">clientId</span>: <span class="hljs-string">&#x27;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&#x27;</span>,
+    <span class="hljs-attr">organizationId</span>: <span class="hljs-string">&#x27;f_ecom_bblx_stg&#x27;</span>,
+    <span class="hljs-attr">shortCode</span>: <span class="hljs-string">&#x27;0dnz6oep&#x27;</span>,
+    <span class="hljs-attr">siteId</span>: <span class="hljs-string">&#x27;RefArch&#x27;</span>,
+  },
+};</code></pre>
 				<a href="#redis-cache" id="redis-cache" style="color: inherit; text-decoration: none;">
 					<h3>Redis cache</h3>
 				</a>
-				<p>To use a Redis cache, instantiate a CacheManagerRedis object with your Redis URL and put it in your client config object.</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { CacheManagerRedis } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@commerce-apps/core&quot;</span>
+				<p>To use a Redis cache, instantiate a CacheManagerRedis object with your Redis URL and add it to your client config object.</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { CacheManagerRedis } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@commerce-apps/core&#x27;</span>;
 
-<span class="hljs-keyword">const</span> cacheManager = <span class="hljs-keyword">new</span> CacheManagerRedis({ <span class="hljs-attr">connection</span>: <span class="hljs-string">&quot;redis://localhost:6379&quot;</span> });
+<span class="hljs-keyword">const</span> cacheManager = <span class="hljs-keyword">new</span> CacheManagerRedis({
+  <span class="hljs-attr">connection</span>: <span class="hljs-string">&#x27;redis://localhost:6379&#x27;</span>,
+});
 <span class="hljs-keyword">const</span> config = {
-    <span class="hljs-attr">cacheManager</span>: cacheManager,
-    <span class="hljs-attr">parameters</span>: {
-        <span class="hljs-attr">clientId</span>: <span class="hljs-string">&quot;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&quot;</span>,
-        <span class="hljs-attr">organizationId</span>: <span class="hljs-string">&quot;f_ecom_bblx_stg&quot;</span>,
-        <span class="hljs-attr">shortCode</span>: <span class="hljs-string">&quot;0dnz6oep&quot;</span>,
-        <span class="hljs-attr">siteId</span>: <span class="hljs-string">&quot;RefArch&quot;</span>
-    }
-}</code></pre>
+  <span class="hljs-attr">cacheManager</span>: cacheManager,
+  <span class="hljs-attr">parameters</span>: {
+    <span class="hljs-attr">clientId</span>: <span class="hljs-string">&#x27;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&#x27;</span>,
+    <span class="hljs-attr">organizationId</span>: <span class="hljs-string">&#x27;f_ecom_bblx_stg&#x27;</span>,
+    <span class="hljs-attr">shortCode</span>: <span class="hljs-string">&#x27;0dnz6oep&#x27;</span>,
+    <span class="hljs-attr">siteId</span>: <span class="hljs-string">&#x27;RefArch&#x27;</span>,
+  },
+};</code></pre>
 				<a href="#memory-management" id="memory-management" style="color: inherit; text-decoration: none;">
 					<h4>Memory management</h4>
 				</a>
-				<p>When the specified amount of memory is reached, Redis can be configured to apply an eviction policy. Refer to <a href="https://redis.io/topics/lru-cache/">this article</a> to setup Redis as an LRU cache and to learn more about supported eviction policies. </p>
+				<p>Redis can be configured to apply an eviction policy when the specified memory limit is reached. See <a href="https://redis.io/topics/lru-cache/">this article</a> to set up Redis as an LRU cache and to learn more about supported eviction policies.</p>
 				<a href="#retry-policies" id="retry-policies" style="color: inherit; text-decoration: none;">
 					<h2>Retry Policies</h2>
 				</a>
-				<p>We are utilizing the node-retry package to facilitate request retries.  The retry type definition looks as follows as taken from the node-retry package.</p>
+				<p>Use the node-retry package to facilitate request retries. The following retry type definition is taken from the node-retry package.</p>
 				<pre><code class="language-typescript"><span class="hljs-keyword">type</span> RetrySettings = {
-    <span class="hljs-comment">/**
-     * Whether to retry forever.
-     * @default false
-     */</span>
-    forever?: <span class="hljs-built_in">boolean</span>;
-    <span class="hljs-comment">/**
-     * Whether to [unref](https://nodejs.org/api/timers.html#timers_unref) the setTimeout&#x27;s.
-     * @default false
-     */</span>
-    unref?: <span class="hljs-built_in">boolean</span>;
-    <span class="hljs-comment">/**
-     * The maximum time (in milliseconds) that the retried operation is allowed to run.
-     * @default Infinity
-     */</span>
-    maxRetryTime?: <span class="hljs-built_in">number</span>;
-    <span class="hljs-comment">/**
-     * The maximum amount of times to retry the operation.
-     * @default 10
-     */</span>
-    retries?: <span class="hljs-built_in">number</span>;
-        <span class="hljs-comment">/**
-     * The exponential factor to use.
-     * @default 2
-     */</span>
-    factor?: <span class="hljs-built_in">number</span>;
-    <span class="hljs-comment">/**
-     * The number of milliseconds before starting the first retry.
-     * @default 1000
-     */</span>
-    minTimeout?: <span class="hljs-built_in">number</span>;
-    <span class="hljs-comment">/**
-     * The maximum number of milliseconds between two retries.
-     * @default Infinity
-     */</span>
-    maxTimeout?: <span class="hljs-built_in">number</span>;
-    <span class="hljs-comment">/**
-     * Randomizes the timeouts by multiplying a factor between 1-2.
-     * @default false
-     */</span>
-    randomize?: <span class="hljs-built_in">boolean</span>;
-}</code></pre>
+  <span class="hljs-comment">/**
+   * Whether to retry forever.
+   * @default false
+   */</span>
+  forever?: <span class="hljs-built_in">boolean</span>;
+  <span class="hljs-comment">/**
+   * Whether to [unref](https://nodejs.org/api/timers.html#timers_unref) the setTimeout&#x27;s.
+   * @default false
+   */</span>
+  unref?: <span class="hljs-built_in">boolean</span>;
+  <span class="hljs-comment">/**
+   * The maximum time (in milliseconds) that the retried operation is allowed to run.
+   * @default Infinity
+   */</span>
+  maxRetryTime?: <span class="hljs-built_in">number</span>;
+  <span class="hljs-comment">/**
+   * The maximum amount of times to retry the operation.
+   * @default 10
+   */</span>
+  retries?: <span class="hljs-built_in">number</span>;
+  <span class="hljs-comment">/**
+   * The exponential factor to use.
+   * @default 2
+   */</span>
+  factor?: <span class="hljs-built_in">number</span>;
+  <span class="hljs-comment">/**
+   * The number of milliseconds before starting the first retry.
+   * @default 1000
+   */</span>
+  minTimeout?: <span class="hljs-built_in">number</span>;
+  <span class="hljs-comment">/**
+   * The maximum number of milliseconds between two retries.
+   * @default Infinity
+   */</span>
+  maxTimeout?: <span class="hljs-built_in">number</span>;
+  <span class="hljs-comment">/**
+   * Randomizes the timeouts by multiplying a factor between 1-2.
+   * @default false
+   */</span>
+  randomize?: <span class="hljs-built_in">boolean</span>;
+};</code></pre>
 				<p>All of these options can either be set on a per client or per request basis.</p>
 				<p>Example:</p>
 				<pre><code class="language-javascript">
@@ -315,22 +319,25 @@ helpers.getShopperToken(config, { <span class="hljs-attr">type</span>: <span cla
 				</a>
 				<p>Default log level of the SDK is WARN (warning). SDK uses <a href="https://www.npmjs.com/package/loglevel">loglevel</a> npm package. All the log levels supported by <a href="https://www.npmjs.com/package/loglevel">loglevel</a> package are supported in SDK.</p>
 				<p>To change the loglevel, set the desired level on the SDK logger.</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { sdkLogger } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { sdkLogger } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;commerce-sdk&#x27;</span>;
 
 sdkLogger.setLevel(sdkLogger.levels.INFO);</code></pre>
-				<p>INFO level logging will enable brief request and response logging.
-				DEBUG level logging will enable logging of </p>
+				<p>INFO level logging enables:</p>
+				<ul>
+					<li>brief request and response logging</li>
+				</ul>
+				<p>DEBUG level logging enables logging of:</p>
 				<ul>
 					<li>fetch options</li>
 					<li>curl command of the request</li>
 					<li>response (response body is not included)</li>
 					<li>cache operations</li>
 				</ul>
-				<p><strong>Note:</strong> Debug level logging may expose sensitive data in the logs </p>
+				<p><strong>Note:</strong> Debug level logging may expose sensitive data in the logs</p>
 				<a href="#additional-documentation" id="additional-documentation" style="color: inherit; text-decoration: none;">
 					<h2>Additional Documentation</h2>
 				</a>
-				<p><a href="./APICLIENTS.md">API Documentation</a><br><a href="./CHANGELOG.md">Changelog</a></p>
+				<p><a href="./APICLIENTS.md">Included APIs</a><br><a href="./CHANGELOG.md">Changelog</a></p>
 				<a href="#license-information" id="license-information" style="color: inherit; text-decoration: none;">
 					<h2>License Information</h2>
 				</a>
@@ -402,6 +409,5 @@ sdkLogger.setLevel(sdkLogger.levels.INFO);</code></pre>
 </div>
 <div class="overlay"></div>
 <script src="assets/js/main.js"></script>
-<script>if (location.protocol == 'file:') document.write('<script src="assets/js/search.js"><' + '/script>');</script>
 </body>
 </html>
