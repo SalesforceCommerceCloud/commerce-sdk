@@ -123,14 +123,14 @@ const matchDetails = (req: fetch.Request, cached: fetch.Request): boolean => {
  * docs: https://developer.mozilla.org/en-US/docs/Web/API/Cache
  * https://www.npmjs.com/package/keyv
  */
-export class CacheManagerKeyv implements ICacheManager {
+export class CacheManagerKeyv<T> implements ICacheManager {
   public keyv;
   public uncacheableRequestHeaders: string[] = ["authorization"];
 
   constructor(options?: {
     connection?: string;
-    keyvOptions?: {};
-    keyvStore?: {};
+    keyvOptions?: Keyv.Options<T>;
+    keyvStore?: Keyv.Store<T>;
   }) {
     if (options?.keyvStore) {
       this.keyv = new Keyv({ store: options.keyvStore });
