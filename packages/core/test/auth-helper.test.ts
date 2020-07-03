@@ -9,7 +9,7 @@ import { ShopperToken, stripBearer } from "../src/base/authHelper";
 import { expect, default as chai } from "chai";
 import chaiAsPromised from "chai-as-promised";
 
-import { CustomerT } from "../../generator/dist/customer/shopperCustomers/shopperCustomers.types";
+import { Customer } from "../../generator/dist/customer/shopperCustomers/shopperCustomers.types";
 
 before(() => {
   chai.should();
@@ -31,7 +31,7 @@ describe("Test stripBearer", () => {
 });
 
 describe("Test ShopperToken", () => {
-  const customerInfo: CustomerT = {
+  const customerInfo: Customer = {
     authType: "guest",
     customerId: "abZwdk8kyKbrPEVkbesCW0lW5M",
     preferredLocale: "en_US"
