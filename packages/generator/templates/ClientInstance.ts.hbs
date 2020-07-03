@@ -1,15 +1,9 @@
-
+/* eslint-disable */
 import { StaticClient, BaseClient, ClientConfig, Response, ResponseError } from "@commerce-apps/core";
 import _ from "lodash";
 import { OperationOptions } from "retry";
 
-import {
-{{#each dataTypes}}
-    {{#if (isTypeDefinition .)}}
-        {{getValue name}}T,
-    {{/if}}
-{{/each}}
-} from "./{{apiSpec}}.types";
+import * as types from "./{{apiSpec}}.types";
 
 /**
 * Instantiate a Client object with desired ClientConfig to perform operations
@@ -21,26 +15,26 @@ import {
 * operations it is used to perform.
 */
 class {{capitalize apiSpec}} extends BaseClient {
-  constructor(config: ClientConfig) {
-    super(config);
+constructor(config: ClientConfig) {
+super(config);
 
-    if (!!!config.baseUri) {
-      this.clientConfig.baseUri = "{{getBaseUri apiModel}}";
-    }
+if (!!!config.baseUri) {
+this.clientConfig.baseUri = "{{getBaseUri apiModel}}";
+}
 
-  }
+}
 
-  {{> operationsPartial model=apiModel }}
+{{> operationsPartial model=apiModel }}
 
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 declare module {{capitalize apiSpec}} {
-  {{#each dataTypes}}
-      {{#if (isTypeDefinition .)}}
-         export type {{getValue name}}={{getValue name}}T
-      {{/if}}
-  {{/each}}
+{{#each dataTypes}}
+{{#if (isTypeDefinition .)}}
+export type {{getValue name}}=types.{{getValue name}}
+{{/if}}
+{{/each}}
 }
 
 export = {{capitalize apiSpec}}

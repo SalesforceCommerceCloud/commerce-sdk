@@ -4,19 +4,19 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import { model } from "@commerce-apps/raml-toolkit";
+import { model } from '@commerce-apps/raml-toolkit';
 
-import { commonParameterPositions } from "@commerce-apps/core";
+import { commonParameterPositions } from '@commerce-apps/core';
 
-import _ from "lodash";
+import _ from 'lodash';
 
 import {
   PRIMITIVE_DATA_TYPE_MAP,
   DEFAULT_DATA_TYPE,
   OBJECT_DATA_TYPE,
   ARRAY_DATA_TYPE,
-  ASSET_OBJECT_MAP
-} from "./config";
+  ASSET_OBJECT_MAP,
+} from './config';
 
 /**
  * Selects the baseUri from an AMF model. TypeScript will not allow access to
@@ -30,7 +30,7 @@ export const getBaseUri = function(
 ): string {
   return property && property.encodes
     ? (property.encodes as model.domain.WebApi).servers[0].url.value()
-    : "";
+    : '';
 };
 
 /**
@@ -67,7 +67,7 @@ export const isCommonQueryParameter = (property: string): boolean =>
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isTypeDefinition = function(obj: any): boolean {
   return (
-    obj != null && obj.$classData.name === "amf.client.model.domain.NodeShape"
+    obj != null && obj.$classData.name === 'amf.client.model.domain.NodeShape'
   );
 };
 
@@ -76,7 +76,7 @@ const getPayloadResponses = function(
 ): model.domain.Response[] {
   const okResponses = [];
   for (const res of operation.responses) {
-    if (res.statusCode.nonEmpty && res.statusCode.value().startsWith("2")) {
+    if (res.statusCode.nonEmpty && res.statusCode.value().startsWith('2')) {
       okResponses.push(res);
     }
   }
@@ -90,17 +90,17 @@ const getPayloadResponses = function(
  * @returns string representation of the datatypes in the payload
  */
 export function extractTypeFromPayload(payload: model.domain.Payload): string {
-  if (payload.schema.name.value() === "schema") {
-    return "Object";
+  if (payload.schema.name.value() === 'schema') {
+    return 'Object';
   }
   if ((payload.schema as model.domain.UnionShape).anyOf !== undefined) {
     const union: string[] = [];
-    (payload.schema as model.domain.UnionShape).anyOf.forEach(element => {
-      union.push(element.name.value() + "T");
+    (payload.schema as model.domain.UnionShape).anyOf.forEach((element) => {
+      union.push(`types.${element.name.value()}`);
     });
-    return union.join(" | ");
+    return union.join(' | ');
   }
-  return payload.schema.name.value() + "T";
+  return `types.${payload.schema.name.value()}`;
 }
 
 /**
@@ -116,19 +116,19 @@ export const getReturnPayloadType = function(
   const okResponses = getPayloadResponses(operation);
   const dataTypes: string[] = [];
 
-  okResponses.forEach(res => {
+  okResponses.forEach((res) => {
     if (res.payloads.length > 0) {
       dataTypes.push(extractTypeFromPayload(res.payloads[0]));
     } else {
-      dataTypes.push("void");
+      dataTypes.push('void');
     }
   });
 
   if (okResponses.length === 0) {
-    dataTypes.push("void");
+    dataTypes.push('void');
   }
 
-  return dataTypes.join(" | ");
+  return dataTypes.join(' | ');
 };
 
 const getDataTypeFromMap = function(uuidDataType: string): string {
@@ -180,9 +180,9 @@ const getArrayType = function(arrayShape: model.domain.ArrayShape): string {
     if (arrayShape.inherits != null && arrayShape.inherits.length > 0)
       arrItem = (arrayShape.inherits[0] as model.domain.ArrayShape).items;
   }
-  return ARRAY_DATA_TYPE.concat("<")
+  return ARRAY_DATA_TYPE.concat('<')
     .concat(getDataType(arrItem))
-    .concat(">");
+    .concat('>');
 };
 
 /**
@@ -220,7 +220,7 @@ const getLinkedType = function(anyShape: model.domain.AnyShape): string {
   ) {
     const temp = linkedType.name.value();
     if (temp != null) {
-      dataType = temp + "T";
+      dataType = temp;
     }
   }
   return dataType;
@@ -305,10 +305,10 @@ const getPayloadType = function(schema: model.domain.Shape): string {
   if (name == null) {
     return OBJECT_DATA_TYPE;
   }
-  if (name === "schema") {
+  if (name === 'schema') {
     return OBJECT_DATA_TYPE;
   } else {
-    return name + "T";
+    return `types.${name}`;
   }
 };
 
@@ -328,9 +328,9 @@ export const getRequestPayloadType = function(
   ) {
     const payloadSchema: model.domain.Shape = request.payloads[0].schema;
     if (payloadSchema instanceof model.domain.ArrayShape) {
-      return ARRAY_DATA_TYPE.concat("<")
+      return ARRAY_DATA_TYPE.concat('<')
         .concat(getPayloadType(payloadSchema.items))
-        .concat(">");
+        .concat('>');
     }
     return getPayloadType(payloadSchema);
   }
@@ -346,7 +346,7 @@ export const getRequestPayloadType = function(
  */
 export const getValue = function<T>(name: model.ValueField<T>): string {
   let value;
-  if (typeof name?.value === "function") {
+  if (typeof name?.value === 'function') {
     value = name.value();
   }
   return value == null ? null : `${value}`;
@@ -370,7 +370,7 @@ const getFilteredProperties = function(
 
   while (dtoTypeModel != null) {
     if (dtoTypeModel.properties != null && dtoTypeModel.properties.length > 0) {
-      dtoTypeModel.properties.forEach(prop => {
+      dtoTypeModel.properties.forEach((prop) => {
         if (prop != null) {
           const propName = getValue(prop.name);
           //ignore duplicate props
@@ -412,7 +412,7 @@ const getFilteredProperties = function(
 export const getProperties = function(
   dtoTypeModel: model.domain.NodeShape | undefined | null
 ): model.domain.PropertyShape[] {
-  return getFilteredProperties(dtoTypeModel, propertyName => {
+  return getFilteredProperties(dtoTypeModel, (propertyName) => {
     return !/^([/^]).*.$/.test(propertyName);
   });
 };
@@ -486,7 +486,7 @@ export type NamedObject = { name: { value: () => string } };
  * @returns the converted name as a string
  */
 export const getName = function(obj: NamedObject): string {
-  return obj?.name?.value?.() || "";
+  return obj?.name?.value?.() || '';
 };
 
 /**
@@ -523,13 +523,13 @@ export const formatForTsDoc = function(str: string): string {
   // Brackets are special to TSDoc and less than / greater than are interpreted as HTML
   const symbolsEscaped = str
     .toString()
-    .replace(/([^\\])(["{}<>]+)/g, m => Array.from(m).join("\\"));
+    .replace(/([^\\])(["{}<>]+)/g, (m) => Array.from(m).join('\\'));
   // Double escaped newlines are replaced with real newlines
-  const newlinesUnescaped = symbolsEscaped.replace(/\\n/g, "\n");
+  const newlinesUnescaped = symbolsEscaped.replace(/\\n/g, '\n');
   // Double escaped tabs are replaced with a single space
-  const tabsUnescaped = newlinesUnescaped.replace(/(\\t)+/g, " ");
+  const tabsUnescaped = newlinesUnescaped.replace(/(\\t)+/g, ' ');
   // Collapse leading whitespace of 4 or more to avoid triggering code block formatting
-  const collapsedLeadingWhitespace = tabsUnescaped.replace(/\n {4,}/g, "\n   ");
+  const collapsedLeadingWhitespace = tabsUnescaped.replace(/\n {4,}/g, '\n   ');
 
   return collapsedLeadingWhitespace;
 };

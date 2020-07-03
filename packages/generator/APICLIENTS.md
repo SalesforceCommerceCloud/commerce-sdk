@@ -144,7 +144,7 @@ const config: ClientConfig = { /* ... */ };
 const campaignsClient = new Pricing.Campaigns(config);
 ```
 
-**Mule App Version:** 1.0.16
+**Mule App Version:** 1.0.17
 
 ### [Coupons](https://developer.commercecloud.com/s/api-details/a003k00000UHvopAAD)
 
@@ -318,23 +318,23 @@ const config: ClientConfig = { /* ... */ };
 const shopperSearchClient = new Search.ShopperSearch(config);
 ```
 
-**Mule App Version:** 1.0.21
+**Mule App Version:** 1.0.22
 
-## Seller
+## unclassified
 
-### [Shopper Stores](https://developer.commercecloud.com/s/api-details/a003k00000UHwuPAAT)
+### [Shopper Login](https://developer.commercecloud.com/s/api-details/)
 
-*Search for a specific store or stores in an area.*
+*Enable shopper log in with any social IDP and API access to Shopper APIs*
 
 To instantiate a client:
 
 ```typescript
-import { Seller, ClientConfig } from "commerce-sdk";
+import { Unclassified, ClientConfig } from "commerce-sdk";
 // or
-const { Seller, ClientConfig } = require("commerce-sdk");
+const { Unclassified, ClientConfig } = require("commerce-sdk");
 
 const config: ClientConfig = { /* ... */ };
-const shopperStoresClient = new Seller.ShopperStores(config);
+const shopperLoginApiAuthNSlasClient = new Unclassified.ShopperLoginApiAuthNSlas(config);
 ```
 
-**Mule App Version:** 1.0.6
+**Mule App Version:** 1.0.14
