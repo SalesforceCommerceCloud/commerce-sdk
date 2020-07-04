@@ -189,13 +189,15 @@ export async function getApiModelTuples(
  */
 function createClient(
   webApiModel: model.document.BaseUnitWithDeclaresModel,
-  apiName: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  apiMetadata: { [key: string]: any }
 ): string {
+  console.log(apiMetadata);
   return clientInstanceTemplate(
     {
       dataTypes: getAllDataTypes(webApiModel),
       apiModel: webApiModel,
-      apiSpec: apiName
+      apiMetadata: apiMetadata
     },
     {
       allowProtoPropertiesByDefault: true,
@@ -270,21 +272,24 @@ function createApiFamily(apiNames: string[]): string {
  * @returns The name of the API
  */
 function renderApi(apiModel: DocumentWithMetadataT, renderDir: string): string {
-  const apiName: string = getApiName(apiModel.document);
-  const apiPath: string = path.join(renderDir, apiName);
-  fs.ensureDirSync(apiPath);
+  apiModel.metadata.specName = getApiName(apiModel.document);
+  apiModel.metadata.apiPath = path.join(renderDir, apiModel.metadata.specName);
+  fs.ensureDirSync(apiModel.metadata.apiPath);
 
   fs.writeFileSync(
-    path.join(apiPath, `${apiName}.types.ts`),
+    path.join(
+      apiModel.metadata.apiPath,
+      `${apiModel.metadata.specName}.types.ts`
+    ),
     createDto(apiModel.document)
   );
   // Resolve model for the end points using the 'editing' pipeline will retain the declarations in the model
   const apiModelForEndPoints = resolveApiModel(apiModel.document, "editing");
   fs.writeFileSync(
-    path.join(apiPath, `${apiName}.ts`),
-    createClient(apiModelForEndPoints, apiName)
+    path.join(apiModel.metadata.apiPath, `${apiModel.metadata.specName}.ts`),
+    createClient(apiModelForEndPoints, apiModel.metadata)
   );
-  return apiName;
+  return apiModel.metadata.specName;
 }
 
 /**

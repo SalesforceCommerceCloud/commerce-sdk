@@ -9,18 +9,29 @@ import {
         {{getValue name}}T,
     {{/if}}
 {{/each}}
-} from "./{{apiSpec}}.types";
+} from "./{{apiMetadata.specName}}.types";
 
 /**
 * Instantiate a Client object with desired ClientConfig to perform operations
-* available in this API client.
+* available in this API client
+* 
+* To instantiate a client:
 *
+* ```typescript
+*   import { {{{pascalcase group}}}, ClientConfig } from "commerce-sdk";
+*   // or
+*   const { {{{pascalcase group}}}, ClientConfig } = require("commerce-sdk");
+*
+*   const config: ClientConfig = { ... };
+*   const {{apiMetadata.specName}}Client = new {{{pascalcase group}}}.{{capitalize apiMetadata.specName}}(config);
+* ```
+* 
 * Note: When performing operations that require ShopperJWT authentication, an
 * Authorization header containing a JWT can be added to the headers field of the
 * ClientConfig object. The Client will use that Authorization header for all the
 * operations it is used to perform.
 */
-class {{capitalize apiSpec}} extends BaseClient {
+class {{capitalize apiMetadata.specName}} extends BaseClient {
   constructor(config: ClientConfig) {
     super(config);
 
@@ -35,7 +46,7 @@ class {{capitalize apiSpec}} extends BaseClient {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
-declare module {{capitalize apiSpec}} {
+declare module {{capitalize apiMetadata.specName}} {
   {{#each dataTypes}}
       {{#if (isTypeDefinition .)}}
          export type {{getValue name}}={{getValue name}}T
@@ -43,4 +54,4 @@ declare module {{capitalize apiSpec}} {
   {{/each}}
 }
 
-export = {{capitalize apiSpec}}
+export = {{capitalize apiMetadata.specName}}
