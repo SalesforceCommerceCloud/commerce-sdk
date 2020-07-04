@@ -9,21 +9,23 @@ import {
         {{getValue name}}T,
     {{/if}}
 {{/each}}
-} from "./{{apiMetadata.specName}}.types";
+} from "./{{metadata.specName}}.types";
 
 /**
-* Instantiate a Client object with desired ClientConfig to perform operations
-* available in this API client
+* API: [{{{metadata.name}}}](https://developer.commercecloud.com/s/api-details/{{{getObjectIdByAssetId metadata.assetId}}})
+* API Version: {{metadata.version}}
+* Description: {{metadata.description}}
+* Last Updated: {{metadata.updatedDate}}
 * 
-* To instantiate a client:
+* Usage:
 *
 * ```typescript
-*   import { {{{pascalcase group}}}, ClientConfig } from "commerce-sdk";
+*   import { {{pascalcase metadata.categories.[CC API Family].[0]}}, ClientConfig } from "commerce-sdk";
 *   // or
-*   const { {{{pascalcase group}}}, ClientConfig } = require("commerce-sdk");
+*   const { {{pascalcase metadata.categories.[CC API Family].[0]}}, ClientConfig } = require("commerce-sdk");
 *
 *   const config: ClientConfig = { ... };
-*   const {{apiMetadata.specName}}Client = new {{{pascalcase group}}}.{{capitalize apiMetadata.specName}}(config);
+*   const {{metadata.specName}}Client = new {{pascalcase metadata.categories.[CC API Family].[0]}}.{{capitalize metadata.specName}}(config);
 * ```
 * 
 * Note: When performing operations that require ShopperJWT authentication, an
@@ -31,7 +33,7 @@ import {
 * ClientConfig object. The Client will use that Authorization header for all the
 * operations it is used to perform.
 */
-class {{capitalize apiMetadata.specName}} extends BaseClient {
+class {{capitalize metadata.specName}} extends BaseClient {
   constructor(config: ClientConfig) {
     super(config);
 
@@ -46,7 +48,7 @@ class {{capitalize apiMetadata.specName}} extends BaseClient {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
-declare module {{capitalize apiMetadata.specName}} {
+declare module {{capitalize metadata.specName}} {
   {{#each dataTypes}}
       {{#if (isTypeDefinition .)}}
          export type {{getValue name}}={{getValue name}}T
@@ -54,4 +56,4 @@ declare module {{capitalize apiMetadata.specName}} {
   {{/each}}
 }
 
-export = {{capitalize apiMetadata.specName}}
+export = {{capitalize metadata.specName}}

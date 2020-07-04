@@ -192,12 +192,12 @@ function createClient(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   apiMetadata: { [key: string]: any }
 ): string {
-  console.log(apiMetadata);
+  // console.log(apiMetadata);
   return clientInstanceTemplate(
     {
       dataTypes: getAllDataTypes(webApiModel),
       apiModel: webApiModel,
-      apiMetadata: apiMetadata
+      metadata: apiMetadata
     },
     {
       allowProtoPropertiesByDefault: true,
@@ -353,6 +353,11 @@ export async function renderTemplates(
 }
 
 // Register helpers
+Handlebars.registerHelper("json", function(context) {
+  console.log(JSON.stringify(context));
+  return JSON.stringify(context);
+});
+
 Handlebars.registerHelper("getBaseUri", getBaseUri);
 
 Handlebars.registerHelper("isCommonQueryParameter", isCommonQueryParameter);
