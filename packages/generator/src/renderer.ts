@@ -353,11 +353,6 @@ export async function renderTemplates(
 }
 
 // Register helpers
-Handlebars.registerHelper("json", function(context) {
-  console.log(JSON.stringify(context));
-  return JSON.stringify(context);
-});
-
 Handlebars.registerHelper("getBaseUri", getBaseUri);
 
 Handlebars.registerHelper("isCommonQueryParameter", isCommonQueryParameter);
