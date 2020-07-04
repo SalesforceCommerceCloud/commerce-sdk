@@ -12,26 +12,40 @@ import {
 } from "./{{metadata.specName}}.types";
 
 /**
-* API: [{{{metadata.name}}}](https://developer.commercecloud.com/s/api-details/{{{getObjectIdByAssetId metadata.assetId}}})
-* API Version: {{metadata.version}}
-* Description: {{metadata.description}}
-* Last Updated: {{metadata.updatedDate}}
-* 
-* Usage:
+* [{{{metadata.name}}}](https://developer.commercecloud.com/s/api-details/{{{getObjectIdByAssetId metadata.assetId}}})
+* ==================================
+* *{{metadata.description}}*<br />
+*
+* Simple example:
 *
 * ```typescript
 *   import { {{pascalcase metadata.categories.[CC API Family].[0]}}, ClientConfig } from "commerce-sdk";
 *   // or
 *   const { {{pascalcase metadata.categories.[CC API Family].[0]}}, ClientConfig } = require("commerce-sdk");
 *
-*   const config: ClientConfig = { ... };
-*   const {{metadata.specName}}Client = new {{pascalcase metadata.categories.[CC API Family].[0]}}.{{capitalize metadata.specName}}(config);
+*   const clientConfig: ClientConfig = { ... };
+*   const {{metadata.specName}}Client = new {{pascalcase metadata.categories.[CC API Family].[0]}}.{{capitalize metadata.specName}}(clientConfig);
 * ```
-* 
-* Note: When performing operations that require ShopperJWT authentication, an
-* Authorization header containing a JWT can be added to the headers field of the
-* ClientConfig object. The Client will use that Authorization header for all the
-* operations it is used to perform.
+*
+* Example with shopper auth
+* ```typescript
+* const clientConfig: ClientConfig = {
+*   parameters: {
+*     clientId: "XXXXXX",
+*     organizationId: "XXXX",
+*     shortCode: "XXX",
+*     siteId: "XX"
+*   }
+* };
+* token = await helpers.getShopperToken(clientConfig, { type: "guest" });
+* clientConfig.headers["authorization"] = token.getBearerHeader();
+* const {{metadata.specName}}Client = new {{pascalcase metadata.categories.[CC API Family].[0]}}.{{capitalize metadata.specName}}(clientConfig);
+* ```
+*
+* <span style="font-size:.7em; display:block; text-align: right">
+* API Version: {{metadata.version}}<br />
+* Last Updated: {{metadata.updatedDate}}<br />  
+* </span>
 */
 class {{capitalize metadata.specName}} extends BaseClient {
   constructor(config: ClientConfig) {
