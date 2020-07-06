@@ -215,8 +215,6 @@ function createClient(
  */
 function createDto(
   webApiModel: model.document.BaseUnitWithDeclaresModel
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 ): string {
   const types = getAllDataTypes(webApiModel);
   return dtoTemplate(types, {
