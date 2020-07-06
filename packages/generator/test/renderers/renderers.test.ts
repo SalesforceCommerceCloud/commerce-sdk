@@ -9,7 +9,6 @@ import { expect } from "chai";
 import path from "path";
 import tmp from "tmp";
 import fs from "fs-extra";
-import { safeLoad as parseYaml } from "js-yaml";
 import _ from "lodash";
 import { CLIEngine } from "eslint";
 

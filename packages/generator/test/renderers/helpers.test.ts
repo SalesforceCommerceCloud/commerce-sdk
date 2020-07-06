@@ -5,7 +5,7 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import * as renderer from "../../src/renderer";
-import { RestApi } from "@commerce-apps/raml-toolkit";
+import { RestApi, model } from "@commerce-apps/raml-toolkit";
 import { default as chai, expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import tmp from "tmp";
@@ -52,6 +52,7 @@ describe("Renderer Helpers", () => {
       expect(models)
         .to.be.an("array")
         .with.lengthOf(1);
+      expect(models[0].document).to.be.an.instanceOf(model.document.Document);
       expect(models[0]).to.deep.include({
         metadata: {
           id: "Test",
@@ -87,7 +88,16 @@ describe("Renderer Helpers", () => {
       expect(result[0][1])
         .to.be.an("array")
         .with.lengthOf(1);
-      expect(result[0][1][0]).to.have.keys(["document", "metadata"]);
+      expect(result[0][1][0].document).to.be.an.instanceOf(
+        model.document.Document
+      );
+      expect(result[0][1][0]).to.deep.include({
+        metadata: {
+          id: "Test",
+          assetId: "site",
+          fatRaml: { mainFile: "site.raml" }
+        }
+      });
     });
   });
 });

@@ -135,7 +135,6 @@ export function loadApiConfig(
 export async function processApiFamily(
   apiFamily: RestApi[],
   inputDir: string
-  // TODO: Once logic is moved to raml-toolkit this should just be an optional field on RestApi
 ): Promise<DocumentWithMetadataT[]> {
   const promises = apiFamily.map(async apiMeta => {
     if (!apiMeta.id) {
@@ -192,7 +191,6 @@ function createClient(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   apiMetadata: { [key: string]: any }
 ): string {
-  // console.log(apiMetadata);
   return clientInstanceTemplate(
     {
       dataTypes: getAllDataTypes(webApiModel),
