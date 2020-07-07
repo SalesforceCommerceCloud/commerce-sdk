@@ -96,11 +96,11 @@ export function extractTypeFromPayload(payload: model.domain.Payload): string {
   if ((payload.schema as model.domain.UnionShape).anyOf !== undefined) {
     const union: string[] = [];
     (payload.schema as model.domain.UnionShape).anyOf.forEach(element => {
-      union.push(`types.${element.name.value()}`);
+      union.push(`${element.name.value()}`);
     });
     return union.join(" | ");
   }
-  return `types.${payload.schema.name.value()}`;
+  return `${payload.schema.name.value()}`;
 }
 
 /**
@@ -308,14 +308,14 @@ const getPayloadType = function(schema: model.domain.Shape): string {
   if (name === "schema") {
     return OBJECT_DATA_TYPE;
   } else {
-    return `types.${name}`;
+    return `${name}`;
   }
 };
 
 /**
  * Get type of the request body
  *
- * @param request - AMF model of tge request
+ * @param request - AMF model of the request
  * @returns Type of the request body
  */
 export const getRequestPayloadType = function(
