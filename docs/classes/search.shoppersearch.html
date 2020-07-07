@@ -72,13 +72,34 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Instantiate a Client object with desired ClientConfig to perform operations
-						available in this API client.</p>
+						<a href="#shopper-search" id="shopper-search" style="color: inherit; text-decoration: none;">
+							<h1><a href="https://developer.commercecloud.com/s/api-details/a003k00000UHwuFAAT">Shopper Search</a></h1>
+						</a>
+						<p><em>Perform product search and provide search suggestions.</em><br /></p>
 					</div>
-					<p>Note: When performing operations that require ShopperJWT authentication, an
-						Authorization header containing a JWT can be added to the headers field of the
-						ClientConfig object. The Client will use that Authorization header for all the
-					operations it is used to perform.</p>
+					<p>Usage example:</p>
+					<pre><code class="language-typescript">  <span class="hljs-keyword">import</span> { Search, ClientConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
+  <span class="hljs-comment">// or</span>
+  <span class="hljs-keyword">const</span> { Search, ClientConfig } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;commerce-sdk&quot;</span>);
+
+  <span class="hljs-keyword">const</span> clientConfig: ClientConfig = { ... };
+  <span class="hljs-keyword">const</span> shopperSearchClient = <span class="hljs-keyword">new</span> Search.ShopperSearch(clientConfig);</code></pre>
+					<p>Example with shopper auth</p>
+					<pre><code class="language-typescript"><span class="hljs-keyword">const</span> clientConfig: ClientConfig = {
+ parameters: {
+    clientId: <span class="hljs-string">&quot;XXXXXX&quot;</span>,
+    organizationId: <span class="hljs-string">&quot;XXXX&quot;</span>,
+    shortCode: <span class="hljs-string">&quot;XXX&quot;</span>,
+    siteId: <span class="hljs-string">&quot;XX&quot;</span>
+ }
+};
+token = <span class="hljs-keyword">await</span> helpers.getShopperToken(clientConfig, { <span class="hljs-keyword">type</span>: <span class="hljs-string">&quot;guest&quot;</span> });
+clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>] = token.getBearerHeader();
+<span class="hljs-keyword">const</span> shopperSearchClient = <span class="hljs-keyword">new</span> Search.ShopperSearch(clientConfig);</code></pre>
+					<span style="font-size:.7em; display:block; text-align: right">
+						API Version: 1.0.21<br />
+						Last Updated: 2020-06-18T23:06:21.899Z<br />
+					</span>
 				</div>
 			</section>
 			<section class="tsd-panel tsd-hierarchy">
@@ -174,7 +195,7 @@
 					<div class="tsd-signature tsd-kind-icon">Bool<wbr>Filter<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#boolfiltert" class="tsd-signature-type">BoolFilterT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:399</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:426</li>
 						</ul>
 					</aside>
 				</section>
@@ -184,7 +205,7 @@
 					<div class="tsd-signature tsd-kind-icon">Bool<wbr>Query<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#boolqueryt" class="tsd-signature-type">BoolQueryT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:408</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:435</li>
 						</ul>
 					</aside>
 				</section>
@@ -194,7 +215,7 @@
 					<div class="tsd-signature tsd-kind-icon">Brand<wbr>Suggestions<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#brandsuggestionst" class="tsd-signature-type">BrandSuggestionsT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:383</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:410</li>
 						</ul>
 					</aside>
 				</section>
@@ -204,7 +225,7 @@
 					<div class="tsd-signature tsd-kind-icon">Category<wbr>Suggestions<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#categorysuggestionst" class="tsd-signature-type">CategorySuggestionsT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:376</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:403</li>
 						</ul>
 					</aside>
 				</section>
@@ -214,7 +235,7 @@
 					<div class="tsd-signature tsd-kind-icon">Custom<wbr>Suggestions<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#customsuggestionst" class="tsd-signature-type">CustomSuggestionsT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:388</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:415</li>
 						</ul>
 					</aside>
 				</section>
@@ -224,7 +245,7 @@
 					<div class="tsd-signature tsd-kind-icon">Error<wbr>Response<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#errorresponset" class="tsd-signature-type">ErrorResponseT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:413</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:440</li>
 						</ul>
 					</aside>
 				</section>
@@ -234,7 +255,7 @@
 					<div class="tsd-signature tsd-kind-icon">Filter<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#filtert" class="tsd-signature-type">FilterT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:410</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:437</li>
 						</ul>
 					</aside>
 				</section>
@@ -244,7 +265,7 @@
 					<div class="tsd-signature tsd-kind-icon">Filtered<wbr>Query<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#filteredqueryt" class="tsd-signature-type">FilteredQueryT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:401</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:428</li>
 						</ul>
 					</aside>
 				</section>
@@ -254,7 +275,7 @@
 					<div class="tsd-signature tsd-kind-icon">Image<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#imaget" class="tsd-signature-type">ImageT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:391</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:418</li>
 						</ul>
 					</aside>
 				</section>
@@ -264,7 +285,7 @@
 					<div class="tsd-signature tsd-kind-icon">Match<wbr>All<wbr>Query<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#matchallqueryt" class="tsd-signature-type">MatchAllQueryT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:400</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:427</li>
 						</ul>
 					</aside>
 				</section>
@@ -274,7 +295,7 @@
 					<div class="tsd-signature tsd-kind-icon">Money<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#moneyt" class="tsd-signature-type">MoneyT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:395</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:422</li>
 						</ul>
 					</aside>
 				</section>
@@ -284,7 +305,7 @@
 					<div class="tsd-signature tsd-kind-icon">Nested<wbr>Query<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#nestedqueryt" class="tsd-signature-type">NestedQueryT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:409</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:436</li>
 						</ul>
 					</aside>
 				</section>
@@ -294,7 +315,7 @@
 					<div class="tsd-signature tsd-kind-icon">Paginated<wbr>Search<wbr>Result<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#paginatedsearchresultt" class="tsd-signature-type">PaginatedSearchResultT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:398</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:425</li>
 						</ul>
 					</aside>
 				</section>
@@ -304,7 +325,7 @@
 					<div class="tsd-signature tsd-kind-icon">Product<wbr>Ref<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#productreft" class="tsd-signature-type">ProductRefT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:374</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:401</li>
 						</ul>
 					</aside>
 				</section>
@@ -314,7 +335,7 @@
 					<div class="tsd-signature tsd-kind-icon">Product<wbr>Search<wbr>Hit<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#productsearchhitt" class="tsd-signature-type">ProductSearchHitT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:389</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:416</li>
 						</ul>
 					</aside>
 				</section>
@@ -324,7 +345,7 @@
 					<div class="tsd-signature tsd-kind-icon">Product<wbr>Search<wbr>Refinement<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#productsearchrefinementt" class="tsd-signature-type">ProductSearchRefinementT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:387</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:414</li>
 						</ul>
 					</aside>
 				</section>
@@ -334,7 +355,7 @@
 					<div class="tsd-signature tsd-kind-icon">Product<wbr>Search<wbr>Refinement<wbr>Value<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#productsearchrefinementvaluet" class="tsd-signature-type">ProductSearchRefinementValueT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:384</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:411</li>
 						</ul>
 					</aside>
 				</section>
@@ -344,7 +365,7 @@
 					<div class="tsd-signature tsd-kind-icon">Product<wbr>Search<wbr>Result<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#productsearchresultt" class="tsd-signature-type">ProductSearchResultT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:390</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:417</li>
 						</ul>
 					</aside>
 				</section>
@@ -354,7 +375,7 @@
 					<div class="tsd-signature tsd-kind-icon">Product<wbr>Search<wbr>Sorting<wbr>Option<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#productsearchsortingoptiont" class="tsd-signature-type">ProductSearchSortingOptionT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:385</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:412</li>
 						</ul>
 					</aside>
 				</section>
@@ -364,7 +385,7 @@
 					<div class="tsd-signature tsd-kind-icon">Product<wbr>Suggestions<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#productsuggestionst" class="tsd-signature-type">ProductSuggestionsT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:380</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:407</li>
 						</ul>
 					</aside>
 				</section>
@@ -374,7 +395,7 @@
 					<div class="tsd-signature tsd-kind-icon">Product<wbr>Type<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#producttypet" class="tsd-signature-type">ProductTypeT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:382</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:409</li>
 						</ul>
 					</aside>
 				</section>
@@ -384,7 +405,7 @@
 					<div class="tsd-signature tsd-kind-icon">Query<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#queryt" class="tsd-signature-type">QueryT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:403</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:430</li>
 						</ul>
 					</aside>
 				</section>
@@ -394,7 +415,7 @@
 					<div class="tsd-signature tsd-kind-icon">Query<wbr>Filter<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#queryfiltert" class="tsd-signature-type">QueryFilterT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:402</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:429</li>
 						</ul>
 					</aside>
 				</section>
@@ -404,7 +425,7 @@
 					<div class="tsd-signature tsd-kind-icon">Range2<wbr>Filter<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#range2filtert" class="tsd-signature-type">Range2FilterT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:407</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:434</li>
 						</ul>
 					</aside>
 				</section>
@@ -414,7 +435,7 @@
 					<div class="tsd-signature tsd-kind-icon">Range<wbr>Filter<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#rangefiltert" class="tsd-signature-type">RangeFilterT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:412</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:439</li>
 						</ul>
 					</aside>
 				</section>
@@ -424,7 +445,7 @@
 					<div class="tsd-signature tsd-kind-icon">Search<wbr>Request<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#searchrequestt" class="tsd-signature-type">SearchRequestT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:397</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:424</li>
 						</ul>
 					</aside>
 				</section>
@@ -434,7 +455,7 @@
 					<div class="tsd-signature tsd-kind-icon">Simple<wbr>Search<wbr>Result<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#simplesearchresultt" class="tsd-signature-type">SimpleSearchResultT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:396</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:423</li>
 						</ul>
 					</aside>
 				</section>
@@ -444,7 +465,7 @@
 					<div class="tsd-signature tsd-kind-icon">Sort<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#sortt" class="tsd-signature-type">SortT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:411</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:438</li>
 						</ul>
 					</aside>
 				</section>
@@ -454,7 +475,7 @@
 					<div class="tsd-signature tsd-kind-icon">Suggested<wbr>Category<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#suggestedcategoryt" class="tsd-signature-type">SuggestedCategoryT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:381</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:408</li>
 						</ul>
 					</aside>
 				</section>
@@ -464,7 +485,7 @@
 					<div class="tsd-signature tsd-kind-icon">Suggested<wbr>Phrase<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#suggestedphraset" class="tsd-signature-type">SuggestedPhraseT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:378</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:405</li>
 						</ul>
 					</aside>
 				</section>
@@ -474,7 +495,7 @@
 					<div class="tsd-signature tsd-kind-icon">Suggested<wbr>Product<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#suggestedproductt" class="tsd-signature-type">SuggestedProductT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:377</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:404</li>
 						</ul>
 					</aside>
 				</section>
@@ -484,7 +505,7 @@
 					<div class="tsd-signature tsd-kind-icon">Suggested<wbr>Term<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#suggestedtermt" class="tsd-signature-type">SuggestedTermT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:386</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:413</li>
 						</ul>
 					</aside>
 				</section>
@@ -494,7 +515,7 @@
 					<div class="tsd-signature tsd-kind-icon">Suggested<wbr>Terms<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#suggestedtermst" class="tsd-signature-type">SuggestedTermsT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:375</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:402</li>
 						</ul>
 					</aside>
 				</section>
@@ -504,7 +525,7 @@
 					<div class="tsd-signature tsd-kind-icon">Suggestion<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#suggestiont" class="tsd-signature-type">SuggestionT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:393</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:420</li>
 						</ul>
 					</aside>
 				</section>
@@ -514,7 +535,7 @@
 					<div class="tsd-signature tsd-kind-icon">Suggestion<wbr>Result<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#suggestionresultt" class="tsd-signature-type">SuggestionResultT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:394</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:421</li>
 						</ul>
 					</aside>
 				</section>
@@ -524,7 +545,7 @@
 					<div class="tsd-signature tsd-kind-icon">Term<wbr>Filter<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#termfiltert" class="tsd-signature-type">TermFilterT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:405</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:432</li>
 						</ul>
 					</aside>
 				</section>
@@ -534,7 +555,7 @@
 					<div class="tsd-signature tsd-kind-icon">Term<wbr>Query<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#termqueryt" class="tsd-signature-type">TermQueryT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:404</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:431</li>
 						</ul>
 					</aside>
 				</section>
@@ -544,7 +565,7 @@
 					<div class="tsd-signature tsd-kind-icon">Text<wbr>Query<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#textqueryt" class="tsd-signature-type">TextQueryT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:406</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:433</li>
 						</ul>
 					</aside>
 				</section>
@@ -554,7 +575,7 @@
 					<div class="tsd-signature tsd-kind-icon">Variation<wbr>Attribute<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#variationattributet" class="tsd-signature-type">VariationAttributeT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:379</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:406</li>
 						</ul>
 					</aside>
 				</section>
@@ -564,7 +585,7 @@
 					<div class="tsd-signature tsd-kind-icon">Variation<wbr>Attribute<wbr>Value<span class="tsd-signature-symbol">:</span> <a href="../modules/search.html#variationattributevaluet" class="tsd-signature-type">VariationAttributeValueT</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:392</li>
+							<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:419</li>
 						</ul>
 					</aside>
 				</section>
@@ -582,7 +603,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides BaseClient.__constructor</p>
 								<ul>
-									<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:58</li>
+									<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:85</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -623,7 +644,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:262</li>
+									<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:289</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -685,7 +706,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:294</li>
+									<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:321</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -799,7 +820,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:100</li>
+									<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:127</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -871,7 +892,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:149</li>
+									<li>Defined in generator/renderedTemplates/search/shopperSearch/shopperSearch.ts:176</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
