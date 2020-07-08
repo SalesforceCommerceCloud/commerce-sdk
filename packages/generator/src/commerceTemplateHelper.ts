@@ -10,29 +10,44 @@ import { model } from "@commerce-apps/raml-toolkit";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const templateHelpers = require("../src/templateHelpers");
 
-function addNamespacePrefixToType(type: string): string {
+/**
+ * Given a type, prefix it with the namespace "types."
+ * @param type in string format to be prefixed
+ * @returns the type prefixed by types.
+ */
+export function addNamespacePrefixToType(type: string): string {
   if (!type) {
     return type;
   }
   const prefix = "types.";
-  const types = type.split(" | ");
+  const types = type.split("|");
 
-  const namespaceTypes = types.map(checkType => {
+  const namespaceTypes = types.filter(checkType =>{
+    return checkType.trim().match("^\s*");
+      
+  }).map(checkType => {
     if (["void", "Object", "object"].includes(checkType)) {
       return checkType;
     }
-    return prefix + checkType;
+    return prefix + checkType.trim();
   });
   const namespaceType = namespaceTypes.join(" | ");
   return namespaceType;
 }
 
-function addNamespacePrefixToArray(type: string): string {
-  const types = type.replace(/Array|<|>/g, "");
+/**
+ * Given an array in string format, prefix each contained type with the namespace "types." 
+ * @param type in the format Array<Type1|Type2>
+ * @return the array with each element prefixed with the namespace, eg Array<types.Type1 | types.Type2>
+ */
+export function addNamespacePrefixToArray(array: string): string {
+  if (!array) {
+    return array;
+  }
+  const types = array.replace(/Array|<|>/g, "");
 
   const namespaceArrayType = addNamespacePrefixToType(types);
-  const ret = "Array<".concat(namespaceArrayType).concat(">");
-  return ret;
+  return "Array<".concat(namespaceArrayType).concat(">");
 }
 
 /**
