@@ -4,15 +4,18 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
+
 import { model } from "@commerce-apps/raml-toolkit";
-import { getRequestPayloadType, getReturnPayloadType } from "./templateHelpers";
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const templateHelpers = require("../src/templateHelpers");
 
 function addNamespacePrefixToType(type: string): string {
   const prefix = "types.";
   const types = type.split(" | ");
 
   const namespaceTypes = types.map(checkType => {
-    if (checkType == "void" || checkType == "Object" || checkType == "object") {
+    if (["void", "Object", "object"].includes(checkType)) {
       return checkType;
     }
     return prefix + checkType;
@@ -32,6 +35,8 @@ function addNamespacePrefixToArray(type: string): string {
 /**
  * Gets the request payload type and prefixes it with the "types" namespace.
  *
+ * Wrapper for getRequestPayloadTypeWithNamespace
+ *
  * @param request - AMF model of the request
  * @returns Type of the request body prefixed with the namespace "types"
  */
@@ -45,20 +50,28 @@ export const getRequestPayloadTypeWithNamespace = function(
   ) {
     const payloadSchema: model.domain.Shape = request.payloads[0].schema;
     if (payloadSchema instanceof model.domain.ArrayShape) {
-      return addNamespacePrefixToArray(getRequestPayloadType(request));
+      return addNamespacePrefixToArray(
+        templateHelpers.getRequestPayloadType(request)
+      );
     }
   }
-  return addNamespacePrefixToType(getRequestPayloadType(request));
+  return addNamespacePrefixToType(
+    templateHelpers.getRequestPayloadType(request)
+  );
 };
 
 /**
- * Gets the return payload type and prefixes it with the "types" namespace.
+ * Find the return type info for an operation.
  *
- * @param payload - Contains schema(s) from which to extract the type(s).
- * @returns string representation of the datatypes in the payload prefixed with the namespace "types"
+ * Wrapper around TemplateHelpers.getReturnPayloadType
+ *
+ * @param operation - The operation to get the return type for
+ * @returns a string for the data type returned by the successful operation prefixed by namespace
  */
 export function getReturnPayloadTypeWithNamespace(
   operation: model.domain.Operation
 ): string {
-  return addNamespacePrefixToType(getReturnPayloadType(operation));
+  return addNamespacePrefixToType(
+    templateHelpers.getReturnPayloadType(operation)
+  );
 }

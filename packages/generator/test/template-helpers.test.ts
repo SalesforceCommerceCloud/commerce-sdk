@@ -539,7 +539,7 @@ describe("Template helper tests for getRequestPayloadType", () => {
     const shape = new model.domain.NodeShape();
     shape.withName(typeName);
     expect(getRequestPayloadType(getRequestPayloadModel(shape))).to.equal(
-      typeName + "T"
+      typeName
     );
   });
 
@@ -570,7 +570,6 @@ describe("Template helper tests for getRequestPayloadType", () => {
     expect(getRequestPayloadType(getRequestPayloadModel(shape))).to.equal(
       ARRAY_DATA_TYPE.concat("<")
         .concat(typeName)
-        .concat("T")
         .concat(">")
     );
   });
@@ -664,7 +663,7 @@ describe("Template helper to extract type from payload", () => {
     const schema = new model.domain.SchemaShape();
     payload.withSchema(schema);
     payload.schema.withName("Foo");
-    expect(extractTypeFromPayload(payload)).to.equal("FooT");
+    expect(extractTypeFromPayload(payload)).to.equal("Foo");
   });
 
   it("Get Schema from payload when type is not set and schema anyOf is populated with one type", () => {
@@ -675,7 +674,7 @@ describe("Template helper to extract type from payload", () => {
     schema.withAnyOf([shape1]);
     payload.withSchema(schema);
 
-    expect(extractTypeFromPayload(payload)).to.equal("FooT");
+    expect(extractTypeFromPayload(payload)).to.equal("Foo");
   });
 
   it("Get Schema from payload when type is not set and schema anyOf is populated with multiple types", () => {
@@ -689,7 +688,7 @@ describe("Template helper to extract type from payload", () => {
     schema.withAnyOf([shape1, shape2]);
     payload.withSchema(schema);
 
-    expect(extractTypeFromPayload(payload)).to.equal("FooT | BaaT");
+    expect(extractTypeFromPayload(payload)).to.equal("Foo | Baa");
   });
 
   it("Fail to get Schema when schema is not set", () => {
