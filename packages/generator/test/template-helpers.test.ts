@@ -125,14 +125,14 @@ describe("Template helper datatype tests", () => {
     const property = new model.domain.PropertyShape();
     property.withRange(getInheritedType("defined_type"));
 
-    assert.isTrue(getPropertyDataType(property) === "defined_typeT");
+    assert.isTrue(getPropertyDataType(property) === "defined_type");
   });
 
   it("Returns 'defined_type' on linked object type", () => {
     const property = new model.domain.PropertyShape();
     property.withRange(getLinkedType("defined_type"));
 
-    assert.isTrue(getPropertyDataType(property) === "defined_typeT");
+    assert.isTrue(getPropertyDataType(property) === "defined_type");
   });
 
   it("Returns 'any' on object type that has no details defined", () => {
@@ -159,7 +159,7 @@ describe("Template helper datatype tests", () => {
     const property: model.domain.PropertyShape = new model.domain.PropertyShape();
     property.withRange(range);
 
-    expect(getPropertyDataType(property)).to.equal("Array<defined_typeT>");
+    expect(getPropertyDataType(property)).to.equal("Array<defined_type>");
   });
 
   it("Returns 'Array<string>' on array of linked string types ", () => {
@@ -183,7 +183,7 @@ describe("Template helper datatype tests", () => {
     const property: model.domain.PropertyShape = new model.domain.PropertyShape();
     property.withRange(arrType);
 
-    expect(getPropertyDataType(property)).to.equal("Array<defined_typeT>");
+    expect(getPropertyDataType(property)).to.equal("Array<defined_type>");
   });
 
   it("Returns 'any' on unhandled type", () => {
@@ -246,7 +246,7 @@ describe("Template helper, response item type tests", () => {
     const response: model.domain.Response = operation.responses[0];
     response.withStatusCode("200");
     response.payloads[0].schema.withName("DefinedType");
-    expect(getReturnPayloadType(operation)).to.equal("DefinedTypeT");
+    expect(getReturnPayloadType(operation)).to.equal("DefinedType");
   });
 
   it("Returns 'void' on defined_type datatype, but with statusCode as 500", () => {

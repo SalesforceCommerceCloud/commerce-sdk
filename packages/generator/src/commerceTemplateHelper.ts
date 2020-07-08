@@ -11,6 +11,9 @@ import { model } from "@commerce-apps/raml-toolkit";
 const templateHelpers = require("../src/templateHelpers");
 
 function addNamespacePrefixToType(type: string): string {
+  if (!type) {
+    return type;
+  }
   const prefix = "types.";
   const types = type.split(" | ");
 
