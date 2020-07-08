@@ -56,8 +56,7 @@
     {{/or}}
     * @param rawResponse - Set to true to return entire Response object instead of DTO.
     *
-    * @returns A promise of type Response if rawResponse is true, a promise of type
-    * {{getReturnPayloadTypeWithNamespace .}} otherwise.
+    * @returns A promise of type Response if rawResponse is true, a promise of type {{getReturnPayloadTypeWithNamespace .}} otherwise.
     */
     {{name}}<T extends boolean>(
       options{{#or (is method "get") (is method "delete")}}?{{/or}}: {
@@ -95,9 +94,7 @@
     {{/or}}
     * @param rawResponse - Set to true to return entire Response object instead of DTO.
     *
-      * @returns A promise of type Response if rawResponse is true, a promise of type
-      {{getReturnPayloadTypeWithNamespace .}}
-      otherwise.
+    * @returns A promise of type Response if rawResponse is true, a promise of type {{getReturnPayloadTypeWithNamespace .}} otherwise.
     */
     {{name}}(
       options{{#or (is method "get") (is method "delete")}}?{{/or}}: {
@@ -107,12 +104,12 @@
           {{name}}{{#if (isCommonPathParameter name)}}?{{/if}}: {{{ getParameterDataType .}}}
           {{/each}}
           {{#each request/queryParameters}}
-      {{name}}{{#if (or (not (is required "true")) (isCommonQueryParameter name))}}?{{/if}}:
+          {{name}}{{#if (or (not (is required "true")) (isCommonQueryParameter name))}}?{{/if}}: {{{ getParameterDataType .}}}
           {{/each}}
         },
         retrySettings?: OperationOptions,
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}}, 
-      body: {{{getRequestPayloadTypeWithNamespace request}}}{{/or}}
+        body: {{{getRequestPayloadTypeWithNamespace request}}}{{/or}}
       },
       rawResponse?: boolean,
     ): Promise<Response | {{getReturnPayloadTypeWithNamespace .}}> {
@@ -123,8 +120,7 @@
       {{#each ../parameters}}
         "{{{name}}}": parameters["{{{name}}}"]
         {{! if it is a common path parameter, fallback to client config for undefined }}
-        {{#if (isCommonPathParameter name)}} !== undefined ? parameters["{{{name}}}"] :
-            this.clientConfig.parameters["{{{name}}}"]{{/if}}
+        {{#if (isCommonPathParameter name)}} !== undefined ? parameters["{{{name}}}"] : this.clientConfig.parameters["{{{name}}}"]{{/if}}
         {{#unless @last}},{{/unless}}
       {{/each}}
       };
