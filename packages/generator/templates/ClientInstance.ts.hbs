@@ -1,4 +1,4 @@
-/* eslint-disable */
+
 import { StaticClient, BaseClient, ClientConfig, Response, ResponseError } from "@commerce-apps/core";
 import _ from "lodash";
 import { OperationOptions } from "retry";
@@ -6,35 +6,62 @@ import { OperationOptions } from "retry";
 import * as types from "./{{apiSpec}}.types";
 
 /**
-* Instantiate a Client object with desired ClientConfig to perform operations
-* available in this API client.
+* [{{{metadata.name}}}](https://developer.commercecloud.com/s/api-details/{{{getObjectIdByAssetId metadata.assetId}}})
+* ==================================
+* *{{metadata.description}}*<br />
 *
-* Note: When performing operations that require ShopperJWT authentication, an
-* Authorization header containing a JWT can be added to the headers field of the
-* ClientConfig object. The Client will use that Authorization header for all the
-* operations it is used to perform.
+* Simple example:
+*
+* ```typescript
+*   import { {{pascalcase metadata.categories.[CC API Family].[0]}}, ClientConfig } from "commerce-sdk";
+*   // or
+*   const { {{pascalcase metadata.categories.[CC API Family].[0]}}, ClientConfig } = require("commerce-sdk");
+*
+*   const clientConfig: ClientConfig = { ... };
+*   const {{metadata.specName}}Client = new {{pascalcase metadata.categories.[CC API Family].[0]}}.{{capitalize metadata.specName}}(clientConfig);
+* ```
+*
+* Example with shopper auth
+* ```typescript
+* const clientConfig: ClientConfig = {
+*   parameters: {
+*     clientId: "XXXXXX",
+*     organizationId: "XXXX",
+*     shortCode: "XXX",
+*     siteId: "XX"
+*   }
+* };
+* token = await helpers.getShopperToken(clientConfig, { type: "guest" });
+* clientConfig.headers["authorization"] = token.getBearerHeader();
+* const {{metadata.specName}}Client = new {{pascalcase metadata.categories.[CC API Family].[0]}}.{{capitalize metadata.specName}}(clientConfig);
+* ```
+*
+* <span style="font-size:.7em; display:block; text-align: right">
+* API Version: {{metadata.version}}<br />
+* Last Updated: {{metadata.updatedDate}}<br />  
+* </span>
 */
-class {{capitalize apiSpec}} extends BaseClient {
-constructor(config: ClientConfig) {
-super(config);
+class {{capitalize metadata.specName}} extends BaseClient {
+  constructor(config: ClientConfig) {
+    super(config);
 
-if (!!!config.baseUri) {
-this.clientConfig.baseUri = "{{getBaseUri apiModel}}";
-}
+    if (!!!config.baseUri) {
+      this.clientConfig.baseUri = "{{getBaseUri apiModel}}";
+    }
 
-}
+  }
 
-{{> operationsPartial model=apiModel }}
+  {{> operationsPartial model=apiModel }}
 
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
-declare module {{capitalize apiSpec}} {
-{{#each dataTypes}}
-{{#if (isTypeDefinition .)}}
-export type {{getValue name}}=types.{{getValue name}}
-{{/if}}
-{{/each}}
+declare module {{capitalize metadata.specName}} {
+  {{#each dataTypes}}
+      {{#if (isTypeDefinition .)}}
+         export type {{getValue name}}=types.{{getValue name}}
+      {{/if}}
+  {{/each}}
 }
 
-export = {{capitalize apiSpec}}
+export = {{capitalize metadata.specName}}

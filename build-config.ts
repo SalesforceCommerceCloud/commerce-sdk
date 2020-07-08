@@ -9,6 +9,8 @@ export default {
   inputDir: process.env.COMMERCE_SDK_INPUT_DIR || `${__dirname}/apis`,
   updateApiDir: process.env.COMMERCE_SDK_UPDATE_API_DIR || `${__dirname}/updateApiTmpDir`,
   renderDir: process.env.COMMERCE_SDK_RENDER_DIR || `${__dirname}/packages/generator/renderedTemplates`,
+  
+  // TODO: This this should become 'group by' and provide a method to pickout the metadata you want to group by
   apiFamily: process.env.COMMERCE_SDK_API_FAMILY || "CC API Family",
   exchangeSearch: process.env.COMMERCE_SDK_EXCHANGE_SEARCH || 'category:"CC Visibility" = "External"',
   apiConfigFile: process.env.COMMERCE_SDK_API_CONFIG_FILE || "api-config.json",

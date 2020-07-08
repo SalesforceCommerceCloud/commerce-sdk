@@ -283,8 +283,6 @@ DEBUG level logging enables logging of:
 **Note:** Debug level logging may expose sensitive data in the logs
 
 ## Additional Documentation
-
-[Included APIs](./APICLIENTS.md)  
 [Changelog](./CHANGELOG.md)
 
 ## License Information
