@@ -96,11 +96,11 @@ export function extractTypeFromPayload(payload: model.domain.Payload): string {
   if ((payload.schema as model.domain.UnionShape).anyOf !== undefined) {
     const union: string[] = [];
     (payload.schema as model.domain.UnionShape).anyOf.forEach(element => {
-      union.push(`${element.name.value()}`);
+      union.push(element.name.value());
     });
     return union.join(" | ");
   }
-  return `${payload.schema.name.value()}`;
+  return payload.schema.name.value();
 }
 
 /**
@@ -308,7 +308,7 @@ const getPayloadType = function(schema: model.domain.Shape): string {
   if (name === "schema") {
     return OBJECT_DATA_TYPE;
   } else {
-    return `${name}`;
+    return name;
   }
 };
 
@@ -321,23 +321,17 @@ const getPayloadType = function(schema: model.domain.Shape): string {
 export const getRequestPayloadType = function(
   request: model.domain.Request
 ): string {
-  console.log(`recieved request0 is : ${request}`)
-
   if (
     request != null &&
     request.payloads != null &&
     request.payloads.length > 0
   ) {
-    console.log(`recieved request1 is : ${request}`)
-
     const payloadSchema: model.domain.Shape = request.payloads[0].schema;
     if (payloadSchema instanceof model.domain.ArrayShape) {
       return ARRAY_DATA_TYPE.concat("<")
         .concat(getPayloadType(payloadSchema.items))
         .concat(">");
     }
-    console.log(`recieved request2 is : ${request}`)
-
     return getPayloadType(payloadSchema);
   }
   return OBJECT_DATA_TYPE;
