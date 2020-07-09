@@ -12,7 +12,7 @@ const templateHelpers = require("../src/templateHelpers");
 
 /**
  * Given a type, prefix it with the namespace "types."
- * @param type in string format to be prefixed
+ * @param type - in string format to be prefixed
  * @returns the type prefixed by types.
  */
 export function addNamespacePrefixToType(type: string): string {
@@ -38,8 +38,8 @@ export function addNamespacePrefixToType(type: string): string {
 
 /**
  * Given an array in string format, prefix each contained type with the namespace "types." 
- * @param type in the format Array<Type1|Type2>
- * @return the array with each element prefixed with the namespace, eg Array<types.Type1 | types.Type2>
+ * @param type - in the format Array\<Type1|Type2\>
+ * @returns the array with each element prefixed with the namespace, eg Array\<types.Type1 | types.Type2\>
  */
 export function addNamespacePrefixToArray(array: string): string {
   if (!array) {
