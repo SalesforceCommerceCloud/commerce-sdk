@@ -37,10 +37,7 @@ import {
   getPascalCaseName,
   formatForTsDoc
 } from "./templateHelpers";
-import {
-  getRequestPayloadTypeWithNamespace,
-  getReturnPayloadTypeWithNamespace
-} from "./commerceTemplateHelper";
+import { addNamespace } from "./commonTemplateHelper";
 import { generatorLogger } from "./logger";
 
 interface IApiConfig {
@@ -396,12 +393,4 @@ Handlebars.registerHelper("getPascalCaseName", getPascalCaseName);
 
 Handlebars.registerHelper("formatForTsDoc", formatForTsDoc);
 
-Handlebars.registerHelper(
-  "getRequestPayloadTypeWithNamespace",
-  getRequestPayloadTypeWithNamespace
-);
-
-Handlebars.registerHelper(
-  "getReturnPayloadTypeWithNamespace",
-  getReturnPayloadTypeWithNamespace
-);
+Handlebars.registerHelper("addNamespace",addNamespace);
