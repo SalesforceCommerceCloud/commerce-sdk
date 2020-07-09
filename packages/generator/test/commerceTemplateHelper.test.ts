@@ -129,7 +129,7 @@ describe("When adding namespaces to elements in an array", () => {
   it("should not add a type to an empty array element",()=>{
     expect(addNamespacePrefixToArray("Array<Foo | | Baa>"))
       .to.be.a("string")
-      .and.equal("Array<types.Foo | types.Bar>");
+      .and.equal("Array<types.Foo | types.Baa>");
   })
 
 

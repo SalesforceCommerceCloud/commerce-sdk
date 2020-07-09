@@ -22,10 +22,11 @@ export function addNamespacePrefixToType(type: string): string {
   const prefix = "types.";
   const types = type.split("|");
 
-  const namespaceTypes = types.filter(checkType =>{
-    return checkType.trim().match("^\s*");
+  let namespaceTypes = types.filter(checkType =>{
+    return checkType.trim() != '';
       
-  }).map(checkType => {
+  });
+  namespaceTypes = namespaceTypes.map(checkType => {
     if (["void", "Object", "object"].includes(checkType)) {
       return checkType;
     }
