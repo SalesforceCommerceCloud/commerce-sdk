@@ -9,36 +9,25 @@
     "lint": "eslint . --ext .ts,.js --quiet --fix",
     "pretest": "npm run lint && npm run depcheck",
     "test:ts": "nyc mocha \"tests/**/*.test.ts\"",
-    "test:js": "nyc mocha \"tests/**/*.test.js\" --exclude \"tests/redis/**/*.test.js\"",
+    "test:js": "nyc mocha \"tests/**/*.test.js\"",
     "test": "npm run test:ts && npm run test:js",
-    "test:redis": "nyc mocha \"tests/redis/**/*.test.js\"",
-    "redis": "npm run redis --prefix ../packages/core",
-    "redis:shutdown": "npm run redis:shutdown --prefix ../packages/core",
-    "redis:debug": "npm run redis:debug --prefix ../packages/core",
-    "redis:debug:shutdown": "npm run redis:debug:shutdown --prefix ../packages/core",
-    "bundle:core": "rm -rf commerce-apps-core*.tgz; npm pack ../packages/core && mv commerce-apps-core*.tgz commerce-apps-core.tgz",
-    "bundle:sdk": "rm -rf commerce-sdk*.tgz; npm pack ../packages/generator && mv commerce-sdk-*.tgz commerce-sdk.tgz",
-    "bundle:all": "npm run bundle:core && npm run bundle:sdk",
-    "bundle:install": "npm run bundle:all && npm install",
+    "bundle": "rm -rf commerce-sdk*.tgz; npm pack .. && mv commerce-sdk-*.tgz commerce-sdk.tgz",
+    "bundle:install": "npm run bundle && npm install",
     "bundle:clean:install": "npm run clean:all && npm run bundle:install",
     "test:integration": "npm run test",
-    "test:integration:redis": "npm run redis && npm run test:redis; npm run redis:shutdown",
-    "test:integration:redis:debug": "npm run redis:debug && npm run test; npm run redis:debug:shutdown",
-    "test:integration:bundle": "npm run bundle:install && npm run test && npm run test:redis",
-    "test:integration:bundle:redis": "npm run bundle:install && npm run redis && npm run test && npm run test:redis; npm run redis:shutdown",
-    "test:integration:bundle:redis:debug": "npm run bundle:install && npm run redis:debug && npm run test; npm run redis:debug:shutdown",
+    "test:integration:bundle": "npm run bundle:install && npm run test",
     "clean": "rm -rf commerce-*.tgz || true",
     "clean:node": "rm -rf node_modules || true",
     "clean:all": "npm run clean && npm run clean:node"
   },
   "dependencies": {
-    "@commerce-apps/core": "file:./commerce-apps-core.tgz"
+    "commerce-sdk": "file:./commerce-sdk.tgz"
   },
   "nyc": {
     "all": true,
     "cache": false,
     "include": [
-      "node_modules/@commerce-apps/core/dist/**"
+      "node_modules/commerce-sdk/dist/**"
     ],
     "excludeNodeModules": false,
     "source-map": false,
