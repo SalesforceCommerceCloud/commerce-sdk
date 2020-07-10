@@ -15,7 +15,7 @@ import {
   DEFAULT_DATA_TYPE,
   OBJECT_DATA_TYPE,
   ARRAY_DATA_TYPE,
-  ASSET_OBJECT_MAP
+  ASSET_OBJECT_MAP,
 } from "./config";
 
 /**
@@ -25,7 +25,7 @@ import {
  * @param property - A model from the the AMF parser
  * @returns the base URI of the model
  */
-export const getBaseUri = function(
+export const getBaseUri = function (
   property: model.document.BaseUnitWithEncodesModel
 ): string {
   return property && property.encodes
@@ -65,13 +65,13 @@ export const isCommonQueryParameter = (property: string): boolean =>
  * @returns true if the node is a type definition, false if not
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const isTypeDefinition = function(obj: any): boolean {
+export const isTypeDefinition = function (obj: any): boolean {
   return (
     obj != null && obj.$classData.name === "amf.client.model.domain.NodeShape"
   );
 };
 
-const getPayloadResponses = function(
+const getPayloadResponses = function (
   operation: model.domain.Operation
 ): model.domain.Response[] {
   const okResponses = [];
@@ -95,7 +95,7 @@ export function extractTypeFromPayload(payload: model.domain.Payload): string {
   }
   if ((payload.schema as model.domain.UnionShape).anyOf !== undefined) {
     const union: string[] = [];
-    (payload.schema as model.domain.UnionShape).anyOf.forEach(element => {
+    (payload.schema as model.domain.UnionShape).anyOf.forEach((element) => {
       union.push(element.name.value());
     });
     return union.join(" | ");
@@ -110,13 +110,13 @@ export function extractTypeFromPayload(payload: model.domain.Payload): string {
  *
  * @returns a string for the data type returned by the successful operation
  */
-export const getReturnPayloadType = function(
+export const getReturnPayloadType = function (
   operation: model.domain.Operation
 ): string {
   const okResponses = getPayloadResponses(operation);
   const dataTypes: string[] = [];
 
-  okResponses.forEach(res => {
+  okResponses.forEach((res) => {
     if (res.payloads.length > 0) {
       dataTypes.push(extractTypeFromPayload(res.payloads[0]));
     } else {
@@ -131,7 +131,7 @@ export const getReturnPayloadType = function(
   return dataTypes.join(" | ");
 };
 
-const getDataTypeFromMap = function(uuidDataType: string): string {
+const getDataTypeFromMap = function (uuidDataType: string): string {
   return PRIMITIVE_DATA_TYPE_MAP[uuidDataType]
     ? PRIMITIVE_DATA_TYPE_MAP[uuidDataType]
     : DEFAULT_DATA_TYPE;
@@ -143,7 +143,7 @@ const getDataTypeFromMap = function(uuidDataType: string): string {
  * @param scalarShape - instance of model.domain.ScalarShape
  * @returns scalar data type if defined otherwise returns a default type
  */
-const getScalarType = function(scalarShape: model.domain.ScalarShape): string {
+const getScalarType = function (scalarShape: model.domain.ScalarShape): string {
   let dataType: string = undefined;
   if (scalarShape.dataType != null) {
     const typeValue = scalarShape.dataType.value();
@@ -174,15 +174,13 @@ const getScalarType = function(scalarShape: model.domain.ScalarShape): string {
  * @param arrayShape - instance of model.domain.ArrayShape
  * @returns array type if defined otherwise returns a default type
  */
-const getArrayType = function(arrayShape: model.domain.ArrayShape): string {
+const getArrayType = function (arrayShape: model.domain.ArrayShape): string {
   let arrItem: model.domain.Shape = arrayShape.items;
   if (arrItem == null) {
     if (arrayShape.inherits != null && arrayShape.inherits.length > 0)
       arrItem = (arrayShape.inherits[0] as model.domain.ArrayShape).items;
   }
-  return ARRAY_DATA_TYPE.concat("<")
-    .concat(getDataType(arrItem))
-    .concat(">");
+  return ARRAY_DATA_TYPE.concat("<").concat(getDataType(arrItem)).concat(">");
 };
 
 /**
@@ -191,7 +189,7 @@ const getArrayType = function(arrayShape: model.domain.ArrayShape): string {
  * @param anyShape - instance of model.domain.AnyShape or its subclass
  * @returns linked/inherited data type
  */
-const getLinkedType = function(anyShape: model.domain.AnyShape): string {
+const getLinkedType = function (anyShape: model.domain.AnyShape): string {
   let linkedType: model.domain.DomainElement = undefined;
   let dataType: string = undefined;
   //check if type is inherited
@@ -232,7 +230,7 @@ const getLinkedType = function(anyShape: model.domain.AnyShape): string {
  * @param anyShape - instance of model.domain.AnyShape or its subclass
  * @returns object type if defined otherwise returns a default type
  */
-const getObjectType = function(anyShape: model.domain.AnyShape): string {
+const getObjectType = function (anyShape: model.domain.AnyShape): string {
   let dataType: string = getLinkedType(anyShape);
   if (dataType == null) {
     if (
@@ -253,7 +251,7 @@ const getObjectType = function(anyShape: model.domain.AnyShape): string {
  * @param dtElement - instance of model.domain.DomainElement or its subclass
  * @returns data type if defined otherwise returns a default type
  */
-const getDataType = function(dtElement: model.domain.DomainElement): string {
+const getDataType = function (dtElement: model.domain.DomainElement): string {
   let dataType: string = undefined;
   if (dtElement != null) {
     if (dtElement instanceof model.domain.ScalarShape) {
@@ -276,7 +274,7 @@ const getDataType = function(dtElement: model.domain.DomainElement): string {
  * @param property - instance of model.domain.PropertyShape
  * @returns data type if defined in the property otherwise returns a default type
  */
-export const getPropertyDataType = function(
+export const getPropertyDataType = function (
   property: model.domain.PropertyShape
 ): string {
   if (property != null && property.range != null) {
@@ -291,7 +289,7 @@ export const getPropertyDataType = function(
  * @param param - instance of model.domain.Parameter
  * @returns data type if defined in the parameter otherwise returns a default type
  */
-export const getParameterDataType = function(
+export const getParameterDataType = function (
   param: model.domain.Parameter
 ): string {
   if (param != null && param.schema != null) {
@@ -300,7 +298,7 @@ export const getParameterDataType = function(
   return DEFAULT_DATA_TYPE;
 };
 
-const getPayloadType = function(schema: model.domain.Shape): string {
+const getPayloadType = function (schema: model.domain.Shape): string {
   const name = schema.name.value();
   if (name == null) {
     return OBJECT_DATA_TYPE;
@@ -318,7 +316,7 @@ const getPayloadType = function(schema: model.domain.Shape): string {
  * @param request - AMF model of the request
  * @returns Type of the request body
  */
-export const getRequestPayloadType = function(
+export const getRequestPayloadType = function (
   request: model.domain.Request
 ): string {
   if (
@@ -344,7 +342,7 @@ export const getRequestPayloadType = function(
  *
  * @returns the string of the value
  */
-export const getValue = function<T>(name: model.ValueField<T>): string {
+export const getValue = function <T>(name: model.ValueField<T>): string {
   let value;
   if (typeof name?.value === "function") {
     value = name.value();
@@ -361,7 +359,7 @@ type propertyFilter = (propertyName: string) => boolean;
  * @param propertyFilter - function to filter properties based on certain criteria
  * @returns The filtered list of properties
  */
-const getFilteredProperties = function(
+const getFilteredProperties = function (
   dtoTypeModel: model.domain.NodeShape | null | undefined,
   propertyFilter: propertyFilter
 ): model.domain.PropertyShape[] {
@@ -370,7 +368,7 @@ const getFilteredProperties = function(
 
   while (dtoTypeModel != null) {
     if (dtoTypeModel.properties != null && dtoTypeModel.properties.length > 0) {
-      dtoTypeModel.properties.forEach(prop => {
+      dtoTypeModel.properties.forEach((prop) => {
         if (prop != null) {
           const propName = getValue(prop.name);
           //ignore duplicate props
@@ -409,10 +407,10 @@ const getFilteredProperties = function(
  * @param dtoTypeModel - AMF model of the dto
  * @returns Array of properties in the dto that are not regular expressions
  */
-export const getProperties = function(
+export const getProperties = function (
   dtoTypeModel: model.domain.NodeShape | undefined | null
 ): model.domain.PropertyShape[] {
-  return getFilteredProperties(dtoTypeModel, propertyName => {
+  return getFilteredProperties(dtoTypeModel, (propertyName) => {
     return !/^([/^]).*.$/.test(propertyName);
   });
 };
@@ -426,7 +424,7 @@ export const getProperties = function(
  * @param property -
  * @returns true if the property is required
  */
-export const isRequiredProperty = function(
+export const isRequiredProperty = function (
   property: model.domain.PropertyShape
 ): boolean {
   return property != null && property.minCount.value() > 0;
@@ -441,7 +439,7 @@ export const isRequiredProperty = function(
  * @param property -
  * @returns true if the property is optional
  */
-export const isOptionalProperty = function(
+export const isOptionalProperty = function (
   property: model.domain.PropertyShape
 ): boolean {
   return property != null && property.minCount.value() == 0;
@@ -453,7 +451,7 @@ export const isOptionalProperty = function(
  * @param ramlTypeDefinition - Any RAML type definition
  * @returns true if additional properties are allowed, false otherwise
  */
-export const isAdditionalPropertiesAllowed = function(
+export const isAdditionalPropertiesAllowed = function (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ramlTypeDefinition: any
 ): boolean {
@@ -472,7 +470,7 @@ export const isAdditionalPropertiesAllowed = function(
  *
  * @returns The custom object id as a string
  */
-export const getObjectIdByAssetId = function(assetId: string): string {
+export const getObjectIdByAssetId = function (assetId: string): string {
   return ASSET_OBJECT_MAP[assetId];
 };
 
@@ -485,7 +483,7 @@ export type NamedObject = { name: { value: () => string } };
  *
  * @returns the converted name as a string
  */
-export const getName = function(obj: NamedObject): string {
+export const getName = function (obj: NamedObject): string {
   return obj?.name?.value?.() || "";
 };
 
@@ -496,7 +494,7 @@ export const getName = function(obj: NamedObject): string {
  *
  * @returns the converted name as a string
  */
-export const getCamelCaseName = function(obj: NamedObject): string {
+export const getCamelCaseName = function (obj: NamedObject): string {
   return _.camelCase(getName(obj));
 };
 
@@ -507,7 +505,7 @@ export const getCamelCaseName = function(obj: NamedObject): string {
  *
  * @returns the converted name as a string
  */
-export const getPascalCaseName = function(obj: NamedObject): string {
+export const getPascalCaseName = function (obj: NamedObject): string {
   const name = getCamelCaseName(obj);
   return name && name[0].toUpperCase() + name.slice(1);
 };
@@ -519,11 +517,11 @@ export const getPascalCaseName = function(obj: NamedObject): string {
  *
  * @returns string reformatted for TSDoc
  */
-export const formatForTsDoc = function(str: string): string {
+export const formatForTsDoc = function (str: string): string {
   // Brackets are special to TSDoc and less than / greater than are interpreted as HTML
   const symbolsEscaped = str
     .toString()
-    .replace(/([^\\])(["{}<>]+)/g, m => Array.from(m).join("\\"));
+    .replace(/([^\\])(["{}<>]+)/g, (m) => Array.from(m).join("\\"));
   // Double escaped newlines are replaced with real newlines
   const newlinesUnescaped = symbolsEscaped.replace(/\\n/g, "\n");
   // Double escaped tabs are replaced with a single space

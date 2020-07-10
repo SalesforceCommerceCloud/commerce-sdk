@@ -16,9 +16,7 @@ describe("When adding namespaces to individual content (types)", () => {
   });
 
   it("Will not prefix void with a namespace", () => {
-    expect(addNamespace("void", "types"))
-      .to.be.a("string")
-      .and.equal("void");
+    expect(addNamespace("void", "types")).to.be.a("string").and.equal("void");
   });
 
   it("Will not prefix object with a namespace", () => {

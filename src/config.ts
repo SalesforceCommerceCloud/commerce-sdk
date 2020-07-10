@@ -14,7 +14,7 @@ export const PRIMITIVE_DATA_TYPE_MAP = {
   "http://www.w3.org/2001/XMLSchema#integer": "number",
   "http://www.w3.org/2001/XMLSchema#double": "number",
   "http://www.w3.org/2001/XMLSchema#float": "number",
-  "http://www.w3.org/2001/XMLSchema#boolean": "boolean"
+  "http://www.w3.org/2001/XMLSchema#boolean": "boolean",
 };
 export const ASSET_OBJECT_MAP = {
   assignments: "a003k00000UHvoaAAD",
@@ -36,5 +36,5 @@ export const ASSET_OBJECT_MAP = {
   "shopper-promotions": "a003k00000UHvp5AAD",
   "shopper-search": "a003k00000UHwuFAAT",
   "shopper-stores": "a003k00000UHwuPAAT",
-  "source-code-groups": "a003k00000UHvpTAAT"
+  "source-code-groups": "a003k00000UHvpTAAT",
 };

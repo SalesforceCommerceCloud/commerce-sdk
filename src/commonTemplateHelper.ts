@@ -34,7 +34,7 @@ export function addNamespace(content: string, namespace: string): string {
   const namespaceTypes: string[] = [];
 
   // for each type
-  typesToProcess.forEach(checkType => {
+  typesToProcess.forEach((checkType) => {
     // trim the fat
     const actualType = checkType.trim();
     // check if there's an actual type present

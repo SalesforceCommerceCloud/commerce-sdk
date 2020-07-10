@@ -9,7 +9,7 @@ import { renderTemplates } from "../src/renderer";
 
 require("dotenv").config();
 
-import config from "../../../build-config";
+import config from "../build-config";
 
 /**
  *  Renders the TypeScript code for the APIs using the pre-defined templates

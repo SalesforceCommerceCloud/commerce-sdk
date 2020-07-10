@@ -20,21 +20,21 @@ import {
   getName,
   getCamelCaseName,
   getPascalCaseName,
-  extractTypeFromPayload
+  extractTypeFromPayload,
 } from "../src/templateHelpers";
 
 import { assert, expect } from "chai";
 import { model, amf } from "@commerce-apps/raml-toolkit";
 import { ARRAY_DATA_TYPE, OBJECT_DATA_TYPE } from "../src/config";
 
-const getScalarType = function(typeName: string): model.domain.ScalarShape {
+const getScalarType = function (typeName: string): model.domain.ScalarShape {
   const scalarType: model.domain.ScalarShape = new model.domain.ScalarShape();
   scalarType.withDataType(typeName);
 
   return scalarType;
 };
 
-const getLinkedScalarType = function(typeName: string): model.domain.AnyShape {
+const getLinkedScalarType = function (typeName: string): model.domain.AnyShape {
   const rangeLink = getScalarType(typeName);
 
   const range = new model.domain.ScalarShape();
@@ -43,7 +43,7 @@ const getLinkedScalarType = function(typeName: string): model.domain.AnyShape {
   return range;
 };
 
-const getLinkedType = function(typeName: string): model.domain.AnyShape {
+const getLinkedType = function (typeName: string): model.domain.AnyShape {
   const linkedType = new model.domain.NodeShape();
   linkedType.withName(typeName);
 
@@ -53,14 +53,14 @@ const getLinkedType = function(typeName: string): model.domain.AnyShape {
   return shape;
 };
 
-const getInheritedType = function(typeName: string): model.domain.AnyShape {
+const getInheritedType = function (typeName: string): model.domain.AnyShape {
   const nodeShape = new model.domain.AnyShape();
   nodeShape.withInherits([getLinkedType(typeName)]);
 
   return nodeShape;
 };
 
-const getObjectType = function(): model.domain.NodeShape {
+const getObjectType = function (): model.domain.NodeShape {
   const objProperty: model.domain.PropertyShape = new model.domain.PropertyShape();
   objProperty.withName("test");
 
@@ -375,10 +375,10 @@ function verifyProperties(
 ): void {
   expect(actualProps).to.be.length(expectedProps.length);
   const expectedPropNames: Set<string> = new Set();
-  expectedProps.forEach(prop => {
+  expectedProps.forEach((prop) => {
     expectedPropNames.add(prop.name.value());
   });
-  actualProps.forEach(prop => {
+  actualProps.forEach((prop) => {
     expect(expectedPropNames.has(prop.name.value())).to.be.true;
   });
 }
@@ -509,7 +509,7 @@ describe("Template helper tests for getProperties", () => {
   });
 });
 
-const getRequestPayloadModel = function(
+const getRequestPayloadModel = function (
   shape: model.domain.Shape
 ): model.domain.Request {
   const payload = new model.domain.Payload();
@@ -568,16 +568,14 @@ describe("Template helper tests for getRequestPayloadType", () => {
     shape.withItems(arrItem);
 
     expect(getRequestPayloadType(getRequestPayloadModel(shape))).to.equal(
-      ARRAY_DATA_TYPE.concat("<")
-        .concat(typeName)
-        .concat(">")
+      ARRAY_DATA_TYPE.concat("<").concat(typeName).concat(">")
     );
   });
 });
 
 describe("Template helper tests for name helpers", () => {
   const createNamedObject = (name: string): NamedObject => ({
-    name: { value: (): string => name }
+    name: { value: (): string => name },
   });
   const capitalStr = "Foo Bar";
   const camelStr = "fooBar";
@@ -595,7 +593,7 @@ describe("Template helper tests for name helpers", () => {
     "foo bar",
     {},
     { name: {} },
-    { name: { value: null } }
+    { name: { value: null } },
   ];
   describe("Basic name getter", () => {
     it("Returns unmodified name for valid inputs", () => {
@@ -606,7 +604,7 @@ describe("Template helper tests for name helpers", () => {
       expect(getName(emptyObj)).to.equal(emptyStr);
     });
     it("Returns empty string for invalid inputs", () => {
-      invalids.forEach(item =>
+      invalids.forEach((item) =>
         expect(getName(item as NamedObject)).to.equal(emptyStr)
       );
     });
@@ -620,7 +618,7 @@ describe("Template helper tests for name helpers", () => {
       expect(getCamelCaseName(emptyObj)).to.equal(emptyStr);
     });
     it("Returns empty string for invalid inputs", () => {
-      invalids.forEach(item =>
+      invalids.forEach((item) =>
         expect(getName(item as NamedObject)).to.equal(emptyStr)
       );
     });
@@ -635,7 +633,7 @@ describe("Template helper tests for name helpers", () => {
       expect(getPascalCaseName(emptyObj)).to.equal(emptyStr);
     });
     it("Returns empty string for invalid inputs", () => {
-      invalids.forEach(item =>
+      invalids.forEach((item) =>
         expect(getName(item as NamedObject)).to.equal(emptyStr)
       );
     });

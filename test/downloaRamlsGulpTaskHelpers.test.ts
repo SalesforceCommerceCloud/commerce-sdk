@@ -31,12 +31,12 @@ describe("diffNewAndArchivedRamlFiles", () => {
     apiConfig = {
       family1: [
         { assetId: "api1", fatRaml: { mainFile: "api1.raml" } },
-        { assetId: "api2", fatRaml: { mainFile: "api2.raml" } }
+        { assetId: "api2", fatRaml: { mainFile: "api2.raml" } },
       ],
       family2: [
         { assetId: "api3", fatRaml: { mainFile: "api3.raml" } },
-        { assetId: "api4", fatRaml: { mainFile: "api4.raml" } }
-      ]
+        { assetId: "api4", fatRaml: { mainFile: "api4.raml" } },
+      ],
     };
     nodeDiffArr.push(new NodeDiff("#/web-api/endpoints/test-endpoint"));
     diffRamlStub = sinon.stub(diffProcessor, "diffRaml");

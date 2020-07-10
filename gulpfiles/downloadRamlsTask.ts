@@ -18,9 +18,9 @@ import {
   removeRamlLinks,
   removeVersionSpecificInformation,
   RestApi,
-  searchExchange
+  searchExchange,
 } from "@commerce-apps/raml-toolkit";
-import config from "../../../build-config";
+import config from "../build-config";
 import { diffNewAndArchivedRamlFiles } from "../src/downloadRamlsGulpTaskHelpers";
 import { generatorLogger } from "../src/logger";
 
@@ -44,7 +44,7 @@ async function search(): Promise<RestApi[]> {
   );
   const apis = await searchExchange(token, config.exchangeSearch);
   const promises = [];
-  apis.forEach(api => {
+  apis.forEach((api) => {
     promises.push(
       getVersionByDeployment(token, api, config.exchangeDeploymentRegex).then(
         (version: string) => {
@@ -93,9 +93,9 @@ gulp.task("backupApis", async () => {
  * @returns Promise that resolves on completion.
  */
 gulp.task("downloadRamlFiles", async () => {
-  return search().then(apis => {
+  return search().then((apis) => {
     return downloadRestApis(apis, config.inputDir)
-      .then(folder => {
+      .then((folder) => {
         generatorLogger.info(`Setting config.inputDir to '${folder}'`);
         config.inputDir = folder;
         return extractFiles(folder);

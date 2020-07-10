@@ -31,7 +31,7 @@ describe("Test isCommonQueryParameter template help function", () => {
   });
 
   it("returns true for all common parameter", () => {
-    commonParameterPositions.queryParameters.forEach(p => {
+    commonParameterPositions.queryParameters.forEach((p) => {
       expect(isCommonQueryParameter(p)).to.be.true;
     });
   });

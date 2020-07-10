@@ -14,7 +14,7 @@ const BASE_URI =
   "https://anypoint.mulesoft.com/mocking/api/v1/sources/exchange/assets/893f605e-10e2-423a-bdb4-f952f56eb6d8/steelarc-integration/1.0.0/m/s/-/dw/shop/v19_5";
 
 const client = new Shop.ShopApi({
-  baseUri: BASE_URI
+  baseUri: BASE_URI,
 });
 
 // let test: Shop;
@@ -27,19 +27,19 @@ before(() => {
 describe("Shop client integration GET tests", () => {
   it("Throws error calling GET with no token", () => {
     const newLocalClient = new Shop.ShopApi({
-      baseUri: BASE_URI
+      baseUri: BASE_URI,
     });
 
     return expect(newLocalClient.getSite()).to.be.rejected;
   });
 
   it("Returns object calling GET with token", () => {
-    return client.getSite().then(s => {
+    return client.getSite().then((s) => {
       expect(s).to.deep.equal({
         // eslint-disable-next-line @typescript-eslint/camelcase
         allowed_currencies: [],
         // eslint-disable-next-line @typescript-eslint/camelcase
-        allowed_locales: [{}]
+        allowed_locales: [{}],
       });
     });
   });
@@ -48,14 +48,14 @@ describe("Shop client integration GET tests", () => {
     return client
       .getSite({
         // eslint-disable-next-line @typescript-eslint/camelcase
-        parameters: { unknown_parameter: "unknown_value" }
+        parameters: { unknown_parameter: "unknown_value" },
       })
-      .then(s => {
+      .then((s) => {
         expect(s).to.deep.equal({
           // eslint-disable-next-line @typescript-eslint/camelcase
           allowed_currencies: [],
           // eslint-disable-next-line @typescript-eslint/camelcase
-          allowed_locales: [{}]
+          allowed_locales: [{}],
         });
       });
   });
@@ -64,7 +64,7 @@ describe("Shop client integration GET tests", () => {
 describe("Shop client integration PUT tests", () => {
   it("Throws error calling PUT with no token", () => {
     const newLocalClient = new Shop.ShopApi({
-      baseUri: BASE_URI
+      baseUri: BASE_URI,
     });
 
     return expect(
@@ -72,8 +72,8 @@ describe("Shop client integration PUT tests", () => {
         body: {
           // eslint-disable-next-line @typescript-eslint/camelcase
           current_password: "Current Password",
-          password: "New Password"
-        }
+          password: "New Password",
+        },
       })
     ).to.be.rejected;
   });
@@ -85,12 +85,12 @@ describe("Shop client integration PUT tests", () => {
           body: {
             // eslint-disable-next-line @typescript-eslint/camelcase
             current_password: "Current password",
-            password: ""
-          }
+            password: "",
+          },
         },
         true
       )
-      .then(res => {
+      .then((res) => {
         return expect((res as Response).ok).is.true;
       });
   });
@@ -99,15 +99,15 @@ describe("Shop client integration PUT tests", () => {
 describe("Shop client integration PATCH tests", () => {
   it("Throws error calling PATCH with no token", () => {
     const newLocalClient = new Shop.ShopApi({
-      baseUri: BASE_URI
+      baseUri: BASE_URI,
     });
 
     return expect(
       newLocalClient.updateCustomerProductListItem({
         parameters: {
-          itemId: "item_id"
+          itemId: "item_id",
         },
-        body: {}
+        body: {},
       })
     ).to.be.rejected;
   });
@@ -116,9 +116,9 @@ describe("Shop client integration PATCH tests", () => {
     return expect(
       client.updateCustomerProductListItem({
         parameters: {
-          itemId: "item_id"
+          itemId: "item_id",
         },
-        body: {}
+        body: {},
       })
     ).to.eventually.deep.equal({});
   });
@@ -127,7 +127,7 @@ describe("Shop client integration PATCH tests", () => {
 describe("Shop client integration DELETE tests", () => {
   it("Throws error calling DELETE with no token", () => {
     const newLocalClient = new Shop.ShopApi({
-      baseUri: BASE_URI
+      baseUri: BASE_URI,
     });
 
     return expect(newLocalClient.deleteSite()).to.be.rejected;
@@ -136,14 +136,14 @@ describe("Shop client integration DELETE tests", () => {
   it("Returns object calling DELETE with valid token", () => {
     return client
       .deleteSite({}, true)
-      .then(res => expect((res as Response).ok).to.be.true);
+      .then((res) => expect((res as Response).ok).to.be.true);
   });
 });
 
 describe("Shop client integration POST tests", () => {
   it("Throws error calling POST with no token", () => {
     const newLocalClient = new Shop.ShopApi({
-      baseUri: BASE_URI
+      baseUri: BASE_URI,
     });
 
     return expect(
@@ -157,8 +157,8 @@ describe("Shop client integration POST tests", () => {
           select: "",
           // eslint-disable-next-line @typescript-eslint/camelcase
           sorts: [{ field: "", sort_order: "0" }],
-          start: 0
-        }
+          start: 0,
+        },
       })
     ).to.be.rejected;
   });
@@ -175,8 +175,8 @@ describe("Shop client integration POST tests", () => {
           select: "",
           // eslint-disable-next-line @typescript-eslint/camelcase
           sorts: [{ field: "", sort_order: "0" }],
-          start: 0
-        }
+          start: 0,
+        },
       })
     ).to.be.rejected;
   });
@@ -193,8 +193,8 @@ describe("Shop client integration POST tests", () => {
           select: "",
           // eslint-disable-next-line @typescript-eslint/camelcase
           sorts: [{ field: "", sort_order: "asc" }],
-          start: 0
-        }
+          start: 0,
+        },
       })
     ).to.eventually.deep.equal({});
   });

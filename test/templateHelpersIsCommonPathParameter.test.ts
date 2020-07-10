@@ -31,7 +31,7 @@ describe("Test isCommonPathParameter template help function", () => {
   });
 
   it("returns true for all common parameter", () => {
-    commonParameterPositions.pathParameters.forEach(p => {
+    commonParameterPositions.pathParameters.forEach((p) => {
       expect(isCommonPathParameter(p)).to.be.true;
     });
   });

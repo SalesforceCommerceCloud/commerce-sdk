@@ -50,7 +50,7 @@ function compareArrays<T>(
   const left = new Set(leftArr);
   const right = new Set(rightArr);
   const common = new Set<T>();
-  left.forEach(val => {
+  left.forEach((val) => {
     if (right.has(val)) {
       left.delete(val);
       right.delete(val);
@@ -60,7 +60,7 @@ function compareArrays<T>(
   return {
     leftOnly: [...left],
     rightOnly: [...right],
-    common: [...common]
+    common: [...common],
   };
 }
 
@@ -125,13 +125,13 @@ export async function diffNewAndArchivedRamlFiles(
     ramls.common
   );
 
-  const removedRamls: RamlDiff[] = ramls.leftOnly.map(r => ({
+  const removedRamls: RamlDiff[] = ramls.leftOnly.map((r) => ({
     file: r,
-    message: "This RAML has been removed"
+    message: "This RAML has been removed",
   }));
-  const addedRamls: RamlDiff[] = ramls.rightOnly.map(r => ({
+  const addedRamls: RamlDiff[] = ramls.rightOnly.map((r) => ({
     file: r,
-    message: "This RAML has been added recently"
+    message: "This RAML has been added recently",
   }));
 
   return result.concat(removedRamls, addedRamls);

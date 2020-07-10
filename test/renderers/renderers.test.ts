@@ -24,7 +24,7 @@ describe("Renderers", () => {
     apiConfigFile: "api-config.json",
     shopperAuthClient: "Customer.ShopperCustomers",
     shopperAuthApi: "authorizeCustomer",
-    exchangeDeploymentRegex: /test/
+    exchangeDeploymentRegex: /test/,
   };
   const expectFileToExist = (file: string): void => {
     const filePath = path.join(CONFIG.renderDir, file);
@@ -37,7 +37,7 @@ describe("Renderers", () => {
     before("Rendering", async () => renderer.renderTemplates(CONFIG));
     before("Linter Setup", () => {
       eslintConfig = _.cloneDeep(pkg.eslintConfig);
-      const override = eslintConfig.overrides?.find(or => {
+      const override = eslintConfig.overrides?.find((or) => {
         return or.files.includes("dist/**");
       });
       if (!override) {
@@ -67,12 +67,12 @@ describe("Renderers", () => {
         baseConfig: eslintConfig,
         extensions: [".ts"],
         fix: true,
-        useEslintrc: false
+        useEslintrc: false,
       });
       function expectValidTypeScript(file: string): void {
         const linted = cli.executeOnFiles([path.join(CONFIG.renderDir, file)]);
-        const fatal = linted.results.some(result => {
-          return result.messages.some(msg => msg.fatal);
+        const fatal = linted.results.some((result) => {
+          return result.messages.some((msg) => msg.fatal);
         });
         expect(fatal, `Fatal linting errors in ${file}`).to.be.false;
       }

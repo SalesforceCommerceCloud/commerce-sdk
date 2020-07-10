@@ -14,7 +14,7 @@ import {
   resolveApiModel,
   getNormalizedName,
   RestApi,
-  model
+  model,
 } from "@commerce-apps/raml-toolkit";
 import _ from "lodash";
 import {
@@ -35,7 +35,7 @@ import {
   getName,
   getCamelCaseName,
   getPascalCaseName,
-  formatForTsDoc
+  formatForTsDoc,
 } from "./templateHelpers";
 import { addNamespace } from "./commonTemplateHelper";
 import { generatorLogger } from "./logger";
@@ -76,7 +76,7 @@ const templateDirectory = `${__dirname}/../templates`;
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require("handlebars-helpers")({ handlebars: Handlebars }, [
   "string",
-  "comparison"
+  "comparison",
 ]);
 
 // HANDLEBARS TEMPLATES
@@ -137,7 +137,7 @@ export async function processApiFamily(
   apiFamily: RestApi[],
   inputDir: string
 ): Promise<DocumentWithMetadataT[]> {
-  const promises = apiFamily.map(async apiMeta => {
+  const promises = apiFamily.map(async (apiMeta) => {
     if (!apiMeta.id) {
       throw new Error(`Some information about '${apiMeta.name}' is missing in 'apis/api-config.json'. 
       Please ensure that '${apiMeta.name}' RAML and its dependencies are present in 'apis/', and all the required information is present in 'apis/api-config.json'.`);
@@ -146,7 +146,7 @@ export async function processApiFamily(
       document: await parseRamlFile(
         path.join(inputDir, apiMeta.assetId, apiMeta.fatRaml.mainFile)
       ),
-      metadata: apiMeta
+      metadata: apiMeta,
     };
   });
 
@@ -170,7 +170,7 @@ export async function getApiModelTuples(
     async (familyName): Promise<ApiModelTupleT> => {
       return [
         familyName,
-        await processApiFamily(apiConfig[familyName], buildConfig.inputDir)
+        await processApiFamily(apiConfig[familyName], buildConfig.inputDir),
       ];
     }
   );
@@ -196,11 +196,11 @@ function createClient(
     {
       dataTypes: getAllDataTypes(webApiModel),
       apiModel: webApiModel,
-      metadata: apiMetadata
+      metadata: apiMetadata,
     },
     {
       allowProtoPropertiesByDefault: true,
-      allowProtoMethodsByDefault: true
+      allowProtoMethodsByDefault: true,
     }
   );
 }
@@ -218,7 +218,7 @@ function createDto(
   const types = getAllDataTypes(webApiModel);
   return dtoTemplate(types, {
     allowProtoPropertiesByDefault: true,
-    allowProtoMethodsByDefault: true
+    allowProtoMethodsByDefault: true,
   });
 }
 
@@ -230,7 +230,7 @@ function createDto(
  */
 function createIndex(apiModelTuples: ApiModelTupleT[]): string {
   return indexTemplate({
-    apiSpec: apiModelTuples.map(([familyName]) => _.camelCase(familyName))
+    apiSpec: apiModelTuples.map(([familyName]) => _.camelCase(familyName)),
   });
 }
 
@@ -243,7 +243,7 @@ function createIndex(apiModelTuples: ApiModelTupleT[]): string {
 function createHelpers(buildConfig: IBuildConfig): string {
   return helpersTemplate({
     shopperAuthClient: buildConfig.shopperAuthClient,
-    shopperAuthApi: buildConfig.shopperAuthApi
+    shopperAuthApi: buildConfig.shopperAuthApi,
   });
 }
 
@@ -255,7 +255,7 @@ function createHelpers(buildConfig: IBuildConfig): string {
  */
 function createApiFamily(apiNames: string[]): string {
   return apiFamilyTemplate({
-    apiNamesInFamily: apiNames
+    apiNamesInFamily: apiNames,
   });
 }
 
@@ -305,7 +305,7 @@ function renderApiFamily(
   const fileName = getNormalizedName(familyName);
   const filePath: string = path.join(renderDir, fileName);
   fs.ensureDirSync(filePath);
-  const apiNames = models.map(api => renderApi(api, filePath));
+  const apiNames = models.map((api) => renderApi(api, filePath));
   // export all APIs in the family
   fs.writeFileSync(
     path.join(filePath, `${fileName}.ts`),
@@ -393,4 +393,4 @@ Handlebars.registerHelper("getPascalCaseName", getPascalCaseName);
 
 Handlebars.registerHelper("formatForTsDoc", formatForTsDoc);
 
-Handlebars.registerHelper("addNamespace",addNamespace);
+Handlebars.registerHelper("addNamespace", addNamespace);
