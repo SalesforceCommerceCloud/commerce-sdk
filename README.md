@@ -125,7 +125,7 @@ The SDK currently supports two types of caches - In-memory and Redis. Both the i
 
 ### Cache storage adapter
 
-The default cache storage limits to 10,000 distinct entities before applying a simple [least recently used](https://en.m.wikipedia.org/wiki/Cache_replacement_policies#Least_Recently_Used_.28LRU.29) policy for cache replacement. The limit can be changed by creating a [quick-lru](https://www.npmjs.com/package/quick-lru) storage adapter.
+The default cache storage is limited to 10,000 distinct entities before applying a simple [least recently used](https://en.m.wikipedia.org/wiki/Cache_replacement_policies#Least_Recently_Used_.28LRU.29) policy for cache replacement. The limit can be changed by creating a [quick-lru](https://www.npmjs.com/package/quick-lru) storage adapter.
 
 ```javascript
 import { CacheManagerKeyv } from '@commerce-apps/core';
