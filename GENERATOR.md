@@ -2,14 +2,14 @@
 
 > **Note:** This readme is here to allow a spot for the commerce-sdk readme to be in the root of the package.
 
-* Templates are rendered into the renderDir specified by [build-config.ts](../../../build-config.ts)
+* Templates are rendered into the renderDir specified by [build-config.ts](./build-config.ts)
 * Once rendered they are transpiled to the dist directory just like every other package
 
 ## Usage
 
 ### Updating the APIs
 
-You will need Anypoint credentials to download the APIs. Add them to your environment configuration or create a .env file in the [gulpfiles](../gulpfiles) directory. Set the following environment variables:
+You will need Anypoint credentials to download the APIs. Add them to your environment configuration or create a .env file in the [gulpfiles](./gulpfiles) directory. Set the following environment variables:
 
 ```txt
 ANYPOINT_USERNAME=<username>

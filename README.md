@@ -106,22 +106,22 @@ helpers.getShopperToken(config, { type: "guest" }).then(async (token) => {
 When using an IDE such as VSCode, the autocomplete feature lets you view the available method and class definitions, including parameters.
 ​
 
-![Autocomplete](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/packages/generator/images/Autocomplete.jpg?raw=true 'Autocomplete')
+![Autocomplete](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/images/Autocomplete.jpg?raw=true 'Autocomplete')
 
 To view the details of a method or a variable, hover over methods and variables.
 ​
 
-![Method Details](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/packages/generator/images/MethodDetails.jpg?raw=true 'Method Details')
+![Method Details](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/images/MethodDetails.jpg?raw=true 'Method Details')
 
-![Parameter Details](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/packages/generator/images/ParameterDetails.jpg?raw=true 'Parameter Details')
+![Parameter Details](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/images/ParameterDetails.jpg?raw=true 'Parameter Details')
 
 Autocomplete also shows the available properties of the data returned by SDK methods.
 
-![Result Autocomplete](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/packages/generator/images/ResultAutocomplete.jpg?raw=true 'Result Autocomplete')
+![Result Autocomplete](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/images/ResultAutocomplete.jpg?raw=true 'Result Autocomplete')
 
 ## Caching
 
-The SDK currently supports two types of caches - In-memory and Redis. Both the implementations respect [standard cache headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control). To use another type of cache, write your own implementation of the [CacheManager](../core/src/base/cacheManager.ts). See the [default cache manager](../core/src/base/cacheManagerKeyv.ts) to design your implementation.
+The SDK currently supports two types of caches - In-memory and Redis. Both the implementations respect [standard cache headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control). To use another type of cache, write your own implementation of the [CacheManager](https://github.com/SalesforceCommerceCloud/commerce-sdk-core/tree/master/src/base/cacheManager.ts). See the [default cache manager](https://github.com/SalesforceCommerceCloud/commerce-sdk-core/tree/master/src/base/cacheManagerKeyv.ts) to design your implementation.
 
 ### Cache storage adapter
 

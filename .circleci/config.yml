@@ -13,7 +13,7 @@ commands:
       - run: npm run build
   test:
     steps:
-      - run: npm run test:all
+      - run: npm run test:ci
       - store_test_results:
           path: reports
 
@@ -23,17 +23,14 @@ executors:
     <<: *defaults
     docker:
       - image: circleci/node:10.20.1
-      - image: redis:5-alpine
   node-12:
     <<: *defaults
     docker:
       - image: circleci/node:12.16.3
-      - image: redis:5-alpine
   node-14:
     <<: *defaults
     docker:
       - image: circleci/node:14.2.0
-      - image: redis:5-alpine
 
 # JOBS
 jobs:
@@ -65,7 +62,7 @@ jobs:
       - run:
           name: Create npmrc file to authenticate with npm registry.
           command: echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > ~/.npmrc
-      - run: npm run publish
+      - run: npm publish
 
 # WORKFLOWS
 workflows:
