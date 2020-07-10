@@ -179,6 +179,8 @@ module.exports = function() {
         expect(nock.isDone()).to.be.true;
         scope
           .get("/max-age-no-cache")
+          .matchHeader("authorization", "Bearer token")
+          .matchHeader("accept", "text/plain, text/html")
           .reply(
             200,
             { mock: "newData" },
@@ -188,7 +190,47 @@ module.exports = function() {
         return StaticClient.get({
           client: this.client,
           path: "/max-age-no-cache",
-          headers: { "Cache-Control": "no-cache" }
+          headers: { 
+            "Cache-Control": "no-cache", 
+            "Authorization": "Bearer token", 
+            "Accept": "text/plain, text/html" 
+          }
+        }).then(data => {
+          expect(data).to.deep.equal({ mock: "newData" });
+          expect(nock.isDone()).to.be.true;
+        });
+      });
+    });
+
+    it("bypasses cache with default", function() {
+      const scope = nock("https://somewhere")
+        .get("/max-age-default")
+        .reply(200, { mock: "data" }, { "Cache-Control": "max-age=604800" });
+
+      return StaticClient.get({
+        client: this.client,
+        path: "/max-age-default"
+      }).then(data => {
+        expect(data).to.deep.equal({ mock: "data" });
+        expect(nock.isDone()).to.be.true;
+        scope
+          .get("/max-age-default")
+          .matchHeader("authorization", "Bearer token")
+          .matchHeader("accept", "text/plain, text/html")
+          .reply(
+            200,
+            { mock: "newData" },
+            { "Cache-Control": "max-age=604800" }
+          );
+
+        return StaticClient.get({
+          client: this.client,
+          path: "/max-age-default",
+          headers: { 
+            "Cache-Control": "no-cache", 
+            "Authorization": "Bearer token", 
+            "Accept": "text/plain, text/html" 
+          }
         }).then(data => {
           expect(data).to.deep.equal({ mock: "newData" });
           expect(nock.isDone()).to.be.true;

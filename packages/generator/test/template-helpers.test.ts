@@ -27,8 +27,6 @@ import { assert, expect } from "chai";
 import { model, amf } from "@commerce-apps/raml-toolkit";
 import { ARRAY_DATA_TYPE, OBJECT_DATA_TYPE } from "../src/config";
 
-const { AMF } = amf;
-
 const getScalarType = function(typeName: string): model.domain.ScalarShape {
   const scalarType: model.domain.ScalarShape = new model.domain.ScalarShape();
   scalarType.withDataType(typeName);
@@ -127,14 +125,14 @@ describe("Template helper datatype tests", () => {
     const property = new model.domain.PropertyShape();
     property.withRange(getInheritedType("defined_type"));
 
-    assert.isTrue(getPropertyDataType(property) === "defined_typeT");
+    assert.isTrue(getPropertyDataType(property) === "defined_type");
   });
 
   it("Returns 'defined_type' on linked object type", () => {
     const property = new model.domain.PropertyShape();
     property.withRange(getLinkedType("defined_type"));
 
-    assert.isTrue(getPropertyDataType(property) === "defined_typeT");
+    assert.isTrue(getPropertyDataType(property) === "defined_type");
   });
 
   it("Returns 'any' on object type that has no details defined", () => {
@@ -161,7 +159,7 @@ describe("Template helper datatype tests", () => {
     const property: model.domain.PropertyShape = new model.domain.PropertyShape();
     property.withRange(range);
 
-    expect(getPropertyDataType(property)).to.equal("Array<defined_typeT>");
+    expect(getPropertyDataType(property)).to.equal("Array<defined_type>");
   });
 
   it("Returns 'Array<string>' on array of linked string types ", () => {
@@ -185,7 +183,7 @@ describe("Template helper datatype tests", () => {
     const property: model.domain.PropertyShape = new model.domain.PropertyShape();
     property.withRange(arrType);
 
-    expect(getPropertyDataType(property)).to.equal("Array<defined_typeT>");
+    expect(getPropertyDataType(property)).to.equal("Array<defined_type>");
   });
 
   it("Returns 'any' on unhandled type", () => {
@@ -248,7 +246,7 @@ describe("Template helper, response item type tests", () => {
     const response: model.domain.Response = operation.responses[0];
     response.withStatusCode("200");
     response.payloads[0].schema.withName("DefinedType");
-    expect(getReturnPayloadType(operation)).to.equal("DefinedTypeT");
+    expect(getReturnPayloadType(operation)).to.equal("DefinedType");
   });
 
   it("Returns 'void' on defined_type datatype, but with statusCode as 500", () => {
@@ -541,7 +539,7 @@ describe("Template helper tests for getRequestPayloadType", () => {
     const shape = new model.domain.NodeShape();
     shape.withName(typeName);
     expect(getRequestPayloadType(getRequestPayloadModel(shape))).to.equal(
-      typeName + "T"
+      typeName
     );
   });
 
@@ -572,7 +570,6 @@ describe("Template helper tests for getRequestPayloadType", () => {
     expect(getRequestPayloadType(getRequestPayloadModel(shape))).to.equal(
       ARRAY_DATA_TYPE.concat("<")
         .concat(typeName)
-        .concat("T")
         .concat(">")
     );
   });
@@ -666,7 +663,7 @@ describe("Template helper to extract type from payload", () => {
     const schema = new model.domain.SchemaShape();
     payload.withSchema(schema);
     payload.schema.withName("Foo");
-    expect(extractTypeFromPayload(payload)).to.equal("FooT");
+    expect(extractTypeFromPayload(payload)).to.equal("Foo");
   });
 
   it("Get Schema from payload when type is not set and schema anyOf is populated with one type", () => {
@@ -677,7 +674,7 @@ describe("Template helper to extract type from payload", () => {
     schema.withAnyOf([shape1]);
     payload.withSchema(schema);
 
-    expect(extractTypeFromPayload(payload)).to.equal("FooT");
+    expect(extractTypeFromPayload(payload)).to.equal("Foo");
   });
 
   it("Get Schema from payload when type is not set and schema anyOf is populated with multiple types", () => {
@@ -691,7 +688,7 @@ describe("Template helper to extract type from payload", () => {
     schema.withAnyOf([shape1, shape2]);
     payload.withSchema(schema);
 
-    expect(extractTypeFromPayload(payload)).to.equal("FooT | BaaT");
+    expect(extractTypeFromPayload(payload)).to.equal("Foo | Baa");
   });
 
   it("Fail to get Schema when schema is not set", () => {

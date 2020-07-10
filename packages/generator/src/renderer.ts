@@ -37,6 +37,7 @@ import {
   getPascalCaseName,
   formatForTsDoc
 } from "./templateHelpers";
+import { addNamespace } from "./commonTemplateHelper";
 import { generatorLogger } from "./logger";
 
 interface IApiConfig {
@@ -52,18 +53,23 @@ interface IBuildConfig {
   shopperAuthApi: string;
   exchangeDeploymentRegex: RegExp;
 }
+
 /**
- * Information used to generate APICLIENTS.md.
+ * Api Document with metadata
+ * TODO: This should be moved into raml-toolkit
  */
-export interface IApiClientsInfo {
-  model: model.domain.WebApi;
-  family: string;
-  config: RestApi;
-}
+export type DocumentWithMetadataT = {
+  document: model.document.Document;
+  metadata: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [key: string]: any;
+  };
+};
+
 /**
  * The name of an API family and its associated AMF models.
  */
-type ApiModelTupleT = [string, model.document.Document[]];
+type ApiModelTupleT = [string, DocumentWithMetadataT[]];
 
 const templateDirectory = `${__dirname}/../templates`;
 
@@ -98,19 +104,8 @@ const apiFamilyTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "apiFamily.ts.hbs"), "utf8")
 );
 
-const operationListTemplate = Handlebars.compile(
-  fs.readFileSync(
-    path.join(templateDirectory, "operationList.yaml.hbs"),
-    "utf8"
-  )
-);
-
 const dtoTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "dto.ts.hbs"), "utf8")
-);
-
-const apiClientsTemplate = Handlebars.compile(
-  fs.readFileSync(path.join(templateDirectory, "apiclients.md.hbs"), "utf8")
 );
 
 const dtoPartial = Handlebars.compile(
@@ -118,20 +113,6 @@ const dtoPartial = Handlebars.compile(
 );
 
 // HELPER FUNCTIONS
-
-/**
- * Sort API families and their APIs by name.
- *
- * @param apis - Array of API info used to generate API clients file.
- */
-export function sortApis(apis: IApiClientsInfo[][]): void {
-  // Sort API families
-  apis.sort((a, b) => a[0].family.localeCompare(b[0].family));
-  // Sort APIs within each family
-  apis.forEach(details =>
-    details.sort((a, b) => a.config.name.localeCompare(b.config.name))
-  );
-}
 
 /**
  * Loads the API family config from the location specified in the build config.
@@ -142,7 +123,6 @@ export function sortApis(apis: IApiClientsInfo[][]): void {
 export function loadApiConfig(
   buildConfig: Pick<IBuildConfig, "apiConfigFile" | "inputDir">
 ): IApiConfig {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
   return require(path.resolve(buildConfig.inputDir, buildConfig.apiConfigFile));
 }
 
@@ -156,15 +136,18 @@ export function loadApiConfig(
 export async function processApiFamily(
   apiFamily: RestApi[],
   inputDir: string
-): Promise<model.document.Document[]> {
+): Promise<DocumentWithMetadataT[]> {
   const promises = apiFamily.map(async apiMeta => {
     if (!apiMeta.id) {
       throw new Error(`Some information about '${apiMeta.name}' is missing in 'apis/api-config.json'. 
       Please ensure that '${apiMeta.name}' RAML and its dependencies are present in 'apis/', and all the required information is present in 'apis/api-config.json'.`);
     }
-    return parseRamlFile(
-      path.join(inputDir, apiMeta.assetId, apiMeta.fatRaml.mainFile)
-    );
+    return {
+      document: await parseRamlFile(
+        path.join(inputDir, apiMeta.assetId, apiMeta.fatRaml.mainFile)
+      ),
+      metadata: apiMeta
+    };
   });
 
   return Promise.all(promises);
@@ -194,25 +177,6 @@ export async function getApiModelTuples(
   return Promise.all(promises);
 }
 
-/**
- * Converts an array of entries into a plain object, like Object.fromEntries().
- *
- * @param entries - An array of key/value pairs to convert into an object
- * @returns The object created
- *
- * NOTE: This function can be replaced with Object.fromEntries when support for
- * node versions prior to 12 is dropped.
- */
-export function objectFromEntries<T>(
-  entries: [string, T][]
-): Record<string, T> {
-  const object = {};
-  entries.forEach(([key, value]) => {
-    object[key] = value;
-  });
-  return object;
-}
-
 // TEMPLATE FILLING FUNCTIONS
 
 /**
@@ -225,13 +189,14 @@ export function objectFromEntries<T>(
  */
 function createClient(
   webApiModel: model.document.BaseUnitWithDeclaresModel,
-  apiName: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  apiMetadata: { [key: string]: any }
 ): string {
   return clientInstanceTemplate(
     {
       dataTypes: getAllDataTypes(webApiModel),
       apiModel: webApiModel,
-      apiSpec: apiName
+      metadata: apiMetadata
     },
     {
       allowProtoPropertiesByDefault: true,
@@ -283,33 +248,6 @@ function createHelpers(buildConfig: IBuildConfig): string {
 }
 
 /**
- * Create the file documenting the available APIs.
- *
- * @param apiModelTuples - List of API names and the AMF models associated with each API
- * @param apiConfig - The API family config
- * @returns The rendered template as a string
- */
-export function createApiClients(
-  apiModelTuples: ApiModelTupleT[],
-  apiConfig: IApiConfig
-): string {
-  const apis = apiModelTuples.map(
-    ([familyName, apiModels]): IApiClientsInfo[] => {
-      // Merge model and config into array of data used by template
-      return apiModels.map((apiModel, idx) => {
-        return {
-          family: familyName, // Included for ease of access within template
-          model: apiModel.encodes as model.domain.WebApi,
-          config: apiConfig[familyName][idx]
-        };
-      });
-    }
-  );
-  sortApis(apis);
-  return apiClientsTemplate({ apis });
-}
-
-/**
  * Creates the code to export all APIs in a API Family.
  *
  * @param apiNames - Names of all the APIs in the family
@@ -318,22 +256,6 @@ export function createApiClients(
 function createApiFamily(apiNames: string[]): string {
   return apiFamilyTemplate({
     apiNamesInFamily: apiNames
-  });
-}
-
-/**
- * Creates a list of operations available from a list of AMF models.
- *
- * @param allApis - key/value of APIs
- * @returns The list of operations as string
- */
-export function createOperationList(allApis: {
-  // NOTE: No TypeScript uses EncodesModel, but the Handlebars template does
-  [key: string]: model.document.BaseUnitWithEncodesModel[];
-}): string {
-  return operationListTemplate(allApis, {
-    allowProtoPropertiesByDefault: true,
-    allowProtoMethodsByDefault: true
   });
 }
 
@@ -346,25 +268,25 @@ export function createOperationList(allApis: {
  * @param renderDir - Directory path at which the rendered API files are saved
  * @returns The name of the API
  */
-function renderApi(
-  apiModel: model.document.Document,
-  renderDir: string
-): string {
-  const apiName: string = getApiName(apiModel);
-  const apiPath: string = path.join(renderDir, apiName);
-  fs.ensureDirSync(apiPath);
+function renderApi(apiModel: DocumentWithMetadataT, renderDir: string): string {
+  apiModel.metadata.specName = getApiName(apiModel.document);
+  apiModel.metadata.apiPath = path.join(renderDir, apiModel.metadata.specName);
+  fs.ensureDirSync(apiModel.metadata.apiPath);
 
   fs.writeFileSync(
-    path.join(apiPath, `${apiName}.types.ts`),
-    createDto(apiModel)
+    path.join(
+      apiModel.metadata.apiPath,
+      `${apiModel.metadata.specName}.types.ts`
+    ),
+    createDto(apiModel.document)
   );
   // Resolve model for the end points using the 'editing' pipeline will retain the declarations in the model
-  const apiModelForEndPoints = resolveApiModel(apiModel, "editing");
+  const apiModelForEndPoints = resolveApiModel(apiModel.document, "editing");
   fs.writeFileSync(
-    path.join(apiPath, `${apiName}.ts`),
-    createClient(apiModelForEndPoints, apiName)
+    path.join(apiModel.metadata.apiPath, `${apiModel.metadata.specName}.ts`),
+    createClient(apiModelForEndPoints, apiModel.metadata)
   );
-  return apiName;
+  return apiModel.metadata.specName;
 }
 
 /**
@@ -377,7 +299,7 @@ function renderApi(
  */
 function renderApiFamily(
   familyName: string,
-  models: model.document.Document[],
+  models: DocumentWithMetadataT[],
   renderDir: string
 ): string[] {
   const fileName = getNormalizedName(familyName);
@@ -393,26 +315,6 @@ function renderApiFamily(
 }
 
 /**
- * Renders typescript code for the APIs using the pre-defined templates
- *
- * @param buildConfig - Config used to build the SDK
- */
-export async function renderDocumentation(
-  buildConfig: IBuildConfig
-): Promise<void> {
-  const apiConfig = loadApiConfig(buildConfig);
-  fs.ensureDirSync(buildConfig.renderDir);
-
-  const apiModelTuples = await getApiModelTuples(apiConfig, buildConfig);
-
-  fs.writeFileSync(
-    path.join(buildConfig.renderDir, "../APICLIENTS.md"),
-    createApiClients(apiModelTuples, apiConfig)
-  );
-  generatorLogger.info("Successfully generated APICLIENTS.md");
-}
-
-/**
  * Renders the TypeScript code for the APIs using the pre-defined templates.
  *
  * @param buildConfig - Config used to build the SDK
@@ -424,7 +326,6 @@ export async function renderTemplates(
   fs.ensureDirSync(buildConfig.renderDir);
 
   const apiModelTuples = await getApiModelTuples(apiConfig, buildConfig);
-
   // Create dynamic files
   apiModelTuples.forEach(([familyName, apiModels]) => {
     renderApiFamily(familyName, apiModels, buildConfig.renderDir);
@@ -445,25 +346,6 @@ export async function renderTemplates(
   generatorLogger.info(
     "Successfully rendered code from the APIs: ",
     buildConfig.inputDir
-  );
-}
-
-/**
- * Renders a YAML file with a list of operations available in the SDK.
- *
- * @param buildConfig - Config used to build the SDK
- */
-export async function renderOperationList(
-  buildConfig: IBuildConfig
-): Promise<void> {
-  const apiConfig = loadApiConfig(buildConfig);
-  fs.ensureDirSync(buildConfig.renderDir);
-
-  const apiModelTuples = await getApiModelTuples(apiConfig, buildConfig);
-
-  fs.writeFileSync(
-    path.join(buildConfig.renderDir, "operationList.yaml"),
-    createOperationList(objectFromEntries(apiModelTuples))
   );
 }
 
@@ -510,3 +392,5 @@ Handlebars.registerHelper("getCamelCaseName", getCamelCaseName);
 Handlebars.registerHelper("getPascalCaseName", getPascalCaseName);
 
 Handlebars.registerHelper("formatForTsDoc", formatForTsDoc);
+
+Handlebars.registerHelper("addNamespace",addNamespace);

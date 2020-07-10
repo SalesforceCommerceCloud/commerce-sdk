@@ -157,6 +157,10 @@ async function runFetch(
   // This line merges the values and then strips anything that is undefined.
   //  (NOTE: Not sure we have to, as all tests pass regardless, but going to anyways)
   finalOptions = _.pickBy(finalOptions, _.identity);
+  // Convert Headers object into a regular object. `http-cache-semantics`, a
+  // package used by `make-fetch-happen` to manipulate headers expects headers
+  // to be regular objects.
+  finalOptions.headers = _.fromPairs([...headers]);
 
   logFetch(resource, finalOptions);
   const response = await fetch(resource, finalOptions);

@@ -2,7 +2,7 @@
 
 To contribute to commerce-sdk, follow the guidelines below. This helps us address your pull request in a more timely manner. 
 
-## Submitting a Pull Request
+## Submit a Pull Request
 
   1. Create a new issue. It allows us to easily communicate with you about the issue.
   2. Create a fork of this repository.

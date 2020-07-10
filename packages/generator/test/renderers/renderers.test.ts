@@ -9,7 +9,6 @@ import { expect } from "chai";
 import path from "path";
 import tmp from "tmp";
 import fs from "fs-extra";
-import { safeLoad as parseYaml } from "js-yaml";
 import _ from "lodash";
 import { CLIEngine } from "eslint";
 
@@ -87,52 +86,5 @@ describe("Renderers", () => {
         "customer/shopperCustomers/shopperCustomers.types.ts"
       );
     }).timeout(10000);
-  });
-
-  describe("renderDocumentation", () => {
-    // This renderer creates the file outside the directory specified by the
-    // config, so in order to stay within our tmp dir, we have to specify a
-    // subdirectory, even though it's not used.
-    const renderDir = path.join(CONFIG.renderDir, "subdirectory");
-    const config = Object.assign({}, CONFIG, { renderDir });
-    before(async () => renderer.renderDocumentation(config));
-
-    it("generates documentation files", () => {
-      expectFileToExist("APICLIENTS.md");
-    });
-  });
-
-  describe("renderOperationsList", () => {
-    before(async () => renderer.renderOperationList(CONFIG));
-
-    it("generates operations file", () => {
-      expectFileToExist("operationList.yaml");
-    });
-
-    it("generates valid YAML", () => {
-      const yaml = fs.readFileSync(
-        path.join(CONFIG.renderDir, "operationList.yaml"),
-        "utf8"
-      );
-      expect(parseYaml(yaml)).to.deep.equal({
-        Shop: {
-          "Shop API": {
-            getSite: "get /site",
-            deleteSite: "delete /site",
-            searchProducts: "post /product-search",
-            updateCustomerPassword: "put /password",
-            updateCustomerProductListItem: "patch /patch/{itemId}"
-          }
-        },
-        Customer: {
-          "Shopper Customers": {
-            invalidateCustomerAuth:
-              "delete /organizations/{organizationId}/customers/auth",
-            authorizeCustomer:
-              "post /organizations/{organizationId}/customers/auth"
-          }
-        }
-      });
-    });
   });
 });

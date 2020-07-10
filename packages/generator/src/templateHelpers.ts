@@ -96,11 +96,11 @@ export function extractTypeFromPayload(payload: model.domain.Payload): string {
   if ((payload.schema as model.domain.UnionShape).anyOf !== undefined) {
     const union: string[] = [];
     (payload.schema as model.domain.UnionShape).anyOf.forEach(element => {
-      union.push(element.name.value() + "T");
+      union.push(element.name.value());
     });
     return union.join(" | ");
   }
-  return payload.schema.name.value() + "T";
+  return payload.schema.name.value();
 }
 
 /**
@@ -220,7 +220,7 @@ const getLinkedType = function(anyShape: model.domain.AnyShape): string {
   ) {
     const temp = linkedType.name.value();
     if (temp != null) {
-      dataType = temp + "T";
+      dataType = temp;
     }
   }
   return dataType;
@@ -308,14 +308,14 @@ const getPayloadType = function(schema: model.domain.Shape): string {
   if (name === "schema") {
     return OBJECT_DATA_TYPE;
   } else {
-    return name + "T";
+    return name;
   }
 };
 
 /**
  * Get type of the request body
  *
- * @param request - AMF model of tge request
+ * @param request - AMF model of the request
  * @returns Type of the request body
  */
 export const getRequestPayloadType = function(

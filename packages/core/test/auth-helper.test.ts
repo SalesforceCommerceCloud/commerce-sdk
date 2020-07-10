@@ -4,14 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import { BaseClient, ResponseError } from "../src/base/client";
 import { ShopperToken, stripBearer } from "../src/base/authHelper";
 
 import { expect, default as chai } from "chai";
 import chaiAsPromised from "chai-as-promised";
 
-import _ from "lodash";
-import { CustomerT } from "../../generator/dist/customer/shopperCustomers/shopperCustomers.types";
+import { Customer } from "../../generator/dist/customer/shopperCustomers/shopperCustomers.types";
 
 before(() => {
   chai.should();
@@ -33,7 +31,7 @@ describe("Test stripBearer", () => {
 });
 
 describe("Test ShopperToken", () => {
-  const customerInfo: CustomerT = {
+  const customerInfo: Customer = {
     authType: "guest",
     customerId: "abZwdk8kyKbrPEVkbesCW0lW5M",
     preferredLocale: "en_US"
