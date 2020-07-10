@@ -165,7 +165,7 @@ const config = {
 
 ### Redis cache
 
-To use a Redis cache, instantiate a CacheManagerRedis object with your Redis URL and add it to your client config object.
+To use a Redis cache, instantiate a CacheManagerRedis object with a Redis URL and add it to your client config object.
 
 ```javascript
 import { CacheManagerRedis } from '@commerce-apps/core';
@@ -237,7 +237,7 @@ type RetrySettings = {
 };
 ```
 
-All of these options can either be set on a per client or per request basis.
+All options can be set per client or per request.
 
 Example:
 
