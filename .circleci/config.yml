@@ -16,7 +16,7 @@ commands:
       - run: npm run test:ci
       - store_test_results:
           path: reports
-  integration-tests:
+  test-integration:
     steps:
       - run: cd testIntegration
       - run: npm run test:bundle
@@ -45,21 +45,21 @@ jobs:
     steps:
       - build
       - test
-      - integration-test
+      - test-integration
 
   build-node-12:
     executor: node-12
     steps:
       - build
       - test
-      - integration-test
+      - test-integration
 
   build-node-14:
     executor: node-14
     steps:
       - build
       - test
-      - integration-test
+      - test-integration
 
   publish:
     executor:
