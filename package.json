@@ -21,6 +21,7 @@
     "lint:dev": "eslint . --ext .ts --fix",
     "pretest": "npm run lint && npm run depcheck",
     "build": "npm run renderTemplates && tsc && eslint dist --ext .ts,.js --quiet --fix",
+    "prepack": "npm run build",
     "test:ci": "npm test -- --reporter=xunit --reporter-options output=./reports/generator.xml",
     "test": "nyc mocha \"test/**/*.test.ts\"",
     "doc": "typedoc --mode modules --out ./docs renderedTemplates/** --tsconfig tsconfig.json --external-modulemap  \".*/renderedTemplates/([\\w\\-_]+)/\"  && cp CHANGELOG.md ./docs",
