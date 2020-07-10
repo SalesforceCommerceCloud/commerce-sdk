@@ -25,12 +25,10 @@ export function addNamespace(content: string, namespace: string): string {
   }
 
   // if the content is an array, extract all of the elements
-  let types = content;
-  let arrayType = false;
-  if (content.match("^Array") !== null) {
-    types = content.replace(/Array|<|>/g, "");
-    arrayType = true;
-  }
+  const matched = content.match(/^Array<(.*?)>$/);
+  const arrayType = !!matched;
+  const types = matched?.[1] || content;
+
   // Get a handle on individual types
   const typesToProcess = types.split("|");
   const namespaceTypes: string[] = [];
