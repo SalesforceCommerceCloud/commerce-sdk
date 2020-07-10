@@ -19,7 +19,7 @@
     * @param body - The data to send as the request body.
     {{/or}}
     *
-    * @returns A promise of type {{getReturnPayloadType .}}.
+    * @returns A promise of type {{addNamespace (getReturnPayloadType .) "types"}}.
     */
     {{name}}(
       options{{#or (is method "get") (is method "delete")}}?{{/or}}: {
@@ -34,9 +34,9 @@
         },
         retrySettings?: OperationOptions,
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}},
-        body: {{{getRequestPayloadType request}}}{{/or}}
+        body: {{{addNamespace (getRequestPayloadType request) "types"}}}{{/or}}
       }
-    ): Promise<{{getReturnPayloadType .}}>;
+    ): Promise<{{addNamespace (getReturnPayloadType .) "types"}}>;
 
     /**
     * {{{ formatForTsDoc description }}}
@@ -56,7 +56,7 @@
     {{/or}}
     * @param rawResponse - Set to true to return entire Response object instead of DTO.
     *
-    * @returns A promise of type Response if rawResponse is true, a promise of type {{getReturnPayloadType .}} otherwise.
+    * @returns A promise of type Response if rawResponse is true, a promise of type {{addNamespace (getReturnPayloadType .) "types"}} otherwise.
     */
     {{name}}<T extends boolean>(
       options{{#or (is method "get") (is method "delete")}}?{{/or}}: {
@@ -71,10 +71,10 @@
         },
         retrySettings?: OperationOptions,
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}}, 
-        body: {{{getRequestPayloadType request}}}{{/or}}
+        body: {{{addNamespace (getRequestPayloadType request) "types"}}}{{/or}}
       },
       rawResponse?: T
-    ): Promise<T extends true ? Response : {{getReturnPayloadType .}}>;
+    ): Promise<T extends true ? Response : {{addNamespace (getReturnPayloadType .) "types"}}>;
 
     /**
     * {{{ formatForTsDoc description }}}
@@ -94,7 +94,7 @@
     {{/or}}
     * @param rawResponse - Set to true to return entire Response object instead of DTO.
     *
-    * @returns A promise of type Response if rawResponse is true, a promise of type {{getReturnPayloadType .}} otherwise.
+    * @returns A promise of type Response if rawResponse is true, a promise of type {{addNamespace (getReturnPayloadType .) "types"}} otherwise.
     */
     {{name}}(
       options{{#or (is method "get") (is method "delete")}}?{{/or}}: {
@@ -109,10 +109,10 @@
         },
         retrySettings?: OperationOptions,
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}}, 
-        body: {{{getRequestPayloadType request}}}{{/or}}
+        body: {{{addNamespace (getRequestPayloadType request) "types"}}}{{/or}}
       },
       rawResponse?: boolean,
-    ): Promise<Response | {{getReturnPayloadType .}}> {
+    ): Promise<Response | {{addNamespace (getReturnPayloadType .) "types"}}> {
     
       const parameters = (options && options.parameters) ? options.parameters : {};
       

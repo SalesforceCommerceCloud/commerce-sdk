@@ -3,13 +3,7 @@ import { StaticClient, BaseClient, ClientConfig, Response, ResponseError } from 
 import _ from "lodash";
 import { OperationOptions } from "retry";
 
-import {
-{{#each dataTypes}}
-    {{#if (isTypeDefinition .)}}
-        {{getValue name}}T,
-    {{/if}}
-{{/each}}
-} from "./{{metadata.specName}}.types";
+import * as types from "./{{metadata.specName}}.types";
 
 /**
 * [{{{metadata.name}}}](https://developer.commercecloud.com/s/api-details/{{{getObjectIdByAssetId metadata.assetId}}})
@@ -65,7 +59,7 @@ class {{capitalize metadata.specName}} extends BaseClient {
 declare module {{capitalize metadata.specName}} {
   {{#each dataTypes}}
       {{#if (isTypeDefinition .)}}
-         export type {{getValue name}}={{getValue name}}T
+         export type {{getValue name}}=types.{{getValue name}}
       {{/if}}
   {{/each}}
 }

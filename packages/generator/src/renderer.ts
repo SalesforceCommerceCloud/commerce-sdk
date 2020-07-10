@@ -37,6 +37,7 @@ import {
   getPascalCaseName,
   formatForTsDoc
 } from "./templateHelpers";
+import { addNamespace } from "./commonTemplateHelper";
 import { generatorLogger } from "./logger";
 
 interface IApiConfig {
@@ -391,3 +392,5 @@ Handlebars.registerHelper("getCamelCaseName", getCamelCaseName);
 Handlebars.registerHelper("getPascalCaseName", getPascalCaseName);
 
 Handlebars.registerHelper("formatForTsDoc", formatForTsDoc);
+
+Handlebars.registerHelper("addNamespace",addNamespace);
