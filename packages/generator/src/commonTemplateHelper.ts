@@ -58,7 +58,7 @@ export function addNamespace(content: string, namespace: string): string {
 
   // Re-add Array if required
   if (arrayType) {
-    return "Array<".concat(processedTypes).concat(">");
+    return `Array<${processedTypes}>`;
   }
   return processedTypes;
 }
