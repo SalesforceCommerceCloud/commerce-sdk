@@ -1,69 +1,195 @@
 {
   "name": "commerce-sdk",
-  "private": true,
-  "scripts": {
-    "postinstall": "lerna bootstrap --hoist",
-    "updateApis": "lerna run updateApis",
-    "build": "lerna run build",
-    "redis": "npm run redis --prefix ./packages/core",
-    "redis:shutdown": "npm run redis:shutdown --prefix ./packages/core",
-    "redis:debug": "npm run redis:debug --prefix ./packages/core",
-    "redis:debug:shutdown": "npm run redis:debug:shutdown --prefix ./packages/core",
-    "test": "lerna run test",
-    "test:debug": "lerna run test:debug",
-    "test:integration:bundle": "lerna run test:integration",
-    "test:integration:bundle:redis": "lerna run test:integration:redis",
-    "test:integration:bundle:redis:debug": "lerna run test:integration:redis:debug",
-    "test:integration": "npm run test:integration:bundle --prefix ./integrationTests",
-    "test:integration:redis": "npm run test:integration:bundle:redis --prefix ./integrationTests",
-    "test:integration:redis:debug": "npm run test:integration:bundle:redis:debug --prefix ./integrationTests",
-    "test:all": "npm run test && npm run test:integration",
-    "test:all:redis": "npm run test && npm run test:integration:redis",
-    "test:all:redis:debug": "npm run test && npm run test:integration:redis:debug",
-    "doc": "npm run doc --prefix ./packages/generator",
-    "clean": "lerna run clean && npm run clean --prefix ./integrationTests",
-    "clean:node": "lerna run clean:node && npm run clean:node --prefix ./integrationTests",
-    "clean:all": "npm run clean && npm run clean:node && npm run clean:all --prefix ./integrationTests",
-    "test:core": "lerna run --scope @commerce-apps/core test:debug",
-    "test:generator": "lerna run --scope commerce-sdk test:debug",
-    "publish": "lerna publish from-git --yes"
+  "version": "1.4.5-beta.0",
+  "description": "Salesforce Commerce Cloud SDK",
+  "homepage": "https://developer.commercecloud.com/s/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SalesforceCommerceCloud/commerce-sdk"
   },
-  "dependencies": {},
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "images",
+    "README.md",
+    "APICLIENTS.md",
+    "LICENSE.txt"
+  ],
+  "scripts": {
+    "depcheck": "depcheck",
+    "lint": "npm run lint:dev -- --quiet",
+    "lint:dev": "eslint . --ext .ts --fix",
+    "pretest": "npm run lint && npm run depcheck",
+    "build": "npm run renderTemplates && tsc && eslint dist --ext .ts,.js --quiet --fix",
+    "test": "nyc mocha \"test/**/*.test.ts\" --reporter=xunit --reporter-options output=../../reports/generator.xml",
+    "test:debug": "nyc mocha \"test/**/*.test.ts\"",
+    "doc": "typedoc --mode modules --out ../../docs renderedTemplates/** --tsconfig tsconfig.json --external-modulemap  \".*/renderedTemplates/([\\w\\-_]+)/\"  && cp CHANGELOG.md ../../docs",
+    "clean:node": "rm -rf node_modules",
+    "clean:all": "npm run clean:node",
+    "renderTemplates": "gulp --gulpfile ./gulpfiles/renderTemplatesTask.ts renderTemplates",
+    "updateApis": "gulp --gulpfile ./gulpfiles/downloadRamlsTask.ts updateApis",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "nyc": {
+    "extends": "@istanbuljs/nyc-config-typescript",
+    "include": [
+      "src/**/*.ts"
+    ],
+    "reporter": [
+      "lcov",
+      "text"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "all": true,
+    "check-coverage": true,
+    "branches": 80,
+    "functions": 80,
+    "lines": 80,
+    "statements": -10,
+    "per-file": true
+  },
+  "mocha": {
+    "forbidOnly": true,
+    "require": [
+      "source-map-support/register",
+      "ts-node/register"
+    ],
+    "colors": true
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix",
+      "git add"
+    ]
+  },
+  "eslintConfig": {
+    "parser": "@typescript-eslint/parser",
+    "extends": [
+      "plugin:@typescript-eslint/recommended",
+      "prettier/@typescript-eslint",
+      "plugin:jsdoc/recommended",
+      "plugin:prettier/recommended"
+    ],
+    "plugins": [
+      "@typescript-eslint",
+      "@typescript-eslint/eslint-plugin",
+      "tsdoc",
+      "header",
+      "jsdoc"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 2018,
+      "sourceType": "module"
+    },
+    "rules": {
+      "@typescript-eslint/interface-name-prefix": [
+        "error",
+        {
+          "prefixWithI": "always"
+        }
+      ],
+      "header/header": [
+        2,
+        "block",
+        [
+          "",
+          {
+            "pattern": "^ \\* Copyright \\(c\\) \\d{4}, salesforce.com, inc\\.$",
+            "template": " * Copyright (c) 2020, salesforce.com, inc."
+          },
+          " * All rights reserved.",
+          " * SPDX-License-Identifier: BSD-3-Clause",
+          " * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause",
+          " "
+        ]
+      ],
+      "jsdoc/require-description": [
+        "error",
+        {
+          "checkConstructors": false
+        }
+      ],
+      "jsdoc/require-jsdoc": [
+        "error",
+        {
+          "publicOnly": true,
+          "require": {
+            "ArrowFunctionExpression": true,
+            "ClassDeclaration": true,
+            "ClassExpression": true,
+            "FunctionDeclaration": true,
+            "FunctionExpression": true,
+            "MethodDefinition": true
+          }
+        }
+      ],
+      "jsdoc/require-param-name": "error",
+      "jsdoc/require-param-type": "off",
+      "jsdoc/require-returns-check": "error",
+      "jsdoc/require-returns-description": "error",
+      "jsdoc/require-returns-type": "off",
+      "tsdoc/syntax": "error"
+    },
+    "overrides": [
+      {
+        "files": [
+          "dist/**"
+        ],
+        "rules": {
+          "@typescript-eslint/camelcase": "warn",
+          "@typescript-eslint/ban-ts-ignore": "warn",
+          "@typescript-eslint/no-var-requires": "warn",
+          "@typescript-eslint/no-explicit-any": "off"
+        }
+      }
+    ]
+  },
+  "author": "",
+  "license": "BSD-3-Clause",
+  "gitHead": "2a6031f5f57c4ba5df8bfb5c4ca42b2631befe58",
   "devDependencies": {
-    "@istanbuljs/nyc-config-typescript": "^0.1.3",
-    "@types/chai": "^4.2.3",
-    "@types/chai-as-promised": "^7.1.2",
-    "@types/fs-extra": "^8.0.0",
-    "@types/handlebars-helpers": "^0.5.2",
-    "@types/ioredis": "^4.17.0",
-    "@types/lodash": "^4.14.146",
-    "@types/mocha": "^5.2.7",
-    "@types/node": "^12.6.9",
-    "@types/qs": "^6.5.3",
-    "@types/sinon": "^7.5.0",
-    "@types/tmp": "^0.1.0",
+    "@commerce-apps/raml-toolkit": "^0.4.2",
+    "@istanbuljs/nyc-config-typescript": "^1.0.1",
+    "@types/gulp": "^4.0.6",
     "@typescript-eslint/eslint-plugin": "^2.30.0",
-    "@typescript-eslint/parser": "^2.30.0",
+    "@typescript-eslint/parser": "^2.28.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "conditional-type-checks": "^1.0.5",
-    "cross-env": "^5.2.0",
-    "eslint": "^6.6.0",
-    "eslint-config-prettier": "^6.4.0",
-    "eslint-config-xo": "^0.27.1",
-    "eslint-config-xo-typescript": "^0.19.0",
-    "eslint-plugin-header": "^3.0.0",
+    "depcheck": "^0.9.2",
+    "dotenv": "^8.2.0",
+    "eslint": "^7.4.0",
+    "eslint-plugin-jsdoc": "^25.4.0",
+    "eslint-plugin-tsdoc": "^0.2.4",
+    "fs-extra": "^9.0.0",
+    "gulp": "^4.0.2",
+    "gulp-typescript": "^5.0.1",
     "handlebars": "^4.7.6",
     "handlebars-helpers": "^0.10.0",
-    "lerna": "^3.20.2",
-    "mocha": "^6.2.0",
-    "nyc": "^14.1.1",
-    "qs": "^6.9.0",
+    "lint-staged": "^10.1.3",
+    "loglevel": "^1.6.8",
+    "mocha": "^7.0.1",
+    "nyc": "^15.0.0",
     "sinon": "^7.5.0",
-    "source-map-support": "^0.5.16",
+    "snyk": "^1.320.5",
     "tmp": "^0.2.0",
-    "ts-node": "^8.6.2",
-    "typescript": "^3.7.5",
-    "xo": "^0.25.3"
-  }
+    "tslib": "^1.10.0",
+    "typedoc": "^0.17.8",
+    "typedoc-plugin-external-module-map": "^1.2.1",
+    "typedoc-plugin-nojekyll": "^1.0.1",
+    "utility-types": "^3.10.0"
+  },
+  "dependencies": {
+    "@commerce-apps/core": "^1.4.5-beta.0",
+    "lodash": "^4.17.15",
+    "retry": "^0.12.0"
+  },
+  "snyk": true
 }

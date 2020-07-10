@@ -1,82 +1,297 @@
-# Salesforce Commerce Node.js SDK
+# commerce-sdk
 
 [![CircleCI][circleci-image]][circleci-url]
 
-## What is This?
-
-A monorepo containing packages that generate the Salesforce Commerce SDK. Read more about the SDK [here](./packages/generator/README.md).
+The Salesforce Commerce SDK allows easy interaction with the Salesforce B2C Commerce platform APIs on the Node.js runtime.
 
 Visit the [Commerce Cloud Developer Center](https://developer.commercecloud.com/) to learn more about Salesforce Commerce. The developer center has API documentation, getting started guides, community forums, and more.
+​
 
-## Packages
+## Prerequisites
 
-> **Note**: This repository formerly contained @commerce-apps/exchange-connector. That package has been deprecated, and its functionality has been moved to [@commerce-apps/raml-toolkit](https://npmjs.com/package/@commerce-apps/raml-toolkit).
+Download and install Node.js and npm [here](https://nodejs.org/en/download/).
+​
 
-### commerce-sdk
+> **Note:** Only Node.js version 10 and 12 LTS are supported. Other versions can cause unexpected results. To use a different version of Node.js for other projects, you can manage multiple versions of Node.js with [nvm](https://github.com/nvm-sh/nvm).
+> ​
 
-The generator package is responsible for generating the SDK from RAML files. Since the SDK is generated it is not a part of any repository. Read more about the SDK [here](./packages/generator/README.md) and how the generator works [here](./packages/generator/docs/GENERATOR.md).
+## Installation
 
-### @commerce-apps/core
+Use npm to install the Commerce SDK.
+​
 
-The Core package represents the core functions that call the APIs and interact with Salesforce Commerce. It is used by the SDK. Read more about the core package [here](./packages/generator/README.md).
-
-## Setup
-
-All of these commands can be run from either the repo root or the package root.
-
-```bash
-# To setup
-npm install
-
-# To build
-npm run build
+```
+npm install commerce-sdk
 ```
 
-## Running Tests
+## Usage
 
-> **Note:** Instructions in the Setup section are prerequisites for this section
+To use an SDK client, instantiate an object of that client and configure these parameters.
 
-To run tests in all the packages, execute
+> **Note:** These are optional parameters.
 
-```bash
-npm test
+| Parameter      | Description                                                                                                                             |
+| -------------- | :-------------------------------------------------------------------------------------------------------------------------------------- |
+| baseUri        | URL of the service with which the SDK interacts. If the baseUri isn't provided, the default baseUri for the relevant RAML file is used. |
+| clientId       | ID of the client account created with Salesforce Commerce.                                                                              |
+| organizationId | The unique identifier for your Salesforce identity.                                                                                     |
+| shortCode      | Region specific merchant ID.                                                                                                            |
+| siteId         | A unique site ID (for example, RefArch or SiteGenesis).                                                                                 |
+
+### Sample Code
+
+```javascript
+/**
+ * Sample TypeScript code that shows how Commerce SDK can access Salesforce Commerce
+ * APIs.
+ */
+​
+// Import the SDK in TypeScript
+// tsc requires the --esModuleInterop flag for this
+import * as CommerceSdk from "commerce-sdk";
+// For Javascript, use:
+// import CommerceSdk from "commerce-sdk";
+const { ClientConfig, helpers, Search } = CommerceSdk;
+// Older Node.js versions can instead use:
+// const { ClientConfig, helpers, Search } = require("commerce-sdk");
+
+// Create a configuration to use when creating API clients
+const config = {
+    headers: {},
+    parameters: {
+        clientId: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        organizationId: "f_ecom_bblx_stg",
+        shortCode: "0dnz6oep",
+        siteId: "RefArch"
+    }
+}
+
+// Get a JWT to use with Shopper API clients, a guest token in this case
+helpers.getShopperToken(config, { type: "guest" }).then(async (token) => {
+
+    try {
+        // Add the token to the client configuration
+        config.headers["authorization"] = token.getBearerHeader();
+
+        // Create a new ShopperSearch API client
+        const searchClient = new Search.ShopperSearch(config);
+
+        // Search for dresses
+        const searchResults = await searchClient.productSearch({
+            parameters: {
+                q: "dress",
+                limit: 5
+            }
+        });
+
+        if (searchResults.total) {
+            const firstResult = searchResults.hits[0];
+            console.log(`${firstResult.productId} ${firstResult.productName}`);
+        } else {
+            console.log("No results for search");
+        }
+
+        return searchResults;
+
+    } catch (e) {
+        console.error(e);
+        console.error(await e.response.text());
+    }
+}).catch(async (e) => {
+    console.error(e);
+    console.error(await e.response.text());
+});
 ```
 
-To print the detailed test results and errors on the console, execute
+When using an IDE such as VSCode, the autocomplete feature lets you view the available method and class definitions, including parameters.
+​
 
-```bash
-npm run test:debug
+![Autocomplete](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/packages/generator/images/Autocomplete.jpg?raw=true 'Autocomplete')
+
+To view the details of a method or a variable, hover over methods and variables.
+​
+
+![Method Details](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/packages/generator/images/MethodDetails.jpg?raw=true 'Method Details')
+
+![Parameter Details](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/packages/generator/images/ParameterDetails.jpg?raw=true 'Parameter Details')
+
+Autocomplete also shows the available properties of the data returned by SDK methods.
+
+![Result Autocomplete](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/packages/generator/images/ResultAutocomplete.jpg?raw=true 'Result Autocomplete')
+
+## Caching
+
+The SDK currently supports two types of caches - In-memory and Redis. Both the implementations respect [standard cache headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control). To use another type of cache, write your own implementation of the [CacheManager](../core/src/base/cacheManager.ts). See the [default cache manager](../core/src/base/cacheManagerKeyv.ts) to design your implementation.
+
+### Cache storage adapter
+
+The default cache storage limits to 10,000 distinct entities before applying a simple [least recently used](https://en.m.wikipedia.org/wiki/Cache_replacement_policies#Least_Recently_Used_.28LRU.29) policy for cache replacement. The limit can be changed by creating a [quick-lru](https://www.npmjs.com/package/quick-lru) storage adapter.
+
+```javascript
+import { CacheManagerKeyv } from '@commerce-apps/core';
+import { QuickLRU } from 'quick-lru';
+
+const cacheManagerKeyv = new CacheManagerKeyv({
+  keyvStore: new QuickLRU({ maxSize: 50000 }),
+});
+const config = {
+  cacheManager: cacheManagerKeyv,
+  parameters: {
+    clientId: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    organizationId: 'f_ecom_bblx_stg',
+    shortCode: '0dnz6oep',
+    siteId: 'RefArch',
+  },
+};
 ```
 
-To run tests in the core package only, execute
+See these [directions](https://www.npmjs.com/package/keyv#third-party-storage-adapters) to create a cache storage adapter.
 
-```bash
-npm run test:core
+### In-memory cache
+
+In-memory caching of responses is enabled by default. To disable caching for a client, set cacheManager to 'null'.
+
+```javascript
+const config = {
+  cacheManager: null,
+  parameters: {
+    clientId: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    organizationId: 'f_ecom_bblx_stg',
+    shortCode: '0dnz6oep',
+    siteId: 'RefArch',
+  },
+};
 ```
 
-To run tests in the generator package only, execute
+### Redis cache
 
-```bash
-npm run test:generator
+To use a Redis cache, instantiate a CacheManagerRedis object with your Redis URL and add it to your client config object.
+
+```javascript
+import { CacheManagerRedis } from '@commerce-apps/core';
+
+const cacheManager = new CacheManagerRedis({
+  connection: 'redis://localhost:6379',
+});
+const config = {
+  cacheManager: cacheManager,
+  parameters: {
+    clientId: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    organizationId: 'f_ecom_bblx_stg',
+    shortCode: '0dnz6oep',
+    siteId: 'RefArch',
+  },
+};
 ```
 
-These commands will fail if a minimum of 80% coverage is not maintained per source file. Certain files may show 0% coverage in the report when the file does not include testable statements (i.e. files that only contain an interface). These files will not trigger a failure. The coverage is generated using [nyc](https://www.npmjs.com/package/nyc). The configuration is stored within the package.json of each package.
+#### Memory management
 
-## Issues
+Redis can be configured to apply an eviction policy when the specified memory limit is reached. See [this article](https://redis.io/topics/lru-cache/) to set up Redis as an LRU cache and to learn more about supported eviction policies.
 
-First, check the [open issues](https://github.com/SalesforceCommerceCloud/commerce-sdk/issues) and [Commerce Cloud Developer Center](https://developer.commercecloud.com/) for any open issues related to the issue that you are experiencing. If not already raised please file a new issue [here](https://github.com/SalesforceCommerceCloud/commerce-sdk/issues/new) with all the necessary details. If you require an urgent resolution to your issue please ask your AM/CSM to file a support ticket with Salesforce Commerce.
+## Retry Policies
 
-## Contributing
+Use the node-retry package to facilitate request retries. The following retry type definition is taken from the node-retry package.
 
-If you would like to contribute please take a look at our [contributors' guide](./Contributing.md).
+```typescript
+type RetrySettings = {
+  /**
+   * Whether to retry forever.
+   * @default false
+   */
+  forever?: boolean;
+  /**
+   * Whether to [unref](https://nodejs.org/api/timers.html#timers_unref) the setTimeout's.
+   * @default false
+   */
+  unref?: boolean;
+  /**
+   * The maximum time (in milliseconds) that the retried operation is allowed to run.
+   * @default Infinity
+   */
+  maxRetryTime?: number;
+  /**
+   * The maximum amount of times to retry the operation.
+   * @default 10
+   */
+  retries?: number;
+  /**
+   * The exponential factor to use.
+   * @default 2
+   */
+  factor?: number;
+  /**
+   * The number of milliseconds before starting the first retry.
+   * @default 1000
+   */
+  minTimeout?: number;
+  /**
+   * The maximum number of milliseconds between two retries.
+   * @default Infinity
+   */
+  maxTimeout?: number;
+  /**
+   * Randomizes the timeouts by multiplying a factor between 1-2.
+   * @default false
+   */
+  randomize?: boolean;
+};
+```
+
+All of these options can either be set on a per client or per request basis.
+
+Example:
+
+```javascript
+
+    productClient = new Product({
+      retrySettings: {
+
+        // This means 3 total calls are made
+        retries: 2,
+
+        // Max wait between retries
+        maxTimeout: 200,
+
+        // Min wait between retries
+        minTimeout: 100
+      }
+    }
+
+```
+
+## Logging
+
+Default log level of the SDK is WARN (warning). SDK uses [loglevel](https://www.npmjs.com/package/loglevel) npm package. All the log levels supported by [loglevel](https://www.npmjs.com/package/loglevel) package are supported in SDK.
+
+To change the loglevel, set the desired level on the SDK logger.
+
+```javascript
+import { sdkLogger } from 'commerce-sdk';
+
+sdkLogger.setLevel(sdkLogger.levels.INFO);
+```
+
+INFO level logging enables:
+
+- brief request and response logging
+
+DEBUG level logging enables logging of:
+
+- fetch options
+- curl command of the request
+- response (response body is not included)
+- cache operations
+
+**Note:** Debug level logging may expose sensitive data in the logs
 
 ## Additional Documentation
 
-[Using VSCODE](./docs/vscode.md)  
-[Code Generation](./packages/generator/docs/GENERATOR.md)  
-[API Documentation](./packages/generator/APICLIENTS.md)  
+[Changelog](./CHANGELOG.md)
+
+## License Information
+
+The Commerce SDK is licensed under BSD-3-Clause license. See the [license](./LICENSE.txt) for details.
 
 <!-- Markdown link & img dfn's -->
 [circleci-image]: https://circleci.com/gh/SalesforceCommerceCloud/commerce-sdk.svg?style=svg&circle-token=c68cee5cb20ee75f00cbda1b0eec5b5484c58b2a
 [circleci-url]: https://circleci.com/gh/SalesforceCommerceCloud/commerce-sdk
-
