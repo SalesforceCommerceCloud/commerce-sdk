@@ -9,11 +9,12 @@ responses:
             Unauthorized. Your Client ID is invalid, or you are not allowed to access
             the content provided by the requested URL.
     body:
-      application/json:
-        type: Error
+      application/problem+json:
+        type: ErrorResponse
         example: |
           {
-            "type": "UnknownClientIdException",
-            "title": "Client ID 'asddhjt-2e5t-4dfe-567f-678d27c0d8f2' is unknown.",
-            "detail": "Unauthorized"
+            "title": "Invalid Access Token",
+            "type": "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/invalid-access-token",
+            "detail": "The request is unauthorized, the access token is invalid.",
+            "accessToken": "hbGciOiJIUzI1NiIsInR5cCI6Ikp"
           }
