@@ -4,9 +4,15 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import fs from "fs-extra";
-import path from "path";
-import Handlebars from "handlebars";
+import { generatorLogger } from "./logger";
+import {
+  clientInstanceTemplate,
+  dtoTemplate,
+  indexTemplate,
+  helpersTemplate,
+  apiFamilyTemplate,
+} from "./handlebarsConfig";
+
 import {
   getAllDataTypes,
   parseRamlFile,
@@ -16,29 +22,10 @@ import {
   RestApi,
   model,
 } from "@commerce-apps/raml-toolkit";
+
+import fs from "fs-extra";
+import path from "path";
 import _ from "lodash";
-import {
-  getBaseUri,
-  getPropertyDataType,
-  getParameterDataType,
-  getRequestPayloadType,
-  getReturnPayloadType,
-  getValue,
-  isAdditionalPropertiesAllowed,
-  isTypeDefinition,
-  isCommonQueryParameter,
-  isCommonPathParameter,
-  getProperties,
-  isRequiredProperty,
-  isOptionalProperty,
-  getObjectIdByAssetId,
-  getName,
-  getCamelCaseName,
-  getPascalCaseName,
-  formatForTsDoc,
-} from "./templateHelpers";
-import { addNamespace } from "./commonTemplateHelper";
-import { generatorLogger } from "./logger";
 
 interface IApiConfig {
   [familyName: string]: RestApi[];
@@ -70,47 +57,6 @@ export type DocumentWithMetadataT = {
  * The name of an API family and its associated AMF models.
  */
 type ApiModelTupleT = [string, DocumentWithMetadataT[]];
-
-const templateDirectory = `${__dirname}/../templates`;
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-require("handlebars-helpers")({ handlebars: Handlebars }, [
-  "string",
-  "comparison",
-]);
-
-// HANDLEBARS TEMPLATES
-
-const operationsPartialTemplate = Handlebars.compile(
-  fs.readFileSync(path.join(templateDirectory, "operations.ts.hbs"), "utf8")
-);
-
-const clientInstanceTemplate = Handlebars.compile(
-  fs.readFileSync(path.join(templateDirectory, "ClientInstance.ts.hbs"), "utf8")
-);
-
-const indexTemplate = Handlebars.compile(
-  fs.readFileSync(path.join(templateDirectory, "index.ts.hbs"), "utf8")
-);
-
-const helpersTemplate = Handlebars.compile(
-  fs.readFileSync(path.join(templateDirectory, "helpers.ts.hbs"), "utf8")
-);
-
-/**
- * Handlebar template to export all APIs in a family
- */
-const apiFamilyTemplate = Handlebars.compile(
-  fs.readFileSync(path.join(templateDirectory, "apiFamily.ts.hbs"), "utf8")
-);
-
-const dtoTemplate = Handlebars.compile(
-  fs.readFileSync(path.join(templateDirectory, "dto.ts.hbs"), "utf8")
-);
-
-const dtoPartial = Handlebars.compile(
-  fs.readFileSync(path.join(templateDirectory, "dtoPartial.ts.hbs"), "utf8")
-);
 
 // HELPER FUNCTIONS
 
@@ -348,49 +294,3 @@ export async function renderTemplates(
     buildConfig.inputDir
   );
 }
-
-// Register helpers
-Handlebars.registerHelper("getBaseUri", getBaseUri);
-
-Handlebars.registerHelper("isCommonQueryParameter", isCommonQueryParameter);
-
-Handlebars.registerHelper("isCommonPathParameter", isCommonPathParameter);
-
-Handlebars.registerHelper("getPropertyDataType", getPropertyDataType);
-
-Handlebars.registerHelper("getParameterDataType", getParameterDataType);
-
-Handlebars.registerHelper("getRequestPayloadType", getRequestPayloadType);
-
-Handlebars.registerHelper("isTypeDefinition", isTypeDefinition);
-
-Handlebars.registerHelper("getReturnPayloadType", getReturnPayloadType);
-
-Handlebars.registerHelper("getValue", getValue);
-
-Handlebars.registerHelper(
-  "isAdditionalPropertiesAllowed",
-  isAdditionalPropertiesAllowed
-);
-
-Handlebars.registerPartial("dtoPartial", dtoPartial);
-
-Handlebars.registerPartial("operationsPartial", operationsPartialTemplate);
-
-Handlebars.registerHelper("getProperties", getProperties);
-
-Handlebars.registerHelper("isRequiredProperty", isRequiredProperty);
-
-Handlebars.registerHelper("isOptionalProperty", isOptionalProperty);
-
-Handlebars.registerHelper("getObjectIdByAssetId", getObjectIdByAssetId);
-
-Handlebars.registerHelper("getName", getName);
-
-Handlebars.registerHelper("getCamelCaseName", getCamelCaseName);
-
-Handlebars.registerHelper("getPascalCaseName", getPascalCaseName);
-
-Handlebars.registerHelper("formatForTsDoc", formatForTsDoc);
-
-Handlebars.registerHelper("addNamespace", addNamespace);
