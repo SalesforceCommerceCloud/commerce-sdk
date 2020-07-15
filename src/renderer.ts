@@ -33,12 +33,9 @@ interface IApiConfig {
 interface IBuildConfig {
   inputDir: string;
   renderDir: string;
-  apiFamily: string;
-  exchangeSearch: string;
   apiConfigFile: string;
   shopperAuthClient: string;
   shopperAuthApi: string;
-  exchangeDeploymentRegex: RegExp;
 }
 
 /**
