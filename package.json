@@ -29,7 +29,10 @@
     "doc:resources": "cp CHANGELOG.md ./docs",
     "clean": "rm -rf renderedTemplates dist",
     "renderTemplates": "gulp --gulpfile ./gulpfiles/renderTemplatesTask.ts renderTemplates",
-    "updateApis": "gulp --gulpfile ./gulpfiles/downloadRamlsTask.ts updateApis",
+    "backupApis": "rm -rf updateApisTmp && mkdir updateApisTmp && mv apis updateApisTmp/oldApis",
+    "diffApis": "raml-toolkit diff --dir updateApisTmp/oldApis/api-config.json apis/api-config.json -o updateApisTmp/ramlDiff.json",
+    "downloadApis": "raml-toolkit download -s 'category:\"CC Visibility\" = \"External\"' -g \"CC API Family\" -D production --deployment-regex-flags=i",
+    "updateApis": "npm run backupApis && npm run downloadApis && npm run diffApis",
     "prepare": "snyk protect"
   },
   "publishConfig": {
