@@ -1,5 +1,5 @@
 ## CHANGELOG
-### v1.4.6-beta.0
+### v1.5.0-beta.0
 
 ### **API Changes**
 
@@ -38,7 +38,8 @@
 * Debug logging now prints working curl commands
 
 ### **Breaking**
-* Types have been moved to a types object and 'T' postfix has been removed
+* Types have been moved to a types object and 'T' postfix has been removed to avoid collisions between method and type names
+
 
 ## CHANGELOG
 ### v1.4.5-beta.0
