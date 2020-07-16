@@ -3,7 +3,7 @@ title: Shopper Customers
 version: v1
 mediaType: application/json
 protocols: HTTPS
-baseUri: https://{shortCode}.api.commercecloud.salesforce.com/customer/shopper-customers/v1
+baseUri: https://{shortCode}.api.commercecloud.salesforce.com/customer/shopper-customers/{version}
 baseUriParameters:
   shortCode:
     description: A region-specific merchant identifier.
@@ -13,9 +13,9 @@ baseUriParameters:
 description: Let's customers to register, get authorization tokens, reset passwords, add/delete payment instruments, set up a wish list, add, delete, or modify addresses, and so on. 
 
 uses:
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.7/api-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.8/api-standards.raml
   CustomerTraits: Customer-traits-library.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.11/commerce-cloud-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.15/commerce-cloud-standards.raml
 
 types:
   AuthRequest:
@@ -3315,7 +3315,7 @@ types:
           type: CustomerRegistration
           example: !include Examples/CustomerRegistrationRequest.raml
       securedBy:
-        - CommerceCloudStandards.ShopperToken
+        - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-customers.register] }
     /actions:
       /logout:
         delete:
@@ -3329,7 +3329,7 @@ types:
             '204':
               description: No Content
           securedBy:
-            - CommerceCloudStandards.ShopperToken
+            - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-customers.login] }
       /login:
         post:
           description: |-
@@ -3442,7 +3442,7 @@ types:
                 examples:
                   customer: !include Examples/TrustedAuthResponse.raml
         securedBy:
-          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.shopper-customers.login] }
           - CommerceCloudStandards.AmOAuth2
         body:
           application/json:
@@ -3465,7 +3465,7 @@ types:
           '204':
             description: Reset password successful. No Content
         securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.shopper-customers.login] }
             - CommerceCloudStandards.AmOAuth2
         body:
           application/json:
@@ -3489,7 +3489,7 @@ types:
                 type: ResetPasswordToken
                 example: !include Examples/ResetTokenResult.raml
         securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.shopper-customers.login] }
             - CommerceCloudStandards.AmOAuth2
         body:
           application/json:
@@ -3517,7 +3517,7 @@ types:
                 type: Customer
                 example: !include Examples/Customer.raml
         securedBy:
-          - CommerceCloudStandards.ShopperToken
+          - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-myaccount] }
       patch:
         description: Updates a customer.
         displayName: updateCustomer
@@ -3538,7 +3538,7 @@ types:
                 examples: 
                   customer: !include Examples/UpdateCustomerResponse.raml
         securedBy:
-          - CommerceCloudStandards.ShopperToken
+          - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-myaccount.rw] }
         body:
           application/json:
             type: Customer
@@ -3571,7 +3571,7 @@ types:
                   examples: 
                     customerAddress: !include Examples/CustomerAddressResponse.raml
           securedBy:
-            - CommerceCloudStandards.ShopperToken
+            - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-myaccount.addresses.rw] }
           body:
             application/json:
               type: CustomerAddress
@@ -3598,7 +3598,7 @@ types:
                     examples:
                       CustomerAddress: !include Examples/CustomerAddressResponse.raml
             securedBy:
-              - CommerceCloudStandards.ShopperToken
+              - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-myaccount.addresses] }
           delete:
             description: Deletes a customer's address by address name.
             displayName: removeCustomerAddress
@@ -3614,7 +3614,7 @@ types:
               '204':
                 description: No Content
             securedBy:
-              - CommerceCloudStandards.ShopperToken
+              - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-myaccount.addresses.rw] }
           patch:
             description: Updates a customer's address by address name.
             displayName: updateCustomerAddress
@@ -3635,7 +3635,7 @@ types:
                     examples: 
                       customerAddress: !include Examples/CustomerAddressRequest.raml
             securedBy:
-              - CommerceCloudStandards.ShopperToken
+              - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-myaccount.addresses.rw] }
             body:
               application/json:
                 type: CustomerAddress
@@ -3670,7 +3670,7 @@ types:
                   examples: 
                     basketsResult: !include Examples/CustomerBasketsResult.raml
           securedBy:
-            - CommerceCloudStandards.ShopperToken
+            - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-myaccount.baskets] }
       /orders:
         get:
           description: Returns a pageable list of all customer's orders. The default page size is 10.
@@ -3712,7 +3712,7 @@ types:
                   examples: 
                     customerOrderResult: !include Examples/CustomersOrdersResult.raml
           securedBy:
-            - CommerceCloudStandards.ShopperToken
+            - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-myaccount.orders] }
       /password:
         put:
           description: Updates the customer's password.
@@ -3736,7 +3736,7 @@ types:
                   "password": "newpass"
                 }
           securedBy:
-            - CommerceCloudStandards.ShopperToken
+            - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-customers.login] }
       /payment-instruments:
         post:
           description: Adds a payment instrument to the customer information.
@@ -3758,7 +3758,7 @@ types:
                   examples: 
                     customerPaymentInstrument: !include Examples/CustomerPaymentInstrument.raml
           securedBy:
-            - CommerceCloudStandards.ShopperToken
+            - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-myaccount.paymentinstruments.rw] }
           body:
             application/json:
               type: CustomerPaymentInstrumentRequest
@@ -3780,7 +3780,7 @@ types:
               '204':
                 description: No Content
             securedBy:
-              - CommerceCloudStandards.ShopperToken
+              - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-myaccount.paymentinstruments.rw] }
           get:
             description: Retrieves a customer's payment instrument by its ID.
             displayName: getCustomerPaymentInstrument
@@ -3800,7 +3800,7 @@ types:
                     type: CustomerPaymentInstrument
                     example: !include Examples/CustomerPaymentInstrument.raml
             securedBy:
-              - CommerceCloudStandards.ShopperToken
+              - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-myaccount.paymentinstruments] }
           uriParameters:
             paymentInstrumentId:
               description: The ID of the payment instrument to be retrievedCustomer.
@@ -3828,7 +3828,7 @@ types:
                   examples: 
                     customerProductListResult: !include Examples/CustomerProductListResult.raml
           securedBy:
-            - CommerceCloudStandards.ShopperToken
+            - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-myaccount.productlists] }
         post:
           description: Creates a customer product list.
           displayName: createCustomerProductList
@@ -3849,7 +3849,7 @@ types:
                   examples: 
                     customerProductList: !include Examples/PostCustomerProductList.raml
           securedBy:
-            - CommerceCloudStandards.ShopperToken
+            - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-myaccount.productlists.rw] }
           body:
             application/json:
               type: CustomerProductList
@@ -3871,7 +3871,7 @@ types:
               '204':
                 description: No Content
             securedBy:
-              - CommerceCloudStandards.ShopperToken
+              - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-myaccount.productlists.rw] }
           get:
             description: Returns a customer product list of the given customer and the items in the list.
             displayName: getCustomerProductList
@@ -3892,7 +3892,7 @@ types:
                     examples: 
                       customerProductList: !include Examples/GetCustomerProductListByListId.raml
             securedBy:
-              - CommerceCloudStandards.ShopperToken
+              - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-myaccount.productlists] }
           patch:
             description: Changes a product list. Changeable properties are the name, description, and if the list is public.
             displayName: updateCustomerProductList
@@ -3913,7 +3913,7 @@ types:
                     examples: 
                       customerProductList: !include Examples/UpdateCustomerProductListByListId.raml
             securedBy:
-              - CommerceCloudStandards.ShopperToken
+              - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-myaccount.productlists.rw] }
             body:
               application/json:
                 type: CustomerProductList
@@ -3965,7 +3965,7 @@ types:
                       examples: 
                         customerProductListItem: !include Examples/UpdateCustomerProductListItem.raml
               securedBy:
-                - CommerceCloudStandards.ShopperToken
+                - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-myaccount.productlists.rw] }
               body:
                 application/json:
                   type: CustomerProductListItem
@@ -3985,7 +3985,7 @@ types:
                   '204':
                     description: No Content
                 securedBy:
-                  - CommerceCloudStandards.ShopperToken
+                  - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-myaccount.productlists.rw] }
               get:
                 description: Returns an item of a customer product list and the actual product details like image, availability and price.
                 displayName: getCustomerProductListItem
@@ -4005,7 +4005,7 @@ types:
                         type: CustomerProductListItem
                         example: !include Examples/CustomerProductListItem.raml
                 securedBy:
-                  - CommerceCloudStandards.ShopperToken
+                  - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-myaccount.productlists] }
               patch:
                 description: |-
                   Updates an item of a customer's product list.
@@ -4032,15 +4032,13 @@ types:
                     body:
                       application/json:
                         type: CustomerProductListItem
-                        examples: 
-                          !include Examples/UpdateCustomerProductListItem.raml
+                        example: !include Examples/UpdateCustomerProductListItem.raml
                 securedBy:
-                  - CommerceCloudStandards.ShopperToken
+                  - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-myaccount.productlists.rw] }
                 body:
                   application/json:
                     type: CustomerProductListItem
-                    examples: 
-                      !include Examples/CustomerProductListItemRequest.raml
+                    example: !include Examples/CustomerProductListItemRequest.raml
               uriParameters:
                 itemId:
                   description: The ID of the product list item to update.
@@ -4087,7 +4085,7 @@ types:
               examples: 
                 publicProductListResult: !include Examples/productLists-result-example.raml
       securedBy:
-        - CommerceCloudStandards.ShopperToken
+        - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-productlists] }
     /{listId}:
       get:
         description: Retrieves a public product list by ID and the items under that product list.
@@ -4111,7 +4109,7 @@ types:
                 examples: 
                   publicProductList:  !include Examples/productListsID-result-example.raml
         securedBy:
-          - CommerceCloudStandards.ShopperToken
+          - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-productlists] }
       uriParameters:
         listId:
           description: The ID of the list.
@@ -4143,7 +4141,7 @@ types:
               - CustomerTraits.NotFound
               - CustomerTraits.Unauthorized      
             securedBy:
-              - CommerceCloudStandards.ShopperToken
+              - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-productlists] }
           uriParameters:
             itemId:
               description: The ID of the item.
