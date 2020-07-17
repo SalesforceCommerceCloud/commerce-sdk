@@ -1,9 +1,50 @@
 ## CHANGELOG
-### v1.4.5-beta.0
+### v1.5.0-beta.0
 
 ### **API Changes**
 
-* SDK now contains new Shopper Login API
+*Shopper Stores API* 
+* Shopper Stores API has been removed
+
+*Customer API*
+* Type Name Removed
+  * CustomerGroupMember
+  * CustomerGroup type removed from Customer API
+  * Customer API
+  * CustomerGroupMemberSearchResult
+  * CustomerGroupMembers
+  * CustomerGroupSearchResult
+  * Rule
+
+* Display Name Changed
+  * CreateAddressForCustomerInCustomerList renamed to createAddressForCustomerInCustomerList 
+
+* Endpoints Removed
+  * /organizations/{organizationId}/sites/{siteId}/customer-groups
+  * /organizations/{organizationId}/{customerGroupId}
+  * /organizations/{organizationId}/member-search
+  * /organizations/{organizationId}/members
+  * /organizations/{organizationId}/sites/{siteId}/customer-group-search
+
+*Shopper Baskets API*
+  * Display Name Changed
+    * addTaxForBasketItem renamed to addTaxesForBasketItem
+
+*Shopper Login SLAS*
+* Shopper Login & API Access Service - SLAS renamed to Shopper Login
+
+### **Bug Fixes**
+* Authorization header is not removed for conditional get requests
+* Debug logging now prints working curl commands
+
+### **Breaking**
+* Types have been moved to a types object and 'T' postfix has been removed to avoid collisions between method and type names
+
+
+## CHANGELOG
+### v1.4.5-beta.0
+
+### **API Changes** 
 
 #### Shopper APIs
 

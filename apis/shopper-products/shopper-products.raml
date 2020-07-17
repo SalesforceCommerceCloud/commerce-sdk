@@ -3,7 +3,7 @@ title: Shopper Products
 version: v1
 mediaType: application/json
 protocols: HTTPS
-baseUri: https://{shortCode}.api.commercecloud.salesforce.com/product/shopper-products/v1
+baseUri: https://{shortCode}.api.commercecloud.salesforce.com/product/shopper-products/{version}
 baseUriParameters:
   shortCode:
     description: A region-specific merchant identifier.
@@ -14,8 +14,8 @@ description: Use the Shop Products & Catalogs API to interact with the API in th
 
 uses:
   ProdTraits: products-traits-library.raml
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.7/api-standards.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.10/commerce-cloud-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.8/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.15/commerce-cloud-standards.raml
 
 types:
   BundledProduct:
@@ -803,7 +803,7 @@ types:
               examples:
                 product_result: !include Examples/product-result-example.raml
       securedBy:
-        - CommerceCloudStandards.ShopperToken
+        - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-products] }
     /{id}:
       get:
         description: Allows access to product details for a single product ID. Only products that are online and assigned to a site catalog are returned. Along with product details, the availability,images,price,bundled_products,set_products,recommedations,productoptions,variation and promotion data for the products will be included as appropriate.
@@ -848,7 +848,7 @@ types:
             required: false
             example: false
         securedBy:
-          - CommerceCloudStandards.ShopperToken
+          - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-products] }
       uriParameters:
         id:
           description: The ID of the requested product.
@@ -896,7 +896,7 @@ types:
               examples:
                 category: !include Examples/category-result-example.raml
       securedBy:
-        - CommerceCloudStandards.ShopperToken
+        - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-categories] }
     /{id}:
       get:
         description: |-
@@ -932,7 +932,7 @@ types:
             type: string
             required: false
         securedBy:
-          - CommerceCloudStandards.ShopperToken
+          - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-categories] }
       uriParameters:
         id:
           description: The ID of the requested category.

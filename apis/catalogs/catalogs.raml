@@ -2,7 +2,7 @@
 title: Catalogs
 version: v1
 mediaType: application/json
-baseUri: http://{shortCode}.api.commercecloud.salesforce.com/product/catalogs/v1
+baseUri: https://{shortCode}.api.commercecloud.salesforce.com/product/catalogs/{version}
 protocols: HTTPS
 
 baseUriParameters:
@@ -15,8 +15,8 @@ description: Use the Data Catalogs API
 
 uses:
   CatalogTraits: catalogs-traits-library.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.11/commerce-cloud-standards.raml
-  Search: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.11/Types/search-types.raml 
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.15/commerce-cloud-standards.raml
+  Search: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.15/Types/search-types.raml 
 
 types:
   Catalogs:
@@ -42,7 +42,7 @@ types:
         format: int32
         example: 10
   Catalog:
-    description: Document representing a catalog
+    description: Document representing a catalog.
     properties:
       assignedProductCount:
         description: The count of products assigned to the catalog. It is read only.
@@ -1324,7 +1324,7 @@ types:
               examples:
                 catalogs: !include Examples/catalogs.raml
       securedBy:
-        - CommerceCloudStandards.BearerToken
+        - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs] }
         - CommerceCloudStandards.AmOAuth2
     /{catalogId}:
       get:
@@ -1346,7 +1346,7 @@ types:
                 examples:
                   catalog: !include Examples/catalog.raml
         securedBy:
-          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs] }
           - CommerceCloudStandards.AmOAuth2
       patch:
         description: Updates the catalog with the specified information.
@@ -1373,7 +1373,7 @@ types:
             examples:
               catalog: !include Examples/catalog-body.raml
         securedBy:
-          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
           - CommerceCloudStandards.AmOAuth2
       uriParameters:
         catalogId:
@@ -1406,7 +1406,7 @@ types:
                   examples: 
                     categories: !include Examples/categories.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs] }
             - CommerceCloudStandards.AmOAuth2
         /{categoryId}:
           delete:
@@ -1424,7 +1424,7 @@ types:
               '204': 
                 description: Category Deleted Successfully
             securedBy:
-              - CommerceCloudStandards.BearerToken
+              - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
               - CommerceCloudStandards.AmOAuth2
           get:
             description: |-
@@ -1460,7 +1460,7 @@ types:
                 required: false
                 example: 0
             securedBy:
-              - CommerceCloudStandards.BearerToken
+              - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs] }
               - CommerceCloudStandards.AmOAuth2
           patch:
             description: Updates a catalog category using the information provided.
@@ -1489,7 +1489,7 @@ types:
                 examples:
                   category: !include Examples/category-body.raml
             securedBy:
-              - CommerceCloudStandards.BearerToken
+              - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
               - CommerceCloudStandards.AmOAuth2
           put:
             description: Creates a catalog category using the information provided.
@@ -1525,7 +1525,7 @@ types:
                 examples:
                   category: !include Examples/category-body.raml
             securedBy:
-              - CommerceCloudStandards.BearerToken
+              - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
               - CommerceCloudStandards.AmOAuth2
           uriParameters:
             categoryId:
@@ -1536,7 +1536,64 @@ types:
               example: mens
           /category-product-assignment-search:
             post:
-              description: "Searches for category product assignments.\n \n The query attribute specifies a complex query that can be used to narrow down the search. This is the list\n of searchable attributes:\n \n product_id - String\n product_name - String\n online_flag - Boolean \n searchable - Boolean \n valid_from - DateTime \n valid_to - DateTime \n creation_date - DateTime\n \n \n Sortable Fields:\n \n product_id - String\n product_name - String\n position - Double\n creation_date - DateTime\n \n \n Expansions that can be applied for the search request:\n \n product_base - String - This expand will enable retrieval of the following basic Product information: \n product_images - String - to fetch preview image and image groups specified for the given product\n product_all_images - String - to fetch preview image and image groups specified for the product plus images for its variants and variation groups\n product_variations - String to fetch variations related information, version 17.8+\n product_availability - String to fetch availability related information, version 17.8+\n product_categories - String to fetch category related information, version 17.8+\n product_prices - String to fetch prices related information, version 17.8+\n product_options - String to fetch options related information, version 17.8+\n product_all - String to fetch all expanded information, version 17.8+\n\n \t\n \t\tbrand\n    \tean\n      link\n  \tlong_description\n      manufacturer_name\n      manufacturer_sku\n \t\tname\n      page_description\n      page_keywords\n      page_title\n      searchable\n   \tshort_description\n      type\n      unit\n     \tupc\n \t\n "
+              description: |
+                Searches for category product assignments. The query attribute specifies a complex query that can be used to narrow down the search.
+
+                The following are searchable attributes:
+
+                  | Attribute | Type |
+                  |-----------|--------|
+                  | productId| String |
+                  | productName | String |
+                  | onlineFlag | Boolean |
+                  | searchable | Boolean |
+                  | validFrom | DateTime |
+                  | validTo | DateTime |
+                  | creationDate | DateTime | 
+
+
+                 Sortable Fields: 
+
+                  | Attribute | Type |
+                  |-----------|--------|
+                  | productId| String |
+                  | productName | String |
+                  | position | Double |
+                  | creationDate | DateTime |
+
+                Expansions that can be applied for the search request:
+                  - productBase - String 
+                
+                The productBase expand will enable retrieval of the following basic product information: 
+
+                  | Attribute | Type | Function |
+                  |-----------|--------|-----|
+                  | productImages| String | Fetch preview image and image groups specified for the given product. |
+                  | productAllImages | String | Fetch preview image, image groups specified for the product, and variant and variation group images. |
+                  | productVariations | String | Fetch variations related information. |
+                  | productAvailability | String | Fetch availability related information. |
+                  | productCategories | String | Fetch category related information. | 
+                  | productPrices | String | Fetch price related information. |
+                  | productOptions | String | Fetch options related information. |
+                  | productAll | String | Fetch all expanded information. |
+
+                Note: productAll includes the following:
+                  - brand
+                  - ean
+                  - link
+                  - longDescription
+                  - manufacturerName
+                  - manufacturerSku
+                  - name
+                  - pageDescription
+                  - pageKeywords
+                  - pageTitle
+                  - searchable
+                  - shortDescription
+                  - type
+                  - unit
+                  - upc
+                  
               displayName: searchProductsAssignedToCategory
               queryParameters:
                 siteId:
@@ -1567,7 +1624,7 @@ types:
                     search-request: !include Examples/product-assignment-body-example.raml
                   
               securedBy:
-                - CommerceCloudStandards.BearerToken
+                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs] }
                 - CommerceCloudStandards.AmOAuth2
           /products/{productId}:
             get:
@@ -1594,7 +1651,7 @@ types:
                       examples:
                         category-prod-assignment: !include Examples/catalogcategoryprdAssignment-example.raml
               securedBy:
-                - CommerceCloudStandards.BearerToken
+                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs] }
                 - CommerceCloudStandards.AmOAuth2
             delete:
               description: |-
@@ -1616,7 +1673,7 @@ types:
                   description: Assignment Deleted Successfully
 
               securedBy:
-                - CommerceCloudStandards.BearerToken
+                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
                 - CommerceCloudStandards.AmOAuth2
             patch:
               description: |-
@@ -1652,7 +1709,7 @@ types:
                   examples:
                     body-example: !include Examples/catalogcategoryprodAssignment-body.raml
               securedBy:
-                - CommerceCloudStandards.BearerToken
+                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
                 - CommerceCloudStandards.AmOAuth2
             put:
               description: |-
@@ -1697,7 +1754,7 @@ types:
                   examples:
                     body-example: !include Examples/catalogcategoryprodAssignment-body.raml
               securedBy:
-                - CommerceCloudStandards.BearerToken
+                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
                 - CommerceCloudStandards.AmOAuth2
             uriParameters:
               productId:
@@ -1715,24 +1772,29 @@ types:
               Using a large value for levels may cause performance 
               issues with a large and deep category tree.
             
-            The query attribute specifies a complex query that can be used to narrow down the search. These are the list searchable attributes:
-            
-            id - String
-            name - String
-            description - String
-            creation_date - DateTime
-            online - Boolean
-            parent_category_id - String
+            The query attribute specifies a complex query that can be used to narrow down the search with the following searchable attributes:
+
+            | Attribute | Type |
+            |-----------|--------|
+            |id | String |
+            |name | String |
+            |description | String |
+            |creationDate | DateTime |
+            |online | Boolean |
+            |parentCategoryId | String|
             
 
-            The output of the query can also be sorted. These are the the sortable attributes:
+            The output of the query can also be sorted with the following sortable attributes:
             
-            id - String
-            name - String
-            description - String
-            creation_date - DateTime
-            online - Boolean 
-            position - Double 
+            | Attribute | Type |
+            |-----------|--------|
+            |id | String |
+            |name | String |
+            |description | String |
+            |creationDate | DateTime |
+            |online | Boolean |
+            |position | Double|
+
             
           displayName: searchCategoriesInCatalog
           is:
@@ -1755,7 +1817,7 @@ types:
 
           queryParameters:
             levels:
-              description: 'The level number.'
+              description: The level number.
               minimum: 0
               type: integer
               format: int32
@@ -1767,37 +1829,46 @@ types:
               examples:
                     result: !include Examples/catalog-search-body.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs] }
             - CommerceCloudStandards.AmOAuth2
   /catalog-search:
     post:
       description: |-
         Searches for catalogs.
         
-        The query attribute specifies a complex query that can be used to narrow down the search. These are the  searchable attributes:
-        
-        id - String
-        name - String
-        description - String
-        creation_date - DateTime
-        
-        
+        The query attribute specifies a complex query that can be used to narrow down the search with the following searchable attributes:
+            
+        | Attribute | Type |
+        |-----------|--------|
+        |id | String |
+        |name | String |
+        |description | String |
+        |creationDate | DateTime |
+      
         There are two additional fields that can be used as search filters. They are not attributes in CatalogWO object, 
         but can be used as filters to query catalogs based on site assignments.
         
-        is_master_catalog - Boolean
-        is_storefront_catalog - Boolean
+        | Attribute | Type |
+        |-----------|--------|
+        |isMasterCatalog | Boolean |
+        |isStorefrontCatalog | Boolean |
+        |description | String |
+        |creationDate | DateTime |
+        |online | Boolean |
+        |position | Double|
+      
         
+        On using isMasterCatalog in the search query, catalogs without any site assignments are returned. 
+        On using isStorefrontCatalog in the search query, catalogs with one or more site assignments are returned.
         
-        On using is_master_catalog in the search query, catalogs without any site assignments are returned. 
-        On using is_storefront_catalog in the search query, catalogs with one or more site assignments are returned.
+        The output of the query can also be sorted with the following sortable attributes:
         
-        The output of the query can also be sorted. These are the sortable attributes:
-        
-        id - String
-        name - String
-        description - String
-        creation_date - DateTime
+        | Attribute | Type |
+        |-----------|--------|
+        |id | String |
+        |name | String |
+        |description | String |
+        |creationDate | DateTime |
         
       displayName: searchCatalogs
       is:
@@ -1824,7 +1895,7 @@ types:
           examples:
             catalog-search-body: !include Examples/catalog-search-body-query.raml
       securedBy:
-        - CommerceCloudStandards.BearerToken
+        - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs] }
         - CommerceCloudStandards.AmOAuth2
   /category-search:
     post:
@@ -1835,29 +1906,32 @@ types:
           Please note, using a large value for levels may cause performance 
           issues with a large and deep category tree.
         
-        The query attribute specifies a complex query that can be used to narrow down the search. These are the searchable attributes:
+        The query attribute specifies a complex query that can be used to narrow down the search with the following searchable attributes:
         
-        id - String
-        name - String
-        description - String
-        creation_date - DateTime
-        online - Boolean
-        catalog_id - String
-        
+        | Attribute | Type |
+        |-----------|--------|
+        |id | String |
+        |name | String |
+        |description | String |
+        |creationDate | DateTime |
+        |online | Boolean |
+        |catalogId | String|  
 
-        The output of the query can also be sorted. These are the sortable attributes:
-        
-        id - String
-        name - String
-        description - String
-        creation_date - DateTime
-        online - Boolean 
-        position - Double 
+        The output of the query can also be sorted with the following sortable attributes:
+       
+        | Attribute | Type |
+        |-----------|--------|
+        |id | String |
+        |name | String |
+        |description | String |
+        |creationDate | DateTime |
+        |online | Boolean |
+        |position | Double|          
         
       displayName: searchCategories
       queryParameters:
         levels:
-          description: 'The level number.'
+          description: The level number.
           minimum: 0
           type: integer
           format: int32
@@ -1891,5 +1965,5 @@ types:
           examples: 
             body : !include Examples/category_search-body-example.raml
       securedBy:
-        - CommerceCloudStandards.BearerToken
+        - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs] }
         - CommerceCloudStandards.AmOAuth2
