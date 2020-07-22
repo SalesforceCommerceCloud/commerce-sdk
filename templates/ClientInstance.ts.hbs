@@ -14,6 +14,7 @@ export namespace {{capitalize metadata.specName}} {
 /**
 * [{{{metadata.name}}}](https://developer.commercecloud.com/s/api-details/{{{getObjectIdByAssetId metadata.assetId}}})
 * ==================================
+*
 * *{{metadata.description}}*<br />
 *
 * Simple example:
@@ -46,6 +47,11 @@ export namespace {{capitalize metadata.specName}} {
 * API Version: {{metadata.version}}<br />
 * Last Updated: {{metadata.updatedDate}}<br />  
 * </span>
+{{#if (eq (lowercase metadata.categories.[CC Version Status].[0]) "beta")}}
+* @beta 
+* {{/if}}
+* 
+
 */
 export class {{capitalize metadata.specName}} extends BaseClient {
   constructor(config: ClientConfig) {
