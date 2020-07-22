@@ -3,7 +3,13 @@ import { StaticClient, BaseClient, ClientConfig, Response, ResponseError } from 
 import _ from "lodash";
 import { OperationOptions } from "retry";
 
-import * as types from "./{{metadata.specName}}.types";
+export namespace {{capitalize metadata.specName}} {
+  {{#each dataTypes}}
+      {{#if (isTypeDefinition .)}}
+      export type {{getValue name}} = {{> dtoPartial typeDto=.}}
+      {{/if}}
+  {{/each}}
+}
 
 /**
 * [{{{metadata.name}}}](https://developer.commercecloud.com/s/api-details/{{{getObjectIdByAssetId metadata.assetId}}})
@@ -41,7 +47,7 @@ import * as types from "./{{metadata.specName}}.types";
 * Last Updated: {{metadata.updatedDate}}<br />  
 * </span>
 */
-class {{capitalize metadata.specName}} extends BaseClient {
+export class {{capitalize metadata.specName}} extends BaseClient {
   constructor(config: ClientConfig) {
     super(config);
 
@@ -51,17 +57,6 @@ class {{capitalize metadata.specName}} extends BaseClient {
 
   }
 
-  {{> operationsPartial model=apiModel }}
+  {{> operationsPartial model=.}}
 
 }
-
-// eslint-disable-next-line @typescript-eslint/no-namespace
-declare module {{capitalize metadata.specName}} {
-  {{#each dataTypes}}
-      {{#if (isTypeDefinition .)}}
-         export type {{getValue name}}=types.{{getValue name}}
-      {{/if}}
-  {{/each}}
-}
-
-export = {{capitalize metadata.specName}}
