@@ -7,7 +7,6 @@
 import { generatorLogger } from "./logger";
 import {
   clientInstanceTemplate,
-  dtoTemplate,
   indexTemplate,
   helpersTemplate,
   apiFamilyTemplate,
@@ -152,23 +151,6 @@ function createClient(
 }
 
 /**
- * Create the DTO definitions from an AMF model.
- *
- * @param webApiModel - The AMF model to create DTO definitions from
- *
- * @returns The rendered code for the DTO definitions as a string
- */
-function createDto(
-  webApiModel: model.document.BaseUnitWithDeclaresModel
-): string {
-  const types = getAllDataTypes(webApiModel);
-  return dtoTemplate(types, {
-    allowProtoPropertiesByDefault: true,
-    allowProtoMethodsByDefault: true,
-  });
-}
-
-/**
  * Create the code to export all API families from an index file.
  *
  * @param apiModelTuples - List of API names and the AMF models associated with each API
@@ -219,13 +201,6 @@ function renderApi(apiModel: DocumentWithMetadataT, renderDir: string): string {
   apiModel.metadata.apiPath = path.join(renderDir, apiModel.metadata.specName);
   fs.ensureDirSync(apiModel.metadata.apiPath);
 
-  fs.writeFileSync(
-    path.join(
-      apiModel.metadata.apiPath,
-      `${apiModel.metadata.specName}.types.ts`
-    ),
-    createDto(apiModel.document)
-  );
   // Resolve model for the end points using the 'editing' pipeline will retain the declarations in the model
   const apiModelForEndPoints = resolveApiModel(apiModel.document, "editing");
   fs.writeFileSync(
