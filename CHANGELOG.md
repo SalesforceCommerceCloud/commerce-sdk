@@ -1,20 +1,29 @@
 ## CHANGELOG
 
+### v2.0.0
+#### GA
+* SDK GA Release
+* All APIs are now GA except Shopper Login which is still in Beta
+
+#### **Bug Fixes**
+* Fixes an issue resolving nested data types
+
+
 ### v1.7.0-beta.0
 #### Breaking
 * Customer API now includes Shopper Login
 * Types have been migrated into their corresponding class, making them easier to import.
 
 ### v1.6.0-beta.0
-### **API Changes**
+#### **API Changes**
 None
 
-### **Bug Fixes**
+#### **Bug Fixes**
 Authentication was not being persisted by clients.
 
 ### v1.5.0-beta.0
 
-### **API Changes**
+#### **API Changes**
 
 *Shopper Stores API*
 * Shopper Stores API has been removed
