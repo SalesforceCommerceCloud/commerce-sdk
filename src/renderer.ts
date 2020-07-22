@@ -137,10 +137,15 @@ function createClient(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   apiMetadata: { [key: string]: any }
 ): string {
+  // TODO: getAllDataTypes should NOT modify original object
+  const dataTypes = getAllDataTypes(_.cloneDeep(webApiModel));
+  // Resolve model for the end points using the 'editing' pipeline will retain the declarations in the model
+  const resolvedApiModel = resolveApiModel(webApiModel, "editing");
+
   return clientInstanceTemplate(
     {
-      dataTypes: getAllDataTypes(webApiModel),
-      apiModel: webApiModel,
+      dataTypes: dataTypes,
+      apiModel: resolvedApiModel,
       metadata: apiMetadata,
     },
     {
@@ -201,11 +206,9 @@ function renderApi(apiModel: DocumentWithMetadataT, renderDir: string): string {
   apiModel.metadata.apiPath = path.join(renderDir, apiModel.metadata.specName);
   fs.ensureDirSync(apiModel.metadata.apiPath);
 
-  // Resolve model for the end points using the 'editing' pipeline will retain the declarations in the model
-  const apiModelForEndPoints = resolveApiModel(apiModel.document, "editing");
   fs.writeFileSync(
     path.join(apiModel.metadata.apiPath, `${apiModel.metadata.specName}.ts`),
-    createClient(apiModelForEndPoints, apiModel.metadata)
+    createClient(apiModel.document, apiModel.metadata)
   );
   return apiModel.metadata.specName;
 }
