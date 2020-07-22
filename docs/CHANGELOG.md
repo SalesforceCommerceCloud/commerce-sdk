@@ -1,5 +1,10 @@
 ## CHANGELOG
 
+### v1.7.0-beta.0
+#### Breaking
+* Customer API now includes Shopper Login
+* Types have been migrated into their corresponding class, making them easier to import.
+
 ### v1.6.0-beta.0
 ### **API Changes**
 None
