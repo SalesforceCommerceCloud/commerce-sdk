@@ -16,17 +16,17 @@ before(() => {
   chai.use(chaiAsPromised);
 });
 
-describe("TS: Import works successfully", () => {
+describe("TS: Imports work", () => {
   afterEach(nock.cleanAll);
 
-  it("Import works", async () => {
+  it("imports Helpers and sdkLogger", async () => {
     return expect(import("commerce-sdk")).to.eventually.contain.keys([
       "helpers",
       "sdkLogger",
     ]);
   });
 
-  it("Type import works", async () => {
+  it("imports type from merged namespace", async () => {
     // This type was selected for its simplicity
     expectType<Customer.ShopperCustomers.BasketsResult>({
       baskets: [],
