@@ -7,7 +7,6 @@
 import { generatorLogger } from "./logger";
 import {
   clientInstanceTemplate,
-  dtoTemplate,
   indexTemplate,
   helpersTemplate,
   apiFamilyTemplate,
@@ -138,10 +137,15 @@ function createClient(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   apiMetadata: { [key: string]: any }
 ): string {
+  // TODO: getAllDataTypes should NOT modify original object
+  const dataTypes = getAllDataTypes(_.cloneDeep(webApiModel));
+  // Resolve model for the end points using the 'editing' pipeline will retain the declarations in the model
+  const resolvedApiModel = resolveApiModel(webApiModel, "editing");
+
   return clientInstanceTemplate(
     {
-      dataTypes: getAllDataTypes(webApiModel),
-      apiModel: webApiModel,
+      dataTypes: dataTypes,
+      apiModel: resolvedApiModel,
       metadata: apiMetadata,
     },
     {
@@ -149,23 +153,6 @@ function createClient(
       allowProtoMethodsByDefault: true,
     }
   );
-}
-
-/**
- * Create the DTO definitions from an AMF model.
- *
- * @param webApiModel - The AMF model to create DTO definitions from
- *
- * @returns The rendered code for the DTO definitions as a string
- */
-function createDto(
-  webApiModel: model.document.BaseUnitWithDeclaresModel
-): string {
-  const types = getAllDataTypes(webApiModel);
-  return dtoTemplate(types, {
-    allowProtoPropertiesByDefault: true,
-    allowProtoMethodsByDefault: true,
-  });
 }
 
 /**
@@ -220,17 +207,8 @@ function renderApi(apiModel: DocumentWithMetadataT, renderDir: string): string {
   fs.ensureDirSync(apiModel.metadata.apiPath);
 
   fs.writeFileSync(
-    path.join(
-      apiModel.metadata.apiPath,
-      `${apiModel.metadata.specName}.types.ts`
-    ),
-    createDto(apiModel.document)
-  );
-  // Resolve model for the end points using the 'editing' pipeline will retain the declarations in the model
-  const apiModelForEndPoints = resolveApiModel(apiModel.document, "editing");
-  fs.writeFileSync(
     path.join(apiModel.metadata.apiPath, `${apiModel.metadata.specName}.ts`),
-    createClient(apiModelForEndPoints, apiModel.metadata)
+    createClient(apiModel.document, apiModel.metadata)
   );
   return apiModel.metadata.specName;
 }

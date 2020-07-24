@@ -1,9 +1,31 @@
 ## CHANGELOG
+
+### v2.0.0
+#### GA
+* SDK GA Release
+* All APIs are now GA except Shopper Login which is still in Beta
+
+#### **Bug Fixes**
+* Fixes an issue resolving nested data types
+
+
+### v1.7.0-beta.0
+#### Breaking
+* Customer API now includes Shopper Login
+* Types have been migrated into their corresponding class, making them easier to import.
+
+### v1.6.0-beta.0
+#### **API Changes**
+None
+
+#### **Bug Fixes**
+Authentication was not being persisted by clients.
+
 ### v1.5.0-beta.0
 
-### **API Changes**
+#### **API Changes**
 
-*Shopper Stores API* 
+*Shopper Stores API*
 * Shopper Stores API has been removed
 
 *Customer API*
@@ -17,7 +39,7 @@
   * Rule
 
 * Display Name Changed
-  * CreateAddressForCustomerInCustomerList renamed to createAddressForCustomerInCustomerList 
+  * CreateAddressForCustomerInCustomerList renamed to createAddressForCustomerInCustomerList
 
 * Endpoints Removed
   * /organizations/{organizationId}/sites/{siteId}/customer-groups
@@ -44,7 +66,7 @@
 ## CHANGELOG
 ### v1.4.5-beta.0
 
-### **API Changes** 
+### **API Changes**
 
 #### Shopper APIs
 
@@ -77,7 +99,7 @@
 
 * Einstein APIs have been removed from the SDK.
 
-### **Core Functionality** 
+### **Core Functionality**
 
 * Exposed logger configuration to user
 ```javascript
@@ -119,7 +141,7 @@ Example:
 * **BREAKING**: Endpoint method name changes
 
     **Changed**:
-    
+
     | **Existing Method Name** | **New Method Name** |
     | ------------- |-------------|
     | deleteVariationGroupForMaster | unassignVariationGroupFromMasterProduct |
@@ -138,7 +160,7 @@ Example:
     * getCustomerProductListItems
 
     **Changed**:
-    
+
     | **Existing Method Name** | **New Method Name** |
     | ------------- |-------------|
     | postResetPasswordToken | getResetPasswordToken |
@@ -150,7 +172,7 @@ Example:
 * SDK does not set TTL for cached assets based on the HTTP headers
 * Added logging capability
 * Exchange Connector is deprecated on commerce-sdk in favor of the raml-toolkit
-* Examples of client instantiations have been added to APICLIENTS.md 
+* Examples of client instantiations have been added to APICLIENTS.md
 
 ### v1.4.0-beta.0
 
@@ -254,7 +276,7 @@ _____________________________________________
 ### **API Changes**
 
 #### CDN APIs
-*CDN Zones/CDN API*  
+*CDN Zones/CDN API*
 
 * **BREAKING**: API client `CdnApi` has been renamed to `CdnZones`
 
@@ -295,7 +317,7 @@ _____________________________________________
 ### **API Changes**
 
 #### Shopper Baskets
-*Checkout/ShopperBaskets*  
+*Checkout/ShopperBaskets*
 
 * **BREAKING**: Endpoint method name changes
 
@@ -304,12 +326,12 @@ _____________________________________________
 | postBaskets | createBasket |
 | deleteBasketsById | deleteBasket |
 | getBasketsById | getBasket |
-| patchBasketsById | updateBasket | 
-| putBasketsByIdBillingAddress | updateBillingAddressForBasket | 
+| patchBasketsById | updateBasket |
+| putBasketsByIdBillingAddress | updateBillingAddressForBasket |
 | postBasketsByIdCoupons | addCouponToBasket |
 | deleteBasketsByIdCouponsById | removeCouponFromBasket |
 | putBasketsByIdCustomer | updateCustomerForBasket |
-| postBasketsByIdGiftCertificateItems | addGiftCertificateItemToBasket | 
+| postBasketsByIdGiftCertificateItems | addGiftCertificateItemToBasket |
 | deleteBasketsByIdGiftCertificateItemsById | removeGiftCertificateItemFromBasket |
 | postBasketsByIdItems | addItemToBasket |
 | deleteBasketsByIdItemsById | removeItemFromBasket |
@@ -326,7 +348,7 @@ _____________________________________________
 
 
 #### Shopper Orders
-*Checkout/ShopperOrders*  
+*Checkout/ShopperOrders*
 
 * **BREAKING**: Endpoint method name changes
 
@@ -340,7 +362,7 @@ _____________________________________________
 | getOrdersByIdPaymentMethods | getPaymentMethodsForOrder |
 
 #### Einstein Recommendations
-*AI/EinsteinQuickStartGuide*  
+*AI/EinsteinQuickStartGuide*
 
 * Recommender type has a new recommenderType attribute
 * RecommendationsResponse type has a new recoUUID attribute
@@ -348,7 +370,7 @@ _____________________________________________
 * Added new Recommendation type
 
 #### Coupons
-*Pricing/Coupons*  
+*Pricing/Coupons*
 
 * getCoupon now has an optional query parameter of "expand" which accepts an array of related attributes
 
@@ -357,13 +379,13 @@ _____________________________________________
 ### v1.3.0-alpha.7
 
 #### Shopper Search
-*Search/ShopperSearch*  
+*Search/ShopperSearch*
 
 * **BREAKING** refine_n query parameters have been removed from productSearch
 * productSearch now has a query parameter of "refine" which accepts an array of refinements
 
 #### Shopper Stores
-*Seller/ShopperStores*  
+*Seller/ShopperStores*
 
 * Now uses updated standards so 'limit' is no longer a required parameter for paginated endpoints
 * Max limit for paginated endpoints increased from 50 to 200

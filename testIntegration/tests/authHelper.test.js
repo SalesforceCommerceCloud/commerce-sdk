@@ -26,7 +26,7 @@ describe("JS: Auth Helper getShopperToken", () => {
         {
           authType: "guest",
           customerId: "ab1avTqmPIwc4MRq0cEs59LEka",
-          preferredLocale: "en_US"
+          preferredLocale: "en_US",
         },
         { Authorization: "Bearer AUTH_TOKEN" }
       );
@@ -34,7 +34,7 @@ describe("JS: Auth Helper getShopperToken", () => {
     const shopperToken = await helpers.getShopperToken(
       {
         baseUri: "http://somewhere",
-        parameters: { organizationId: "foo" }
+        parameters: { organizationId: "foo" },
       },
       { type: "guest" }
     );

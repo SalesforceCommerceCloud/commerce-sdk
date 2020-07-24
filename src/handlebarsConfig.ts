@@ -36,10 +36,6 @@ export const apiFamilyTemplate = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "apiFamily.ts.hbs"), "utf8")
 );
 
-export const dtoTemplate = Handlebars.compile(
-  fs.readFileSync(path.join(templateDirectory, "dto.ts.hbs"), "utf8")
-);
-
 const dtoPartial = Handlebars.compile(
   fs.readFileSync(path.join(templateDirectory, "dtoPartial.ts.hbs"), "utf8")
 );
