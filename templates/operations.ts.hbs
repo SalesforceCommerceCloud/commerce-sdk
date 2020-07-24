@@ -1,7 +1,7 @@
-{{#each model.encodes.endPoints}}
+{{#each apiModel.encodes.endPoints}}
   {{#each operations}}
     /**
-    * {{{ formatForTsDoc description }}}
+    * {{{formatForTsDoc description}}}
     * 
     * If you would like to get a raw Response object use the other {{name}} function.
     * 
@@ -19,7 +19,10 @@
     * @param body - The data to send as the request body.
     {{/or}}
     *
-    * @returns A promise of type {{addNamespace (getReturnPayloadType .) "types"}}.
+    * @returns A promise of type {{addNamespace (getReturnPayloadType .) (capitalize @root.metadata.specName)}}.
+    * {{#if (eq (lowercase @root.metadata.categories.[CC Version Status].[0]) "beta")}}
+    * @beta
+    * {{/if}}
     */
     {{name}}(
       options{{#or (is method "get") (is method "delete")}}?{{/or}}: {
@@ -34,12 +37,12 @@
         },
         retrySettings?: OperationOptions,
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}},
-        body: {{{addNamespace (getRequestPayloadType request) "types"}}}{{/or}}
+        body: {{{addNamespace (getRequestPayloadType request) (capitalize @root.metadata.specName)}}}{{/or}}
       }
-    ): Promise<{{addNamespace (getReturnPayloadType .) "types"}}>;
+    ): Promise<{{addNamespace (getReturnPayloadType .) (capitalize @root.metadata.specName)}}>;
 
     /**
-    * {{{ formatForTsDoc description }}}
+    * {{{formatForTsDoc description}}}
     *
     * @param options - An object containing the options for this method.
     * @param parameters - An object containing the parameters for this method.
@@ -56,7 +59,10 @@
     {{/or}}
     * @param rawResponse - Set to true to return entire Response object instead of DTO.
     *
-    * @returns A promise of type Response if rawResponse is true, a promise of type {{addNamespace (getReturnPayloadType .) "types"}} otherwise.
+    * @returns A promise of type Response if rawResponse is true, a promise of type {{addNamespace (getReturnPayloadType .) (capitalize @root.metadata.specName)}} otherwise.
+    * {{#if (eq (lowercase @root.metadata.categories.[CC Version Status].[0]) "beta")}}
+    * @beta
+    * {{/if}}
     */
     {{name}}<T extends boolean>(
       options{{#or (is method "get") (is method "delete")}}?{{/or}}: {
@@ -71,13 +77,13 @@
         },
         retrySettings?: OperationOptions,
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}}, 
-        body: {{{addNamespace (getRequestPayloadType request) "types"}}}{{/or}}
+        body: {{{addNamespace (getRequestPayloadType request) (capitalize @root.metadata.specName)}}}{{/or}}
       },
       rawResponse?: T
-    ): Promise<T extends true ? Response : {{addNamespace (getReturnPayloadType .) "types"}}>;
+    ): Promise<T extends true ? Response : {{addNamespace (getReturnPayloadType .) (capitalize @root.metadata.specName)}}>;
 
     /**
-    * {{{ formatForTsDoc description }}}
+    * {{{formatForTsDoc description}}}
     *
     * @param options - An object containing the options for this method.
     * @param parameters - An object containing the parameters for this method.
@@ -94,7 +100,10 @@
     {{/or}}
     * @param rawResponse - Set to true to return entire Response object instead of DTO.
     *
-    * @returns A promise of type Response if rawResponse is true, a promise of type {{addNamespace (getReturnPayloadType .) "types"}} otherwise.
+    * @returns A promise of type Response if rawResponse is true, a promise of type {{addNamespace (getReturnPayloadType .) (capitalize @root.metadata.specName)}} otherwise.
+    * {{#if (eq (lowercase @root.metadata.categories.[CC Version Status].[0]) "beta")}}
+    * @beta
+    * {{/if}}
     */
     {{name}}(
       options{{#or (is method "get") (is method "delete")}}?{{/or}}: {
@@ -109,10 +118,10 @@
         },
         retrySettings?: OperationOptions,
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}}, 
-        body: {{{addNamespace (getRequestPayloadType request) "types"}}}{{/or}}
+        body: {{{addNamespace (getRequestPayloadType request) (capitalize @root.metadata.specName)}}}{{/or}}
       },
       rawResponse?: boolean,
-    ): Promise<Response | {{addNamespace (getReturnPayloadType .) "types"}}> {
+    ): Promise<Response | {{addNamespace (getReturnPayloadType .) (capitalize @root.metadata.specName)}}> {
     
       const parameters = (options && options.parameters) ? options.parameters : {};
       

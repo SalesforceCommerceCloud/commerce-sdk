@@ -52,9 +52,7 @@ describe("Renderers", () => {
       expectFileToExist("index.ts");
       expectFileToExist("helpers.ts");
       expectFileToExist("shop/shopApi/shopApi.ts");
-      expectFileToExist("shop/shopApi/shopApi.types.ts");
       expectFileToExist("customer/shopperCustomers/shopperCustomers.ts");
-      expectFileToExist("customer/shopperCustomers/shopperCustomers.types.ts");
     }).timeout(10000);
 
     it("generates valid TypeScript", () => {
@@ -80,11 +78,7 @@ describe("Renderers", () => {
       expectValidTypeScript("index.ts");
       expectValidTypeScript("helpers.ts");
       expectValidTypeScript("shop/shopApi/shopApi.ts");
-      expectValidTypeScript("shop/shopApi/shopApi.types.ts");
       expectValidTypeScript("customer/shopperCustomers/shopperCustomers.ts");
-      expectValidTypeScript(
-        "customer/shopperCustomers/shopperCustomers.types.ts"
-      );
     }).timeout(10000);
   });
 });
