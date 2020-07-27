@@ -4,5 +4,12 @@ responses:
   '403':
     description: Forbidden. This error is thrown when attempting to delete a system customer group.
     body:
-      application/json:
-        type: Error
+      application/problem+json:
+        type: ErrorResponse
+        example: |
+          {
+            "title": "System Customer Group Create Forbidden",
+            "type": "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/system-customer-group-create-forbidden",
+            "detail": "The creation of system customer group with ID 'test_customergroup' is not allowed",
+            "customerGroupId": "test_customergroup"
+          }

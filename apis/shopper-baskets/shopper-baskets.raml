@@ -13,7 +13,7 @@ baseUriParameters:
     example: 0dnz6oep
 
 uses:
-  dataTypes: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/checkout-data-types.raml
+  dataTypes: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/checkout-data-types.raml
   ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.8/api-standards.raml
   CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.15/commerce-cloud-standards.raml
   
@@ -32,9 +32,13 @@ types:
             responseStatus2: 400
             responseStatus3: 404
       description: |-
-        Creates a new basket. The created basket is initialized with default values. Data provided in the body document is populated into the created basket. It can be updated with further API calls.
+        Creates a new basket.
 
-        Considered values from the request body are:
+        The created basket is initialized with default values. Data provided in the body document is populated into the created basket. It can be updated with API endpoints listed below.
+
+        The taxMode query parameter can be used to choose the basket tax mode. The default is internal, in which case the tax calculation is done automatically based on internal tax tables. Alternatively, external taxation mode can be set which allows manual modification of the tax rates and values. External tax data is mandatory for product line items, option line items, shipping line items, coupon line items, and bonus discount line item. Gift certificate line items are optional and use zero tax rate per default, which can be overwritten. Price adjustments cannot be set because they are either calculated or inherited (depending on the type, the tax rate is either obtained from the related line item or computed as prorate of the basket).
+
+        API endpoints allowing further basket modification:
 
         - customer information: PUT /baskets/{basketId}/customer
 
@@ -47,6 +51,10 @@ types:
         - coupon items: POST /baskets/{basketId}/coupons
 
         - gift certificate items: POST /baskets/{basketId}/gift-certificates
+
+        - basket taxation: PUT /baskets/{basketId}/taxes
+
+        - basket item taxation: PUT /baskets/{basketId}/items/{itemId}/taxes
 
         - payment method and card type: POST /baskets/{basketId}/payment-instruments
 
@@ -97,14 +105,14 @@ types:
             application/problem+json:
               type: ErrorResponse
               examples:
-                dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/bad-request-example.raml
+                dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/bad-request-example.raml
         '404':
           description: Thrown if the shipment with the given shipment ID is unknown.
           body:
             application/problem+json:
               type: ErrorResponse
               examples:
-                dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/shipment-not-found.raml
+                dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/shipment-not-found.raml
       queryParameters:
         taxMode?:
           type: string
@@ -140,14 +148,14 @@ types:
               application/problem+json:
                 type: ErrorResponse
                 examples:
-                  dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/bad-request-auth.raml
+                  dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/bad-request-auth.raml
           '404':
             description: The basket with the given basket ID is unknown. 
             body:
               application/problem+json:
                 type: ErrorResponse
                 examples:
-                  dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/basket-not-found.raml
+                  dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
         securedBy:
           - CommerceCloudStandards.ShopperToken: { scopes: [ "sfcc.shopper-baskets-orders.rw" ] }
       get:
@@ -174,14 +182,14 @@ types:
               application/problem+json:
                 type: ErrorResponse
                 examples:
-                  dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/bad-request-auth.raml
+                  dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/bad-request-auth.raml
           '404':
             description: The basket with the given basket ID is unknown.
             body:
               application/problem+json:
                 type: ErrorResponse
                 examples:
-                  dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/basket-not-found.raml
+                  dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
         securedBy:
           - CommerceCloudStandards.ShopperToken: { scopes: [ "sfcc.shopper-baskets-orders", "sfcc.shopper-baskets-orders.rw" ] }
       patch:
@@ -217,7 +225,7 @@ types:
               application/problem+json:
                 type: ErrorResponse
                 examples:
-                  dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/bad-request-example.raml
+                  dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/bad-request-example.raml
           '404':
             description: |-
               Possible reasons:
@@ -229,7 +237,7 @@ types:
               application/problem+json:
                 type: ErrorResponse
                 examples:
-                  dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/basket-not-found.raml
+                  dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
         body:
             type: dataTypes.Basket
             examples:
@@ -268,14 +276,14 @@ types:
                 application/problem+json:
                   type: ErrorResponse
                   examples:
-                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/bad-request-example.raml
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/bad-request-example.raml
             '404':
               description: The basket with the given basket ID is unknown.
               body:
                 application/problem+json:
                   type: ErrorResponse
                   examples:
-                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/basket-not-found.raml
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
           queryParameters:
             useAsShipping?:
               type: boolean
@@ -314,7 +322,7 @@ types:
                 application/problem+json:
                   type: ErrorResponse
                   examples:
-                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/bad-request-example.raml
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/bad-request-example.raml
             '404':
               description: |-
                 The basket with the given basket ID is unknown.
@@ -322,7 +330,7 @@ types:
                 application/problem+json:
                   type: ErrorResponse
                   examples:
-                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/basket-not-found.raml
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
           body:
               type: dataTypes.CouponItem
               examples:
@@ -355,7 +363,7 @@ types:
                   application/problem+json:
                     type: ErrorResponse
                     examples:
-                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/bad-request-auth.raml
+                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/bad-request-auth.raml
               '404':
                 description: |-
                   Possible reasons:
@@ -366,7 +374,7 @@ types:
                   application/problem+json:
                     type: ErrorResponse
                     examples:
-                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/basket-not-found.raml
+                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
             securedBy:
               - CommerceCloudStandards.ShopperToken: { scopes: [ "sfcc.shopper-baskets-orders.rw" ] }
           uriParameters:
@@ -404,7 +412,7 @@ types:
                 application/problem+json:
                   type: ErrorResponse
                   examples:
-                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/bad-request-auth.raml
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/bad-request-auth.raml
             '404':
               description: |-
                 Possible reasons:
@@ -414,7 +422,7 @@ types:
                 application/problem+json:
                   type: ErrorResponse
                   examples:
-                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/basket-not-found.raml
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
           body:
               type: dataTypes.CustomerInfo
               examples:
@@ -445,7 +453,7 @@ types:
                 application/problem+json:
                   type: ErrorResponse
                   examples:
-                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/bad-request-example.raml
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/bad-request-example.raml
             '404':
               description: |-
                 Possible reasons:
@@ -456,7 +464,7 @@ types:
                 application/problem+json:
                   type: ErrorResponse
                   examples:
-                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/basket-not-found.raml
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
           body:
               type: dataTypes.GiftCertificateItem
               examples:
@@ -489,7 +497,7 @@ types:
                   application/problem+json:
                     type: ErrorResponse
                     examples:
-                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/basket-not-found.raml
+                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
             securedBy:
               - CommerceCloudStandards.ShopperToken: { scopes: [ "sfcc.shopper-baskets-orders.rw" ] }
           patch:
@@ -514,7 +522,7 @@ types:
                   application/problem+json:
                     type: ErrorResponse
                     examples:
-                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/bad-request-example.raml
+                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/bad-request-example.raml
               '404':
                 description: |-
                   Possible reasons:
@@ -524,7 +532,7 @@ types:
                   application/problem+json:
                     type: ErrorResponse
                     examples:
-                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/basket-not-found.raml
+                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
             body:
                 type: dataTypes.GiftCertificateItem
                 examples:
@@ -608,7 +616,7 @@ types:
                 application/problem+json:
                     type: ErrorResponse
                     examples:
-                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/bad-request-example.raml
+                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/bad-request-example.raml
             '404':
               description: |-
                 Possible reasons:
@@ -618,7 +626,7 @@ types:
                 application/problem+json:
                   type: ErrorResponse
                   examples:
-                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/basket-not-found.raml
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
           body:
               type: array
               items: dataTypes.ProductItem
@@ -652,7 +660,7 @@ types:
                   application/problem+json:
                     type: ErrorResponse
                     examples:
-                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/bad-request-auth.raml
+                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/bad-request-auth.raml
               '404':
                 description: |-
                   The basket with the given basket ID is unknown.
@@ -660,7 +668,7 @@ types:
                   application/problem+json:
                     type: ErrorResponse
                     examples:
-                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/basket-not-found.raml
+                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
             securedBy:
             - CommerceCloudStandards.ShopperToken: { scopes: [ "sfcc.shopper-baskets-orders.rw" ] }
           patch:
@@ -722,7 +730,7 @@ types:
                   application/problem+json:
                     type: ErrorResponse
                     examples:
-                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/bad-request-example.raml
+                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/bad-request-example.raml
               '404':
                 description: |-
                   Possible reasons:
@@ -732,7 +740,7 @@ types:
                   application/problem+json:
                     type: ErrorResponse
                     examples:
-                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/basket-not-found.raml
+                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
             body:
                 type: dataTypes.ProductItem
                 examples:
@@ -754,8 +762,8 @@ types:
                     responseStatus: 204
                     responseStatus2: 404
                     responseStatus3: 409   
-              description: This method allows you to put TaxItems to a item on the referenced basket when basket is in taxMode=EXTERNAL.
-              displayName: addTaxForBasketItem
+              description: This method allows you to apply external taxation data to an existing basket to be able to pass tax rates and optional values for a specific taxable line item. This endpoint can be called only if external taxation mode was used for basket creation. See POST /baskets for more information.
+              displayName: addTaxesForBasketItem
               responses:
                 '204':
                   description: Success, without body.
@@ -768,7 +776,7 @@ types:
                     application/problem+json:
                         type: ErrorResponse
                         examples:
-                          dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/basket-not-found.raml
+                          dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
                 '409':
                   description: In case of the referenced basket has not the tax mode EXTERNAL set. 
                   body:
@@ -807,7 +815,7 @@ types:
                 application/problem+json:
                   type: ErrorResponse
                   examples:
-                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/bad-request-example.raml
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/bad-request-example.raml
             '404':
               description: The basket with the given basket ID is unknown.
               
@@ -815,7 +823,7 @@ types:
                 application/problem+json:
                   type: ErrorResponse
                   examples:
-                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/basket-not-found.raml
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
           body:
               type: dataTypes.BasketPaymentInstrumentRequest
               examples:
@@ -848,7 +856,7 @@ types:
                   application/problem+json:
                     type: ErrorResponse
                     examples:
-                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/bad-request-auth.raml
+                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/bad-request-auth.raml
               '404':
                 description:  |-
                   Possible reasons:
@@ -859,7 +867,7 @@ types:
                   application/problem+json:
                     type: ErrorResponse
                     examples:
-                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/basket-not-found.raml
+                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
             securedBy:
               - CommerceCloudStandards.ShopperToken: { scopes: [ "sfcc.shopper-baskets-orders.rw" ] }
       /payment-methods:
@@ -888,7 +896,7 @@ types:
                 application/problem+json:
                     type: ErrorResponse
                     examples:
-                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/bad-request-auth.raml
+                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/bad-request-auth.raml
             '404':
               description: |-
                 The basket with the given basket ID is unknown.
@@ -896,7 +904,7 @@ types:
                 application/problem+json:
                   type: ErrorResponse
                   examples:
-                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/basket-not-found.raml
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
           securedBy:
             - CommerceCloudStandards.ShopperToken: { scopes: [ "sfcc.shopper-baskets-orders", "sfcc.shopper-baskets-orders.rw" ] }
       /shipments:
@@ -946,7 +954,7 @@ types:
                 application/problem+json:
                     type: ErrorResponse
                     examples:
-                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/bad-request-example.raml
+                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/bad-request-example.raml
             '404':
               description: |-
                 The basket with the given basket ID is
@@ -955,7 +963,7 @@ types:
                 application/problem+json:
                       type: ErrorResponse
                       examples:
-                        dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/basket-not-found.raml
+                        dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
           body:
               type: dataTypes.Shipment
               examples:
@@ -994,7 +1002,7 @@ types:
                   application/problem+json:
                     type: ErrorResponse
                     examples:
-                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/bad-request-auth.raml
+                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/bad-request-auth.raml
               '403':
                 description: |-
                   The given shipment ID corresponds to the
@@ -1003,7 +1011,7 @@ types:
                   application/problem+json:
                     type: ErrorResponse
                     examples:
-                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/forbidden.raml
+                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/forbidden.raml
               '404':
                 description: |-
                   The basket with the given basket ID is
@@ -1012,7 +1020,7 @@ types:
                   application/problem+json:
                       type: ErrorResponse
                       examples:
-                        dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/basket-not-found.raml
+                        dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
             securedBy:
               - CommerceCloudStandards.ShopperToken: { scopes: [ "sfcc.shopper-baskets-orders.rw" ] }
           patch:
@@ -1059,7 +1067,7 @@ types:
                   application/problem+json:
                     type: ErrorResponse
                     examples:
-                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/bad-request-example.raml
+                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/bad-request-example.raml
               '404':
                 description: |-
                   The basket with the given basket ID is unknown.
@@ -1067,7 +1075,7 @@ types:
                   application/problem+json:
                       type: ErrorResponse
                       examples:
-                        dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/basket-not-found.raml
+                        dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
             body:
                 type: dataTypes.Shipment
                 examples:
@@ -1107,14 +1115,14 @@ types:
                   body:
                       type: ErrorResponse
                       examples:
-                        dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/bad-request-example.raml
+                        dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/bad-request-example.raml
                 '404':
                   description: The basket with the given basket ID is unknown.
                   
                   body:
                         type: ErrorResponse
                         examples:
-                          dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/basket-not-found.raml
+                          dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
               queryParameters:
                 useAsBilling?:
                   type: boolean
@@ -1153,14 +1161,14 @@ types:
                   body:
                       type: ErrorResponse
                       examples:
-                        dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/bad-request-example.raml
+                        dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/bad-request-example.raml
                 '404':
                   description: |-
                     The basket with the given basket ID is unknown.
                   body:
                         type: ErrorResponse
                         examples:
-                          dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/basket-not-found.raml
+                          dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
               body:
                   type: dataTypes.ShippingMethod
                   examples:
@@ -1193,7 +1201,7 @@ types:
                   body:
                       type: ErrorResponse
                       examples:
-                        dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/bad-request-auth.raml
+                        dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/bad-request-auth.raml
                 '404':
                   description: |-
                     Possible reasons:
@@ -1202,7 +1210,7 @@ types:
                   body:
                         type: ErrorResponse
                         examples:
-                          dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/basket-not-found.raml
+                          dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
               securedBy:
                 - CommerceCloudStandards.ShopperToken: { scopes: [ "sfcc.shopper-baskets-orders", "sfcc.shopper-baskets-orders.rw" ] }
       /taxes:
@@ -1214,7 +1222,7 @@ types:
                 responseStatus: 200
                 responseStatus2: 404
                 responseStatus3: 409  
-          description: This method gives you the external taxation for the specified basket.           
+          description: This method gives you the external taxation data set by the PUT taxes API. This endpoint can be called only if external taxation mode was used for basket creation. See POST /baskets for more information. 
           displayName: getTaxesFromBasket
           responses:
             '200':
@@ -1228,13 +1236,13 @@ types:
               body:
                 type: ErrorResponse
                 examples:
-                  dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/basket-not-found.raml
+                  dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
             '409':
               description: In case of the referenced basket has not the tax mode EXTERNAL set. 
               body:
                 type: ErrorResponse
                 examples:
-                  dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/invalid-tax-mode.raml         
+                  dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/invalid-tax-mode.raml         
           securedBy:
             - CommerceCloudStandards.BearerToken: { scopes: [ "sfcc.shopper-baskets-orders", "sfcc.shopper-baskets-orders.rw" ] }
             - CommerceCloudStandards.AmOAuth2
@@ -1245,7 +1253,7 @@ types:
                 responseStatus: 204
                 responseStatus2: 404
                 responseStatus3: 409   
-          description: This method allows you to put a Map <lineItemUUID, TaxItems []> to an existing basket to be able to pass taxes for line items which will be used for calculation. This is only possible when setting the basket taxation mode to EXTERNAL. See Basket resource for more information.
+          description: This method allows you to apply external taxation data to an existing basket to be able to pass tax rates and optional values for all taxable line items. This endpoint can be called only if external taxation mode was used for basket creation. See POST /baskets for more information.
           displayName: addTaxesForBasket
           responses:
             '204':
@@ -1256,7 +1264,7 @@ types:
                 application/problem+json:
                   type: ErrorResponse
                   examples:
-                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.52/examples/error/basket-not-found.raml
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
             '409':
               description: In case of the referenced basket has not the tax mode EXTERNAL set. 
           body:

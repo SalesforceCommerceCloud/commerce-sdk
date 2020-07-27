@@ -3,7 +3,7 @@ title: Products
 version: v1
 protocols: HTTPS
 mediaType: application/json
-baseUri: https://{shortCode}.api.commercecloud.salesforce.com/product/products/v1
+baseUri: https://{shortCode}.api.commercecloud.salesforce.com/product/products/{version}
 baseUriParameters:
   shortCode:
     description: A region-specific merchant identifier.
@@ -14,8 +14,8 @@ description: Use the Data Products API to interact with the API in the context o
 
 uses:
   ProductTraits: data-products-library.raml
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.7/api-standards.raml   
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.12/commerce-cloud-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.8/api-standards.raml   
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.15/commerce-cloud-standards.raml
 
 types:
   CatalogCategoryId:
@@ -160,6 +160,10 @@ types:
         description: The array of bundled products which the product includes.
         type: Product[]
         required: false
+      classificationCategory:
+        description: The catalog category that the product is assigned to for classification.
+        type: CatalogCategoryId
+        required: false
       creationDate:
         description: Returns the value of attribute 'creationDate'.
         type: datetime
@@ -199,6 +203,14 @@ types:
         type: datetime
         required: false
         example: 9999-12-31T00:00:00.0Z
+      localizedTaxClassId:
+        description: The localized tax class identifier of the product.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"en_US":"exempt"}
       longDescription:
         description: The localized long description of the product.
         type: object
@@ -217,7 +229,7 @@ types:
         required: false
         example: "HSD68J"
       master:
-        description: The master of the product. This is applicable for product types "variation_group" and "variant" only.
+        description: The master of the product. This is applicable for product types "variationGroup" and "variant" only.
         type: Master
         required: false
       name:
@@ -289,6 +301,10 @@ types:
         type: string
         required: false
         example: "USD"
+      primaryCategories:
+        description: The primary catalog categories that the product is assigned to.
+        type: CatalogCategoryId[]
+        required: false
       primaryCategoryId:
         description: The ID of the products primary category.
         type: string
@@ -325,8 +341,13 @@ types:
           //:
             type: MarkupText
         required: false
+      taxClassId:
+        description: The tax class identifier of the product.
+        type: string
+        required: false
+        example: "standard"
       type:
-        description: The type of the product. It can have one or more of the values "item", "master", "variation_group", "variant", "bundle", and "set".
+        description: The type of the product. It can have one or more of the values "item", "master", "variationGroup", "variant", "bundle", and "set".
         type: ProductType
         required: false
       unit:
@@ -339,14 +360,30 @@ types:
         type: string
         required: false
         example: "66JSD88JASD"
+      validFrom:
+        description: The valid/online from date of the product.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"default@SiteGenesis":"2000-05-11T00:00:00.000Z"}
+      validTo:
+        description: The valid/online to date of the product.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"default@SiteGenesis":"2050-05-11T00:00:00.000Z"}
       variants:
-        description: The array of variants of the product. This is applicable for product types "master" and "variation_group" only.
+        description: The array of variants of the product. This is applicable for product types "master" and "variationGroup" only.
         type: Variant[]
         required: false
       variationAttributes:
         description: |-
           The sorted array of variation attributes assigned to the product. This is applicable for product types "master",
-           "variation_group" and "variant" only.
+           "variationGroup" and "variant" only.
         type: VariationAttribute[]
         required: false
       variationGroups:
@@ -876,7 +913,7 @@ types:
             '204':
               description: Deleted the product successfully.
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2
       get:
           description: Action to get product information.
@@ -905,17 +942,17 @@ types:
               required: false
               example: SiteGenesis
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2
       patch:
           description: |-
             Update a product using the information provided.
 
             Fields that can be updated:
-            name, page_description, long_descripton, page_title,
-            page_keywords, brand, ean,upc, manufacture_sku,
-            manufacture_name, searchable, unit, searchable,
-            online_flag, default_variant_id.
+            name, pageDescription, longDescripton, pageTitle,
+            pageKeywords, brand, ean, upc, manufactureSku,
+            manufactureName, searchable, unit, searchable,
+            onlineFlag, defaultVariantId.
           displayName: updateProduct
           is:
             - ApiStandards.RateLimited4:
@@ -940,20 +977,21 @@ types:
               examples:
                 productRequest: !include Examples/Data-Product-Expand.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2
       put:
-          description: Creates a product using the information provided. If a product with the same unique identifier exists, it will be cleaned and overwritten unless the header x-dw-validate-existing=true is passed in with the request.
+          description: Creates a product using the information provided. If a product with the same unique identifier exists, it is cleaned and overwritten unless the header x-dw-validate-existing=true is passed in with the request.
           displayName: createProduct
           is:
             - ApiStandards.RateLimited5:
                 responseStatus: 201
                 responseStatus2: 200
-                responseStatus3: 200
-                responseStatus4: 400
-                responseStatus5: 401
+                responseStatus3: 400
+                responseStatus4: 401
+                responseStatus5: 404
             - ProductTraits.Unauthorized
             - ProductTraits.BadRequest
+            - ProductTraits.ProductNotFound
           responses:
             '201':
               description: Product was created successfully.
@@ -975,7 +1013,7 @@ types:
               examples:
                 productRequest: !include Examples/Data-Product-Expand.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2
       uriParameters:
           productId:
@@ -986,7 +1024,58 @@ types:
             example: apple-ipod-shuffle
       /variant-search:
         post:
-          description: Searches product variations for master product or variation group product.\n \n The query attribute specifies a complex query that can be used to narrow down the search. This is the list\n of searchable attributes:\n \n id - String\n product_id - String\n name - String\n online - SiteSpecific Boolean\n in_stock - Boolean \n searchable - SiteSpecific Boolean \n ats - Actual available quantity to sell - Double \n variation_attribute.ATTRIBUTE_ID (Ex:variation_attribute.color) - String\n \n Sortable Fields:\n \n id - String\n product_id - String\n name - String\n online - SiteSpecific Boolean\n in_stock - Boolean \n searchable - SiteSpecific Boolean \n ats - Actual available quantity to sell - Double \n \n\n Note:\n The calculated value of \"online\" and \"searchable\" is used in the search/sort.\n A search/sort by the the site specific attributes require the Site ID query parameter to be set.\n They are \"online\", \"in_stock\", \"searchable\" and \"ats\".\n  We assume that every field that starts with variation_attribute. is searchable and dot is followed by ATTRIBUTE_ID\".\n\n\n The list of expansions to retrieve product information. The expand values available are:\n \t\t  \n \t\t\t_base - Basic product information is retrieved. This expand is included by default.\n \t\t\tall - All product information including the following properties are retrieved:\n        \t\n        \t\timage\n        \t\tprice - siteId has to be provided to see this property\n        \t\tprice_currency - siteId has to be provided to see this property\n        \t\n \t\t\tavailability - Information related to the availability of the product variation.  This expand is not included by default.\n        \t\n        \t\tats - siteId has to be provided to see this property\n        \t\tin_stock - siteId has to be provided to see this property\n        \t\tonline - siteId has to be provided to see this property\n        \t\tsearchable\n        \t\n          variations - Information related to product variation is retrieved. This expand is included by default.\n \t\t\tattributes - Information related to product variation attributes is retrieved. This expand is not included by default.\n \t\t  
+          description: |
+            Searches product variations for master product or variation group product. The query attribute specifies a complex query that can be used to narrow down the search. 
+            
+            This is the list of searchable attributes:
+
+              | Attribute | Type |
+              |-----------|--------|
+              | id | String |
+              | productId | String |
+              | name | String |
+              | online |  SiteSpecific Boolean |
+              | inStock | Boolean  |
+              | searchable | SiteSpecific Boolean  |
+              | ats - Actual available quantity to sell | Double |
+              | variationAttribute.ATTRIBUTE_ID (Ex:variation_attribute.color) | String |
+
+            Sortable Fields:
+
+              | Attribute | Type |
+              |-----------|--------|
+              | id | String |
+              | productId | String |
+              | name | String |
+              | online |  SiteSpecific Boolean |
+              | inStock | Boolean  |
+              | searchable | SiteSpecific Boolean  |
+              | ats - Actual available quantity to sell | Double |
+
+              Note: The calculated value of \"online\" and \"searchable\" is used in the search/sort. A search/sort by the site-specific attributes require the Site ID query parameter to be set. They are \"online\", \"inStock\", \"searchable\" and \"ats\". We assume that every field that starts with variationAttribute. is searchable and dot is followed by \"ATTRIBUTE_ID\".
+
+              The list of expansions to retrieve product information. The expand values available are:
+
+              - _base - Basic product information is retrieved. This expand is included by default.
+
+              - all - All product information, including the following properties are retrieved:
+                  - image
+                  - price - siteId must be provided to see this property
+                  - priceCurrency - siteId has to be provided to see this property
+
+              - availability - Information related to the availability of the product variation.  This expand is not included by default.
+                  - ats - siteId must be provided to see this property
+                  - inStock - siteId has to be provided to see this property
+                  - online - siteId has to be provided to see this property        
+                  - searchable        
+
+              - variations - Information related to product variation is retrieved. This expand is included by default.
+
+              - attributes - Information related to product variation attributes is retrieved. This expand is not included by default.
+
+
+
+
           displayName: searchProductVariations
           is:
             - ApiStandards.RateLimited4:
@@ -1017,7 +1106,7 @@ types:
               examples: 
                 variantSearchRequest: !include Examples/VariantSearchRequest.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2
     /{masterProductId}/variation-groups:
       get:
@@ -1050,7 +1139,7 @@ types:
             description: The site context.
             example: SiteGenesis
         securedBy:
-          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
           - CommerceCloudStandards.AmOAuth2
       /{id}:
         delete:
@@ -1069,7 +1158,7 @@ types:
             '204':
               description: Deleted the variation group successfully.
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2
         get:
           description: Read a variation group for a product master.
@@ -1098,7 +1187,7 @@ types:
               required: false
               example: SiteGenesis
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2
         patch:
           description: Update a variation group for a product master.
@@ -1126,7 +1215,7 @@ types:
               examples: 
                 variantGroupsIdRequest: !include Examples/VariationGroupsIdRequest.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2
         put:
           description: |-
@@ -1156,7 +1245,7 @@ types:
               examples: 
                 variantGroupsIdRequest: !include Examples/VariationGroupsIdRequest.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2
         uriParameters:
           masterProductId:
@@ -1200,7 +1289,7 @@ types:
               required: false
               example: SiteGenesis
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2
       /{id}:
         delete:
@@ -1219,7 +1308,7 @@ types:
             '204':
               description: Deleted the variation group successfully.
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2
         get:
           description: Read a variation for a product master.
@@ -1248,7 +1337,7 @@ types:
               description: The site context.
               example: SiteGenesis
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2
         patch:
           description: Update a variation for a product master.
@@ -1276,7 +1365,7 @@ types:
               examples: 
                 variantsIdRequest: !include Examples/VariationsIdRequest.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2
         put:
           description: |-
@@ -1306,7 +1395,7 @@ types:
               examples:
                 variantsIdRequest: !include Examples/VariationsIdRequest.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2
         uriParameters:
           masterProductId:
@@ -1348,7 +1437,7 @@ types:
               type: string
               required: false
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2
       /{id}:
         delete:
@@ -1367,7 +1456,7 @@ types:
             '204':
               description: Deleted product option succesfully.
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2
         get:
           description: Read a local or shared product option of a product.
@@ -1395,7 +1484,7 @@ types:
               required: false
               example: USD
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2
         patch:
           description: Updates a local product option with the information provided.
@@ -1423,7 +1512,7 @@ types:
               examples: 
                 productOptionsIdRequest: !include Examples/ProductOptionsIdRequest.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2
         put:
           description: Creates a local product option using the information provided or binds a shared product option to the product.
@@ -1459,7 +1548,7 @@ types:
               examples:
                 productOptionsIdRequest: !include Examples/ProductOptionsIdRequest.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2
         uriParameters:
           productId:
@@ -1490,7 +1579,7 @@ types:
           '204': 
             description: Deleted product option value successfully.
         securedBy:
-          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
           - CommerceCloudStandards.AmOAuth2
       get:
         description: Read a local product option value of a local product option in a product.
@@ -1513,7 +1602,7 @@ types:
                 examples: 
                   productOptionsValueResult: !include Examples/ProductOptionsValuesResult.raml
         securedBy:
-          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
           - CommerceCloudStandards.AmOAuth2
       patch:
         description: Updates a local product option value with the information provided.
@@ -1541,7 +1630,7 @@ types:
             examples:
               productOptionsValueRequest: !include Examples/ProductOptionsValuesRequest.raml 
         securedBy:
-          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
           - CommerceCloudStandards.AmOAuth2
       put:
         description: Creates a local product option value using the information provided.
@@ -1577,7 +1666,7 @@ types:
             examples:
               productOptionsValueRequest: !include Examples/ProductOptionsValuesRequest.raml 
         securedBy:
-          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
           - CommerceCloudStandards.AmOAuth2
       uriParameters:
         id:
@@ -1623,7 +1712,7 @@ types:
             description: The site context.
             example: SiteGenesis
         securedBy:
-          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
           - CommerceCloudStandards.AmOAuth2
       delete:
         description: Deletes the variation attribute value of a variation attribute bound to a master product.
@@ -1641,7 +1730,7 @@ types:
           '204': 
             description: Deleted variation attribute value successfully.
         securedBy:
-          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
           - CommerceCloudStandards.AmOAuth2
       patch:
         description: Updates the variation attribute value of a variation attribute of a master product.
@@ -1669,7 +1758,7 @@ types:
             examples: 
               variantAttributeValuesRequest: !include Examples/VariationAttributeValuesIdRequest.raml
         securedBy:
-          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
           - CommerceCloudStandards.AmOAuth2
       put:
         description: Action to create a product variation attribute value.
@@ -1705,7 +1794,7 @@ types:
             examples: 
               variantAttributeValuesRequest: !include Examples/VariationAttributeValuesIdRequest.raml
         securedBy:
-          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
           - CommerceCloudStandards.AmOAuth2
       uriParameters:
         productId:
@@ -1748,7 +1837,7 @@ types:
                 examples: 
                   variantAttributesResult: !include Examples/VariationAttributesResult.raml
         securedBy:
-          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
           - CommerceCloudStandards.AmOAuth2
       /{id}:
         get:
@@ -1772,7 +1861,7 @@ types:
                   examples: 
                     variantAttributeIdResult: !include Examples/VariationAttributeResult.raml
           securedBy:
-          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
           - CommerceCloudStandards.AmOAuth2
         delete:
           description: Deletes the variation attribute by ID.
@@ -1790,7 +1879,7 @@ types:
             '204': 
               description: Deleted variation attribute successfully.
           securedBy:
-          - CommerceCloudStandards.BearerToken
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
           - CommerceCloudStandards.AmOAuth2
         patch:
           description: |-
@@ -1822,7 +1911,7 @@ types:
               examples:
                 variantAttributeIdRequest: !include Examples/VariationAttributeRequest.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2
         put:
           description: Creates a variation attribute using the information provided.
@@ -1858,7 +1947,7 @@ types:
               examples:
                 variantAttributeIdRequest: !include Examples/VariationAttributeRequest.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2
         uriParameters:
           productId:
@@ -1875,7 +1964,80 @@ types:
 /organizations/{organizationId}/product-search:
   post:
     description: |
-     "Searches for products.\n\n The query attribute specifies a complex query that can be used to narrow down the search. Attributes are grouped\n into different buckets.  These are the list of searchable attributes with their corresponding buckets:\n\n Main:\n \n    id - String\n    name - String\n    online - SiteSpecific Boolean\n    searchable - SiteSpecific Boolean \n    valid_from - SiteSpefic DateTime \n    valid_to - SiteSpecfic DateTime \n    type - ProductType \n    creation_date - DateTime\n \n Catalog:\n \n    catalog_id - String\n \n Category:\n \n    category_id - String\n \n Special:\n \n    type - {\"item\", \"set, \"bundle\", \"master\", \"part_of_product_set\", \"bundled\", \"variant\", \"variation_group\", \"option\", \"retail_set\", \"part_of_retail_set\"}\n \n\n The sortable properties are:\n \n id - String\n name - String\n creation_date - DateTime\n \n\n Note that catalog_id is the id of the catalog to which products are assigned to.\n\n Only attributes in the same bucket can be joined using a disjunction (OR).\n For instance, when joining id and catalog_id above, only a conjunction is allowed (AND), whereas id\n and searchable can be joined using a disjunction because they are in the same bucket.  If an attribute\n is used in a disjunction (OR) that violates this rule, an exception will be thrown.\n\n The product search retrieves additional properties of the product when expansions are used.\n\tThe available expand attribute values are:\n \n        \t'all' will retrieve all the product properties.\n          'availability' will retrieve the following properties:\n            ats\n            in_stock\n            online\n\t\t    \n          'categories' will retrieve the following properties:\n            assigned_categories\n\t\t\t\n          'images' will retrieve the following properties:\n            image\n\t\t\t\n\t\t\t'all_images' used with images will retrieve the following properties:\n            image\n            image_groups\n\t\t\t\n          'prices' will retrieve the following properties:\n            price\n            price_currency\n\t\t\t\n          'sets' will retrieve the following properties:\n            set_products\n            product_sets\n\t\t\t\n          'bundles' will retrieve the following properties:\n            product_bundles\n            bundled_products\n            \n\t\t\t\n\n "
+      Searches for products. The query attribute specifies a complex query that can be used to narrow down the search. Attributes are grouped into different buckets. 
+      
+      The following is a list of searchable attributes with their corresponding buckets:
+        
+      Main:  
+
+        | Attribute | Type |
+        |-----------|--------|
+        | id | String |
+        | name | String |
+        | online |  SiteSpecific Boolean |
+        | searchable |  SiteSpecific Boolean |
+        | validFrom | SiteSpecfic DateTime  |
+        | validTo | SiteSpecfic DateTime  |
+        | type | ProductType |
+        | creationDate | DateTime |
+
+      Catalog:
+
+        | Attribute | Type |
+        |-----------|--------|
+        | catalogId | String |
+
+        Category:
+
+        | Attribute | Type |
+        |-----------|--------|
+        | categoryId | String |
+
+        Special:
+          
+        type - {\"item\", \"set, \"bundle\", \"master\", \"partOfProductSet\", \"bundled\", \"variant\", \"variationGroup\", \"option\", \"retailSet\", \"partOfRetailSet\"}
+
+        The sortable properties are:
+
+        | Attribute | Type |
+        |-----------|--------|
+        | id | String |
+        | name | String |
+        | creationDate |  DateTime |
+
+      Note that catalogId is the ID of the catalog to which products are assigned to
+
+      Only attributes in the same bucket can be joined using a disjunction (OR). For instance, when joining id and catalogId, only a conjunction is allowed (AND), whereas id and searchable can be joined using a disjunction because they are in the same bucket. If an attribute is used in a disjunction (OR) that violates this rule, an exception is thrown. The product search retrieves additional properties of the product when expansions are used.
+
+      The available expand attribute values are:
+
+      - ‘all' retrieves all the product properties.
+
+      - ‘availability' retrieves the following properties:
+          - ats
+          - inStock
+          - online
+
+      - ‘categories' retrieves the assignedCategories property.            
+
+      - ‘images' retrieves the image property.    
+
+      - ‘allImages' used with images retrieves the following properties:
+          - image
+          - imageGroups
+      
+      - 'prices' retrieves the following properties:
+          - price
+          - priceCurrency
+
+      - ‘sets' retrieves the following properties:
+          - setProducts
+          - productSets
+
+      - ‘bundles' retrieves the following properties:
+          - productBundles
+          - bundledProduct
+
     displayName: searchProducts
     queryParameters:
       siteId:
@@ -1887,7 +2049,7 @@ types:
       application/json:
         type: CommerceCloudStandards.SearchRequest
         examples:
-          search_request: !include Examples/ProductSearchRequest.raml
+          searchRequest: !include Examples/ProductSearchRequest.raml
     is:
       - ApiStandards.RateLimited3:
           responseStatus: 200
@@ -1902,7 +2064,8 @@ types:
           application/json:
             type: ProductSearchResult
             examples: 
-              product_search_result: !include Examples/ProductSearchResult.raml
+              productSearchResult: !include Examples/ProductSearchResult.raml
     securedBy:
-      - CommerceCloudStandards.BearerToken
+      - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
       - CommerceCloudStandards.AmOAuth2
+

@@ -139,7 +139,7 @@ types:
       application/json:
         type: CommerceCloudStandards.SearchRequest
     securedBy:
-      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions ] }
+      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
       - CommerceCloudStandards.AmOAuth2
   '/{campaignId}':
     uriParameters:
@@ -148,6 +148,8 @@ types:
         minLength: 1
         type: string
         example: ThanksGivingCampaign
+    is:
+      - CommerceCloudStandards.SiteSpecific
     delete:
       description: Deletes the campaign by ID.
       displayName: deleteCampaign
@@ -177,7 +179,7 @@ types:
               examples:
                 campaignGetResponse: !include Examples/get-campaign-example.raml
       securedBy:
-        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions ] }
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
         - CommerceCloudStandards.AmOAuth2
     patch:
       description: Updates the campaign with the specified information.
