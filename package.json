@@ -29,7 +29,10 @@
     "doc:resources": "cp CHANGELOG.md ./docs",
     "clean": "rm -rf renderedTemplates dist",
     "renderTemplates": "gulp --gulpfile ./gulpfiles/renderTemplatesTask.ts renderTemplates",
-    "updateApis": "gulp --gulpfile ./gulpfiles/downloadRamlsTask.ts updateApis",
+    "backupApis": "rm -rf updateApisTmp && mkdir updateApisTmp && mv apis updateApisTmp/oldApis",
+    "diffApis": "raml-toolkit diff --dir updateApisTmp/oldApis/api-config.json apis/api-config.json -o updateApisTmp/ramlDiff.json",
+    "downloadApis": "raml-toolkit download -s 'category:\"CC Visibility\" = \"External\"' -g \"CC API Family\" -D production --deployment-regex-flags=i",
+    "updateApis": "npm run backupApis && npm run downloadApis && npm run diffApis",
     "prepare": "snyk protect"
   },
   "publishConfig": {
@@ -155,7 +158,7 @@
   "license": "BSD-3-Clause",
   "gitHead": "2a6031f5f57c4ba5df8bfb5c4ca42b2631befe58",
   "devDependencies": {
-    "@commerce-apps/raml-toolkit": "^0.4.3",
+    "@commerce-apps/raml-toolkit": "^0.4.4",
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
     "@types/gulp": "^4.0.6",
     "@types/mocha": "^7.0.2",
@@ -167,8 +170,6 @@
     "dotenv": "^8.2.0",
     "eslint": "^7.4.0",
     "eslint-config-prettier": "^6.11.0",
-    "eslint-config-xo": "^0.32.0",
-    "eslint-config-xo-typescript": "^0.31.0",
     "eslint-plugin-header": "^3.0.0",
     "eslint-plugin-jsdoc": "^25.4.0",
     "eslint-plugin-prettier": "^3.1.4",
@@ -182,7 +183,6 @@
     "mocha": "^7.0.1",
     "nyc": "^15.0.0",
     "prettier": "^2.0.5",
-    "sinon": "^7.5.0",
     "tmp": "^0.2.0",
     "tslib": "^1.10.0",
     "typedoc": "^0.17.8",

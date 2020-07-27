@@ -19,7 +19,7 @@
     * @param body - The data to send as the request body.
     {{/or}}
     *
-    * @returns A promise of type {{addNamespace (getReturnPayloadType .) (capitalize @root.metadata.specName)}}.
+    * @returns A promise of type {{addNamespace (getReturnTypeFromOperation .) (capitalize @root.metadata.specName)}}.
     * {{#if (eq (lowercase @root.metadata.categories.[CC Version Status].[0]) "beta")}}
     * @beta
     * {{/if}}
@@ -29,17 +29,17 @@
         parameters?: {
           {{#each ../parameters}}
           {{! common parameters can be configured at the client level and therefore are not required }}
-          {{name}}{{#if (isCommonPathParameter name)}}?{{/if}}: {{{ getParameterDataType .}}}
+          {{name}}{{#if (isCommonPathParameter name)}}?{{/if}}: {{{ getTypeFromParameter .}}}
           {{/each}}
           {{#each request/queryParameters}}
-          {{name}}{{#if (or (not (is required "true")) (isCommonQueryParameter name))}}?{{/if}}: {{{ getParameterDataType .}}}
+          {{name}}{{#if (or (not (is required "true")) (isCommonQueryParameter name))}}?{{/if}}: {{{ getTypeFromParameter .}}}
           {{/each}}
         },
         retrySettings?: OperationOptions,
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}},
-        body: {{{addNamespace (getRequestPayloadType request) (capitalize @root.metadata.specName)}}}{{/or}}
+        body: {{{addNamespace (getPayloadTypeFromRequest request) (capitalize @root.metadata.specName)}}}{{/or}}
       }
-    ): Promise<{{addNamespace (getReturnPayloadType .) (capitalize @root.metadata.specName)}}>;
+    ): Promise<{{addNamespace (getReturnTypeFromOperation .) (capitalize @root.metadata.specName)}}>;
 
     /**
     * {{{formatForTsDoc description}}}
@@ -59,7 +59,7 @@
     {{/or}}
     * @param rawResponse - Set to true to return entire Response object instead of DTO.
     *
-    * @returns A promise of type Response if rawResponse is true, a promise of type {{addNamespace (getReturnPayloadType .) (capitalize @root.metadata.specName)}} otherwise.
+    * @returns A promise of type Response if rawResponse is true, a promise of type {{addNamespace (getReturnTypeFromOperation .) (capitalize @root.metadata.specName)}} otherwise.
     * {{#if (eq (lowercase @root.metadata.categories.[CC Version Status].[0]) "beta")}}
     * @beta
     * {{/if}}
@@ -69,18 +69,18 @@
         parameters?: {
           {{#each ../parameters}}
           {{! common parameters can be configured at the client level and therefore are not required }}
-          {{name}}{{#if (isCommonPathParameter name)}}?{{/if}}: {{{ getParameterDataType .}}}
+          {{name}}{{#if (isCommonPathParameter name)}}?{{/if}}: {{{ getTypeFromParameter .}}}
           {{/each}}
           {{#each request/queryParameters}}
-          {{name}}{{#if (or (not (is required "true")) (isCommonQueryParameter name))}}?{{/if}}: {{{ getParameterDataType .}}}
+          {{name}}{{#if (or (not (is required "true")) (isCommonQueryParameter name))}}?{{/if}}: {{{ getTypeFromParameter .}}}
           {{/each}}
         },
         retrySettings?: OperationOptions,
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}}, 
-        body: {{{addNamespace (getRequestPayloadType request) (capitalize @root.metadata.specName)}}}{{/or}}
+        body: {{{addNamespace (getPayloadTypeFromRequest request) (capitalize @root.metadata.specName)}}}{{/or}}
       },
       rawResponse?: T
-    ): Promise<T extends true ? Response : {{addNamespace (getReturnPayloadType .) (capitalize @root.metadata.specName)}}>;
+    ): Promise<T extends true ? Response : {{addNamespace (getReturnTypeFromOperation .) (capitalize @root.metadata.specName)}}>;
 
     /**
     * {{{formatForTsDoc description}}}
@@ -100,7 +100,7 @@
     {{/or}}
     * @param rawResponse - Set to true to return entire Response object instead of DTO.
     *
-    * @returns A promise of type Response if rawResponse is true, a promise of type {{addNamespace (getReturnPayloadType .) (capitalize @root.metadata.specName)}} otherwise.
+    * @returns A promise of type Response if rawResponse is true, a promise of type {{addNamespace (getReturnTypeFromOperation .) (capitalize @root.metadata.specName)}} otherwise.
     * {{#if (eq (lowercase @root.metadata.categories.[CC Version Status].[0]) "beta")}}
     * @beta
     * {{/if}}
@@ -110,18 +110,18 @@
         parameters?: {
           {{#each ../parameters}}
           {{! common parameters can be configured at the client level and therefore are not required }}
-          {{name}}{{#if (isCommonPathParameter name)}}?{{/if}}: {{{ getParameterDataType .}}}
+          {{name}}{{#if (isCommonPathParameter name)}}?{{/if}}: {{{ getTypeFromParameter .}}}
           {{/each}}
           {{#each request/queryParameters}}
-          {{name}}{{#if (or (not (is required "true")) (isCommonQueryParameter name))}}?{{/if}}: {{{ getParameterDataType .}}}
+          {{name}}{{#if (or (not (is required "true")) (isCommonQueryParameter name))}}?{{/if}}: {{{ getTypeFromParameter .}}}
           {{/each}}
         },
         retrySettings?: OperationOptions,
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}}, 
-        body: {{{addNamespace (getRequestPayloadType request) (capitalize @root.metadata.specName)}}}{{/or}}
+        body: {{{addNamespace (getPayloadTypeFromRequest request) (capitalize @root.metadata.specName)}}}{{/or}}
       },
       rawResponse?: boolean,
-    ): Promise<Response | {{addNamespace (getReturnPayloadType .) (capitalize @root.metadata.specName)}}> {
+    ): Promise<Response | {{addNamespace (getReturnTypeFromOperation .) (capitalize @root.metadata.specName)}}> {
     
       const parameters = (options && options.parameters) ? options.parameters : {};
       
