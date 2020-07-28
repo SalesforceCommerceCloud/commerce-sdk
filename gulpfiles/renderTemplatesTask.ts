@@ -7,6 +7,11 @@
 import * as gulp from "gulp";
 import { renderTemplates } from "../src/renderer";
 
+// Gulp changes the working directory to here, but we want to be up a level
+process.chdir("..");
+// Gulp logs that it changed the working directory, so we should too
+console.log(`Working directory changed to ${process.cwd()}`);
+
 require("dotenv").config();
 
 import config from "../build-config";

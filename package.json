@@ -20,7 +20,7 @@
     "lint": "npm run lint:dev -- --quiet",
     "lint:dev": "eslint . --ext .ts --fix",
     "pretest": "npm run lint && npm run depcheck",
-    "build": "npm run renderTemplates && tsc && eslint dist --ext .ts,.js --quiet --fix",
+    "build": "npm run clean && npm run renderTemplates && tsc && eslint dist --ext .ts,.js --quiet --fix",
     "prepack": "npm run build",
     "test:ci": "npm test -- --reporter=xunit --reporter-options output=./reports/generator.xml",
     "test": "nyc mocha \"test/**/*.test.ts\"",
@@ -31,8 +31,10 @@
     "renderTemplates": "gulp --gulpfile ./gulpfiles/renderTemplatesTask.ts renderTemplates",
     "backupApis": "rm -rf updateApisTmp && mkdir updateApisTmp && mv apis updateApisTmp/oldApis",
     "diffApis": "raml-toolkit diff --dir updateApisTmp/oldApis/api-config.json apis/api-config.json -o updateApisTmp/ramlDiff.json",
-    "downloadApis": "raml-toolkit download -s 'category:\"CC Visibility\" = \"External\"' -g \"CC API Family\" -D production --deployment-regex-flags=i",
-    "updateApis": "npm run backupApis && npm run downloadApis && npm run diffApis",
+    "download": "raml-toolkit download -s 'category:\"CC Visibility\" = \"External\"' -g \"CC API Family\" --deployment-regex-flags=i",
+    "downloadApis": "npm run download -- -D production",
+    "downloadStaging": "npm run download -- -D staging -d testIntegration/stagingApis",
+    "updateApis": "npm run downloadStaging && npm run backupApis && npm run downloadApis && npm run diffApis",
     "prepare": "snyk protect"
   },
   "publishConfig": {

@@ -1,0 +1,19 @@
+#%RAML 1.0 Trait
+description: This trait represents API behavior for a 409 response when an failed order can't be reopened.
+
+uses:
+  DataTypes: ../data-types.raml
+  
+responses:
+  409:
+    description: |
+            The failed order can't be reopened.
+    body:
+      application/problem+json:
+        type: DataTypes.ErrorResponse
+        example: |
+          {
+            "title": "Undo Fail Order",
+            "type": "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/undo-fail-order",
+            "detail": "The failed order with number '00020029’ cannot be reopened."
+          }

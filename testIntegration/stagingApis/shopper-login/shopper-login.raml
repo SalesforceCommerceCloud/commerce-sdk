@@ -1,0 +1,356 @@
+#%RAML 1.0
+title: Shopper Login
+description: SLAS (Shopper Login & API Authentication Service).  Customers can use the APIs to login and authorize a shopper to access any shopper application.  There are also APIs to revoke (Shopper JWT cannot be revoked) and interospect the token.
+version: v1
+mediaType: application/json
+protocols: HTTPS
+baseUri: https://{shortCode}.api.commercecloud.salesforce.com/shopper/auth/{version}
+baseUriParameters:
+  shortCode:
+    description: A region-specific merchant identifier.
+    example: 0dnz6oep
+    pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
+uses:
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.8/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.10/commerce-cloud-standards.raml
+types:
+  ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.8/dataTypes/error-response.raml
+  ResponseType:
+    type: string
+    description: Response Type
+    enum: [code]
+    example: "code"
+  GrantType:
+    type: string
+    description: Grant Type
+    enum: [AUTH_CODE, REFRESH_TOKEN, CLIENT_CREDENTIALS]
+    example: "AUTH_CODE"
+  TokenType:
+    type: string
+    description: Token Type
+    enum: [Bearer]
+    example: "Bearer"
+  TokenTypeHint:
+    type: string
+    description: Token Type Hint
+    enum: [access_token, refresh_token]  
+    example: "access_token"
+  TokenRequest:
+    type: object
+    properties:
+      refreshToken:
+        description: Refresh Token - the long term token used to refresh the short term access token. Required only with Grant Type - "REFRESH_TOKEN"
+        type: string
+        required: false
+        minLength: 8
+        maxLength: 256
+        example: "Jq4mlnVEyAXtuWTXBgmKEDUVsT3L-KLRotckvmwO8nk.P7VWTk-DxMBVc_MABhDeMv-UbcgmB3eh624sgGfFTx4"
+      code: 
+        description: Authorization Code - code from the OAuth service received in the front channel that is used to get access and refresh tokens. Required only with Grant Type -  "AUTH_CODE"
+        type: string
+        required: false
+        minLength: 8
+        maxLength: 256
+        example: "M0t1K0pyoFKhBpUZnuUYO07xf8iYyMJrAc7h31h_ra8.gglPClJHsofqdTm_yPe5n6m2yCXzFmD8qICwIEjQGVA"
+      usid:
+        description: The Shoppers unique identifier if known. This is an optional field, a new shopper id will be generated if this field is empty.
+        type: string
+        required: false
+        example: "54ad2c5a-91f0-44ab-817c-73d6b86872d9"
+      grantType:
+        description: Grant Type
+        type: GrantType
+        example: "AUTH_CODE"
+  TokenResponse:
+    type: object
+    properties:
+      accessToken:
+        description: Short term Shopper JWT that can be used to access commerce cloud shopper APIs 
+        type: string
+        example: |
+          "eyJ2ZXIiOiIxLjAiLCJraWQiOiJTTEFTIiwidHlwIjoiand0IiwiY2x2IjoiSjIuMS4wIiwiYWxnIjoiRVMyNTYifQ.eyJhdWQiOiJjb3JlL2Rldi9idGluZ2V5bHRtMiIsImF1dCI6IkdVSUQiLCJzdWIiOiJ1c2lkOjo1NGFkMmM1YS05MWYwLTQ0YWItODE3Yy03M2Q2Yjg2ODcyZDk6OnVwbjpndWVzdCIsIm5iZiI6MTU4Mjg0NTYyNCwiY3R4Ijoic2ZkYy5jb21tZXJjZWNsb3VkIiwiaXNzIjoiY29yZS9kZXYvYnRpbmdleWx0bTIiLCJzdHkiOiJVc2VyIiwiaXN0IjoxLCJleHAiOjE1ODI4NDU3NDQsImlhdCI6MTU4Mjg0NTY1NCwianRpIjoiQzJDOTA0ODg2NDA3MDkwNDg4NjQwNzMyMjExNzQ1ODEyMTQzIn0.2a6lMBSY17PrhDO8pvEk7PCXW_nkguMHi4J-Tuirkz-ETB6rnKyuRjF5yD6B55tMvm8dO8ulAHyDYqjObMxLJg",
+                    "refreshToken": "EgMYpjfFKdlSy-a3PYeyihmP95IpIp3FaDpPmVH1yu8.lahomBi7zJbRa6yKAuAAiKu3lprTPsEueKwqcBvhRLU"
+      refreshToken:
+        description: Long term refresh token that can be used to refresh an access token. Good for 90 days.
+        type: string
+        example: "EgMYpjfFKdlSy-a3PYeyihmP95IpIp3FaDpPmVH1yu8.lahomBi7zJbRa6yKAuAAiKu3lprTPsEueKwqcBvhRLU"
+      expiresIn:
+        description: Access Token expiry time left in seconds.
+        type: integer
+        example: 7776001
+      accessTokenType: 
+        description: Token Type
+        type: TokenType
+        example: "Bearer"
+      usid:
+        type: string
+        description: The unique shopper id. This will be returned when using the client credential grant type.
+        example: 18cda486-fe32-4e27-888b-6e4f89938e67
+
+  RevokeTokenRequest:
+    type: object
+    properties:
+      token:
+        description: refresh token to be revoked.
+        type: string
+        example: "EgMYpjfFKdlSy-a3PYeyihmP95IpIp3FaDpPmVH1yu8.lahomBi7zJbRa6yKAuAAiKu3lprTPsEueKwqcBvhRLU"
+      tokenTypeHint:
+        description: refresh token to be revoked.
+        type: TokenTypeHint
+        required: false
+        example: "refresh_token"
+  IntrospectTokenRequest:
+    type: object
+    properties:
+      token:
+        description: refresh token to be revoked.
+        type: string
+        example: "EgMYpjfFKdlSy-a3PYeyihmP95IpIp3FaDpPmVH1yu8.lahomBi7zJbRa6yKAuAAiKu3lprTPsEueKwqcBvhRLU"
+      tokenTypeHint:
+        description: refresh token to be revoked.
+        type: TokenTypeHint
+        required: false
+        example: "refresh_token"
+  IntrospectResponse:
+    type: object
+    properties:
+      active: 
+        type: boolean
+        example: true
+      scope: 
+        type: string
+        example: "offline_access openid"
+      clientId: 
+        type: string
+        example: "553ac8ac-4db9-4ed3-825c-3ae3bf5d327b"
+      sub: 
+        type: string
+        example: "usid:156c4e69-e89b-406b-a4b7-576980bb234e::upn:Guest"
+      exp: 
+        type: integer
+        example: 1594733276
+      iat: 
+        type: integer
+        example: 1586957275
+      tokenType: 
+        type: string
+        example: "refresh_token"
+/organizations/{organizationId}:
+  type: CommerceCloudStandards.Organization
+  /oauth2:
+    /authorize:
+      description: Shopper Oauth2 Authorization Endpoints.
+      get:
+        description: Get authorization code after authenticating a user against an IDP. This is the first step of the Authorization code grant flow, where a user is able to login via federation to the IDP configured for the client, and gets an authorization code after succesful login via a callback/redirect URI. Mandatory fields are the shopping app's clientId, redirectURI, responseType and authType. This API can be called from the front channel (from the browser).
+        displayName: authorizeCustomer
+        queryParameters:
+          redirectUri:
+            description: The URL to which the server redirects the browser after the user grants the authorization.  The URI must be pre-registered.
+            required: true
+            minLength: 3
+            maxLength: 256
+            type: string
+            example: "https://localhost/callback"
+          responseType:
+            description: Must be 'code'.  'code' indicates that the client wants an authorization code (authorization code grant flow).
+            required: true
+            type: ResponseType
+            example: "code"
+          clientId:
+            description: The client id obtained during application registration.
+            required: true
+            type: string   
+            minLength: 8
+            maxLength: 256
+            example: "client-id1"
+          scope:
+            description: (Not Supported)
+            required: false
+            type: string
+            maxLength: 256
+            example: "admin"
+          state:
+            description: Value to be sent by the client to determine the state between the authorization request and the server response.  Optional but strongly recommended.
+            required: false
+            type: string
+            maxLength: 256
+            example: "client-state"
+          uuid:
+            description : Id that uniquely identifies the shopper. This is an optional field, a new UUID will be generated if this field is empty.
+            required: false
+            type: string
+            maxLength: 256
+            example: "d09c5010-4baa-11ea-98d8-01062d1a14bb"
+          hint:
+            description : Idp name that can be optionally added to redirect directly to skipping the Idp selection step.
+            required: false
+            type: string
+            maxLength: 256
+            example: "Google"
+        responses:
+          302:
+            description: Success - authorization code will be added to the redirect_uri ex. https://localhost/callback?code=eyJ2ZXIiOiIxLjAiLCJraWQiOiJTTEFTIiwidHlwIjoiand0IiwiY2x2IjoiS&state=client-state
+            body:
+              application/json:
+                type: string
+                example: |
+                  {
+                    "authorizationCode": "eyJ2ZXIiOiIxLjAiLCJraWQiOiJTTEFTIiwidHlwIjoiand0IiwiY2x2IjoiS",
+                    "usid": "156c4e69-e89b-406b-a4b7-576980bb234e"              
+                  }           
+          400:
+            description: Bad Request
+            body:
+              application/problem+json:
+                type: ErrorResponse
+                example: |
+                  {
+                    "title": "Constraint Violation",
+                    "type": "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/constraint-violation",
+                    "detail": "Missing access or refresh token."
+                  }
+          401:
+            description: Unauthorized
+            body:
+              application/problem+json:
+                type: ErrorResponse
+                example: |
+                    {
+                      "title": "Client Authentication",
+                      "type": "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/client-authentication",
+                      "detail": "Basic Authorization failed."
+                    }
+          500:
+            description: Internal Server Error
+            body:
+              application/problem+json:
+                type: ErrorResponse
+                example: |
+                    {
+                      "title": "Oauth Service",
+                      "type": "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/oauth-service",
+                      "detail": "The server has encountered a situation it doesn't know how to handle."
+                    }    
+    /token:
+      description: Shopper OAuth2 Token Endpoint.
+      post:
+        description: Get the shopper or guest JWT/access token along with a refresh token. This is the second step of the OAuth2 Authorization code flow where a client app is able to get an access token for the shopper through the backchannel (a trusted server side) by passing in the client credentials and the authorization code retrieved from authorize endpoint. Mandatory fields when using the token endpoint to get the accesstoken are clientId, clientSecret, authorizationCode, grantType of authorization_code. <br/><br/> As a guest user get the shopper JWT / access token along with a refresh token. This is where a client app is able to get an access token for the guest user through the back-channel (a trusted server side) by passing in the client credentials. Mandatory fields when asking for the guest token endpoint to get the access token are clientId, clientSecret, grantType of client_credentials.<br/><br/> Mandatory fields when using using the token endpoint to refresh an access token are refreshToken, grantType of refresh_token. 
+
+        displayName: getAccessToken
+        headers:
+          Authorization: 
+            displayName: Authorization
+            description: Basic authentication base 64 encoded string having clientId:clientSecret
+            type: string
+            required: true
+            example: "Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW"
+        body:
+          application/x-www-form-urlencoded:
+            type: TokenRequest
+        responses:
+          200:
+            description: Success
+            body:
+              application/json:
+                type: TokenResponse
+                example: |
+                  {
+                    "accessToken": "eyJ2ZXIiOiIxLjAiLCJraWQiOiJTTEFTIiwidHlwIjoiand0IiwiY2x2IjoiSjIuMS4wIiwiYWxnIjoiRVMyNTYifQ.eyJhdWQiOiJjb3JlL2Rldi9idGluZ2V5bHRtMiIsImF1dCI6IkdVSUQiLCJzdWIiOiJ1c2lkOjo1NGFkMmM1YS05MWYwLTQ0YWItODE3Yy03M2Q2Yjg2ODcyZDk6OnVwbjpndWVzdCIsIm5iZiI6MTU4Mjg0NTYyNCwiY3R4Ijoic2ZkYy5jb21tZXJjZWNsb3VkIiwiaXNzIjoiY29yZS9kZXYvYnRpbmdleWx0bTIiLCJzdHkiOiJVc2VyIiwiaXN0IjoxLCJleHAiOjE1ODI4NDU3NDQsImlhdCI6MTU4Mjg0NTY1NCwianRpIjoiQzJDOTA0ODg2NDA3MDkwNDg4NjQwNzMyMjExNzQ1ODEyMTQzIn0.2a6lMBSY17PrhDO8pvEk7PCXW_nkguMHi4J-Tuirkz-ETB6rnKyuRjF5yD6B55tMvm8dO8ulAHyDYqjObMxLJg",
+                    "refreshToken": "EgMYpjfFKdlSy-a3PYeyihmP95IpIp3FaDpPmVH1yu8.lahomBi7zJbRa6yKAuAAiKu3lprTPsEueKwqcBvhRLU",
+                    "expiresIn": 60,
+                    "accessTokenType": "Bearer",
+                    "usid": "18cda486-fe32-4e27-888b-6e4f89938e67"               
+                  }
+          400:
+            description: Bad Request
+            body:
+              application/problem+json:
+                type: ErrorResponse
+                example: |
+                  {
+                    "title": "Invalid Authorization Code",
+                    "type": "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/invalid-authorization-code",
+                    "detail": "Missing access or refresh token."
+                  }
+          401:
+            description: Unauthorized
+            body:
+              application/problem+json:
+                type: ErrorResponse
+                example: |
+                    {
+                      "title": "Client Authentication",
+                      "type": "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/client-authentication",
+                      "detail": "Basic Authorization failed."
+                    }
+          500:
+            description: Internal Server Error
+            body:
+              application/problem+json:
+                type: ErrorResponse
+                example: |
+                    {
+                      "title": "Oauth Service",
+                      "type": "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/oauth-service",
+                      "detail": "The server has encountered a situation it doesn't know how to handle."
+                    }    
+    /revoke:
+      description: Shopper OAuth2 Token revoke Endpoint.
+      post:
+        description: Invalidate the refresh token. A basic auth header with base64 encoded clientId:secret is required in the Authorization header and the refresh token to be revoked is required in the body.
+        displayName: revokeToken
+        headers:
+          Authorization: 
+            displayName: Authorization
+            description: Basic authentication base 64 encoded string
+            type: string
+            required: true
+            example: "Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW"
+        body:
+          application/x-www-form-urlencoded:
+            type: RevokeTokenRequest
+            example: |
+              {
+                "token": "ry5XU_WHX20S6Cn6W7keFIs7Pzkv4wTZJS9Yvh0Ve9A.cdBxoCY9Q3jffQQOFnb_qghbSmSRnn9-2H4GwFTDMTk",
+                "tokenTypeHint": "refresh_token"
+              }
+        responses:
+          200:
+            description: Success
+            body:
+              application/json:
+                example:
+                  Success
+          400:
+            description: Bad Request
+            body:
+              application/problem+json:
+                type: ErrorResponse
+                example: |
+                  {
+                    "title": "Invalid Refresh Token",
+                    "type": "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/invalid-refresh-token",
+                    "detail": "Missing access or refresh token."
+                  }
+          401:
+            description: Unauthorized
+            body:
+              application/problem+json:
+                type: ErrorResponse
+                example: |
+                    {
+                      "title": "Client Authentication",
+                      "type": "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/client-authentication",
+                      "detail": "Basic Authorization failed."
+                    }
+          500:
+            description: Internal Server Error
+            body:
+              application/problem+json:
+                type: ErrorResponse
+                example: |
+                    {
+                      "title": "Oauth Service",
+                      "type": "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/oauth-service",
+                      "detail": "The server has encountered a situation it doesn't know how to handle."
+                    }    

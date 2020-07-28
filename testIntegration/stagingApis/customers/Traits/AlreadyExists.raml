@@ -1,0 +1,15 @@
+#%RAML 1.0 Trait
+description: This trait represents API behavior for a 409 conflict in Data Customer Groups API.
+responses:
+  '409':
+    description: Conflict. This error is thrown when attempting to create a record that already exists.
+    body:
+      application/problem+json:
+        type: ErrorResponse
+        example: |
+          {
+            "title": "Customer Group Already Exists",
+            "type": "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/customer-group-already-exits",
+            "detail": "The customer group with ID 'test_customergroup' already exists",
+            "customerGroupId": "test_customergroup"
+          }
