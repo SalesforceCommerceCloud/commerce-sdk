@@ -1,0 +1,139 @@
+#%RAML 1.0 Library
+#In C4E review
+usage: This library provides all order relevant data types
+
+uses:
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.15/commerce-cloud-standards.raml 
+
+types:
+  ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.8/dataTypes/error-response.raml
+  OrderUpdateRequest:
+    description: Request body to update custom properties.
+    type:
+      CommerceCloudStandards.OpenObject
+    properties:
+  PaymentInstrumentUpdateRequest:
+    description: Request body to update custom properties.
+    type:
+      CommerceCloudStandards.OpenObject
+    properties:
+  PaymentTransactionUpdateRequest:
+    description: Request body to update custom properties.
+    type:
+      CommerceCloudStandards.OpenObject
+    properties:
+  OrderConfirmationStatusUpdateRequest:
+    description: Request body to update the order confirmation status.
+    type:
+      CommerceCloudStandards.ClosedObject
+    properties:
+      status:
+        description: The new confirmation status for an order.
+        type: string
+        enum:
+          - confirmed
+          - not_confirmed
+  OrderExportStatusUpdateRequest:
+    description: Request body to update the order export status.
+    type:
+      CommerceCloudStandards.ClosedObject
+    properties:
+      status:
+        description: The new export status for an order.
+        type: string
+        enum:
+          - exported
+          - not_exported
+          - ready
+          - failed
+  OrderExternalStatusUpdateRequest:
+    description: Request body to update the order external status.
+    type:
+      CommerceCloudStandards.ClosedObject
+    properties:
+      status:
+        description: The new external status for an order.
+        maxLength: 256
+        minLength: 1
+        type: string
+  OrderPaymentStatusUpdateRequest:
+    description: Request body to update the order payment status.
+    type:
+      CommerceCloudStandards.ClosedObject
+    properties:
+      status:
+        description: The new payment status for an order.
+        type: string
+        enum:
+          - paid
+          - part_paid
+          - not_paid
+  OrderShippingStatusUpdateRequest:
+    description: Request body to update the order shipping status.
+    type:
+      CommerceCloudStandards.ClosedObject
+    properties:
+      status:
+        description: The new shipping status for an order.
+        type: string
+        enum:
+          - shipped
+          - part_shipped
+          - not_shipped
+  OrderStatusUpdateRequest:
+    description: Request body to update the order status.
+    type:
+      CommerceCloudStandards.ClosedObject
+    properties:
+      status:
+        description: The new status for an order.
+        type: string
+        enum:
+          - created
+          - new
+          - completed
+          - cancelled
+          - failed
+  ShippingAddressUpdateRequest:
+    description: Request body to update the shipping address.
+    type:
+      CommerceCloudStandards.OpenObject
+    properties:
+      address1?:
+        type: string
+      address2?:
+        type: string
+      city?:
+        type: string
+      companyName?:
+        type: string
+      countryCode?:
+        type: CommerceCloudStandards.CountryCode
+      firstName?:
+        type: string
+      fullName?:
+        type: string
+      id?:
+        type: string
+      jobTitle?:
+        type: string
+      lastName?:
+        type: string
+      phone?:
+        type: string
+      postBox?:
+        type: string
+      postalCode?:
+        type: string
+      salutation?:
+        type: string
+      secondName?:
+        type: string
+      stateCode?:
+        type: string
+      suffix?:
+        type: string
+      suite?:
+        type: string
+      title?:
+        type: string
