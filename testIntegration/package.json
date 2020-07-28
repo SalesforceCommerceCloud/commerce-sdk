@@ -15,7 +15,9 @@
     "bundle": "rm -rf commerce-sdk*.tgz; npm pack .. && mv commerce-sdk-*.tgz commerce-sdk.tgz",
     "bundle:install": "npm run bundle && npm install",
     "bundle:clean:install": "npm run clean:all && npm run bundle:install",
-    "test:bundle": "npm run bundle:install && npm run test",
+    "test:prod": "npm run bundle:install && npm run test",
+    "test:staging": "COMMERCE_SDK_INPUT_DIR=testIntegration/stagingApis npm run test:prod",
+    "test:ci": "npm run test:prod && npm run test:staging",
     "clean": "rm -rf commerce-*.tgz || true",
     "clean:node": "rm -rf node_modules || true",
     "clean:all": "npm run clean && npm run clean:node"
