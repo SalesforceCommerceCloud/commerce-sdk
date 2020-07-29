@@ -11,7 +11,6 @@ import {
   searchExchange,
   downloadRestApis,
 } from "@commerce-apps/raml-toolkit/lib/download/exchangeDownloader";
-import { ApiTree } from "@commerce-apps/raml-toolkit/lib/common/structures/apiTree";
 import {
   registerPartial,
   HandlebarsWithAmfHelpers as Handlebars,
@@ -23,6 +22,9 @@ const templateDirectory = "templates";
 
 //////// HELPER REGISTRATION ////////
 import * as helpers from "./src/templateHelpers";
+import { ApiTree } from "@commerce-apps/raml-toolkit/lib/common";
+import { ApiMetadata } from "@commerce-apps/raml-toolkit/lib/common";
+import { Api } from "@commerce-apps/raml-toolkit/lib/common";
 
 function registerHelpers(): void {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -49,13 +51,14 @@ function registerPartials(): void {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function setupTemplates(apis: ApiTree): any {
   apis.addTemplate("templates/index.ts.hbs", "newPipeline/index.ts");
+  apis.addTemplate("templates/helpers.ts.hbs", "newPipeline/helpers.ts");
 
-  apis.children.forEach((child) => {
+  apis.children.forEach((child: ApiMetadata) => {
     child.addTemplate(
       "templates/apiFamily.ts.hbs",
       `newPipeline/${child.name.lowerCamelCase}/index.ts`
     );
-    child.children.forEach((api) => {
+    child.children.forEach((api: Api) => {
       api.addTemplate(
         "templates/ClientInstance.ts.hbs",
         path.join(
@@ -74,7 +77,7 @@ function setupTemplates(apis: ApiTree): any {
 async function createSdk() {
   let apis = await common.createApiTree("./newApis");
   apis = setupTemplates(apis);
-  apis.renderAll();
+  return apis.renderAll();
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type

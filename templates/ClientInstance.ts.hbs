@@ -3,7 +3,8 @@ import { StaticClient, BaseClient, ClientConfig, Response, ResponseError } from 
 import _ from "lodash";
 import { OperationOptions } from "retry";
 
-export namespace {{name.lowerCamelCase}} {
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export namespace {{name.upperCamelCase}} {
   {{#each dataTypes}}
       {{#if (isTypeDefinition .)}}
       export type {{getValue name}} = {{> dtoPartial typeDto=.}}
@@ -40,7 +41,7 @@ export namespace {{name.lowerCamelCase}} {
 * };
 * token = await helpers.getShopperToken(clientConfig, { type: "guest" });
 * clientConfig.headers["authorization"] = token.getBearerHeader();
-* const {{name.UpperCamelCase}}Client = new {{pascalcase metadata.categories.[CC API Family].[0]}}.{{name.UpperCamelCase}}(clientConfig);
+* const {{name.upperCamelCase}}Client = new {{pascalcase metadata.categories.[CC API Family].[0]}}.{{name.upperCamelCase}}(clientConfig);
 * ```
 *
 * <span style="font-size:.7em; display:block; text-align: right">
@@ -53,7 +54,7 @@ export namespace {{name.lowerCamelCase}} {
 * 
 
 */
-export class {{name.UpperCamelCase}} extends BaseClient {
+export class {{name.upperCamelCase}} extends BaseClient {
   constructor(config: ClientConfig) {
     super(config);
 
