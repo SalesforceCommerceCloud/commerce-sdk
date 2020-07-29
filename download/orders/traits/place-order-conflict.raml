@@ -1,0 +1,19 @@
+#%RAML 1.0 Trait
+description: This trait represents API behavior for a 409 response when an order placement failed.
+
+uses:
+  DataTypes: ../data-types.raml
+  
+responses:
+  409:
+    description: |
+            The order placement failed.
+    body:
+      application/problem+json:
+        type: DataTypes.ErrorResponse
+        example: |
+          {
+            "title": "Place Order",
+            "type": "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/place-order",
+            "detail": "Order with number '00001547' can't be placed."
+          }

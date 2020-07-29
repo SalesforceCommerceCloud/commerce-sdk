@@ -1,0 +1,20 @@
+#%RAML 1.0 Trait
+description: This trait represents API behavior for a 409 response when an order cancellation failed.
+
+uses:
+  DataTypes: ../data-types.raml
+  
+responses:
+  409:
+    description: |
+            The order cancellation failed.
+    body:
+      application/problem+json:
+        type: DataTypes.ErrorResponse
+        example: |
+          {
+            "title": "Cancel Order",
+            "type": "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/cancel-order",
+            "detail": "Order with number '00001547' can't be cancelled."
+          }
+        

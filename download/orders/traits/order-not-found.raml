@@ -1,0 +1,19 @@
+#%RAML 1.0 Trait
+description: This trait represents API behavior for a 404 response when an order was not found.
+
+uses:
+  DataTypes: ../data-types.raml
+  
+responses:
+  404:
+    description: |
+            The given order number does not reference an existing order.
+    body:
+      application/problem+json:
+        type: DataTypes.ErrorResponse
+        example: |
+          {
+            "title": "Order not found",
+            "type": "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/order-not-found",
+            "detail": "No order with number '00001547' was found."
+          }

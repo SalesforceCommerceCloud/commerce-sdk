@@ -1,0 +1,266 @@
+#%RAML 1.0
+title: Source Code Groups
+version: v1
+protocols: HTTPS
+mediaType: application/json
+baseUri: 'https://{shortCode}.api.commercecloud.salesforce.com/pricing/source-code-groups/{version}'
+baseUriParameters:
+  shortCode:
+    description: A region-specific merchant identifier.
+    example: 0dnz6oep
+    pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
+description: APIs to support the creation, update, deletions and search of source code groups.
+
+uses:
+  SourceCodeGroupTraits: data-source-code-group-traits-library.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.11/api-standards.raml
+  CommerceCloudStandards:  exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml  
+
+types:
+  SourceCodeGroup:
+    description: Document representing a source code group.
+    properties:
+      active:
+        description: The active flag, a computed value based on start and end time.
+        type: boolean
+        required: false
+        example: true
+      activeRedirect:
+        description: The active redirect information.
+        type: SourceCodeRedirectInfo
+        required: false
+      cookieDuration:
+        description: The cookie duration in days.
+        maximum: 999
+        minimum: 0
+        type: integer
+        format: int32
+        required: false
+        example: 25
+      creationDate:
+        description: Returns the value of attribute 'creationDate'.
+        type: datetime
+        required: false
+        example: 2019-10-20T12:00:00Z
+      description:
+        description: The description.
+        type: string
+        required: false
+        example: |
+          This source code group is used to email promoting Flat Screen Televeisions.
+      enabled:
+        description: The enabled flag for storefront to consider the source code group, default to false.
+        type: boolean
+        required: false
+        example: false
+      endTime:
+        description: The end time.
+        type: datetime
+        required: false
+        example: 2019-11-20T12:00:00Z
+      id:
+        description: The ID of source code group.
+        maxLength: 28
+        minLength: 1
+        type: string
+        example: 'TV-Email'
+      inactiveRedirect:
+        description: The inactive redirect information.
+        type: SourceCodeRedirectInfo
+        required: false
+      lastModified:
+        description: Returns the value of attribute 'lastModified'.
+        type: datetime
+        required: false
+        example: 2019-10-20T12:00:00Z
+      specifications:
+        description: Source code specifications.
+        type: array
+        items:
+          type: SourceCodeSpecification
+        required: false
+      startTime:
+        description: The start time.
+        type: datetime
+        required: false
+        example: 2019-10-20T12:00:00Z
+  SourceCodeGroupSearchResult:
+    description: Document representing a source code group search result.
+    type: CommerceCloudStandards.PaginatedSearchResult
+    properties:
+      hits:
+        description: The sorted array of search hits. Can be empty.
+        type: SourceCodeGroup[]
+  SourceCodeRedirectInfo:
+    description: Document representing source code redirect info.
+    properties:
+      locationType:
+        description: The type of redirect location, such as product (for a product page), category (a category page), home (for home page), page (for content), or URL (for a URL location).
+        type: string
+        enum:
+          - default
+          - home
+          - product
+          - category
+          - page
+          - url
+        example: url
+  SourceCodeSpecification:
+    description: Document representing a source code specification.
+    properties:
+      expression:
+        description: |-
+          Expression is a value for the "Source Code Specification" may be literal source code, or it may contain wildcards.
+           Literal code is simply the literal code. Valid characters are letters and numbers (no spaces).
+           A wildcard allows a single source code specification to match multiple source codes. The following wildcards are supported:
+          
+           * ? - Matches any single alpha-numeric character. 
+              
+              For example: the source code specification 'ABC?' would match 'ABCD' or 'ABC3', but not 'ABCDE'.
+           * \* - Matches any sequence of alpha-numeric characters. 
+              
+              For example: the source code specification 'ABC*' would match 'ABCD', 'ABCDE', or 'ABC123'.
+           * [n1..n2] - Matches any number from n1 through and including n2.
+              
+              For example: the source code specification 'ABC[3..22]' would match 'ABC3', 'ABC4' or 'ABC22', but not 'ABC33' or 'ABCD'.
+        type: string
+        example: 'televisions[1..10000]'
+
+'/organizations/{organizationId}/source-code-groups/{id}':
+  delete:
+    description: Deletes the source code group by ID.
+    displayName: deleteSourceCodeGroup
+    is:
+     - CommerceCloudStandards.SiteSpecific
+     - ApiStandards.RateLimited:
+          responseStatus: 204
+    responses:
+      '204':
+        description: API returned successfully.
+    securedBy:
+      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.source-codes.rw ] }
+      - CommerceCloudStandards.AmOAuth2
+  get:
+    description: Action to retrieve source code group information.
+    displayName: getSourceCodeGroup
+    is:
+      - SourceCodeGroupTraits.SourceCodeGroupNotFound
+      - CommerceCloudStandards.SiteSpecific
+      - ApiStandards.RateLimited2:
+            responseStatus: 200
+            responseStatus2: 404
+    responses:
+      '200':
+        description: API returned successfully.
+        body:
+          application/json:
+            type: SourceCodeGroup
+            example: !include Examples/get_source_code_groups_id.raml
+    securedBy:
+      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.source-codes, sfcc.source-codes.rw ] }
+      - CommerceCloudStandards.AmOAuth2
+  patch:
+    description: Updates the source code group with the specified information.
+    displayName: updateSourceCodeGroup
+    is:
+      - SourceCodeGroupTraits.SourceCodeGroupNotFound
+      - CommerceCloudStandards.SiteSpecific
+      - ApiStandards.RateLimited2:
+            responseStatus: 200
+            responseStatus2: 404
+    responses:
+      '200':
+        description: API returned successfully.
+        body:
+          application/json:
+            type: SourceCodeGroup
+            example: !include Examples/patch_source_code_group_id.raml   
+    body:
+      application/json:
+        type: SourceCodeGroup
+    securedBy:
+      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.source-codes.rw ] }
+      - CommerceCloudStandards.AmOAuth2
+  put:
+    description: Creates a source code group using the information provided.
+    displayName: createSourceCodeGroup
+    is:
+      - SourceCodeGroupTraits.SourceCodeGroupInvalid
+      - SourceCodeGroupTraits.IdConflict
+      - CommerceCloudStandards.SiteSpecific
+      - ApiStandards.RateLimited2:
+            responseStatus: 200
+            responseStatus2: 400
+    responses:
+      '200':
+        description: API returned successfully.
+        body:
+          application/json:
+            type: SourceCodeGroup
+            example: !include Examples/put_source_code_group_id.raml
+              
+    body:
+      application/json:
+        type: SourceCodeGroup
+    securedBy:
+      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.source-codes.rw ] }
+      - CommerceCloudStandards.AmOAuth2
+  uriParameters:
+    id:
+      description: The ID of the source code group to create.
+      maxLength: 28
+      minLength: 1
+      type: string
+      example: MySourceCodeGroup
+'/organizations/{organizationId}/source-code-groups':
+  post:
+    description: |
+      Searches for source code groups.
+       
+      The query attribute specifies a complex query that can be used to narrow down the search with the following searchable attributes:
+        
+        | Attribute | Type |
+        |-----------|--------|
+        | id| String |
+        | description | String |
+        | sourceCode | String |
+        | startTime | DateTime |
+        | endTime | DateTime |
+        | creationDate | DateTime |
+        | enabled | Boolean |
+        | active | Boolean |
+        
+      The sourceCode and active fields can only be used in Queries as conjunctions (using AND). If the field is used in a disjunction
+      (OR) an exception will be thrown.
+      
+      The output of the query can also be sorted, with the following sortable attributes:
+        
+        | Attribute | Type |
+        |-----------|--------|
+        | id| String |
+        | description | String |
+        | enabled | Boolean |
+        | creationDate | DateTime |      
+    displayName: sourceCodeGroupsSearch
+    is:
+      - SourceCodeGroupTraits.InvalidQuery
+      - CommerceCloudStandards.SiteSpecific
+      - ApiStandards.RateLimited2:
+            responseStatus: 200
+            responseStatus2: 400
+    responses:
+      '200':
+        description: The API executed successfully.
+        body:
+          application/json:
+            type: SourceCodeGroupSearchResult
+            examples:
+              source-code-group-result: !include Examples/source-code-result-example.raml
+      '400':
+        description: SearchRequest post body is ill-formed.
+    body:
+      application/json:
+        type: CommerceCloudStandards.SearchRequest
+    securedBy:
+      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.source-codes, sfcc.source-codes.rw ] }
+      - CommerceCloudStandards.AmOAuth2
