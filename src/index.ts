@@ -21,7 +21,7 @@ import path from "path";
 const templateDirectory = "templates";
 
 //////// HELPER REGISTRATION ////////
-import * as helpers from "./src/templateHelpers";
+import * as helpers from "./templateHelpers";
 import { ApiTree } from "@commerce-apps/raml-toolkit/lib/common";
 import { ApiMetadata } from "@commerce-apps/raml-toolkit/lib/common";
 import { Api } from "@commerce-apps/raml-toolkit/lib/common";
@@ -56,9 +56,9 @@ function setupTemplates(apis: ApiTree): any {
   apis.children.forEach((child: ApiMetadata) => {
     child.addTemplate(
       "templates/apiFamily.ts.hbs",
-      `newPipeline/${child.name.lowerCamelCase}/index.ts`
+      `newPipeline/${child.name.lowerCamelCase}/${child.name.lowerCamelCase}.ts`
     );
-    child.children.forEach((api: Api) => {
+    child.children.forEach(async (api: Api) => {
       api.addTemplate(
         "templates/ClientInstance.ts.hbs",
         path.join(
@@ -74,32 +74,15 @@ function setupTemplates(apis: ApiTree): any {
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-async function createSdk() {
-  let apis = await common.createApiTree("./newApis");
-  apis = setupTemplates(apis);
-  return apis.renderAll();
+async function createSdk(): Promise<any> {
+  let apis = common.createApiTree("./newApis");
+  await apis.init();
+
+  apis = await setupTemplates(apis);
+  return apis
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-async function updateApis(apiFamily) {
-  const token = await getBearer(
-    process.env.ANYPOINT_USERNAME,
-    process.env.ANYPOINT_PASSWORD
-  );
-  const apis = await searchExchange(
-    token,
-    `category:"CC API Family" = "${apiFamily}"`
-  );
-  await downloadRestApis(apis, `newApis/${apiFamily}`);
-}
-
-// updateApis("pricing");
-// updateApis("customer");
-// updateApis("checkout");
-// updateApis("search");
-// updateApis("product");
-// updateApis("cdn");
 
 registerHelpers();
 registerPartials();
-createSdk();
+createSdk().then(apis => apis.renderAll())

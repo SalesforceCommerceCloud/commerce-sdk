@@ -37,7 +37,7 @@
         },
         retrySettings?: OperationOptions,
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}},
-        body: {{addNamespace (getPayloadTypeFromRequest request) @root.name.upperCamelCase}}{{/or}}
+        body: {{{addNamespace (getPayloadTypeFromRequest request) @root.name.upperCamelCase}}}{{/or}}
       }
     ): Promise<{{addNamespace (getReturnTypeFromOperation .) @root.name.upperCamelCase}}>;
 
@@ -156,7 +156,7 @@
         headers: (options || {}).headers{{#or (is method "patch") (is method "post") (is method "put")}}, 
         body: (options || {}).body{{/or}}
       });
-    } 
+    }
 
   {{/each}}
 {{/each}}
