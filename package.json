@@ -28,13 +28,9 @@
     "doc:generate": "typedoc --mode modules --out ./docs renderedTemplates/** --tsconfig tsconfig.json --external-modulemap  \".*/renderedTemplates/([\\w\\-_]+)/\"",
     "doc:resources": "cp CHANGELOG.md ./docs",
     "clean": "rm -rf renderedTemplates dist",
-    "renderTemplates": "gulp --gulpfile ./gulpfiles/renderTemplatesTask.ts renderTemplates",
+    "renderTemplates": "ts-node src/generate.ts",
     "backupApis": "rm -rf updateApisTmp && mkdir updateApisTmp && mv apis updateApisTmp/oldApis",
-    "diffApis": "raml-toolkit diff --dir updateApisTmp/oldApis/api-config.json apis/api-config.json -o updateApisTmp/ramlDiff.json",
-    "download": "raml-toolkit download -s 'category:\"CC Visibility\" = \"External\"' -g \"CC API Family\" --deployment-regex-flags=i",
-    "downloadApis": "npm run download -- -D production",
-    "downloadStaging": "npm run download -- -D staging -d testIntegration/stagingApis",
-    "updateApis": "npm run downloadStaging && npm run backupApis && npm run downloadApis && npm run diffApis",
+    "updateApis": "ts-node src/updateApis.ts",
     "prepare": "snyk protect"
   },
   "publishConfig": {
