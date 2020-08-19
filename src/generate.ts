@@ -8,10 +8,13 @@
 import { generate } from "@commerce-apps/raml-toolkit";
 import { registerHelpers, registerPartials, setupApis } from "./lib/utils";
 
-const API_DIRECTORY = process.env.COMMERCE_SDK_INPUT_DIR || `${__dirname}/apis`;
+const API_DIRECTORY =
+  process.env.COMMERCE_SDK_INPUT_DIR || `${__dirname}/../apis`;
 
 registerHelpers();
 registerPartials();
+
+console.log(`Creating SDK for ${API_DIRECTORY}`);
 
 setupApis(
   API_DIRECTORY,
