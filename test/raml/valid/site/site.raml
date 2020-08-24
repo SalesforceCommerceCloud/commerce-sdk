@@ -1,0 +1,469 @@
+#%RAML 1.0
+
+title: Shop API
+baseUri: https://anypoint.mulesoft.com/mocking/api/v1/links/27d5ffea-96a7-447b-b595-2b0e837a20c6/s/-/dw/shop/v19_5
+version: v1
+description: This is a base shop api for testing purposes
+protocols: https
+mediaType: application/json
+
+types:
+  ClassA:
+    type: object
+    description: Class A type
+    additionalProperties: true
+    properties:
+      property1:
+        type: string
+        description: String type property.
+      property2?:
+        type: integer
+        description: Number data type property.
+      /.*/:
+        type: ClassB
+        description: Nested reference to ClassA as additional properties
+      classAobjectProperty?:
+        type: object
+        description: Nested object property (ClassA.objectProperty)
+        properties:
+          name:
+            type: string
+          //:
+            type: string
+            description: ClassA.objectProperty's additional property
+
+  ClassB:
+    type: object
+    description: ClassB type.
+    properties:
+      property3?:
+        type: ClassA
+        description: property is of type ClassA.
+      property4:
+        type: integer
+        description: Integer dataType
+      property5:
+        type: string
+        description: String datatype
+      //:
+        type: string
+        description: ClassB.Additional properties of string data type
+
+  password_change_request:
+    description: Document representing a password change request.
+    properties:
+      current_password:
+        description: The customer's current password.
+        maxLength: 4096
+        type: string
+      password:
+        description: The customer's new password.
+        maxLength: 4096
+        type: string
+
+  search_request:
+    description: Document representing a search request for retrieving items within the Data API. The query is a potentially complex set of expressions. The fields that each query supports are defined within the search resource.
+    properties:
+      count:
+        description: The number of returned documents
+        maximum: 200
+        minimum: 1
+        type: integer
+        format: int32
+        required: false
+      db_start_record_:
+        description: 'The zero-based index of the record that we want to start with, used to optimize special handling'
+        minimum: 0
+        type: integer
+        format: int32
+        required: false
+      expand:
+        description: List of expansions to be applied to each search results. Expands are optional
+        type: array
+        items:
+          type: string
+        required: false
+      query:
+        description: The query to apply
+        type: query
+      select:
+        description: The field to be selected.
+        type: string
+        required: false
+      sorts:
+        description: The list of sort clauses configured for the search request. Sort clauses are optional.
+        type: array
+        items:
+          type: sort
+        required: false
+      start:
+        description: The zero-based index of the first search hit to include in the result.
+        minimum: 0
+        type: integer
+        format: int32
+        required: false
+  product_search_result:
+    description: Document representing a product search result.
+    properties:
+      count:
+        description: The number of returned documents.
+        type: integer
+        format: int32
+      data:
+        type: array
+        items:
+          type: object
+        required: false
+      db_start_record_:
+        description: 'The zero-based index of the record that we want to start with, used to optimize special handling'
+        minimum: 0
+        type: integer
+        format: int32
+        required: false
+      expand:
+        description: List of expansions to be applied to each search results. Expands are optional
+        type: array
+        items:
+          type: string
+        required: false
+      hits:
+        description: The sorted array of search hits. Can be empty.
+        type: array
+        items:
+          type: object
+      next:
+        description: The URL of the next result page.
+        type: result_page
+        required: false
+      previous:
+        description: The URL of the previous result page.
+        type: result_page
+        required: false
+      query:
+        description: The query passed into the search
+        type: query
+      select:
+        description: The fields that you want to select.
+        type: string
+      sorts:
+        description: The list of sort clauses configured for the search request. Sort clauses are optional.
+        type: array
+        items:
+          type: sort
+        required: false
+      start:
+        description: The zero-based index of the first search hit to include in the result.
+        minimum: 0
+        type: integer
+        format: int32
+      total:
+        description: The total number of documents.
+        type: integer
+        format: int32
+  query:
+    description: |
+      "Document representing a query. A query contains a set of objects that define criteria
+       used to select records. A query can contain one of the following:
+       \n\n match_all_query - returns all records.
+       \n\n term_query - matches records where a field (or fields) exactly match some simple value (including null).
+       \n\n text_query - matches records where a field (or fields) contain a search phrase.
+       \n\n boolean_query - formulates a complex boolean expression using query objects as criteria.
+       \n\n filtered_query - allows for filtering of records based on both a query and a filter."
+    type: object
+  sort:
+    description: Document representing a sort request.
+    properties:
+      field:
+        description: The name of the field to sort on.
+        type: string
+      sort_order:
+        description: 'The sort order to be applied when sorting. When omitted, the default sort order (ASC) is used.'
+        type: string
+        enum:
+          - asc
+          - desc
+        required: false
+  result_page:
+    description: Data that can be used to get the next and previous page of a Data API results object.
+    properties:
+      count:
+        description: The number of returned documents.
+        type: integer
+        format: int32
+      db_start_record_:
+        description: 'The zero-based index of the record that we want to start with, used to optimize special handling'
+        type: integer
+        format: int32
+      start:
+        description: The zero-based index of the first search hit to include in the result.
+        type: integer
+        format: int32
+
+  customer_product_list_item:
+      description: Document representing a customer product list item.
+      properties:
+        id:
+          description: The id of this product list item.
+          type: string
+        priority:
+          description: The priority of the item.
+          type: integer
+          format: int32
+        product:
+          description: The product item
+          type: string
+          required: false
+        product_details_link:
+          description: A link to the product.
+          type: string
+          required: false
+        product_id:
+          description: The id of the product.
+          type: string
+          required: false
+        public:
+          description: Is this product list item available for access by other customers?
+          type: boolean
+        purchased_quantity:
+          description: The quantity of products already purchased.
+          type: number
+          format: double
+        quantity:
+          description: The quantity of this product list item.
+          minimum: 0
+          type: number
+          format: double
+        type:
+          description: The type of the item.
+          type: string
+          enum:
+            - product
+            - gift_certificate
+
+/site:
+  get:
+    displayName: getSite
+    description: Access site information, like site status and site content URLs.
+    responses:
+      "200":
+        description: This is a description
+        body:
+          application/json:
+            description: Document representing a site.
+            additionalProperties: true
+            properties:
+              allowed_currencies:
+                description: The list of allowed currencies.
+                type: array
+                items:
+                  type: string
+                required: false
+              allowed_locales:
+                description: A list of all allowed site locales.
+                type: array
+                items:
+                  description: Document that describes a single locale.
+                  additionalProperties: true
+                  properties:
+                    country:
+                      description: |-
+                        The country/region code for this Locale, which will
+                         either be the empty string or an upercase ISO 3166 2-letter code.
+                      type: string
+                      required: false
+                    default:
+                      description: Flag that is true if the locale is the default one to use if an explicit locale is not specified.
+                      type: boolean
+                      required: false
+                    display_country:
+                      description: |-
+                        The name for the Locale's country that is appropriate for
+                         display to the user, or an empty string if no country has been specified
+                         for the Locale.
+                         The display country is returned in the language defined for this locale,
+                         and not in the language of the session locale.
+                      type: string
+                      required: false
+                    display_language:
+                      description: |-
+                        The name for the Locale's language that is appropriate for
+                         display to the user, or an empty string if no language has been specified
+                         for the Locale.
+                         The display language is returned in the language defined for this locale,
+                         and not in the language of the session locale.
+                      type: string
+                      required: false
+                    display_name:
+                      description: |-
+                        The name for the Locale that is appropriate for
+                         display to the user, or an empty string if no display name has been
+                         specified for the Locale.
+                         The display name is returned in the language defined for this locale,
+                         and not in the language of the session locale.
+                      type: string
+                      required: false
+                    id:
+                      description: |-
+                        The identifier of the Locale. Contains a combination of the
+                         language and the country key, concatenated by "-", e.g. "en-US". This
+                         attribute is the primary key of the class.
+                      type: string
+                      required: false
+                    iso3_country:
+                      description: |-
+                        The three-letter abbreviation for this Locale's country, or an
+                         empty string if no country has been specified for the Locale.
+                      type: string
+                      required: false
+                    iso3_language:
+                      description: |-
+                        The three-letter abbreviation for this Locale's language, or an
+                         empty string if no language has been specified for the
+                         Locale.
+                      type: string
+                      required: false
+                    language:
+                      description: |-
+                        The language code for this Locale, which will either
+                         be the empty string or a lowercase ISO 639 code.
+                      type: string
+                      required: false
+                    name:
+                      description: |-
+                        The display name of the Locale. This uses the current
+                         request locale to localize the value.
+                      type: string
+                      required: false
+                required: false
+              default_currency:
+                description: The currency mnemonic of the site.
+                type: string
+                required: false
+              default_locale:
+                description: The default locale of the site.
+                type: string
+                required: false
+              http_dis_base_url:
+                description: The HTTP DIS base URL.
+                type: string
+                required: false
+              http_hostname:
+                description: The configured HTTP host name. If no host name is configured the instance host name is returned.
+                type: string
+                required: false
+              http_library_content_url:
+                description: The HTTP URL to the library content location of the site.
+                type: string
+                required: false
+              http_site_content_url:
+                description: The HTTP URL to the site content location.
+                type: string
+                required: false
+              https_dis_base_url:
+                description: The HTTPS DIS base URL.
+                type: string
+                required: false
+              https_hostname:
+                description: The configured HTTPS host name. If no host name is configured the instance host name is returned.
+                type: string
+                required: false
+              https_library_content_url:
+                description: The HTTPS URL to the library content location of the site.
+                type: string
+                required: false
+              https_site_content_url:
+                description: The HTTPS URL to the site content location.
+                type: string
+                required: false
+              id:
+                description: The id of the site.
+                type: string
+                required: false
+              name:
+                description: The descriptive name for the site.
+                type: string
+                required: false
+              status:
+                description: The site status online/offline.
+                enum:
+                  - online
+                  - offline
+                type: string
+                required: false
+              timezone:
+                description: The time zone of the site (for example, USA/Eastern).
+                type: string
+                required: false
+              timezone_offset:
+                description: The time zone offset from UTC for the current time in milliseconds (for example, -14400000).
+                type: number
+                format: int32
+                required: false
+  delete:
+    displayName: deleteSite
+    description: Delete site information.
+    responses:
+      200:
+        description: No content
+      500:
+        description: Internal Server Error
+        body:
+          type: string
+
+/product-search:
+  post:
+    description: |
+     "Searches for products.\n\n The query attribute specifies a complex query that can be used to narrow down the search. Attributes are grouped\n into different buckets.  These are the list of searchable attributes with their corresponding buckets:\n\n Main:\n \n    id - String\n    name - String\n    online - SiteSpecific Boolean\n    searchable - SiteSpecific Boolean \n    valid_from - SiteSpefic DateTime \n    valid_to - SiteSpecfic DateTime \n    type - ProductType \n    creation_date - DateTime\n \n Catalog:\n \n    catalog_id - String\n \n Category:\n \n    category_id - String\n \n Special:\n \n    type - {\"item\", \"set, \"bundle\", \"master\", \"part_of_product_set\", \"bundled\", \"variant\", \"variation_group\", \"option\", \"retail_set\", \"part_of_retail_set\"}\n \n\n The sortable properties are:\n \n id - String\n name - String\n creation_date - DateTime\n \n\n Note that catalog_id is the id of the catalog to which products are assigned to.\n\n Only attributes in the same bucket can be joined using a disjunction (OR).\n For instance, when joining id and catalog_id above, only a conjunction is allowed (AND), whereas id\n and searchable can be joined using a disjunction because they are in the same bucket.  If an attribute\n is used in a disjunction (OR) that violates this rule, an exception will be thrown.\n\n The product search retrieves additional properties of the product when expansions are used.\n\tThe available expand attribute values are:\n \n        \t'all' will retrieve all the product properties.\n          'availability' will retrieve the following properties:\n            ats\n            in_stock\n            online\n\t\t    \n          'categories' will retrieve the following properties:\n            assigned_categories\n\t\t\t\n          'images' will retrieve the following properties:\n            image\n\t\t\t\n\t\t\t'all_images' used with images will retrieve the following properties:\n            image\n            image_groups\n\t\t\t\n          'prices' will retrieve the following properties:\n            price\n            price_currency\n\t\t\t\n          'sets' will retrieve the following properties:\n            set_products\n            product_sets\n\t\t\t\n          'bundles' will retrieve the following properties:\n            product_bundles\n            bundled_products\n            \n\t\t\t\n\n "
+    displayName: searchProducts
+    queryParameters:
+      siteId:
+        description: The site context.
+        type: string
+        required: false
+    body:
+      application/json:
+        type: search_request
+    responses:
+      '201':
+        description: Created
+        body:
+          application/json:
+            type: product_search_result
+/password:
+  put:
+    description: Updates the customer's password.
+    displayName: updateCustomerPassword
+    responses:
+      '204':
+        description: No Content
+    headers:
+      Authorization:
+        description: the JWT token
+        type: string
+        required: false
+    body:
+      application/json:
+        type: password_change_request
+
+/patch:
+  '/{itemId}':
+    patch:
+      description: |-
+        Updates an item of a customer's product list.
+          Considered values from the request body are:
+
+          priority: This is the priority of the customer's product list item.
+          public: This is the flag whether the customer's product list item is public.
+          quantity: used for product item type only. This is the quantity of
+          the customer's product list item.
+          custom properties in the form c_<CUSTOM_NAME>: the custom property
+          must correspond to a custom attribute (<CUSTOM_NAME>) defined for ProductListItem.
+          The value of this property must be valid for the type of custom attribute defined for ProductListItem.
+
+      displayName: updateCustomerProductListItem
+      responses:
+        '200':
+          description: Success
+          body:
+            application/json:
+              type: customer_product_list_item
