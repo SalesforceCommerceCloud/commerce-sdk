@@ -1,0 +1,1969 @@
+#%RAML 1.0
+title: Catalogs
+version: v1
+mediaType: application/json
+baseUri: https://{shortCode}.api.commercecloud.salesforce.com/product/catalogs/{version}
+protocols: HTTPS
+
+baseUriParameters:
+  shortCode:
+    description: A region-specific merchant identifier.
+    example: 0dnz6oep
+    pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
+
+description: Use the Data Catalogs API 
+
+uses:
+  CatalogTraits: catalogs-traits-library.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.15/commerce-cloud-standards.raml
+  Search: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.15/Types/search-types.raml 
+
+types:
+  Catalogs:
+    description: Catalogs allow categories to be organized into hierarchical structures.
+    properties:
+      limit:
+        description: The number of returned documents.
+        type: integer
+        format: int32
+        example: 2
+      data:
+        description: The collection of catalogs.
+        type: Catalog[]
+      offset:
+        description: The zero-based index of the first search hit to include in the result.
+        minimum: 0
+        type: integer
+        format: int32
+        example: 0
+      total:
+        description: The total number of documents.
+        type: integer
+        format: int32
+        example: 10
+  Catalog:
+    description: Document representing a catalog.
+    properties:
+      assignedProductCount:
+        description: The count of products assigned to the catalog. It is read only.
+        type: integer
+        format: int32
+        required: false
+        example: 20
+      assignedSites:
+        description: The sites assigned to the catalog. It is read only.
+        type: Site[]
+        required: false
+      categoryCount:
+        description: The category count of catalog. It is read only.
+        type: integer
+        format: int32
+        required: false
+        example: 10
+      creationDate:
+        description: Returns the value of attribute 'creationDate'.
+        type: datetime
+        required: false
+        example: 9999-12-31T00:00:00.0Z
+      description:
+        description: The description of catalog.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+      id:
+        description: The catalog ID.
+        type: string
+        example: apparel-catalog         
+      lastModified:
+        description: Returns the value of attribute 'lastModified'.
+        type: datetime
+        required: false
+        example: 9999-12-31T00:00:00.0Z
+      name:
+        description: The catalog name.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+      online:
+        description: The online status of catalog.
+        type: boolean
+        required: false
+        example: false
+      ownedProductCount:
+        description: The count of products owned by the catalog. It is read only.
+        type: integer
+        format: int32
+        required: false
+        example: 100
+      recommendationCount:
+        description: The recommendation count of the catalog. It is read only.
+        type: integer
+        format: int32
+        required: false
+        example: 50
+      rootCategory:
+        description: The root category of the catalog.  It is read only.
+        type: string
+        required: false
+        example: apparel-master-catalog
+  CatalogCategoryId:
+    description: Document representing a catalog category ID.
+    properties:
+      catalogId:
+        description: The ID of the catalog that owns the category.
+        maxLength: 256
+        minLength: 1
+        type: string
+        example: apparel-catalog
+      categoryId:
+        description: The ID of the category.
+        maxLength: 256
+        minLength: 1
+        type: string
+        example: mens
+  Categories:
+    description: Categories allow products to be organized into hierarchical structures. Categories can have relationships to other parent categories. Each category also can provide a context inherited by subcategories. For example, a category may have an attribute value assigned to it, and any product assigned to the category or a subcategory would inherit the attribute value as long as the product is assigned. Once the product is removed from the category those attribute values would no longer be in the context of the product. Linking of categories is also used for Site hierarchical navigation. For example, inside 'Clothing' you may have 'Mens', and inside 'Mens' you may have 'Pants'. Categories are not *Tags*.  
+    properties:
+      limit:
+        description: The number of returned documents.
+        type: integer
+        format: int32
+        example: 10
+      data:
+        description: Data
+        type: Category[]
+      offset:
+        description: The zero-based index of the first search hit to include in the result.
+        minimum: 0
+        type: integer
+        format: int32
+        example: 0
+      total:
+        description: The total number of documents.
+        type: integer
+        format: int32
+        example: 100
+  Category:
+    description: Document representing a category.
+    properties:
+      catalogId:
+        description: The ID of the catalog that contains it.
+        type: string
+        required: false
+        example: apparel-catalog
+      categories:
+        description: The array of subcategories for the category.
+        type: Category[]
+        required: false
+      creationDate:
+        description: Returns the value of attribute 'creationDate'.
+        type: datetime
+        required: false
+        example: 9999-12-31T00:00:00.0Z 
+      description:
+        description: The localized description of the category.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"en_US":"Mens Clothing Outerwear"} 
+      id:
+        description: The ID of the category.
+        maxLength: 256
+        minLength: 1
+        type: string
+        example: mens-clothing-outerwear
+      image:
+        description: The name of the category image. The URL to the image is computed.
+        maxLength: 256
+        minLength: 1
+        type: string
+        required: false
+        example: Summer Bomber Jacket
+      lastModified:
+        description: Returns the value of attribute 'lastModified'.
+        type: datetime
+        required: false
+        example: 9999-12-31T00:00:00.0Z
+      name:
+        description: The localized name of the category.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"en_US":"Mens Clothing Outerwear"} 
+      online:
+        description: The online status of the category determines if it is visible in the storefront. Defaults to false if not specified on creation.
+        type: boolean
+        required: false
+        example: true
+      pageDescription:
+        description: The localized page description of the category.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"en_US":"Mens Outerwear Category"}
+      pageKeywords:
+        description: The localized page keywords for the category.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"en_US":"Outerwear"}
+      pageTitle:
+        description: The localized page title of the category.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"en_US":"Mens Clothing Outerwear"} 
+      parentCategoryId:
+        description: The ID of the parent category. Defaults to root if not specified on creation.
+        maxLength: 256
+        minLength: 1
+        type: string
+        required: false
+        example: mens-clothing
+      paths:
+        description: The path record.
+        type: PathRecord[]
+        required: false
+      position:
+        description: The position of the category determines the display order in the storefront.
+        type: number
+        format: double
+        required: false
+        example: 3
+      sortingRules:
+        description: The category sorting rules.
+        type: SortingRule[] 
+        required: false
+      thumbnail:
+        description: The name of the category thumbnail. The URL to the thumbnail is computed.
+        maxLength: 256
+        minLength: 1
+        type: string
+        required: false
+        example: Summer Bomber Jacket Large
+  CategoryLink:
+    description: Document representing a category link.
+    properties:
+      lastModified:
+        description: The date the link was last modified.
+        type: datetime
+        example: 9999-12-31T00:00:00.0Z
+      position:
+        description: The position in the source catalog or category for this link, relative to the other links in the same category.
+        minimum: 0
+        type: number
+        format: double
+        example: 5
+      sourceCatalogId:
+        description: The source catalog for the link.
+        type: string
+        example: apparel-catalog
+      sourceCatalogName:
+        description: The name of the source catalog.
+        type: object
+        properties:
+          //:
+            type: string
+        example: { "default": "Apparel Catalog" }
+      sourceCategoryId:
+        description: The source category for the link.
+        type: string
+        example: mens-clothing-outerwear
+      sourceCategoryName:
+        description: The name of the source category.
+        type: object
+        properties:
+          //:
+            type: string
+        example: { "default": "Men's Clothing" }
+      targetCatalogId:
+        description: The target category for the link.
+        type: string
+        example: apparel-mens-catalog
+      targetCatalogName:
+        description: The name of the target catalog.
+        type: object
+        properties:
+          //:
+            type: string
+        example: { "default": "Men's Apparel Catalog" }
+      targetCategoryId:
+        description: The target category for the link.
+        type: string
+        example: mens-clothing-accessories
+      targetCategoryName:
+        description: The name of the target category.
+        type: object
+        properties:
+          //:
+            type: string
+        example: { "default": "Men's Clothing Outerwear" }
+      type:
+        description: The link type.
+        type: string
+        enum:
+          - other
+          - accessories
+          - cross_selling
+          - up_selling
+          - spare_parts
+        example: accessories
+  CategoryLinks:
+    description: Document representing an unfiltered list of category links.
+    properties:
+      limit:
+        description: The number of returned documents.
+        type: integer
+        format: int32
+        example: 10
+      data:
+        description: data
+        type: CategoryLink[]     
+      offset:
+        description: The zero-based index of the first search hit to include in the result.
+        minimum: 0
+        type: integer
+        format: int32
+        example: 0
+      total:
+        description: The total number of documents.
+        type: integer
+        format: int32
+        example: 20
+  CategoryProductAssignment:
+    description: Document representing a category product assignment.
+    properties:
+      catalogId:
+        description: The ID of the catalog.
+        maxLength: 256
+        minLength: 1
+        type: string
+        example: apparel-catalog
+      categoryId:
+        description: The ID of the category.
+        maxLength: 256
+        minLength: 1
+        type: string
+        example: mens
+      owningCatalogName:
+        description: The name of the catalog that owns the product.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+      position:
+        description: The position of product category assignment.
+        type: number
+        format: double
+        required: false
+        example: 2
+      product:
+        description: The product that is assigned to the category.
+        type: Product
+        required: false
+      productId:
+        description: The ID of the product.
+        maxLength: 256
+        minLength: 1
+        type: string
+        example: "11736753"
+      productName:
+        description: The name of the product.
+        type: object
+        required: false
+        example: {
+          "default": "Summer Bomber Jacket"
+        }
+  CategoryProductAssignmentSearchResult:
+    description: Document representing a product search result.
+    type: CommerceCloudStandards.PaginatedSearchResult
+    properties:
+      hits:
+        description: The sorted array of search hits. This array can be empty.
+        type: CategoryProductAssignment[]
+  CategorySearchResult:
+    description: Document representing a catalog search result.
+    type: CommerceCloudStandards.PaginatedSearchResult
+    properties:
+      hits:
+        description: The sorted array of search hits. Can be empty.
+        type: Category[]
+  CustomerListLink:
+    description: Document representing a link to a customer list.
+    properties:
+      customerListId:
+        description: The customerlist ID.
+        type: string
+        example: SiteGenesis    
+      title:
+        description: The link title.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+  ImageGroup:
+    description: Document representing an image group containing a list of images for a particular view type and an optional variation value.
+    properties:
+      images:
+        description: The images of the image group.
+        type: MediaFile[]
+      variationAttributes:
+        description: Returns a list of variation attributes applying to this image group.
+        type: VariationAttribute[]
+      viewType:
+        description: The image view type.
+        type: string
+        example: detail
+  MarkupText:
+    description: The HTML markup text.
+    properties:
+      markup:
+        description: The rendered HTML.
+        type: string
+        example: ""
+      source:
+        description: The raw markup text.
+        type: string
+        example: ""
+  Master:
+    description: The master price information.
+    properties:     
+      masterId:
+        description: The master price ID.
+        maxLength: 100
+        minLength: 1
+        type: string
+        example: summer-jacket
+      orderable:
+        description: The orderable flag.
+        type: boolean
+        required: false
+        example: true
+      price:
+        description: The price value.
+        type: number
+        format: double
+        required: false
+        example: 115.99
+      priceMax:
+        description: The maximum price.
+        type: number
+        format: double
+        required: false
+        example: 120
+      prices:
+        description: The prices object.
+        type: object
+        properties:
+          //:
+            type: number
+            format: double
+        required: false
+  MediaFile:
+    description: The media file information.
+    properties:
+      absUrl:
+        description: The absolute URL with request protocol.
+        type: string
+        required: false
+        example: "https://www.example-image.com/images/summer-bomberjacket.jpg"
+      alt:
+        description: The alternative image text.
+        type: object
+        properties:
+          //:
+            type: string
+        example: {"en_US" : "SummerBomberJacket"}
+      disBaseUrl:
+        description: The Dynamic Image Service (DIS) base URL for product images only.
+        type: string
+        required: false
+        example: "https://www.dis-base-url/images/summer-bomberjacket.jpg"
+      path:
+        description: The raw media file path.
+        type: string
+        example: "images/summer-bomberjacket.jpg"
+      title:
+        description: The image title.
+        type: object
+        properties:
+          //:
+            type: string
+        example: {"en_US" : "SummerBomberJacket"}
+  Money:
+    description: The money value and currency.
+    properties:
+      currencyMnemonic:
+        description: The currency mnemonic for the money.
+        type: string
+        example: "USD"
+      value:
+        description: The value for the money.
+        type: number
+        format: double
+        example: 120
+  PathRecord:
+    description: Document representing most basic info (ID and name) of a category or catalog.
+    properties:
+      id:
+        description: The ID of the category path.
+        type: string
+        example: "mens-clothing"
+      name:
+        description: The name of the category path.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+  Product:
+    description: Any product that is sold, shown alone, and does not have variations such as different sizes or colors. Product that has no reliance on any other product for inheritance. *A product has a SKU and can have a product option, which has a different SKU*.
+    properties:
+      assignedCategories:
+        description: The catalog categories that the product is assigned to.
+        type: CatalogCategoryId[]
+        required: false
+      ats:
+        description: The Available To Sell (ATS) of the product. If it is infinity, the return value is 999999. The value can be overwritten by the
+           OCAPI setting 'product.inventory.ats.max_threshold'.
+        type: number
+        format: double
+        required: false
+        example: 10000
+      brand:
+        description: The brand of the product.
+        type: string
+        required: false
+        example: BestOuterwareCorp
+      bundledProducts:
+        description: The array of bundled products which the product includes.
+        type: Product[] 
+        required: false
+      creationDate:
+        description: Returns the value of attribute 'creationDate'.
+        type: datetime
+        required: false
+        example: 9999-12-31T00:00:00.0Z
+      defaultVariantId:
+        description: The ID of the product's default variant.
+        type: string
+        required: false
+        example: summer-bomber-jacker-001-black
+      ean:
+        description: The European Article Number of the product.
+        type: string
+        required: false
+        example: "1232332"
+      id:
+        description: The ID (SKU) of the product.
+        maxLength: 100
+        minLength: 1
+        required: false
+        type: string
+        example: "ksdf69w4"
+      image:
+        description: The image(s) assigned to the product.
+        type: MediaFile
+        required: false
+      imageGroups:
+        description: The array of product image groups.
+        type: ImageGroup[]
+        required: false
+      inStock:
+        description: The flag that indicates if the product is in stock or not. This is a calculated value.
+        type: boolean
+        required: false
+        example: true
+      lastModified:
+        description: Returns the value of attribute 'lastModified'.
+        type: datetime
+        required: false
+        example: 9999-12-31T00:00:00.0Z
+      longDescription:
+        description: The localized long description of the product.
+        type: object
+        properties:
+          //:
+            type: MarkupText
+        required: false 
+      manufacturerName:
+        description: The name of the product's manufacturer.
+        type: string
+        required: false
+        example: BestOuterwareCorp
+      manufacturerSku:
+        description: The SKU of the product's manufacturer.
+        type: string
+        required: false
+        example: "we4r44534"
+      master:
+        description: The master of the product. This is applicable for product types "variation_group" and "variant" only.
+        type: Master
+        required: false
+      name:
+        description: The localized name of the product.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"en_US":"Summer Bomber Jacket"}
+      online:
+        description: The flag that indicates if the product is online, or not. This is a calculated value.
+        type: boolean
+        required: false
+        example: true
+      onlineFlag:
+        description: The site-specific online status of the product.
+        type: object
+        properties:
+          //:
+            type: boolean
+        required: false
+        example: {"Site1":true}
+      owningCatalogId:
+        description: The ID of the catalog that owns the product.
+        type: string
+        required: false
+        example: apparel-master-catalog
+      owningCatalogName:
+        description: The localized name of the catalog that owns the product.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"en_US":"Apparel Master Catalog"}
+      pageDescription:
+        description: The localized page description of the product.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"en_US":"This lightweight bomber jacket is the epitome of summer style"}
+      pageKeywords:
+        description: The localized page keywords of the product.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"en_US":"Jacket"}
+      pageTitle:
+        description: The localized page title of the product.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"en_US":"Summer Outerwear"}
+      price:
+        description: The price of the product.
+        type: number
+        format: double
+        required: false
+        example: 115.99
+      priceCurrency:
+        description: The currency code for a product's price.
+        type: string
+        required: false
+        example: "USD"
+      primaryCategoryId:
+        description: The ID of the products primary category.
+        type: string
+        required: false
+        example: Outerwear
+      productBundles:
+        description: The array of product bundles which the product belongs to.
+        type: Product[] 
+        required: false
+      productOptions:
+        description: The array of product options. This is applicable for products of type "option".
+        type: ProductOption[]
+        required: false
+      productSets:
+        description: The array of product sets which the product belongs to.
+        type: Product[]
+        required: false
+      searchable:
+        description: The site-specific searchable status of the product.
+        type: object
+        properties:
+          //:
+            type: boolean
+        required: false
+        example: {"Site1":true}
+      setProducts:
+        description: The array of set products which the product includes.
+        type: Product[]
+        required: false
+      shortDescription:
+        description: The localized short description of the product.
+        type: object
+        properties:
+          //:
+            type: MarkupText
+        required: false
+      type:
+        description: 'The type of the product. It can have one or more of the values: "item", "master", "variation_group", "variant", "bundle", and "set".'
+        type: ProductType
+        required: false
+      unit:
+        description: The sales unit of the product.
+        type: string
+        required: false
+        example: single
+      upc:
+        description: The Universal Product Code (UPC) of the product.
+        type: string
+        required: false
+        example: "66JSD88JASD"
+      variants:
+        description: The array of variants of the product. This is applicable for product types "master" and "variation_group" only.
+        type: Variant[] 
+        required: false
+      variationAttributes:
+        description: |-
+          The sorted array of variation attributes assigned to the product. This is applicable for product types "master",
+           "variation_group" and "variant" only.
+        type: VariationAttribute[]
+        required: false
+      variationGroups:
+        description: The array of variation groups in the product. This is applicable for product type "master" only.
+        type: VariationGroup[]
+        required: false
+      variationValues:
+        description: |-
+          The variation values selected for the product in variation attribute ID and value pairs. Applicable for product types "variant" and
+           "variation_group" only.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"color":"black","size":"L"}
+  ProductOption:
+    description: Product options enable you to sell configurable products that have optional accessories, upgrades, or additional services. Options are always purchased with a product and can't be purchased separately. *Product Option has a SKU and a price is associated with it.*
+    properties:
+      customName:
+        description: The localized custom name of the product option.
+        type: object
+        properties:
+          //:
+            type: string
+        example: {"en_US":"Warranty"} 
+      defaultProductOptionValue:
+        description: The default product option value.
+        type: string
+        example: "5-years"
+      description:
+        description: The localized description of the product option.
+        type: object
+        properties:
+          //:
+            type: string
+        example: {"en_US":"5 year Warranty Option"} 
+      id:
+        description: The object attribute definition ID, which is also the identifier for the product option.
+        minLength: 1
+        type: string
+        example: "warranty"
+      image:
+        description: The image assigned to the product option.
+        type: MediaFile
+        required: false
+      name:
+        description: The name of the object attribute definition.
+        type: string
+        example: "warranty"
+      selectedOptionValue:
+        description: The selected option value of the product option.
+        type: string
+        example: "5-years"
+      shared:
+        description: The flag that indicates if the product option is shared or local.
+        type: boolean
+        example: true
+      sortingMode:
+        description: The sorting mode for the product option values.
+        type: string
+        enum:
+          - byexplicitorder
+          - byoptionprice
+        example: byoptionprice
+      values:
+        description: The sorted array of values of the product option.
+        type: ProductOptionValue[] 
+  ProductOptionValue:
+    description: Document representing a product option Value
+    properties:
+      defaultProductOptionValue:
+        description: Flag indicating if the product option value is the default value for the product option.
+        type: boolean
+        example: true
+      id:
+        description: The ID of the product option value.
+        minLength: 1
+        type: string
+        example: "5-year"
+      optionPrices:
+        description: The list of prices in the product option value.
+        type: Money[]
+      skuExtension:
+        description: The SKU extension of the product option value.
+        type: string
+        example: "extension"
+      value:
+        description: The localized value of the product option.
+        type: object
+        properties:
+          //:
+            type: string
+        example: {"en_US":"5 Year Warranty"}
+  ProductOptionValues:
+    description: Document representing an unfiltered list of product option values.
+    properties:
+      limit:
+        description: The number of returned documents.
+        type: integer
+        format: int32
+        example: 10
+      data:
+        description: data
+        type: ProductOptionValue[]     
+      offset:
+        description: The zero-based index of the first search hit to include in the result.
+        minimum: 0
+        type: integer
+        format: int32
+        example: 0
+      total:
+        description: The total number of documents.
+        type: integer
+        format: int32
+        example: 20
+  ProductOptions:
+    description: Document representing an unfiltered list of product options.
+    properties:
+      limit:
+        description: The number of returned documents.
+        type: integer
+        format: int32
+        example: 10
+      data:
+        description: data
+        type: ProductOption[]       
+      offset:
+        description: The zero-based index of the first search hit to include in the result.
+        minimum: 0
+        type: integer
+        format: int32
+        example: 0
+      total:
+        description: The total number of documents.
+        type: integer
+        format: int32
+        example: 20
+  ProductType:
+    description: Document representing a product type.
+    properties:
+      bundle:
+        description: A flag indicating whether the product is a bundle.
+        type: boolean
+        required: false
+        example: true
+      bundled:
+        description: A flag indicating whether the product is bundled.
+        type: boolean
+        required: false
+        example: false
+      item:
+        description: A flag indicating whether the product is a standard item.
+        type: boolean
+        required: false
+        example: false
+      master:
+        description: A flag indicating whether the product is a master.
+        type: boolean
+        example: false
+      option:
+        description: A flag indicating whether the product is an option.
+        type: boolean
+        required: false
+        example: true
+      partOfProductSet:
+        description: A flag indicating whether the product is part of product set.
+        type: boolean
+        required: false
+        example: true
+      partOfRetailSet:
+        description: A flag indicating whether the product is part of retail set.
+        type: boolean
+        required: false
+        example: true
+      retailSet:
+        description: A flag indicating whether the product is a retail set.
+        type: boolean
+        required: false
+        example: true
+      set:
+        description: A flag indicating whether the product is a set.
+        type: boolean
+        required: false
+        example: false
+      variant:
+        description: A flag indicating whether the product is a variant.
+        type: boolean
+        required: false
+        example: true
+      variationGroup:
+        description: A flag indicating whether the product variation group is set.
+        type: boolean
+        required: false
+        example: false
+  Site:
+    description: Document representing a site.
+    properties:
+      cartridges:
+        description: The cartridge path of the site.
+        type: string
+        required: false
+        example: sitegenesis_storefront_controllers:sitegenesis_storefront_core
+      customerListLink:
+        description: The link to the customer list.
+        type: CustomerListLink
+        required: false
+      description:
+        description: The description of this site.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {
+            "default": "Prototypical site used for starting point",
+        }
+      displayName:
+        description: The display name entered by the user.
+        type: object
+        properties:
+          //:
+            type: string
+        example: {
+            "default": "Site Genesis",
+        }
+      id:
+        description: The ID of this site.
+        minLength: 1
+        type: string
+        example: SiteGenesis
+      inDeletion:
+        description: The deletion status of this site, true if in deletion.
+        type: boolean
+        required: false
+        example: false      
+      storefrontStatus:
+        description: The storefront status of the site, it can be optionally be set to online, maintenance, to_be_deleted, and protected.
+        type: string
+        enum:
+          - online
+          - maintenance
+          - to_be_deleted
+          - protected
+        required: false
+        example: online
+  SortingRule:
+    description: Document representing a product sorting rule.
+    properties:
+      creationDate:
+        description: The creation date, read only.
+        type: datetime
+        example: 9999-12-31T00:00:00.0Z
+      description:
+        description: The description of the product sorting rule.
+        maxLength: 4000
+        type: string
+        example: Sorts by price descending
+      id:
+        description: The ID of the product sorting rule.
+        type: string
+        example: proce-high-to-low
+      productSortingRuleSteps:
+        description: The steps involved in sorting by this rule.
+        type: SortingRuleStep[] 
+      ruleContext:
+        description: The context of the rule, either site or global.
+        type: string
+        example: site
+      site:
+        description: 'The site.'
+        type: string
+        example: SiteGenesis
+  SortingRuleStep:
+    description: Document representing a product sorting rule step.
+    properties:
+      attributeId:
+        description: The ID for sorting attribute.
+        type: string
+        example: price
+      direction:
+        description: The direction of the sorting attribute.
+        type: string
+        enum:
+          - asc
+          - desc
+        example: desc
+      isSystem:
+        description: Whether or not the attribute is a system attribute.
+        type: boolean
+        example: false
+      position:
+        description: The position of product sorting rule step.
+        type: integer
+        format: int32
+        example: 1
+      textRelevanceIncluded:
+        description: The text relevance included.
+        type: boolean
+        example: true
+      typeId:
+        description: The sorting type for sorting attribute.
+        type: string
+        example: price
+
+  Variant:
+    description: A product which is a variation within a master product that describes different colors, sizes, or other variation attributes. *Has a SKU*
+    properties:
+      ats:
+        description: The Available To Sell (ATS) inventory value of the product. This is a calculated value.
+        type: number
+        format: double
+        required: false
+        example: 10000
+      defaultProductVariation:
+        description: Default product variation flag, true or false
+        type: boolean
+        required: false
+        example: true
+      image:
+        description: URL to the preview image.
+        type: MediaFile
+        required: false
+      inStock:
+        description: True if the product is in stock, false if not.
+        type: boolean
+        required: false
+        example: true      
+      online:
+        description: |-
+          If the product is currently online.
+           true if online
+           false if not
+        type: boolean
+        required: false
+        example: true
+      orderable:
+        description: A flag indicating whether the variant is orderable.
+        type: boolean
+        required: false
+        example: true
+      price:
+        description: The sales price of the variant.
+        type: number
+        format: double
+        required: false
+        example: 115.99
+      priceCurrency:
+        description: Currency code for the price of the product.
+        type: string
+        required: false
+        example: USD
+      productId:
+        description: The ID (SKU) of the variant.
+        maxLength: 100
+        minLength: 1
+        type: string
+        example: "28392Ww35"
+      searchable:
+        description: 'The searchable attribute.'
+        type: object
+        properties:
+          //:
+            type: boolean
+        required: false
+        example: {"Site1":true}
+      variationAttributes:
+        description: Variation attributes.
+        type: VariationAttribute[]
+        required: false
+      variationValues:
+        description: The actual variation attribute ID - value pairs.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"color":"black","size":"L"}
+  VariationAttribute:
+    description: Document representing a variation attribute.
+    properties:
+      attributeDefinitionId:
+        description: The ID of the requested attribute definition.
+        type: string
+        example: "color"
+      attributeDefinitionName:
+        description: The localized display name of the variation attribute definition.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"en_US":"Color"}
+      defaultValue:
+        description: Default variation attribute value.
+        type: string
+        required: false
+        example: black
+      id:
+        description: The ID of the variation attribute.
+        minLength: 1
+        type: string
+        required: false
+        example: color      
+      name:
+        description: The localized display name of the variation attribute.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"en_US":"Color"}
+      shared:
+        description: Returns the value of attribute 'shared' if attribute is local or shared.
+        type: boolean
+        required: false
+        example: true
+      slicing:
+        description: Returns the value of attribute 'slicing'.
+        type: boolean
+        required: false
+        example: true
+      values:
+        description: The sorted array of variation values. This array can be empty.
+        type: VariationAttributeValue[]
+        required: false
+      variationAttributeType:
+        description: Variation attribute type.
+        type: string
+        enum:
+          - string
+          - int
+          - unknown
+        required: false
+        example: string
+  VariationAttributeValue:
+    description: Document representing a variation attribute value.
+    properties:
+      description:
+        description: The localized description of the variation value.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"en_US":"Red"}
+      image:
+        description: The first product image for the configured viewtype and this variation value.
+        type: MediaFile
+        required: false
+      imageSwatch:
+        description: The first product image for the configured viewtype and this variation value (typically the swatch image).
+        type: MediaFile
+        required: false      
+      name:
+        description: The localized display name of the variation value.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"color":"Red"}
+      orderable:
+        description: A flag indicating whether at least one variant with this variation attribute value is available to sell.
+        type: boolean
+        required: false
+        example: true
+      position:
+        description: The position of the value among all values of a variation attribute.
+        type: number
+        format: double
+        required: false
+        example: 2
+      value:
+        description: The actual variation value.
+        minLength: 1
+        type: string
+        example: red
+  VariationAttributeValues:
+    description: Document representing an unfiltered list of variation attribute values.
+    properties:
+      limit:
+        description: The number of returned documents.
+        type: integer
+        format: int32
+        example: 10
+      data:
+        description: data
+        type: VariationAttributeValue[]
+      offset:
+        description: The zero-based index of the first search hit to include in the result.
+        minimum: 0
+        type: integer
+        format: int32
+        example: 0
+      total:
+        description: The total number of documents.
+        type: integer
+        format: int32
+        example: 20
+  VariationAttributes:
+    description: Document representing an unfiltered list of variation attributes.
+    properties:
+      limit:
+        description: The number of returned documents.
+        type: integer
+        format: int32
+        example: 10
+      data:
+        description: The data that includes variation attribute items.
+        type: VariationAttribute[]
+      offset:
+        description: The zero-based index of the first search hit to include in the result.
+        minimum: 0
+        type: integer
+        format: int32
+        example: 0
+      total:
+        description: The total number of documents.
+        type: integer
+        format: int32
+        example: 20
+  VariationGroup:
+    description: Representation of a group of variant products by an attribute. This is a non-buyable entity, provides inheritable attributes for it's product variants, and is used for navigation. *Doesn't have a SKU.*
+    properties:      
+      orderable:
+        description: A flag indicating whether the variation group is orderable.
+        type: boolean
+        example: true
+      price:
+        description: The sales price of the variation group.
+        type: number
+        format: double
+        example: 119.99
+      productId:
+        description: The ID (SKU) of the variation group.
+        maxLength: 100
+        minLength: 1
+        type: string
+        example: "90u390w3"
+      variationValues:
+        description: The actual variation attribute ID - value pairs.
+        type: object
+        properties:
+          //:
+            type: string
+        example: {"color": "Red"}
+  CatalogSearchResult:
+    description: Document representing a catalog search result.
+    type: CommerceCloudStandards.PaginatedSearchResult
+    properties:
+      hits:
+        description: The sorted array of search hits. Can be empty.
+        type: Catalog[]
+
+/organizations/{organizationId}:
+  type: CommerceCloudStandards.Organization
+  /catalogs:
+    get:
+      description: Action to get the list of catalog IDs with no filtering.
+      displayName: getCatalogs
+      is:
+        - CatalogTraits.RateLimited3:
+            responseStatus: 200
+            responseStatus2: 400
+            responseStatus3: 401
+        - CatalogTraits.Unauthorized
+        - CatalogTraits.BadRequest
+        - CatalogTraits.offset-paginated:
+            maxLimit: 50
+            defaultSize: 25
+
+      responses:
+        '200':
+          description: Catalogs Retrieved Successfully
+          body:
+            application/json:
+              type: Catalogs
+              examples:
+                catalogs: !include Examples/catalogs.raml
+      securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
+        - CommerceCloudStandards.AmOAuth2
+    /{catalogId}:
+      get:
+        description: Gets the catalog with the specified information.
+        displayName: getCatalog
+        is:
+          - CatalogTraits.RateLimited3:
+              responseStatus: 200
+              responseStatus2: 401
+              responseStatus3: 404
+          - CatalogTraits.Unauthorized
+          - CatalogTraits.NotFound
+        responses:
+          '200':
+            description: Catalog Retrieved Successfully
+            body:
+              application/json:
+                type: Catalog
+                examples:
+                  catalog: !include Examples/catalog.raml
+        securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
+          - CommerceCloudStandards.AmOAuth2
+      patch:
+        description: Updates the catalog with the specified information.
+        displayName: updateCatalog
+        is:
+          - CatalogTraits.RateLimited3:
+              responseStatus: 200
+              responseStatus2: 401
+              responseStatus3: 404
+          - CatalogTraits.Unauthorized
+          - CatalogTraits.NotFound
+        responses:
+          '200':
+            description: Catalog Updated Successfully
+            body:
+              application/json:
+                type: Catalog
+                examples:
+                  catalog: !include Examples/catalog.raml
+          
+        body:
+          application/json:
+            type: Catalog
+            examples:
+              catalog: !include Examples/catalog-body.raml
+        securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
+          - CommerceCloudStandards.AmOAuth2
+      uriParameters:
+        catalogId:
+          description: The ID of the requested catalog.
+          minLength: 1
+          type: string
+          example: apparel-catalog
+      /categories:
+        get:
+          description: Action to get all the categories with no filtering.
+          displayName: getCategoriesFromCatalog
+          is:
+            - CatalogTraits.RateLimited4:
+                responseStatus: 200
+                responseStatus2: 400
+                responseStatus3: 401
+                responseStatus4: 404 
+            - CatalogTraits.Unauthorized
+            - CatalogTraits.BadRequest
+            - CatalogTraits.NotFound
+            - CatalogTraits.offset-paginated:
+                maxLimit: 50
+                defaultSize: 25
+          responses:
+            '200':
+              description: Categories Retrieved Successfully
+              body:
+                application/json:
+                  type: Categories
+                  examples: 
+                    categories: !include Examples/categories.raml
+          securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
+            - CommerceCloudStandards.AmOAuth2
+        /{categoryId}:
+          delete:
+            description: Deletes the category by catalog ID and category ID.
+            displayName: deleteCategoryFromCatalog
+            is:
+              - CatalogTraits.RateLimited3:
+                  responseStatus: 204
+                  responseStatus2: 401
+                  responseStatus3: 404
+              - CatalogTraits.Unauthorized
+              - CatalogTraits.NotFound
+              - CatalogTraits.NotFound
+            responses:
+              '204': 
+                description: Category Deleted Successfully
+            securedBy:
+              - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
+              - CommerceCloudStandards.AmOAuth2
+          get:
+            description: |-
+              Action to read an existing category within a catalog. By default, the server
+              also returns the first level of sub-categories, but you can specify another level by setting the levels
+              parameter. Using a large value for levels may cause performance 
+              issues in case of a large and deep category tree.
+            displayName: getCategoryFromCatalog
+            is:
+              - CatalogTraits.RateLimited4:
+                  responseStatus: 200
+                  responseStatus2: 400
+                  responseStatus3: 401
+                  responseStatus4: 404
+              - CatalogTraits.Unauthorized
+              - CatalogTraits.BadRequest
+              - CatalogTraits.NotFound
+            responses:
+              '200':
+                description: Category Retrieved Successfully
+                body:
+                  application/json:
+                    type: Category
+                    examples:
+                      category: !include Examples/category-example.raml
+
+            queryParameters:
+              levels:
+                description: 'The level number'
+                minimum: 0
+                type: integer
+                format: int32
+                required: false
+                example: 0
+            securedBy:
+              - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
+              - CommerceCloudStandards.AmOAuth2
+          patch:
+            description: Updates a catalog category using the information provided.
+            displayName: updateCategoryInCatalog
+            is:
+              - CatalogTraits.RateLimited4:
+                  responseStatus: 200
+                  responseStatus2: 400
+                  responseStatus3: 401
+                  responseStatus4: 404
+              - CatalogTraits.Unauthorized
+              - CatalogTraits.BadRequest
+              - CatalogTraits.NotFound
+            responses:
+              '200':
+                description: Category Updated Successfully
+                body:
+                  application/json:
+                    type: Category
+                    examples:
+                      category: !include Examples/single-category.raml
+
+            body:
+              application/json:
+                type: Category
+                examples:
+                  category: !include Examples/category-body.raml
+            securedBy:
+              - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
+              - CommerceCloudStandards.AmOAuth2
+          put:
+            description: Creates a catalog category using the information provided.
+            displayName: createCategoryInCatalog
+            is:
+              - CatalogTraits.RateLimited5:
+                  responseStatus: 201
+                  responseStatus2: 200
+                  responseStatus3: 400
+                  responseStatus4: 401
+                  responseStatus5: 404                             
+              - CatalogTraits.Unauthorized
+              - CatalogTraits.BadRequest
+              - CatalogTraits.NotFound              
+            responses:
+              '201':
+                description: Category Created Successfully
+                body:
+                  application/json:
+                    type: Category
+                    examples:
+                      category: !include Examples/single-category.raml
+              '200':
+                description: Category Updated Successfully
+                body:
+                  application/json:
+                    type: Category
+                    examples:
+                      category: !include Examples/single-category.raml
+            body:
+              application/json:
+                type: Category
+                examples:
+                  category: !include Examples/category-body.raml
+            securedBy:
+              - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
+              - CommerceCloudStandards.AmOAuth2
+          uriParameters:
+            categoryId:
+              description: The ID of the category to be created.
+              maxLength: 256
+              minLength: 1
+              type: string
+              example: mens
+          /category-product-assignment-search:
+            post:
+              description: |
+                Searches for category product assignments. The query attribute specifies a complex query that can be used to narrow down the search.
+
+                The following are searchable attributes:
+
+                  | Attribute | Type |
+                  |-----------|--------|
+                  | productId| String |
+                  | productName | String |
+                  | onlineFlag | Boolean |
+                  | searchable | Boolean |
+                  | validFrom | DateTime |
+                  | validTo | DateTime |
+                  | creationDate | DateTime | 
+
+
+                 Sortable Fields: 
+
+                  | Attribute | Type |
+                  |-----------|--------|
+                  | productId| String |
+                  | productName | String |
+                  | position | Double |
+                  | creationDate | DateTime |
+
+                Expansions that can be applied for the search request:
+                  - productBase - String 
+                
+                The productBase expand will enable retrieval of the following basic product information: 
+
+                  | Attribute | Type | Function |
+                  |-----------|--------|-----|
+                  | productImages| String | Fetch preview image and image groups specified for the given product. |
+                  | productAllImages | String | Fetch preview image, image groups specified for the product, and variant and variation group images. |
+                  | productVariations | String | Fetch variations related information. |
+                  | productAvailability | String | Fetch availability related information. |
+                  | productCategories | String | Fetch category related information. | 
+                  | productPrices | String | Fetch price related information. |
+                  | productOptions | String | Fetch options related information. |
+                  | productAll | String | Fetch all expanded information. |
+
+                Note: productAll includes the following:
+                  - brand
+                  - ean
+                  - link
+                  - longDescription
+                  - manufacturerName
+                  - manufacturerSku
+                  - name
+                  - pageDescription
+                  - pageKeywords
+                  - pageTitle
+                  - searchable
+                  - shortDescription
+                  - type
+                  - unit
+                  - upc
+                  
+              displayName: searchProductsAssignedToCategory
+              queryParameters:
+                siteId:
+                  description: The site ID of the context for the product being queried for in the request.
+                  type: string
+                  required: false
+                  example: SiteGenesis
+              is:
+                - CatalogTraits.RateLimited3:
+                    responseStatus: 200
+                    responseStatus2: 401
+                    responseStatus3: 404
+                - CatalogTraits.Unauthorized
+                - CatalogTraits.NotFound
+              responses:
+                '200':
+                  description: Assignments Searched Successfully
+                  body:
+                    application/json:
+                      type: CategoryProductAssignmentSearchResult
+                      examples:
+                        search_result: !include Examples/category_product_assignment.raml       
+              body:
+                application/json:
+                  type: CommerceCloudStandards.SearchRequest
+                  
+                  examples:
+                    search-request: !include Examples/product-assignment-body-example.raml
+                  
+              securedBy:
+                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
+                - CommerceCloudStandards.AmOAuth2
+          /products/{productId}:
+            get:
+              description: |-
+                Retrieves a category product assignment.
+                
+                
+                For example, if we have products A, B, C at positions 1, 2, 7.5, and delete assignment for product B, 
+                  the products end up A, B, C at positions 1, null, 7.5.
+              displayName: getAssignedProductFromCategory
+              is:
+                - CatalogTraits.RateLimited3:
+                    responseStatus: 200
+                    responseStatus2: 401
+                    responseStatus3: 404
+                - CatalogTraits.Unauthorized
+                - CatalogTraits.NotFound
+              responses:
+                '200': 
+                  description: Assignment Retrieved Successfully
+                  body:
+                    application/json:
+                      type: CategoryProductAssignment
+                      examples:
+                        category-prod-assignment: !include Examples/catalogcategoryprdAssignment-example.raml
+              securedBy:
+                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
+                - CommerceCloudStandards.AmOAuth2
+            delete:
+              description: |-
+                Removes a category product assignment.
+                
+                
+                For example, if we have products A, B, C at positions 1, 2, 7.5 and delete assignment for product B, 
+                the products end up A, B, C at positions 1, null, 7.5.
+              displayName: unassignProductFromCategory
+              is:
+                - CatalogTraits.RateLimited3:
+                    responseStatus: 204
+                    responseStatus2: 401
+                    responseStatus3: 404
+                - CatalogTraits.Unauthorized
+                - CatalogTraits.NotFound
+              responses:
+                '204': 
+                  description: Assignment Deleted Successfully
+
+              securedBy:
+                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
+                - CommerceCloudStandards.AmOAuth2
+            patch:
+              description: |-
+                Updates the category product assignment with the specified information, such as position. 
+                  As the assigned position n is a normalized target position, we'll make sure that the product is assigned
+                to a position so that the order of positions are maintained. 
+
+                For example, if we have products A, B, C, D at positions 1, 2, 3, 4 and update product A with a  new position of 3, 
+                the end result is B, C, A, D with order of positions 1, 2, 3, 4. If we then update product C to no position,
+                the end result is B, A, D, C with order of positions 1, 2, 3, null.
+
+                If there are n existing positioned assignments, updating product to position >= n will end with a new assignment with a position such that the order of positions is maintained.
+              displayName: updateProductCategoryAssignment
+              is:
+                - CatalogTraits.RateLimited3:
+                    responseStatus: 200
+                    responseStatus2: 401
+                    responseStatus3: 404
+                - CatalogTraits.Unauthorized
+                - CatalogTraits.NotFound
+              responses:
+                '200':
+                  description: Assignment Updated Successfully
+                  body:
+                    application/json:
+                      type: CategoryProductAssignment
+                      examples:
+                        category-prod-assignment: !include Examples/catalogcategoryprdAssignment-example.raml
+
+              body:
+                application/json:
+                  type: CategoryProductAssignment
+                  examples:
+                    body-example: !include Examples/catalogcategoryprodAssignment-body.raml
+              securedBy:
+                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
+                - CommerceCloudStandards.AmOAuth2
+            put:
+              description: |-
+                Creates a category product assignment using the information provided. 
+                
+                As the assigned position n is a normalized target position, we'll make sure that the product is assigned
+                to a position so that the order of positions are maintained. 
+                
+                For example, if we have products A, B, C at positions 1, 2, 3, and product D is assigned to
+                position 2, the end result is A, D, B, C with order of positions 1, 2, 3, 4.
+                
+                If there are n existing positioned assignment, assigning a new product to position >= n+1 will end
+                with the new assignment with position n+1.
+              displayName: assignProductToCategory
+              is:
+                - CatalogTraits.RateLimited4:
+                    responseStatus: 201
+                    responseStatus2: 200
+                    responseStatus3: 401
+                    responseStatus4: 404
+                - CatalogTraits.Unauthorized
+                - CatalogTraits.NotFound
+              responses:
+                '201':
+                  description: Assignment Created Successfully
+                  body:
+                    application/json:
+                      type: CategoryProductAssignment
+                      examples:
+                        category-prod-assignment: !include Examples/catalogcategoryprdAssignment-example.raml
+                '200':
+                  description: Assignment Updated Successfully
+                  body:
+                    application/json:
+                      type: CategoryProductAssignment
+                      examples:
+                        category-prod-assignment: !include Examples/catalogcategoryprdAssignment-example.raml
+              body:
+                application/json:
+                  type: CategoryProductAssignment
+                  
+                  examples:
+                    body-example: !include Examples/catalogcategoryprodAssignment-body.raml
+              securedBy:
+                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
+                - CommerceCloudStandards.AmOAuth2
+            uriParameters:
+              productId:
+                description: The ID (SKU) of the requested product to assign.
+                minLength: 1
+                type: string
+                example: apple-ipod-shuffle
+
+      /category-search:
+        post:
+          description: |-
+            Searches for catalog categories in the scope of catalog.
+            By default, the server also returns the first level of subcategories,
+              but you can specify another level by setting the levels parameter. 
+              Using a large value for levels may cause performance 
+              issues with a large and deep category tree.
+            
+            The query attribute specifies a complex query that can be used to narrow down the search with the following searchable attributes:
+
+            | Attribute | Type |
+            |-----------|--------|
+            |id | String |
+            |name | String |
+            |description | String |
+            |creationDate | DateTime |
+            |online | Boolean |
+            |parentCategoryId | String|
+            
+
+            The output of the query can also be sorted with the following sortable attributes:
+            
+            | Attribute | Type |
+            |-----------|--------|
+            |id | String |
+            |name | String |
+            |description | String |
+            |creationDate | DateTime |
+            |online | Boolean |
+            |position | Double|
+
+            
+          displayName: searchCategoriesInCatalog
+          is:
+            - CatalogTraits.RateLimited4:
+                responseStatus: 200
+                responseStatus2: 400
+                responseStatus3: 401 
+                responseStatus4: 404
+            - CatalogTraits.Unauthorized
+            - CatalogTraits.BadRequest
+            - CatalogTraits.NotFound
+          responses:
+            '200':
+              description: Categories Searched Successfully
+              body:
+                application/json:
+                  type: CategorySearchResult
+                  examples:
+                    result: !include Examples/catalog-search-result.raml
+
+          queryParameters:
+            levels:
+              description: The level number.
+              minimum: 0
+              type: integer
+              format: int32
+              required: false
+              example: 0
+          body:
+            application/json:
+              type: CommerceCloudStandards.SearchRequest
+              examples:
+                    result: !include Examples/catalog-search-body.raml
+          securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
+            - CommerceCloudStandards.AmOAuth2
+  /catalog-search:
+    post:
+      description: |-
+        Searches for catalogs.
+        
+        The query attribute specifies a complex query that can be used to narrow down the search with the following searchable attributes:
+            
+        | Attribute | Type |
+        |-----------|--------|
+        |id | String |
+        |name | String |
+        |description | String |
+        |creationDate | DateTime |
+      
+        There are two additional fields that can be used as search filters. They are not attributes in CatalogWO object, 
+        but can be used as filters to query catalogs based on site assignments.
+        
+        | Attribute | Type |
+        |-----------|--------|
+        |isMasterCatalog | Boolean |
+        |isStorefrontCatalog | Boolean |
+        |description | String |
+        |creationDate | DateTime |
+        |online | Boolean |
+        |position | Double|
+      
+        
+        On using isMasterCatalog in the search query, catalogs without any site assignments are returned. 
+        On using isStorefrontCatalog in the search query, catalogs with one or more site assignments are returned.
+        
+        The output of the query can also be sorted with the following sortable attributes:
+        
+        | Attribute | Type |
+        |-----------|--------|
+        |id | String |
+        |name | String |
+        |description | String |
+        |creationDate | DateTime |
+        
+      displayName: searchCatalogs
+      is:
+        - CatalogTraits.RateLimited4:
+            responseStatus: 200
+            responseStatus2: 400
+            responseStatus3: 401 
+            responseStatus4: 404 
+        - CatalogTraits.Unauthorized
+        - CatalogTraits.BadRequest
+        - CatalogTraits.NotFound
+      responses:
+        '200':
+          description: Catalogs Searched Successfully
+          body:
+            application/json:
+              type: CatalogSearchResult
+              examples:
+                catalog_search_result: !include Examples/catalog-search-result-query.raml 
+        
+      body:
+        application/json:
+          type: CommerceCloudStandards.SearchRequest
+          examples:
+            catalog-search-body: !include Examples/catalog-search-body-query.raml
+      securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
+        - CommerceCloudStandards.AmOAuth2
+  /category-search:
+    post:
+      description: |-
+        Searches for catalog categories anywhere they appear.
+        By default, the server also returns the first level of subcategories,
+          but you can specify another level by setting the levels parameter. 
+          Please note, using a large value for levels may cause performance 
+          issues with a large and deep category tree.
+        
+        The query attribute specifies a complex query that can be used to narrow down the search with the following searchable attributes:
+        
+        | Attribute | Type |
+        |-----------|--------|
+        |id | String |
+        |name | String |
+        |description | String |
+        |creationDate | DateTime |
+        |online | Boolean |
+        |catalogId | String|  
+
+        The output of the query can also be sorted with the following sortable attributes:
+       
+        | Attribute | Type |
+        |-----------|--------|
+        |id | String |
+        |name | String |
+        |description | String |
+        |creationDate | DateTime |
+        |online | Boolean |
+        |position | Double|          
+        
+      displayName: searchCategories
+      queryParameters:
+        levels:
+          description: The level number.
+          minimum: 0
+          type: integer
+          format: int32
+          required: false
+          example: 0      
+      is:
+        - CatalogTraits.RateLimited4:
+            responseStatus: 200
+            responseStatus2: 400
+            responseStatus3: 401 
+            responseStatus4: 404
+        - CatalogTraits.BadRequest
+        - CatalogTraits.NotFound
+        - CatalogTraits.Unauthorized
+      responses:
+        '200':
+          description: Categories Searched Successfully
+          body:
+            application/json:
+              type: CategorySearchResult
+              examples: 
+                category_search_result : !include Examples/category_search-result-example.raml
+      headers:
+        Authorization:
+          description: The JWT token.
+          type: string
+          required: false
+      body:
+        application/json:
+          type: CommerceCloudStandards.SearchRequest
+          examples: 
+            body : !include Examples/category_search-body-example.raml
+      securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
+        - CommerceCloudStandards.AmOAuth2

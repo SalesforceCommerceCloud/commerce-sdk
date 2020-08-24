@@ -1,0 +1,233 @@
+#%RAML 1.0
+title: Campaigns
+version: v1
+protocols: https
+mediaType: application/json
+baseUri: https://{shortCode}.api.commercecloud.salesforce.com/pricing/campaigns/{version}
+baseUriParameters:
+  shortCode:
+    description: A region-specific merchant identifier.
+    example: 0dnz6oep
+    pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
+description: Use the Data Campaign API to interact with the API, in the context of a Business Manager, to get Campaigns.
+
+uses:
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.9/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml
+  CampaignsTraits: campaigns-traits-library.raml
+
+types:
+  CampaignSearchResult:
+    description: Document representing a campaign search result.
+    type: CommerceCloudStandards.PaginatedSearchResult
+    properties:
+      hits:
+        description: The sorted array of campaign search hits. Can be empty.
+        type: Campaign[]
+  Campaign:
+    description: Document representing a campaign.
+    properties:
+      campaignId:
+        description: The ID of the campaign.
+        maxLength: 256
+        minLength: 1
+        type: string
+        required: false
+        example: NewYearCampaign
+      coupons:
+        description: The array of assigned coupon IDs, not sorted.
+        type: array
+        items:
+          type: string
+        example:
+          - 20%offOrder
+          - 10%offWelcomeNewUser
+        required: false
+      creationDate:
+        description: Returns the value of attribute 'creationDate'.
+        type: datetime
+        example: 2019-10-03T19:36:56.000Z
+        required: false
+      customerGroups:
+        description: The array of assigned customer groups, not sorted.
+        type: array
+        items:
+          type: string
+        example:
+          - BigShoppers
+          - NorthAmericanShoppers
+        required: false
+      description:
+        description: The description of the campaign.
+        maxLength: 4000
+        type: string
+        required: false
+      enabled:
+        description: The enabled flag for campaign.
+        type: boolean
+        example: true
+        required: false
+      endDate:
+        description: The date the scenario ends.
+        type: datetime
+        required: false
+      lastModified:
+        description: Returns the value of attribute 'lastModified'.
+        type: datetime
+        example: 2019-10-03T19:36:56.000Z
+        required: false
+      sourceCodeGroups:
+        description: The array of assigned source code groups, not sorted.
+        type: array
+        items:
+          type: string
+        example:
+          - affiliate-email
+          - gaming-email
+        required: false
+      startDate:
+        description: The date the scenario begins.
+        type: datetime
+        example: 2019-10-03T19:36:56.000Z
+        required: false
+      siteId?: CommerceCloudStandards.SiteId
+'/organizations/{organizationId}/campaigns':
+  type: CommerceCloudStandards.Organization
+  is:
+    - CommerceCloudStandards.SiteSpecific  
+  post:
+    description: |-
+      Searches for campaigns using a search request object that allows filtering on various attributes.
+
+        ## Supported Query Attributes
+
+        The query attribute specifies a complex query that can be used to narrow down the search. A subset of these can optionally be used to sort the returned results.
+
+        | Attribute | Type | Sortable |
+        |-----------|--------|----------|
+        | campaignId | String | yes |
+        | description | String | yes |
+        | enabled | Boolean | yes |
+        | couponId | String | no |
+        | customerGroup | String | no |
+        | sourceCode | String | no |
+        | startDate | Date | no |
+        | endDate | Date | no |
+        | lastModified | Date | no |
+
+        These fields can only be used in queries as conjunctions (using `AND`). If the field is used in a disjunction (`OR`), an exception is thrown.
+    displayName: campaignsSearch
+    is:
+        - ApiStandards.RateLimited2:
+            responseStatus: 200
+            responseStatus2: 400
+    responses:
+      '200':
+        description: API Executed Successfully.
+        body:
+          application/json:
+            type: CampaignSearchResult
+            examples: !include Examples/post_campaign_search_200.raml
+      '400':
+        description: Thrown if the query is ill-formed.
+        body:
+          application/json:
+            type: ApiStandards.ErrorResponse
+            examples:
+              !include Examples/post_campaign_search_400.raml
+    body:
+      application/json:
+        type: CommerceCloudStandards.SearchRequest
+    securedBy:
+      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
+      - CommerceCloudStandards.AmOAuth2
+  '/{campaignId}':
+    uriParameters:
+      campaignId:
+        description: The ID of the campaign.
+        minLength: 1
+        type: string
+        example: ThanksGivingCampaign
+    is:
+      - CommerceCloudStandards.SiteSpecific
+    delete:
+      description: Deletes the campaign by ID.
+      displayName: deleteCampaign
+      is:
+        - ApiStandards.RateLimited:
+            responseStatus: 204
+      responses:
+        '204':
+          description: Campaign deleted successfully.
+      securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
+        - CommerceCloudStandards.AmOAuth2
+    get:
+      description: Action to get campaign information.
+      displayName: getCampaign
+      is:
+        - CampaignsTraits.CampaignNotFound
+        - ApiStandards.RateLimited2:
+            responseStatus: 200
+            responseStatus2: 404
+      responses:
+        '200':
+          description: Campaign is retrieved successfully.
+          body:
+            application/json:
+              type: Campaign
+              examples:
+                campaignGetResponse: !include Examples/get-campaign-example.raml
+      securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
+        - CommerceCloudStandards.AmOAuth2
+    patch:
+      description: Updates the campaign with the specified information.
+      displayName: updateCampaign
+      is:
+        - CampaignsTraits.CampaignNotFound
+        - CampaignsTraits.CampaignDuplicate
+        - ApiStandards.RateLimited3:
+            responseStatus: 200
+            responseStatus2: 400
+            responseStatus3: 404
+      responses:
+        '200':
+          description: Campaign is updated successfully.
+          body:
+            application/json:
+              type: Campaign
+              examples:
+                campaignPatchResponse: !include Examples/patch-campaign-response.raml
+      body:
+        application/json:
+          type: Campaign
+          examples:
+            campaignPatchRequest: !include Examples/patch-campaign-request.raml
+      securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
+        - CommerceCloudStandards.AmOAuth2
+    put:
+      description: Creates a campaign using the information provided.
+      displayName: createCampaign
+      is:
+        - CampaignsTraits.IdConflict
+        - ApiStandards.RateLimited2:
+            responseStatus: 200
+            responseStatus2: 400
+      responses:
+        '200':
+          description: Campaign is created successfully.
+          body:
+            application/json:
+              type: Campaign
+              examples:
+                campaignPutResponse: !include Examples/put-campaign-response.raml
+      body:
+        application/json:
+          type: Campaign
+          examples:
+            campaignPutRequest: !include Examples/put-campaign-request.raml
+      securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
+        - CommerceCloudStandards.AmOAuth2

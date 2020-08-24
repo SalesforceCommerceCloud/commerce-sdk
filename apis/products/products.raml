@@ -1,0 +1,2071 @@
+#%RAML 1.0
+title: Products
+version: v1
+protocols: HTTPS
+mediaType: application/json
+baseUri: https://{shortCode}.api.commercecloud.salesforce.com/product/products/{version}
+baseUriParameters:
+  shortCode:
+    description: A region-specific merchant identifier.
+    example: 0dnz6oep
+    pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
+
+description: Use the Data Products API to interact with the API in the context of a Business Manager to get products.
+
+uses:
+  ProductTraits: data-products-library.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.8/api-standards.raml   
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.15/commerce-cloud-standards.raml
+
+types:
+  CatalogCategoryId:
+    description: Document representing a catalog category ID.
+    properties:
+      catalogId:
+        description: The ID of the catalog that owns the category.
+        maxLength: 256
+        minLength: 1
+        type: string
+        example: "storefront-catalog"
+      categoryId:
+        description: The ID of the category.
+        maxLength: 256
+        minLength: 1
+        type: string
+        example: "new-arrivals"
+  ImageGroup:
+    description: Document representing an image group containing a list of images for a particular view type and an optional variation value.
+    properties:
+      images:
+        description: The images of the image group.
+        type: MediaFile[]
+      variationAttributes:
+        description: Returns a list of variation attributes applying to this image group.
+        required: false
+        type: VariationAttribute[]
+      viewType:
+        description: The image view type.
+        type: string
+        example: "hi-res"
+  MarkupText: 
+    description: Document representing markup text.
+    properties:
+      markup:
+        description: The rendered HTML.
+        type: string
+        example: ""
+      source:
+        description: The raw markup text.
+        type: string
+        example: ""
+  Master:
+    description: Representation of a group of variant products by an attribute. This is a non-buyable entity, provides inheritable attributes for it's product variants, and is used for navigation. *Doesn't have a SKU.*
+    properties:
+      masterId:
+        maxLength: 100
+        minLength: 1
+        type: string
+        description: The ID (SKU) of the master product.
+        example: "apple-ipod-classic"
+      orderable:
+        type: boolean
+        required: false
+        description: A flag indicating whether at least one of the variants is orderable.
+        example: true
+      price:
+        type: number
+        format: double
+        required: false
+        description: The minimum sales price of the related variants.
+        example: 199.99
+      priceMax:
+        type: number
+        format: double
+        required: false
+        description: The maximum sales of related variants.
+        example: 219.99
+      prices:
+        type: object
+        properties:
+          //:
+            type: number
+            format: double
+        required: false
+        description: prices
+ 
+  MediaFile:
+    description: Document representing media file.
+    properties:
+      absUrl:
+        description: The absolute URL with request protocol.
+        required: false
+        type: string
+        example: "https://www.example-image.com/images/apple-ipod-classic.jpg"
+      alt:
+        description: The alternative image text.
+        required: false
+        type: object
+        properties:
+          //:
+            type: string
+        example: {"en_US" : "iPod"}
+      disBaseUrl:
+        description: The Dynamic Image Service (DIS) base URL for product images only.
+        required: false
+        type: string
+        example: "https://www.dis-base-url/images/apple-ipod-clasic.jpg"
+      path:
+        description: The raw media file path.
+        type: string
+        example: "/images/apple-ipod-classic.jpg"
+      title:
+        description: The image title.
+        required: false
+        type: object
+        properties:
+          //:
+            type: string
+        example: {"en_US":"iPod"}
+  Money:
+    description: Document representing money.
+    properties:
+      currencyMnemonic:
+        description: The currency mnemonic for the money.
+        type: string
+        example: "USD"
+      value:
+        description: The value for the money.
+        type: number
+        format: double
+        example: 199.99
+  Product:
+    description: Any product that is sold, shown alone, and does not have variations such as different sizes or colors. Product that has no reliance on any other product for inheritance. *A product has a SKU and can have a product option, which has a different SKU*.
+    properties:
+      assignedCategories:
+        description: The catalog categories that the product is assigned to.
+        type: CatalogCategoryId[]
+        required: false
+      ats:
+        description: The Available To Sell (ATS) inventory value of the product. This is a calculated value.
+        type: number
+        format: double
+        required: false
+        example: 15
+      brand:
+        description: The brand of the product.
+        type: string
+        required: false
+        example: "Apple"
+      bundledProducts:
+        description: The array of bundled products which the product includes.
+        type: Product[]
+        required: false
+      classificationCategory:
+        description: The catalog category that the product is assigned to for classification.
+        type: CatalogCategoryId
+        required: false
+      creationDate:
+        description: Returns the value of attribute 'creationDate'.
+        type: datetime
+        required: false
+        example: 9999-12-31T00:00:00.0Z
+      defaultVariantId:
+        description: The ID of the product's default variant.
+        type: string
+        required: false
+        example: "apple-ipod-classic-8gb-black"
+      ean:
+        description: The European Article Number of the product.
+        type: string
+        required: false
+        example: "ksdf69w4"
+      id:
+        description: The ID (SKU) of the product.
+        maxLength: 100
+        minLength: 1
+        type: string
+        example: "apple-ipod-classic"
+      image:
+        description: The image(s) assigned to the product.
+        type: MediaFile
+        required: false
+      imageGroups:
+        description: The array of product image groups.
+        type: ImageGroup[]
+        required: false
+      inStock:
+        description: The flag that indicates if the product is in stock, or not. This is a calculated value.
+        type: boolean
+        required: false
+        example: true
+      lastModified:
+        description: Returns the value of attribute 'lastModified'.
+        type: datetime
+        required: false
+        example: 9999-12-31T00:00:00.0Z
+      localizedTaxClassId:
+        description: The localized tax class identifier of the product.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"en_US":"exempt"}
+      longDescription:
+        description: The localized long description of the product.
+        type: object
+        properties:
+          //:
+            type: MarkupText
+        required: false
+      manufacturerName:
+        description: The name of the product's manufacturer.
+        type: string
+        required: false
+        example: "Apple"
+      manufacturerSku:
+        description: The SKU of the product's manufacturer.
+        type: string
+        required: false
+        example: "HSD68J"
+      master:
+        description: The master of the product. This is applicable for product types "variationGroup" and "variant" only.
+        type: Master
+        required: false
+      name:
+        description: The localized name of the product.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"en_US":"Apple Ipod Classic"}
+      online:
+        description: The flag that indicates if the product is online, or not. This is a calculated value.
+        type: boolean
+        required: false
+        example: true
+      onlineFlag:
+        description: The site-specific online status of the product.
+        type: object
+        properties:
+          //:
+            type: boolean
+        required: false
+        example: {"Site1":true}
+      owningCatalogId:
+        description: The ID of the catalog that owns the product.
+        type: string
+        required: false
+        example: "apple-master-catalog"
+      owningCatalogName:
+        description: The localized name of the catalog that owns the product.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"en_US":"Apple Master Catalog"}
+      pageDescription:
+        description: The localized page description of the product.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"en_US":"Page Description"}
+      pageKeywords:
+        description: The localized page keywords of the product.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"en_US":"Keywords"}
+      pageTitle:
+        description: The localized page title of the product.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"en_US":"Page Title"}
+      price:
+        description: The price of the product.
+        type: number
+        format: double
+        required: false
+        example: 219.99
+      priceCurrency:
+        description: The currency code for a product's price.
+        type: string
+        required: false
+        example: "USD"
+      primaryCategories:
+        description: The primary catalog categories that the product is assigned to.
+        type: CatalogCategoryId[]
+        required: false
+      primaryCategoryId:
+        description: The ID of the products primary category.
+        type: string
+        required: false
+        example: "electronics-media-players"
+      productBundles:
+        description: The array of product bundles which the product belongs to.
+        type: Product[]
+        required: false
+      productOptions:
+        description: The array of product options. This is applicable for products of type "option".
+        type: ProductOption[]
+        required: false
+      productSets:
+        description: The array of product sets which the product belongs to.
+        type: Product[]
+        required: false
+      searchable:
+        description: The site-specific searchable status of the product.
+        type: object
+        properties:
+          //:
+            type: boolean
+        required: false
+        example: {"Site1":true}
+      setProducts:
+        description: The array of set products which the product includes.
+        type: Product[]
+        required: false
+      shortDescription:
+        description: The localized short description of the product.
+        type: object
+        properties:
+          //:
+            type: MarkupText
+        required: false
+      taxClassId:
+        description: The tax class identifier of the product.
+        type: string
+        required: false
+        example: "standard"
+      type:
+        description: The type of the product. It can have one or more of the values "item", "master", "variationGroup", "variant", "bundle", and "set".
+        type: ProductType
+        required: false
+      unit:
+        description: The sales unit of the product.
+        type: string
+        required: false
+        example: "single"
+      upc:
+        description: The Universal Product Code (UPC) of the product.
+        type: string
+        required: false
+        example: "66JSD88JASD"
+      validFrom:
+        description: The valid/online from date of the product.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"default@SiteGenesis":"2000-05-11T00:00:00.000Z"}
+      validTo:
+        description: The valid/online to date of the product.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"default@SiteGenesis":"2050-05-11T00:00:00.000Z"}
+      variants:
+        description: The array of variants of the product. This is applicable for product types "master" and "variationGroup" only.
+        type: Variant[]
+        required: false
+      variationAttributes:
+        description: |-
+          The sorted array of variation attributes assigned to the product. This is applicable for product types "master",
+           "variationGroup" and "variant" only.
+        type: VariationAttribute[]
+        required: false
+      variationGroups:
+        description: The array of variation groups in the product. This is applicable for product type "master" only.
+        type: VariationGroup[]
+        required: false
+      variationValues:
+        description: |-
+          The variation values selected for the product in variation attribute id and value pairs. This is applicable for product types "Variant" and
+           "VariationGroup" only.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"color":"red","size":"8gb"}
+  ProductOption:
+    description: Product options enable you to sell configurable products that have optional accessories, upgrades, or additional services. Options are always purchased with a product and can't be purchased separately.
+    properties:
+      customName:
+        description: The localized custom name of the product option.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false   
+        example: {"en_US":"Warranty"} 
+      defaultProductOptionValue:
+        description: The default product option value.
+        required: false
+        type: string
+        example: "5-years"
+      description:
+        description: The localized description of the product option.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false   
+        example: {"en_US":"Option Description"} 
+      id:
+        description: The object attribute definition ID which is also the identifier for the product option.
+        minLength: 1
+        type: string
+        example: "warranty"
+      image:
+        description: The image assigned to the product option.
+        type: MediaFile
+        required: false
+      name:
+        description: The name of the object attribute definition.
+        required: false
+        type: string
+        example: "Warranty"
+      selectedOptionValue:
+        description: The selected option value of the product option.
+        required: false
+        type: string
+        example: "2-years"
+      shared:
+        description: The flag that indicates if the product option is shared or local.
+        required: false
+        type: boolean
+        example: false
+      sortingMode:
+        description: The sorting mode for the product option values.
+        required: false
+        type: string
+        enum:
+          - byexplicitorder
+          - byoptionprice
+        example: byoptionprice
+      values:
+        description: The sorted array of values of the product option.
+        required: false
+        type: ProductOptionValue[]
+  ProductOptionValue:
+    description: Document representing a product option Value
+    properties:
+      defaultProductOptionValue:
+        description: Flag indicating if the product option value is the default value for the product option.
+        required: false
+        type: boolean
+        example: true
+      id:
+        description: The ID of the product option value.
+        minLength: 1
+        type: string
+        example: "5-year"
+      optionPrices:
+        description: The list of prices in the product option value.
+        required: false
+        type: Money[]
+      skuExtension:
+        description: The SKU extension of the product option value.
+        type: string
+        required: false
+        example: "extension"
+      value:
+        description: The localized value of the product option.
+        type: object
+        properties:
+          //:
+            type: string
+        example: {"en_US":"5 Year Warranty"}
+
+  ProductOptionValues:
+    description: Document representing an unfiltered list of product option values.
+    properties:
+      limit:
+        description: The number of returned documents.
+        type: integer
+        format: int32
+        example: 10
+      data:
+        description: The array of product option value objects.
+        type: ProductOptionValue[]
+      offset:
+        description: The zero-based index of the first search hit to include in the result.
+        minimum: 0
+        type: integer
+        format: int32
+        example: 1
+      total:
+        description: The total number of documents.
+        type: integer
+        format: int32
+        example: 10
+  ProductOptions:
+    description: Document representing an unfiltered list of product options.
+    properties:
+      limit:
+        description: The number of returned documents.
+        type: integer
+        format: int32
+        example: 10
+      data:
+        description: The array of product option objects.
+        type: ProductOption[]
+      offset:
+        description: The zero-based index of the first search hit to include in the result.
+        minimum: 0
+        type: integer
+        format: int32
+        example: 1
+      total:
+        description: The total number of documents.
+        type: integer
+        format: int32
+        example: 10
+
+  ProductSearchResult:
+    description: Document representing a product search result.
+    type: CommerceCloudStandards.PaginatedSearchResult
+    properties:
+      hits:
+        description: The sorted array of search hits. Can be empty.
+        type: Product[]
+  ProductType:
+    description: Document representing a product type.
+    properties:
+      bundle:
+        description: A flag indicating whether the product is a bundle.
+        required: false
+        type: boolean
+        example: false
+      bundled:
+        description: A flag indicating whether the product is bundled.
+        required: false
+        type: boolean
+        example: false
+      item:
+        description: A flag indicating whether the product is a standard item.
+        required: false
+        type: boolean
+        example: false
+      master:
+        description: A flag indicating whether the product is a master.
+        type: boolean
+        example: true
+      option:
+        description: A flag indicating whether the product is an option.
+        required: false
+        type: boolean
+        example: false
+      partOfProductSet:
+        description: A flag indicating whether the product is part of product set.
+        required: false
+        type: boolean
+        example: false
+      partOfRetailSet:
+        description: A flag indicating whether the product is part of retail set.
+        required: false
+        type: boolean
+        example: false
+      retailSet:
+        description: A flag indicating whether the product is a retail set.
+        required: false
+        type: boolean
+        example: false
+      set:
+        description: A flag indicating whether the product is a set.
+        required: false
+        type: boolean
+        example: false
+      variant:
+        description: A flag indicating whether the product is a variant.
+        required: false
+        type: boolean
+        example: false
+      variationGroup:
+        description: A flag indicating whether the product is a variation group.
+        required: false
+        type: boolean
+        example: false
+  Variant:
+    description: A product which is a variation within a master product that describes different colors, sizes, or other variation attributes. *Has a SKU*
+    properties:
+      ats:
+        description: The Available To Sell (ATS) inventory value of the product. This is a calculated value.
+        type: number
+        format: double
+        required: false
+        example: 10
+      defaultProductVariation:
+        description: A flag indicating whether the variant is a default variant.
+        type: boolean
+        required: false
+        example: true
+      image:
+        description: URL to the preview image.
+        type: MediaFile
+        required: false
+      inStock:
+        description: True if the product is in stock, false if not.
+        type: boolean
+        required: false
+        example: true
+      online:
+        description: |-
+          If the product is currently online.
+           True if online, false if not.
+        type: boolean
+        required: false
+        example: true
+      orderable:
+        description: A flag indicating whether the variant is orderable.
+        type: boolean
+        required: false
+        example: true
+      price:
+        description: The sales price of the variant.
+        type: number
+        format: double
+        required: false
+        example: 29.99
+      priceCurrency:
+        description: Currency code for the price of the product.
+        type: string
+        required: false
+        example: "USD"
+      productId:
+        description: The ID (SKU) of the variant.
+        maxLength: 100
+        minLength: 1
+        type: string
+        example: "apple-ipod-classic-8gb-black"
+      searchable:
+        description: A flag indicating whether the variant is searchable.
+        type: object
+        properties:
+          //:
+            type: boolean
+        required: false
+        example: {"Site1":true}
+      variationAttributes:
+        description: Variation attributes.
+        type: VariationAttribute[]
+        required: false
+      variationValues:
+        description: The actual variation attribute ID - value pairs.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"color":"black"}
+  VariantSearchResult:
+    description: Document that represents a search on certificates and keys.
+    type: CommerceCloudStandards.PaginatedSearchResult
+    properties:
+      hits:
+        description: The hits from the search.
+        type: Variant[]
+  Variants:
+    description: Document representing an unfiltered list of variants.
+    properties:
+      limit:
+        description: The number of returned documents.
+        type: integer
+        format: int32
+        example: 10
+      data:
+        description: An array of variants.
+        type: Variant[]
+      offset:
+        description: The zero-based index of the first search hit to include in the result.
+        minimum: 0
+        type: integer
+        format: int32
+        example: 1
+      total:
+        description: The total number of documents.
+        type: integer
+        format: int32
+        example: 10
+  VariationAttribute:
+    description: Document representing a variation attribute.
+    properties:
+      attributeDefinitionId:
+        description: The id of the requested attribute definition.
+        type: string
+        example: "color"
+      attributeDefinitionName:
+        description: The localized display name of the variation attribute definition.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"en_US":"Color"}
+      defaultValue:
+        description: Default variation attribute value.
+        type: string
+        required: false
+        example: "black"
+      id:
+        description: The ID of the variation attribute.
+        minLength: 1
+        type: string
+        required: false
+        example: "color"
+      name:
+        description: The localized display name of the variation attribute.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"en_US":"Color"}
+      shared:
+        description: Returns the value of attribute 'shared' if attribute is local or shared.
+        type: boolean
+        required: false
+        example: false
+      slicing:
+        description: Returns the value of attribute 'slicing'.
+        type: boolean
+        required: false
+        example: true
+      values:
+        description: The sorted array of variation values. This array can be empty.
+        type: VariationAttributeValue[]
+        required: false
+      variationAttributeType:
+        description: Variation attribute type.
+        type: string
+        enum:
+          - string
+          - int
+          - unknown
+        required: false
+        example: string
+  VariationAttributeValue:
+    description: Document representing a variation attribute value.
+    properties:
+      description:
+        description: The localized description of the variation value.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"en_US":"Red"}
+      image:
+        description: The first product image for the configured viewtype and this variation value.
+        type: MediaFile
+        required: false
+      imageSwatch:
+        description: The first product image for the configured viewtype and this variation value (typically the swatch image).
+        type: MediaFile
+        required: false
+      name:
+        description: The localized display name of the variation value.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+        example: {"color":"Red"}
+      orderable:
+        description: A flag indicating whether at least one variant with this variation attribute value is available to sell.
+        type: boolean
+        required: false
+        example: true
+      position:
+        description: The position of the value among all values of a variation attribute.
+        type: number
+        format: double
+        required: false
+        example: 2
+      value:
+        description: The actual variation value.
+        minLength: 1
+        type: string
+        example: "red"
+  VariationAttributeValues:
+    description: Document representing an unfiltered list of variation attribute values.
+    properties:
+      limit:
+        description: The number of returned documents.
+        type: integer
+        format: int32
+        example: 10
+      data:
+        description: An array of variation attribute values.
+        type: VariationAttributeValue[]
+      offset:
+        description: The zero-based index of the first search hit to include in the result.
+        minimum: 0
+        type: integer
+        format: int32
+        example: 1
+      total:
+        description: The total number of documents.
+        type: integer
+        format: int32
+        example: 10
+  VariationAttributes:
+    description: Document representing an unfiltered list of variation attributes.
+    properties:
+      limit:
+        description: The number of returned documents.
+        type: integer
+        format: int32
+        example: 10
+      data:
+        description: The array of variation attribute objects.
+        type: VariationAttribute[]
+      offset:
+        description: The zero-based index of the first search hit to include in the result.
+        minimum: 0
+        type: integer
+        format: int32
+        example: 1
+      total:
+        description: The total number of documents.
+        type: integer
+        format: int32
+        example: 10
+  VariationGroup:
+    description: Representation of a group of variant products by an attribute. This is a non-buyable entity,  provides inheritable attributes for it's product variants, and is used for navigation. *Doesn't have a SKU.*
+    properties:
+      orderable:
+        description: A flag indicating whether the variation group is orderable.
+        required: false
+        type: boolean
+        example: true
+      price:
+        description: The sales price of the variation group.
+        required: false
+        type: number
+        format: double
+        example: 229.99
+      productId:
+        description: The ID (SKU) of the variation group.
+        maxLength: 100
+        minLength: 1
+        type: string
+        example: "apple-ipod-classic-black"
+      variationValues:
+        description: The actual variation attribute ID - value pairs.
+        type: object
+        required: false
+        properties:
+          //:
+            type: string
+        example: {"color":"red"}
+  VariationGroups:
+    description: Document representing an unfiltered list of variation groups.
+    properties:
+      limit:
+        description: The number of returned documents.
+        type: integer
+        format: int32
+        example: 10
+      data:
+        description: The array of variation group objects.
+        type: VariationGroup[]
+      offset:
+        description: The zero-based index of the first search hit to include in the result.
+        minimum: 0
+        type: integer
+        format: int32
+        example: 1
+      total:
+        description: The total number of documents.
+        type: integer
+        format: int32
+        example: 10
+
+/organizations/{organizationId}:
+  type: CommerceCloudStandards.Organization
+  /products:
+    /{productId}:
+      delete:
+          description: Deletes the product by ID.
+          displayName: deleteProduct
+          is:
+            - ApiStandards.RateLimited3:
+                responseStatus: 204
+                responseStatus2: 401
+                responseStatus3: 404
+            - ProductTraits.ProductNotFound
+            - ProductTraits.Unauthorized
+          responses:
+            '204':
+              description: Deleted the product successfully.
+          securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
+            - CommerceCloudStandards.AmOAuth2
+      get:
+          description: Action to get product information.
+          displayName: getProduct
+          is:
+            - ApiStandards.RateLimited4:
+                responseStatus: 200
+                responseStatus2: 400
+                responseStatus3: 401
+                responseStatus4: 404
+            - ProductTraits.ProductNotFound
+            - ProductTraits.Unauthorized
+            - ProductTraits.BadRequest
+          responses:
+            '200':
+              description: Retrieved Product Information successfully.
+              body:
+                application/json:
+                  type: Product
+                  examples:
+                    productResponse: !include Examples/Data-Product-Expand.raml
+          queryParameters:
+            siteId:
+              description: The site context.
+              type: string
+              required: false
+              example: SiteGenesis
+          securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
+            - CommerceCloudStandards.AmOAuth2
+      patch:
+          description: |-
+            Update a product using the information provided.
+
+            Fields that can be updated:
+            name, pageDescription, longDescripton, pageTitle,
+            pageKeywords, brand, ean, upc, manufactureSku,
+            manufactureName, searchable, unit, searchable,
+            onlineFlag, defaultVariantId.
+          displayName: updateProduct
+          is:
+            - ApiStandards.RateLimited4:
+                responseStatus: 200
+                responseStatus2: 400
+                responseStatus3: 401
+                responseStatus4: 404
+            - ProductTraits.ProductNotFound
+            - ProductTraits.Unauthorized
+            - ProductTraits.BadRequest
+          responses:
+            '200':
+              description: Updated the product successfully.
+              body:
+                application/json:
+                  type: Product
+                  examples:
+                    productResponse: !include Examples/Data-Product-Expand.raml
+          body:
+            application/json:
+              type: Product
+              examples:
+                productRequest: !include Examples/Data-Product-Expand.raml
+          securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
+            - CommerceCloudStandards.AmOAuth2
+      put:
+          description: Creates a product using the information provided. If a product with the same unique identifier exists, it is cleaned and overwritten unless the header x-dw-validate-existing=true is passed in with the request.
+          displayName: createProduct
+          is:
+            - ApiStandards.RateLimited5:
+                responseStatus: 201
+                responseStatus2: 200
+                responseStatus3: 400
+                responseStatus4: 401
+                responseStatus5: 404
+            - ProductTraits.Unauthorized
+            - ProductTraits.BadRequest
+            - ProductTraits.ProductNotFound
+          responses:
+            '201':
+              description: Product was created successfully.
+              body:
+                application/json:
+                  type: Product
+                  examples:
+                    productResponse: !include Examples/Data-Product-Expand.raml
+            '200':
+              description: Product was updated successfully.
+              body:
+                application/json:
+                  type: Product
+                  examples:
+                    productResponse: !include Examples/Data-Product-Expand.raml
+          body:
+            application/json:
+              type: Product
+              examples:
+                productRequest: !include Examples/Data-Product-Expand.raml
+          securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
+            - CommerceCloudStandards.AmOAuth2
+      uriParameters:
+          productId:
+            description: The product ID.
+            maxLength: 100
+            minLength: 1
+            type: string
+            example: apple-ipod-shuffle
+      /variant-search:
+        post:
+          description: |
+            Searches product variations for master product or variation group product. The query attribute specifies a complex query that can be used to narrow down the search. 
+            
+            This is the list of searchable attributes:
+
+              | Attribute | Type |
+              |-----------|--------|
+              | id | String |
+              | productId | String |
+              | name | String |
+              | online |  SiteSpecific Boolean |
+              | inStock | Boolean  |
+              | searchable | SiteSpecific Boolean  |
+              | ats - Actual available quantity to sell | Double |
+              | variationAttribute.ATTRIBUTE_ID (Ex:variation_attribute.color) | String |
+
+            Sortable Fields:
+
+              | Attribute | Type |
+              |-----------|--------|
+              | id | String |
+              | productId | String |
+              | name | String |
+              | online |  SiteSpecific Boolean |
+              | inStock | Boolean  |
+              | searchable | SiteSpecific Boolean  |
+              | ats - Actual available quantity to sell | Double |
+
+              Note: The calculated value of \"online\" and \"searchable\" is used in the search/sort. A search/sort by the site-specific attributes require the Site ID query parameter to be set. They are \"online\", \"inStock\", \"searchable\" and \"ats\". We assume that every field that starts with variationAttribute. is searchable and dot is followed by \"ATTRIBUTE_ID\".
+
+              The list of expansions to retrieve product information. The expand values available are:
+
+              - _base - Basic product information is retrieved. This expand is included by default.
+
+              - all - All product information, including the following properties are retrieved:
+                  - image
+                  - price - siteId must be provided to see this property
+                  - priceCurrency - siteId has to be provided to see this property
+
+              - availability - Information related to the availability of the product variation.  This expand is not included by default.
+                  - ats - siteId must be provided to see this property
+                  - inStock - siteId has to be provided to see this property
+                  - online - siteId has to be provided to see this property        
+                  - searchable        
+
+              - variations - Information related to product variation is retrieved. This expand is included by default.
+
+              - attributes - Information related to product variation attributes is retrieved. This expand is not included by default.
+
+
+
+
+          displayName: searchProductVariations
+          is:
+            - ApiStandards.RateLimited4:
+                responseStatus: 200
+                responseStatus2: 400
+                responseStatus3: 401
+                responseStatus4: 404
+            - ProductTraits.Unauthorized
+            - ProductTraits.BadRequest
+            - ProductTraits.ProductNotFound
+          responses:
+            '200':
+              description: Search results returned.
+              body:
+                application/json:
+                  type: VariantSearchResult
+                  examples:
+                    variantSearchResult: !include Examples/VariantSearchResult.raml
+          queryParameters:
+            siteId:
+              description: The site context
+              type: string
+              required: false
+              example: SiteGenesis
+          body:
+            application/json:
+              type: CommerceCloudStandards.SearchRequest
+              examples: 
+                variantSearchRequest: !include Examples/VariantSearchRequest.raml
+          securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
+            - CommerceCloudStandards.AmOAuth2
+    /{masterProductId}/variation-groups:
+      get:
+        description: Reads variation groups for a product master.
+        displayName: getVariationGroupsForMasterProduct
+        is:
+          - ApiStandards.RateLimited4:
+              responseStatus: 200
+              responseStatus2: 400
+              responseStatus3: 401
+              responseStatus4: 404
+          - ProductTraits.Unauthorized
+          - ProductTraits.BadRequest
+          - ProductTraits.ProductNotFound
+          - ProductTraits.offset-paginated:
+              maxLimit: 50
+              defaultSize: 25
+        responses:
+          '200':
+            description: Get VariationGroups for a master product was successful.
+            body:
+              application/json:
+                type: VariationGroups
+                examples: 
+                  variantGroupsResult: !include Examples/VariationGroupsResult.raml
+        queryParameters:
+          siteId:
+            type: string
+            required: false
+            description: The site context.
+            example: SiteGenesis
+        securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
+          - CommerceCloudStandards.AmOAuth2
+      /{id}:
+        delete:
+          description: |-
+            Unassign a variation group product from a product master. The variation group product is not
+              deleted: it remains as a normal product after unsassign.
+          displayName: unassignVariationGroupFromMasterProduct
+          is:
+            - ApiStandards.RateLimited3:
+                responseStatus: 204
+                responseStatus2: 401
+                responseStatus3: 404
+            - ProductTraits.ProductNotFound
+            - ProductTraits.Unauthorized
+          responses:
+            '204':
+              description: Deleted the variation group successfully.
+          securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
+            - CommerceCloudStandards.AmOAuth2
+        get:
+          description: Read a variation group for a product master.
+          displayName: getVariationGroupForMasterProduct
+          is:
+            - ApiStandards.RateLimited4:
+                responseStatus: 200
+                responseStatus2: 400
+                responseStatus3: 401
+                responseStatus4: 404
+            - ProductTraits.Unauthorized
+            - ProductTraits.BadRequest
+            - ProductTraits.ProductNotFound
+          responses:
+            '200':
+              description: Get VariationGroup by Id for a master product was successful.
+              body:
+                application/json:
+                  type: VariationGroup
+                  examples: 
+                    variantGroupsIdResult: !include Examples/VariationGroupsIdResult.raml
+          queryParameters:
+            siteId:
+              description: The site context.
+              type: string
+              required: false
+              example: SiteGenesis
+          securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
+            - CommerceCloudStandards.AmOAuth2
+        patch:
+          description: Update a variation group for a product master.
+          displayName: updateVariationGroupForMasterProduct
+          is:
+            - ApiStandards.RateLimited4:
+                responseStatus: 200
+                responseStatus2: 400
+                responseStatus3: 401
+                responseStatus4: 404
+            - ProductTraits.Unauthorized
+            - ProductTraits.BadRequest
+            - ProductTraits.ProductNotFound
+          responses:
+            '200':
+              description: Update was successful.
+              body:
+                application/json:
+                  type: VariationGroup
+                  examples: 
+                    variantGroupsIdResult: !include Examples/VariationGroupsIdResult.raml
+          body:
+            application/json:
+              type: VariationGroup
+              examples: 
+                variantGroupsIdRequest: !include Examples/VariationGroupsIdRequest.raml
+          securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
+            - CommerceCloudStandards.AmOAuth2
+        put:
+          description: |-
+            Assign a variation group for a product master. If the variation group product does not initially exist,
+              one is created using the body passed in.
+          displayName: assignVariationGroupToMasterProduct
+          is:
+            - ApiStandards.RateLimited4:
+                responseStatus: 200
+                responseStatus2: 400
+                responseStatus3: 401
+                responseStatus4: 404
+            - ProductTraits.Unauthorized
+            - ProductTraits.BadRequest
+            - ProductTraits.ProductNotFound
+          responses:
+            '200':
+              description: Successfully assigned a variation group for given product master.
+              body:
+                application/json:
+                  type: VariationGroup
+                  examples: 
+                    variantGroupsIdResult: !include Examples/VariationGroupsIdResult.raml
+          body:
+            application/json:
+              type: VariationGroup
+              examples: 
+                variantGroupsIdRequest: !include Examples/VariationGroupsIdRequest.raml
+          securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
+            - CommerceCloudStandards.AmOAuth2
+        uriParameters:
+          masterProductId:
+            description: The ID of the master product that contains the variation group.
+            minLength: 1
+            type: string
+            example: apple-ipod-classic
+          id:
+            description: The ID of the variation group product.
+            minLength: 1
+            type: string
+            example: color
+    /{masterProductId}/variations:
+      get:
+          description: Reads variation for a product master.
+          displayName: getVariationsForMasterProduct
+          is:
+            - ApiStandards.RateLimited4:
+                responseStatus: 200
+                responseStatus2: 400
+                responseStatus3: 401
+                responseStatus4: 404
+            - ProductTraits.Unauthorized
+            - ProductTraits.BadRequest
+            - ProductTraits.ProductNotFound
+            - ProductTraits.offset-paginated:
+                maxLimit: 50
+                defaultSize: 25
+          responses:
+            '200':
+              description: Get Variation by ID successful.
+              body:
+                application/json:
+                  type: Variants
+                  examples: 
+                    variantsResult: !include Examples/VariantsResult.raml
+          queryParameters:
+            siteId:
+              description: The site context.
+              type: string
+              required: false
+              example: SiteGenesis
+          securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
+            - CommerceCloudStandards.AmOAuth2
+      /{id}:
+        delete:
+          description: |-
+            Unassign a variation product from a product master.  The variation product is not deleted: it remains as a
+              normal product after unsassign.
+          displayName: unassignVariationFromMasterProduct
+          is:
+            - ApiStandards.RateLimited3:
+                responseStatus: 204
+                responseStatus2: 401
+                responseStatus3: 404
+            - ProductTraits.ProductNotFound
+            - ProductTraits.Unauthorized
+          responses:
+            '204':
+              description: Deleted the variation group successfully.
+          securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
+            - CommerceCloudStandards.AmOAuth2
+        get:
+          description: Read a variation for a product master.
+          displayName: getVariationForMasterProduct
+          is:
+            - ApiStandards.RateLimited4:
+                responseStatus: 200
+                responseStatus2: 400
+                responseStatus3: 401
+                responseStatus4: 404
+            - ProductTraits.Unauthorized
+            - ProductTraits.BadRequest
+            - ProductTraits.ProductNotFound
+          responses:
+            '200':
+              description: Get Variation by ID successful.
+              body:
+                application/json:
+                  type: Variant
+                  examples: 
+                    variantsIdResult: !include Examples/VariationsIdResult.raml
+          queryParameters:
+            siteId:
+              type: string
+              required: false
+              description: The site context.
+              example: SiteGenesis
+          securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
+            - CommerceCloudStandards.AmOAuth2
+        patch:
+          description: Update a variation for a product master.
+          displayName: updateVariationForMasterProduct
+          is:
+            - ApiStandards.RateLimited4:
+                responseStatus: 200
+                responseStatus2: 400
+                responseStatus3: 401
+                responseStatus4: 404
+            - ProductTraits.Unauthorized
+            - ProductTraits.BadRequest
+            - ProductTraits.ProductNotFound
+          responses:
+            '200':
+              description: Variation updated successfully.
+              body:
+                application/json:
+                  type: Variant
+                  examples: 
+                    variantsIdResult: !include Examples/VariationsIdResult.raml
+          body:
+            application/json:
+              type: Variant
+              examples: 
+                variantsIdRequest: !include Examples/VariationsIdRequest.raml
+          securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
+            - CommerceCloudStandards.AmOAuth2
+        put:
+          description: |-
+            Assign a variation for a product master.  If the variation product does not initially exist,
+              one is created using the body passed in.
+          displayName: assignVariationForMasterProduct
+          is:
+            - ApiStandards.RateLimited4:
+                responseStatus: 200
+                responseStatus2: 400
+                responseStatus3: 401
+                responseStatus4: 404
+            - ProductTraits.Unauthorized
+            - ProductTraits.BadRequest
+            - ProductTraits.ProductNotFound
+          responses:
+            '200':
+              description: Variation in master product was updated successfully.
+              body:
+                application/json:
+                  type: Variant
+                  examples: 
+                    variantsIdResult: !include Examples/VariationsIdResult.raml
+          body:
+            application/json:
+              type: Variant
+              examples:
+                variantsIdRequest: !include Examples/VariationsIdRequest.raml
+          securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
+            - CommerceCloudStandards.AmOAuth2
+        uriParameters:
+          masterProductId:
+            description: The ID of the master product that contains the variation group.
+            minLength: 1
+            type: string
+            example: apple-ipod-classic
+          id:
+            description: The ID of the variation product.
+            minLength: 1
+            type: string
+            example: color
+    /{productId}/product-options:
+      get:
+          description: Read local and shared product options of a product.
+          displayName: getProductOptions
+          is:
+            - ApiStandards.RateLimited4:
+                responseStatus: 200
+                responseStatus2: 400
+                responseStatus3: 401
+                responseStatus4: 404
+            - ProductTraits.Unauthorized
+            - ProductTraits.BadRequest
+            - ProductTraits.ProductNotFound
+            - ProductTraits.offset-paginated:
+                maxLimit: 50
+                defaultSize: 25
+          responses:
+            '200':
+              description: Get ProductOptions successful.
+              body:
+                application/json:
+                  type: ProductOptions
+                  examples: 
+                    productOptionsResult: !include Examples/ProductOptionsResult.raml
+          queryParameters:
+            currency:
+              type: string
+              required: false
+          securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
+            - CommerceCloudStandards.AmOAuth2
+      /{id}:
+        delete:
+          description: Deletes a local product option or unbinds a shared product option from the product.
+          displayName: deleteProductOption
+          is:
+            - ApiStandards.RateLimited4:
+                responseStatus: 204
+                responseStatus2: 400
+                responseStatus3: 401
+                responseStatus4: 404
+            - ProductTraits.Unauthorized
+            - ProductTraits.BadRequest
+            - ProductTraits.ProductNotFound
+          responses:
+            '204':
+              description: Deleted product option succesfully.
+          securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
+            - CommerceCloudStandards.AmOAuth2
+        get:
+          description: Read a local or shared product option of a product.
+          displayName: getProductOption
+          is:
+            - ApiStandards.RateLimited4:
+                responseStatus: 200
+                responseStatus2: 400
+                responseStatus3: 401
+                responseStatus4: 404
+            - ProductTraits.Unauthorized
+            - ProductTraits.BadRequest
+            - ProductTraits.ProductNotFound
+          responses:
+            '200':
+              description: Retrieved product option successfully.
+              body:
+                application/json:
+                  type: ProductOption
+                  examples: 
+                    productOptionsIdResult: !include Examples/ProductOptionsIdResult.raml
+          queryParameters:
+            currency:
+              type: string
+              required: false
+              example: USD
+          securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
+            - CommerceCloudStandards.AmOAuth2
+        patch:
+          description: Updates a local product option with the information provided.
+          displayName: updateProductOption
+          is:
+            - ApiStandards.RateLimited4:
+                responseStatus: 200
+                responseStatus2: 400
+                responseStatus3: 401
+                responseStatus4: 404
+            - ProductTraits.Unauthorized
+            - ProductTraits.BadRequest
+            - ProductTraits.ProductNotFound
+          responses:
+            '200':
+              description: Update product option successfully.
+              body:
+                application/json:
+                  type: ProductOption
+                  examples: 
+                    productOptionsIdResult: !include Examples/ProductOptionsIdResult.raml
+          body:
+            application/json:
+              type: ProductOption
+              examples: 
+                productOptionsIdRequest: !include Examples/ProductOptionsIdRequest.raml
+          securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
+            - CommerceCloudStandards.AmOAuth2
+        put:
+          description: Creates a local product option using the information provided or binds a shared product option to the product.
+          displayName: createProductOption
+          is:
+            - ApiStandards.RateLimited5:
+                responseStatus: 201
+                responseStatus2: 200
+                responseStatus3: 400
+                responseStatus4: 401
+                responseStatus5: 404
+            - ProductTraits.Unauthorized
+            - ProductTraits.BadRequest
+            - ProductTraits.ProductNotFound
+          responses:
+            '201':
+              description: Created or binded product option successfully.
+              body:
+                application/json:
+                  type: ProductOption
+                  examples: 
+                    productOptionsIdResult: !include Examples/ProductOptionsIdResult.raml
+            '200':
+              description: Updated product option successfully.
+              body:
+                application/json:
+                  type: ProductOption
+                  examples: 
+                    productOptionsIdResult: !include Examples/ProductOptionsIdResult.raml
+          body:
+            application/json:
+              type: ProductOption
+              examples:
+                productOptionsIdRequest: !include Examples/ProductOptionsIdRequest.raml
+          securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
+            - CommerceCloudStandards.AmOAuth2
+        uriParameters:
+          productId:
+            description: The ID of the product.
+            minLength: 1
+            type: string
+            example: apple-ipod-classic
+          id:
+            description: The ID of the local or shared product option.
+            minLength: 1
+            type: string
+            example: my-option
+          
+    /{productId}/product-options/{optionId}/values/{id}:
+      delete:
+        description: Deletes a local product option value by ID.
+        displayName: deleteProductOptionValue
+        is:
+          - ApiStandards.RateLimited4:
+              responseStatus: 204
+              responseStatus2: 400
+              responseStatus3: 401
+              responseStatus4: 404
+          - ProductTraits.ProductNotFound
+          - ProductTraits.Unauthorized
+          - ProductTraits.BadRequest
+        responses:
+          '204': 
+            description: Deleted product option value successfully.
+        securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
+          - CommerceCloudStandards.AmOAuth2
+      get:
+        description: Read a local product option value of a local product option in a product.
+        displayName: getProductOptionValue
+        is:
+          - ApiStandards.RateLimited4:
+              responseStatus: 200
+              responseStatus2: 400
+              responseStatus3: 401
+              responseStatus4: 404
+          - ProductTraits.ProductNotFound
+          - ProductTraits.Unauthorized
+          - ProductTraits.BadRequest
+        responses:
+          '200':
+            description: Successfully retrieved product option value.
+            body:
+              application/json:
+                type: ProductOptionValue
+                examples: 
+                  productOptionsValueResult: !include Examples/ProductOptionsValuesResult.raml
+        securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
+          - CommerceCloudStandards.AmOAuth2
+      patch:
+        description: Updates a local product option value with the information provided.
+        displayName: updateProductOptionValue
+        is:
+          - ApiStandards.RateLimited4:
+              responseStatus: 200
+              responseStatus2: 400
+              responseStatus3: 401
+              responseStatus4: 404
+          - ProductTraits.ProductNotFound
+          - ProductTraits.Unauthorized
+          - ProductTraits.BadRequest
+        responses:
+          '200':
+            description: Product option value was updated successfully.
+            body:
+              application/json:
+                type: ProductOptionValue
+                examples:
+                  productOptionsValueResult: !include Examples/ProductOptionsValuesResult.raml
+        body:
+          application/json:
+            type: ProductOptionValue
+            examples:
+              productOptionsValueRequest: !include Examples/ProductOptionsValuesRequest.raml 
+        securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
+          - CommerceCloudStandards.AmOAuth2
+      put:
+        description: Creates a local product option value using the information provided.
+        displayName: createProductOptionValue
+        is:
+          - ApiStandards.RateLimited5:
+              responseStatus: 201
+              responseStatus2: 200
+              responseStatus3: 400
+              responseStatus4: 401
+              responseStatus5: 404
+          - ProductTraits.ProductNotFound
+          - ProductTraits.Unauthorized
+          - ProductTraits.BadRequest
+        responses:
+          '201':
+            description: Created product option value successfully.
+            body:
+              application/json:
+                type: ProductOptionValue
+                examples:
+                  productOptionsValueResult: !include Examples/ProductOptionsValuesResult.raml
+          '200':
+            description: Upsated product option value successfully.
+            body:
+              application/json:
+                type: ProductOptionValue
+                examples:
+                  productOptionsValueResult: !include Examples/ProductOptionsValuesResult.raml
+        body:
+          application/json:
+            type: ProductOptionValue
+            examples:
+              productOptionsValueRequest: !include Examples/ProductOptionsValuesRequest.raml 
+        securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
+          - CommerceCloudStandards.AmOAuth2
+      uriParameters:
+        id:
+          description: The ID of the local product option value.
+          minLength: 1
+          type: string
+          example: value1
+        optionId:
+          description: The ID of the local product option.
+          minLength: 1
+          type: string  
+          example: size
+        productId:
+          description: The ID of the product.
+          minLength: 1
+          type: string
+          example: apple-ipod-classic
+    /{productId}/variation-attributes/{attributeId}/values/{id}:
+      get:
+        description: Action to get product variation attribute value information.
+        displayName: getVariationAttributeValue
+        is:
+          - ApiStandards.RateLimited4:
+              responseStatus: 200
+              responseStatus2: 400
+              responseStatus3: 401
+              responseStatus4: 404
+          - ProductTraits.ProductNotFound
+          - ProductTraits.Unauthorized
+          - ProductTraits.BadRequest
+        responses:
+          '200':
+            description: Updated variation attribute value successfully.
+            body:
+              application/json:
+                type: VariationAttributeValue
+                examples:
+                  variantAttributeValuesResult: !include Examples/VariationAttributeValuesIdResult.raml
+        queryParameters:
+          siteId:
+            type: string
+            required: false
+            description: The site context.
+            example: SiteGenesis
+        securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
+          - CommerceCloudStandards.AmOAuth2
+      delete:
+        description: Deletes the variation attribute value of a variation attribute bound to a master product.
+        displayName: deleteVariationAttributeValue
+        is:
+          - ApiStandards.RateLimited4:
+              responseStatus: 204
+              responseStatus2: 400
+              responseStatus3: 401
+              responseStatus4: 404
+          - ProductTraits.ProductNotFound
+          - ProductTraits.Unauthorized
+          - ProductTraits.BadRequest
+        responses:
+          '204': 
+            description: Deleted variation attribute value successfully.
+        securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
+          - CommerceCloudStandards.AmOAuth2
+      patch:
+        description: Updates the variation attribute value of a variation attribute of a master product.
+        displayName: updateVariationAttributeValue
+        is:
+          - ApiStandards.RateLimited4:
+              responseStatus: 200
+              responseStatus2: 400
+              responseStatus3: 401
+              responseStatus4: 404
+          - ProductTraits.ProductNotFound
+          - ProductTraits.Unauthorized
+          - ProductTraits.BadRequest
+        responses:
+          '200':
+            description: Updated variation attribute value successfully.
+            body:
+              application/json:
+                type: VariationAttributeValue
+                examples:
+                  variantAttributeValuesResult: !include Examples/VariationAttributeValuesIdResult.raml
+        body:
+          application/json:
+            type: VariationAttributeValue
+            examples: 
+              variantAttributeValuesRequest: !include Examples/VariationAttributeValuesIdRequest.raml
+        securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
+          - CommerceCloudStandards.AmOAuth2
+      put:
+        description: Action to create a product variation attribute value.
+        displayName: createVariationAttributeValue
+        is:
+          - ApiStandards.RateLimited5:
+              responseStatus: 201
+              responseStatus2: 200
+              responseStatus3: 400
+              responseStatus4: 401
+              responseStatus5: 404
+          - ProductTraits.ProductNotFound
+          - ProductTraits.Unauthorized
+          - ProductTraits.BadRequest
+        responses:
+          '201':
+            description: Created product variation attribute value successfully.
+            body:
+              application/json:
+                type: VariationAttributeValue
+                examples:
+                  variantAttributeValuesResult: !include Examples/VariationAttributeValuesIdResult.raml
+          '200':
+            description: Created product variation attribute value successfully.
+            body:
+              application/json:
+                type: VariationAttributeValue
+                examples:
+                  variantAttributeValuesResult: !include Examples/VariationAttributeValuesIdResult.raml
+        body:
+          application/json:
+            type: VariationAttributeValue
+            examples: 
+              variantAttributeValuesRequest: !include Examples/VariationAttributeValuesIdRequest.raml
+        securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
+          - CommerceCloudStandards.AmOAuth2
+      uriParameters:
+        productId:
+          description: The ID of the product.
+          minLength: 1
+          type: string
+          example: apple-ipod-classic
+        attributeId:
+          description: The variation attribute ID.
+          minLength: 1
+          type: string
+          example: screenSize
+        id:
+          description: The ID of the variation attribute value.
+          minLength: 1
+          type: string
+          example: "8"
+    /{productId}/variation-attributes:
+      get:
+        description: Reads variation attributes of a product of type variant, variation master, or variation group.
+        displayName: getVariationAttributes
+        is:
+          - ApiStandards.RateLimited4:
+              responseStatus: 200
+              responseStatus2: 400
+              responseStatus3: 401
+              responseStatus4: 404
+          - ProductTraits.ProductNotFound
+          - ProductTraits.Unauthorized
+          - ProductTraits.BadRequest
+          - ProductTraits.offset-paginated:
+              maxLimit: 50
+              defaultSize: 25
+        responses:
+          '200':
+            description: Get list of VariationAttributes for product ID successful.
+            body:
+              application/json:
+                type: VariationAttributes
+                examples: 
+                  variantAttributesResult: !include Examples/VariationAttributesResult.raml
+        securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
+          - CommerceCloudStandards.AmOAuth2
+      /{id}:
+        get:
+          description: Action to get variation attribute information only for master product.
+          displayName: getVariationAttribute
+          is:
+            - ApiStandards.RateLimited4:
+                responseStatus: 200
+                responseStatus2: 400
+                responseStatus3: 401
+                responseStatus4: 404
+            - ProductTraits.ProductNotFound
+            - ProductTraits.Unauthorized
+            - ProductTraits.BadRequest
+          responses:
+            '200':
+              description: Get VariationAttribute for product ID successful.
+              body:
+                application/json:
+                  type: VariationAttribute
+                  examples: 
+                    variantAttributeIdResult: !include Examples/VariationAttributeResult.raml
+          securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
+          - CommerceCloudStandards.AmOAuth2
+        delete:
+          description: Deletes the variation attribute by ID.
+          displayName: deleteVariationAttribute
+          is:
+            - ApiStandards.RateLimited4:
+                responseStatus: 204
+                responseStatus2: 400
+                responseStatus3: 401
+                responseStatus4: 404
+            - ProductTraits.ProductNotFound
+            - ProductTraits.Unauthorized
+            - ProductTraits.BadRequest
+          responses:
+            '204': 
+              description: Deleted variation attribute successfully.
+          securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
+          - CommerceCloudStandards.AmOAuth2
+        patch:
+          description: |-
+            Updates the variation attribute with the specified information.
+              name
+              slicing
+              
+          displayName: updateVariationAttribute
+          is:
+            - ApiStandards.RateLimited4:
+                responseStatus: 200
+                responseStatus2: 400
+                responseStatus3: 401
+                responseStatus4: 404
+            - ProductTraits.ProductNotFound
+            - ProductTraits.Unauthorized
+            - ProductTraits.BadRequest
+          responses:
+            '200':
+              description: Udpated variation attribute successfully.
+              body:
+                application/json:
+                  type: VariationAttribute
+                  examples: 
+                    variantAttributeIdResult: !include Examples/VariationAttributeResult.raml
+          body:
+            application/json:
+              type: VariationAttribute
+              examples:
+                variantAttributeIdRequest: !include Examples/VariationAttributeRequest.raml
+          securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
+            - CommerceCloudStandards.AmOAuth2
+        put:
+          description: Creates a variation attribute using the information provided.
+          displayName: createVariationAttribute
+          is:
+            - ApiStandards.RateLimited5:
+                responseStatus: 201
+                responseStatus2: 200
+                responseStatus3: 400
+                responseStatus4: 401
+                responseStatus5: 404
+            - ProductTraits.ProductNotFound
+            - ProductTraits.Unauthorized
+            - ProductTraits.BadRequest
+          responses:
+            '201':
+              description: Created variation attribute successfully.
+              body:
+                application/json:
+                  type: VariationAttribute
+                  examples: 
+                    variantAttributeIdResult: !include Examples/VariationAttributeResult.raml
+            '200':
+              description: Created variation attribute successfully.
+              body:
+                application/json:
+                  type: VariationAttribute
+                  examples: 
+                    variantAttributeIdResult: !include Examples/VariationAttributeResult.raml
+          body:
+            application/json:
+              type: VariationAttribute
+              examples:
+                variantAttributeIdRequest: !include Examples/VariationAttributeRequest.raml
+          securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
+            - CommerceCloudStandards.AmOAuth2
+        uriParameters:
+          productId:
+            description: The ID of the product.
+            minLength: 1
+            type: string
+            example: apple-ipod-classic
+          id:
+            description: The ID of the variation attribute to create.
+            minLength: 1
+            type: string
+            example: screenSize
+
+/organizations/{organizationId}/product-search:
+  post:
+    description: |
+      Searches for products. The query attribute specifies a complex query that can be used to narrow down the search. Attributes are grouped into different buckets. 
+      
+      The following is a list of searchable attributes with their corresponding buckets:
+        
+      Main:  
+
+        | Attribute | Type |
+        |-----------|--------|
+        | id | String |
+        | name | String |
+        | online |  SiteSpecific Boolean |
+        | searchable |  SiteSpecific Boolean |
+        | validFrom | SiteSpecfic DateTime  |
+        | validTo | SiteSpecfic DateTime  |
+        | type | ProductType |
+        | creationDate | DateTime |
+
+      Catalog:
+
+        | Attribute | Type |
+        |-----------|--------|
+        | catalogId | String |
+
+        Category:
+
+        | Attribute | Type |
+        |-----------|--------|
+        | categoryId | String |
+
+        Special:
+          
+        type - {\"item\", \"set, \"bundle\", \"master\", \"partOfProductSet\", \"bundled\", \"variant\", \"variationGroup\", \"option\", \"retailSet\", \"partOfRetailSet\"}
+
+        The sortable properties are:
+
+        | Attribute | Type |
+        |-----------|--------|
+        | id | String |
+        | name | String |
+        | creationDate |  DateTime |
+
+      Note that catalogId is the ID of the catalog to which products are assigned to
+
+      Only attributes in the same bucket can be joined using a disjunction (OR). For instance, when joining id and catalogId, only a conjunction is allowed (AND), whereas id and searchable can be joined using a disjunction because they are in the same bucket. If an attribute is used in a disjunction (OR) that violates this rule, an exception is thrown. The product search retrieves additional properties of the product when expansions are used.
+
+      The available expand attribute values are:
+
+      - ‘all' retrieves all the product properties.
+
+      - ‘availability' retrieves the following properties:
+          - ats
+          - inStock
+          - online
+
+      - ‘categories' retrieves the assignedCategories property.            
+
+      - ‘images' retrieves the image property.    
+
+      - ‘allImages' used with images retrieves the following properties:
+          - image
+          - imageGroups
+      
+      - 'prices' retrieves the following properties:
+          - price
+          - priceCurrency
+
+      - ‘sets' retrieves the following properties:
+          - setProducts
+          - productSets
+
+      - ‘bundles' retrieves the following properties:
+          - productBundles
+          - bundledProduct
+
+    displayName: searchProducts
+    queryParameters:
+      siteId:
+        description: The site context.
+        type: string
+        required: false
+        example: SiteGenesis
+    body:
+      application/json:
+        type: CommerceCloudStandards.SearchRequest
+        examples:
+          searchRequest: !include Examples/ProductSearchRequest.raml
+    is:
+      - ApiStandards.RateLimited3:
+          responseStatus: 200
+          responseStatus2: 400
+          responseStatus3: 401
+      - ProductTraits.BadRequest
+      - ProductTraits.Unauthorized
+    responses:
+      '200':
+        description: Product search completed successfully.
+        body:
+          application/json:
+            type: ProductSearchResult
+            examples: 
+              productSearchResult: !include Examples/ProductSearchResult.raml
+    securedBy:
+      - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
+      - CommerceCloudStandards.AmOAuth2
+
