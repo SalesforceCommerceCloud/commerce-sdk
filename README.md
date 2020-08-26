@@ -59,10 +59,10 @@ const { ClientConfig, helpers, Search } = CommerceSdk;
 const config = {
     headers: {},
     parameters: {
-      clientId: 'ecb0eb0b-b9ee-4c58-b5f8-fbdb1ea2f4ed',
-      organizationId: 'f_ecom_abcd_s12',
-      shortCode: '0abc6def',
-      siteId: 'RefArch',
+      clientId: '<your-client-id>',
+      organizationId: '<your-org-id>',
+      shortCode: '<your-short-code>',
+      siteId: '<your-site-id>'
     }
 }
 
@@ -137,10 +137,10 @@ const cacheManagerKeyv = new CacheManagerKeyv({
 const config = {
   cacheManager: cacheManagerKeyv,
   parameters: {
-    clientId: 'ecb0eb0b-b9ee-4c58-b5f8-fbdb1ea2f4ed',
-    organizationId: 'f_ecom_abcd_s12',
-    shortCode: '0abc6def',
-    siteId: 'RefArch',
+    clientId: '<your-client-id>',
+    organizationId: '<your-org-id>',
+    shortCode: '<your-short-code>',
+    siteId: '<your-site-id>'
   },
 };
 ```
@@ -155,10 +155,10 @@ In-memory caching of responses is enabled by default. To disable caching for a c
 const config = {
   cacheManager: null,
   parameters: {
-    clientId: 'ecb0eb0b-b9ee-4c58-b5f8-fbdb1ea2f4ed',
-    organizationId: 'f_ecom_abcd_s12',
-    shortCode: '0abc6def',
-    siteId: 'RefArch',
+    clientId: '<your-client-id>',
+    organizationId: '<your-org-id>',
+    shortCode: '<your-short-code>',
+    siteId: '<your-site-id>'
   },
 };
 ```
@@ -176,10 +176,10 @@ const cacheManager = new CacheManagerRedis({
 const config = {
   cacheManager: cacheManager,
   parameters: {
-    clientId: 'ecb0eb0b-b9ee-4c58-b5f8-fbdb1ea2f4ed',
-    organizationId: 'f_ecom_abcd_s12',
-    shortCode: '0abc6def',
-    siteId: 'RefArch',
+    clientId: '<your-client-id>',
+    organizationId: '<your-org-id>',
+    shortCode: '<your-short-code>',
+    siteId: '<your-site-id>'
   },
 };
 ```
