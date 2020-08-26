@@ -44,6 +44,8 @@ To use an SDK client, instantiate an object of that client and configure these p
 /**
  * Sample TypeScript code that shows how Commerce SDK can access Salesforce Commerce
  * APIs.
+ * 
+ * To learn more about the parameters please refer to https://developer.commercecloud.com/s/article/CommerceAPI-Get-Started
  */
 ​
 // Import the SDK in TypeScript
@@ -56,7 +58,6 @@ const { ClientConfig, helpers, Search } = CommerceSdk;
 // const { ClientConfig, helpers, Search } = require("commerce-sdk");
 
 // Create a configuration to use when creating API clients
-// To know more about these parameters please refer https://developer.commercecloud.com/s/article/CommerceAPI-Get-Started
 const config = {
     headers: {},
     parameters: {
