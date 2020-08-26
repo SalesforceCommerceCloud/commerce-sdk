@@ -56,6 +56,7 @@ const { ClientConfig, helpers, Search } = CommerceSdk;
 // const { ClientConfig, helpers, Search } = require("commerce-sdk");
 
 // Create a configuration to use when creating API clients
+// To know more about these parameters please refer https://developer.commercecloud.com/s/article/CommerceAPI-Get-Started
 const config = {
     headers: {},
     parameters: {
