@@ -1,4 +1,4 @@
-{{#each apiModel.encodes.endPoints}}
+{{#each encodes.endPoints}}
   {{#each operations}}
     /**
     * {{{formatForTsDoc description}}}
@@ -19,7 +19,7 @@
     * @param body - The data to send as the request body.
     {{/or}}
     *
-    * @returns A promise of type {{addNamespace (getReturnTypeFromOperation .) (capitalize @root.metadata.specName)}}.
+    * @returns A promise of type {{addNamespace (getReturnTypeFromOperation .) @root.name.upperCamelCase}}.
     * {{#if (eq (lowercase @root.metadata.categories.[CC Version Status].[0]) "beta")}}
     * @beta
     * {{/if}}
@@ -37,9 +37,9 @@
         },
         retrySettings?: OperationOptions,
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}},
-        body: {{{addNamespace (getPayloadTypeFromRequest request) (capitalize @root.metadata.specName)}}}{{/or}}
+        body: {{{addNamespace (getPayloadTypeFromRequest request) @root.name.upperCamelCase}}}{{/or}}
       }
-    ): Promise<{{addNamespace (getReturnTypeFromOperation .) (capitalize @root.metadata.specName)}}>;
+    ): Promise<{{addNamespace (getReturnTypeFromOperation .) @root.name.upperCamelCase}}>;
 
     /**
     * {{{formatForTsDoc description}}}
@@ -59,7 +59,7 @@
     {{/or}}
     * @param rawResponse - Set to true to return entire Response object instead of DTO.
     *
-    * @returns A promise of type Response if rawResponse is true, a promise of type {{addNamespace (getReturnTypeFromOperation .) (capitalize @root.metadata.specName)}} otherwise.
+    * @returns A promise of type Response if rawResponse is true, a promise of type {{addNamespace (getReturnTypeFromOperation .) @root.name.upperCamelCase}} otherwise.
     * {{#if (eq (lowercase @root.metadata.categories.[CC Version Status].[0]) "beta")}}
     * @beta
     * {{/if}}
@@ -77,10 +77,10 @@
         },
         retrySettings?: OperationOptions,
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}}, 
-        body: {{{addNamespace (getPayloadTypeFromRequest request) (capitalize @root.metadata.specName)}}}{{/or}}
+        body: {{{addNamespace (getPayloadTypeFromRequest request) @root.name.upperCamelCase}}}{{/or}}
       },
       rawResponse?: T
-    ): Promise<T extends true ? Response : {{addNamespace (getReturnTypeFromOperation .) (capitalize @root.metadata.specName)}}>;
+    ): Promise<T extends true ? Response : {{addNamespace (getReturnTypeFromOperation .) @root.name.upperCamelCase}}>;
 
     /**
     * {{{formatForTsDoc description}}}
@@ -100,7 +100,7 @@
     {{/or}}
     * @param rawResponse - Set to true to return entire Response object instead of DTO.
     *
-    * @returns A promise of type Response if rawResponse is true, a promise of type {{addNamespace (getReturnTypeFromOperation .) (capitalize @root.metadata.specName)}} otherwise.
+    * @returns A promise of type Response if rawResponse is true, a promise of type {{addNamespace (getReturnTypeFromOperation .) @root.name.upperCamelCase}} otherwise.
     * {{#if (eq (lowercase @root.metadata.categories.[CC Version Status].[0]) "beta")}}
     * @beta
     * {{/if}}
@@ -118,10 +118,10 @@
         },
         retrySettings?: OperationOptions,
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}}, 
-        body: {{{addNamespace (getPayloadTypeFromRequest request) (capitalize @root.metadata.specName)}}}{{/or}}
+        body: {{{addNamespace (getPayloadTypeFromRequest request) @root.name.upperCamelCase}}}{{/or}}
       },
       rawResponse?: boolean,
-    ): Promise<Response | {{addNamespace (getReturnTypeFromOperation .) (capitalize @root.metadata.specName)}}> {
+    ): Promise<Response | {{addNamespace (getReturnTypeFromOperation .) @root.name.upperCamelCase}}> {
     
       const parameters = (options && options.parameters) ? options.parameters : {};
       

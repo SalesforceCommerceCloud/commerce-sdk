@@ -1,10 +1,10 @@
-{{#each apiNamesInFamily}}
-import { {{capitalize .}} } from "./{{.}}/{{.}}";
+{{#each children}}
+import { {{ name.upperCamelCase }} } from "./{{name.lowerCamelCase}}/{{name.lowerCamelCase}}";
 
 {{/each}}
 export {
-{{#each apiNamesInFamily}}
-    {{capitalize .}}{{#unless @last}},{{/unless}}
+{{#each children}}
+    {{name.upperCamelCase}}{{#unless @last}},{{/unless}}
 {{/each}}
 }
 
