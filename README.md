@@ -44,6 +44,8 @@ To use an SDK client, instantiate an object of that client and configure these p
 /**
  * Sample TypeScript code that shows how Commerce SDK can access Salesforce Commerce
  * APIs.
+ * 
+ * To learn more about the parameters please refer to https://developer.commercecloud.com/s/article/CommerceAPI-Get-Started
  */
 ​
 // Import the SDK in TypeScript
@@ -59,10 +61,10 @@ const { ClientConfig, helpers, Search } = CommerceSdk;
 const config = {
     headers: {},
     parameters: {
-        clientId: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        organizationId: "f_ecom_bblx_stg",
-        shortCode: "0dnz6oep",
-        siteId: "RefArch"
+      clientId: '<your-client-id>',
+      organizationId: '<your-org-id>',
+      shortCode: '<your-short-code>',
+      siteId: '<your-site-id>'
     }
 }
 
@@ -137,10 +139,10 @@ const cacheManagerKeyv = new CacheManagerKeyv({
 const config = {
   cacheManager: cacheManagerKeyv,
   parameters: {
-    clientId: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-    organizationId: 'f_ecom_bblx_stg',
-    shortCode: '0dnz6oep',
-    siteId: 'RefArch',
+    clientId: '<your-client-id>',
+    organizationId: '<your-org-id>',
+    shortCode: '<your-short-code>',
+    siteId: '<your-site-id>'
   },
 };
 ```
@@ -155,10 +157,10 @@ In-memory caching of responses is enabled by default. To disable caching for a c
 const config = {
   cacheManager: null,
   parameters: {
-    clientId: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-    organizationId: 'f_ecom_bblx_stg',
-    shortCode: '0dnz6oep',
-    siteId: 'RefArch',
+    clientId: '<your-client-id>',
+    organizationId: '<your-org-id>',
+    shortCode: '<your-short-code>',
+    siteId: '<your-site-id>'
   },
 };
 ```
@@ -176,10 +178,10 @@ const cacheManager = new CacheManagerRedis({
 const config = {
   cacheManager: cacheManager,
   parameters: {
-    clientId: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-    organizationId: 'f_ecom_bblx_stg',
-    shortCode: '0dnz6oep',
-    siteId: 'RefArch',
+    clientId: '<your-client-id>',
+    organizationId: '<your-org-id>',
+    shortCode: '<your-short-code>',
+    siteId: '<your-site-id>'
   },
 };
 ```
