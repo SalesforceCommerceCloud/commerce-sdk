@@ -73,7 +73,14 @@ export function addNamespace(content: string, namespace: any): string {
  * @returns The custom object id as a string
  */
 export const getObjectIdByAssetId = (assetId: string): string => {
-  return ASSET_OBJECT_MAP[assetId];
+  if (ASSET_OBJECT_MAP.hasOwnProperty(assetId)) {
+    return ASSET_OBJECT_MAP[assetId];
+  }
+  // When this error occurs, find the corresponding API in the CCDC and copy the
+  // object ID from the URL. Add the asset ID and object ID to ASSET_OBJECT_MAP
+  // in ./config.ts.
+  // CCDC API Reference: https://developer.commercecloud.com/s/api-reference
+  throw new Error(`Missing CCDC object ID for "${assetId}`);
 };
 
 /**
