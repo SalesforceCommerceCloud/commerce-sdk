@@ -80,7 +80,7 @@ export const getObjectIdByAssetId = (assetId: string): string => {
   // object ID from the URL. Add the asset ID and object ID to ASSET_OBJECT_MAP
   // in ./config.ts.
   // CCDC API Reference: https://developer.commercecloud.com/s/api-reference
-  throw new Error(`Missing CCDC object ID for "${assetId}`);
+  throw new Error(`Missing CCDC object ID for "${assetId}"`);
 };
 
 /**
