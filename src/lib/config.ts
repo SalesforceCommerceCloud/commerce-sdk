@@ -12,6 +12,9 @@ export const PRIMITIVE_DATA_TYPE_MAP = {
   "http://www.w3.org/2001/XMLSchema#float": "number",
   "http://www.w3.org/2001/XMLSchema#boolean": "boolean",
 };
+/**
+ * Map of API asset ID to CCDC object ID, used to generate documentation URLs
+ */
 export const ASSET_OBJECT_MAP = {
   assignments: "a003k00000UHvoaAAD",
   campaigns: "a003k00000UHvobAAD",
@@ -33,4 +36,5 @@ export const ASSET_OBJECT_MAP = {
   "shopper-search": "a003k00000UHwuFAAT",
   "shopper-stores": "a003k00000UHwuPAAT",
   "source-code-groups": "a003k00000UHvpTAAT",
+  "shopper-login": "a003k00000VWfNDAA1",
 };
