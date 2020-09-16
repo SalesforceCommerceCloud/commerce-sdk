@@ -1,5 +1,9 @@
 ## CHANGELOG
 
+### v2.0.1
+#### Enhancements
+* Minor documentation updates
+
 ### v2.0.0
 #### GA
 * SDK GA Release
