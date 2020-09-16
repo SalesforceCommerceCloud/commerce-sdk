@@ -907,6 +907,59 @@ types:
                     dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
           securedBy:
             - CommerceCloudStandards.ShopperToken: { scopes: [ "sfcc.shopper-baskets-orders", "sfcc.shopper-baskets-orders.rw" ] }
+      /price-books:
+        type: CommerceCloudStandards.Organization
+        get:
+          is: 
+            - CommerceCloudStandards.SiteSpecific:
+            - ApiStandards.RateLimited2:
+                responseStatus: 200
+                responseStatus2: 404
+          description: Gets applicable price books for an existing basket.
+          displayName: getPriceBooksForBasket
+          responses:
+            '200':
+              description: Success, the response body contains the priceBookIds for the basket.
+              body:
+                  type: dataTypes.PriceBookIds
+                  examples:
+                    dataTypes.PriceBookIds: !include examples/basket/price-books.raml
+            '404':
+              description: |-
+                The basket with the given basket ID is unknown.
+              body:
+                application/problem+json:
+                  type: ErrorResponse
+                  examples:
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
+          securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [ "sfcc.shopper-baskets-orders", "sfcc.shopper-baskets-orders.rw" ] }
+            - CommerceCloudStandards.AmOAuth2
+        put:
+          is:
+            - CommerceCloudStandards.SiteSpecific:
+            - ApiStandards.RateLimited2:
+                responseStatus: 204
+                responseStatus2: 404
+          description: This method allows you to put an array of priceBookIds to an existing basket, which will be used for basket calculation.
+          displayName: addPriceBooksToBasket
+          responses:
+            '204':
+              description: Success, without body.
+            '404':
+              description: The basket with the given basket ID is unknown or any price book id do not reference an existing price book.
+              body:
+                application/problem+json:
+                  type: ErrorResponse
+                  examples:
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/basket-not-found.raml
+          body:
+            type: dataTypes.PriceBookIds
+            examples:
+              dataTypes.PriceBookIds:  !include examples/basket/price-books.raml
+          securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [ "sfcc.shopper-baskets-orders.rw" ] }
+            - CommerceCloudStandards.AmOAuth2
       /shipments:
         type: CommerceCloudStandards.Organization
         post:
