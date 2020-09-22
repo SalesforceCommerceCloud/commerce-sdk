@@ -48,7 +48,7 @@ async function getRegisteredShopperToken(): Promise<
 
   const client = new ShopperCustomers(clientConfig);
 
-  const response: Response = await client.authorizeCustomer(
+  const response = await client.authorizeCustomer(
     { headers: headers, body: { type: "credentials" } },
     true
   );
@@ -67,8 +67,14 @@ async function getRegisteredShopperToken(): Promise<
 
 getRegisteredShopperToken()
   .then((shopperToken) => {
-    console.log("Authorization token: ", shopperToken.getAuthToken());
-    console.log("Customer Info: ", shopperToken.getCustomerInfo());
+    console.log(`Authorization token: ${shopperToken.getAuthToken()}`);
+    console.log(
+      `Customer Info: ${JSON.stringify(
+        shopperToken.getCustomerInfo(),
+        null,
+        2
+      )}`
+    );
   })
   .catch((error) => {
     console.log(`Error fetching token for registered customer: ${error}`);

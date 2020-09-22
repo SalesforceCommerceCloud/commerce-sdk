@@ -29,8 +29,14 @@ const clientConfig: ClientConfig = {
 helpers
   .getShopperToken(clientConfig, { type: "guest" })
   .then((shopperToken) => {
-    console.log("Authorization token: ", shopperToken.getAuthToken());
-    console.log("Customer Info: ", shopperToken.getCustomerInfo());
+    console.log(`Authorization token: ${shopperToken.getAuthToken()}`);
+    console.log(
+      `Customer Info: ${JSON.stringify(
+        shopperToken.getCustomerInfo(),
+        null,
+        2
+      )}`
+    );
   })
   .catch((error) => {
     console.log(`Error fetching token: ${error}`);

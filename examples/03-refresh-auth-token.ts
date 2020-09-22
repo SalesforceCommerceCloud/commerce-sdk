@@ -67,22 +67,25 @@ async function getRefreshToken(
 helpers
   .getShopperToken(clientConfig, { type: "guest" })
   .then((authToken) => {
-    console.log(
-      "Authorization Token: ",
-      authToken.getAuthToken(),
-      ", Expiry Time: ",
-      new Date(authToken.decodedToken["exp"] * 1000)
-    );
+    console.log(`Authorization Token: ${authToken.getAuthToken()}`);
+    if (authToken.decodedToken && typeof authToken.decodedToken === "object") {
+      console.log(
+        `Expiry Time: ${new Date(authToken.decodedToken.exp * 1000)}`
+      );
+    }
     return getRefreshToken(authToken);
   })
-  .then((refreshToken) =>
-    console.log(
-      "Refresh Token: ",
-      refreshToken.getAuthToken(),
-      ", Expiry Time: ",
-      new Date(refreshToken.decodedToken["exp"] * 1000)
-    )
-  )
+  .then((refreshToken) => {
+    console.log(`Refresh Token: ${refreshToken.getAuthToken()}`);
+    if (
+      refreshToken.decodedToken &&
+      typeof refreshToken.decodedToken === "object"
+    ) {
+      console.log(
+        `Expiry Time: ${new Date(refreshToken.decodedToken.exp * 1000)}`
+      );
+    }
+  })
   .catch((error) => {
     console.log(`Error fetching token: ${error}`);
   });
