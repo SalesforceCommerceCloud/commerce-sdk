@@ -24,6 +24,7 @@ const STAGING_API_PATH = `${__dirname}/../testIntegration/stagingApis`;
 const CUSTOM_METADATA = {
   shopperAuthClient: "Customer.ShopperCustomers",
   shopperAuthApi: "authorizeCustomer",
+  shopperAuthDataType: "Customer",
 };
 
 // DOWNLOAD PRODUCTION DATA
