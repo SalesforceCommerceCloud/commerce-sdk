@@ -288,7 +288,8 @@ DEBUG level logging enables logging of:
 
 ## Additional Documentation
 
-[Changelog](./CHANGELOG.md)
+- [Examples](./examples)
+- [Changelog](./CHANGELOG.md)
 
 ## License Information
 
