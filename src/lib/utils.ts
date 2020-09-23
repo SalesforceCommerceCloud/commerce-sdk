@@ -31,7 +31,6 @@ export function registerHelpers(): void {
  * Register any customer partials we have in our pipeline
  */
 export function registerPartials(): void {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
   generate.registerPartial(
     "dtoPartial",
     path.join(TEMPLATE_DIRECTORY, "dtoPartial.ts.hbs")
@@ -42,7 +41,6 @@ export function registerPartials(): void {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function addTemplates(
   apis: generate.ApiMetadata,
   outputBasePath: string

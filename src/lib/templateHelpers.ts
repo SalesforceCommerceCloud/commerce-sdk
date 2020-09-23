@@ -18,7 +18,7 @@ import { commonParameterPositions } from "@commerce-apps/core";
  * @param namespace - to be prefixed to types
  * @returns the content prefixed with the namespace
  */
-export function addNamespace(content: string, namespace: any): string {
+export function addNamespace(content: string, namespace: string): string {
   // Not handling invalid content.
   if (!content) {
     throw new Error("Invalid content");
