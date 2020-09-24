@@ -300,7 +300,9 @@ If you discover any potential security issues, please report them to security@sa
 
 ## Additional Documentation
 
-[Changelog](./CHANGELOG.md)
+- [Examples](https://github.com/SalesforceCommerceCloud/commerce-sdk/tree/master/examples)
+- [Changelog](./CHANGELOG.md)
+
 
 ## License Information
 
