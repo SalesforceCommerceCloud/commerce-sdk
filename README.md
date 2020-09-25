@@ -287,7 +287,7 @@ DEBUG level logging enables logging of:
 **Note:** Debug level logging may expose sensitive data in the logs
 
 ## Security
-This library does not maintain or manage authentication tokens. The consumer of the SDK is responsible for writing code to retrieve, store, and refresh authentication tokens.
+This library doesn't store or refresh authentication tokens. Storing and refreshing authentication tokens is the responsibility of the SDK consumer.
 
  This library limits its runtime dependencies to reduce the total cost of ownership as much as possible. However, we recommend that you have security stakeholders review all third-party products (3PP) and their dependencies.
 
