@@ -286,10 +286,23 @@ DEBUG level logging enables logging of:
 
 **Note:** Debug level logging may expose sensitive data in the logs
 
+## Security
+This library doesn't store or refresh authentication tokens. Storing and refreshing authentication tokens is the responsibility of the SDK consumer.
+
+ This library limits its runtime dependencies to reduce the total cost of ownership as much as possible. However, we recommend that you have security stakeholders review all third-party products (3PP) and their dependencies.
+
+For more information about security considerations related to developing headless commerce applications, see 
+[Security Considerations for Headless Commerce](https://developer.commercecloud.com/s/article/HeadlessSecurity) on the 
+[Commerce Cloud Developer Center](https://developer.commercecloud.com).
+
+If you discover any potential security issues, please report them to security@salesforce.com as soon as possible.
+
+
 ## Additional Documentation
 
 - [Examples](./examples)
 - [Changelog](./CHANGELOG.md)
+
 
 ## License Information
 
