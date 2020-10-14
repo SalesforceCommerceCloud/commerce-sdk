@@ -3,10 +3,10 @@
 {{else}}
 {
 {{#each (getProperties typeDto)}}
-{{#if (isRequiredProperty .)}}
-  {{{getValue name}}}: {{#or (eq (getTypeFromProperty .) "object")}}{{> dtoPartial typeDto=range }}{{else}}{{{getTypeFromProperty .}}}{{/or}};
-{{else if (isOptionalProperty .)}}
-  {{{getValue name}}}?: {{#or (eq (getTypeFromProperty .) "object")}}{{> dtoPartial typeDto=range }}{{else}}{{{getTypeFromProperty .}}}{{/or}};
+{{#if (isRequiredProperty this)}}
+  {{{getValue name}}}: {{#or (eq (getTypeFromProperty this) "object")}}{{> dtoPartial typeDto=range }}{{else}}{{{getTypeFromProperty this}}}{{/or}};
+{{else if (isOptionalProperty this)}}
+  {{{getValue name}}}?: {{#or (eq (getTypeFromProperty this) "object")}}{{> dtoPartial typeDto=range }}{{else}}{{{getTypeFromProperty this}}}{{/or}};
 {{/if}}
 {{/each}}
 }

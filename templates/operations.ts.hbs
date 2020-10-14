@@ -19,7 +19,7 @@
     * @param body - The data to send as the request body.
     {{/or}}
     *
-    * @returns A promise of type {{addNamespace (getReturnTypeFromOperation .) @root.name.upperCamelCase}}.
+    * @returns A promise of type {{addNamespace (getReturnTypeFromOperation this) @root.name.upperCamelCase}}.
     * {{#if (eq (lowercase @root.metadata.categories.[CC Version Status].[0]) "beta")}}
     * @beta
     * {{/if}}
@@ -29,17 +29,17 @@
         parameters?: {
           {{#each ../parameters}}
           {{! common parameters can be configured at the client level and therefore are not required }}
-          {{name}}{{#if (isCommonPathParameter name)}}?{{/if}}: {{{ getTypeFromParameter .}}}
+          {{name}}{{#if (isCommonPathParameter name)}}?{{/if}}: {{{ getTypeFromParameter this}}}
           {{/each}}
           {{#each request/queryParameters}}
-          {{name}}{{#if (or (not (is required "true")) (isCommonQueryParameter name))}}?{{/if}}: {{{ getTypeFromParameter .}}}
+          {{name}}{{#if (or (not (is required "true")) (isCommonQueryParameter name))}}?{{/if}}: {{{ getTypeFromParameter this}}}
           {{/each}}
         },
         retrySettings?: OperationOptions,
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}},
         body: {{{addNamespace (getPayloadTypeFromRequest request) @root.name.upperCamelCase}}}{{/or}}
       }
-    ): Promise<{{addNamespace (getReturnTypeFromOperation .) @root.name.upperCamelCase}}>;
+    ): Promise<{{addNamespace (getReturnTypeFromOperation this) @root.name.upperCamelCase}}>;
 
     /**
     * {{{formatForTsDoc description}}}
@@ -59,7 +59,7 @@
     {{/or}}
     * @param rawResponse - Set to true to return entire Response object instead of DTO.
     *
-    * @returns A promise of type Response if rawResponse is true, a promise of type {{addNamespace (getReturnTypeFromOperation .) @root.name.upperCamelCase}} otherwise.
+    * @returns A promise of type Response if rawResponse is true, a promise of type {{addNamespace (getReturnTypeFromOperation this) @root.name.upperCamelCase}} otherwise.
     * {{#if (eq (lowercase @root.metadata.categories.[CC Version Status].[0]) "beta")}}
     * @beta
     * {{/if}}
@@ -69,10 +69,10 @@
         parameters?: {
           {{#each ../parameters}}
           {{! common parameters can be configured at the client level and therefore are not required }}
-          {{name}}{{#if (isCommonPathParameter name)}}?{{/if}}: {{{ getTypeFromParameter .}}}
+          {{name}}{{#if (isCommonPathParameter name)}}?{{/if}}: {{{ getTypeFromParameter this}}}
           {{/each}}
           {{#each request/queryParameters}}
-          {{name}}{{#if (or (not (is required "true")) (isCommonQueryParameter name))}}?{{/if}}: {{{ getTypeFromParameter .}}}
+          {{name}}{{#if (or (not (is required "true")) (isCommonQueryParameter name))}}?{{/if}}: {{{ getTypeFromParameter this}}}
           {{/each}}
         },
         retrySettings?: OperationOptions,
@@ -80,7 +80,7 @@
         body: {{{addNamespace (getPayloadTypeFromRequest request) @root.name.upperCamelCase}}}{{/or}}
       },
       rawResponse?: T
-    ): Promise<T extends true ? Response : {{addNamespace (getReturnTypeFromOperation .) @root.name.upperCamelCase}}>;
+    ): Promise<T extends true ? Response : {{addNamespace (getReturnTypeFromOperation this) @root.name.upperCamelCase}}>;
 
     /**
     * {{{formatForTsDoc description}}}
@@ -100,7 +100,7 @@
     {{/or}}
     * @param rawResponse - Set to true to return entire Response object instead of DTO.
     *
-    * @returns A promise of type Response if rawResponse is true, a promise of type {{addNamespace (getReturnTypeFromOperation .) @root.name.upperCamelCase}} otherwise.
+    * @returns A promise of type Response if rawResponse is true, a promise of type {{addNamespace (getReturnTypeFromOperation this) @root.name.upperCamelCase}} otherwise.
     * {{#if (eq (lowercase @root.metadata.categories.[CC Version Status].[0]) "beta")}}
     * @beta
     * {{/if}}
@@ -110,10 +110,10 @@
         parameters?: {
           {{#each ../parameters}}
           {{! common parameters can be configured at the client level and therefore are not required }}
-          {{name}}{{#if (isCommonPathParameter name)}}?{{/if}}: {{{ getTypeFromParameter .}}}
+          {{name}}{{#if (isCommonPathParameter name)}}?{{/if}}: {{{ getTypeFromParameter this}}}
           {{/each}}
           {{#each request/queryParameters}}
-          {{name}}{{#if (or (not (is required "true")) (isCommonQueryParameter name))}}?{{/if}}: {{{ getTypeFromParameter .}}}
+          {{name}}{{#if (or (not (is required "true")) (isCommonQueryParameter name))}}?{{/if}}: {{{ getTypeFromParameter this}}}
           {{/each}}
         },
         retrySettings?: OperationOptions,
@@ -121,7 +121,7 @@
         body: {{{addNamespace (getPayloadTypeFromRequest request) @root.name.upperCamelCase}}}{{/or}}
       },
       rawResponse?: boolean,
-    ): Promise<Response | {{addNamespace (getReturnTypeFromOperation .) @root.name.upperCamelCase}}> {
+    ): Promise<Response | {{addNamespace (getReturnTypeFromOperation this) @root.name.upperCamelCase}}> {
     
       const parameters = (options && options.parameters) ? options.parameters : {};
       
