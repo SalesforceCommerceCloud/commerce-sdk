@@ -6,8 +6,8 @@ import { OperationOptions } from "retry";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace {{name.upperCamelCase}} {
   {{#each dataTypes}}
-      {{#if (isTypeDefinition .)}}
-      export type {{getValue name}} = {{> dtoPartial typeDto=.}}
+      {{#if (or (isTypeDefinition this) (isArrayType this))}}
+export type {{getValue name}} = {{> dtoPartial typeDto=this}}
       {{/if}}
   {{/each}}
 }
