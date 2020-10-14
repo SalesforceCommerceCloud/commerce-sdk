@@ -8,7 +8,7 @@ baseUri: https://{shortCode}.api.commercecloud.salesforce.com/cdn/zones/{version
 baseUriParameters:
   shortCode:
     description: Region-specific merchant identifier.
-    example: fd4gt82k
+    example: 0dnz6oep
 
 mediaType: application/json
 
@@ -25,6 +25,7 @@ types:
   ErrorResponse: ApiStandards.ErrorResponse
   CollectionResponseEnvelope: !include dataTypes/CollectionResponseEnvelope.raml
   ItemResponseEnvelope: !include dataTypes/ItemResponseEnvelope.raml
+  SpeedSetting: !include dataTypes/SpeedSetting.raml
 
   ZonesEnvelope:
     type: CollectionResponseEnvelope
@@ -66,6 +67,11 @@ types:
     properties:
       data:
         type: WafRule[]
+  SpeedSettingsEnvelope:
+    type: ItemResponseEnvelope
+    properties:
+      data:
+        type: SpeedSetting
 
 traits:
   hasUnauthorizedResponse: !include traits/HasUnauthorizedResponse.raml
@@ -246,3 +252,34 @@ securedBy:
         responses:
           '204':
             description: Successfully deleted the firewall rule specified by the caller.
+  
+  /zones/{zoneId}/speed-settings:
+    is: [hasResourceNotFoundResponse, hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse]
+    get:
+      displayName: getSpeedSettings
+      description: Retrieve speed settings for a zone.
+      responses:
+        '200':
+          description: Successfully returned back speed settings requested by the caller.
+          body:
+            application/json:
+              type: SpeedSettingsEnvelope
+              example: !include /examples/zone/speed-settings-response.raml
+    patch:
+      is: [hasBadRequestResponse]
+      displayName: updateSpeedSettings
+      description: Update speed settings for a zone.
+
+      body:
+        application/json:
+          type: SpeedSetting
+          examples: !include /examples/zone/speed-settings-patch-request.raml
+
+      responses:
+        '200':
+          description: Successfully updated speed settings requested by the caller.
+          body:
+            application/json:
+              type: SpeedSettingsEnvelope
+              examples:
+                response : !include /examples/zone/speed-settings-response.raml
