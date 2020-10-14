@@ -1,5 +1,19 @@
 ## CHANGELOG
 
+### v2.1.0
+#### **API Changes**
+
+*CDN Zones API*
+* Endpoints Added
+  * /organizations/{organizationId}/zones/{zoneId}/speed-settings
+*Shopper Baskets*
+* Endpoints Added
+  * /organizations/{organizationId}/baskets/{basketId}/price-books
+
+#### Documentation
+* Updated Readme with Security Information.
+* Added examples to retrieve shopper auth token
+
 ### v2.0.1
 #### Enhancements
 * Minor documentation updates
