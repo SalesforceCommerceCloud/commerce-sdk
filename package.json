@@ -22,6 +22,7 @@
     "build": "npm run clean && npm run renderTemplates && tsc && eslint dist --ext .ts,.js --quiet --fix",
     "clean": "rm -rf renderedTemplates dist",
     "depcheck": "depcheck",
+    "diffApis": "raml-toolkit diff --dir updateApisTmp/oldApis apis -o updateApisTmp/ramlDiff.json",
     "doc": "npm run doc:generate && npm run doc:resources",
     "doc:generate": "typedoc --mode modules --out ./docs renderedTemplates/** --tsconfig tsconfig.json --external-modulemap  \".*/renderedTemplates/([\\w\\-_]+)/\"",
     "doc:resources": "cp CHANGELOG.md ./docs",
@@ -33,7 +34,7 @@
     "pretest": "npm run lint && npm run depcheck",
     "test": "nyc mocha \"src/**/*.test.ts\"",
     "test:ci": "npm test -- --reporter=xunit --reporter-options output=./reports/generator.xml",
-    "updateApis": "ts-node src/updateApis.ts"
+    "updateApis": "npm run backupApis && ts-node src/updateApis.ts && npm run diffApis"
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser",
