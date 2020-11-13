@@ -1,0 +1,83 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "plugins": [
+    "@typescript-eslint",
+    "@typescript-eslint/eslint-plugin",
+    "tsdoc",
+    "header",
+    "jsdoc"
+  ],
+  "extends": [
+    "plugin:@typescript-eslint/recommended",
+    "prettier/@typescript-eslint",
+    "plugin:jsdoc/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "rules": {
+    "@typescript-eslint/interface-name-prefix": [
+      "error",
+      {
+        "prefixWithI": "always"
+      }
+    ],
+    "header/header": [
+      2,
+      "block",
+      [
+        "",
+        {
+          "pattern": "^ \\* Copyright \\(c\\) \\d{4}, salesforce.com, inc\\.$",
+          "template": " * Copyright (c) 2020, salesforce.com, inc."
+        },
+        " * All rights reserved.",
+        " * SPDX-License-Identifier: BSD-3-Clause",
+        " * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause",
+        " "
+      ]
+    ],
+    "jsdoc/require-description": [
+      "error",
+      {
+        "checkConstructors": false
+      }
+    ],
+    "jsdoc/require-jsdoc": [
+      "error",
+      {
+        "publicOnly": true,
+        "require": {
+          "ArrowFunctionExpression": true,
+          "ClassDeclaration": true,
+          "ClassExpression": true,
+          "FunctionDeclaration": true,
+          "FunctionExpression": true,
+          "MethodDefinition": true
+        }
+      }
+    ],
+    "jsdoc/require-param-name": "error",
+    "jsdoc/require-param-type": "off",
+    "jsdoc/require-returns-check": "error",
+    "jsdoc/require-returns-description": "error",
+    "jsdoc/require-returns-type": "off",
+    "tsdoc/syntax": "error"
+  },
+  "overrides": [
+    {
+      "files": [
+        "dist/**"
+      ],
+      "rules": {
+        "@typescript-eslint/ban-ts-ignore": "warn",
+        "@typescript-eslint/camelcase": "warn",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-var-requires": "warn"
+      }
+    }
+  ],
+  "reportUnusedDisableDirectives": true
+}

@@ -36,121 +36,6 @@
     "test:ci": "npm test -- --reporter=xunit --reporter-options output=./reports/generator.xml",
     "updateApis": "npm run backupApis && ts-node src/updateApis.ts && npm run diffApis"
   },
-  "eslintConfig": {
-    "parser": "@typescript-eslint/parser",
-    "parserOptions": {
-      "ecmaVersion": 2018,
-      "sourceType": "module"
-    },
-    "plugins": [
-      "@typescript-eslint",
-      "@typescript-eslint/eslint-plugin",
-      "tsdoc",
-      "header",
-      "jsdoc"
-    ],
-    "extends": [
-      "plugin:@typescript-eslint/recommended",
-      "prettier/@typescript-eslint",
-      "plugin:jsdoc/recommended",
-      "plugin:prettier/recommended"
-    ],
-    "rules": {
-      "@typescript-eslint/interface-name-prefix": [
-        "error",
-        {
-          "prefixWithI": "always"
-        }
-      ],
-      "header/header": [
-        2,
-        "block",
-        [
-          "",
-          {
-            "pattern": "^ \\* Copyright \\(c\\) \\d{4}, salesforce.com, inc\\.$",
-            "template": " * Copyright (c) 2020, salesforce.com, inc."
-          },
-          " * All rights reserved.",
-          " * SPDX-License-Identifier: BSD-3-Clause",
-          " * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause",
-          " "
-        ]
-      ],
-      "jsdoc/require-description": [
-        "error",
-        {
-          "checkConstructors": false
-        }
-      ],
-      "jsdoc/require-jsdoc": [
-        "error",
-        {
-          "publicOnly": true,
-          "require": {
-            "ArrowFunctionExpression": true,
-            "ClassDeclaration": true,
-            "ClassExpression": true,
-            "FunctionDeclaration": true,
-            "FunctionExpression": true,
-            "MethodDefinition": true
-          }
-        }
-      ],
-      "jsdoc/require-param-name": "error",
-      "jsdoc/require-param-type": "off",
-      "jsdoc/require-returns-check": "error",
-      "jsdoc/require-returns-description": "error",
-      "jsdoc/require-returns-type": "off",
-      "tsdoc/syntax": "error"
-    },
-    "overrides": [
-      {
-        "files": [
-          "dist/**"
-        ],
-        "rules": {
-          "@typescript-eslint/ban-ts-ignore": "warn",
-          "@typescript-eslint/camelcase": "warn",
-          "@typescript-eslint/no-explicit-any": "off",
-          "@typescript-eslint/no-var-requires": "warn"
-        }
-      }
-    ],
-    "reportUnusedDisableDirectives": true
-  },
-  "mocha": {
-    "colors": true,
-    "forbidOnly": true,
-    "require": [
-      "source-map-support/register",
-      "ts-node/register"
-    ]
-  },
-  "nyc": {
-    "all": true,
-    "branches": 80,
-    "check-coverage": true,
-    "exclude": [
-      "src/generate.ts",
-      "src/updateApis.ts"
-    ],
-    "extends": "@istanbuljs/nyc-config-typescript",
-    "extension": [
-      ".ts"
-    ],
-    "functions": 80,
-    "include": [
-      "src/**/*.ts"
-    ],
-    "lines": 80,
-    "per-file": true,
-    "reporter": [
-      "lcov",
-      "text"
-    ],
-    "statements": -10
-  },
   "dependencies": {
     "@commerce-apps/core": "^1.5.0",
     "lodash": "^4.17.20",
@@ -178,7 +63,7 @@
     "eslint-plugin-tsdoc": "^0.2.4",
     "fs-extra": "^9.0.0",
     "handlebars-helpers": "^0.10.0",
-    "mocha": "^7.0.1",
+    "mocha": "^8.2.1",
     "nyc": "^15.0.0",
     "prettier": "^2.0.5",
     "sinon": "^9.0.3",
