@@ -109,7 +109,29 @@ helpers.getShopperToken(config, { type: "guest" }).then(async (token) => {
 
 ### Error Handling
 
-SDK methods return an appropriate object by default when the API call returns a successful response. The object is built from the body of the response. If the API response is not successful, an Error is thrown. The error message is set to the status code plus the status text. The Error object includes a custom 'response' attribute with the entire Response object for inspection. To access the body of the response when an error occurs, see sample code above.
+SDK methods return an appropriate object by default when the API call returns a successful response. The object is built from the body of the response. If the API response is not successful, an Error is thrown. The error message is set to the status code plus the status text. The Error object includes a custom 'response' attribute with the entire Response object for inspection.
+
+```typescript
+  try {
+    await productClient.getProduct({
+      parameters: {
+        id: "non-existant-id"
+      }
+    });
+  } catch (e) {
+    console.error(await e.response.text());
+  }
+```
+
+```json
+{
+  "title": "Product Not Found",
+  "type": "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/product-not-found",
+  "detail": "No product with ID 'non-existant-id' for site 'RefArch' could be found.",
+  "productId": "non-existant-id",
+  "siteId": "RefArch"
+}
+```
 
 ### Autocompletion
 
