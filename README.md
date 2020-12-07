@@ -96,7 +96,9 @@ helpers.getShopperToken(config, { type: "guest" }).then(async (token) => {
         return searchResults;
 
     } catch (e) {
+        // Print the status code and status text
         console.error(e);
+        // Print the body of the error
         console.error(await e.response.text());
     }
 }).catch(async (e) => {
@@ -104,6 +106,34 @@ helpers.getShopperToken(config, { type: "guest" }).then(async (token) => {
     console.error(await e.response.text());
 });
 ```
+
+### Error Handling
+
+SDK methods return an appropriate object by default when the API call returns a successful response. The object is built from the body of the response. If the API response is not successful, an Error is thrown. The error message is set to the status code plus the status text. The Error object includes a custom 'response' attribute with the entire Response object for inspection.
+
+```typescript
+  try {
+    await productClient.getProduct({
+      parameters: {
+        id: "non-existant-id"
+      }
+    });
+  } catch (e) {
+    console.error(await e.response.text());
+  }
+```
+
+```json
+{
+  "title": "Product Not Found",
+  "type": "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/product-not-found",
+  "detail": "No product with ID 'non-existant-id' for site 'RefArch' could be found.",
+  "productId": "non-existant-id",
+  "siteId": "RefArch"
+}
+```
+
+### Autocompletion
 
 When using an IDE such as VSCode, the autocomplete feature lets you view the available method and class definitions, including parameters.
 ​
