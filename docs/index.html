@@ -179,13 +179,38 @@ helpers.getShopperToken(config, { <span class="hljs-attr">type</span>: <span cla
         <span class="hljs-keyword">return</span> searchResults;
 
     } <span class="hljs-keyword">catch</span> (e) {
+        <span class="hljs-comment">// Print the status code and status text</span>
         <span class="hljs-built_in">console</span>.error(e);
+        <span class="hljs-comment">// Print the body of the error</span>
         <span class="hljs-built_in">console</span>.error(<span class="hljs-keyword">await</span> e.response.text());
     }
 }).catch(<span class="hljs-keyword">async</span> (e) =&gt; {
     <span class="hljs-built_in">console</span>.error(e);
     <span class="hljs-built_in">console</span>.error(<span class="hljs-keyword">await</span> e.response.text());
 });</code></pre>
+				<a href="#error-handling" id="error-handling" style="color: inherit; text-decoration: none;">
+					<h3>Error Handling</h3>
+				</a>
+				<p>SDK methods return an appropriate object by default when the API call returns a successful response. The object is built from the body of the response. If the API response is not successful, an Error is thrown. The error message is set to the status code plus the status text. The Error object includes a custom &#39;response&#39; attribute with the entire Response object for inspection.</p>
+				<pre><code class="language-typescript">  <span class="hljs-keyword">try</span> {
+    <span class="hljs-keyword">await</span> productClient.getProduct({
+      parameters: {
+        id: <span class="hljs-string">&quot;non-existant-id&quot;</span>
+      }
+    });
+  } <span class="hljs-keyword">catch</span> (e) {
+    <span class="hljs-built_in">console</span>.error(<span class="hljs-keyword">await</span> e.response.text());
+  }</code></pre>
+				<pre><code class="language-json">{
+  <span class="hljs-attr">&quot;title&quot;</span>: <span class="hljs-string">&quot;Product Not Found&quot;</span>,
+  <span class="hljs-attr">&quot;type&quot;</span>: <span class="hljs-string">&quot;https://api.commercecloud.salesforce.com/documentation/error/v1/errors/product-not-found&quot;</span>,
+  <span class="hljs-attr">&quot;detail&quot;</span>: <span class="hljs-string">&quot;No product with ID &#x27;non-existant-id&#x27; for site &#x27;RefArch&#x27; could be found.&quot;</span>,
+  <span class="hljs-attr">&quot;productId&quot;</span>: <span class="hljs-string">&quot;non-existant-id&quot;</span>,
+  <span class="hljs-attr">&quot;siteId&quot;</span>: <span class="hljs-string">&quot;RefArch&quot;</span>
+}</code></pre>
+				<a href="#autocompletion" id="autocompletion" style="color: inherit; text-decoration: none;">
+					<h3>Autocompletion</h3>
+				</a>
 				<p>When using an IDE such as VSCode, the autocomplete feature lets you view the available method and class definitions, including parameters.
 				​</p>
 				<p><img src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/images/Autocomplete.jpg?raw=true" alt="Autocomplete" title="Autocomplete"></p>
@@ -345,7 +370,7 @@ sdkLogger.setLevel(sdkLogger.levels.INFO);</code></pre>
 				<p>For more information about security considerations related to developing headless commerce applications, see
 					<a href="https://developer.commercecloud.com/s/article/HeadlessSecurity">Security Considerations for Headless Commerce</a> on the
 				<a href="https://developer.commercecloud.com">Commerce Cloud Developer Center</a>.</p>
-				<p>If you discover any potential security issues, please report them to <a href="mailto:&#x73;&#x65;&#x63;&#117;&#x72;&#x69;&#116;&#121;&#x40;&#115;&#x61;&#108;&#x65;&#x73;&#x66;&#x6f;&#x72;&#x63;&#101;&#x2e;&#x63;&#x6f;&#109;">&#x73;&#x65;&#x63;&#117;&#x72;&#x69;&#116;&#121;&#x40;&#115;&#x61;&#108;&#x65;&#x73;&#x66;&#x6f;&#x72;&#x63;&#101;&#x2e;&#x63;&#x6f;&#109;</a> as soon as possible.</p>
+				<p>If you discover any potential security issues, please report them to <a href="mailto:&#115;&#101;&#x63;&#x75;&#x72;&#x69;&#x74;&#121;&#x40;&#x73;&#97;&#108;&#101;&#x73;&#102;&#x6f;&#114;&#x63;&#101;&#x2e;&#99;&#x6f;&#x6d;">&#115;&#101;&#x63;&#x75;&#x72;&#x69;&#x74;&#121;&#x40;&#x73;&#97;&#108;&#101;&#x73;&#102;&#x6f;&#114;&#x63;&#101;&#x2e;&#99;&#x6f;&#x6d;</a> as soon as possible.</p>
 				<a href="#additional-documentation" id="additional-documentation" style="color: inherit; text-decoration: none;">
 					<h2>Additional Documentation</h2>
 				</a>
