@@ -10,6 +10,8 @@ baseUriParameters:
     description: A region-specific merchant identifier.
     example: 0dnz6oep
     pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
+traits:
+  SlasRateLimit: !include traits/slasRateLimit.raml
 uses:
   ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.8/api-standards.raml
   CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.10/commerce-cloud-standards.raml
@@ -112,6 +114,14 @@ types:
         type: string
         description: The unique shopper ID. This will be returned when using the client credential grant type.
         example: 18cda486-fe32-4e27-888b-6e4f89938e67
+      customer_id:
+        type: string
+        description: Customer's Id
+        example: "1000005"
+      enc_user_id:
+        type: string
+        description: MD5 Hashed ECOM user id in uppercase.
+        example: "45D39A8499A95288F82855427EBA99B5"
   TokenActionRequest:
     type: object
     properties:
@@ -171,6 +181,12 @@ types:
       get:
         description: Get authorization code after authenticating a user using an ECOM instance.
         displayName: authenticateCustomer
+        is:
+          - SlasRateLimit:
+                responseStatus: 303
+                responseStatus2: 400
+                responseStatus3: 401
+                responseStatus4: 500
         headers:
           Authorization: 
             displayName: Login
@@ -272,6 +288,12 @@ types:
       get:
         description: Get authorization code after authenticating a user against an IDP. This is the first step of the Authorization code grant flow, where a user is able to log in via federation to the IDP configured for the client, and gets an authorization code after successful login via a callback/redirect URI. Mandatory fields are the shopping app's clientId, redirectURI, responseType and authType. This API can be called from the front channel (from the browser).
         displayName: authorizeCustomer
+        is:
+          - SlasRateLimit:
+                responseStatus: 303
+                responseStatus2: 400
+                responseStatus3: 401
+                responseStatus4: 500
         queryParameters:
           redirect_uri:
             description: The URL to which the server redirects the browser after the user grants the authorization. The URI must be pre-registered.
@@ -372,9 +394,14 @@ types:
     /token:
       description: Shopper OAuth2 Token Endpoint.
       post:
-        description: Get the shopper or guest JWT/access token, along with a refresh token. This is the second step of the OAuth2 Authorization code flow where a client app is able to get an access token for the shopper through the backchannel (a trusted server side) by passing in the client credentials and the authorization code retrieved from authorize endpoint. Mandatory fields when using the token endpoint to get the access token are clientId, clientSecret, authorizationCode, grantType of authorization_code. <br/><br/> As a guest user get the shopper JWT / access token along with a refresh token. This is where a client app is able to get an access token for the guest user through the back-channel (a trusted server side) by passing in the client credentials. Mandatory fields when asking for the guest token endpoint to get the access token are clientId, clientSecret, grantType of client_credentials.<br/><br/> Mandatory fields when using the token endpoint to refresh an access token are refreshToken, grantType, or refresh_token. 
-
+        description: Get the shopper or guest JWT/access token, along with a refresh token. This is the second step of the OAuth2 Authorization code flow where a client app is able to get an access token for the shopper through the backchannel (a trusted server side) by passing in the client credentials and the authorization code retrieved from authorize endpoint. Mandatory fields when using the token endpoint to get the access token are clientId, clientSecret, authorizationCode, grantType of authorization_code. <br/><br/> As a guest user get the shopper JWT / access token along with a refresh token. This is where a client app is able to get an access token for the guest user through the back-channel (a trusted server side) by passing in the client credentials. Mandatory fields when asking for the guest token endpoint to get the access token are clientId, clientSecret, grantType of client_credentials.<br/><br/> Mandatory fields when using the token endpoint to refresh an access token are grant_type, or refresh_token. Valid grant types for the token endpoint are REFRESH_TOKEN, CLIENT_CREDENTIALS, AUTHORIZATION_CODE_PKCE.
         displayName: getAccessToken
+        is:
+          - SlasRateLimit:
+                responseStatus: 200
+                responseStatus2: 400
+                responseStatus3: 401
+                responseStatus4: 500
         headers:
           Authorization: 
             displayName: Authorization
@@ -398,7 +425,9 @@ types:
                     "refresh_token": "EgMYpjfFKdlSy-a3PYeyihmP95IpIp3FaDpPmVH1yu8.lahomBi7zJbRa6yKAuAAiKu3lprTPsEueKwqcBvhRLU",
                     "expires_in": 900,
                     "token_type": "Bearer",
-                    "usid": "18cda486-fe32-4e27-888b-6e4f89938e67"               
+                    "usid": "18cda486-fe32-4e27-888b-6e4f89938e67",
+                    "customer_id": "1000005",
+                    "enc_user_id": "45D39A8499A95288F82855427EBA99B5"               
                   }
           400:
             description: Bad Request
