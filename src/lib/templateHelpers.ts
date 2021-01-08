@@ -76,11 +76,14 @@ export const getObjectIdByAssetId = (assetId: string): string => {
   if (ASSET_OBJECT_MAP.hasOwnProperty(assetId)) {
     return ASSET_OBJECT_MAP[assetId];
   }
-  // When this error occurs, find the corresponding API in the CCDC and copy the
-  // object ID from the URL. Add the asset ID and object ID to ASSET_OBJECT_MAP
-  // in ./config.ts.
-  // CCDC API Reference: https://developer.commercecloud.com/s/api-reference
-  throw new Error(`Missing CCDC object ID for "${assetId}"`);
+
+  throw new Error(
+    `Missing CCDC object ID for "${assetId}"
+        When this error occurs, find the corresponding API in the CCDC and copy the
+        object ID from the URL. Add the asset ID and object ID to ASSET_OBJECT_MAP in ./config.ts.
+        CCDC API Reference: https://developer.commercecloud.com/s/api-reference
+    `
+  );
 };
 
 /**
