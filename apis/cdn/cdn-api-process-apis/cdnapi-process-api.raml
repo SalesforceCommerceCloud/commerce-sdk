@@ -13,8 +13,8 @@ baseUriParameters:
 mediaType: application/json
 
 uses:
-  ApiStandards: /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.6/api-standards.raml
-  CommerceCloudStandards: /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.12/commerce-cloud-standards.raml
+  ApiStandards: /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.12/api-standards.raml
+  CommerceCloudStandards: /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.17/commerce-cloud-standards.raml
 
 types:
   
@@ -80,10 +80,6 @@ traits:
   hasResourceNotFoundResponse: !include traits/HasResourceNotFoundResponse.raml
   hasBadRequestResponse: !include traits/HasBadRequestResponse.raml
   hasConflictResponse: !include traits/HasConflictResponse.raml
-  
-securedBy: 
-  - CommerceCloudStandards.BearerToken
-  - CommerceCloudStandards.AmOAuth2
 
 /organizations/{organizationId}:
   type: CommerceCloudStandards.Organization
@@ -102,6 +98,9 @@ securedBy:
               application/json:
                 type: ZonesEnvelope
                 example: !include /examples/zone/zones-get-response.raml
+        securedBy: 
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
+          - CommerceCloudStandards.AmOAuth2
 
   /zones/{zoneId}/waf/groups:
     is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse]
@@ -117,6 +116,9 @@ securedBy:
             application/json:
               type: WafGroupsEnvelope
               example: !include /examples/waf/wafgroups-get-response.raml
+      securedBy: 
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2
     
     /{groupId}:
       put:
@@ -134,6 +136,9 @@ securedBy:
               application/json:
                 type: WafGroupEnvelope
                 example: !include /examples/waf/wafgroup-put-response.raml
+        securedBy: 
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+          - CommerceCloudStandards.AmOAuth2
 
   /zones/{zoneId}/waf/rules:
     is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse]
@@ -155,6 +160,9 @@ securedBy:
             application/json:
               type: WafRulesEnvelope
               example: !include /examples/waf/wafrules-get-response.raml
+      securedBy: 
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2
     /{ruleId}:
       is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse]
       get:
@@ -168,6 +176,9 @@ securedBy:
               application/json:
                 type: WafRuleEnvelope
                 example: !include /examples/waf/wafrule-get-response.raml
+        securedBy: 
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
+          - CommerceCloudStandards.AmOAuth2
       put:
         is: [hasBadRequestResponse]
         displayName: updateWafRule
@@ -183,6 +194,9 @@ securedBy:
               application/json:
                 type: WafRuleEnvelope
                 example: !include /examples/waf/wafrule-put-response.raml
+        securedBy: 
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+          - CommerceCloudStandards.AmOAuth2
 
   /zones/{zoneId}/firewall/rules:
     is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse]
@@ -197,6 +211,9 @@ securedBy:
             application/json:
               type: FirewallRulesEnvelope
               example: !include /examples/firewall/firewall-rules-get-response.raml
+      securedBy: 
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2
 
     post:
       is: [hasBadRequestResponse, hasConflictResponse]
@@ -214,6 +231,9 @@ securedBy:
             application/json:
               type: FirewallRuleEnvelope
               example: !include /examples/firewall/firewall-rules-post-response.raml
+      securedBy: 
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2
 
     /{firewallRuleId}:
       is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse]
@@ -228,6 +248,9 @@ securedBy:
               application/json:
                 type: FirewallRuleEnvelope
                 example: !include /examples/firewall/firewall-rule-get-response.raml
+        securedBy: 
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
+          - CommerceCloudStandards.AmOAuth2
       put:
         is: [hasBadRequestResponse]
         displayName: updateFirewallRule
@@ -244,6 +267,9 @@ securedBy:
               application/json:
                 type: FirewallRuleEnvelope
                 example: !include /examples/firewall/firewall-rules-put-response.raml
+        securedBy: 
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+          - CommerceCloudStandards.AmOAuth2
       
       delete:
         is: [hasResourceNotFoundResponse]
@@ -252,6 +278,9 @@ securedBy:
         responses:
           '204':
             description: Successfully deleted the firewall rule specified by the caller.
+        securedBy: 
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+          - CommerceCloudStandards.AmOAuth2
   
   /zones/{zoneId}/speed-settings:
     is: [hasResourceNotFoundResponse, hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse]
@@ -265,6 +294,9 @@ securedBy:
             application/json:
               type: SpeedSettingsEnvelope
               example: !include /examples/zone/speed-settings-response.raml
+      securedBy: 
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2
     patch:
       is: [hasBadRequestResponse]
       displayName: updateSpeedSettings
@@ -283,3 +315,6 @@ securedBy:
               type: SpeedSettingsEnvelope
               examples:
                 response : !include /examples/zone/speed-settings-response.raml
+      securedBy: 
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2
