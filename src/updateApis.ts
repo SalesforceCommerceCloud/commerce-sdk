@@ -8,15 +8,7 @@
 import path from "path";
 import fs from "fs-extra";
 import { updateApis } from "./lib/utils";
-
-const API_FAMILIES = [
-  "pricing",
-  "customer",
-  "checkout",
-  "search",
-  "product",
-  "cdn",
-];
+import { API_FAMILIES } from "./lib/config";
 
 const PRODUCTION_API_PATH = `${__dirname}/../apis`;
 const STAGING_API_PATH = `${__dirname}/../testIntegration/stagingApis`;
