@@ -37,4 +37,27 @@ export const ASSET_OBJECT_MAP = {
   "shopper-stores": "a003k00000UHwuPAAT",
   "source-code-groups": "a003k00000UHvpTAAT",
   "shopper-login": "a003k00000VWfNDAA1",
+  "shopper-login-slas-admin": "a003k00000Wa43QAAR",
+  "inventory-availability": "a003k00000Wa43pAAB",
+  impex: "a003k00000Wa43kAAB",
+  "inventory-reservation-service": "a003k00000Wa43fAAB",
+};
+
+export const API_FAMILIES = [
+  "pricing",
+  "customer",
+  "checkout",
+  "search",
+  "product",
+  "cdn",
+  "inventory",
+];
+
+export const PRODUCTION_API_PATH = `${__dirname}/../apis`;
+export const STAGING_API_PATH = `${__dirname}/../testIntegration/stagingApis`;
+
+export const CUSTOM_METADATA = {
+  shopperAuthClient: "Customer.ShopperCustomers",
+  shopperAuthApi: "authorizeCustomer",
+  shopperAuthDataType: "Customer",
 };
