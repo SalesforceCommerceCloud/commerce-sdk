@@ -10,8 +10,11 @@ baseUriParameters:
     description: A region-specific merchant identifier.
     example: 0dnz6oep
     pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
+
 traits:
   SlasRateLimit: !include traits/slasRateLimit.raml
+securitySchemes:
+    SlasJWT-BearerSecurityScheme.BearerToken: !include slasJWT-BearerSecurityScheme.raml
 uses:
   ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.8/api-standards.raml
   CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.10/commerce-cloud-standards.raml
@@ -68,10 +71,6 @@ types:
         type: string
         required: false
         example: "http://localhost:9010/callback"
-      channel_id:
-        description: Client channel id
-        type: string
-        example: "SiteGenesis"
       code_verifier:
         description: Created by the client calling the login endpoint.The code verifier should be a high-entropy cryptographic random string with a minimum of 43 characters and a maximum of 128 characters.<br><br>The code_challenge is created by SHA256 hashing the code_verifier and base64 URL encoding the resulting hash Base64UrlEncode(SHA256Hash(code_verifier).<br><br>
         type: string
@@ -172,13 +171,63 @@ types:
         type: string
         required: false
         example: "Missing access or refresh token."
+  LoginRequest:
+    type: object
+    properties:
+      client_id:
+        description: SLAS client Id. The SLAS client_id will be required when using the PKCE flow.
+        required: false
+        type: string   
+        minLength: 8
+        maxLength: 256
+        example: "z99ec276-cg53-4g94-cf72-76f300c6778zc"
+      response_type:
+        description: Must be 'code'. This indicates the client wants an authorization code (grant type of authorization_code).
+        required: false
+        type: ResponseType
+        example: "code"
+      redirect_uri:
+          description: The URL to which the server redirects the browser after the user grants the authorization. The URI must be pre-registered.
+          required: true
+          minLength: 3
+          maxLength: 256
+          type: string
+          example: "http://localhost:9010/callback"
+      state:
+        description: Value to be sent by the client to determine the state between the authorization request and the server response.  Optional, but strongly recommended.
+        required: false
+        type: string
+        maxLength: 256
+        example: "client-state"
+      scope:
+          description: Scopes are to limit an application's access to a user's account. 
+          required: false
+          type: string
+          maxLength: 256
+          example: "openid|offline_access|email"
+      usid:
+        description: The unique shopper ID.
+        required: false
+        type: string
+        example: "18cda486-fe32-4e27-888b-6e4f89938e67"
+      channel_id:
+        description: The channel this request is for. For an ECOM request this is angalous to the site ID.
+        required: true
+        type: string
+        maxLength: 100
+        example: "SiteGenesis"
+      code_challenge:
+        description: Created by the client calling the login endpoint.<br><br>The code_challenge is created by SHA256 hashing the code_verifier and base64 URL encoding the resulting hash Base64UrlEncode(SHA256Hash(code_verifier).<br><br>The code verifier should be a high-entropy cryptographic random string with a minimum of 43 characters and a maximum of 128 characters. 
+        required: true
+        type: string
+        example: "krc5G3_5lRUcXDUzFZQ88oJA_-ZmlHWkyGsgOrSLEWg"
 
 /organizations/{organizationId}:
   type: CommerceCloudStandards.Organization
   /oauth2:
     /login:
-      description: Get authorization code after authenticating a user using an ECOM instance.
-      get:
+      description: <b>The GET method is DEPRECATED - Please use the POST method.</b><br>Get authorization code after authenticating a user using an ECOM instance.
+      post:
         description: Get authorization code after authenticating a user using an ECOM instance.
         displayName: authenticateCustomer
         is:
@@ -194,54 +243,10 @@ types:
             type: string
             required: true
             example: "Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW"
-        queryParameters:
-          response_type:
-            description: Must be 'code'. This indicates the client wants an authorization code (grant type of authorization_code).
-            required: false
-            type: ResponseType
-            example: "code"
-          redirect_uri:
-              description: The URL to which the server redirects the browser after the user grants the authorization. The URI must be pre-registered.
-              required: true
-              minLength: 3
-              maxLength: 256
-              type: string
-              example: "http://localhost:9010/callback"
-          client_id:
-            description: The SLAS client ID.
-            required: true
-            type: string   
-            minLength: 8
-            maxLength: 256
-            example: "z99ec276-cg53-4g94-cf72-76f300c6778zc"
-          state:
-            description: Value to be sent by the client to determine the state between the authorization request and the server response.  Optional, but strongly recommended.
-            required: false
-            type: string
-            maxLength: 256
-            example: "client-state"
-          usid:
-            description: The unique shopper ID.
-            required: false
-            type: string
-            example: "18cda486-fe32-4e27-888b-6e4f89938e67"
-          hint:
-            description : IDP name that can be optionally added to redirect directly to the named IDP.
-            required: false
-            type: string
-            maxLength: 256
-            example: "ECOM"
-          channel_id:
-            description: The channel this request is for. For an ECOM request this is angalous to the site ID.
-            required: false
-            type: string
-            maxLength: 100
-            example: "SiteGenesis"
-          code_challenge:
-            description: Created by the client calling the login endpoint.<br><br>The code_challenge is created by SHA256 hashing the code_verifier and base64 URL encoding the resulting hash Base64UrlEncode(SHA256Hash(code_verifier).<br><br>The code verifier should be a high-entropy cryptographic random string with a minimum of 43 characters and a maximum of 128 characters. 
-            required: true
-            type: string
-            example: "krc5G3_5lRUcXDUzFZQ88oJA_-ZmlHWkyGsgOrSLEWg"
+        body:
+          application/x-www-form-urlencoded:
+            type: LoginRequest
+
         responses:
           303:
             description: Success - authorization code will be added to the redirect_uri. For example, http://localhost:9010/callback?code=eyJ2ZXIiOiIxLjAiLCJraWQiOiJTTEFTIiwidHlwIjoiand0IiwiY2x2IjoiS&state=client-state
@@ -253,6 +258,87 @@ types:
                     "authorizationCode": "eyJ2ZXIiOiIxLjAiLCJraWQiOiJTTEFTIiwidHlwIjoiand0IiwiY2x2IjoiS",
                     "usid": "156c4e69-e89b-406b-a4b7-576980bb234e"              
                   }           
+          400:
+            description: Bad Request
+            body:
+              application/problem+json:
+                type: Oauth2ErrorResponse
+                example: |
+                  {
+                    "error": "invalid_request",
+                    "error_description": "Bad or missing client_id."
+                  }
+          401:
+            description: Unauthorized
+            body:
+              application/problem+json:
+                type: Oauth2ErrorResponse
+                example: |
+                    {
+                    "error": "invalid_client",
+                    "error_description": "Basic Authorization failed."
+                    }
+          500:
+            description: Internal Server Error
+            body:
+              application/problem+json:
+                type: Oauth2ErrorResponse
+                example: |
+                    {
+                    "error": "server_error",
+                    "error_description": "The server has encountered a situation it doesn't know how to handle."
+                    }
+
+    /logout:
+      description: Logout a shopper. The shoppers SLAS token will be revoked and if the shopper authenticated with ECOM the OCAPI JWT will be deleted from ecom.
+      get:
+        description: Logout a shopper.
+        displayName: logoutCustomer
+        is:
+          - SlasRateLimit:
+                responseStatus: 303
+                responseStatus2: 400
+                responseStatus3: 401
+                responseStatus4: 500
+     
+        securedBy:
+          - SlasJWT-BearerSecurityScheme.BearerToken: {Bearer eyJ2ZXIiOiIxLjAiLCJraWQiOiI0ZTQyNTFkOS0zM2Y2LTRjMTMtYjZmZC1mOWJkNTJmYTZhNDciLCJ0eXAiOiJqd3QiLCJjbHYiOiJKMi4xLjAiLCJhbGciOiJFUzI1NiJ9.eyJhdXQiOiJHVUlEIiwic2NwIjoic2ZjYy5wcm9kdWN0cy5ybyBzZmNjLmNhdGFsb2dzLnJvIHNmY2Muc2hvcHBlci5ydyIsInN1YiI6ImNjLXNsYXM6OnNsc2FfZGV2OjpzY2lkOjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3Yjo6dXNpZDoxY2E3OWZiNi0xYjIyLTRmOWItOGJiNi05YmU5NWNjMjA4NjMiLCJjdHgiOiJzbGFzLm5vdF9mb3JfZXh0ZXJuYWxfdXNlIiwiaXNzIjoic2xhcy9kZXYvc2xzYV9kZXYiLCJpc3QiOjEsImF1ZCI6ImNvbW1lcmNlY2xvdWQvZGV2L3Nsc2FfZGV2IiwibmJmIjoxNTk0NzY0MDgwLCJzdHkiOiJVc2VyIiwiaXNiIjoidWlkbzpzbGFzOjp1cG46R3Vlc3Q6OnVpZG46R3Vlc3QgVXNlciIsImV4cCI6MTU5NDc2NTkxMCwiaWF0IjoxNTk0NzY0MTEwLCJqdGkiOiJDMkMxNjM0NTE0NTEwLTE3MTQzMTg2NzY0MjcwNTcyNjQ2NTYxMzgifQ.UVYAsWXCn3hoUPy8vLlc7O96RZEHD3N3ZgdNH-ZVvJ1G-R6uJ2VPrYvwKmYXF41Ujm2bo83AYOHVqEEEPT8Kgw}
+
+        queryParameters:
+          client_id:
+            description: The SLAS client ID.
+            required: true
+            type: string   
+            minLength: 8
+            maxLength: 256
+            example: "z99ec276-cg53-4g94-cf72-76f300c6778zc"
+          refresh_token:
+            description: Refresh token that was given during the access token request.
+            required: true
+            type: string
+          channel_id:
+            description: The channel_id parameter is a MUST (required) if the shopper authenticated using the /login with ECOM.
+            required: false
+            type: string
+            maxLength: 100
+            example: "SiteGenesis"
+        responses:
+          200:
+            description: Success
+            body:
+              application/json:
+                type: TokenResponse
+                example: |
+                  {
+                      "access_token": "",
+                      "id_token": "null",
+                      "refresh_token": "EnL9U2f3-WiVPwL60CFBI21UY_oxWAwX5JkgO-X12Vs",
+                      "expires_in": 0,
+                      "token_type": "Bearer",
+                      "usid": "null",
+                      "customer_id": "null",
+                      "enc_user_id": "null"
+                  }
           400:
             description: Bad Request
             body:
@@ -326,8 +412,8 @@ types:
             type: string
             maxLength: 256
             example: "client-state"
-          uuid:
-            description : ID that uniquely identifies the shopper. This is an optional field, a new UUID will be generated if this field is empty.
+          usid:
+            description : ID that uniquely identifies the shopper much like a UUID. This is an optional field, a new USID will be generated if this field is empty.
             required: false
             type: string
             maxLength: 256
@@ -484,8 +570,18 @@ types:
             description: Success
             body:
               application/json:
-                example:
-                  Success
+                type: TokenResponse
+                example: |
+                  {
+                      "access_token": "",
+                      "id_token": "null",
+                      "refresh_token": "EnL9U2f3-WiVPwL60CFBI21UY_oxWAwX5JkgO-X12Vs",
+                      "expires_in": 0,
+                      "token_type": "Bearer",
+                      "usid": "null",
+                      "customer_id": "null",
+                      "enc_user_id": "null"
+                  }
           400:
             description: Bad Request
             body:
@@ -587,6 +683,15 @@ types:
       get:
         description: Returns a JSON document with claims about the currently authenticated end user.
         displayName: getUserInfo
+        securedBy:
+          - SlasJWT-BearerSecurityScheme.BearerToken: {Bearer eyJ2ZXIiOiIxLjAiLCJraWQiOiI0ZTQyNTFkOS0zM2Y2LTRjMTMtYjZmZC1mOWJkNTJmYTZhNDciLCJ0eXAiOiJqd3QiLCJjbHYiOiJKMi4xLjAiLCJhbGciOiJFUzI1NiJ9.eyJhdXQiOiJHVUlEIiwic2NwIjoic2ZjYy5wcm9kdWN0cy5ybyBzZmNjLmNhdGFsb2dzLnJvIHNmY2Muc2hvcHBlci5ydyIsInN1YiI6ImNjLXNsYXM6OnNsc2FfZGV2OjpzY2lkOjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3Yjo6dXNpZDoxY2E3OWZiNi0xYjIyLTRmOWItOGJiNi05YmU5NWNjMjA4NjMiLCJjdHgiOiJzbGFzLm5vdF9mb3JfZXh0ZXJuYWxfdXNlIiwiaXNzIjoic2xhcy9kZXYvc2xzYV9kZXYiLCJpc3QiOjEsImF1ZCI6ImNvbW1lcmNlY2xvdWQvZGV2L3Nsc2FfZGV2IiwibmJmIjoxNTk0NzY0MDgwLCJzdHkiOiJVc2VyIiwiaXNiIjoidWlkbzpzbGFzOjp1cG46R3Vlc3Q6OnVpZG46R3Vlc3QgVXNlciIsImV4cCI6MTU5NDc2NTkxMCwiaWF0IjoxNTk0NzY0MTEwLCJqdGkiOiJDMkMxNjM0NTE0NTEwLTE3MTQzMTg2NzY0MjcwNTcyNjQ2NTYxMzgifQ.UVYAsWXCn3hoUPy8vLlc7O96RZEHD3N3ZgdNH-ZVvJ1G-R6uJ2VPrYvwKmYXF41Ujm2bo83AYOHVqEEEPT8Kgw}
+#       headers:
+#          Authorization: 
+#            displayName: Authorization
+#            description: SLAS Access Token
+#            type: string
+#           required: true
+#            example: "eyJ2ZXIiOiIxLjAiLCJraWQiOiI0ZTQyNTFkOS0zM2Y2LTRjMTMtYjZmZC1mOWJkNTJmYTZhNDciLCJ0eXAiOiJqd3QiLCJjbHYiOiJKMi4xLjAiLCJhbGciOiJFUzI1NiJ9.eyJhdXQiOiJHVUlEIiwic2NwIjoic2ZjYy5wcm9kdWN0cy5ybyBzZmNjLmNhdGFsb2dzLnJvIHNmY2Muc2hvcHBlci5ydyIsInN1YiI6ImNjLXNsYXM6OnNsc2FfZGV2OjpzY2lkOjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3Yjo6dXNpZDoxY2E3OWZiNi0xYjIyLTRmOWItOGJiNi05YmU5NWNjMjA4NjMiLCJjdHgiOiJzbGFzLm5vdF9mb3JfZXh0ZXJuYWxfdXNlIiwiaXNzIjoic2xhcy9kZXYvc2xzYV9kZXYiLCJpc3QiOjEsImF1ZCI6ImNvbW1lcmNlY2xvdWQvZGV2L3Nsc2FfZGV2IiwibmJmIjoxNTk0NzY0MDgwLCJzdHkiOiJVc2VyIiwiaXNiIjoidWlkbzpzbGFzOjp1cG46R3Vlc3Q6OnVpZG46R3Vlc3QgVXNlciIsImV4cCI6MTU5NDc2NTkxMCwiaWF0IjoxNTk0NzY0MTEwLCJqdGkiOiJDMkMxNjM0NTE0NTEwLTE3MTQzMTg2NzY0MjcwNTcyNjQ2NTYxMzgifQ.UVYAsWXCn3hoUPy8vLlc7O96RZEHD3N3ZgdNH-ZVvJ1G-R6uJ2VPrYvwKmYXF41Ujm2bo83AYOHVqEEEPT8Kgw"
         responses:
           200:
             description: Success

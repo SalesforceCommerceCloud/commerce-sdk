@@ -1,0 +1,18 @@
+#%RAML 1.0 Trait
+description: This trait represents API behavior for a 404 response when no JobExecution could be found for the specified catalog category.
+
+responses:
+  404:
+    description: |
+            Resource requested not found.
+    body:
+      application/problem+json:
+        type: ErrorResponse
+        example: |
+          {
+            "title": "JobExecution Not Found",
+            "type": "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/job-execition-not-found",
+            "detail": "No JobExecution could be found for given catalog, category",
+            "catalogId": "apparel-catalog",
+            "category": "Mens"
+           }

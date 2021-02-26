@@ -1297,6 +1297,236 @@ types:
       hits:
         description: The sorted array of search hits. Can be empty.
         type: Catalog[]
+  RuleRequest:
+    description: This document represents the request body while creating a rule.
+    properties:
+      id:
+        description: The ID of the rule.
+        type: string
+        example: VHRule
+        required: true
+      enabled:
+        description: A flag indicating whether this rule is enabled.
+        type: boolean
+        default: false
+        example: false
+      exclusion:
+        description: A flag indicating whether this rule is an exclusion.
+        type: boolean
+        default: false
+        example: false
+      categorizationLocaleId:
+        description: |
+                This field indicates the locale to be used for evaluating rules/conditions for the entire category. Note: this applies to all the rules for that category, and the last modification for this field will apply to the entire ruleset for that category.
+        type: string
+        example: en_US
+        required: false
+      categorizationClassificationFlag:
+        description: |
+                This field indicates if the matching products assigned as a result of the rules run will be given the tag for classification category. Note: this applies to all the rules for that category, and the last modification for this field will apply to the entire ruleset for that category.
+        type: boolean
+        default: false
+        example: true
+        required: false
+      categorizationPrimaryFlag:
+        description: |
+                This field indicates if the matching products assigned as a result of the rules run will be given the tag for primary category. Note: this applies to all the rules for that category, and the last modification for this field will apply to the entire ruleset for that category.
+        type: boolean
+        default: false
+        required: false
+        example: true
+  Rule:
+    description: Document representing a categorization rule.
+    type: RuleRequest
+    properties:
+      conditions:
+        description: The list of conditions for the rule.
+        type: Condition[]
+        required: false 
+  Condition:
+    description: Document representing a condition.
+    properties:
+      id:
+        description: The ID of the condition.
+        type: string
+        example: NameCondition
+        required: true
+      attributeKey:
+        description: The key of the attribute(system or custom). This represents the ID of the attribute.
+        type: string
+        example: name
+        required: true
+      attributeName:
+        description: The human-readable name of the attribute(system or custom). This is a read-only field.
+        type: string
+        example: name
+        required: false
+      attributeValue:
+        description: The value of the attribute.
+        type: string[]
+        example: ["Shirt"]
+      operator:
+        description: The operator for the condition.
+        type: string
+        example: startsWith
+        required: true
+        enum:
+          - startsWith
+          - contains
+          - equals
+          - notEquals
+          - greaterThan
+          - lessThan
+          - isOneOf
+          - notOneOf
+          - isDefined
+          - isNotDefined
+  RulesResult:
+    description: Result document containing an array of rules.
+    properties:
+      limit:
+        description: The number of returned rules.
+        type: integer
+        format: int32
+        example: 5
+      data:
+        description: The list of rules. This can be empty.
+        type: Rule[]
+        required: false
+      total:
+        description: The total number of rules.
+        type: integer
+        format: int32
+        example: 5        
+  RulesRequest:
+    description: Request document containing an array of rules for saving multiple rules.
+    properties:
+      data:
+        description: The list of rules. This can be empty.
+        type: Rule[]
+        required: false
+  ConditionsResult:
+    description: Result document containing an array of conditions.
+    properties:
+      limit:
+        description: The number of returned conditions.
+        type: integer
+        format: int32
+        example: 10      
+      conditions:
+        description: The list of conditions for a rule. This can be empty.
+        type: Condition[]
+        required: false
+      total:
+        description: The total number of conditions.
+        type: integer
+        format: int32
+        example: 10          
+  ExecutionRequest:
+    description: The document representing the execution Request for categorization.
+    properties:
+      evaluation:
+        description: A flag indicating whether only an evaluation job needs to be performed.
+        type: boolean
+        default: true
+        example: true
+  ExecutionJobStatusResult:
+    description: The status of the execution job.
+    properties:
+      type:
+        description: The type of execution job.
+        type: string
+        required: false
+        enum:
+          - evaluation
+          - execution
+        example: evaluation
+      assignedCount: 
+        description: Indicates total number of products assigned by the execution job.
+        type: integer
+        required: false
+        example: 100
+      unassignedCount: 
+        description: Indicates total number of products unassigned by the execution job.
+        type: integer
+        required: false
+        example: 100
+      matchedCount: 
+        description: Indicates total number of products evaluated and matched by the evaluation job.
+        type: integer
+        required: false
+        example: 100
+      jobStatus: 
+        description: Indicates the status of the rules execution job (that is, indicates whether the job completed successfully or an error occurred).
+        type: string
+        required: true
+        example: success
+        enum:
+          - inProgress
+          - success
+          - error
+          - unavailable
+      message: 
+        description: A description of any errors, failures, and exceptions that caused the job to fail.
+        type: string
+        required: false
+        example: "Job execution failed to start."
+      lastRunDate: 
+        description: The date that the rules categorization job was last run for given catalog and category.
+        type: datetime
+        required: false
+        example: 9999-12-31T00:00:00.0Z
+      productIds:
+        description: The list of matched product IDs returned by the execution job.
+        type: string[]
+        required: false
+        example: [ "25772717",
+                  "25772792"]
+      limit:
+        description: The number to products to return.
+        type: integer
+        format: int32
+        required: false
+        example: 20
+      offset: 
+        description: The zero-based index of the first search hit to include in the result.
+        type: integer
+        format: int32
+        required: false
+        example: 10
+  ExcludedProductsResult:
+    description: The list of excluded products.
+    properties:
+      limit:
+        description: The number of returned excluded product records.
+        type: integer
+        format: int32
+        example: 10
+      data:
+        description: The list of the excluded products. This can be empty.
+        type: ExcludedProduct[]
+        required: false
+      total:
+        description: The total number of excluded product records.
+        type: integer
+        format: int32
+        example: 5 
+  ExcludedProduct:
+    description: The excluded product record.
+    properties:
+      productId:
+        description: The ID of the product.
+        type: string
+        example: red-shirt
+        required: true
+  ExcludedProductRequest:
+    description: The excluded product record
+    properties:
+      data:
+        description: The list of the excluded products.
+        type: ExcludedProduct[]
+        required: true
+  
 
 /organizations/{organizationId}:
   type: CommerceCloudStandards.Organization
@@ -1762,7 +1992,410 @@ types:
                 minLength: 1
                 type: string
                 example: apple-ipod-shuffle
+          /rules-execution:
+            post:
+              description: Submits a job to evaluate or execute the rules. The evaluation returns a set of matching products based on the rules and conditions. The execution categorizes the products based on the evaluated results. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+              displayName: runCategoryRules
+              is:
+                - CatalogTraits.RateLimited4:
+                    responseStatus: 202
+                    responseStatus2: 400
+                    responseStatus3: 401
+                    responseStatus4: 404
+                - CatalogTraits.BadRequest
+                - CatalogTraits.Unauthorized
+                - CatalogTraits.NotFound            
+              responses:
+                202:
+                  description: Job submitted successfully.
+              body:
+                application/json:
+                  type: ExecutionRequest
+                  examples:
+                    executionRequest: !include Examples/executionRequest.raml
+              securedBy:
+                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
+                - CommerceCloudStandards.AmOAuth2  
+            get:
+              description: Gets the status of the latest categorization job which could be evaluation or execution. For evaluation, the matched count and a paginated list of product IDs are returned. For execution, the counts of the products which are assigned or unassigned are returned.This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+              displayName: getCategorizationStatus
+              is:
+                - CatalogTraits.RateLimited4:
+                    responseStatus: 200
+                    responseStatus2: 400
+                    responseStatus3: 401
+                    responseStatus4: 404
+                - CatalogTraits.BadRequest
+                - CatalogTraits.Unauthorized
+                - CatalogTraits.JobExecutionNotFound
+                - CommerceCloudStandards.QueryParamsLimit
+                - CommerceCloudStandards.QueryParamsOffset            
+              responses:
+                200:
+                  description: Job executed status returned successfully.
+                  body:
+                    application/json:
+                      type: ExecutionJobStatusResult
+                      examples:
+                        executionJobStatusResponse: !include Examples/executionJobStatusResponse.raml
+              securedBy:
+                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
+                - CommerceCloudStandards.AmOAuth2   
+          /excluded-products:
+            get:
+              description: Gets the list of excluded products for a given catalog and category. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+              displayName: getExclusionList
+              is:
+                - CatalogTraits.RateLimited4:
+                    responseStatus: 200
+                    responseStatus2: 400
+                    responseStatus3: 401
+                    responseStatus4: 404
+                - CatalogTraits.BadRequest
+                - CatalogTraits.Unauthorized
+                - CatalogTraits.NotFound
+              responses:
+                200:
+                  description: Excluded products retreived successfully
+                  body:
+                    application/json:
+                      type: ExcludedProductsResult
+                      examples:
+                        excludedProductResponse: !include Examples/getExcludedProducts.raml
+              securedBy:
+                  - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
+                  - CommerceCloudStandards.AmOAuth2
+            post:
+              description: Adds the product to the excluded product list for a given catalog and category. Once a product is added as an excluded product for the category, then the the categorization process does not categorize that product for that category. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+              displayName: addProductsToExclusionList
+              is:
+                - CatalogTraits.RateLimited4:
+                    responseStatus: 200
+                    responseStatus2: 400
+                    responseStatus3: 401
+                    responseStatus4: 404
+                - CatalogTraits.BadRequest
+                - CatalogTraits.Unauthorized
+                - CatalogTraits.NotFound            
+              responses:
+                200:
+                  description: Excluded Products List added for a catalog Category.
+                  body:
+                    application/json:
+                      type: ExcludedProductsResult
+                      examples:
+                        excludedProdResponse: !include Examples/getExcludedProducts.raml
+              body:
+                application/json:
+                  type: ExcludedProductRequest
+                  examples: 
+                    excludedProdRequest: !include Examples/excludedProductsRequest.raml
+              securedBy:
+                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
+                - CommerceCloudStandards.AmOAuth2
+            delete:
+              description: Deletes products from the excluded products list for a catalog category. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+              displayName: removeProductsFromExclusionList
+              is:
+                - CatalogTraits.RateLimited4:
+                    responseStatus: 204
+                    responseStatus2: 400
+                    responseStatus3: 401
+                    responseStatus4: 404                 
+                - CatalogTraits.BadRequest
+                - CatalogTraits.Unauthorized
+                - CatalogTraits.RuleNotFound    
+              responses:
+                204:
+                  description: No Content
+              body:
+                application/json:
+                  type: ExcludedProductRequest
+                  examples: 
+                    excludedProdReq: !include Examples/excludedProductsRequest.raml
+              securedBy:
+                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
+                - CommerceCloudStandards.AmOAuth2                              
+          /rules:
+            get:
+              description: Gets all the rules for given catalog and category. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+              displayName: getCategoryRules
+              is:
+                - CatalogTraits.RateLimited4:
+                    responseStatus: 200
+                    responseStatus2: 400
+                    responseStatus3: 401
+                    responseStatus4: 404
+                - CatalogTraits.BadRequest
+                - CatalogTraits.Unauthorized
+                - CatalogTraits.NotFound
+              responses:
+                200:
+                  description: Rules retreived successfully
+                  body:
+                    application/json:
+                      type: RulesResult
+                      examples:
+                        rulesResponse: !include Examples/getRules.raml
+              securedBy:
+                  - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
+                  - CommerceCloudStandards.AmOAuth2
+            delete:
+              description: Deletes all the rules along with conditions for given catalog and category. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+              displayName: deleteCategoryRules
+              is:
+                - CatalogTraits.RateLimited4:
+                    responseStatus: 204
+                    responseStatus2: 400
+                    responseStatus3: 401
+                    responseStatus4: 404                 
+                - CatalogTraits.BadRequest
+                - CatalogTraits.Unauthorized
+                - CatalogTraits.RuleNotFound    
+              responses:
+                204:
+                  description: No Content
+              securedBy:
+                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
+                - CommerceCloudStandards.AmOAuth2
+            post:
+              description: Creates all rules and conditions within the catalog and category. This deletes any existing rules and conditions for that catalog-category and recreates them based on the new request. The LocaleID, PrimaryFlag, and ClassificationFlag can be set on any of the individual rules, but they apply to entire ruleset.  For simplicity, those values can just be provided with one of the rules.  If they are provided with multiple rules, then they must all have the same value for all rules or it could have undesired effects. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+              displayName: createCategoryRules
+              is:
+                - CatalogTraits.RateLimited4:
+                    responseStatus: 200
+                    responseStatus2: 400
+                    responseStatus3: 401
+                    responseStatus4: 404
+                - CatalogTraits.BadRequest
+                - CatalogTraits.Unauthorized
+                - CatalogTraits.NotFound
+              responses:    
+                200:
+                  description: Rules created successfully.
+                  body:
+                    application/json:
+                      type: RulesResult
+                      examples:
+                        ruleResponse:  !include Examples/getRules.raml             
+              body:
+                application/json:
+                  type: RulesRequest
+                  examples:
+                    ruleBody: !include Examples/postRuleRequestBody.raml
+              securedBy:
+                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
+                - CommerceCloudStandards.AmOAuth2
+            
+            /{ruleId}:
+              get:
+                description: Gets rule by ID. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+                displayName: getRuleById
+                is:
+                  - CatalogTraits.RateLimited4:
+                      responseStatus: 200
+                      responseStatus2: 400
+                      responseStatus3: 401
+                      responseStatus4: 404                
+                  - CatalogTraits.BadRequest
+                  - CatalogTraits.Unauthorized
+                  - CatalogTraits.RuleNotFound
+                responses:
+                  200:
+                    description: Rule retreived succesfully
+                    body:
+                      application/json:
+                        type: Rule
+                        examples:
+                          ruleResponse: !include Examples/getRulesByID.raml
+                securedBy:
+                  - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
+                  - CommerceCloudStandards.AmOAuth2 
+              put:
+                description: Creates or updates a rule. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+                displayName: createUpdateRule
+                is:
+                  - CatalogTraits.RateLimited5:
+                      responseStatus: 201
+                      responseStatus2: 400
+                      responseStatus3: 401
+                      responseStatus4: 200
+                      responseStatus5: 404
+                  - CatalogTraits.BadRequest
+                  - CatalogTraits.Unauthorized
+                  - CatalogTraits.NotFound
+                responses:
+                  201:
+                    description: Rule created successfully.
+                    body:
+                      application/json:
+                        type: Rule
+                        examples:
+                          ruleResponse:  !include Examples/putRuleRequestBody.raml             
+                  200:
+                    description: Rule updated successfully.
+                    body:
+                      application/json:
+                        type: Rule
+                        examples:
+                          ruleResponse:  !include Examples/putRuleRequestBody.raml              
+                body:
+                  application/json:
+                    type: RuleRequest
+                    examples:
+                      ruleBody: !include Examples/putRuleRequestBody.raml
+                securedBy:
+                  - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
+                  - CommerceCloudStandards.AmOAuth2
+              delete:
+                description: Deletes a rule. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+                displayName: deleteRule
+                is:
+                  - CatalogTraits.RateLimited4:
+                      responseStatus: 204
+                      responseStatus2: 400
+                      responseStatus3: 401
+                      responseStatus4: 404                 
+                  - CatalogTraits.BadRequest
+                  - CatalogTraits.Unauthorized
+                  - CatalogTraits.RuleNotFound    
+                responses:
+                  204:
+                    description: No Content
+                securedBy:
+                  - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
+                  - CommerceCloudStandards.AmOAuth2  
 
+              uriParameters:
+                ruleId:
+                  description: The Id of the rule
+                  type: string
+                  example: VhRule    
+              /conditions:
+                get:
+                  description: Gets the conditions for a given rule, catalog and category. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+                  displayName: getCategoryRuleConditions
+                  is:
+                    - CatalogTraits.RateLimited4:
+                        responseStatus: 200
+                        responseStatus2: 400
+                        responseStatus3: 401
+                        responseStatus4: 404
+                    - CatalogTraits.BadRequest
+                    - CatalogTraits.Unauthorized
+                    - CatalogTraits.NotFound
+                  responses:
+                    200:
+                      description: Conditions retreived successfully.
+                      body:
+                        application/json:
+                          type: ConditionsResult
+                          examples:
+                            conditionsResult: !include Examples/getConditions.raml
+                  securedBy:
+                  - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
+                  - CommerceCloudStandards.AmOAuth2
+                delete:
+                  description: Deletes all the conditions for a given rule, catalog and category. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+                  displayName: deleteCategoryRuleConditions
+                  is:
+                    - CatalogTraits.RateLimited4:
+                        responseStatus: 204
+                        responseStatus2: 400
+                        responseStatus3: 401
+                        responseStatus4: 404                 
+                    - CatalogTraits.BadRequest
+                    - CatalogTraits.Unauthorized
+                    - CatalogTraits.RuleNotFound    
+                  responses:
+                    204:
+                      description: No Content
+                  securedBy:
+                    - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
+                    - CommerceCloudStandards.AmOAuth2
+                /{conditionId}:
+                  get:
+                    description: Gets a condition By ID. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+                    displayName: getCategoryRuleCondition
+                    is:
+                      - CatalogTraits.RateLimited4:
+                          responseStatus: 200
+                          responseStatus2: 400
+                          responseStatus3: 401
+                          responseStatus4: 404
+                      - CatalogTraits.BadRequest
+                      - CatalogTraits.Unauthorized
+                      - CatalogTraits.NotFound
+                    responses:
+                      200:
+                        description: Condition retreived successfully.
+                        body:
+                          application/json:
+                            type: Condition
+                            examples:
+                              conditionResponse: !include Examples/getConditionByID.raml
+                    securedBy:
+                      - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
+                      - CommerceCloudStandards.AmOAuth2
+                  put:
+                    description: Creates or updates a condition. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+                    displayName: createOrUpdateCategoryRuleCondition
+                    is:
+                      - CatalogTraits.RateLimited5:
+                          responseStatus: 201
+                          responseStatus2: 400
+                          responseStatus3: 401
+                          responseStatus4: 404
+                          responseStatus5: 200
+                      - CatalogTraits.BadRequest
+                      - CatalogTraits.Unauthorized
+                      - CatalogTraits.NotFound
+                    responses:
+                      201:
+                        description: Condition created successfully.
+                        body:
+                          application/json:
+                            type: Condition
+                            examples:
+                              conditionResponse: !include Examples/getConditionByID.raml                      
+                      200:
+                        description: Condition updated successfully.
+                        body:
+                          application/json:
+                            type: Condition
+                            examples:
+                              conditionResponse: !include Examples/getConditionByID.raml
+                    body:
+                      application/json:
+                        type: Condition
+                        examples:
+                          conditionBody: !include Examples/putConditionRequestBody.raml
+                    securedBy:
+                      - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
+                      - CommerceCloudStandards.AmOAuth2
+                  delete:
+                    description: Deletes a condition. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+                    displayName: deleteCategoryRuleCondition
+                    is:
+                      - CatalogTraits.RateLimited4:
+                          responseStatus: 204
+                          responseStatus2: 400
+                          responseStatus3: 401
+                          responseStatus4: 404
+                      - CatalogTraits.BadRequest
+                      - CatalogTraits.Unauthorized
+                      - CatalogTraits.RuleNotFound       
+                    responses:
+                      204:
+                        description: No Content
+                    securedBy:
+                      - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
+                      - CommerceCloudStandards.AmOAuth2 
+                  uriParameters:
+                    conditionId:
+                      description: The Id of the condition.
+                      type: string
+                      example: NameCondition                                           
       /category-search:
         post:
           description: |-
