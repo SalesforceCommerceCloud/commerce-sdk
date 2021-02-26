@@ -26,6 +26,8 @@ types:
   CollectionResponseEnvelope: !include dataTypes/CollectionResponseEnvelope.raml
   ItemResponseEnvelope: !include dataTypes/ItemResponseEnvelope.raml
   SpeedSetting: !include dataTypes/SpeedSetting.raml
+  Certificate: !include dataTypes/Certificate.raml
+  CertificateRequest: !include dataTypes/CertificateRequest.raml
 
   ZonesEnvelope:
     type: CollectionResponseEnvelope
@@ -72,6 +74,16 @@ types:
     properties:
       data:
         type: SpeedSetting
+  CertificateEnvelope:
+    type: ItemResponseEnvelope
+    properties:
+      data:
+        type: Certificate
+  CertificatesEnvelope:
+    type: CollectionResponseEnvelope
+    properties:
+      data:
+        type: Certificate[]
 
 traits:
   hasUnauthorizedResponse: !include traits/HasUnauthorizedResponse.raml
@@ -318,3 +330,42 @@ traits:
       securedBy: 
         - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
         - CommerceCloudStandards.AmOAuth2
+
+  /zones/{zoneId}/certificates:
+    is: [hasResourceNotFoundResponse, hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse]
+    get:
+      displayName: getCertificates
+      description: Retrieves a list of certificates information for a gven zone. 
+      responses:
+        200:
+          description: OK
+          body:
+            application/json:
+              type: CertificatesEnvelope
+              example: !include /examples/zone/certificates-get-response.raml
+      securedBy:
+         - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+         - CommerceCloudStandards.AmOAuth2
+    /{certificateId}:
+      patch:
+        is: [hasBadRequestResponse]
+        displayName: updateCertificate
+        description: Updates the certificate for a given certificateId for a particular zone.
+        body:
+          application/json:
+            type: CertificateRequest
+            examples: !include /examples/zone/certificate-update-request.raml
+        responses:
+          '200':
+            description: Successfully updated speed settings requested by the caller.
+            body:
+              application/json:
+                type: CertificateEnvelope
+                examples:
+                  response : !include /examples/zone/certificate-update-response.raml
+      securedBy: 
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2
+
+        
+    

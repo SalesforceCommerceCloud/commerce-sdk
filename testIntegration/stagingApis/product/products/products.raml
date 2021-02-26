@@ -894,6 +894,61 @@ types:
         type: integer
         format: int32
         example: 10
+  CategorizationAttributeDefiniton:
+    description: The categorization attribute definition.
+    properties:
+      id:
+        description: The ID of the supported attribute.
+        type: string
+        example: "producttype"
+        required: true
+      attributeName:
+        description: The display name of the supported attribute.
+        type: string
+        example: "Product Type"
+        required: false
+      attributeType:
+        description: |
+                The type of the attribute (custom/system/categorization). "system" indicates the System Attribute of the Product in ECOM, "custom" indicates the Custom Attribute of the Product in ECOM defined by merchant and "categorization" indicates the attribute used for categorization purposes ONLY and is not a defined attribute on the Product Object.
+        type: string
+        example: categorization
+        required: true
+        enum:
+          - custom
+          - system
+          - categorization
+      valueType:
+        description: The value type of the attribute.
+        type: string
+        example: "string"
+        required: true
+      allowedOperators:
+        description: The list of allowed operators for this attribute based on its value type.
+        type: string[]
+        example: ["equals","notEquals"]
+        required: true
+      allowedValues:
+        description: The list of allowed values for this attribute if its attributeType is an ENUM.
+        type: string[]
+        example: ["master","variationProduct"]
+        required: false
+  CategorizationAttributeDefinitonsResult:
+    description: The list of categorization attributes supported for rule based categorization.
+    properties:
+      limit:
+        description: The number of returned categorization attribute definition records.
+        type: integer
+        format: int32
+        example: 10
+      data:
+        description: The list of the categorization attribute definitions. This can be empty.
+        type: CategorizationAttributeDefiniton[]
+        required: false
+      total:
+        description: The total number of categorization attribute definition records.
+        type: integer
+        format: int32
+        example: 5 
 
 /organizations/{organizationId}:
   type: CommerceCloudStandards.Organization
@@ -1960,6 +2015,33 @@ types:
             minLength: 1
             type: string
             example: screenSize
+
+/organizations/{organizationId}/categorization-attribute-definitions:
+  get:
+    description: |
+                Gets the list of allowed attributes, values, and operators for creating rule-based categorization conditions. This endpoint is in closed beta, available to select few customers. Note: Please get in touch with your Account Team if you'd like to participate in the beta program.
+    displayName: getCategorizationAttributeDefinitions
+    is:
+      - ApiStandards.RateLimited3:
+          responseStatus: 200
+          responseStatus2: 400
+          responseStatus3: 401
+      - ProductTraits.BadRequest
+      - ProductTraits.Unauthorized
+    responses:
+      200:
+        description: Categorization attribute definitions retrieved successfully.
+        body:
+          application/json:
+            type: CategorizationAttributeDefinitonsResult
+            examples:
+              result: !include Examples/CategorizationAttributeDefinitionResult.raml
+    securedBy:
+      - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
+      - CommerceCloudStandards.AmOAuth2
+    
+
+    
 
 /organizations/{organizationId}/product-search:
   post:

@@ -1,5 +1,12 @@
 ## CHANGELOG
 
+
+### v2.2.1
+
+#### ** API Changes**
+
+
+
 ### v2.1.1
 #### **API Changes**
 
