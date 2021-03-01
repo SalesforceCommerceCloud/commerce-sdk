@@ -1,5 +1,51 @@
 ## CHANGELOG
 
+### v2.2.0
+
+#### ** New API **
+
+*Shopper Login Authentication Service* is now supported in the SDK
+
+#### ** API Changes**
+
+*CDN Zones API*
+* New operations
+  * getCertificates 
+  * updateCertificates  
+
+*Shopper Login* *BETA*
+* New operation
+  * logoutCustomer
+
+* Operation changed
+  * authenticateCustomer changed from GET to POST
+  
+*Catalogs*
+* New operations
+  * runCategoryRules
+  * getCategorizationStatus
+  * createUpdateRule
+  * deleteRule
+  * getCategoryRuleConditions
+  * deleteCategoryRuleConditions
+
+*Products*
+* New operation
+  * getCategorizationAttributeDefinitions
+
+
+
+
+### v2.1.1
+#### **API Changes**
+
+*CDN Zones API*
+* Scopes added
+
+*Shopper Login*
+* Updates made
+
+* Security and documentation updates made.
 ### v2.1.0
 #### **API Changes**
 
