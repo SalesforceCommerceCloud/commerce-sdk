@@ -7,7 +7,11 @@ import { OperationOptions } from "retry";
 export namespace {{name.upperCamelCase}} {
   {{#each dataTypes}}
       {{#if (or (isTypeDefinition this) (isArrayType this))}}
-export type {{getValue name}} = {{> dtoPartial typeDto=this}}
+  export type {{getValue name}} = {{> dtoPartial typeDto=this}}
+      {{/if}}
+      {{!-- Traits are internal types and do not need to be exported --}}
+      {{#if (and (isTraitDefinition this) (isAllowedTrait this))}}
+  type {{getValue name}} = {{> dtoPartial typeDto=this}}
       {{/if}}
   {{/each}}
 }

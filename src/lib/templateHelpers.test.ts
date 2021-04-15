@@ -13,6 +13,8 @@ import {
   isCommonQueryParameter,
 } from "./templateHelpers";
 import { commonParameterPositions } from "@commerce-apps/core";
+import { isAllowedTrait } from "./templateHelpers";
+import { amf } from "@commerce-apps/raml-toolkit";
 
 describe("When adding namespaces to individual content (types)", () => {
   it("Prefixes the namespace successfully ", () => {
@@ -193,5 +195,18 @@ describe("Test isCommonQueryParameter template help function", () => {
     commonParameterPositions.queryParameters.forEach((p) => {
       expect(isCommonQueryParameter(p)).to.be.true;
     });
+  });
+});
+
+describe("Allowed trait check", () => {
+  it('returns false for "offset-paginated"', () => {
+    const trait = new amf.model.domain.Trait();
+    trait.withName("offset-paginated");
+    expect(isAllowedTrait(trait)).to.be.false;
+  });
+  it("returns true for any other trait", () => {
+    const trait = new amf.model.domain.Trait();
+    trait.withName("OffsetPaginated");
+    expect(isAllowedTrait(trait)).to.be.true;
   });
 });
