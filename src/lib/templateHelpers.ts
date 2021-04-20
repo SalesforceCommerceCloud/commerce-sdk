@@ -135,8 +135,9 @@ export const isCommonQueryParameter = (property: string): boolean =>
 
 /**
  * Checks whether a trait name is allowed to be used in the API.
- * Currently only disallows "offset-paginated", as "OffsetPaginated" is also
- * available, and is preferred.
+ * Currently only disallows "offset-paginated", as "OffsetPaginated" is used instead.
+ * The kebab-case name does not conform with Salesforce API standards, but is kept
+ * to maintain backward compatibility.
  *
  * @param trait - Trait to check
  * @returns true unless the trait's name is "offset-paginated"
