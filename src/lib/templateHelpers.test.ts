@@ -199,14 +199,33 @@ describe("Test isCommonQueryParameter template help function", () => {
 });
 
 describe("Allowed trait check", () => {
-  it('returns false for "offset-paginated"', () => {
+  it("returns true for upper camel case names", () => {
+    const trait = new amf.model.domain.Trait();
+    trait.withName("OffsetPaginated");
+    expect(isAllowedTrait(trait)).to.be.true;
+  });
+
+  it("returns true for lower camel case names", () => {
+    const trait = new amf.model.domain.Trait();
+    trait.withName("offsetPaginated");
+    expect(isAllowedTrait(trait)).to.be.true;
+  });
+
+  it("returns false for kebab case names", () => {
     const trait = new amf.model.domain.Trait();
     trait.withName("offset-paginated");
     expect(isAllowedTrait(trait)).to.be.false;
   });
-  it("returns true for any other trait", () => {
+
+  it("returns false for snake case names", () => {
     const trait = new amf.model.domain.Trait();
-    trait.withName("OffsetPaginated");
-    expect(isAllowedTrait(trait)).to.be.true;
+    trait.withName("offset_paginated");
+    expect(isAllowedTrait(trait)).to.be.false;
+  });
+
+  it("returns false for multi-word names", () => {
+    const trait = new amf.model.domain.Trait();
+    trait.withName("offset paginated");
+    expect(isAllowedTrait(trait)).to.be.false;
   });
 });

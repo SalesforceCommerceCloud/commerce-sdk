@@ -10,8 +10,12 @@ export namespace {{name.upperCamelCase}} {
   export type {{getValue name}} = {{> dtoPartial typeDto=this}}
       {{/if}}
       {{!-- Traits are internal types and do not need to be exported --}}
-      {{#if (and (isTraitDefinition this) (isAllowedTrait this))}}
+      {{#if (isTraitDefinition this)}}
+        {{#if (isAllowedTrait this) }}
   type {{getValue name}} = {{> dtoPartial typeDto=this}}
+        {{else}}
+        {{log "Cannot convert invalid trait to type:" (getValue name) lavel="warn"}}
+        {{/if}}
       {{/if}}
   {{/each}}
 }

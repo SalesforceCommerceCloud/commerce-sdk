@@ -134,13 +134,17 @@ export const isCommonQueryParameter = (property: string): boolean =>
     : false;
 
 /**
- * Checks whether a trait name is allowed to be used in the API.
- * Currently only disallows "offset-paginated", as "OffsetPaginated" is used instead.
- * The kebab-case name does not conform with Salesforce API standards, but is kept
- * to maintain backward compatibility.
+ * Checks whether a trait is allowed to be used in the API. Only traits that comply
+ * with API standards are allowed.
+ *
+ * Currently, the only known non-compliant trait is "offset-paginated". It does
+ * not comply because it is not a camel case name. It can be safely ignored because
+ * the compliant "OffsetPaginated" is also available. (The kebab case version has
+ * not been removed to maintain backward compatibility.)
  *
  * @param trait - Trait to check
  * @returns true unless the trait's name is "offset-paginated"
  */
-export const isAllowedTrait = (trait: amf.model.domain.Trait): boolean =>
-  trait.name.value() !== "offset-paginated";
+export const isAllowedTrait = (trait: amf.model.domain.Trait): boolean => {
+  return /^[A-Za-z][A-Za-z0-9]*$/.test(trait.name.value());
+};
