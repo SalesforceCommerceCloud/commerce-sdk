@@ -1,5 +1,16 @@
 ## CHANGELOG
 
+### v2.3.0
+
+#### ** New API **
+*SLAS (Shopper Login & API Authentication Service) Administration* is now supported in the SDK
+
+#### ** API Changes**
+*Shopper Customers*
+* New operations
+  * registerExternalProfile
+  * getExternalProfile
+
 ### v2.2.0
 
 #### ** New API **
@@ -32,9 +43,6 @@
 *Products*
 * New operation
   * getCategorizationAttributeDefinitions
-
-
-
 
 ### v2.1.1
 #### **API Changes**

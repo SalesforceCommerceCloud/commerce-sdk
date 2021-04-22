@@ -3277,7 +3277,49 @@ types:
         properties:
           //:
             type: string
-
+  CustomerExtProfileRequest:
+    description: Document representing the External Profile Request.
+    properties:
+      authenticationProviderId:
+        description: The authentication Provider Id 
+        type: string
+        minLength: 1
+        required: true
+        example: "Google"
+      email:
+        description: The Email of the customer.
+        type: string
+        minLength: 1
+        required: false
+        example: "s@gmail.com"
+      externalId:
+        description: The ID of the customer.
+        type: string
+        minLength: 1
+        required: true
+        example: "s@gmail.com"
+      firstName:
+        description: The First Name of the customer.
+        type: string
+        minLength: 1
+        required: false
+        example: "s"
+      lastName:
+        description: The Last Name of the customer.
+        type: string
+        minLength: 1
+        required: false
+        example: "s"
+  CustomerExternalProfile:
+    description: The Document representing the External Profile of a Customer.
+    type: CustomerExtProfileRequest
+    properties:
+      customerId:
+        description: The Id of the Customer
+        type: string
+        minLength: 1
+        required: true
+        example: "1234"
 /organizations/{organizationId}:
   type: CommerceCloudStandards.Organization
   /customers:
@@ -3487,6 +3529,67 @@ types:
             example: {
               "login": "janedoe@test.com"
             }
+    /external-profile:
+      post:
+        description: Registers a new external profile for a customer. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program
+        displayName: registerExternalProfile
+        is:
+          - CommerceCloudStandards.SiteSpecific:
+          - ApiStandards.RateLimited3:
+              responseStatus: 200
+              responseStatus2: 400
+              responseStatus3: 401 
+          - CustomerTraits.BadRequest
+          - CustomerTraits.CustomerAuthenticationFailed
+        responses:
+          '200':
+            description: Success
+            body:
+              application/json:
+                type: CustomerExternalProfile
+                example: !include Examples/CustomerExternalProfile.raml
+        securedBy:
+          - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-customers.register] }
+        body:
+          application/json:
+            type: CustomerExtProfileRequest
+            example: !include Examples/ExternalProfileRequest.raml
+      get:
+        description: Gets the new external profile for a customer.This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program
+        displayName: getExternalProfile
+        is:
+          - CommerceCloudStandards.SiteSpecific:
+          - ApiStandards.RateLimited3:
+              responseStatus: 200
+              responseStatus2: 400
+              responseStatus3: 404
+          - CustomerTraits.CustomerExtProfileBadRequest
+          - CustomerTraits.CustomerExtProfileNotFound
+        queryParameters:
+          externalId: 
+            description: The External ID of the customer.
+            type: string
+            required: true
+            minLength: 1
+            example: "s@gmail.com"
+          authenticationProviderId:
+            description: The authentication Provider Id.
+            type: string
+            minLength: 1
+            required: true
+            example: "Google"
+        responses:
+          '200':
+            description: Success
+            body:
+              application/json:
+                type: CustomerExternalProfile
+                example: !include Examples/CustomerExternalProfile.raml
+        securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.shopper-customers.login] }
+          - CommerceCloudStandards.AmOAuth2
+
+
     /{customerId}:
       get:
         description: Gets a customer with all existing addresses and payment instruments associated with the requested customer.

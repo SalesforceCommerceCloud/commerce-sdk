@@ -15,7 +15,7 @@ mediaType: application/json
 
 uses:
   CouponTraits: coupons-traits-library.raml
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.12/api-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.13/api-standards.raml
   CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml
 
 types:
@@ -247,9 +247,10 @@ types:
          Note that only searchable attributes can be used in sorting.         
       displayName: couponsSearch
       is:
-        - ApiStandards.RateLimited2:
+        - ApiStandards.RateLimited:
             responseStatus: 200
-            responseStatus2: 400
+        - ApiStandards.RateLimited:
+            responseStatus: 400
       responses:
         '200':
           description: API executed Successfully.
@@ -288,9 +289,10 @@ types:
           If the user role does not have the `View_Coupon_Codes` permission, then the coupon codes returned are masked.
         displayName: couponRedemptionsSearch
         is:
-        - ApiStandards.RateLimited2:
+        - ApiStandards.RateLimited:
             responseStatus: 200
-            responseStatus2: 400
+        - ApiStandards.RateLimited:    
+            responseStatus: 400
         responses:
           '200':
             description: API executed Successfully.
@@ -327,9 +329,10 @@ types:
         displayName: getCoupon
         is:
           - CouponTraits.CouponNotFound
-          - ApiStandards.RateLimited2:
+          - ApiStandards.RateLimited:
               responseStatus: 200
-              responseStatus2: 404
+          - ApiStandards.RateLimited:    
+              responseStatus: 404
         responses:
           '200':
             description: API returned successfully.
@@ -344,10 +347,12 @@ types:
         description: Updates the coupon with the specified information.
         displayName: updateCoupon
         is:
-        - ApiStandards.RateLimited3:
+        - ApiStandards.RateLimited:
             responseStatus: 200
-            responseStatus2: 400
-            responseStatus3: 403
+        - ApiStandards.RateLimited:    
+            responseStatus: 400
+        - ApiStandards.RateLimited:    
+            responseStatus: 403
         responses:
           '200':
             description: API returned successfully.
@@ -381,10 +386,12 @@ types:
            the coupon is replaced completely.
         displayName: createCoupon
         is:
-        - ApiStandards.RateLimited3:
+        - ApiStandards.RateLimited:
             responseStatus: 200
-            responseStatus2: 400
-            responseStatus3: 403
+        - ApiStandards.RateLimited:    
+            responseStatus: 400
+        - ApiStandards.RateLimited:    
+            responseStatus: 403
         responses:
           '200':
             description: API returned successfully.
@@ -432,9 +439,10 @@ types:
             - ApiStandards.OffsetPaginated:
                 maxLimit: 200
                 defaultSize: 25
-            - ApiStandards.RateLimited2:
+            - ApiStandards.RateLimited:
                 responseStatus: 200
-                responseStatus2: 404
+            - ApiStandards.RateLimited:    
+                responseStatus: 404
           responses:
             '200':
               description: API returned successfully.
@@ -450,10 +458,12 @@ types:
           displayName: updateCouponCodes
           is:
             - CouponTraits.CouponNotFound
-            - ApiStandards.RateLimited3:
+            - ApiStandards.RateLimited:
                 responseStatus: 204
-                responseStatus2: 400
-                responseStatus3: 404
+            - ApiStandards.RateLimited:    
+                responseStatus: 400
+            - ApiStandards.RateLimited:    
+                responseStatus: 404
           responses:
             '204':
               description: API returned successfully.
