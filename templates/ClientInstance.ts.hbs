@@ -7,7 +7,15 @@ import { OperationOptions } from "retry";
 export namespace {{name.upperCamelCase}} {
   {{#each dataTypes}}
       {{#if (or (isTypeDefinition this) (isArrayType this))}}
-export type {{getValue name}} = {{> dtoPartial typeDto=this}}
+  export type {{getValue name}} = {{> dtoPartial typeDto=this}}
+      {{/if}}
+      {{!-- Traits are internal types and do not need to be exported --}}
+      {{#if (isTraitDefinition this)}}
+        {{#if (isAllowedTrait this) }}
+  type {{getValue name}} = {{> dtoPartial typeDto=this}}
+        {{else}}
+        {{log "Cannot convert invalid trait to type:" (getValue name) lavel="warn"}}
+        {{/if}}
       {{/if}}
   {{/each}}
 }

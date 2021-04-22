@@ -13,6 +13,8 @@ import {
   isCommonQueryParameter,
 } from "./templateHelpers";
 import { commonParameterPositions } from "@commerce-apps/core";
+import { isAllowedTrait } from "./templateHelpers";
+import { amf } from "@commerce-apps/raml-toolkit";
 
 describe("When adding namespaces to individual content (types)", () => {
   it("Prefixes the namespace successfully ", () => {
@@ -193,5 +195,37 @@ describe("Test isCommonQueryParameter template help function", () => {
     commonParameterPositions.queryParameters.forEach((p) => {
       expect(isCommonQueryParameter(p)).to.be.true;
     });
+  });
+});
+
+describe("Allowed trait check", () => {
+  it("returns true for upper camel case names", () => {
+    const trait = new amf.model.domain.Trait();
+    trait.withName("OffsetPaginated");
+    expect(isAllowedTrait(trait)).to.be.true;
+  });
+
+  it("returns true for lower camel case names", () => {
+    const trait = new amf.model.domain.Trait();
+    trait.withName("offsetPaginated");
+    expect(isAllowedTrait(trait)).to.be.true;
+  });
+
+  it("returns false for kebab case names", () => {
+    const trait = new amf.model.domain.Trait();
+    trait.withName("offset-paginated");
+    expect(isAllowedTrait(trait)).to.be.false;
+  });
+
+  it("returns false for snake case names", () => {
+    const trait = new amf.model.domain.Trait();
+    trait.withName("offset_paginated");
+    expect(isAllowedTrait(trait)).to.be.false;
+  });
+
+  it("returns false for multi-word names", () => {
+    const trait = new amf.model.domain.Trait();
+    trait.withName("offset paginated");
+    expect(isAllowedTrait(trait)).to.be.false;
   });
 });
