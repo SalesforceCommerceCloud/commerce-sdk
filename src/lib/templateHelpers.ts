@@ -8,6 +8,7 @@
 import { ASSET_OBJECT_MAP } from "./config";
 
 import { commonParameterPositions } from "@commerce-apps/core";
+import { amf } from "@commerce-apps/raml-toolkit";
 
 /**
  * Given an individual type or an array of types in the format Array\<Foo | Baa\>
@@ -131,3 +132,19 @@ export const isCommonQueryParameter = (property: string): boolean =>
   property
     ? commonParameterPositions.queryParameters.includes(property.toString())
     : false;
+
+/**
+ * Checks whether a trait is allowed to be used in the API. Only traits that comply
+ * with API standards are allowed.
+ *
+ * Currently, the only known non-compliant trait is "offset-paginated". It does
+ * not comply because it is not a camel case name. It can be safely ignored because
+ * the compliant "OffsetPaginated" is also available. (The kebab case version has
+ * not been removed to maintain backward compatibility.)
+ *
+ * @param trait - Trait to check
+ * @returns true unless the trait's name is "offset-paginated"
+ */
+export const isAllowedTrait = (trait: amf.model.domain.Trait): boolean => {
+  return /^[A-Za-z][A-Za-z0-9]*$/.test(trait.name.value());
+};
