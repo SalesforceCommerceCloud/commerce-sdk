@@ -14,8 +14,8 @@ description: Use the Shop Products & Catalogs API to interact with the API in th
 
 uses:
   ProdTraits: products-traits-library.raml
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.8/api-standards.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.15/commerce-cloud-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.13/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.17/commerce-cloud-standards.raml
 
 types:
   BundledProduct:
@@ -729,11 +729,30 @@ types:
         type: string
         required: false
         example: "apparel"
+      parentCategoryTree:
+        description: The List of the parent categories.
+        type: array
+        items:
+          type: PathRecord
+        required: false
       thumbnail:
         description: The URL of the category thumbnail.
         type: string
         required: false
         example: "https://www.exampleimage.com/images/categoryImage.jpg"
+  PathRecord:
+    description: Document representing most basic info (id and name) of a category or catalog.
+    properties:
+      id: 
+        description: The id of the category path.
+        type: string
+        example: "mens"
+        required: false
+      name:
+        description: The name of the category path.
+        type: string
+        example: "mens"
+        required: false
   CategoryResult:
     description: Result document containing an array of categories.
     properties:
@@ -757,14 +776,16 @@ types:
   type: CommerceCloudStandards.Organization
   /products:
     get:     
-      description: 'Allows access to multiple products by a single request. Only products that are online and assigned to a site catalog are returned. The maximum number of productIDs that can be requested are 24. Alongwith product details, the availability, images, price, promotion and variations data for the valid products will be included as appropriate.' 
+      description: 'Allows access to multiple products by a single request. Only products that are online and assigned to a site catalog are returned. The maximum number of productIDs that can be requested are 24. Along with product details, the availability, images, price, promotions, and variations for the valid products will be included, as appropriate.' 
       displayName: getProducts      
       is:
         - CommerceCloudStandards.SiteSpecific:
-        - ApiStandards.RateLimited3:
+        - ApiStandards.RateLimited:
             responseStatus: 200
-            responseStatus2: 400
-            responseStatus3: 401
+        - ApiStandards.RateLimited:
+            responseStatus: 400
+        - ApiStandards.RateLimited:
+            responseStatus: 401
         - ProdTraits.Unauthorized
         - ProdTraits.BadRequest 
       queryParameters:
@@ -806,15 +827,18 @@ types:
         - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-products] }
     /{id}:
       get:
-        description: Allows access to product details for a single product ID. Only products that are online and assigned to a site catalog are returned. Along with product details, the availability,images,price,bundled_products,set_products,recommedations,productoptions,variation and promotion data for the products will be included as appropriate.
+        description: 'Allows access to product details for a single product ID. Only products that are online and assigned to a site catalog are returned. Along with product details, the availability, images, price, bundled_products, set_products, recommedations, product options, variations, and promotions for the products will be included, as appropriate.'
         displayName: getProduct
         is: 
           - CommerceCloudStandards.SiteSpecific:
-          - ApiStandards.RateLimited4:
+          - ApiStandards.RateLimited:
               responseStatus: 200
-              responseStatus2: 400
-              responseStatus3: 401 
-              responseStatus4: 404       
+          - ApiStandards.RateLimited:
+              responseStatus: 400
+          - ApiStandards.RateLimited:
+              responseStatus: 401 
+          - ApiStandards.RateLimited:
+              responseStatus: 404       
           - ProdTraits.Unauthorized
           - ProdTraits.BadRequest
           - ProdTraits.NotFound
@@ -862,10 +886,12 @@ types:
       displayName: getCategories
       is:
         - CommerceCloudStandards.SiteSpecific:
-        - ApiStandards.RateLimited3:
+        - ApiStandards.RateLimited:
             responseStatus: 200
-            responseStatus2: 400
-            responseStatus3: 401
+        - ApiStandards.RateLimited:
+            responseStatus: 400
+        - ApiStandards.RateLimited:
+            responseStatus: 401
         - ProdTraits.BadRequest
         - ProdTraits.Unauthorized
       queryParameters:
@@ -906,11 +932,14 @@ types:
         displayName: getCategory
         is: 
           - CommerceCloudStandards.SiteSpecific:
-          - ApiStandards.RateLimited4:
+          - ApiStandards.RateLimited:
               responseStatus: 200
-              responseStatus2: 400
-              responseStatus3: 401 
-              responseStatus4: 404
+          - ApiStandards.RateLimited:
+              responseStatus: 400
+          - ApiStandards.RateLimited:
+              responseStatus: 401
+          - ApiStandards.RateLimited: 
+              responseStatus: 404
           - ProdTraits.Unauthorized
           - ProdTraits.BadRequest
           - ProdTraits.NotFound

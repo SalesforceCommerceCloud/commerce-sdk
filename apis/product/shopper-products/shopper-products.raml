@@ -729,11 +729,30 @@ types:
         type: string
         required: false
         example: "apparel"
+      parentCategoryTree:
+        description: The List of the parent categories.
+        type: array
+        items:
+          type: PathRecord
+        required: false
       thumbnail:
         description: The URL of the category thumbnail.
         type: string
         required: false
         example: "https://www.exampleimage.com/images/categoryImage.jpg"
+  PathRecord:
+    description: Document representing most basic info (id and name) of a category or catalog.
+    properties:
+      id: 
+        description: The id of the category path.
+        type: string
+        example: "mens"
+        required: false
+      name:
+        description: The name of the category path.
+        type: string
+        example: "mens"
+        required: false
   CategoryResult:
     description: Result document containing an array of categories.
     properties:
@@ -757,7 +776,7 @@ types:
   type: CommerceCloudStandards.Organization
   /products:
     get:     
-      description: 'Allows access to multiple products by a single request. Only products that are online and assigned to a site catalog are returned. The maximum number of productIDs that can be requested are 24. Alongwith product details, the availability, images, price, promotion and variations data for the valid products will be included as appropriate.' 
+      description: 'Allows access to multiple products by a single request. Only products that are online and assigned to a site catalog are returned. The maximum number of productIDs that can be requested are 24. Along with product details, the availability, images, price, promotions, and variations for the valid products will be included, as appropriate.' 
       displayName: getProducts      
       is:
         - CommerceCloudStandards.SiteSpecific:
@@ -806,7 +825,7 @@ types:
         - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-products] }
     /{id}:
       get:
-        description: Allows access to product details for a single product ID. Only products that are online and assigned to a site catalog are returned. Along with product details, the availability,images,price,bundled_products,set_products,recommedations,productoptions,variation and promotion data for the products will be included as appropriate.
+        description: 'Allows access to product details for a single product ID. Only products that are online and assigned to a site catalog are returned. Along with product details, the availability, images, price, bundled_products, set_products, recommedations, product options, variations, and promotions for the products will be included, as appropriate.'
         displayName: getProduct
         is: 
           - CommerceCloudStandards.SiteSpecific:

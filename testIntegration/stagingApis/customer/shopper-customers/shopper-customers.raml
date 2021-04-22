@@ -13,9 +13,9 @@ baseUriParameters:
 description: Let's customers to register, get authorization tokens, reset passwords, add/delete payment instruments, set up a wish list, add, delete, or modify addresses, and so on. 
 
 uses:
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.8/api-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.13/api-standards.raml
   CustomerTraits: Customer-traits-library.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.15/commerce-cloud-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.17/commerce-cloud-standards.raml
 
 types:
   AuthRequest:
@@ -3277,7 +3277,49 @@ types:
         properties:
           //:
             type: string
-
+  CustomerExtProfileRequest:
+    description: Document representing the External Profile Request.
+    properties:
+      authenticationProviderId:
+        description: The authentication Provider Id 
+        type: string
+        minLength: 1
+        required: true
+        example: "Google"
+      email:
+        description: The Email of the customer.
+        type: string
+        minLength: 1
+        required: false
+        example: "s@gmail.com"
+      externalId:
+        description: The ID of the customer.
+        type: string
+        minLength: 1
+        required: true
+        example: "s@gmail.com"
+      firstName:
+        description: The First Name of the customer.
+        type: string
+        minLength: 1
+        required: false
+        example: "s"
+      lastName:
+        description: The Last Name of the customer.
+        type: string
+        minLength: 1
+        required: false
+        example: "s"
+  CustomerExternalProfile:
+    description: The Document representing the External Profile of a Customer.
+    type: CustomerExtProfileRequest
+    properties:
+      customerId:
+        description: The Id of the Customer
+        type: string
+        minLength: 1
+        required: true
+        example: "1234"
 /organizations/{organizationId}:
   type: CommerceCloudStandards.Organization
   /customers:
@@ -3286,10 +3328,12 @@ types:
       displayName: registerCustomer
       is:
         - CommerceCloudStandards.SiteSpecific:
-        - ApiStandards.RateLimited3:
+        - ApiStandards.RateLimited:
             responseStatus: 200
-            responseStatus2: 400
-            responseStatus3: 401
+        - ApiStandards.RateLimited:
+            responseStatus: 400
+        - ApiStandards.RateLimited:
+            responseStatus: 401
         - CustomerTraits.BadRequest
         - CustomerTraits.CustomerAuthenticationFailed
       responses:
@@ -3371,10 +3415,12 @@ types:
           displayName: authorizeCustomer
           is:
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
+            - ApiStandards.RateLimited:
                 responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 401
+            - ApiStandards.RateLimited:
+                responseStatus: 400
+            - ApiStandards.RateLimited:
+                responseStatus: 401
             - CustomerTraits.BadRequest
             - CustomerTraits.CustomerAuthenticationFailed
           responses:
@@ -3415,9 +3461,10 @@ types:
         displayName: authorizeTrustedSystem
         is:
           - CommerceCloudStandards.SiteSpecific:
-          - ApiStandards.RateLimited2:
+          - ApiStandards.RateLimited:
               responseStatus: 200
-              responseStatus2: 401            
+          - ApiStandards.RateLimited:
+              responseStatus: 401            
           - CustomerTraits.CustomerAuthenticationFailed
         responses:
           '200':
@@ -3447,9 +3494,10 @@ types:
         displayName: resetPassword
         is:
           - CommerceCloudStandards.SiteSpecific:
-          - ApiStandards.RateLimited2:
+          - ApiStandards.RateLimited:
               responseStatus: 204
-              responseStatus2: 400
+          - ApiStandards.RateLimited:
+              responseStatus: 400
           - CustomerTraits.BadRequest
         responses:
           '204':
@@ -3467,9 +3515,10 @@ types:
         displayName: getResetPasswordToken
         is:
           - CommerceCloudStandards.SiteSpecific:
-          - ApiStandards.RateLimited2:
+          - ApiStandards.RateLimited:
               responseStatus: 200
-              responseStatus2: 400
+          - ApiStandards.RateLimited:
+              responseStatus: 400
           - CustomerTraits.BadRequest
         responses:
           '200':
@@ -3487,16 +3536,83 @@ types:
             example: {
               "login": "janedoe@test.com"
             }
+    /external-profile:
+      post:
+        description: Registers a new external profile for a customer. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program
+        displayName: registerExternalProfile
+        is:
+          - CommerceCloudStandards.SiteSpecific:
+          - ApiStandards.RateLimited:
+              responseStatus: 200
+          - ApiStandards.RateLimited:
+              responseStatus: 400
+          - ApiStandards.RateLimited:
+              responseStatus: 401 
+          - CustomerTraits.BadRequest
+          - CustomerTraits.CustomerAuthenticationFailed
+        responses:
+          '200':
+            description: Success
+            body:
+              application/json:
+                type: CustomerExternalProfile
+                example: !include Examples/CustomerExternalProfile.raml
+        securedBy:
+          - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-customers.register] }
+        body:
+          application/json:
+            type: CustomerExtProfileRequest
+            example: !include Examples/ExternalProfileRequest.raml
+      get:
+        description: Gets the new external profile for a customer.This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program
+        displayName: getExternalProfile
+        is:
+          - CommerceCloudStandards.SiteSpecific:
+          - ApiStandards.RateLimited:
+              responseStatus: 200
+          - ApiStandards.RateLimited:
+              responseStatus: 400
+          - ApiStandards.RateLimited:
+              responseStatus: 404
+          - CustomerTraits.CustomerExtProfileBadRequest
+          - CustomerTraits.CustomerExtProfileNotFound
+        queryParameters:
+          externalId: 
+            description: The External ID of the customer.
+            type: string
+            required: true
+            minLength: 1
+            example: "s@gmail.com"
+          authenticationProviderId:
+            description: The authentication Provider Id.
+            type: string
+            minLength: 1
+            required: true
+            example: "Google"
+        responses:
+          '200':
+            description: Success
+            body:
+              application/json:
+                type: CustomerExternalProfile
+                example: !include Examples/CustomerExternalProfile.raml
+        securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.shopper-customers.login] }
+          - CommerceCloudStandards.AmOAuth2
+
+
     /{customerId}:
       get:
         description: Gets a customer with all existing addresses and payment instruments associated with the requested customer.
         displayName: getCustomer
         is:
           - CommerceCloudStandards.SiteSpecific:
-          - ApiStandards.RateLimited3:
+          - ApiStandards.RateLimited:
               responseStatus: 200
-              responseStatus2: 400
-              responseStatus3: 404 
+          - ApiStandards.RateLimited:
+              responseStatus: 400
+          - ApiStandards.RateLimited:
+              responseStatus: 404 
           - CustomerTraits.BadRequest
           - CustomerTraits.NotFound
         responses:
@@ -3513,10 +3629,12 @@ types:
         displayName: updateCustomer
         is:
           - CommerceCloudStandards.SiteSpecific:
-          - ApiStandards.RateLimited3:
+          - ApiStandards.RateLimited:
               responseStatus: 200
-              responseStatus2: 400
-              responseStatus3: 404           
+          - ApiStandards.RateLimited:
+              responseStatus: 400
+          - ApiStandards.RateLimited:
+              responseStatus: 404           
           - CustomerTraits.BadRequest
           - CustomerTraits.NotFound
         responses:
@@ -3546,10 +3664,12 @@ types:
           displayName: createCustomerAddress
           is:
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
+            - ApiStandards.RateLimited:
                 responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 404 
+            - ApiStandards.RateLimited:
+                responseStatus: 400
+            - ApiStandards.RateLimited:
+                responseStatus: 404 
             - CustomerTraits.BadRequest
             - CustomerTraits.NotFound
           responses:
@@ -3573,10 +3693,12 @@ types:
             displayName: getCustomerAddress
             is:
               - CommerceCloudStandards.SiteSpecific:
-              - ApiStandards.RateLimited3:
+              - ApiStandards.RateLimited:
                   responseStatus: 200
-                  responseStatus2: 400
-                  responseStatus3: 404
+              - ApiStandards.RateLimited:
+                  responseStatus: 400
+              - ApiStandards.RateLimited:
+                  responseStatus: 404
               - CustomerTraits.BadRequest
               - CustomerTraits.NotFound
             responses:
@@ -3594,10 +3716,12 @@ types:
             displayName: removeCustomerAddress
             is:
               - CommerceCloudStandards.SiteSpecific:
-              - ApiStandards.RateLimited3:
+              - ApiStandards.RateLimited:
                   responseStatus: 204
-                  responseStatus2: 400
-                  responseStatus3: 404
+              - ApiStandards.RateLimited:
+                  responseStatus: 400
+              - ApiStandards.RateLimited:
+                  responseStatus: 404
               - CustomerTraits.BadRequest
               - CustomerTraits.NotFound
             responses:
@@ -3610,10 +3734,12 @@ types:
             displayName: updateCustomerAddress
             is:
               - CommerceCloudStandards.SiteSpecific:
-              - ApiStandards.RateLimited3:
+              - ApiStandards.RateLimited:
                   responseStatus: 200
-                  responseStatus2: 400
-                  responseStatus3: 404
+              - ApiStandards.RateLimited:
+                  responseStatus: 400
+              - ApiStandards.RateLimited:
+                  responseStatus: 404
               - CustomerTraits.BadRequest
               - CustomerTraits.NotFound
             responses:
@@ -3645,10 +3771,12 @@ types:
           displayName: getCustomerBaskets
           is:
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
+            - ApiStandards.RateLimited:
                 responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 404
+            - ApiStandards.RateLimited:
+                responseStatus: 400
+            - ApiStandards.RateLimited:
+                responseStatus: 404
             - CustomerTraits.BadRequest
             - CustomerTraits.NotFound
           responses:
@@ -3667,13 +3795,15 @@ types:
           displayName: getCustomerOrders
           is:
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
+            - ApiStandards.RateLimited:
                 responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 404
+            - ApiStandards.RateLimited:
+                responseStatus: 400
+            - ApiStandards.RateLimited:
+                responseStatus: 404
             - CustomerTraits.BadRequest
             - CustomerTraits.NotFound
-            - CustomerTraits.offset-paginated:
+            - CustomerTraits.OffsetPaginated:
                 maxLimit: 50
                 defaultSize: 10
           queryParameters:
@@ -3709,10 +3839,12 @@ types:
           displayName: updateCustomerPassword
           is:
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
+            - ApiStandards.RateLimited:
                 responseStatus: 204
-                responseStatus2: 400
-                responseStatus3: 404
+            - ApiStandards.RateLimited:
+                responseStatus: 400
+            - ApiStandards.RateLimited:
+                responseStatus: 404
             - CustomerTraits.BadRequest
             - CustomerTraits.NotFound
           responses:
@@ -3733,10 +3865,12 @@ types:
           displayName: createCustomerPaymentInstrument
           is:
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
+            - ApiStandards.RateLimited:
                 responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 404
+            - ApiStandards.RateLimited:
+                responseStatus: 400
+            - ApiStandards.RateLimited:
+                responseStatus: 404
             - CustomerTraits.BadRequest
             - CustomerTraits.NotFound
           responses:
@@ -3760,10 +3894,12 @@ types:
             displayName: deleteCustomerPaymentInstrument
             is:
               - CommerceCloudStandards.SiteSpecific:
-              - ApiStandards.RateLimited3:
+              - ApiStandards.RateLimited:
                   responseStatus: 204
-                  responseStatus2: 400
-                  responseStatus3: 404
+              - ApiStandards.RateLimited:
+                  responseStatus: 400
+              - ApiStandards.RateLimited:
+                  responseStatus: 404
               - CustomerTraits.BadRequest
               - CustomerTraits.NotFound
             responses:
@@ -3776,10 +3912,12 @@ types:
             displayName: getCustomerPaymentInstrument
             is:
               - CommerceCloudStandards.SiteSpecific:
-              - ApiStandards.RateLimited3:
+              - ApiStandards.RateLimited:
                   responseStatus: 200
-                  responseStatus2: 400
-                  responseStatus3: 404
+              - ApiStandards.RateLimited:
+                  responseStatus: 400
+              - ApiStandards.RateLimited:
+                  responseStatus: 404
               - CustomerTraits.BadRequest
               - CustomerTraits.NotFound
             responses:
@@ -3803,10 +3941,12 @@ types:
           displayName: getCustomerProductLists
           is:
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
+            - ApiStandards.RateLimited:
                 responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 404
+            - ApiStandards.RateLimited:
+                responseStatus: 400
+            - ApiStandards.RateLimited:
+                responseStatus: 404
             - CustomerTraits.BadRequest
             - CustomerTraits.NotFound
           responses:
@@ -3824,10 +3964,12 @@ types:
           displayName: createCustomerProductList
           is:
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
+            - ApiStandards.RateLimited:
                 responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 404
+            - ApiStandards.RateLimited:
+                responseStatus: 400
+            - ApiStandards.RateLimited:
+                responseStatus: 404
             - CustomerTraits.BadRequest
             - CustomerTraits.NotFound
           responses:
@@ -3851,10 +3993,12 @@ types:
             displayName: deleteCustomerProductList
             is:
               - CommerceCloudStandards.SiteSpecific:
-              - ApiStandards.RateLimited3:
+              - ApiStandards.RateLimited:
                   responseStatus: 204
-                  responseStatus2: 400
-                  responseStatus3: 404
+              - ApiStandards.RateLimited:
+                  responseStatus: 400
+              - ApiStandards.RateLimited:
+                  responseStatus: 404
               - CustomerTraits.BadRequest
               - CustomerTraits.NotFound
             responses:
@@ -3867,10 +4011,12 @@ types:
             displayName: getCustomerProductList
             is:
               - CommerceCloudStandards.SiteSpecific:
-              - ApiStandards.RateLimited3:
+              - ApiStandards.RateLimited:
                   responseStatus: 200
-                  responseStatus2: 400
-                  responseStatus3: 404
+              - ApiStandards.RateLimited:
+                  responseStatus: 400
+              - ApiStandards.RateLimited:
+                  responseStatus: 404
               - CustomerTraits.BadRequest
               - CustomerTraits.NotFound
             responses:
@@ -3888,10 +4034,12 @@ types:
             displayName: updateCustomerProductList
             is:
               - CommerceCloudStandards.SiteSpecific:
-              - ApiStandards.RateLimited3:
+              - ApiStandards.RateLimited:
                   responseStatus: 200
-                  responseStatus2: 400
-                  responseStatus3: 404
+              - ApiStandards.RateLimited:
+                  responseStatus: 400
+              - ApiStandards.RateLimited:
+                  responseStatus: 404
               - CustomerTraits.BadRequest
               - CustomerTraits.NotFound
             responses:
@@ -3940,10 +4088,12 @@ types:
               displayName: createCustomerProductListItem
               is:
                 - CommerceCloudStandards.SiteSpecific:
-                - ApiStandards.RateLimited3:
+                - ApiStandards.RateLimited:
                     responseStatus: 200
-                    responseStatus2: 400
-                    responseStatus3: 404
+                - ApiStandards.RateLimited:
+                    responseStatus: 400
+                - ApiStandards.RateLimited:
+                    responseStatus: 404
                 - CustomerTraits.BadRequest
                 - CustomerTraits.NotFound
               responses:
@@ -3967,9 +4117,10 @@ types:
                 displayName: deleteCustomerProductListItem
                 is:
                   - CommerceCloudStandards.SiteSpecific:
-                  - ApiStandards.RateLimited2:
+                  - ApiStandards.RateLimited:
                       responseStatus: 204
-                      responseStatus2: 404
+                  - ApiStandards.RateLimited:
+                      responseStatus: 404
                   - CustomerTraits.NotFound
                 responses:
                   '204':
@@ -3981,10 +4132,12 @@ types:
                 displayName: getCustomerProductListItem
                 is:
                   - CommerceCloudStandards.SiteSpecific:
-                  - ApiStandards.RateLimited3:
+                  - ApiStandards.RateLimited:
                       responseStatus: 200
-                      responseStatus2: 400
-                      responseStatus3: 404
+                  - ApiStandards.RateLimited:
+                      responseStatus: 400
+                  - ApiStandards.RateLimited:
+                      responseStatus: 404
                   - CustomerTraits.BadRequest              
                   - CustomerTraits.NotFound
                 responses:
@@ -4012,9 +4165,10 @@ types:
                 displayName: updateCustomerProductListItem
                 is:
                   - CommerceCloudStandards.SiteSpecific:
-                  - ApiStandards.RateLimited2:
+                  - ApiStandards.RateLimited:
                       responseStatus: 200
-                      responseStatus2: 404
+                  - ApiStandards.RateLimited:
+                      responseStatus: 404
                   - CustomerTraits.NotFound
                 responses:
                   '200':
@@ -4058,11 +4212,14 @@ types:
           example: Smith
       is:
         - CommerceCloudStandards.SiteSpecific:
-        - ApiStandards.RateLimited4:
+        - ApiStandards.RateLimited:
             responseStatus: 200
-            responseStatus2: 400
-            responseStatus3: 401
-            responseStatus4: 404
+        - ApiStandards.RateLimited:
+            responseStatus: 400
+        - ApiStandards.RateLimited:
+            responseStatus: 401
+        - ApiStandards.RateLimited:
+            responseStatus: 404
         - CustomerTraits.BadRequest
         - CustomerTraits.NotFound
         - CustomerTraits.Unauthorized
@@ -4082,11 +4239,14 @@ types:
         displayName: getPublicProductList
         is:
           - CommerceCloudStandards.SiteSpecific:
-          - ApiStandards.RateLimited4:
+          - ApiStandards.RateLimited:
               responseStatus: 200
-              responseStatus2: 400
-              responseStatus3: 401
-              responseStatus4: 404
+          - ApiStandards.RateLimited:
+              responseStatus: 400
+          - ApiStandards.RateLimited:
+              responseStatus: 401
+          - ApiStandards.RateLimited:
+              responseStatus: 404
           - CustomerTraits.BadRequest
           - CustomerTraits.NotFound
           - CustomerTraits.Unauthorized
@@ -4122,11 +4282,14 @@ types:
                       PublicProductListItem : !include Examples/PublicProductListItem.raml
             is:
               - CommerceCloudStandards.SiteSpecific:
-              - ApiStandards.RateLimited4:
+              - ApiStandards.RateLimited:
                   responseStatus: 200
-                  responseStatus2: 400
-                  responseStatus3: 401
-                  responseStatus4: 404
+              - ApiStandards.RateLimited:
+                  responseStatus: 400
+              - ApiStandards.RateLimited:
+                  responseStatus: 401
+              - ApiStandards.RateLimited:
+                  responseStatus: 404
               - CustomerTraits.BadRequest
               - CustomerTraits.NotFound
               - CustomerTraits.Unauthorized      
