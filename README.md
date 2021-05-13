@@ -12,7 +12,7 @@ Visit the [Commerce Cloud Developer Center](https://developer.commercecloud.com/
 Download and install Node.js and npm [here](https://nodejs.org/en/download/).
 ​
 
-> **Note:** Only Node.js version 10 and 12 LTS are supported. Other versions can cause unexpected results. To use a different version of Node.js for other projects, you can manage multiple versions of Node.js with [nvm](https://github.com/nvm-sh/nvm).
+> **Note:** Only Node.js version 12 and 14 LTS are supported. Other versions can cause unexpected results. To use a different version of Node.js for other projects, you can manage multiple versions of Node.js with [nvm](https://github.com/nvm-sh/nvm).
 > ​
 
 ## Installation
