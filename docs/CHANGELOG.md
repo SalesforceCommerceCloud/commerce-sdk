@@ -1,5 +1,19 @@
 ## CHANGELOG
 
+## v2.4.0
+#### Breaking
+* Shopper Search API is moved under Discovery API Family
+#### New APIs
+* *Shopper Discovery Search* has been added to the SDK.
+
+#### API Changes
+*Shopper Login*
+* New endpoints
+
+| **Endpoint Name** | **Description** |
+| ------------- |-------------|
+| getTrustedSystemAccessToken | Get a shopper JWT/access token, along with a refresh token for registered customers whose credentials are stored using a third party system. |
+
 ### v2.3.0
 
 #### ** New API **

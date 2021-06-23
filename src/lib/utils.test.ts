@@ -72,9 +72,9 @@ describe("setupApis", () => {
       "pricing",
       "customer",
       "checkout",
-      "search",
       "product",
       "cdn",
+      "discovery",
     ]);
   });
 });

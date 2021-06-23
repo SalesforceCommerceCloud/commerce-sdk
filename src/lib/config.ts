@@ -41,6 +41,7 @@ export const ASSET_OBJECT_MAP = {
   "inventory-availability": "a003k00000Wa43pAAB",
   impex: "a003k00000Wa43kAAB",
   "inventory-reservation-service": "a003k00000Wa43fAAB",
+  "shopper-discovery-search": "a003k00000W0WlBAAV",
 };
 
 export const API_FAMILIES = [
@@ -51,6 +52,7 @@ export const API_FAMILIES = [
   "product",
   "cdn",
   "inventory",
+  "discovery",
 ];
 
 export const PRODUCTION_API_PATH = `${__dirname}/../../apis`;
