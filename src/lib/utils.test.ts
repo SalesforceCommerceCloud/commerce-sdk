@@ -75,6 +75,7 @@ describe("setupApis", () => {
       "product",
       "cdn",
       "discovery",
+      "search",
     ]);
   });
 });
