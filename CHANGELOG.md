@@ -9,8 +9,13 @@ then your usage **will not change**. You will likely only need to make changes i
 you import the type definitions directly.
 
 ### v2.4.0
-#### Breaking
-* Shopper Search API is moved under Discovery API Family
+
+#### Moved APIs
+* The *Shopper Search* API is now in the *Discovery* API family. To maintain
+backwards compatibility, the API is also available under the old *Search* family.
+Future changes to the *Shopper Search* API will only be applied to the version in
+the *Discovery* family.
+
 #### New APIs
 * *Shopper Discovery Search* has been added to the SDK.
 
