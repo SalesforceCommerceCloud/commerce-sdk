@@ -14,8 +14,8 @@ description: Use the Shop Products & Catalogs API to interact with the API in th
 
 uses:
   ProdTraits: products-traits-library.raml
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.8/api-standards.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.15/commerce-cloud-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.13/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.17/commerce-cloud-standards.raml
 
 types:
   BundledProduct:
@@ -780,10 +780,12 @@ types:
       displayName: getProducts      
       is:
         - CommerceCloudStandards.SiteSpecific:
-        - ApiStandards.RateLimited3:
+        - ApiStandards.RateLimited:
             responseStatus: 200
-            responseStatus2: 400
-            responseStatus3: 401
+        - ApiStandards.RateLimited:
+            responseStatus: 400
+        - ApiStandards.RateLimited:
+            responseStatus: 401
         - ProdTraits.Unauthorized
         - ProdTraits.BadRequest 
       queryParameters:
@@ -829,11 +831,14 @@ types:
         displayName: getProduct
         is: 
           - CommerceCloudStandards.SiteSpecific:
-          - ApiStandards.RateLimited4:
+          - ApiStandards.RateLimited:
               responseStatus: 200
-              responseStatus2: 400
-              responseStatus3: 401 
-              responseStatus4: 404       
+          - ApiStandards.RateLimited:
+              responseStatus: 400
+          - ApiStandards.RateLimited:
+              responseStatus: 401 
+          - ApiStandards.RateLimited:
+              responseStatus: 404       
           - ProdTraits.Unauthorized
           - ProdTraits.BadRequest
           - ProdTraits.NotFound
@@ -881,10 +886,12 @@ types:
       displayName: getCategories
       is:
         - CommerceCloudStandards.SiteSpecific:
-        - ApiStandards.RateLimited3:
+        - ApiStandards.RateLimited:
             responseStatus: 200
-            responseStatus2: 400
-            responseStatus3: 401
+        - ApiStandards.RateLimited:
+            responseStatus: 400
+        - ApiStandards.RateLimited:
+            responseStatus: 401
         - ProdTraits.BadRequest
         - ProdTraits.Unauthorized
       queryParameters:
@@ -925,11 +932,14 @@ types:
         displayName: getCategory
         is: 
           - CommerceCloudStandards.SiteSpecific:
-          - ApiStandards.RateLimited4:
+          - ApiStandards.RateLimited:
               responseStatus: 200
-              responseStatus2: 400
-              responseStatus3: 401 
-              responseStatus4: 404
+          - ApiStandards.RateLimited:
+              responseStatus: 400
+          - ApiStandards.RateLimited:
+              responseStatus: 401
+          - ApiStandards.RateLimited: 
+              responseStatus: 404
           - ProdTraits.Unauthorized
           - ProdTraits.BadRequest
           - ProdTraits.NotFound

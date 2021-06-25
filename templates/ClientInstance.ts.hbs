@@ -6,7 +6,12 @@ import { OperationOptions } from "retry";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace {{name.upperCamelCase}} {
   {{#each dataTypes}}
-      {{#if (or (isTypeDefinition this) (isArrayType this))}}
+  {{!-- TODO: Remove this special case handling once namespaced types are added --}}
+      {{#if (eq (getValue name) "ResourceBadRequest")}}
+          // This is a known deviation from the RAML definition, required due to limitations in
+          // the SDK generation. The full definition will be included in the next major release.
+          export type ResourceBadRequest = { [key: string]: any };
+      {{else if (or (isTypeDefinition this) (isArrayType this))}}
   export type {{getValue name}} = {{> dtoPartial typeDto=this}}
       {{/if}}
       {{!-- Traits are internal types and do not need to be exported --}}
