@@ -13,12 +13,13 @@ baseUriParameters:
     example: 0dnz6oep
 
 uses:
+  BasketTraits: shopper-baskets-traits.raml
   dataTypes: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/checkout-data-types.raml
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.8/api-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.13/api-standards.raml
   CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.15/commerce-cloud-standards.raml
-  
+
 types:
-    ErrorResponse: ApiStandards.ErrorResponse
+  ErrorResponse: ApiStandards.ErrorResponse
 
 /organizations/{organizationId}:
   type: CommerceCloudStandards.Organization
@@ -27,10 +28,13 @@ types:
     post:
       is: 
         - CommerceCloudStandards.SiteSpecific:
-        - ApiStandards.RateLimited3:
+        - BasketTraits.LocaleSpecific:
+        - ApiStandards.RateLimited:
             responseStatus: 200
-            responseStatus2: 400
-            responseStatus3: 404
+        - ApiStandards.RateLimited:
+            responseStatus: 400
+        - ApiStandards.RateLimited:
+            responseStatus: 404
       description: |-
         Creates a new basket.
 
@@ -131,10 +135,12 @@ types:
       delete:
         is: 
         - CommerceCloudStandards.SiteSpecific:
-        - ApiStandards.RateLimited2:
+        - ApiStandards.RateLimited:
             responseStatus: 204
-            responseStatus2: 400
-            responseStatus3: 404
+        - ApiStandards.RateLimited:
+            responseStatus: 400
+        - ApiStandards.RateLimited:
+            responseStatus: 404
         description: Removes a basket.
         displayName: deleteBasket
         responses:
@@ -161,10 +167,13 @@ types:
       get:
         is: 
         - CommerceCloudStandards.SiteSpecific:
-        - ApiStandards.RateLimited3:
+        - BasketTraits.LocaleSpecific:
+        - ApiStandards.RateLimited:
             responseStatus: 200
-            responseStatus2: 400
-            responseStatus3: 404
+        - ApiStandards.RateLimited:
+            responseStatus: 400
+        - ApiStandards.RateLimited:
+            responseStatus: 404
         description: Gets a basket.
         displayName: getBasket
         responses:
@@ -195,10 +204,13 @@ types:
       patch:
         is: 
         - CommerceCloudStandards.SiteSpecific:
-        - ApiStandards.RateLimited3:
+        - BasketTraits.LocaleSpecific:
+        - ApiStandards.RateLimited:
             responseStatus: 200
-            responseStatus2: 400
-            responseStatus3: 404
+        - ApiStandards.RateLimited:
+            responseStatus: 400
+        - ApiStandards.RateLimited:
+            responseStatus: 404
         description: |-
           Updates a basket. Only the currency of the basket, source code, the custom
           properties of the basket, and the shipping items will be considered.
@@ -255,10 +267,13 @@ types:
         put:
           is: 
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
+            - BasketTraits.LocaleSpecific:
+            - ApiStandards.RateLimited:
                 responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 404
+            - ApiStandards.RateLimited:
+                responseStatus: 400
+            - ApiStandards.RateLimited:
+                responseStatus: 404
           description: Sets the billing address of a basket.
           displayName: updateBillingAddressForBasket
           responses:
@@ -298,10 +313,13 @@ types:
         post:
           is: 
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
+            - BasketTraits.LocaleSpecific:
+            - ApiStandards.RateLimited:
                 responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 404
+            - ApiStandards.RateLimited:
+                responseStatus: 400
+            - ApiStandards.RateLimited:
+                responseStatus: 404
           description: Adds a coupon to an existing basket.
           displayName: addCouponToBasket
           responses:
@@ -342,10 +360,12 @@ types:
           delete:
             is: 
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
+            - ApiStandards.RateLimited:
                 responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 404
+            - ApiStandards.RateLimited:
+                responseStatus: 400
+            - ApiStandards.RateLimited:
+                responseStatus: 404
             description: Removes a coupon from the basket.
             displayName: removeCouponFromBasket
             responses:
@@ -388,10 +408,13 @@ types:
         put:
           is: 
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
+            - BasketTraits.LocaleSpecific:
+            - ApiStandards.RateLimited:
                 responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 404
+            - ApiStandards.RateLimited:
+                responseStatus: 400
+            - ApiStandards.RateLimited:
+                responseStatus: 404
           description: Sets customer information for an existing basket.
           displayName: updateCustomerForBasket
           responses:
@@ -434,10 +457,13 @@ types:
         post:
           is: 
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
+            - BasketTraits.LocaleSpecific:
+            - ApiStandards.RateLimited:
                 responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 404
+            - ApiStandards.RateLimited:
+                responseStatus: 400
+            - ApiStandards.RateLimited:
+                responseStatus: 404
           description: Adds a gift certificate item to an existing basket.
           displayName: addGiftCertificateItemToBasket
           responses:
@@ -476,9 +502,10 @@ types:
           delete:
             is: 
               - CommerceCloudStandards.SiteSpecific:
-              - ApiStandards.RateLimited2:
+              - ApiStandards.RateLimited:
                   responseStatus: 200
-                  responseStatus2: 404
+              - ApiStandards.RateLimited:
+                  responseStatus: 404
             description: Deletes a gift certificate item from an existing basket.
             displayName: removeGiftCertificateItemFromBasket
             responses:
@@ -503,10 +530,13 @@ types:
           patch:
             is: 
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
+            - BasketTraits.LocaleSpecific:
+            - ApiStandards.RateLimited:
                 responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 404
+            - ApiStandards.RateLimited:
+                responseStatus: 400
+            - ApiStandards.RateLimited:
+                responseStatus: 404
             description: Updates a gift certificate item of an existing basket.
             displayName: updateGiftCertificateItemInBasket
             responses:
@@ -550,10 +580,13 @@ types:
         post:
           is: 
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
+            - BasketTraits.LocaleSpecific:
+            - ApiStandards.RateLimited:
                 responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 404
+            - ApiStandards.RateLimited:
+                responseStatus: 400
+            - ApiStandards.RateLimited:
+                responseStatus: 404
           description: |-
             Adds new items to a basket. The added items are associated with the
             specified shipment. If no shipment id is specified, the added items are associated with the default shipment.
@@ -639,10 +672,12 @@ types:
           delete:
             is: 
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
+            - ApiStandards.RateLimited:
                 responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 404
+            - ApiStandards.RateLimited:
+                responseStatus: 400
+            - ApiStandards.RateLimited:
+                responseStatus: 404
             description: Removes a product item from the basket.
             displayName: removeItemFromBasket
             responses:
@@ -674,10 +709,13 @@ types:
           patch:
             is: 
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
+            - BasketTraits.LocaleSpecific:
+            - ApiStandards.RateLimited:
                 responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 404
+            - ApiStandards.RateLimited:
+                responseStatus: 400
+            - ApiStandards.RateLimited:
+                responseStatus: 404
             description: |-
               Updates an item in a basket. The
               following values in the request body are considered by the server:
@@ -758,10 +796,12 @@ types:
             put:
               is:
                 - CommerceCloudStandards.SiteSpecific:
-                - ApiStandards.RateLimited3:
+                - ApiStandards.RateLimited:
                     responseStatus: 204
-                    responseStatus2: 404
-                    responseStatus3: 409   
+                - ApiStandards.RateLimited:
+                    responseStatus: 404
+                - ApiStandards.RateLimited:
+                    responseStatus: 409   
               description: This method allows you to apply external taxation data to an existing basket to be able to pass tax rates and optional values for a specific taxable line item. This endpoint can be called only if external taxation mode was used for basket creation. See POST /baskets for more information.
               displayName: addTaxesForBasketItem
               responses:
@@ -791,10 +831,13 @@ types:
         post:
           is: 
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
+            - BasketTraits.LocaleSpecific:
+            - ApiStandards.RateLimited:
                 responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 404
+            - ApiStandards.RateLimited:
+                responseStatus: 400
+            - ApiStandards.RateLimited:
+                responseStatus: 404
           description: |-
             Adds a payment instrument to a basket.
           displayName: addPaymentInstrumentToBasket
@@ -835,10 +878,12 @@ types:
           delete:
             is: 
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
+            - ApiStandards.RateLimited:
                 responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 404
+            - ApiStandards.RateLimited:
+                responseStatus: 400
+            - ApiStandards.RateLimited:
+                responseStatus: 404
             description: Removes a payment instrument of a basket.
             displayName: removePaymentInstrumentFromBasket
             responses:
@@ -875,10 +920,13 @@ types:
         get:
           is: 
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
+            - BasketTraits.LocaleSpecific:
+            - ApiStandards.RateLimited:
                 responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 404
+            - ApiStandards.RateLimited:
+                responseStatus: 400
+            - ApiStandards.RateLimited:
+                responseStatus: 404
           description: Gets applicable payment methods for an existing basket considering the open payment amount only.
           displayName: getPaymentMethodsForBasket
           responses:
@@ -912,9 +960,10 @@ types:
         get:
           is: 
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited2:
+            - ApiStandards.RateLimited:
                 responseStatus: 200
-                responseStatus2: 404
+            - ApiStandards.RateLimited:
+                responseStatus: 404
           description: Gets applicable price books for an existing basket.
           displayName: getPriceBooksForBasket
           responses:
@@ -938,9 +987,10 @@ types:
         put:
           is:
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited2:
+            - ApiStandards.RateLimited:
                 responseStatus: 204
-                responseStatus2: 404
+            - ApiStandards.RateLimited:
+                responseStatus: 404
           description: This method allows you to put an array of priceBookIds to an existing basket, which will be used for basket calculation.
           displayName: addPriceBooksToBasket
           responses:
@@ -965,10 +1015,13 @@ types:
         post:
           is: 
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
+            - BasketTraits.LocaleSpecific:
+            - ApiStandards.RateLimited:
                 responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 404
+            - ApiStandards.RateLimited:
+                responseStatus: 400
+            - ApiStandards.RateLimited:
+                responseStatus: 404
           description: |-
             Creates a new shipment for a basket.
 
@@ -1028,11 +1081,14 @@ types:
           delete:
             is: 
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited4:
+            - ApiStandards.RateLimited:
                 responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 403
-                responseStatus4: 404
+            - ApiStandards.RateLimited:
+                responseStatus: 400
+            - ApiStandards.RateLimited:
+                responseStatus: 403
+            - ApiStandards.RateLimited:
+                responseStatus: 404
             description: |-
               Removes a specified shipment and all associated product, gift certificate,
               shipping, and price adjustment line items from a basket.
@@ -1079,10 +1135,13 @@ types:
           patch:
             is: 
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
+            - BasketTraits.LocaleSpecific:
+            - ApiStandards.RateLimited:
                 responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 404
+            - ApiStandards.RateLimited:
+                responseStatus: 400
+            - ApiStandards.RateLimited:
+                responseStatus: 404
             description: |-
               Updates a shipment for a basket.
 
@@ -1146,10 +1205,13 @@ types:
             put:
               is: 
               - CommerceCloudStandards.SiteSpecific:
-              - ApiStandards.RateLimited3:
+              - BasketTraits.LocaleSpecific:
+              - ApiStandards.RateLimited:
                   responseStatus: 200
-                  responseStatus2: 400
-                  responseStatus3: 404
+              - ApiStandards.RateLimited:
+                  responseStatus: 400
+              - ApiStandards.RateLimited:
+                  responseStatus: 404
               description: Sets a shipping address of a specific shipment of a basket.
               displayName: updateShippingAddressForShipment
               responses:
@@ -1190,10 +1252,13 @@ types:
             put:
               is: 
                 - CommerceCloudStandards.SiteSpecific:
-                - ApiStandards.RateLimited3:
+                - BasketTraits.LocaleSpecific:
+                - ApiStandards.RateLimited:
                     responseStatus: 200
-                    responseStatus2: 400
-                    responseStatus3: 404
+                - ApiStandards.RateLimited:
+                    responseStatus: 400
+                - ApiStandards.RateLimited:
+                    responseStatus: 404
               description: Sets a shipping method to a specific shipment of a basket.
               displayName: updateShippingMethodForShipment
               responses:
@@ -1233,10 +1298,13 @@ types:
             get:
               is: 
                 - CommerceCloudStandards.SiteSpecific:
-                - ApiStandards.RateLimited3:
+                - BasketTraits.LocaleSpecific:
+                - ApiStandards.RateLimited:
                     responseStatus: 200
-                    responseStatus2: 400
-                    responseStatus3: 404
+                - ApiStandards.RateLimited:
+                    responseStatus: 400
+                - ApiStandards.RateLimited:
+                    responseStatus: 404
               description: |-
                 Gets the applicable shipping methods for a certain shipment of a basket.
               displayName: getShippingMethodsForShipment
@@ -1271,10 +1339,12 @@ types:
         get:
           is:
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
+            - ApiStandards.RateLimited:
                 responseStatus: 200
-                responseStatus2: 404
-                responseStatus3: 409  
+            - ApiStandards.RateLimited:
+                responseStatus: 404
+            - ApiStandards.RateLimited:
+                responseStatus: 409  
           description: This method gives you the external taxation data set by the PUT taxes API. This endpoint can be called only if external taxation mode was used for basket creation. See POST /baskets for more information. 
           displayName: getTaxesFromBasket
           responses:
@@ -1302,10 +1372,12 @@ types:
         put:
           is:
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
+            - ApiStandards.RateLimited:
                 responseStatus: 204
-                responseStatus2: 404
-                responseStatus3: 409   
+            - ApiStandards.RateLimited:
+                responseStatus: 404
+            - ApiStandards.RateLimited:
+                responseStatus: 409   
           description: This method allows you to apply external taxation data to an existing basket to be able to pass tax rates and optional values for all taxable line items. This endpoint can be called only if external taxation mode was used for basket creation. See POST /baskets for more information.
           displayName: addTaxesForBasket
           responses:

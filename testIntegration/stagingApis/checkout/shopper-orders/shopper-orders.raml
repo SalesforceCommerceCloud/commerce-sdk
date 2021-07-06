@@ -13,8 +13,9 @@ baseUriParameters:
     example: fd4gt8
 
 uses:
+  OrderTraits: shopper-orders-traits.raml
   dataTypes: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/checkout-data-types.raml
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.8/api-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.13/api-standards.raml
   CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.15/commerce-cloud-standards.raml
   
 types:
@@ -27,16 +28,20 @@ types:
     post:
       is: 
         - CommerceCloudStandards.SiteSpecific: 
-        - ApiStandards.RateLimited3:
+        - OrderTraits.LocaleSpecific:
+        - ApiStandards.RateLimited:
             responseStatus: 200
-            responseStatus2: 400
-            responseStatus3: 404
+        - ApiStandards.RateLimited:
+            responseStatus: 400
+        - ApiStandards.RateLimited:
+            responseStatus: 404
       description: |-
         Submits an order based on a prepared basket. The only considered value from the request body is basketId.
       displayName: createOrder
       responses:
         '200':
-          description: Success, the response body contains the submitted order.
+          description: |-
+            Success, the response body contains the submitted order.
           body:
               type: dataTypes.Order
               examples:
@@ -84,21 +89,26 @@ types:
           example: "00000410"
       get:
         is: 
-          - CommerceCloudStandards.SiteSpecific: 
-          - ApiStandards.RateLimited2:
+          - CommerceCloudStandards.SiteSpecific:  
+          - OrderTraits.LocaleSpecific:
+          - ApiStandards.RateLimited:
               responseStatus: 200
-              responseStatus2: 404
-        description: Gets information for an order.
+          - ApiStandards.RateLimited:
+              responseStatus: 404
+        description: |-
+          Gets information for an order.
         displayName: getOrder
         responses:
           '200':
-            description: Success, the response body contains the order.
+            description: |-
+              Success, the response body contains the order.
             body:
                 type: dataTypes.Order
                 examples:
                   dataTypes.Order: !include examples/order/order-get-response.raml
           '404':
-            description: The order with the given order number is unknown.
+            description: |-
+              The order with the given order number is unknown.
             body:
                 type: ErrorResponse
                 examples:
@@ -109,11 +119,14 @@ types:
         type: CommerceCloudStandards.Organization
         post:
           is: 
-          - CommerceCloudStandards.SiteSpecific:
-          - ApiStandards.RateLimited3:
+          - CommerceCloudStandards.SiteSpecific: 
+          - OrderTraits.LocaleSpecific:
+          - ApiStandards.RateLimited:
               responseStatus: 200
-              responseStatus2: 400
-              responseStatus3: 404
+          - ApiStandards.RateLimited:
+              responseStatus: 400
+          - ApiStandards.RateLimited:
+              responseStatus: 404
           description: |-
             Adds a payment instrument to an order. 
 
@@ -125,7 +138,8 @@ types:
           displayName: createPaymentInstrumentForOrder
           responses:
             '200':
-              description: Success, the response body contains the order with the added payment instrument.
+              description: |-
+                Success, the response body contains the order with the added payment instrument.
               body:
                   type: dataTypes.Order
                   examples:
@@ -140,7 +154,8 @@ types:
                   examples:
                     dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/bad-request-example.raml
             '404':
-              description: The order with the given order number is unknown.
+              description: |-
+                The order with the given order number is unknown.
                
               body:
                   type: ErrorResponse
@@ -156,11 +171,14 @@ types:
           type: CommerceCloudStandards.Organization
           delete:
             is: 
-              - CommerceCloudStandards.SiteSpecific:
-              - ApiStandards.RateLimited2:
+              - CommerceCloudStandards.SiteSpecific: 
+              - OrderTraits.LocaleSpecific:
+              - ApiStandards.RateLimited:
                   responseStatus: 200
-                  responseStatus2: 404
-            description: Removes a payment instrument of an order.
+              - ApiStandards.RateLimited:
+                  responseStatus: 404
+            description: |-
+              Removes a payment instrument of an order.
             displayName: removePaymentInstrumentFromOrder
             responses:
               '200':
@@ -181,11 +199,14 @@ types:
               - CommerceCloudStandards.ShopperToken: { scopes: [ "sfcc.shopper-baskets-orders.rw" ] }
           patch:
             is: 
-              - CommerceCloudStandards.SiteSpecific:
-              - ApiStandards.RateLimited3:
+              - CommerceCloudStandards.SiteSpecific: 
+              - OrderTraits.LocaleSpecific:
+              - ApiStandards.RateLimited:
                   responseStatus: 200
-                  responseStatus2: 400
-                  responseStatus3: 404
+              - ApiStandards.RateLimited:
+                  responseStatus: 400
+              - ApiStandards.RateLimited:
+                  responseStatus: 404
             description: |-
               Updates a payment instrument of an order.
 
@@ -198,7 +219,8 @@ types:
             displayName: updatePaymentInstrumentForOrder
             responses:
               '200':
-                description: Success, the response body contains the order with the updated payment instrument.
+                description: |-
+                  Success, the response body contains the order with the updated payment instrument.
                 body:
                     type: dataTypes.Order
                     examples:
@@ -231,7 +253,8 @@ types:
               - CommerceCloudStandards.ShopperToken: { scopes: [ "sfcc.shopper-baskets-orders.rw" ] }
           uriParameters:
             paymentInstrumentId:
-              description: the ID of the payment instrument to be updated.
+              description: |-
+                The ID of the payment instrument to be updated.
               minLength: 1
               type: string
               example: b7679bea661819b2de78b9de7d
@@ -239,16 +262,21 @@ types:
         type: CommerceCloudStandards.Organization
         get:
           is: 
-            - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
+            - CommerceCloudStandards.SiteSpecific: 
+            - OrderTraits.LocaleSpecific:
+            - ApiStandards.RateLimited:
                   responseStatus: 200
-                  responseStatus2: 400
-                  responseStatus3: 404
-          description: Gets the applicable payment methods for an existing order considering the open payment amount only.
+            - ApiStandards.RateLimited:
+                  responseStatus: 400
+            - ApiStandards.RateLimited:
+                  responseStatus: 404
+          description: |-
+            Gets the applicable payment methods for an existing order considering the open payment amount only.
           displayName: getPaymentMethodsForOrder
           responses:
             '200':
-              description: Success, the response body contains the applicable payment methods for the order.
+              description: |-
+                Success, the response body contains the applicable payment methods for the order.
               body:
                   type: dataTypes.PaymentMethodResult
                   examples:
@@ -262,7 +290,8 @@ types:
                   examples:
                     dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/bad-request-auth.raml
             '404':
-              description: The order with the given order number is unknown.
+              description: |-
+                The order with the given order number is unknown.
               body:
                   type: ErrorResponse
                   examples:
@@ -274,27 +303,36 @@ types:
         get:
           is:
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited3:
+            - ApiStandards.RateLimited:
                 responseStatus: 200
-                responseStatus2: 404
-                responseStatus3: 409  
-          description: This method gives you the external taxation data of the order transferred from the basket during order creation. This endpoint can be called only if external taxation was used. See POST /baskets for more information.         
+            - ApiStandards.RateLimited:
+                responseStatus: 404
+            - ApiStandards.RateLimited:
+                responseStatus: 409  
+          description: |-
+            This method gives you the external taxation data of the order transferred from the basket during 
+            order creation. This endpoint can be called only if external taxation was used. See POST /baskets 
+            for more information.         
           displayName: getTaxesFromOrder
           responses:
             '200':
-              description: Success, the response body contains the external taxation from all items from the referenced order.
+              description: |-
+                Success, the response body contains the external taxation from all items from the referenced 
+                order.
               body:
                 type: dataTypes.Taxes
                 examples:
                   dataTypes.Taxes: !include examples/order/order-tax-get-response.raml
             '404':
-              description: The order with the given order number is unknown.
+              description: |-
+                The order with the given order number is unknown.
               body:
                 type: ErrorResponse
                 examples:
                   dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.53/examples/error/order-not-found.raml
             '409':
-              description: In case of the referenced order was not created from a basket with tax mode EXTERNAL.
+              description: |-
+                In case of the referenced order was not created from a basket with tax mode EXTERNAL.
               body:
                 type: ErrorResponse
                 examples:

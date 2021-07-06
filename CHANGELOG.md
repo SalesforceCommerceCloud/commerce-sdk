@@ -1,4 +1,31 @@
 ## CHANGELOG
+### :warning: Planned future release will contain breaking changes :warning:
+Due to an issue with the generation of the type definitions, an upcoming release
+of the SDK will change type definitions to include namespaces. As this is a
+breaking change, a new major version will be released (v3.0.0). Only the names of
+the types will change, not their contents or any of the exported code. If you
+only use JavaScript, or if you use TypeScript but only import the client classes,
+then your usage **will not change**. You will likely only need to make changes if
+you import the type definitions directly.
+
+### v2.4.0
+
+#### Moved APIs
+* The *Shopper Search* API is now in the *Discovery* API family. To maintain
+backwards compatibility, the API is also available under the old *Search* family.
+Future changes to the *Shopper Search* API will only be applied to the version in
+the *Discovery* family.
+
+#### New APIs
+* *Shopper Discovery Search* has been added to the SDK.
+
+#### API Changes
+*Shopper Login*
+* New endpoints
+
+| **Endpoint Name** | **Description** |
+| ------------- |-------------|
+| getTrustedSystemAccessToken | Get a shopper JWT/access token, along with a refresh token for registered customers whose credentials are stored using a third party system. |
 
 ### v2.3.0
 
