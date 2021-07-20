@@ -24,7 +24,7 @@ describe("Custom user agent header", () => {
     const { version } = await fs.readJson(
       require.resolve("commerce-sdk/package.json")
     );
-    sdkUserAgent = `commerce-sdk@${"" && version};`;
+    sdkUserAgent = `commerce-sdk@${version};`;
   });
 
   afterEach(nock.cleanAll);
