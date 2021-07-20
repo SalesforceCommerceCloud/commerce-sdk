@@ -1,4 +1,4 @@
-{{#each encodes.endPoints}}
+{{#each model.encodes.endPoints}}
   {{#each operations}}
     /**
     * {{{formatForTsDoc description}}}
@@ -145,6 +145,9 @@
         {{/if}}
       {{/each}}
 
+      const headers = (options && options.headers) ? options.headers : {};
+      headers["user-agent"] = "commerce-sdk@{{@root.parent.parent.metadata.sdkVersion}};";
+
       // @ts-ignore
       return StaticClient.{{method}}({
         client: this,
@@ -153,7 +156,7 @@
         pathParameters: pathParameters,
         queryParameters: queryParameters,
         retrySettings: (options || {}).retrySettings,
-        headers: (options || {}).headers{{#or (is method "patch") (is method "post") (is method "put")}}, 
+        headers: headers{{#or (is method "patch") (is method "post") (is method "put")}}, 
         body: (options || {}).body{{/or}}
       });
     }
