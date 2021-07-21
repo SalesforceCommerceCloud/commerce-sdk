@@ -146,7 +146,9 @@
       {{/each}}
 
       const headers = (options && options.headers) ? { ...options.headers } : {};
-      headers["user-agent"] = "commerce-sdk@{{@root.parent.parent.metadata.sdkVersion}};";
+      headers[USER_AGENT_HEADER] = headers[USER_AGENT_HEADER]
+        ? `${USER_AGENT_VALUE} ${headers[USER_AGENT_HEADER]}`
+        : USER_AGENT_VALUE;
 
       // @ts-ignore
       return StaticClient.{{method}}({
