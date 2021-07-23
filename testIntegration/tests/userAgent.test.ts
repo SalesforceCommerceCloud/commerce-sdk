@@ -41,21 +41,6 @@ describe("Custom user agent header", () => {
     expect(nock.isDone()).to.be.true;
   });
 
-  it("doesn't allow user-agent to be overwritten in method", async () => {
-    mockRequestWithUserAgent(sdkUserAgent);
-    const client = new ShopperCustomers({
-      baseUri: "http://somewhere",
-      parameters: { organizationId: "foo" },
-    });
-    await client.authorizeCustomer({
-      headers: {
-        "user-agent": "definitely not commerce-sdk",
-      },
-      body: {},
-    });
-    expect(nock.isDone()).to.be.true;
-  });
-
   it("doesn't allow user-agent to be overwritten in config", async () => {
     mockRequestWithUserAgent(sdkUserAgent);
     const client = new ShopperCustomers({
@@ -66,6 +51,21 @@ describe("Custom user agent header", () => {
       },
     });
     await client.authorizeCustomer({
+      body: {},
+    });
+    expect(nock.isDone()).to.be.true;
+  });
+
+  it("merges with alternative case header in method", async () => {
+    mockRequestWithUserAgent(`custom user agent, ${sdkUserAgent}`);
+    const client = new ShopperCustomers({
+      baseUri: "http://somewhere",
+      parameters: { organizationId: "foo" },
+    });
+    await client.authorizeCustomer({
+      headers: {
+        "User-Agent": "custom user agent",
+      },
       body: {},
     });
     expect(nock.isDone()).to.be.true;
