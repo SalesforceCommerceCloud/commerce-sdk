@@ -145,10 +145,7 @@
         {{/if}}
       {{/each}}
 
-      const headers = (options && options.headers) ? { ...options.headers } : {};
-      headers[USER_AGENT_HEADER] = headers[USER_AGENT_HEADER]
-        ? `${USER_AGENT_VALUE} ${headers[USER_AGENT_HEADER]}`
-        : USER_AGENT_VALUE;
+      const headers = mergeHeaders(getHeaders(options), { [USER_AGENT_HEADER]: USER_AGENT_VALUE });
 
       // @ts-ignore
       return StaticClient.{{method}}({
