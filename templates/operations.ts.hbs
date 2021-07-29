@@ -1,4 +1,4 @@
-{{#each encodes.endPoints}}
+{{#each model.encodes.endPoints}}
   {{#each operations}}
     /**
     * {{{formatForTsDoc description}}}
@@ -145,6 +145,8 @@
         {{/if}}
       {{/each}}
 
+      const headers = mergeHeaders(getHeaders(options), { [USER_AGENT_HEADER]: USER_AGENT_VALUE });
+
       // @ts-ignore
       return StaticClient.{{method}}({
         client: this,
@@ -153,7 +155,7 @@
         pathParameters: pathParameters,
         queryParameters: queryParameters,
         retrySettings: (options || {}).retrySettings,
-        headers: (options || {}).headers{{#or (is method "patch") (is method "post") (is method "put")}}, 
+        headers: headers{{#or (is method "patch") (is method "post") (is method "put")}}, 
         body: (options || {}).body{{/or}}
       });
     }
