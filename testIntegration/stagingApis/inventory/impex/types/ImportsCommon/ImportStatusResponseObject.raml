@@ -1,0 +1,64 @@
+#%RAML 1.0 DataType
+description: Record that is contained in the response array when checking the status of an import.
+type: object
+example: !include ../../Examples/ImportGetStatusResponseExample.raml
+properties:
+  importId: 
+    type: string
+    example: 12345-23456-3456-4567-5678
+    description: Unique identifier for the import
+  status:
+    type: string
+    example: Completed
+  validation:
+    properties:
+      status:
+        type: string
+        description: Validation status
+        example: COMPLETED
+      errors:
+        description: Array of error verbiages
+        type: string[]
+  upload:
+    properties:
+      fileName:
+        type: string
+        description: The name of the upload file.
+        example: test.json
+  import:
+    properties:
+      startTimeUTC:
+        type: datetime
+        required: false
+        description: Start time of import
+        example: 2019-02-12T11:23:23Z
+        format: rfc3339
+      endTimeUTC:
+        type: datetime
+        required: false
+        description: End/completion time of import
+        example: 2019-02-12T12:34:56Z
+        format: rfc3339
+      recordsProcessedCount:
+        type: integer
+        description: Number of records imported/processed
+        example: 2000
+      recordsReadCount:
+        type: integer
+        description: Number of records read
+        example: 2000
+      recordsSkippedCount:
+        type: integer
+        description: Number of records skipped
+        example: 56
+      fullResults:
+        properties:
+          href:
+            type: string
+            description: URL to pull results file. Is available until time indicated in "exportResultExpirationUTC" field.
+            example: https://462437319225-dev-us-east-1.s3.amazonaws.com/d88e54c5-23ed-4e33-a6a9-c31dc810662b?X-Amz-   Security-Token=AgoJb3JpZ2luX2VjEB4aCXVzLWVhc3QtMSJ
+          exportResultExpirationUTC:
+            type: datetime
+            description: Expiration time for availability of full result file
+            example: 2019-03-12T12:34:56Z
+            format: rfc3339

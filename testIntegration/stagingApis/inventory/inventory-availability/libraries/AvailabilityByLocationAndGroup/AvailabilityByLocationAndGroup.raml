@@ -1,0 +1,52 @@
+#%RAML 1.0 Library
+types:
+  SkuId: !include ../../types/SkuId.raml
+  LocationId: !include ../../types/LocationId.raml
+  GroupId: !include ../../types/GroupId.raml
+  ItemLocationInfo: !include ../../types/ItemLocationInfo.raml
+  ItemGroupInfo: !include ../../types/ItemGroupInfo.raml
+  
+  InventoryAvailabilityRequestBody:
+    description: The body that is sent requesting the item availability by location and/or group
+    properties:
+      sku:
+        type: string
+        description: Used for retrieving the data for a single item for all locations that have not been assigned to any specific group(s). If a group Id is specified in the request, then the locations to be returned will be the ones assigned to the specified group.
+        required: false
+        example: "sku456"
+      group:
+        type: string
+        description: The group ID that should be used in conjunction with the single sku provided in the request.  This will retrieve the information for all locations in this group. 
+        required: false
+        example: "Canada"
+      skus:
+        description: It specifies the skus for which the availability requires to be checked. The array of SKUs is limited by the total combinations of SKU per location plus SKU per group to check, the total cannot be more than 100.
+        type: array
+        items:
+          type: SkuId
+        required: false
+      locations:
+        description: Query the system for availability at this location. This field does not union with the groups field. The array of locations is limited by the total combinations of SKU per location plus SKU per group to check, the total cannot be more than 100.
+        type: array
+        required: false
+        items:
+          type: LocationId
+      groups:
+        description: Query the system for availability for this group. This field does not union with the locations field. Array is limited to 0-100 items. This field does not union with the groups field. The array of groups is limited by the total combinations of SKU per location plus SKU per group to check, the total cannot be more than 100.
+        type: array
+        required: false
+        items:
+          type: GroupId
+
+  Response200:
+    description: Successful request for item information
+    properties:
+      locations: 
+        type: array
+        items:
+          type: ItemLocationInfo
+      groups:
+        type: array
+        required: false
+        items:
+          type: ItemGroupInfo          

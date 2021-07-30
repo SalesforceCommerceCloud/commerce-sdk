@@ -1,0 +1,45 @@
+#%RAML 1.0
+title: An example file showing the usage of the Discovery Standards library.
+version: v0
+mediaType: 
+  - application/json
+  
+baseUri: http://discovery.local/exampleAPI
+
+uses:
+  Standards: discovery-standards.raml
+
+/data-sets:
+  post:
+    is:
+      - Standards.ResourceCommonErrors
+    responses:
+      200:
+        description: Returns the identifier of the created resource.
+        body:
+          properties:
+            attributeId: Standards.AttributeId
+
+/data-sets/{dataSetId}/attributes:
+  uriParameters:
+    dataSetId:
+      type: Standards.DataSetId
+  get:
+    is:
+      - Standards.CommonErrors
+    responses:
+      200:
+        body:
+          description: A collection of attribute identifiers.
+          properties:
+            type: Standards.DataSetId
+
+/data-sets/{dataSetId}/attributes/{attributeId}:
+  uriParameters:
+    dataSetId:
+      type: Standards.DataSetId
+    attributeId:
+      type: Standards.AttributeId
+  delete:
+    responses:
+      201:

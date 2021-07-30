@@ -1,0 +1,26 @@
+#%RAML 1.0 DataType
+description: A record contained within the lookup results containing details about the item.  Those details include the sku, available to fulfill amount, available to order amount, quantity on hand amount, and the safety stock count value.
+
+properties:
+  sku:
+    type: !include SkuId.raml
+  atf:
+    type: !include ATF.raml
+  ato:
+    type: !include ATO.raml
+  onHand:
+    description: The amount on hand at the location
+    type: !include QOH.raml
+  reserved:
+    type: !include ReservedQuantity.raml
+  safetyStockCount:
+    description: The safety stock value for the item at this location
+    type: !include SafetyStock.raml
+  effectiveDate:
+    type: !include EffectiveDateGeneric.raml
+    required: false
+  futures:
+    required: false
+    type: array
+    items: 
+      type: !include Future.raml

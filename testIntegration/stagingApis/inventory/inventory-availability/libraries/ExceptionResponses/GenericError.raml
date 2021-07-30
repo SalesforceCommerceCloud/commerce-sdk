@@ -1,0 +1,197 @@
+#%RAML 1.0 Library
+
+uses:
+  ErrorCodeTypesEnum: ErrorCodeTypesEnum.raml
+
+types:
+  ErrorResponse:
+    properties:
+      errorCode:
+        type: ErrorCodeTypesEnum.ErrorCodeTypesEnum
+        required: true
+        example: "InvalidRequest"
+      message:
+        type: string
+        required: true
+        example: "The delta token provided is invalid."
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+      parameterName:
+        description: When invalid json is passed to the service, this field will indicate which piece of the supplied json was invalid.
+        type: string
+        required: false
+        example: "location"
+
+  InvalidRequestParameterOrLocationDoesNotExist:
+    properties:
+      errorCode:
+        type: ErrorCodeTypesEnum.InvalidRequestParameterOrLocationDoesNotExist
+        required: true
+        example: "InvalidRequestParameter"
+      message:
+        type: string
+        required: true
+        example: "The delta token provided is invalid."
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+      parameterName:
+        description: When invalid json is passed to the service, this field will indicate which piece of the supplied json was invalid.
+        type: string
+        required: false
+        example: "location"
+
+  InvalidRequestParameterOrLocOrGroupDoesNotExist:
+    properties:
+      errorCode:
+        type: ErrorCodeTypesEnum.InvalidRequestParameterOrLocOrGroupDoesNotExist
+        required: true
+        example: "InvalidRequestParameter"
+      message:
+        type: string
+        required: true
+        example: "The delta token provided is invalid."
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+      parameterName:
+        description: When invalid json is passed to the service, this field will indicate which piece of the supplied json was invalid.
+        type: string
+        required: false
+        example: "location"
+
+  EntityNotFound:
+    properties:
+      errorCode:
+        type: ErrorCodeTypesEnum.EntityNotFoundEnum
+        required: true
+        example: "EntityNotFound"
+      message:
+        type: string
+        required: true
+        example: "An invalid entity was provided."
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+      parameterName:
+        description: When invalid json is passed to the service, this field will indicate which piece of the supplied json was invalid.
+        type: string
+        required: false
+        example: "sku" 
+
+  ExpiredDeltaLink:
+    properties:
+      errorCode:
+        type: ErrorCodeTypesEnum.ExpiredDeltaLinkEnum
+        required: true
+        example: "ExpiredDeltaLink"
+      message:
+        type: string
+        required: true
+        example: "The delta token provided is expired."
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+      parameterName:
+        description: When invalid json is passed to the service, this field will indicate which piece of the supplied json was invalid.
+        type: string
+        required: false
+        example: "location"
+
+  InvalidRequestParameterOrExpiredDeltaLink:
+    properties:
+      errorCode:
+        type: ErrorCodeTypesEnum.InvalidRequestParameterOrExpiredDeltaLink
+        required: true
+        example: "ExpiredDeltaLink"
+      message:
+        type: string
+        required: true
+        example: "The delta token provided is expired."
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+      parameterName:
+        description: When invalid json is passed to the service, this field will indicate which piece of the supplied json was invalid.
+        type: string
+        required: false
+        example: "location"
+
+  InvalidRequestParameterLocDoesNotExistEntityAlreadyExistsOrEntityNotFound:
+    properties:
+      errorCode:
+        type: ErrorCodeTypesEnum.InvalidRequestParameterLocDoesNotExistEntityAlreadyExistsOrEntityNotFound
+        required: true
+        example: "EntityAlreadyExists"
+      message:
+        type: string
+        required: true
+        example: "The entity provided already exists."
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+      parameterName:
+        description: When invalid json is passed to the service, this field will indicate which piece of the supplied json was invalid.
+        type: string
+        required: false
+        example: "location"
+
+  InvalidRequestParameterLocDoesNotExistOrEntityNotFound:
+    properties:
+      errorCode:
+        type: ErrorCodeTypesEnum.InvalidRequestParameterLocDoesNotExistOrEntityNotFound
+        required: true
+        example: "EntityNotFound"
+      message:
+        type: string
+        required: true
+        example: "The entity provided does not exist."
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+      parameterName:
+        description: When invalid json is passed to the service, this field will indicate which piece of the supplied json was invalid.
+        type: string
+        required: false
+        example: "location"
+  
+  InvalidRequestParameter:
+    properties:
+      errorCode:
+        type: ErrorCodeTypesEnum.InvalidRequestParameter
+        required: true
+        example: "InvalidRequestParameter"
+      message:
+        type: string
+        required: true
+        example: "An invalid request parameter was provided."
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+      parameterName:
+        description: When invalid json is passed to the service, this field will indicate which piece of the supplied json was invalid.
+        type: string
+        required: false
+        example: "location"
+
+  ApiErrors: !include /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.12/dataTypes/error-response.raml
+
+  # Create all of the unions between our errors and the generic api errors from the library - Mercury/C4E Compliance
+  4xxError: [ErrorResponse, ApiErrors]
+  4xxInvalidRequestParameterOrLocationDoesNotExist: [InvalidRequestParameterOrLocationDoesNotExist, ApiErrors]
+  4xxInvalidRequestParameterOrLocOrGroupDoesNotExist: [InvalidRequestParameterOrLocOrGroupDoesNotExist, ApiErrors]
+  4xxInvalidRequestParameterOrExpiredDeltaLink: [InvalidRequestParameterOrExpiredDeltaLink, ApiErrors]
+  4xxInvalidRequestParameterLocDoesNotExistEntityAlreadyExistsOrEntityNotFound: [InvalidRequestParameterLocDoesNotExistEntityAlreadyExistsOrEntityNotFound, ApiErrors]
+  4xxInvalidRequestParameterLocDoesNotExistOrEntityNotFound: [InvalidRequestParameterLocDoesNotExistOrEntityNotFound, ApiErrors]
+  4xxInvalidRequestParameter: [InvalidRequestParameter, ApiErrors]
+  

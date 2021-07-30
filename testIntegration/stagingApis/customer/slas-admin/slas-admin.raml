@@ -34,14 +34,10 @@ types:
         description: Client Name
         type: string
         example: "Client Name"
-      type:
-        description: Client Type or Audience
-        type: string
-        example: "SiteGenesis"
       secret:
-        description: Client Secret
+        description: Client Secret. The secret will only display on create and if the secret was updated when updating the client.
         type: string
-        example: ""
+        example: "client-secret"
       scopes:
         description: Scope
         type: string[]
@@ -68,23 +64,15 @@ types:
       name:
         description: Client Name
         type: string
-        example: "Client Name"
-      ecomTenant:
-        description: ECOM Tenant Name, clientTenant or owner
-        type: string
-        example: "shop_mart_prod"
+        example: "High Adventure Wear"
       clientId:
-        description: SLAS client id
+        description: SLAS client id. Must match the query parameter.
         type: string
-        example: "shop_mart_client_id"
+        example: "client_id"
       secret:
-        description: SLAS client secret
+        description: SLAS client secret. On create if left blank then a secret will be generated.
         type: string
-        example: "shop_mart_client_secret"
-      ecomSite:
-        description: ECOM site, clientType or audience
-        type: string
-        example: "SiteGenesis"
+        example: "client_secret"
       scopes:
         description: SLAS scopes
         type: string[]
@@ -100,7 +88,7 @@ types:
         type: string[]
         example: ["RefArch", "SiteGenensis"]
       privateClient:
-        description: Private or Public Client
+        description: Private or Public Client. If left blank the client will default to private.
         type: boolean
         example: true
 
@@ -147,10 +135,50 @@ types:
         description: SLAS IDP Client Secret
         type: string
         example: "aKZM1xEnZopNP2bm2gc3GKex"
-      isPreferred:
+      preferenceValue:
         description: SLAS IDP Preference Value
         type: boolean
-        example: true 
+        example: true
+
+  IdentityProviderResponse:
+      description: Identity provider Response
+      properties:
+        name: 
+          description: Identity Provider Name
+          type: string
+          example: "Google Account"
+        authUrl:
+          description: Identity Provider auth URI
+          type: ApiStandards.AbsoluteUrl
+          example: "https://accounts.google.com/o/oauth2/v2/auth"
+        tokenUrl:
+          description: Identity Provider token URI
+          type: ApiStandards.AbsoluteUrl
+          example: "https://oauth2.googleapis.com/token"
+        tokenInfoUrl:
+          description: Identity Provider token info URI
+          type: ApiStandards.AbsoluteUrl
+          example: "https://oauth2.googleapis.com/tokeninfo"
+        userInfoUrl:
+          description: Identity Provider user info URI
+          type: ApiStandards.AbsoluteUrl
+          example: "https://www.googleapis.com/oauth2/v3/userinfo"
+        redirectUrl:
+          description: Identity Provider redirect URI
+          type: ApiStandards.AbsoluteUrl
+          example: "https://localhost:9010/my/callback"
+        clientId:
+          description: SLAS IDP Client Id
+          type: string
+          example: "934277749308-02dg4398n3s31ofge8cot46jirn3kpkf.apps.googleusercontent.com"
+        clientSecret:
+          description: SLAS IDP Client Secret
+          type: string
+          example: "aKZM1xEnZopNP2bm2gc3GKex"
+        isPreferred:
+          description: SLAS IDP Preference Value
+          type: boolean
+          example: true
 
   IdentityProviderListResponse:
     properties:
@@ -158,7 +186,7 @@ types:
         description: An array of identity providers
         type: array
         items:
-          type: IdentityProvider
+          type: IdentityProviderResponse
 
   TenantDto:
     description: Create Tenant Reqiest
@@ -684,16 +712,16 @@ types:
                 description: Success - Updated an Idp.
                 body:
                   application/json:
-                    type: IdentityProvider
+                    type: IdentityProviderResponse
                     examples: 
-                      IdentityProvider: !include Examples/IdentityProvider.raml
+                      IdentityProviderResponse : !include Examples/IdentityProviderResponse.raml
               201:
                 description: Success - Created an Idp.
                 body:
                   application/json:
-                    type: IdentityProvider
+                    type: IdentityProviderResponse
                     examples: 
-                      IdentityProvider : !include Examples/IdentityProvider.raml
+                      IdentityProviderResponse : !include Examples/IdentityProviderResponse.raml
         delete:
           description: Delete a identity provider
           displayName: deleteIdentityProvider
