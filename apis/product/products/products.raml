@@ -945,9 +945,15 @@ types:
         example: ["equals","notEquals"]
         required: true
       allowedValues:
-        description: The list of allowed values for this attribute if its attributeType is an ENUM.
+        description: The list of allowed values for this attribute IF its attributeType is an ENUM.
         type: string[]
-        example: ["master","variationProduct"]
+        example: [ "1", "2" ]
+        required: false
+      allowedDisplayValues:
+        description: |
+            The list of allowed Localized Display values for this attribute IF its attributeType is an ENUM based on the locale query param requested. If no locale query param value is provided "default" locale is assumed.
+        type: string[]
+        example: [ "One", "Two" ]
         required: false
   CategorizationAttributeDefinitonsResult:
     description: The list of categorization attributes supported for rule based categorization.
@@ -2045,6 +2051,12 @@ types:
           responseStatus3: 401
       - ProductTraits.BadRequest
       - ProductTraits.Unauthorized
+    queryParameters:
+      locale:
+        description: The display locale context for Attribute names and Attribute Value names.
+        type: string
+        required: false
+        example: en-US
     responses:
       200:
         description: Categorization attribute definitions retrieved successfully.

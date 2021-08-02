@@ -8,6 +8,17 @@ only use JavaScript, or if you use TypeScript but only import the client classes
 then your usage **will not change**. You will likely only need to make changes if
 you import the type definitions directly.
 
+### v2.5.0
+
+#### API Changes
+* The endpoints `getOrder` and `getOrders` have been added to the *Orders* API.
+
+#### Enhancements
+* The SDK now sends a custom user agent with requests, `commerce-sdk@<version>;`.
+If you specify your own user agent in the client config, it will be replaced.
+If you specify your own user agent when making a request, it will be merged with
+the SDK user agent.
+
 ### v2.4.0
 
 #### Moved APIs
