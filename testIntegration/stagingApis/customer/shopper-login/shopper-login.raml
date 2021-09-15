@@ -40,7 +40,7 @@ types:
     description: Token Type Hint
     enum: [ACCESS_TOKEN, REFRESH_TOKEN]  
     example: "ACCESS_TOKEN"
-  3PIdps:
+  ThirdPartyIdps:
     type: string
     description: 3rd party IDPs that work with SLAS.
     enum: [google, facebook, auth0, okta, salesforce, slas]
@@ -301,7 +301,7 @@ types:
                     }
 
     /logout:
-      description: Logout a shopper. The shoppers SLAS token will be revoked and if the shopper authenticated with ECOM the OCAPI JWT will be deleted from ecom.
+      description: Logout a shopper. The shoppers access token and refresh token will be revoked and if the shopper authenticated with ECOM the OCAPI JWT will also be revoked.
       get:
         description: Logout a shopper.
         displayName: logoutCustomer
@@ -761,12 +761,12 @@ types:
                 type: string
                 example: |
                   {
-                      "issuer": "https://stg.us.shopper.cc.salesforce.com/slas/api/v1/organizations/zzzz_tst/oauth2",
-                      "authorization_endpoint": "https://stg.us.shopper.cc.salesforce.com/slas/api/v1/organizations/zzzz_tst/oauth2/authorize",
-                      "token_endpoint": "https://stg.us.shopper.cc.salesforce.com/slas/api/v1/organizations/zzzz_tst/oauth2/token",
-                      "revocation_endpoint": "https://stg.us.shopper.cc.salesforce.com/slas/api/v1/organizations/zzzz_tst/oauth2/revoke",
-                      "userinfo_endpoint": "https://stg.us.shopper.cc.salesforce.com/slas/api/v1/organizations/zzzz_tst/oauth2/userinfo",
-                      "jwks_uri": "https://stg.us.shopper.cc.salesforce.com/slas/api/v1/organizations/zzzz_tst/oauth2/jwks",
+                      "issuer": "https://stg.us.shopper.cc.salesforce.com/api/v1/organizations/zzzz_tst/oauth2",
+                      "authorization_endpoint": "https://stg.us.shopper.cc.salesforce.com/api/v1/organizations/zzzz_tst/oauth2/authorize",
+                      "token_endpoint": "https://stg.us.shopper.cc.salesforce.com/api/v1/organizations/zzzz_tst/oauth2/token",
+                      "revocation_endpoint": "https://stg.us.shopper.cc.salesforce.com/api/v1/organizations/zzzz_tst/oauth2/revoke",
+                      "userinfo_endpoint": "https://stg.us.shopper.cc.salesforce.com/api/v1/organizations/zzzz_tst/oauth2/userinfo",
+                      "jwks_uri": "https://stg.us.shopper.cc.salesforce.com/api/v1/organizations/zzzz_tst/oauth2/jwks",
                       "grant_types_supported": [
                           "authorization_code",
                           "authorization_code_pkce",
@@ -821,9 +821,9 @@ types:
                     "error_description": "The server has encountered a situation it doesn't know how to handle."
                     }
     /jwks:
-      description: The JSON Web Key Set (JWKS) is a set of keys which contains the public keys used to verify any JSON Web Token (JWT) issued by the authorization server and signed using the RS256 signing algorithm.
+      description: The JSON Web Key Set (JWKS) is a set of keys which contains the public keys used to verify any JSON Web Token (JWT) issued by the authorization server and signed using the EC256 signing algorithm.
       get:
-        description: Returns a JWKS containing public keys that enable clients to validate a JSON Web Token (JWT) issued by this OpenID Connect Provider.
+        description: Returns a JWKS containing public keys that enable clients to validate the Shopper JSON Web Token (JWT) issued by SLAS.
         displayName: getJwksUri
         responses:
           200:
@@ -835,12 +835,12 @@ types:
                   {
                       "keys": [
                           {
-                              "kty": "RSA",
-                              "e": "AQAB",
+                              "kty": "EC",
+                              "crv": "P-256",
                               "use": "sig",
-                              "kid": "slas-openid-pubkey-228",
-                              "alg": "RS256",
-                              "n": "rICcT4U7e9sdtneog0uiQlP1zKk6Kl3hqy7TN4Qx1hKm3vyiTWYuAlx6ELhifqBnMpm72flBCIRVdJ2lvIav4G4LxnvfQQLVca9Hy6Rvn27sJoj82bmZ8Fa-yMiT3c7_uKpqlt7SrodFS1NcdeELgmeZtL4W55HF2UPc1b3StcEkfEeHJknNLZgiUK36Z_OlYh658X4p7qHqakGosz4tMnoMnj-9kR8WQ5XXkM7nJqfm8KqwVgapON4PNNl1vfTYu1ymDP_VcbMU3LonNRGpix6XEypbBetgB4KtvaTL5KetvKboNHojMCfcwcEAd5WQZCrmznT9bQ3L9yHVrQ2fPw"
+                              "kid": "08292160-cfbe-45f5-9ef4-7d8d79124682",
+                              "x": "okZld4RHX0YfJl_WeXKIg_mjtiZj5KCMexpJNyJXHyo",
+                              "y": "h_iHh56LYeGUMSQypiSJECsPHtIHk6V3E52TAGHpmM0"
                           }
                       ]
                   }

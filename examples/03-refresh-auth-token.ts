@@ -51,9 +51,8 @@ async function getRefreshToken(
   if (!response.ok) {
     throw new ResponseError(response);
   }
-  const customerInfo: Customer.ShopperCustomers.Customer = await getObjectFromResponse(
-    response
-  );
+  const customerInfo: Customer.ShopperCustomers.Customer =
+    await getObjectFromResponse(response);
 
   return new ShopperToken(
     customerInfo,
