@@ -1,0 +1,19 @@
+#%RAML 1.0 DataType
+
+
+#GroupReservationRecordsWithErrors:
+description: Group level line items for reservation responses.
+properties:
+  id: 
+    type: !include ../GlobalTypes/GroupId.raml
+    description: The group ID associated with these reservations
+    required: true
+    example: Germany
+  errors:
+    type: array
+    description: Errors that were encountered while trying to place a reservation
+    items: !include ReservationErrorLines2.raml
+  details:
+    type: array
+    description: Successful reservation entries for this group.
+    items: !include ReservationSuccessfulLines.raml

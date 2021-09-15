@@ -8,6 +8,12 @@ only use JavaScript, or if you use TypeScript but only import the client classes
 then your usage **will not change**. You will likely only need to make changes if
 you import the type definitions directly.
 
+### v2.5.1
+
+#### API Changes
+* The *Discovery* API has added a new optional parameter `FacetRequest` to the `QueryInput` type
+* The `getTrustedSystemAccessToken` endpoint has been removed from the *Shopper Login* API. It was introduced prematurely in v2.4.0 and will be reintroduced in a future release.
+
 ### v2.5.0
 
 #### API Changes

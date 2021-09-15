@@ -1,0 +1,22 @@
+#%RAML 1.0 Library
+usage:
+types:
+
+  # Updated with W-7535728 - now allows for batch posting rather than individual records
+  FulfillQuantityRequestBody:
+    description: |
+      Fulfills the given quantity of reservations for a SKU at a given location. The given quantity will be subtracted from the reservation count and the quantity on hand, in an atomic operation.
+    example: !include ../Examples/FulfillReservationRequestBody.raml
+    properties:
+      records:
+        description: List of records to process in a batch update.  The maximum number of entries in the array is 100.
+        type: array
+        items: !include ../types/Fulfillment/FulfillQuantityRequestRecords.raml
+
+  # Errors response added as part of W-7535728
+  FulfillQuantityResponseErrors:
+    example: !include ../Examples/FulfillReservationResponseErrors.raml
+    properties:
+      errors:
+        type: array
+        items: !include ../types/Fulfillment/FulfillQuantityRequestError.raml

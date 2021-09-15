@@ -1,0 +1,15 @@
+#%RAML 1.0 Library
+types:
+  BatchInventoryUpdateRequestRecord: !include ../../types/BatchInventoryUpdate/BatchInventoryUpdateRequestRecord.raml
+  BatchInventoryUpdateErrors: !include ../../types/BatchInventoryUpdate/BatchInventoryUpdateErrors.raml
+
+  BatchInventoryUpdateRequest:
+    type: object
+    properties:
+      records:
+        description: List of records to process in a batch update.  The maximum number of entries in the array is 100.
+        type: array
+        maxItems: 100
+        items:
+          type: BatchInventoryUpdateRequestRecord
+

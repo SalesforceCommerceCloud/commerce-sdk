@@ -1,0 +1,72 @@
+#%RAML 1.0 Library
+usage:
+  
+types:
+  ExternalRefId: !include ../../types/ExternalRefId.raml
+  Future: !include ../../types/Future.raml
+
+  InventoryUpdateRequestBodyPatch:
+    description: |-
+      The body of the patch request for updating sku/location inventory.
+      All fields are OPTIONAL. If a field is missing or contains a null value then the system doesn't update that field when patching.
+    properties:
+      externalRefId:
+        required: false
+        type: ExternalRefId
+      onHand:
+        required: false
+        description: The new physical count available. The inventory count not considering future inventory or reservations.
+        example: 25.000
+        type: number
+        format: double
+        minimum: 0.000
+        multipleOf: 0.001
+      safetyStockCount:
+        required: false
+        description: Inventory quantity that a merchant wants to intentionally holdback and not include in the ATS/ATF/ATO
+        example: 20.000
+        type: number
+        format: double
+        minimum: 0.000
+        multipleOf: 0.001
+      effectiveDate:
+        required: false
+        type: !include ../../types/EffectiveDateGeneric.raml
+      futureStock:
+        required: false
+        type: array
+        items:
+          type: Future
+
+  InventoryUpdateRequestBodyPut:
+    description: |-
+      The body of the put request for updating sku/location inventory.
+      All fields are required. If a field is missing or contains a null value then a 400 error will be thrown.
+    properties:
+      externalRefId:
+        type: ExternalRefId
+        required: false
+      onHand:
+        description: The new physical count available. The inventory count not considering future inventory or reservations.
+        example: 25.000
+        type: number
+        format: double
+        minimum: 0.000
+        multipleOf: 0.001
+        required: false
+      safetyStockCount:
+        description: Inventory quantity that a merchant wants to intentionally holdback and not include in the ATS/ATF/ATO
+        example: 20
+        type: number
+        format: double
+        minimum: 0.000
+        multipleOf: 0.001
+        required: false
+      effectiveDate:
+        required: false
+        type: !include ../../types/EffectiveDateGeneric.raml
+      futureStock:
+        type: array
+        required: false
+        items:
+          type: Future
