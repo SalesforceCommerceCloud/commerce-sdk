@@ -11,16 +11,18 @@ import { updateApis } from "./lib/utils";
 import {
   API_FAMILIES,
   PRODUCTION_API_PATH,
-  CUSTOM_METADATA,
+  COMMON_METADATA,
   STAGING_API_PATH,
 } from "./lib/config";
 
 // DOWNLOAD PRODUCTION DATA
 fs.ensureDirSync(PRODUCTION_API_PATH);
-fs.writeJSONSync(
-  path.join(PRODUCTION_API_PATH, ".metadata.json"),
-  CUSTOM_METADATA
-);
+fs.writeJSONSync(path.join(PRODUCTION_API_PATH, ".metadata.json"), {
+  ...COMMON_METADATA,
+  // We don't want to publish APIs that don't have documentation in the CCDC,
+  // so the build should fail if the CCDC ID is missing for an API.
+  enforceCcdcId: true,
+});
 
 API_FAMILIES.map((family) =>
   updateApis(family, /production/i, PRODUCTION_API_PATH)
@@ -28,9 +30,11 @@ API_FAMILIES.map((family) =>
 
 // DOWNLOAD STAGING DATA
 fs.ensureDirSync(STAGING_API_PATH);
-fs.writeJSONSync(
-  path.join(STAGING_API_PATH, ".metadata.json"),
-  CUSTOM_METADATA
-);
+fs.writeJSONSync(path.join(STAGING_API_PATH, ".metadata.json"), {
+  ...COMMON_METADATA,
+  // Staging APIs aren't published yet, so we don't need to care if they don't
+  // have an associated CCDC ID.
+  enforceCcdcId: false,
+});
 
 API_FAMILIES.map((family) => updateApis(family, /staging/i, STAGING_API_PATH));
