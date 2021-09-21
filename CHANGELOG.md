@@ -8,6 +8,9 @@ only use JavaScript, or if you use TypeScript but only import the client classes
 then your usage **will not change**. You will likely only need to make changes if
 you import the type definitions directly.
 
+### v2.5.2
+* Added support for boolean query parameters.
+
 ### v2.5.1
 
 #### API Changes
