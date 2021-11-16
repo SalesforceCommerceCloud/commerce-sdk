@@ -1,6 +1,6 @@
 #%RAML 1.0
 title: Shopper Login
-description: SLAS (Shopper Login & API Authentication Service) APIs enable shoppers to 1) login via federation to any external IDP or 2) to Salesforce B2C Ecom system, get access token and use it to access shopper APIs. SLAS also provides APIs for SSO, refresh a token using the long-term refresh token and revoke a refresh token.
+description: !include shopper-login-description.md
 version: v1
 mediaType: application/json
 protocols: HTTPS
@@ -17,7 +17,7 @@ securitySchemes:
     SlasJWT-BearerSecurityScheme.BearerToken: !include slasJWT-BearerSecurityScheme.raml
 uses:
   ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.8/api-standards.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.10/commerce-cloud-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.18/commerce-cloud-standards.raml
 types:
   ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.8/dataTypes/error-response.raml
   ResponseType:
@@ -143,6 +143,44 @@ types:
         type: TokenTypeHint
         required: false
         example: "REFRESH_TOKEN"
+  TrustedSystemTokenRequest: 
+    type: object
+    description: Used to request an access token on behalf of a regestered user whose credentials are stored using a third party system.
+    properties:
+      usid:
+        description: The Shopper's unique identifier if known. This is an optional field, a new shopper ID will be generated if this field is empty.
+        type: string
+        required: false
+        example: "54ad2c5a-91f0-44ab-817c-73d6b86872d9"
+      grant_type:
+        description: Grant Type. Must be set to "client_credentials" for Trusted System On Behalf.
+        type: GrantType
+        example: "CLIENT_CREDENTIALS"
+      hint:
+        description: The hint will be used to identify the type of trusted system on behalf to use.
+        type: TrustedOnBehalf   
+        example: "ts_ext_on_behalf_of"
+      login_id:
+        description: The login_id is used to identify who the shopper is is for trusted on behalf of.<br><br>If set to "guest" a token will be returned for a guest user.
+        type: string   
+        minLength: 8
+        maxLength: 256
+        example: "john.doe@test.org"
+      idp_origin:
+        description: The idp_origin is used to identify the external IDP the users is associated with.
+        type: ThirdPartyIdps   
+        minLength: 4
+        maxLength: 16
+        example: "google"
+      client_id:
+        description: The SLAS client used to identify the SLAS public client id for use with Trusted System Internal On Behalf Of.<br><br>A SLAS public client id must be used for ts_int_on_behalf_of.
+        type: string   
+        example: "6c388ebd-6843-4863-aef9-781382c9e8cd"
+      channel_id:
+        description: The channel_id is used to identify the channel (ECOM Site) the user is associated with.
+        type: string   
+        example: "RefArch"
+
   IntrospectResponse:
     type: object
     properties:
@@ -231,9 +269,103 @@ types:
         required: true
         type: string
         example: "krc5G3_5lRUcXDUzFZQ88oJA_-ZmlHWkyGsgOrSLEWg"
+  CredQualityUserResponse:
+    properties:
+      tenantId:
+        type: string
+        example: "aaaa_prd"
+      username:
+        type: string
+        example: "joe.shopper"
+      email:
+        type: string
+        example: "joe.shopper@gmail.com"
+      credQualityMeasure: 
+        type: integer
+        example: 1024
+      pwdStrengthMeasure:
+        type: integer
+        example: 12
+      pwdQualityMeasure:
+        type: integer
+        example: 0
+      credChangeCount:
+        type: integer
+        example: 0
+      loginCount:
+        type: integer
+        example: 0
+      lastLoginDatetime:
+        type: datetime
+        example: 2021-08-18T16:41:41.090Z
+      lastCredCheckDatetime:
+        type: datetime
+        example: 2021-02-18T16:41:41.090Z
 
 /organizations/{organizationId}:
   type: CommerceCloudStandards.Organization
+  /cred-qual/user:
+    description: description
+    get:
+      description: Retrieve credential quality statistics for a user.
+      displayName: retrieveCredQualityUserInfo
+      is:
+        - SlasRateLimit:
+              responseStatus: 303
+              responseStatus2: 400
+              responseStatus3: 401
+              responseStatus4: 500
+      securedBy:
+        - SlasJWT-BearerSecurityScheme.BearerToken: {Bearer eyJ2ZXIiOiIxLjAiLCJraWQiOiI0ZTQyNTFkOS0zM2Y2LTRjMTMtYjZmZC1mOWJkNTJmYTZhNDciLCJ0eXAiOiJqd3QiLCJjbHYiOiJKMi4xLjAiLCJhbGciOiJFUzI1NiJ9.eyJhdXQiOiJHVUlEIiwic2NwIjoic2ZjYy5wcm9kdWN0cy5ybyBzZmNjLmNhdGFsb2dzLnJvIHNmY2Muc2hvcHBlci5ydyIsInN1YiI6ImNjLXNsYXM6OnNsc2FfZGV2OjpzY2lkOjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3Yjo6dXNpZDoxY2E3OWZiNi0xYjIyLTRmOWItOGJiNi05YmU5NWNjMjA4NjMiLCJjdHgiOiJzbGFzLm5vdF9mb3JfZXh0ZXJuYWxfdXNlIiwiaXNzIjoic2xhcy9kZXYvc2xzYV9kZXYiLCJpc3QiOjEsImF1ZCI6ImNvbW1lcmNlY2xvdWQvZGV2L3Nsc2FfZGV2IiwibmJmIjoxNTk0NzY0MDgwLCJzdHkiOiJVc2VyIiwiaXNiIjoidWlkbzpzbGFzOjp1cG46R3Vlc3Q6OnVpZG46R3Vlc3QgVXNlciIsImV4cCI6MTU5NDc2NTkxMCwiaWF0IjoxNTk0NzY0MTEwLCJqdGkiOiJDMkMxNjM0NTE0NTEwLTE3MTQzMTg2NzY0MjcwNTcyNjQ2NTYxMzgifQ.UVYAsWXCn3hoUPy8vLlc7O96RZEHD3N3ZgdNH-ZVvJ1G-R6uJ2VPrYvwKmYXF41Ujm2bo83AYOHVqEEEPT8Kgw}
+      
+      queryParameters:
+        username:
+          description: User's login id or email address.
+          type: string
+          example: "joe.shopper@gmail.com"
+      responses:
+          200:
+            description: !include credential-quality-statistics-description.md
+            body:
+              application/json:
+                type: CredQualityUserResponse
+                example: |
+                    {
+                      "tenantId": "aaaa_prd",
+                      "username": "joe.shopper@gmail.com",
+                      "email": "joe.shopper@gmail.com",
+                      "credQualityMeasure": 0,
+                      "pwdStrengthMeasure": 0,
+                      "pwdQualityMeasure": 0,
+                      "credChangeCount": 0,
+                      "loginCount": 0,
+                      "lastLoginDatetime": "2021-02-18T16:41:41.090Z",
+                      "lastCredCheckDatetime": "2021-02-18T16:41:41.090Z",
+                      "atoScore": 3,
+                      "atoLastDatetime": "2021-02-18T16:41:41.090Z",
+                      "atoLastSourceIp": "",
+                      "atoScoreHistory": "5, 6, 7"
+                    }
+          400:
+            description: Bad Request
+            body:
+              application/problem+json:
+                type: Oauth2ErrorResponse
+                example: |
+                  {
+                    "error": "invalid_request",
+                    "error_description": "Bad or missing organization id."
+                  }
+          404:
+            description: Unauthorized
+            body:
+              application/problem+json:
+                type: Oauth2ErrorResponse
+                example: |
+                    {
+                    "error": "invalid_client",
+                    "error_description": "Basic Authorization failed."
+                    }
   /oauth2:
     /login:
       description: <b>The GET method is DEPRECATED - Please use the POST method.</b><br>Get authorization code after authenticating a user using an ECOM instance.
@@ -556,6 +688,69 @@ types:
                     "error": "server_error",
                     "error_description": "The server has encountered a situation it doesn't know how to handle."
                     }
+    /trusted-system/token:
+      description: Shopper OAuth2 Token Endpoint.
+      post:
+        description: Get a shopper JWT/access token for registered customers whose credentials are stored using a third party system.</br></br>Mandatory fields for <b>Trusted On Behalf Of</b> to get an access token are grant_type, hint, login_id, login_origin, and channel_id.</br></br>Valid grant type for <b>Trusted On Behalf Of</b> is <i>client_credentials.</i></br></br>For<b>Trusted System External On Behalf Of</b> a basic auth authorization header of SLAS client id and SLAS client secret should be used in place of the bearer Token.</br></br>For <b>Trusted System Internal On Behalf Of </b>the authorization header bearer token should be a C2C JWT.</br>
+        displayName: getTrustedSystemAccessToken
+        is:
+          - SlasRateLimit:
+              responseStatus: 200
+              responseStatus2: 400
+              responseStatus3: 401
+              responseStatus4: 503
+        securedBy:
+        - CommerceCloudStandards.ShopperToken: {Bearer eyJ2ZXIiOiIxLjAiLCJraWQiOiI0ZTQyNTFkOS0zM2Y2LTRjMTMtYjZmZC1mOWJkNTJmYTZhNDciLCJ0eXAiOiJqd3QiLCJjbHYiOiJKMi4xLjAiLCJhbGciOiJFUzI1NiJ9.eyJhdXQiOiJHVUlEIiwic2NwIjoic2ZjYy5wcm9kdWN0cy5ybyBzZmNjLmNhdGFsb2dzLnJvIHNmY2Muc2hvcHBlci5ydyIsInN1YiI6ImNjLXNsYXM6OnNsc2FfZGV2OjpzY2lkOjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3Yjo6dXNpZDoxY2E3OWZiNi0xYjIyLTRmOWItOGJiNi05YmU5NWNjMjA4NjMiLCJjdHgiOiJzbGFzLm5vdF9mb3JfZXh0ZXJuYWxfdXNlIiwiaXNzIjoic2xhcy9kZXYvc2xzYV9kZXYiLCJpc3QiOjEsImF1ZCI6ImNvbW1lcmNlY2xvdWQvZGV2L3Nsc2FfZGV2IiwibmJmIjoxNTk0NzY0MDgwLCJzdHkiOiJVc2VyIiwiaXNiIjoidWlkbzpzbGFzOjp1cG46R3Vlc3Q6OnVpZG46R3Vlc3QgVXNlciIsImV4cCI6MTU5NDc2NTkxMCwiaWF0IjoxNTk0NzY0MTEwLCJqdGkiOiJDMkMxNjM0NTE0NTEwLTE3MTQzMTg2NzY0MjcwNTcyNjQ2NTYxMzgifQ.UVYAsWXCn3hoUPy8vLlc7O96RZEHD3N3ZgdNH-ZVvJ1G-R6uJ2VPrYvwKmYXF41Ujm2bo83AYOHVqEEEPT8Kgw}
+        body:
+          application/x-www-form-urlencoded:
+            type: TrustedSystemTokenRequest
+        responses:
+          200:
+            description: Success
+            body:
+              application/json:
+                type: TokenResponse
+                example: |
+                  {
+                    "access_token": "eyJ2ZXIiOiIxLjAiLCJraWQiOiJTTEFTIiwidHlwIjoiand0IiwiY2x2IjoiSjIuMS4wIiwiYWxnIjoiRVMyNTYifQ.eyJhdWQiOiJjb3JlL2Rldi9idGluZ2V5bHRtMiIsImF1dCI6IkdVSUQiLCJzdWIiOiJ1c2lkOjo1NGFkMmM1YS05MWYwLTQ0YWItODE3Yy03M2Q2Yjg2ODcyZDk6OnVwbjpndWVzdCIsIm5iZiI6MTU4Mjg0NTYyNCwiY3R4Ijoic2ZkYy5jb21tZXJjZWNsb3VkIiwiaXNzIjoiY29yZS9kZXYvYnRpbmdleWx0bTIiLCJzdHkiOiJVc2VyIiwiaXN0IjoxLCJleHAiOjE1ODI4NDU3NDQsImlhdCI6MTU4Mjg0NTY1NCwianRpIjoiQzJDOTA0ODg2NDA3MDkwNDg4NjQwNzMyMjExNzQ1ODEyMTQzIn0.2a6lMBSY17PrhDO8pvEk7PCXW_nkguMHi4J-Tuirkz-ETB6rnKyuRjF5yD6B55tMvm8dO8ulAHyDYqjObMxLJg",
+                    "id_token": "eyJraWQiOiI3NGU2YjMxZS1lYTczLTQ3OTYtOWRkYi1jMDJmZGI4ZDgwYmUiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ1c2lkOmQ1MDBhMzY5LTc1MWQtNDkzYy1iNDAzLThmOThmYjg3MTdiNiIsImF1ZCI6IjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3YiIsImlzcyI6ImRldi51cy5zaG9wcGVyLmNjLnNhbGVzZm9yY2UuY29tIiwibmFtZSI6ImJsYWlyLnNsYXMudGVzdEBnbWFpbC5jb20iLCJleHAiOjE1OTExMTE0MzgsImlhdCI6MTU5MTEwOTYzOCwiZW1haWwiOiJibGFpci5zbGFzLnRlc3RAZ21haWwuY29tIn0.KgpAcq-G9Lz7IGnjkJlaFLFXYncVCwcVrRIuy3bEfgzRozqaDRvAori4oOz4RtgYjmoc5x2euoisHL0mVnHgPKOdYBty1wTJqneJEQt6hP4Kp0KFciID_ILCi-DE8VWS5t0NknnMP_iKhIkqcRL48iwPFUWkWA6AEWxE_yvJLNRLithsSxsx7EfBfpD8Hr2b5tMEwImQNmJNYGRTI4LSmcYspBORvJoAnfGpMC0kglxl40bhf5j4ItX4_DiWQC4zaGYD-HJV4BDr6C7iGCs5ZVPypF0yQD3iBio26fwj9Ys5WF9XMtPtqET2kqsz6fDC5GkE6HTUHH_r87jxbDq-8w",
+                    "refresh_token": "EgMYpjfFKdlSy-a3PYeyihmP95IpIp3FaDpPmVH1yu8.lahomBi7zJbRa6yKAuAAiKu3lprTPsEueKwqcBvhRLU",
+                    "expires_in": 900,
+                    "token_type": "Bearer",
+                    "usid": "18cda486-fe32-4e27-888b-6e4f89938e67",
+                    "customer_id": "1000005",
+                    "enc_user_id": "45D39A8499A95288F82855427EBA99B5"               
+                  }
+          400:
+            description: Bad Request
+            body:
+              application/problem+json:
+                type: Oauth2ErrorResponse
+                example: |
+                  {
+                    "error": "invalid_request",
+                    "error_description": "Bad or missing access token."
+                  }
+          401:
+            description: Unauthorized
+            body:
+              application/problem+json:
+                type: Oauth2ErrorResponse
+                example: |
+                    {
+                    "error": "invalid_client",
+                    "error_description": "Authorization failed."
+                    }
+          503:
+            description: Gateway Error
+            body:
+              application/problem+json:
+                type: Oauth2ErrorResponse
+                example: |
+                    {
+                    "error": "server_error",
+                    "error_description": "The server has encountered a situation it doesn't know how to handle."
+                    }    
     /revoke:
       description: Shopper OAuth2 Token revoke Endpoint.
       post:
@@ -705,7 +900,7 @@ types:
 #            example: "eyJ2ZXIiOiIxLjAiLCJraWQiOiI0ZTQyNTFkOS0zM2Y2LTRjMTMtYjZmZC1mOWJkNTJmYTZhNDciLCJ0eXAiOiJqd3QiLCJjbHYiOiJKMi4xLjAiLCJhbGciOiJFUzI1NiJ9.eyJhdXQiOiJHVUlEIiwic2NwIjoic2ZjYy5wcm9kdWN0cy5ybyBzZmNjLmNhdGFsb2dzLnJvIHNmY2Muc2hvcHBlci5ydyIsInN1YiI6ImNjLXNsYXM6OnNsc2FfZGV2OjpzY2lkOjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3Yjo6dXNpZDoxY2E3OWZiNi0xYjIyLTRmOWItOGJiNi05YmU5NWNjMjA4NjMiLCJjdHgiOiJzbGFzLm5vdF9mb3JfZXh0ZXJuYWxfdXNlIiwiaXNzIjoic2xhcy9kZXYvc2xzYV9kZXYiLCJpc3QiOjEsImF1ZCI6ImNvbW1lcmNlY2xvdWQvZGV2L3Nsc2FfZGV2IiwibmJmIjoxNTk0NzY0MDgwLCJzdHkiOiJVc2VyIiwiaXNiIjoidWlkbzpzbGFzOjp1cG46R3Vlc3Q6OnVpZG46R3Vlc3QgVXNlciIsImV4cCI6MTU5NDc2NTkxMCwiaWF0IjoxNTk0NzY0MTEwLCJqdGkiOiJDMkMxNjM0NTE0NTEwLTE3MTQzMTg2NzY0MjcwNTcyNjQ2NTYxMzgifQ.UVYAsWXCn3hoUPy8vLlc7O96RZEHD3N3ZgdNH-ZVvJ1G-R6uJ2VPrYvwKmYXF41Ujm2bo83AYOHVqEEEPT8Kgw"
         queryParameters:
           channel_id:
-            description: Used when getting user information for a SFCC login. This is angalous to the site ID and should be the site ID of the user. 
+            description: Used when getting user information for a SFCC login. For an ECOM customer this is angalous to the site ID. This is a required parameter when getting user information for an ECOM customer.
             required: false
             maxLength: 100
             type: string
