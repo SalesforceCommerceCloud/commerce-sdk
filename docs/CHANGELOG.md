@@ -8,6 +8,43 @@ only use JavaScript, or if you use TypeScript but only import the client classes
 then your usage **will not change**. You will likely only need to make changes if
 you import the type definitions directly.
 
+### v2.6.0
+#### API Changes
+*CDN Zones*
+* New endpoints
+
+| **Endpoint Name** | **Description** |
+| ------------- |-------------|
+| workerUpdate | Updates the worker for the zone to the specified version |
+
+*Shopper Baskets*
+* New endpoints
+
+| **Endpoint Name** | **Description** |
+| ------------- |-------------|
+| transferBasket | Transfer the previous shopper's basket to the current shopper by updating the basket's owner. No other values change. You must obtain the shopper authorization token via SLAS, and it must contain both the previous and current shopper IDs. |
+| mergeBasket | Merge data from the previous shopper's basket into the current shopper's active basket and delete the previous shopper's basket. This endpoint doesn't merge Personally Identifiable Information (PII). You must obtain the shopper authorization token via SLAS, and it must contain both the previous and current shopper IDs. After the merge, all basket amounts are recalculated and totaled, including lookups for prices, taxes, shipping, and promotions. |
+| updatePaymentInstrumentInBasket | Success, the response body contains the basket with the updated payment instrument. |
+
+*Shopper Login*
+* New endpoints
+
+| **Endpoint Name** | **Description** |
+| ------------- |-------------|
+| retrieveCredQualityUserInfo | Retrieve credential quality statistics for a user. |
+| getTrustedSystemAccessToken | Get a shopper JWT/access token for registered customers whose credentials are stored using a third party system.</br></br>Mandatory fields for <b>Trusted On Behalf Of</b> to get an access token are grant_type, hint, login_id, login_origin, and channel_id.</br></br>Valid grant type for <b>Trusted On Behalf Of</b> is <i>client_credentials.</i></br></br>For<b>Trusted System External On Behalf Of</b> a basic auth authorization header of SLAS client id and SLAS client secret should be used in place of the bearer Token.</br></br>For <b>Trusted System Internal On Behalf Of </b>the authorization header bearer token should be a C2C JWT.</br> |
+
+*SLAS Admin*
+* New endpoints
+
+| **Endpoint Name** | **Description** |
+| ------------- |-------------|
+| retrieveCredQuailtyStats | Retrieve credential quality statistics for a user. |
+| retrieveCredQuailtyUserStats | Retrieve credential quality statistics for a tenant. |
+
+### v2.5.2
+* Added support for boolean query parameters.
+
 ### v2.5.1
 
 #### API Changes
