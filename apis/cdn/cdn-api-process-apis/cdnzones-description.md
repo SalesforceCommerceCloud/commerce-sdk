@@ -1,0 +1,1 @@
+Provides access to Commerce Cloud Digital CDN-related functionality.

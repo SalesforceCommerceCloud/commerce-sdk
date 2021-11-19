@@ -1,6 +1,6 @@
 #%RAML 1.0
 title: SLAS Admin
-description: SLAS (Shopper Login & API Authentication Service) Administration
+description: !include slas-admin-description.md
 version: v1
 mediaType: application/json
 protocols: HTTPS
@@ -52,7 +52,7 @@ types:
         description: Client Channels
         type: string[]
         example: ["RefArch", "SiteGenensis"]
-      privateClient:
+      isPrivateClient:
         description: Private or Public Client
         required: false
         type: boolean
@@ -87,7 +87,7 @@ types:
         description: Client Channels
         type: string[]
         example: ["RefArch", "SiteGenensis"]
-      privateClient:
+      isPrivateClient:
         description: Private or Public Client. If left blank the client will default to private.
         type: boolean
         example: true
@@ -252,12 +252,110 @@ types:
         items:
           type: Tenant
 
+  CredQualityResponse:
+    properties:
+      tenantId:
+        type: string
+        example: "aaaa_prd"
+      checkCount:
+        type: integer
+        example: 40
+      credsOkay: 
+        type: integer
+        example: 1024
+      repeatedCompromisedUse:
+        type: integer
+        example: 12
+      credsCompromised:
+        type: integer
+        example: 0
+      exposure1:
+        type: integer
+        example: 0
+      exposure2to4:
+        type: integer
+        example: 0
+      exposure5to9:
+        type: integer
+        example: 0
+      exposure10plus:
+        type: integer
+        example: 0
+      pwdsOkay:
+        type: integer
+        example: 47
+      pwdsCompromised:
+        type: integer
+        example: 3
+      avgPwdStrength:
+        type: number
+        example: 5.0
+      avgCredQualityMeasure:
+        type: number
+        example: 0.0
+      avgPwdQualityMeasure:
+        type: number
+        example: 0.0
+      medPwdStrength:
+        type: number
+        example: 0.0
+      medCredQualityMeasure:
+        type: number
+        example: 0.0
+      medPwdQualityMeasure:
+        type: number
+        example: 0.0
+
+  CredQualityUserResponse:
+    properties:
+      tenantId:
+        type: string
+        example: "aaaa_prd"
+      username:
+        type: string
+        example: "joe.shopper"
+      email:
+        type: string
+        example: "joe.shopper@gmail.com"
+      credQualityMeasure: 
+        type: integer
+        example: 1024
+      pwdStrengthMeasure:
+        type: integer
+        example: 12
+      pwdQualityMeasure:
+        type: integer
+        example: 0
+      credChangeCount:
+        type: integer
+        example: 0
+      loginCount:
+        type: integer
+        example: 0
+      lastLoginDatetime:
+        type: datetime
+        example: 2021-08-18T16:41:41.090Z
+      lastCredcheckDatetime:
+        type: datetime
+        example: 2021-02-18T16:41:41.090Z
+      atoScore:
+        type: integer
+        example: 3
+      atoLastDatetime: 
+        type: datetime
+        example: 2021-02-18T16:41:41.090Z
+      atoLastSourceIp:
+        type: string
+      atoScoreHistory:
+        type: string
+        example: "5, 6, 7"
+
 /tenants:
   get:
     description: Retrieve a list of tenants
     displayName: retrieveTenants
     securedBy:
-            - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN] }
+            - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN] }
     responses:
         401:
           description: Unauthorized. Wrong Tenant.
@@ -290,7 +388,7 @@ types:
       description: Retrieve a tenant by tenant id
       displayName: retrieveTenant
       securedBy:
-              - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN] }
+              - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN] }
       responses:
             400:
               description: Bad Request.
@@ -333,7 +431,7 @@ types:
           application/json:
             examples: !include Examples/TenantDto.raml
         securedBy:
-                - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN] }
+                - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN] }
         responses:
           400:
             description: Bad Request.
@@ -388,7 +486,7 @@ types:
       description: Delete a tenant
       displayName: deleteTenant
       securedBy:
-              - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN] }
+              - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN] }
       responses:
         400:
           description: Bad Request.
@@ -447,7 +545,7 @@ types:
           description: Retrieve a client
           displayName: retrieveClient
           securedBy:
-                  - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN] }
+                  - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN] }
           responses:
             400:
               description: Bad Request.
@@ -548,7 +646,7 @@ types:
           description: Delete a client
           displayName: deleteClient
           securedBy:
-                  - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN] }
+                  - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN] }
           responses:
             400:
               description: Bad Request.
@@ -625,7 +723,7 @@ types:
           description: Retrieve/Get a specific identity provider
           displayName: retrieveIdentityProvider
           securedBy:
-                - SlasSecurityScheme.BearerToken:  { role: [SLAS_SERVICE_ADMIN] }
+                - SlasSecurityScheme.BearerToken:  { role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN] }
           responses:
             400:
               description: Bad Request.
@@ -670,7 +768,7 @@ types:
                 examples:
                   IdentityProvider: !include Examples/IdentityProvider.raml
             securedBy:
-                    - SlasSecurityScheme.BearerToken:  { role: [SLAS_SERVICE_ADMIN] }
+                    - SlasSecurityScheme.BearerToken:  { role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN] }
             responses:
               400:
                 description: Bad Request.
@@ -726,7 +824,7 @@ types:
           description: Delete a identity provider
           displayName: deleteIdentityProvider
           securedBy:
-                  - SlasSecurityScheme.BearerToken:  { role: [SLAS_SERVICE_ADMIN] }
+                  - SlasSecurityScheme.BearerToken:  { role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN] }
           responses:
             400:
               description: Bad Request.
@@ -762,7 +860,7 @@ types:
         description: Completely deletes all shopper records associated with the shoppers customer id. The email id will be used if passed as a query parameter. This conforms to the GDPR regulations.
         displayName: deleteShopper
         securedBy:
-                - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN] }
+                - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN] }
         queryParameters:
           emailAddress:
             description: The shoppers email address.
@@ -791,3 +889,81 @@ types:
 
           204:
             description: No Content
+
+    /cred-qual/login:
+      get:
+        description: Retrieve credential quality statistics for a tenant.
+        displayName: retrieveCredQuailtyStats
+        securedBy:
+                - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN] }
+        queryParameters:
+          action:
+            description: Returns averages
+            required: false
+            type: string   
+            example: "avgs"
+        responses:
+          200:
+            description: !include tenant-credential-quality-statistics-description.md
+            body:
+              application/json:
+                type: CredQualityResponse
+                examples: 
+                  CredQualityResponse : !include Examples/CredQualityResponse.raml
+          400:
+            description: Bad Request.
+            body:
+              application/json:
+                type: ApiStandards.ErrorResponse
+                example: {
+                    "type": "CredentialQualityException",
+                    "title": "Invalid Tenant Id"
+                  }
+          404:
+            description: Not Found.
+            body:
+              application/json:
+                type: ApiStandards.ErrorResponse
+                example: {
+                    "type": "CredentialQualityException",
+                    "title": "Credential Quality Not Found for tenant"
+                  }
+    /cred-qual/user:
+      get:
+        description: Retrieve credential quality statistics for a user.
+        displayName: retrieveCredQuailtyUserStats
+        securedBy:
+                - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN] }
+        queryParameters:
+          username:
+            description: Login id or email address.
+            required: false
+            type: string   
+            example: "joe.shopper@gmail.com"
+        responses:
+          200:
+            description: !include credential-quality-statistics-description.md
+            body:
+              application/json:
+                type: CredQualityUserResponse
+                examples: 
+                  CredQualityResponse : !include Examples/CredQualityUserResponse.raml
+          400:
+            description: Bad Request.
+            body:
+              application/json:
+                type: ApiStandards.ErrorResponse
+                example: {
+                    "type": "CredentialQualityException",
+                    "title": "Invalid Tenant Id"
+                  }
+          404:
+            description: Not Found.
+            body:
+              application/json:
+                type: ApiStandards.ErrorResponse
+                example: {
+                    "type": "CredentialQualityException",
+                    "title": "Credential Quality not found for user"
+                  }          
+
