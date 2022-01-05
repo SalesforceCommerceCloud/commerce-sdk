@@ -1,0 +1,12 @@
+ignores:
+  # Include a reason why each package is listed
+
+  # @babel/parser is used by depcheck, but a bug is introduced in v7.16.5. We need to be pinned to
+  # an older version, so that depcheck still works. Normally, that would be done in the lockfile,
+  # but we explicitly have not committed that for integration tests. To pin the version, we have to
+  # specify it as a dependency in the package.json, and therefore must also ignore it here.
+  # There are three possible resolutions to this.
+  # 1. depcheck fixes the bug: https://github.com/depcheck/depcheck/issues/688
+  # 2. npm supports "overrides" in the package.json: https://github.com/npm/rfcs/blob/main/accepted/0036-overrides.md
+  # 3. the project migrates to yarn, which supports "resolutions": https://classic.yarnpkg.com/lang/en/docs/selective-version-resolutions/
+  - "@babel/parser"
