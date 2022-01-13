@@ -24,12 +24,18 @@ describe("Requests with body", () => {
 
   it("sends correct media type for urlencoded endpoints", async () => {
     const body = {
-      token:
-        "ry5XU_WHX20S6Cn6W7keFIs7Pzkv4wTZJS9Yvh0Ve9A.cdBxoCY9Q3jffQQOFnb_qghbSmSRnn9-2H4GwFTDMTk",
+      token: "TOKEN",
       // eslint-disable-next-line @typescript-eslint/camelcase
       token_type_hint: "REFRESH_TOKEN",
     };
     nock("https://short_code.api.commercecloud.salesforce.com")
+      .filteringRequestBody((body) => {
+        // Putting the assertion here isn't ideal, but it's the only place I can find that nock
+        // exposes the raw contents of the request body. (The body provided to `.post` has already
+        // been parsed to an object, so we can't use that to detect the type.)
+        expect(body).to.equal("token=TOKEN&token_type_hint=REFRESH_TOKEN");
+        return body;
+      })
       .post(
         "/shopper/auth/v1/organizations/ORGANIZATION_ID/oauth2/revoke",
         body
@@ -45,6 +51,13 @@ describe("Requests with body", () => {
   it("sends correct media type for JSON endpoints", async () => {
     const body = { query: "pants" };
     nock("https://short_code.api.commercecloud.salesforce.com")
+      .filteringRequestBody((body) => {
+        // Putting the assertion here isn't ideal, but it's the only place I can find that nock
+        // exposes the raw contents of the request body. (The body provided to `.post` has already
+        // been parsed to an object, so we can't use that to detect the type.)
+        expect(body).to.equal('{"query":"pants"}');
+        return body;
+      })
       .post(
         "/product/products/v1/organizations/ORGANIZATION_ID/product-search",
         body
