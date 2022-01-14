@@ -145,7 +145,12 @@
         {{/if}}
       {{/each}}
 
-      const headers = mergeHeaders(getHeaders(options), { [USER_AGENT_HEADER]: USER_AGENT_VALUE });
+      const headers = mergeHeaders(getHeaders(options), {
+        {{#if (isRequestWithPayload request)}}
+        "Content-Type": "{{{getMediaTypeFromRequest request}}}",
+        {{/if}}
+        [USER_AGENT_HEADER]: USER_AGENT_VALUE
+      });
 
       // @ts-ignore
       return StaticClient.{{method}}({
