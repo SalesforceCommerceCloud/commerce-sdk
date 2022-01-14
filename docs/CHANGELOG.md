@@ -1,5 +1,7 @@
 ## CHANGELOG
-### :warning: Planned future release will contain breaking changes :warning:
+
+### :warning: Planned future release will contain breaking changes :warning
+
 Due to an issue with the generation of the type definitions, an upcoming release
 of the SDK will change type definitions to include namespaces. As this is a
 breaking change, a new major version will be released (v3.0.0). Only the names of
@@ -8,9 +10,18 @@ only use JavaScript, or if you use TypeScript but only import the client classes
 then your usage **will not change**. You will likely only need to make changes if
 you import the type definitions directly.
 
+### v2.6.1
+
+#### Bug Fixes
+
+* The `Content-Type` header is now set for all requests with payloads, enabling the *Shopper Login* endpoints to work as expected.
+
 ### v2.6.0
+
 #### API Changes
+
 *CDN Zones*
+
 * New endpoints
 
 | **Endpoint Name** | **Description** |
@@ -18,6 +29,7 @@ you import the type definitions directly.
 | workerUpdate | Updates the worker for the zone to the specified version |
 
 *Shopper Baskets*
+
 * New endpoints
 
 | **Endpoint Name** | **Description** |
@@ -27,6 +39,7 @@ you import the type definitions directly.
 | updatePaymentInstrumentInBasket | Success, the response body contains the basket with the updated payment instrument. |
 
 *Shopper Login*
+
 * New endpoints
 
 | **Endpoint Name** | **Description** |
@@ -35,6 +48,7 @@ you import the type definitions directly.
 | getTrustedSystemAccessToken | Get a shopper JWT/access token for registered customers whose credentials are stored using a third party system.</br></br>Mandatory fields for <b>Trusted On Behalf Of</b> to get an access token are grant_type, hint, login_id, login_origin, and channel_id.</br></br>Valid grant type for <b>Trusted On Behalf Of</b> is <i>client_credentials.</i></br></br>For<b>Trusted System External On Behalf Of</b> a basic auth authorization header of SLAS client id and SLAS client secret should be used in place of the bearer Token.</br></br>For <b>Trusted System Internal On Behalf Of </b>the authorization header bearer token should be a C2C JWT.</br> |
 
 *SLAS Admin*
+
 * New endpoints
 
 | **Endpoint Name** | **Description** |
@@ -43,20 +57,24 @@ you import the type definitions directly.
 | retrieveCredQuailtyUserStats | Retrieve credential quality statistics for a tenant. |
 
 ### v2.5.2
+
 * Added support for boolean query parameters.
 
 ### v2.5.1
 
 #### API Changes
+
 * The *Discovery* API has added a new optional parameter `FacetRequest` to the `QueryInput` type
 * The `getTrustedSystemAccessToken` endpoint has been removed from the *Shopper Login* API. It was introduced prematurely in v2.4.0 and will be reintroduced in a future release.
 
 ### v2.5.0
 
 #### API Changes
+
 * The endpoints `getOrder` and `getOrders` have been added to the *Orders* API.
 
 #### Enhancements
+
 * The SDK now sends a custom user agent with requests, `commerce-sdk@<version>;`.
 If you specify your own user agent in the client config, it will be replaced.
 If you specify your own user agent when making a request, it will be merged with
@@ -65,16 +83,20 @@ the SDK user agent.
 ### v2.4.0
 
 #### Moved APIs
+
 * The *Shopper Search* API is now in the *Discovery* API family. To maintain
 backwards compatibility, the API is also available under the old *Search* family.
 Future changes to the *Shopper Search* API will only be applied to the version in
 the *Discovery* family.
 
 #### New APIs
+
 * *Shopper Discovery Search* has been added to the SDK.
 
 #### API Changes
+
 *Shopper Login*
+
 * New endpoints
 
 | **Endpoint Name** | **Description** |
@@ -83,29 +105,34 @@ the *Discovery* family.
 
 ### v2.3.0
 
-#### ** New API **
+#### **New API**
+
 *SLAS (Shopper Login & API Authentication Service) Administration* is now supported in the SDK
 
-#### ** API Changes**
+#### **API Changes**
+
 *Shopper Customers*
+
 * New operations
   * registerExternalProfile
   * getExternalProfile
 
 ### v2.2.0
 
-#### ** New API **
+#### **New API**
 
 *Shopper Login Authentication Service* is now supported in the SDK
 
-#### ** API Changes**
+#### **API Changes**
 
 *CDN Zones API*
+
 * New operations
-  * getCertificates 
+  * getCertificates
   * updateCertificates  
 
 *Shopper Login* *BETA*
+
 * New operation
   * logoutCustomer
 
@@ -113,6 +140,7 @@ the *Discovery* family.
   * authenticateCustomer changed from GET to POST
   
 *Catalogs*
+
 * New operations
   * runCategoryRules
   * getCategorizationStatus
@@ -122,23 +150,30 @@ the *Discovery* family.
   * deleteCategoryRuleConditions
 
 *Products*
+
 * New operation
   * getCategorizationAttributeDefinitions
 
 ### v2.1.1
+
 #### **API Changes**
 
 *CDN Zones API*
+
 * Scopes added
 
 *Shopper Login*
+
 * Updates made
 
 * Security and documentation updates made.
+
 ### v2.1.0
+
 #### **API Changes**
 
 *CDN Zones API*
+
 * Endpoints Added
   * /organizations/{organizationId}/zones/{zoneId}/speed-settings
 *Shopper Baskets*
@@ -146,32 +181,42 @@ the *Discovery* family.
   * /organizations/{organizationId}/baskets/{basketId}/price-books
 
 #### Documentation
+
 * Updated Readme with Security Information.
 * Added examples to retrieve shopper auth token
 
 ### v2.0.1
+
 #### Enhancements
+
 * Minor documentation updates
 
 ### v2.0.0
+
 #### GA
+
 * SDK GA Release
 * All APIs are now GA except Shopper Login which is still in Beta
 
 #### **Bug Fixes**
+
 * Fixes an issue resolving nested data types
 
-
 ### v1.7.0-beta.0
+
 #### Breaking
+
 * Customer API now includes Shopper Login
 * Types have been migrated into their corresponding class, making them easier to import.
 
 ### v1.6.0-beta.0
+
 #### **API Changes**
+
 None
 
 #### **Bug Fixes**
+
 Authentication was not being persisted by clients.
 
 ### v1.5.0-beta.0
@@ -179,9 +224,11 @@ Authentication was not being persisted by clients.
 #### **API Changes**
 
 *Shopper Stores API*
+
 * Shopper Stores API has been removed
 
 *Customer API*
+
 * Type Name Removed
   * CustomerGroupMember
   * CustomerGroup type removed from Customer API
@@ -202,21 +249,25 @@ Authentication was not being persisted by clients.
   * /organizations/{organizationId}/sites/{siteId}/customer-group-search
 
 *Shopper Baskets API*
-  * Display Name Changed
-    * addTaxForBasketItem renamed to addTaxesForBasketItem
+
+* Display Name Changed
+  * addTaxForBasketItem renamed to addTaxesForBasketItem
 
 *Shopper Login SLAS*
+
 * Shopper Login & API Access Service - SLAS renamed to Shopper Login
 
 ### **Bug Fixes**
+
 * Authorization header is not removed for conditional get requests
 * Debug logging now prints working curl commands
 
 ### **Breaking**
+
 * Types have been moved to a types object and 'T' postfix has been removed to avoid collisions between method and type names
 
-
 ## CHANGELOG
+
 ### v1.4.5-beta.0
 
 ### **API Changes**
@@ -245,7 +296,6 @@ Authentication was not being persisted by clients.
 
 * Fixed default cache issue when the HTTP response is large
 
-
 ### v1.4.4-beta.0
 
 ### **API Changes**
@@ -255,15 +305,18 @@ Authentication was not being persisted by clients.
 ### **Core Functionality**
 
 * Exposed logger configuration to user
+
 ```javascript
 import { sdkLogger } from "@commerce-sdk"
 
 # To set log level
 sdkLogger.setLevel(sdkLogger.levels.INFO);
 ```
+
 * User-agent now defaults to `commerce-sdk@${VERSION}`
 * Retry settings has been exposed.  README.md has more details.
 Example:
+
 ```javascript
     productClient = new Product({
       retrySettings: {
@@ -276,14 +329,18 @@ Example:
       }
     }
 ```
+
 * Exchange connector has been removed from the commerce-sdk repository
 * Method prototype documentation has been improved
 
 ### v1.4.1-beta.0
+
 ### **API Changes**
 
 #### Product APIs
+
 *Customer API*
+
 * **BREAKING**: Removed endpoint method changes
 
   **Removed**:
@@ -305,12 +362,13 @@ Example:
     | createVariationForMasterProduct | assignVariationForMasterProduct |
 
 *Shopper Customer API*
+
 * **BREAKING**: Removed endpoint method changes
 
     **Removed**:
-    * getCustomerAddresses
-    * getCustomerPaymentInstruments
-    * getCustomerProductListItems
+  * getCustomerAddresses
+  * getCustomerPaymentInstruments
+  * getCustomerProductListItems
 
     **Changed**:
 
@@ -335,6 +393,7 @@ Example:
 
 * Added support for Redis cache
 Example:
+
 ```
 import { CacheManagerRedis } from "@commerce-apps/core"
 
@@ -350,6 +409,7 @@ const config = {
 ### **API Changes**
 
 #### Product APIs
+
 *Product API*
 
 * **BREAKING**: Endpoint method name changes
@@ -371,6 +431,7 @@ const config = {
 
 * Request body of the endpoints now have data types
     Example:
+
     ```
     updateOrder(
             options: {
@@ -384,6 +445,7 @@ const config = {
             }
           ): Promise<void>;
     ```
+
 _____________________________________________
 
 ### v1.3.0-alpha.9
@@ -393,16 +455,17 @@ _____________________________________________
 #### Authentication helper changes
 
 * ShopperToken now contains customer info from auth response
-    * Potentially breaking if you are currently instantiating a ShopperToken yourself
+  * Potentially breaking if you are currently instantiating a ShopperToken yourself
 
 #### Enhancements
 
 * SDK now returns the cached asset on HTTP 304 response
 * SDK now closes the network connection by default
-    * It can be kept open by passing a Connection header set to keep-alive
+  * It can be kept open by passing a Connection header set to keep-alive
 * Parameters in API methods now have specific data types
 
     Example:
+
     ```
     productSearch(
         options?: {
@@ -423,12 +486,14 @@ _____________________________________________
     ```
 
 #### Documentation
+
 * VERSION.md has been renamed to APICLIENTS.md
-    * APICLIENTS.md now links to developer.commercecloud.com
+  * APICLIENTS.md now links to developer.commercecloud.com
 
 ### **API Changes**
 
 #### CDN APIs
+
 *CDN Zones/CDN API*
 
 * **BREAKING**: API client `CdnApi` has been renamed to `CdnZones`
@@ -470,6 +535,7 @@ _____________________________________________
 ### **API Changes**
 
 #### Shopper Baskets
+
 *Checkout/ShopperBaskets*
 
 * **BREAKING**: Endpoint method name changes
@@ -499,8 +565,8 @@ _____________________________________________
 | putBasketsByIdShipmentsByIdShippingMethod | updateShippingMethodForShipment |
 | getBasketsByIdShipmentsByIdShippingMethods | getShippingMethodsForShipment |
 
-
 #### Shopper Orders
+
 *Checkout/ShopperOrders*
 
 * **BREAKING**: Endpoint method name changes
@@ -515,6 +581,7 @@ _____________________________________________
 | getOrdersByIdPaymentMethods | getPaymentMethodsForOrder |
 
 #### Einstein Recommendations
+
 *AI/EinsteinQuickStartGuide*
 
 * Recommender type has a new recommenderType attribute
@@ -523,6 +590,7 @@ _____________________________________________
 * Added new Recommendation type
 
 #### Coupons
+
 *Pricing/Coupons*
 
 * getCoupon now has an optional query parameter of "expand" which accepts an array of related attributes
@@ -532,12 +600,14 @@ _____________________________________________
 ### v1.3.0-alpha.7
 
 #### Shopper Search
+
 *Search/ShopperSearch*
 
 * **BREAKING** refine_n query parameters have been removed from productSearch
 * productSearch now has a query parameter of "refine" which accepts an array of refinements
 
 #### Shopper Stores
+
 *Seller/ShopperStores*
 
 * Now uses updated standards so 'limit' is no longer a required parameter for paginated endpoints
