@@ -1,6 +1,6 @@
 #%RAML 1.0
 title: Shopper Login
-description: !include shopper-login-description.md
+description: !include shopper-login-and-api-access-description.md
 version: v1
 mediaType: application/json
 protocols: HTTPS
@@ -43,7 +43,7 @@ types:
   ThirdPartyIdps:
     type: string
     description: 3rd party IDPs that work with SLAS.
-    enum: [google, facebook, auth0, okta, salesforce, slas]
+    enum: [google, facebook, auth0, okta, salesforce, nintendo, slas]
     example: google
   TrustedOnBehalf:
     type: string
@@ -180,6 +180,43 @@ types:
         description: The channel_id is used to identify the channel (ECOM Site) the user is associated with.
         type: string   
         example: "RefArch"
+  PasswordLessAuthRequest:
+    type: object
+    description: Used to request an access token using a passwordless token.
+    properties:
+      user_id:
+        description: User ID for logging in.
+        type: string
+        example: "samantha.sampleson@example.com"
+      mode:
+        description: Notification mode for sending the passwordless token to the user. Use `email` or `sms`.
+        type: string
+        example: "email|sms"
+      channel_id:
+        description: Identifies the channel (ECOM site) that the user is associated with.
+        type: string
+        example: "RefArch"
+  PasswordLessTokenRequest:
+    type: object
+    description: Used to request an access token using a passwordless token.
+    properties:
+      grant_type:
+        description: OAuth 2.0 grant type. Must be set to `client_credentials` for passwordless login.
+        type: GrantType
+        example: "CLIENT_CREDENTIALS"
+      hint:
+        description: Passwordless hint. Use `pwdless_login`.
+        type: string
+        example: "pwdless_login"
+      pwdless_token:
+        description: Passwordless token that was created from the user ID.
+        type: string
+        example: "QJO3CA7QTPVCQ3OMROXF2MTDDED3EEC3"
+      usid:
+        description: The shopper's unique identifier, if known. If this field is empty, a new shopper ID will be generated.
+        type: string
+        required: false
+        example: "54ad2c5a-91f0-44ab-817c-73d6b86872d9"
 
   IntrospectResponse:
     type: object
@@ -431,11 +468,68 @@ types:
                     "error": "server_error",
                     "error_description": "The server has encountered a situation it doesn't know how to handle."
                     }
-
+    /passwordless/login:
+      description: Logs a customer in using Core with their customer profiles loaded in ECOM. Allows the user to authenticate when their identity provider (Core) is down.
+      post:
+        description: Allows the customer to authenticate when their identity provider is down.
+        displayName: authorizePasswordlessCustomer
+        is:
+          - SlasRateLimit:
+              responseStatus: 200
+              responseStatus2: 400
+              responseStatus3: 401
+              responseStatus4: 503
+        headers:
+          Authorization: 
+            displayName: Authorization
+            description: "Base64 encoded string for authentication. The string is composed of a client ID and client secret, separated by a colon (`:`). Example: `clientId:clientSecret`"
+            type: string
+            required: false
+            example: "Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW="
+        body:
+          application/x-www-form-urlencoded:
+            type: PasswordLessAuthRequest
+        responses:
+          200:
+            description: Success
+            body:
+              application/json:
+                type: string
+                
+          400:
+            description: Bad Request
+            body:
+              application/problem+json:
+                type: Oauth2ErrorResponse
+                example: |
+                  {
+                    "error": "invalid_request",
+                    "error_description": "Bad or missing access token."
+                  }
+          401:
+            description: Unauthorized
+            body:
+              application/problem+json:
+                type: Oauth2ErrorResponse
+                example: |
+                    {
+                    "error": "invalid_client",
+                    "error_description": "Authorization failed."
+                    }
+          503:
+            description: Gateway Error
+            body:
+              application/problem+json:
+                type: Oauth2ErrorResponse
+                example: |
+                    {
+                    "error": "gateway_server_error",
+                    "error_description": "A service that the server relies on is down or is having difficulty."
+                    }
     /logout:
-      description: Logout a shopper. The shoppers access token and refresh token will be revoked and if the shopper authenticated with ECOM the OCAPI JWT will also be revoked.
+      description: Log a shopper out. The shopper's access token and refresh token will be revoked. If the shopper authenticated with ECOM, the OCAPI JWT will also be revoked.
       get:
-        description: Logout a shopper.
+        description: Log a shopper out.
         displayName: logoutCustomer
         is:
           - SlasRateLimit:
@@ -443,7 +537,7 @@ types:
                 responseStatus2: 400
                 responseStatus3: 401
                 responseStatus4: 500
-     
+    
         securedBy:
           - SlasJWT-BearerSecurityScheme.BearerToken: {Bearer eyJ2ZXIiOiIxLjAiLCJraWQiOiI0ZTQyNTFkOS0zM2Y2LTRjMTMtYjZmZC1mOWJkNTJmYTZhNDciLCJ0eXAiOiJqd3QiLCJjbHYiOiJKMi4xLjAiLCJhbGciOiJFUzI1NiJ9.eyJhdXQiOiJHVUlEIiwic2NwIjoic2ZjYy5wcm9kdWN0cy5ybyBzZmNjLmNhdGFsb2dzLnJvIHNmY2Muc2hvcHBlci5ydyIsInN1YiI6ImNjLXNsYXM6OnNsc2FfZGV2OjpzY2lkOjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3Yjo6dXNpZDoxY2E3OWZiNi0xYjIyLTRmOWItOGJiNi05YmU5NWNjMjA4NjMiLCJjdHgiOiJzbGFzLm5vdF9mb3JfZXh0ZXJuYWxfdXNlIiwiaXNzIjoic2xhcy9kZXYvc2xzYV9kZXYiLCJpc3QiOjEsImF1ZCI6ImNvbW1lcmNlY2xvdWQvZGV2L3Nsc2FfZGV2IiwibmJmIjoxNTk0NzY0MDgwLCJzdHkiOiJVc2VyIiwiaXNiIjoidWlkbzpzbGFzOjp1cG46R3Vlc3Q6OnVpZG46R3Vlc3QgVXNlciIsImV4cCI6MTU5NDc2NTkxMCwiaWF0IjoxNTk0NzY0MTEwLCJqdGkiOiJDMkMxNjM0NTE0NTEwLTE3MTQzMTg2NzY0MjcwNTcyNjQ2NTYxMzgifQ.UVYAsWXCn3hoUPy8vLlc7O96RZEHD3N3ZgdNH-ZVvJ1G-R6uJ2VPrYvwKmYXF41Ujm2bo83AYOHVqEEEPT8Kgw}
 
@@ -634,7 +728,7 @@ types:
         headers:
           Authorization: 
             displayName: Authorization
-            description: Basic authentication base 64 encoded string having clientId:clientSecret
+            description: "Base64 encoded string for authentication. The string is composed of a client ID and client secret, separated by a colon (`:`). Example: `clientId:clientSecret`"
             type: string
             required: false
             example: "Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW"
@@ -750,6 +844,74 @@ types:
                     {
                     "error": "server_error",
                     "error_description": "The server has encountered a situation it doesn't know how to handle."
+                    }    
+    /passwordless/token:
+      description: Evaluate the `pwdless_token` and issue the shopper token (JWT).
+      post:
+        description: Issue a shopper token (JWT).
+        displayName: getPasswordLessAccessToken
+        is:
+          - SlasRateLimit:
+              responseStatus: 200
+              responseStatus2: 400
+              responseStatus3: 401
+              responseStatus4: 503
+        headers:
+          Authorization: 
+            displayName: Authorization
+            description: "Base64 encoded string for authentication. The string is composed of a client ID and client secret, separated by a colon (`:`). Example: `clientId:clientSecret`"
+            type: string
+            required: false
+            example: "Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW="
+        body:
+          application/x-www-form-urlencoded:
+            type: PasswordLessTokenRequest
+        responses:
+          200:
+            description: Success
+            body:
+              application/json:
+                type: TokenResponse
+                example: |
+                  {
+                    "access_token": "eyJ2ZXIiOiIxLjAiLCJraWQiOiJTTEFTIiwidHlwIjoiand0IiwiY2x2IjoiSjIuMS4wIiwiYWxnIjoiRVMyNTYifQ.eyJhdWQiOiJjb3JlL2Rldi9idGluZ2V5bHRtMiIsImF1dCI6IkdVSUQiLCJzdWIiOiJ1c2lkOjo1NGFkMmM1YS05MWYwLTQ0YWItODE3Yy03M2Q2Yjg2ODcyZDk6OnVwbjpndWVzdCIsIm5iZiI6MTU4Mjg0NTYyNCwiY3R4Ijoic2ZkYy5jb21tZXJjZWNsb3VkIiwiaXNzIjoiY29yZS9kZXYvYnRpbmdleWx0bTIiLCJzdHkiOiJVc2VyIiwiaXN0IjoxLCJleHAiOjE1ODI4NDU3NDQsImlhdCI6MTU4Mjg0NTY1NCwianRpIjoiQzJDOTA0ODg2NDA3MDkwNDg4NjQwNzMyMjExNzQ1ODEyMTQzIn0.2a6lMBSY17PrhDO8pvEk7PCXW_nkguMHi4J-Tuirkz-ETB6rnKyuRjF5yD6B55tMvm8dO8ulAHyDYqjObMxLJg",
+                    "id_token": "eyJraWQiOiI3NGU2YjMxZS1lYTczLTQ3OTYtOWRkYi1jMDJmZGI4ZDgwYmUiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ1c2lkOmQ1MDBhMzY5LTc1MWQtNDkzYy1iNDAzLThmOThmYjg3MTdiNiIsImF1ZCI6IjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3YiIsImlzcyI6ImRldi51cy5zaG9wcGVyLmNjLnNhbGVzZm9yY2UuY29tIiwibmFtZSI6ImJsYWlyLnNsYXMudGVzdEBnbWFpbC5jb20iLCJleHAiOjE1OTExMTE0MzgsImlhdCI6MTU5MTEwOTYzOCwiZW1haWwiOiJibGFpci5zbGFzLnRlc3RAZ21haWwuY29tIn0.KgpAcq-G9Lz7IGnjkJlaFLFXYncVCwcVrRIuy3bEfgzRozqaDRvAori4oOz4RtgYjmoc5x2euoisHL0mVnHgPKOdYBty1wTJqneJEQt6hP4Kp0KFciID_ILCi-DE8VWS5t0NknnMP_iKhIkqcRL48iwPFUWkWA6AEWxE_yvJLNRLithsSxsx7EfBfpD8Hr2b5tMEwImQNmJNYGRTI4LSmcYspBORvJoAnfGpMC0kglxl40bhf5j4ItX4_DiWQC4zaGYD-HJV4BDr6C7iGCs5ZVPypF0yQD3iBio26fwj9Ys5WF9XMtPtqET2kqsz6fDC5GkE6HTUHH_r87jxbDq-8w",
+                    "refresh_token": "EgMYpjfFKdlSy-a3PYeyihmP95IpIp3FaDpPmVH1yu8.lahomBi7zJbRa6yKAuAAiKu3lprTPsEueKwqcBvhRLU",
+                    "expires_in": 900,
+                    "token_type": "Bearer",
+                    "usid": "18cda486-fe32-4e27-888b-6e4f89938e67",
+                    "customer_id": "1000005",
+                    "enc_user_id": "45D39A8499A95288F82855427EBA99B5"               
+                  }
+          400:
+            description: Bad Request
+            body:
+              application/problem+json:
+                type: Oauth2ErrorResponse
+                example: |
+                  {
+                    "error": "invalid_request",
+                    "error_description": "Bad or missing access token."
+                  }
+          401:
+            description: Unauthorized
+            body:
+              application/problem+json:
+                type: Oauth2ErrorResponse
+                example: |
+                    {
+                    "error": "invalid_client",
+                    "error_description": "Authorization failed."
+                    }
+          503:
+            description: Gateway Error
+            body:
+              application/problem+json:
+                type: Oauth2ErrorResponse
+                example: |
+                    {
+                    "error": "gateway_server_error",
+                    "error_description": "A service that the server relies on is down or is having difficulty."
                     }    
     /revoke:
       description: Shopper OAuth2 Token revoke Endpoint.

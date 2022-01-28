@@ -31,6 +31,7 @@ export const ASSET_OBJECT_MAP = {
   products: "a003k00000UHvovAAD",
   promotions: "a003k00000UHvp9AAD",
   "shopper-baskets": "a003k00000UHvpEAAT",
+  "shopper-context": "a003k00000ZuXdRAAV",
   "shopper-customers": "a003k00000UHvpJAAT",
   "shopper-discovery-search": "a003k00000W0WlBAAV",
   "shopper-gift-certificates": "a003k00000UHvogAAD",

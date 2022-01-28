@@ -1,0 +1,1 @@
+Use Data Gift Certificates API to interact with the API in the context of a site to create, get, search one or all gift certificates.

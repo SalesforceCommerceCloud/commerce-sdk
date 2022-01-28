@@ -10,6 +10,23 @@ only use JavaScript, or if you use TypeScript but only import the client classes
 then your usage **will not change**. You will likely only need to make changes if
 you import the type definitions directly.
 
+### v2.7.0
+
+#### New APIs
+
+* *Shopper Context* has been added to the SDK.
+
+#### API Changes
+
+*Shopper Login*
+
+* New Endpoints
+
+  | **Endpoint Name** | **Description** |
+  | ------------- |-------------|
+  | authorizePasswordlessCustomer | Logs a customer in using Core with their customer profiles loaded in ECOM. Allows the user to authenticate when their identity provider (Core) is down. |
+  | getPasswordLessAccessToken | Evaluate the `pwdless_token` and issue the shopper token (JWT). |
+
 ### v2.6.1
 
 #### Bug Fixes
