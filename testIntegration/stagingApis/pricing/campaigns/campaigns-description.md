@@ -1,0 +1,1 @@
+Use the Data Campaign API to interact with the API, in the context of a Business Manager, to get Campaigns.
