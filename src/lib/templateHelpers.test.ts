@@ -13,7 +13,7 @@ import {
   isCommonQueryParameter,
 } from "./templateHelpers";
 import { commonParameterPositions } from "@commerce-apps/core";
-import { isAllowedTrait, getObjectIdByAssetId } from "./templateHelpers";
+import { isAllowedTrait } from "./templateHelpers";
 import { amf } from "@commerce-apps/raml-toolkit";
 
 describe("When adding namespaces to individual content (types)", () => {
@@ -227,27 +227,5 @@ describe("Allowed trait check", () => {
     const trait = new amf.model.domain.Trait();
     trait.withName("offset paginated");
     expect(isAllowedTrait(trait)).to.be.false;
-  });
-
-  describe("CCDC object ID getter", () => {
-    it("returns the right ID for `orders` API", () => {
-      expect(getObjectIdByAssetId("orders")).to.equal("a003k00000UHvp4AAD");
-    });
-
-    it("throws if CCDC object ID is missing but enforced", () => {
-      expect(() => getObjectIdByAssetId("this does not exist", true)).to.throw(
-        'Missing CCDC object ID for "this does not exist"'
-      );
-    });
-
-    it("returns empty string if CCDC object ID is missing but not enforced", () => {
-      expect(getObjectIdByAssetId("this does not exist", false)).to.equal("");
-    });
-
-    it("defaults to enforcing CCDC ID if enforcement is not specified", () => {
-      expect(() => getObjectIdByAssetId("this does not exist")).to.throw(
-        'Missing CCDC object ID for "this does not exist"'
-      );
-    });
   });
 });

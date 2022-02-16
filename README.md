@@ -4,7 +4,7 @@
 
 The Salesforce Commerce SDK allows easy interaction with the Salesforce B2C Commerce platform APIs on the Node.js runtime.  For a more lightweight SDK, which works in a browser and Node.js for the shopper experience, see [our Isomorphic SDK](https://github.com/SalesforceCommerceCloud/commerce-sdk-isomorphic)
 
-Visit the [Commerce Cloud Developer Center](https://developer.commercecloud.com/) to learn more about Salesforce Commerce. The developer center has API documentation, getting started guides, community forums, and more.
+Visit the [Commerce Cloud Developer Center](https://developer.salesforce.com/developer-centers/commerce-cloud) to learn more about Salesforce Commerce. The developer center has API documentation, getting started guides, community forums, and more.
 ​
 ## :warning: Planned future release will contain breaking changes :warning:
 Due to an issue with the generation of the type definitions, an upcoming release
@@ -53,7 +53,7 @@ To use an SDK client, instantiate an object of that client and configure these p
  * Sample TypeScript code that shows how Commerce SDK can access Salesforce Commerce
  * APIs.
  * 
- * To learn more about the parameters please refer to https://developer.commercecloud.com/s/article/CommerceAPI-Get-Started
+ * To learn more about the parameters please refer to https://developer.salesforce.com/docs/commerce/commerce-api/guide/get-started.html
  */
 ​
 // Import the SDK in TypeScript
@@ -330,8 +330,8 @@ This library doesn't store or refresh authentication tokens. Storing and refresh
  This library limits its runtime dependencies to reduce the total cost of ownership as much as possible. However, we recommend that you have security stakeholders review all third-party products (3PP) and their dependencies.
 
 For more information about security considerations related to developing headless commerce applications, see 
-[Security Considerations for Headless Commerce](https://developer.commercecloud.com/s/article/HeadlessSecurity) on the 
-[Commerce Cloud Developer Center](https://developer.commercecloud.com).
+[Security Considerations for Headless Commerce](https://developer.salesforce.com/docs/commerce/commerce-api/guide/security-considerations-for-headless-commerce.html) on the 
+[Commerce Cloud Developer Center](https://developer.salesforce.com/developer-centers/commerce-cloud).
 
 If you discover any potential security issues, please report them to security@salesforce.com as soon as possible.
 
