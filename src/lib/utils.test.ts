@@ -19,7 +19,6 @@ describe("registerHelper", () => {
   it("registers our custom helpers", () => {
     expect(Object.keys(Handlebars.helpers)).to.not.include.members([
       "addNamespace",
-      "getObjectIdByAssetId",
       "formatForTsDoc",
       "isCommonPathParameter",
       "isCommonQueryParameter",
@@ -29,7 +28,6 @@ describe("registerHelper", () => {
 
     expect(Object.keys(Handlebars.helpers)).to.include.members([
       "addNamespace",
-      "getObjectIdByAssetId",
       "formatForTsDoc",
       "isCommonPathParameter",
       "isCommonQueryParameter",
