@@ -6,3 +6,4 @@
  */
 
 export * from "./slasHelper";
+export * from "./shopperCustomerHelper";

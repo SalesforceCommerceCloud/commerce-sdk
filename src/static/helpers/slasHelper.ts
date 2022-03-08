@@ -6,7 +6,12 @@
  */
 
 import { nanoid } from "nanoid";
-import { ShopperLogin } from "../../renderedTemplates/customer/shopperLogin/shopperLogin";
+import { URL, URLSearchParams } from 'url';
+import { ShopperLogin } from "../../../renderedTemplates/customer/shopperLogin/shopperLogin";
+
+// TODO: move into a template when done developing
+// import { ShopperLogin } from "../customer/shopperLogin/shopperLogin";
+
 
 /**
  * Converts a string into Base64 encoding
@@ -57,7 +62,6 @@ export const generateCodeChallenge = async (
     crypto.default.createHash("sha256").update(codeVerifier).digest("base64")
   );
 
-  /* istanbul ignore next */
   if (challenge.length === 0) {
     throw new Error("Problem generating code challenge");
   }
@@ -115,9 +119,6 @@ export async function authorize(
   const response = await slasClientCopy.authorizeCustomer(options, true);
   const redirectUrl = response.headers?.get("location") || response.url;
 
-  // url is a read only property we unfortunately cannot mock out using nock
-  // meaning redirectUrl will not have a falsy value for unit tests
-  /* istanbul ignore next */
   if (!redirectUrl) {
     throw new Error("Authorization failed");
   }

@@ -15,9 +15,9 @@ const API_DIRECTORY = path.resolve(
 );
 const OUTPUT_DIRECTORY = path.join(
   __dirname,
-  "../renderedTemplates/slasHelper"
+  "../renderedTemplates/helpers"
 );
-const STATIC_DIRECTORY = path.join(__dirname, "./slasHelper");
+const STATIC_DIRECTORY = path.join(__dirname, "./static/helpers");
 
 registerHelpers();
 registerPartials();
