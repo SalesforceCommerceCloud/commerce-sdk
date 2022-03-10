@@ -55,63 +55,86 @@ To use an SDK client, instantiate an object of that client and configure these p
  * 
  * To learn more about the parameters please refer to https://developer.salesforce.com/docs/commerce/commerce-api/guide/get-started.html
  */
-​
+
 // Import the SDK in TypeScript
 // tsc requires the --esModuleInterop flag for this
 import * as CommerceSdk from "commerce-sdk";
+import { getObjectFromResponse } from "@commerce-apps/core";
 // For Javascript, use:
 // import CommerceSdk from "commerce-sdk";
-const { ClientConfig, helpers, Search } = CommerceSdk;
+const { Search, Customer } = CommerceSdk;
 // Older Node.js versions can instead use:
 // const { ClientConfig, helpers, Search } = require("commerce-sdk");
 
-// Create a configuration to use when creating API clients
+// client credentials
+const CLIENT_ID = "da422690-7800-41d1-8ee4-3ce983961078";
+const CLIENT_SECRET = "D*HHUrgO2%qADp2JTIUi";
+
+// client configuration parameters
 const config = {
-    headers: {},
-    parameters: {
-      clientId: '<your-client-id>',
-      organizationId: '<your-org-id>',
-      shortCode: '<your-short-code>',
-      siteId: '<your-site-id>'
-    }
+  headers: {},
+  parameters: {
+    clientId: CLIENT_ID,
+    organizationId: "f_ecom_zzte_053",
+    shortCode: "kv7kzm78",
+    siteId: "RefArch",
+  },
+};
+
+/**
+ * Get token for the registered customer
+ *
+ * @returns authorization token
+ */
+async function getRegisteredShopperToken(): Promise<string> {
+  const credentials = `${CLIENT_ID}:${CLIENT_SECRET}`;
+  const base64data = Buffer.from(credentials).toString("base64");
+  const headers = { Authorization: `Basic ${base64data}` };
+  const client = new Customer.ShopperLogin(config);
+
+  const response = await client.getAccessToken(
+    {
+      headers,
+      body: {
+        /* eslint-disable-next-line @typescript-eslint/camelcase */
+        grant_type: "client_credentials",
+      },
+    },
+    true
+  );
+
+  const responseObject: any = await getObjectFromResponse(response);
+
+  return responseObject.access_token;
 }
 
-// Get a JWT to use with Shopper API clients, a guest token in this case
-helpers.getShopperToken(config, { type: "guest" }).then(async (token) => {
+// Get a JWT to use with Shopper API clients
+getRegisteredShopperToken().then(async (token) => {
+  // Add the token to the client configuration
+  config.headers["authorization"] = `Bearer ${token}`;
 
-    try {
-        // Add the token to the client configuration
-        config.headers["authorization"] = token.getBearerHeader();
+  // Create a new ShopperSearch API client
+  const searchClient = new Search.ShopperSearch(config);
 
-        // Create a new ShopperSearch API client
-        const searchClient = new Search.ShopperSearch(config);
-
-        // Search for dresses
-        const searchResults = await searchClient.productSearch({
-            parameters: {
-                q: "dress",
-                limit: 5
-            }
-        });
-
-        if (searchResults.total) {
-            const firstResult = searchResults.hits[0];
-            console.log(`${firstResult.productId} ${firstResult.productName}`);
-        } else {
-            console.log("No results for search");
-        }
-
-        return searchResults;
-
-    } catch (e) {
-        // Print the status code and status text
-        console.error(e);
-        // Print the body of the error
-        console.error(await e.response.text());
+  // Search for dresses
+  const searchResults = await searchClient.productSearch({
+    parameters: {
+      q: "dress",
+      limit: 5
     }
+  });
+
+  if (searchResults.total) {
+    const firstResult = searchResults.hits[0];
+    console.log(`${firstResult.productId} ${firstResult.productName}`);
+  } else {
+    console.log("No results for search");
+  }
+
+  return searchResults;
 }).catch(async (e) => {
-    console.error(e);
-    console.error(await e.response.text());
+  console.error(e);
+  console.error(await e.response.text());
 });
 ```
 
