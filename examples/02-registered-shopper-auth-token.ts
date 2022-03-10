@@ -42,6 +42,7 @@ async function getRegisteredShopperToken(): Promise<string> {
     {
       headers,
       body: {
+        /* eslint-disable-next-line @typescript-eslint/camelcase */
         grant_type: "client_credentials",
       },
     },
