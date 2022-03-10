@@ -32,7 +32,7 @@ const clientConfig: ClientConfig = {
  *
  * @returns authorization token
  */
-async function getRegisteredShopperToken() {
+async function getRegisteredShopperToken(): Promise<string> {
   const credentials = `${CLIENT_ID}:${CLIENT_SECRET}`;
   const base64data = Buffer.from(credentials).toString("base64");
   const headers = { Authorization: `Basic ${base64data}` };
