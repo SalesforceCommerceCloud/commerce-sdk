@@ -9,7 +9,7 @@
  * Get authorization token for a registered customer
  * Usage: ts-node examples/02-registered-shopper-auth-token.ts
  */
-import { ClientConfig, Customer } from "../dist";
+import { ClientConfig, Customer } from "commerce-sdk";
 
 // client credentials
 const CLIENT_ID = "da422690-7800-41d1-8ee4-3ce983961078";
