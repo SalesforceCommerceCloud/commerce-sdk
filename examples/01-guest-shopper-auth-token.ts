@@ -56,5 +56,5 @@ getAuthToken()
     console.log(`Authorization token: ${shopperToken.access_token}`)
   )
   .catch((error) => {
-    console.log(`Error fetching token for registered customer: ${error}`);
+    console.log(`Error fetching token for guest user: ${error}`);
   });
