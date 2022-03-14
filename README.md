@@ -58,60 +58,57 @@ To use an SDK client, instantiate an object of that client and configure these p
 
 // Import the SDK in TypeScript
 // tsc requires the --esModuleInterop flag for this
-import * as CommerceSdk from "commerce-sdk";
-import { getObjectFromResponse } from "@commerce-apps/core";
+import { Search, Customer } from "commerce-sdk";
 // For Javascript, use:
 // import CommerceSdk from "commerce-sdk";
-const { Search, Customer } = CommerceSdk;
+// const { Search, Customer } = CommerceSdk;
 // Older Node.js versions can instead use:
 // const { ClientConfig, helpers, Search } = require("commerce-sdk");
 
-// client credentials
+// demo client credentials, if you have access to your own please replace them below.
+// The client secret should not be stored in plain text alongside code. Please store the secret in a secure location.
 const CLIENT_ID = "da422690-7800-41d1-8ee4-3ce983961078";
 const CLIENT_SECRET = "D*HHUrgO2%qADp2JTIUi";
+const ORG_ID = "f_ecom_zzte_053";
+const SHORT_CODE = "kv7kzm78";
+const SITE_ID = "RefArch";
 
 // client configuration parameters
 const config = {
   headers: {},
   parameters: {
     clientId: CLIENT_ID,
-    organizationId: "f_ecom_zzte_053",
-    shortCode: "kv7kzm78",
-    siteId: "RefArch",
+    organizationId: ORG_ID,
+    shortCode: SHORT_CODE,
+    siteId: SITE_ID,
   },
 };
 
 /**
- * Get token for the registered customer
+ * Get the shopper or guest JWT/access token, along with a refresh token, using client credentials
  *
- * @returns authorization token
+ * @returns guest user authorization token
  */
-async function getRegisteredShopperToken(): Promise<string> {
+async function getAuthToken(): Promise<Customer.ShopperLogin.TokenResponse> {
   const credentials = `${CLIENT_ID}:${CLIENT_SECRET}`;
   const base64data = Buffer.from(credentials).toString("base64");
   const headers = { Authorization: `Basic ${base64data}` };
   const client = new Customer.ShopperLogin(config);
 
-  const response = await client.getAccessToken(
-    {
-      headers,
-      body: {
-        /* eslint-disable-next-line @typescript-eslint/camelcase */
-        grant_type: "client_credentials",
-      },
+  const response = await client.getAccessToken({
+    headers,
+    body: {
+      grant_type: "client_credentials",
     },
-    true
-  );
+  });
 
-  const responseObject: any = await getObjectFromResponse(response);
-
-  return responseObject.access_token;
+  return response;
 }
 
 // Get a JWT to use with Shopper API clients
-getRegisteredShopperToken().then(async (token) => {
+getAuthToken().then(async (token) => {
   // Add the token to the client configuration
-  config.headers["authorization"] = `Bearer ${token}`;
+  config.headers["authorization"] = `Bearer ${token.access_token}`;
 
   // Create a new ShopperSearch API client
   const searchClient = new Search.ShopperSearch(config);
