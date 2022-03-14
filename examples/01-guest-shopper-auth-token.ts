@@ -12,8 +12,8 @@
  */
 import { ClientConfig, Customer } from "commerce-sdk";
 
-// demo client credentials, if you have access to your own please replace them below. 
-// The client secret should not be stored in plain text alongside code. Please store the secret in a secure location. 
+// demo client credentials, if you have access to your own please replace them below.
+// The client secret should not be stored in plain text alongside code. Please store the secret in a secure location.
 const CLIENT_ID = "da422690-7800-41d1-8ee4-3ce983961078";
 const CLIENT_SECRET = "D*HHUrgO2%qADp2JTIUi";
 const ORG_ID = "f_ecom_zzte_053";
@@ -56,5 +56,5 @@ getAuthToken()
     console.log(`Authorization token: ${shopperToken.access_token}`)
   )
   .catch((error) => {
-    console.log(`Error fetching token for guest user: ${error}`);
+    console.log(`Error fetching token for the guest user: ${error}`);
   });
