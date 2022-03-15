@@ -35,7 +35,7 @@ const clientConfig: ClientConfig = {
  *
  * @returns guest user authorization token
  */
-async function getAuthToken(): Promise<Customer.ShopperLogin.TokenResponse> {
+async function getGuestUserAuthToken(): Promise<Customer.ShopperLogin.TokenResponse> {
   const credentials = `${CLIENT_ID}:${CLIENT_SECRET}`;
   const base64data = Buffer.from(credentials).toString("base64");
   const headers = { Authorization: `Basic ${base64data}` };
