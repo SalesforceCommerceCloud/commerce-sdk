@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, salesforce.com, inc.
+ * Copyright (c) 2022, salesforce.com, inc.
  * All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
@@ -8,7 +8,7 @@
 /**
  * Get authorization token for a guest user
  * Usage: ts-node examples/01-guest-shopper-auth-token.ts
- * Note: Replace configuration parameters before running
+ * Learn more about SLAS at https://developer.commercecloud.com/s/api-details/a003k00000VWfNDAA1/commerce-cloud-developer-centershopperloginandapiaccessservice
  */
 import { ClientConfig, Customer } from "commerce-sdk";
 
@@ -49,7 +49,7 @@ async function getGuestUserAuthToken(): Promise<Customer.ShopperLogin.TokenRespo
   });
 }
 
-getAuthToken()
+getGuestUserAuthToken()
   .then((shopperToken) =>
     console.log(`Authorization token: ${shopperToken.access_token}`)
   )
