@@ -8,7 +8,7 @@
 /**
  * Get refresh token for a guest user
  * Usage: ts-node examples/03-refresh-auth-token.ts
- * For more information, see (Shopper Login and API Access Service)[https://developer.commercecloud.com/s/api-details/a003k00000VWfNDAA1/commerce-cloud-developer-centershopperloginandapiaccessservice].
+ * For more information, see [Get started with Salesforce Commerce B2C APIs](https://developer.salesforce.com/docs/commerce/commerce-api/guide/get-started.html).
  */
 import { ClientConfig, Customer } from "commerce-sdk";
 

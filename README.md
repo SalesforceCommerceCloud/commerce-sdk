@@ -53,15 +53,12 @@ To use an SDK client, instantiate an object of that client and configure these p
  * Sample TypeScript code that shows how Commerce SDK can access Salesforce Commerce
  * APIs.
  * 
- * For more information, see (Get started with Salesforce Commerce B2C APIs)https://developer.salesforce.com/docs/commerce/commerce-api/guide/get-started.html
+ * For more information, see [Get started with Salesforce Commerce B2C APIs](https://developer.salesforce.com/docs/commerce/commerce-api/guide/get-started.html).
  */
 
 // Import the SDK in TypeScript
 // tsc requires the --esModuleInterop flag for this
 import { Search, Customer } from "commerce-sdk";
-// For Javascript, use:
-// import CommerceSdk from "commerce-sdk";
-// const { Search, Customer } = CommerceSdk;
 // Older Node.js versions can instead use:
 // const { ClientConfig, helpers, Search } = require("commerce-sdk");
 
@@ -90,16 +87,13 @@ const config = {
  * @returns guest user authorization token
  */
 async function getGuestUserAuthToken(): Promise<Customer.ShopperLogin.TokenResponse> {
-  const credentials = `${CLIENT_ID}:${CLIENT_SECRET}`;
-  const base64data = Buffer.from(credentials).toString("base64");
+  const base64data = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString("base64");
   const headers = { Authorization: `Basic ${base64data}` };
-  const client = new Customer.ShopperLogin(config);
+  const loginClient = new Customer.ShopperLogin(config);
 
-  return await client.getAccessToken({
+  return await loginClient.getAccessToken({
     headers,
-    body: {
-      grant_type: "client_credentials",
-    },
+    body: { grant_type: "client_credentials" },
   });
 }
 
@@ -108,15 +102,11 @@ getGuestUserAuthToken().then(async (token) => {
   // Add the token to the client configuration
   config.headers["authorization"] = `Bearer ${token.access_token}`;
 
-  // Create a new ShopperSearch API client
   const searchClient = new Search.ShopperSearch(config);
 
   // Search for dresses
   const searchResults = await searchClient.productSearch({
-    parameters: {
-      q: "dress",
-      limit: 5
-    }
+    parameters: { q: "dress", limit: 5 }
   });
 
   if (searchResults.total) {
