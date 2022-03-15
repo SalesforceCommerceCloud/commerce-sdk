@@ -53,7 +53,7 @@ To use an SDK client, instantiate an object of that client and configure these p
  * Sample TypeScript code that shows how Commerce SDK can access Salesforce Commerce
  * APIs.
  * 
- * To learn more about the parameters please refer to https://developer.salesforce.com/docs/commerce/commerce-api/guide/get-started.html
+ * For more information, see (Get started with Salesforce Commerce B2C APIs)https://developer.salesforce.com/docs/commerce/commerce-api/guide/get-started.html
  */
 
 // Import the SDK in TypeScript
@@ -66,7 +66,7 @@ import { Search, Customer } from "commerce-sdk";
 // const { ClientConfig, helpers, Search } = require("commerce-sdk");
 
 // demo client credentials, if you have access to your own please replace them below.
-// The client secret should not be stored in plain text alongside code. Please store the secret in a secure location.
+// do not store client secret as plaintext. Store it in a secure location.
 const CLIENT_ID = "da422690-7800-41d1-8ee4-3ce983961078";
 const CLIENT_SECRET = "D*HHUrgO2%qADp2JTIUi";
 const ORG_ID = "f_ecom_zzte_053";
@@ -89,24 +89,22 @@ const config = {
  *
  * @returns guest user authorization token
  */
-async function getAuthToken(): Promise<Customer.ShopperLogin.TokenResponse> {
+async function getGuestUserAuthToken(): Promise<Customer.ShopperLogin.TokenResponse> {
   const credentials = `${CLIENT_ID}:${CLIENT_SECRET}`;
   const base64data = Buffer.from(credentials).toString("base64");
   const headers = { Authorization: `Basic ${base64data}` };
   const client = new Customer.ShopperLogin(config);
 
-  const response = await client.getAccessToken({
+  return await client.getAccessToken({
     headers,
     body: {
       grant_type: "client_credentials",
     },
   });
-
-  return response;
 }
 
 // Get a JWT to use with Shopper API clients
-getAuthToken().then(async (token) => {
+getGuestUserAuthToken().then(async (token) => {
   // Add the token to the client configuration
   config.headers["authorization"] = `Bearer ${token.access_token}`;
 

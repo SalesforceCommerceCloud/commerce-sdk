@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, salesforce.com, inc.
+ * Copyright (c) 2022, salesforce.com, inc.
  * All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
@@ -8,13 +8,12 @@
 /**
  * Get refresh token for a guest user
  * Usage: ts-node examples/03-refresh-auth-token.ts
- * Note: Replace configuration parameters before running
+ * For more information, see (Shopper Login and API Access Service)[https://developer.commercecloud.com/s/api-details/a003k00000VWfNDAA1/commerce-cloud-developer-centershopperloginandapiaccessservice].
  */
-
 import { ClientConfig, Customer } from "commerce-sdk";
 
 // demo client credentials, if you have access to your own please replace them below.
-// The client secret should not be stored in plain text alongside code. Please store the secret in a secure location.
+// do not store client secret as plaintext. Store it in a secure location.
 const CLIENT_ID = "da422690-7800-41d1-8ee4-3ce983961078";
 const CLIENT_SECRET = "D*HHUrgO2%qADp2JTIUi";
 const ORG_ID = "f_ecom_zzte_053";
@@ -36,20 +35,18 @@ const clientConfig: ClientConfig = {
  *
  * @returns guest user authorization token
  */
-async function getAuthToken(): Promise<Customer.ShopperLogin.TokenResponse> {
+async function getGuestUserAuthToken(): Promise<Customer.ShopperLogin.TokenResponse> {
   const credentials = `${CLIENT_ID}:${CLIENT_SECRET}`;
   const base64data = Buffer.from(credentials).toString("base64");
   const headers = { Authorization: `Basic ${base64data}` };
   const client = new Customer.ShopperLogin(clientConfig);
 
-  const response = await client.getAccessToken({
+  return await client.getAccessToken({
     headers,
     body: {
       grant_type: "client_credentials",
     },
   });
-
-  return response;
 }
 
 /**
@@ -78,7 +75,7 @@ async function getNewTokenUsingRefreshToken(refreshToken: string): Promise<Custo
 /**
  * Get auth token and then use it to get a refresh token
  */
-getAuthToken()
+ getGuestUserAuthToken()
   .then((authToken) => {
     console.log(`Authorization Token: ${authToken.access_token}`);
     console.log(`Token expires in ${authToken.expires_in} seconds`);

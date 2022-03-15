@@ -13,7 +13,7 @@
 import { ClientConfig, Customer } from "commerce-sdk";
 
 // demo client credentials, if you have access to your own please replace them below.
-// The client secret should not be stored in plain text alongside code. Please store the secret in a secure location.
+// do not store client secret as plaintext. Store it in a secure location.
 const CLIENT_ID = "da422690-7800-41d1-8ee4-3ce983961078";
 const CLIENT_SECRET = "D*HHUrgO2%qADp2JTIUi";
 const ORG_ID = "f_ecom_zzte_053";
