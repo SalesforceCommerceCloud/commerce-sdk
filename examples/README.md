@@ -13,7 +13,7 @@ npm install commerce-sdk
 npx ts-node $EXAMPLE
 ```
 
-To build the SDK from source and execute an example, run the following code.
+To build the SDK from source and execute an example, run the following code:
 
 ```sh
 EXAMPLE='01-guest-shopper-auth-token.ts' # Substitute any example file
