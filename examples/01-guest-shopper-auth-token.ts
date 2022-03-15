@@ -8,7 +8,7 @@
 /**
  * Get authorization token for a guest user
  * Usage: ts-node examples/01-guest-shopper-auth-token.ts
- * Learn more about SLAS at https://developer.commercecloud.com/s/api-details/a003k00000VWfNDAA1/commerce-cloud-developer-centershopperloginandapiaccessservice
+ * For more information, see (Shopper Login and API Access Service)[https://developer.commercecloud.com/s/api-details/a003k00000VWfNDAA1/commerce-cloud-developer-centershopperloginandapiaccessservice].
  */
 import { ClientConfig, Customer } from "commerce-sdk";
 

@@ -2,9 +2,9 @@
 
 This directory contains example usage of the Commerce SDK. Each example contains valid credentials for a public demo instance. The examples can be executed successfully as-is, or you can edit them to provide your own credentials.
 
-> **WARNING:** When creating your own code, _do not_ store secrets as plaintext. Please store secrets in a secure location.
+> **WARNING:** When creating your own code, _do not_ store secrets as plaintext. Store secrets in a secure location.
 
-To execute an example using the latest release of the Commerce SDK, run the following code.
+To execute an example using the latest release of the Commerce SDK, run the following code:
 
 ```sh
 EXAMPLE='01-guest-shopper-auth-token.ts' # Substitute any example file
