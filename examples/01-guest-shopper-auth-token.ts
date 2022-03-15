@@ -41,14 +41,12 @@ async function getGuestUserAuthToken(): Promise<Customer.ShopperLogin.TokenRespo
   const headers = { Authorization: `Basic ${base64data}` };
   const client = new Customer.ShopperLogin(clientConfig);
 
-  const response = await client.getAccessToken({
+  return await client.getAccessToken({
     headers,
     body: {
       grant_type: "client_credentials",
     },
   });
-
-  return response;
 }
 
 getAuthToken()
