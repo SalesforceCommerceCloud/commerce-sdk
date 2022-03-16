@@ -53,65 +53,73 @@ To use an SDK client, instantiate an object of that client and configure these p
  * Sample TypeScript code that shows how Commerce SDK can access Salesforce Commerce
  * APIs.
  * 
- * To learn more about the parameters please refer to https://developer.salesforce.com/docs/commerce/commerce-api/guide/get-started.html
+ * For more information, see [Get started with Salesforce Commerce B2C APIs](https://developer.salesforce.com/docs/commerce/commerce-api/guide/get-started.html).
  */
-​
+
 // Import the SDK in TypeScript
 // tsc requires the --esModuleInterop flag for this
-import * as CommerceSdk from "commerce-sdk";
-// For Javascript, use:
-// import CommerceSdk from "commerce-sdk";
-const { ClientConfig, helpers, Search } = CommerceSdk;
+import { Search, Customer } from "commerce-sdk";
 // Older Node.js versions can instead use:
 // const { ClientConfig, helpers, Search } = require("commerce-sdk");
 
-// Create a configuration to use when creating API clients
+// demo client credentials, if you have access to your own please replace them below.
+// do not store client secret as plaintext. Store it in a secure location.
+const CLIENT_ID = "da422690-7800-41d1-8ee4-3ce983961078";
+const CLIENT_SECRET = "D*HHUrgO2%qADp2JTIUi";
+const ORG_ID = "f_ecom_zzte_053";
+const SHORT_CODE = "kv7kzm78";
+const SITE_ID = "RefArch";
+
+// client configuration parameters
 const config = {
-    headers: {},
-    parameters: {
-      clientId: '<your-client-id>',
-      organizationId: '<your-org-id>',
-      shortCode: '<your-short-code>',
-      siteId: '<your-site-id>'
-    }
+  headers: {},
+  parameters: {
+    clientId: CLIENT_ID,
+    organizationId: ORG_ID,
+    shortCode: SHORT_CODE,
+    siteId: SITE_ID,
+  },
+};
+
+/**
+ * Get the shopper or guest JWT/access token, along with a refresh token, using client credentials
+ *
+ * @returns guest user authorization token
+ */
+async function getGuestUserAuthToken(): Promise<Customer.ShopperLogin.TokenResponse> {
+  const base64data = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString("base64");
+  const headers = { Authorization: `Basic ${base64data}` };
+  const loginClient = new Customer.ShopperLogin(config);
+
+  return await loginClient.getAccessToken({
+    headers,
+    body: { grant_type: "client_credentials" },
+  });
 }
 
-// Get a JWT to use with Shopper API clients, a guest token in this case
-helpers.getShopperToken(config, { type: "guest" }).then(async (token) => {
+// Get a JWT to use with Shopper API clients
+getGuestUserAuthToken().then(async (token) => {
+  // Add the token to the client configuration
+  config.headers["authorization"] = `Bearer ${token.access_token}`;
 
-    try {
-        // Add the token to the client configuration
-        config.headers["authorization"] = token.getBearerHeader();
+  const searchClient = new Search.ShopperSearch(config);
 
-        // Create a new ShopperSearch API client
-        const searchClient = new Search.ShopperSearch(config);
+  // Search for dresses
+  const searchResults = await searchClient.productSearch({
+    parameters: { q: "dress", limit: 5 }
+  });
 
-        // Search for dresses
-        const searchResults = await searchClient.productSearch({
-            parameters: {
-                q: "dress",
-                limit: 5
-            }
-        });
+  if (searchResults.total) {
+    const firstResult = searchResults.hits[0];
+    console.log(`${firstResult.productId} ${firstResult.productName}`);
+  } else {
+    console.log("No results for search");
+  }
 
-        if (searchResults.total) {
-            const firstResult = searchResults.hits[0];
-            console.log(`${firstResult.productId} ${firstResult.productName}`);
-        } else {
-            console.log("No results for search");
-        }
-
-        return searchResults;
-
-    } catch (e) {
-        // Print the status code and status text
-        console.error(e);
-        // Print the body of the error
-        console.error(await e.response.text());
-    }
+  return searchResults;
 }).catch(async (e) => {
-    console.error(e);
-    console.error(await e.response.text());
+  console.error(e);
+  console.error(await e.response.text());
 });
 ```
 
