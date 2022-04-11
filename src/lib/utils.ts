@@ -50,10 +50,6 @@ function addTemplates(
     path.join(TEMPLATE_DIRECTORY, "index.ts.hbs"),
     path.join(outputBasePath, "index.ts")
   );
-  apis.addTemplate(
-    path.join(TEMPLATE_DIRECTORY, "helpers.ts.hbs"),
-    path.join(outputBasePath, "helpers.ts")
-  );
 
   apis.children.forEach((child: generate.ApiMetadata) => {
     child.addTemplate(

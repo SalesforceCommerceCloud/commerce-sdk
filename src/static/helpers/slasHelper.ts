@@ -7,10 +7,10 @@
 
 import { nanoid } from "nanoid";
 import { URL, URLSearchParams } from 'url';
-import { ShopperLogin } from "../../../renderedTemplates/customer/shopperLogin/shopperLogin";
+// import { ShopperLogin } from "../../../renderedTemplates/customer/shopperLogin/shopperLogin";
 
 // TODO: move into a template when done developing
-// import { ShopperLogin } from "../customer/shopperLogin/shopperLogin";
+import { ShopperLogin } from "../customer/shopperLogin/shopperLogin";
 
 
 /**
@@ -97,12 +97,10 @@ export async function authorize(
   // header and it skips the extra call. In the browser, only the default
   // follow setting allows us to get the url.
 
-  // TODO: pass redirect manual as a fetch option
-
-  // slasClientCopy.clientConfig.fetchOptions = {
-  //   ...slasClient.clientConfig.fetchOptions,
-  //   redirect: 'manual',
-  // };
+  slasClientCopy.clientConfig.fetchOptions = {
+    ...slasClient.clientConfig.fetchOptions,
+    redirect: 'manual',
+  };
 
   const options = {
     parameters: {
@@ -136,6 +134,9 @@ export async function authorize(
  */
 export async function loginGuestUser(
   slasClient: ShopperLogin,
+  // credentials: {
+  //   clientSecret: string
+  // },
   parameters: {
     redirectURI: string;
     usid?: string;
@@ -148,6 +149,18 @@ export async function loginGuestUser(
     hint: "guest",
     ...(parameters.usid && { usid: parameters.usid }),
   });
+
+  // TODO: replace public with private flow
+
+  // const authorization = `Basic ${stringToBase64(
+  //   `${slasClient.clientConfig.parameters.clientId}:${credentials.clientSecret}`
+  // )}`;
+
+  // const tokenBody: ShopperLogin.TokenRequest = {
+  //   Authorization: authorization,
+  //   grant_type: "client_credentials",
+  //   ...(parameters.usid && { usid: parameters.usid }), 
+  // };
 
   const tokenBody: ShopperLogin.TokenRequest = {
     client_id: slasClient.clientConfig.parameters.clientId,
