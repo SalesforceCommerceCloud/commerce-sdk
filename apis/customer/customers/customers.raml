@@ -35,7 +35,7 @@ types:
         description: The login of the customer.
         maxLength: 256
         type: string
-        example: "rustin.peece"
+        example: "jose.figueroa"
       passwordQuestion:
         description: The password question.
         maxLength: 256
@@ -72,7 +72,7 @@ types:
         maxLength: 28
         type: string
         required: false
-        example: "rustin.peece"
+        example: "jose.figuero"
       customerNo:
         description: The customer's number.
         maxLength: 100
@@ -83,7 +83,7 @@ types:
         maxLength: 256
         type: string
         required: false
-        example: "rustin.peece@sample-email.com"
+        example: "jose.figuero@sample-email.com"
       fax:
         description: |-
           The customer's fax number.
@@ -97,7 +97,7 @@ types:
         maxLength: 256
         type: string
         required: false
-        example: "Rustin"
+        example: "Jose"
       gender:
         description: The customer's gender.
         type: integer
@@ -127,7 +127,7 @@ types:
         description: The customer's last name.
         maxLength: 256
         type: string
-        example: "Peece"
+        example: "Figueroa"
       lastVisitTime:
         description: The last visit time of the customer.
         type: datetime
@@ -181,7 +181,7 @@ types:
         maxLength: 256
         type: string
         required: false
-        example: "Peece"
+        example: "Figueroa"
       suffix:
         description: The customer's suffix (for example, "Jr." or "Sr.").
         maxLength: 256
@@ -195,7 +195,7 @@ types:
         required: false
         example: "Mr."
   CustomerAddress:
-    description:  Any address that is associated with a customer (billing, shipping, mailing, and so on). 
+    description:  Any address that is associated with a customer (billing, shipping, mailing, and so on).
     properties:
       address1:
         description: The customer's first address.
@@ -246,12 +246,12 @@ types:
         maxLength: 256
         type: string
         required: false
-        example: "Rustin"
+        example: "Jose"
       fullName:
         description: The concatenation of the customer's first, middle, last names, and suffix.
         type: string
         required: false
-        example: "Mr. Rustin Peece Sr."
+        example: "Mr. Jose Figueroa Sr."
       jobTitle:
         description: The customer's job title.
         maxLength: 256
@@ -267,7 +267,7 @@ types:
         description: The customer's last name.
         maxLength: 256
         type: string
-        example: "Peece"
+        example: "Figueroa"
       phone:
         description: The customer's phone number.
         maxLength: 32
@@ -297,7 +297,7 @@ types:
         maxLength: 256
         type: string
         required: false
-        example: "Peece"
+        example: "Figueroa"
       stateCode:
         description: The customer's state.
         maxLength: 256
@@ -384,7 +384,7 @@ types:
           Action to search for customers in a customer list.
           The query attribute specifies a complex query that can be used to narrow down the search. These are the list
           of searchable attributes:
-            
+
           | Attribute | Type |
           |-----------|--------|
           | customerNo| String |
@@ -400,11 +400,11 @@ types:
           | phoneMobile | String |
           | email | String |
           | gender | Integer |
-          | companyName | String |  
-          | credentials.login | String |  
-          | credentials.enabled | Boolean |  
+          | companyName | String |
+          | credentials.login | String |
+          | credentials.enabled | Boolean |
 
-            
+
         displayName: searchCustomerInCustomerList
         is:
           - ApiStandards.RateLimited4:
@@ -438,15 +438,15 @@ types:
           minLength: 1
           type: string
           example: "Site1CustomerList"
-    /{listId}/customers:      
+    /{listId}/customers:
       post:
         description: |
           Action to create a new customer. The customer is created using the specified credentials and customer
           information. This action verifies the following:
-          
+
             - Login acceptance criteria and uniqueness.
             - Mandatory customer properties.
-          
+
           If the action fails to create the customer, it returns a 400 fault with an appropriate message.
         displayName: createCustomerList
         is:
@@ -488,7 +488,7 @@ types:
             - CustomerListsTraits.NotFound
             - CustomerListsTraits.BadRequest
           responses:
-            '204': 
+            '204':
               description: No Content
           securedBy:
             - CommerceCloudStandards.BearerToken: { scopes: [sfcc.customerlists.rw] }
@@ -550,10 +550,10 @@ types:
           description: |
             Action to create a new customer. The customer is created using the specified customer number, credentials, and
             customer information. This action verifies the following:
-            
+
             - Login acceptance criteria and uniqueness.
             - Mandatory customer properties.
-            
+
             If the action fails to create the customer, it returns a 400 fault with an appropriate message.
           displayName: createCustomerInCustomerList
           is:
@@ -692,7 +692,7 @@ types:
                 - CustomerListsTraits.Unauthorized
                 - CustomerListsTraits.NotFound
               responses:
-                '204': 
+                '204':
                   description: No Content
               securedBy:
                 - CommerceCloudStandards.BearerToken: { scopes: [sfcc.customerlists.rw] }
