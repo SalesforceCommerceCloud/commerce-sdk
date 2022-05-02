@@ -67,12 +67,13 @@ describe("setupApis", () => {
     expect(apis.name.original).to.equal("apis");
     const children = apis.children.map((child) => child.name.original);
     expect(children).to.have.members([
-      "pricing",
-      "customer",
-      "checkout",
-      "product",
       "cdn",
+      "checkout",
+      "customer",
       "discovery",
+      "inventory",
+      "pricing",
+      "product",
       "search",
     ]);
   });
