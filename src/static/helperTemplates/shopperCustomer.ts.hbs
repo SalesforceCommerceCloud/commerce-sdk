@@ -1,11 +1,10 @@
 import { ShopperToken, stripBearer, ResponseError, getObjectFromResponse } from "@commerce-apps/core"
-import  * as sdk from "../";
-
+import  * as sdk from "../"
 
 // Type of the first input parameter for the auth function
-type AuthFuncParamType = Parameters<sdk.Customer.ShopperCustomers["authorizeCustomer"]>[0];
+type AuthFuncParamType = Parameters<sdk.{{metadata.shopperAuthClient}}["{{metadata.shopperAuthApi}}"]>[0];
 // Type returned by the auth function
-type CustomerType = sdk.Customer.ShopperCustomers.Customer;
+type CustomerType = sdk.{{metadata.shopperAuthClient}}.{{metadata.shopperAuthDataType}};
 
 /**
  * This wraps the parameters for the authorization call to retrieve a token.
@@ -29,9 +28,9 @@ export async function getShopperToken (
     clientConfig: sdk.ClientConfig,
     body: AuthFuncParamType["body"]
 ): Promise<ShopperToken<CustomerType>>{
-    let client = new sdk.Customer.ShopperCustomers(clientConfig);
+    let client = new sdk.{{metadata.shopperAuthClient}}(clientConfig);
 
-    const response = await client.authorizeCustomer({body}, true);
+    const response = await client.{{metadata.shopperAuthApi}}({body}, true);
     if (!response.ok) {
         throw new ResponseError(response);
     }

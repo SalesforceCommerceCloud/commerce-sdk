@@ -13,6 +13,7 @@ import { readJsonSync } from "fs-extra";
 
 const PROJECT_ROOT = path.join(__dirname, "../..");
 const TEMPLATE_DIRECTORY = path.join(PROJECT_ROOT, "templates");
+const HELPERS_TEMPLATE_DIRECTORY = path.join(`${PROJECT_ROOT}/src/static/`, "helperTemplates"); // TODO: clean this up
 const PACKAGE_JSON = path.join(PROJECT_ROOT, "package.json");
 
 //////// HELPER REGISTRATION ////////
@@ -49,6 +50,20 @@ function addTemplates(
   apis.addTemplate(
     path.join(TEMPLATE_DIRECTORY, "index.ts.hbs"),
     path.join(outputBasePath, "index.ts")
+  );
+
+  // TODO: check if able to loop through and generate
+  apis.addTemplate(
+    path.join(HELPERS_TEMPLATE_DIRECTORY, "index.ts.hbs"),
+    path.join(`${outputBasePath}/helpers`, "index.ts")
+  );
+  apis.addTemplate(
+    path.join(HELPERS_TEMPLATE_DIRECTORY, "shopperCustomer.ts.hbs"),
+    path.join(`${outputBasePath}/helpers`, "shopperCustomer.ts")
+  );
+  apis.addTemplate(
+    path.join(HELPERS_TEMPLATE_DIRECTORY, "slas.ts.hbs"),
+    path.join(`${outputBasePath}/helpers`, "slas.ts")
   );
 
   apis.children.forEach((child: generate.ApiMetadata) => {

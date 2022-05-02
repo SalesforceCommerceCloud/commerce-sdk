@@ -7,25 +7,16 @@
 
 import path from "path";
 import { generate } from "@commerce-apps/raml-toolkit";
-import { copySync } from "fs-extra";
 import { registerHelpers, registerPartials, setupApis } from "./lib/utils";
 
 const API_DIRECTORY = path.resolve(
   process.env.COMMERCE_SDK_INPUT_DIR || `${__dirname}/../apis`
 );
-const OUTPUT_DIRECTORY = path.join(
-  __dirname,
-  "../renderedTemplates/helpers"
-);
-const STATIC_DIRECTORY = path.join(__dirname, "./static/helpers");
 
 registerHelpers();
 registerPartials();
 
 console.log(`Creating SDK for ${API_DIRECTORY}`);
-
-const skipTestFiles = (src: string): boolean => !/\.test\.[a-z]+$/.test(src);
-copySync(STATIC_DIRECTORY, OUTPUT_DIRECTORY, { filter: skipTestFiles });
 
 setupApis(
   API_DIRECTORY,
