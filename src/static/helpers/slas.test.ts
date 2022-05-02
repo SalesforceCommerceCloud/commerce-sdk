@@ -14,21 +14,22 @@ import * as slasHelper from "./slas";
 import sinon from "sinon";
 
 const codeVerifier = "code_verifier";
-const url = "https://localhost:3000/callback?usid=048adcfb-aa93-4978-be9e-09cb569fdcb9&code=J2lHm0cgXmnXpwDhjhLoyLJBoUAlBfxDY-AhjqGMC-o";
+const url =
+  "https://localhost:3000/callback?usid=048adcfb-aa93-4978-be9e-09cb569fdcb9&code=J2lHm0cgXmnXpwDhjhLoyLJBoUAlBfxDY-AhjqGMC-o";
 
 const clientConfig = {
-    parameters: {
-        shortCode: "short_code",
-        organizationId: "organization_id",
-        clientId: "client_id",
-        siteId: "site_id",
-    }
+  parameters: {
+    shortCode: "short_code",
+    organizationId: "organization_id",
+    clientId: "client_id",
+    siteId: "site_id",
+  },
 };
 
 const credentials = {
   username: "shopper_user_id",
   password: "shopper_password",
-  clientSecret: "client_secret"
+  clientSecret: "client_secret",
 };
 
 const expectedTokenResponse: ShopperLogin.TokenResponse = {
@@ -50,19 +51,19 @@ const parameters = {
 };
 
 const mockPromise = (returnValue) => {
-    return new Promise((resolve) => {
-        resolve(returnValue);
-    });
-}
+  return new Promise((resolve) => {
+    resolve(returnValue);
+  });
+};
 
 const createMockSlasClient = () => {
-    const mockSlasClient = sinon.createStubInstance(ShopperLogin);
-    mockSlasClient.clientConfig = clientConfig;
-    mockSlasClient.authenticateCustomer.returns(mockPromise({url}));
-    mockSlasClient.getAccessToken.returns(mockPromise(expectedTokenResponse));
-    mockSlasClient.logoutCustomer.returns(mockPromise(expectedTokenResponse));
-    return mockSlasClient;
-}
+  const mockSlasClient = sinon.createStubInstance(ShopperLogin);
+  mockSlasClient.clientConfig = clientConfig;
+  mockSlasClient.authenticateCustomer.returns(mockPromise({ url }));
+  mockSlasClient.getAccessToken.returns(mockPromise(expectedTokenResponse));
+  mockSlasClient.logoutCustomer.returns(mockPromise(expectedTokenResponse));
+  return mockSlasClient;
+};
 
 beforeEach(() => {
   nock.cleanAll();
@@ -163,7 +164,7 @@ describe("Authorize user", () => {
 describe("Guest user flow", () => {
   const expectedOptions = {
     headers: {
-      Authorization: 'Basic Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQ=',
+      Authorization: "Basic Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQ=",
     },
     body: {
       grant_type: "client_credentials",
@@ -180,21 +181,22 @@ describe("Guest user flow", () => {
       .query(true)
       .reply(200, { response_body: "response_body" });
 
-    const accessToken = await slasHelper.loginGuestUser(
-      mockSlasClient,
-      { clientSecret: credentials.clientSecret }
-    );
+    const accessToken = await slasHelper.loginGuestUser(mockSlasClient, {
+      clientSecret: credentials.clientSecret,
+    });
 
-    expect(mockSlasClient.getAccessToken.getCall(0).args[0]).to.be.deep.equals(expectedOptions);
+    expect(mockSlasClient.getAccessToken.getCall(0).args[0]).to.be.deep.equals(
+      expectedOptions
+    );
     expect(accessToken).to.be.deep.equals(expectedTokenResponse);
   });
 });
 
 describe("Registered B2C user flow", () => {
-
   it("hits login and token endpoints to generate JWT", async () => {
     const mockSlasClient = createMockSlasClient();
-    const { shortCode, organizationId } = mockSlasClient.clientConfig.parameters;
+    const { shortCode, organizationId } =
+      mockSlasClient.clientConfig.parameters;
     nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
       .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/login`)
       .query(true)
@@ -231,7 +233,9 @@ describe("Refresh Token", () => {
       parameters
     );
 
-    expect(mockSlasClient.getAccessToken.getCall(0).args[0]).to.be.deep.equals(expectedBody);
+    expect(mockSlasClient.getAccessToken.getCall(0).args[0]).to.be.deep.equals(
+      expectedBody
+    );
     expect(token).to.be.deep.equals(expectedTokenResponse);
   });
 });
@@ -249,7 +253,9 @@ describe("Logout", () => {
     const mockSlasClient = createMockSlasClient();
     const token = await slasHelper.logout(mockSlasClient, parameters);
 
-    expect(mockSlasClient.logoutCustomer.getCall(0).args[0]).to.be.deep.equals(expectedOptions);
+    expect(mockSlasClient.logoutCustomer.getCall(0).args[0]).to.be.deep.equals(
+      expectedOptions
+    );
     expect(token).to.be.deep.equals(expectedTokenResponse);
   });
 });

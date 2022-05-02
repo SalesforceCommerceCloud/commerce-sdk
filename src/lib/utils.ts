@@ -13,7 +13,10 @@ import { readJsonSync } from "fs-extra";
 
 const PROJECT_ROOT = path.join(__dirname, "../..");
 const TEMPLATE_DIRECTORY = path.join(PROJECT_ROOT, "templates");
-const HELPERS_TEMPLATE_DIRECTORY = path.join(`${PROJECT_ROOT}/src/static/`, "helperTemplates"); // TODO: clean this up
+const HELPERS_TEMPLATE_DIRECTORY = path.join(
+  `${PROJECT_ROOT}/src/static/`,
+  "helperTemplates"
+); // TODO: clean this up
 const PACKAGE_JSON = path.join(PROJECT_ROOT, "package.json");
 
 //////// HELPER REGISTRATION ////////
