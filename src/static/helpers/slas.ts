@@ -7,13 +7,13 @@
 
 /* eslint-disable tsdoc/syntax, @typescript-eslint/camelcase  */
 
-// TODO: look for alternatives
 // NOTE: This file is for development/testing purposes
 // In order for changes to be reflected in SDK generation, please edit the handlebars template, slas.ts.hbs in the helperTemplates directory
 // Due to the dynamic generation of the SDK, slas helper functions are rendered within a template so that organizational changes to file structure do not break import statements
 
 import { nanoid } from "nanoid";
 import { URL, URLSearchParams } from "url";
+import { ResponseError } from "@commerce-apps/core"
 import { ShopperLogin } from "../../../renderedTemplates/customer/shopperLogin/shopperLogin";
 
 /**
@@ -114,11 +114,12 @@ export async function authorize(
   };
 
   const response = await slasClientCopy.authorizeCustomer(options, true);
-  const redirectUrl = response.headers?.get("location") || response.url;
 
-  if (!redirectUrl) {
-    throw new Error("Authorization failed");
+  if(response.status !== 303) {
+    throw new ResponseError(response);
   }
+
+  const redirectUrl = response.headers?.get("location") || response.url;
 
   return { url: redirectUrl, ...getCodeAndUsidFromUrl(redirectUrl) };
 }
@@ -211,6 +212,10 @@ export async function loginRegisteredUserB2C(
     optionsLogin,
     true
   );
+
+  if(response.status !== 303) {
+    throw new ResponseError(response);
+  }
 
   const redirectUrl = response.headers?.get("location") || response.url;
   const authResponse = getCodeAndUsidFromUrl(redirectUrl);
