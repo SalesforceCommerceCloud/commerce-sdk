@@ -13,7 +13,7 @@
 
 import { nanoid } from "nanoid";
 import { URL, URLSearchParams } from "url";
-import { ResponseError } from "@commerce-apps/core"
+import { ResponseError } from "@commerce-apps/core";
 import { ShopperLogin } from "../../../renderedTemplates/customer/shopperLogin/shopperLogin";
 
 /**
@@ -115,7 +115,7 @@ export async function authorize(
 
   const response = await slasClientCopy.authorizeCustomer(options, true);
 
-  if(response.status !== 303) {
+  if (response.status !== 303) {
     throw new ResponseError(response);
   }
 
@@ -213,7 +213,7 @@ export async function loginRegisteredUserB2C(
     true
   );
 
-  if(response.status !== 303) {
+  if (response.status !== 303) {
     throw new ResponseError(response);
   }
 
