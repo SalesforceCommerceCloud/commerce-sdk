@@ -150,13 +150,14 @@ describe("Authorize user", () => {
     nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
       .get(`/shopper/auth/v1/organizations/${organizationId}/oauth2/authorize`)
       .query(true)
-      .reply(200, { response_body: "response_body" }, { location: "" });
+      .reply(303, { response_body: "response_body" }, { location: "" });
 
     const authResponse = await slasHelper.authorize(
       mockSlasClient,
       codeVerifier,
       parameters
     );
+
     expect(authResponse).to.be.deep.equals(expectedAuthResponseNoLocation);
   });
 });
