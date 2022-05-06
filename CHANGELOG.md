@@ -10,6 +10,12 @@ only use JavaScript, or if you use TypeScript but only import the client classes
 then your usage **will not change**. You will likely only need to make changes if
 you import the type definitions directly.
 
+### v2.7.1
+
+#### Documentation
+
+Sample data has been updated to use inclusive language. 
+
 ### v2.7.0
 
 #### New APIs
