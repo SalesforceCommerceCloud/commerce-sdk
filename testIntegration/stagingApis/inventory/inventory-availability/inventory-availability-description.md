@@ -1,1 +1,0 @@
-API to manage location-level inventory information.

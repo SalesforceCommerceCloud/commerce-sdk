@@ -1,1 +1,0 @@
-API to import and export inventory data used by the Inventory Availability and Inventory Reservation services.
