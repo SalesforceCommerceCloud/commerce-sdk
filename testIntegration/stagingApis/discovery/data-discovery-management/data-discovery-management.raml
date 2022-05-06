@@ -1,0 +1,96 @@
+#%RAML 1.0
+version: v2
+title: Data Discovery Management
+
+uses:
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.12/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml
+  DiscoveryStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/discovery-standards/0.0.30/discovery-standards.raml
+  DataSet: data-set.raml
+  ErrorTypes: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/discovery-standards/0.0.30/Errors/discovery-error-types.raml
+  RamlToJaxrs: ramltojaxrs.raml
+
+mediaType: application/json
+protocols: [HTTPS]
+baseUri: https://{shortCode}.api.commercecloud.salesforce.com/discovery/management/{version}
+baseUriParameters:
+  shortCode:
+    description: A region-specific merchant identifier.
+    pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
+    example: 0dnz6oep
+  version: DiscoveryStandards.Version
+
+description: APIs to manage base resources within the Discovery domain.
+
+(RamlToJaxrs.resources):
+  plugins:
+    - name: ramltojaxrs.displayName
+(RamlToJaxrs.responses):
+  plugins:
+    - name: ramltojaxrs.displayName
+(RamlToJaxrs.responseClasses):
+  plugins:
+    - name: ramltojaxrs.displayName
+(RamlToJaxrs.methods):
+  plugins:
+    - name: ramltojaxrs.displayName
+(RamlToJaxrs.types):
+  plugins:
+    - name: ramltojaxrs.chainSetter
+
+/organizations/{organizationId}/data-sets:
+  type: CommerceCloudStandards.Organization
+  is:
+    - DiscoveryStandards.Traceable
+    - DiscoveryStandards.TenantTier
+  post:
+    description: Creates a Data Set resource within the Discovery domain. The resource is created synchronously as is usable for all futher operations once the API returns. The Data Set is created using a non empty collection of Attribute Definition resources.
+    displayName: createDataSet
+    is:
+      - DiscoveryStandards.ResourceCommonErrors
+      - DiscoveryStandards.MetaData
+      - ApiStandards.SyncCreated:
+          responseType: DataSet.DataSetCreationOutput
+          resourcePath: https://0dnz6oep.api.commercecloud.salesforce.com/discovery/management/v2/organizations/org-id/data-sets
+    queryParameters:
+      einsteinChannelId:
+        type: DataSet.EinsteinChannelId
+        required: false            
+    body:
+      type: DataSet.DataSetCreationInput
+  get:
+    description: Retrieves a collection of Data Set resource references based on the inputs.
+    displayName: getDataSets
+    is:
+      - DiscoveryStandards.Filterable
+      - ApiStandards.OffsetPaginated:
+          maxLimit: 50
+          defaultSize: 10
+      - DiscoveryStandards.CommonErrors
+    responses:
+      200:
+        description: Returned if the requested Data Set resources could be retrieved.
+        body:
+          type: DataSet.BulkDataSetRetrievalOutput
+
+  /{dataSetId}:
+    is:
+      - DiscoveryStandards.Traceable
+      - DiscoveryStandards.CommonErrors
+      - DiscoveryStandards.TenantTier
+    uriParameters:
+        dataSetId: DiscoveryStandards.DataSetId
+    get:
+      description: Retrieves the Data Set with the given resource identifier. The returned resource will contain the configuration of the Data Set, as defined during creation, as well as suplemental information such as the number of items currently associated with the Data Set as well as time information on when the resource was created and last updated.
+      displayName: getDataSet
+      responses:
+        200:
+          description: Returned if a Data Set was found for the given inputs.
+          body:
+            type: DataSet.DataSet
+    delete:
+      description: Removes the defined Data Set resource from the domain. This operation is synchronous and once completes, the resource will no longer be maintained within the domain.
+      displayName: deleteDataSet
+      responses:
+        200:
+          description: Returned if the Data Set was removed.

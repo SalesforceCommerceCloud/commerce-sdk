@@ -1,0 +1,241 @@
+#%RAML 1.0 Library
+
+uses:
+  ErrorCodeTypesEnum: ErrorCodeTypesEnum.raml
+
+types:
+  ErrorResponse:
+    properties:
+      errorCode:
+        type: ErrorCodeTypesEnum.ErrorCodeTypesEnum
+        required: true
+        example: "InvalidRequest"
+      message:
+        type: string
+        required: true
+        example: "The delta token provided is invalid."
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+      parameterName:
+        description: When invalid json is passed to the service, this field will indicate which piece of the supplied json was invalid.
+        type: string
+        required: false
+        example: "location"
+
+  UnknownError:
+    properties:
+      timestamp:
+        type: string
+        required: true
+        example: "2020-07-06T17:46:57.492+0000"
+      status:
+        type: integer
+        required: true
+        example: 500
+      error:
+        type: string
+        required: true
+        example: "An unknown internal error has occurred"
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+        
+  NotAuthorized:
+    properties:
+      timestamp:
+        type: string
+        required: true
+        example: "2020-07-06T17:46:57.492+0000"
+      status:
+        type: integer
+        required: true
+        example: 403
+      error:
+        type: string
+        required: true
+        example: "Forbidden"
+      message:
+        type: string
+        required: true
+        example: "No message available"
+      path:
+        type: string
+        required: true
+        example: "/inventory/impex/v1/organizations/myOrgId/location-graph/exports"
+
+  InvalidRequestParameter:
+    properties:
+      errorCode:
+        type: ErrorCodeTypesEnum.InvalidRequestParameter
+        required: true
+        example: "InvalidRequestParameter"
+      message:
+        type: string
+        required: true
+        example: ""
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+      parameterName:
+        description: When invalid json is passed to the service, this field will indicate which piece of the supplied json was invalid.
+        type: string
+        required: false
+        example: "location"
+  
+  InvalidRequestParameterAvailabilityExport:
+    properties:
+      errorCode:
+        type: ErrorCodeTypesEnum.InvalidRequestParameterAvailabilityExport
+        required: true
+        example: "InvalidRequestParameter"
+      message:
+        type: string
+        required: true
+        example: ""
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+      parameterName:
+        description: When invalid json is passed to the service, this field will indicate which piece of the supplied json was invalid.
+        type: string
+        required: false
+        example: "location"
+
+  EntityNotFound:
+    properties:
+      errorCode:
+        type: ErrorCodeTypesEnum.EntityNotFound
+        required: true
+        example: "EntityNotFound"
+      message:
+        type: string
+        required: true
+        example: ""
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+      parameterName:
+        description: When invalid json is passed to the service, this field will indicate which piece of the supplied json was invalid.
+        type: string
+        required: false
+        example: "location"
+
+  ExportInProcess:
+    properties:
+      errorCode:
+        type: ErrorCodeTypesEnum.ExportInProcess
+        required: true
+        example: "ExportInProcess"
+      message:
+        type: string
+        required: true
+        example: ""
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+      parameterName:
+        description: When invalid json is passed to the service, this field will indicate which piece of the supplied json was invalid.
+        type: string
+        required: false
+        example: "location"
+
+  ImportInProgress:
+    properties:
+      errorCode:
+        type: ErrorCodeTypesEnum.ImportInProgress
+        required: true
+        example: "ImportInProgress"
+      message:
+        type: string
+        required: true
+        example: ""
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+      parameterName:
+        description: When invalid json is passed to the service, this field will indicate which piece of the supplied json was invalid.
+        type: string
+        required: false
+        example: "location"
+
+  FileAlreadyReceived:
+    properties:
+      errorCode:
+        type: ErrorCodeTypesEnum.FileAlreadyReceived
+        required: true
+        example: "FileAlreadyReceived"
+      message:
+        type: string
+        required: true
+        example: ""
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+      parameterName:
+        description: When invalid json is passed to the service, this field will indicate which piece of the supplied json was invalid.
+        type: string
+        required: false
+        example: "location"
+
+  ExpiredUploadLink:
+    properties:
+      errorCode:
+        type: ErrorCodeTypesEnum.ExpiredUploadLink
+        required: true
+        example: "ExpiredUploadLink"
+      message:
+        type: string
+        required: true
+        example: ""
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+      parameterName:
+        description: When invalid json is passed to the service, this field will indicate which piece of the supplied json was invalid.
+        type: string
+        required: false
+        example: "location"
+
+  ExpiredResultLink:
+    properties:
+      errorCode:
+        type: ErrorCodeTypesEnum.ExpiredResultLink
+        required: true
+        example: "ExpiredResultLink"
+      message:
+        type: string
+        required: true
+        example: ""
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+      parameterName:
+        description: When invalid json is passed to the service, this field will indicate which piece of the supplied json was invalid.
+        type: string
+        required: false
+        example: "location"
+
+  ApiErrors: !include /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.12/dataTypes/error-response.raml
+
+  #Create the union of the standards error and our error
+  403Error: [NotAuthorized, ApiErrors]
+  400InvalidRequestParameterError: [InvalidRequestParameter, ApiErrors]
+  400InvalidRequestParameterErrorAvailabilityExport: [InvalidRequestParameterAvailabilityExport, ApiErrors]
+  404EntityNotFoundError: [EntityNotFound, ApiErrors]
+  409ExportInProcessError: [ExportInProcess, ApiErrors]
+  409ImportInProgressError: [ImportInProgress, ApiErrors]
+  409FileAlreadyReceivedError: [FileAlreadyReceived, ApiErrors]
+  410ExpiredUploadLinkError: [ExpiredUploadLink, ApiErrors]
+  410ExpiredResultLinkError: [ExpiredResultLink, ApiErrors]
+  

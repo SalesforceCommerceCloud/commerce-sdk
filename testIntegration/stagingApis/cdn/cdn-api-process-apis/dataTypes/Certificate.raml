@@ -15,16 +15,40 @@ properties:
   uploadedOn:
     description: Date the certificate was uploaded.
     type: datetime
+  issuer:
+    description: The certificate authority that issued the certificate.
+    type: string
+    required: false
+  signature:
+    description: The type of hash used for the certificate.
+    type: string
+    required: false
   status:
     description: Current status of the certificate. 
     type: string
-    enum: [ACTIVE, EXPIRED, DELETED]
+    enum: [ACTIVE, EXPIRED, DELETED, PENDING, INITIALIZING, PENDING_VALIDATION, PENDING_ISSUANCE, PENDING_DEPLOYMENT, PENDING_DELETION]
   customHostnameVerificationTXTName:
     description: Something
     type: string
+    required: false
   customHostnameVerificationTXTValue:
     description: Something
     type: string
+    required: false
+  customHostnameId:
+    description: Custom hostname associated with the zone
+    type: string
+    required: false
+  customHostname:
+    description: Custom hostname associated with the zone
+    type: string
+    required: false
+  customHostnameStatus:
+    description: Current status of custom hostname validation.
+    type: string
+    enum: [ACTIVE, EXPIRED, DELETED, PENDING, INITIALIZING, PENDING_VALIDATION, PENDING_ISSUANCE, PENDING_DEPLOYMENT, PENDING_DELETION, MOVED]
+    required: false
+
 
 examples:
   example1:
@@ -33,13 +57,23 @@ examples:
     hosts: [example.com, www.example.com]
     expiresOn: 2021-01-01T05:20:00Z
     uploadedOn: 2016-01-01T05:20:00Z
+    issuer: DigiCert
+    signature: SHA256WithRSA
     customHostnameVerificationTXTName: _example.com
     customHostnameVerificationTXTValue: 4c9c3f4f-2e91-4c5d-a902-f12f9c285b9e
+    customHostnameId: 354a48f6-3d98-4c15-9312-211984ee8518
+    customHostname: custom.example.com
+    customHostnameStatus: PENDING
   example2:
     certificateId: 730a1be4-22d7-11eb-adc1-0242ac120002
     status: ACTIVE
-    hosts: [radtimes.com, superradtimes.com, bestdayever.com]
+    hosts: [ntoretail.com, nto-retail.com, example.com]
     expiresOn: 2021-01-01T05:20:00Z
     uploadedOn: 2015-01-01T05:20:00Z
-    customHostnameVerificationTXTName: _radtimes.com
+    issuer: DigiCert
+    signature: SHA256WithRSA
+    customHostnameVerificationTXTName: _ntoretail.com
     customHostnameVerificationTXTValue: 4c9c3f4f-2e91-4c5d-a902-f12f9c285b9e
+    customHostnameId: 465a48f6-3d98-4c15-9312-211984ee8629
+    customHostname: test.ntoretail.com
+    customHostnameStatus: ACTIVE

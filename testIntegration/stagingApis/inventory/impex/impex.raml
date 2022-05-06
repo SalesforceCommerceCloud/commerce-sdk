@@ -1,0 +1,605 @@
+#%RAML 1.0
+title: Inventory Impex
+description: !include inventory-impex-description.md
+version: v1
+mediaType: application/json
+protocols: HTTPS
+baseUri: https://{shortCode}.api.commercecloud.salesforce.com/inventory/impex/{version}
+baseUriParameters:
+  shortCode:
+    description: Region-specific merchant identifier.
+    example: 0dnz6oep
+    pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
+  
+uses:
+  # This include the Commerce Cloud and API Standards Libraries
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.12/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml
+  ExportLibrary: libraries/Exports.raml
+  ImportLibrary: libraries/Imports.raml
+  EventLogLibrary: libraries/GetEventLog.raml
+  SkuExclusionLibrary: libraries/SkuExclusionsLib.raml
+  LocationGraphExportLibrary: libraries/LocationGraphExport.raml
+  ErrorResponses: libraries/ErrorHandling/ErrorResponses.raml
+
+securedBy:
+  - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.inventory.impex-event-log] }
+  - CommerceCloudStandards.BearerToken: { scopes: [sfcc.inventory.impex-event-log, sfcc_inventory_impex_event_log] }
+  - ApiStandards.GDoT: { scopes: [sfcc.inventory.impex-event-log, sfcc_inventory_impex_event_log] }
+
+types:
+  InventoryLocationRecords: !include types/Imports/ImportInventoryLocationRecords.raml
+
+traits:
+  GenericResponseErrorCode: !include traits/GenericResponseErrorCode.raml
+  AuthorizedEndpoint: !include traits/403ErrorResponse.raml
+
+/organizations/{organizationId}:
+  type: CommerceCloudStandards.Organization
+  /location-graph/exports:
+    securedBy:
+      - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.inventory.impex-graphs] }
+      - CommerceCloudStandards.BearerToken: { scopes: [sfcc.inventory.impex-graphs, sfcc_inventory_impex_graphs] }
+      - ApiStandards.GDoT: { scopes: [sfcc.inventory.impex-graphs, sfcc_inventory_impex_graphs] }
+    post:
+      description: Exports the entire location graph for the specified organization.  
+      displayName: getLocationGraphExport
+      is:
+        - AuthorizedEndpoint
+        - ApiStandards.RateLimited:
+            responseStatus: 200
+      responses:
+        200:
+          description: Successfully initiated location graph export.
+          body:
+            application/json:
+              type: LocationGraphExportLibrary.InitiateLocationGraphExportResponse
+        400:
+          description: Invalid request.
+          body:
+            application/problem+json:
+              type: ErrorResponses.400InvalidRequestParameterError
+              example: !include Examples/HttpErrors/400InvalidRequestParameterErrorExample.raml
+    /{exportId}:
+      securedBy:
+      - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.inventory.impex-graphs] }
+      - CommerceCloudStandards.BearerToken: { scopes: [sfcc.inventory.impex-graphs, sfcc_inventory_impex_graphs] }
+      - ApiStandards.GDoT: { scopes: [sfcc.inventory.impex-graphs, sfcc_inventory_impex_graphs] }
+      uriParameters:
+        exportId: 
+          type: string
+          description: The export ID of the requested location graph.
+      description: Retrieve or delete a location graph by export ID.
+      delete:
+        description: Delete the location graph for the specified export ID.
+        displayName: deleteLocationGraphExports
+        is:
+          - AuthorizedEndpoint
+          - ApiStandards.RateLimited3:
+              responseStatus: 204
+              responseStatus2: 404
+              responseStatus3: 409
+        responses: 
+          204:
+            description: Successfully deleted the location graph.
+          404:
+            description: Entity not found.
+            body:
+              application/problem+json:
+                type: ErrorResponses.404EntityNotFoundError
+                example: !include Examples/HttpErrors/404EntityNotFoundErrorExample.raml
+          409:
+            description: Export in progress.
+            body:
+              application/problem+json:
+                type: ErrorResponses.409ExportInProcessError
+                example: !include Examples/HttpErrors/409ExportInProcessErrorExample.raml
+      /file-content:
+        securedBy:
+        - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.inventory.impex-graphs] }
+        - CommerceCloudStandards.BearerToken: { scopes: [sfcc.inventory.impex-graphs, sfcc_inventory_impex_graphs] }
+        - ApiStandards.GDoT: { scopes: [sfcc.inventory.impex-graphs, sfcc_inventory_impex_graphs] }
+
+        get:
+          description: Download the generated location graph export file.
+          displayName: downloadLocationGraphExportFile
+          is:
+            - AuthorizedEndpoint
+            - ApiStandards.RateLimited4:
+                responseStatus: 200
+                responseStatus2: 404
+                responseStatus3: 409
+                responseStatus4: 410
+          responses:
+            200:
+              description: Successfully downloaded the file.
+              body:
+                application/json:
+                  LocationGraphExportLibrary.ExportLocationGraphDownloadFile
+            404:
+              description: The location graph export ID does not exist.
+              body:
+                 application/problem+json:
+                  type: ErrorResponses.404EntityNotFoundError
+                  example: !include Examples/HttpErrors/404EntityNotFoundErrorExample.raml
+            409:
+              description: Export in progress.
+              body:
+                application/problem+json:
+                  type: ErrorResponses.409ExportInProcessError
+                  example: !include Examples/HttpErrors/409ExportInProcessErrorExample.raml
+            410:
+              description: The download link is no longer available at the server.
+              body:
+                application/problem+json:
+                  type: ErrorResponses.410ExpiredResultLinkError
+                  example: !include Examples/HttpErrors/410ExpiredResultLinkErrorExample.raml
+      /status:
+        securedBy:
+        - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.inventory.impex-graphs] }
+        - CommerceCloudStandards.BearerToken: { scopes: [sfcc.inventory.impex-graphs, sfcc_inventory_impex_graphs] }
+        - ApiStandards.GDoT: { scopes: [sfcc.inventory.impex-graphs, sfcc_inventory_impex_graphs] }
+
+        description: Check the status of the location graph export for this organization.
+        get:
+          description: Retrieve the status of the location graph export for the organization.
+          displayName: getLocationGraphExportStatus
+          is:
+            - AuthorizedEndpoint
+            - ApiStandards.RateLimited2:
+                responseStatus: 200
+                responseStatus2: 404
+          queryParameters:
+            exportId: 
+              displayName: locationGraphExportIds
+              description: Export ID of the location graph whose status you want to check.
+          responses:
+            200:
+              description: Successfully retrieved location group export status.
+              body:
+                application/json:
+                  LocationGraphExportLibrary.ExportLocationGraphStatusResponse200
+            404:
+              description: Entity not found.
+              body:
+                application/problem+json:
+                  type: ErrorResponses.404EntityNotFoundError
+                  example: !include Examples/HttpErrors/404EntityNotFoundErrorExample.raml
+  /availability-records/imports:
+    securedBy:
+      - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.inventory.impex-inventory.rw] }
+      - CommerceCloudStandards.BearerToken: { scopes: [sfcc.inventory.impex-inventory.rw, sfcc_inventory_impex_inventory_rw] }
+      - ApiStandards.GDoT: { scopes: [sfcc.inventory.impex-inventory.rw, sfcc_inventory_impex_inventory_rw] }
+    post:
+      description: Submit inventory import.
+      displayName: submitInventoryImport
+      is:
+        - AuthorizedEndpoint
+        - ApiStandards.RateLimited2:
+            responseStatus: 200
+            responseStatus2: 400
+      body:
+        application/json:
+          type: ImportLibrary.InitiateImportRequestBody
+      responses:
+        200:
+          description: Successfully submitted import.
+          body:
+            type: ImportLibrary.InitiateImportResponse200
+        400:
+          description: Invalid request.
+          body:
+            application/problem+json:
+              type: ErrorResponses.400InvalidRequestParameterError
+              example: !include Examples/HttpErrors/400InvalidRequestParameterErrorExample.raml
+    get:
+      description: Retrieve a collection of import job IDs. You can query the list of import jobs and retrieve the full collection in the response body. You can also filter the collection to only include imports where the upload link is valid or invalid (expired).
+      displayName: getInventoryImport
+      is:
+        - AuthorizedEndpoint
+        - ApiStandards.RateLimited2:
+            responseStatus: 200
+            responseStatus2: 400
+      queryParameters:
+        available:
+          required: false
+          description: Setting available to ‘true’ causes the response to only include imports where the upload link is still available and has not expired.
+          type: string
+      responses:
+        200:
+          description: A JSON array with a collection of import ID values.
+          body:
+            application/json:
+              type: ImportLibrary.GetRunningImportsResponse
+        400:
+          description: Invalid request.
+          body:
+            application/problem+json:
+              type: ErrorResponses.400InvalidRequestParameterError
+              example: !include Examples/HttpErrors/400InvalidRequestParameterErrorExample.raml
+    /{importId}:
+      securedBy:
+      - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.inventory.impex-inventory.rw] }
+      - CommerceCloudStandards.BearerToken: { scopes: [sfcc.inventory.impex-inventory.rw, sfcc_inventory_impex_inventory_rw] }
+      - ApiStandards.GDoT: { scopes: [sfcc.inventory.impex-inventory.rw, sfcc_inventory_impex_inventory_rw] }
+
+      uriParameters:
+        importId:
+          type: string
+          description: The import ID to act upon.
+      delete:
+        displayName: deleteInventoryImport
+        description: Mark a single import for deletion.
+        is:
+          - AuthorizedEndpoint
+          - ApiStandards.RateLimited3:
+              responseStatus: 204
+              responseStatus2: 404
+              responseStatus3: 409
+        responses:
+          204:
+            description: Successfully deleted the requested import job.
+          404:
+            description: Entity not found.
+            body:
+              application/problem+json:
+                type: ErrorResponses.404EntityNotFoundError
+                example: !include Examples/HttpErrors/404EntityNotFoundErrorExample.raml
+          409:
+            description: Import in progress.
+            body:
+              application/problem+json:
+                type: ErrorResponses.409ImportInProgressError
+                example: !include Examples/HttpErrors/409ImportInProgressErrorExample.raml
+      /status:
+        securedBy:
+        - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.inventory.impex-inventory.rw] }
+        - CommerceCloudStandards.BearerToken: { scopes: [sfcc.inventory.impex-inventory.rw, sfcc_inventory_impex_inventory_rw] }
+        - ApiStandards.GDoT: { scopes: [sfcc.inventory.impex-inventory.rw, sfcc_inventory_impex_inventory_rw] }
+
+        get:
+          description: Retrieve status for the specified import ID.
+          displayName: getAvailabilityImportStatus
+          is:
+            - AuthorizedEndpoint
+            - ApiStandards.RateLimited2:
+                responseStatus: 200
+                responseStatus2: 404
+          responses:
+            200:
+              description: Successfully retrieved import status.
+              body:
+                type: ImportLibrary.ImportStatusResponse200
+            404:
+              description: Entity not found.
+              body:
+                 application/problem+json:
+                  type: ErrorResponses.404EntityNotFoundError
+                  example: !include Examples/HttpErrors/404EntityNotFoundErrorExample.raml
+      /file-content:
+        securedBy:
+        - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.inventory.impex-inventory.rw] }
+        - CommerceCloudStandards.BearerToken: { scopes: [sfcc.inventory.impex-inventory.rw, sfcc_inventory_impex_inventory_rw] }
+        - ApiStandards.GDoT: { scopes: [sfcc.inventory.impex-inventory.rw, sfcc_inventory_impex_inventory_rw] }
+
+        get:
+          description: Retrieve the import file results for the specified import ID.
+          displayName: downloadAvailabilityImportResultsFile
+          is:
+            - AuthorizedEndpoint
+            - ApiStandards.RateLimited2:
+                responseStatus: 200
+                responseStatus2: 404
+                responseStatus3: 409
+          responses:
+            200:
+              description: Successfully retrieved availability import results file.
+              body:
+                examples: !include Examples/DowloadAvailabilityImportFile200Responses.raml
+            404:
+              description: Entity not found.
+              body:
+                 application/problem+json:
+                  type: ErrorResponses.404EntityNotFoundError
+                  example: !include Examples/HttpErrors/404EntityNotFoundErrorExample.raml
+            409:
+              description: Import in progress.
+              body:
+                application/problem+json:
+                  type: ErrorResponses.409ImportInProgressError
+                  example: !include Examples/HttpErrors/409ImportInProgressErrorExample.raml
+    /uploadlink/{uploadLinkId}:
+      securedBy:
+      - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.inventory.impex-inventory.rw] }
+      - CommerceCloudStandards.BearerToken: { scopes: [sfcc.inventory.impex-inventory.rw, sfcc_inventory_impex_inventory_rw] }
+      - ApiStandards.GDoT: { scopes: [sfcc.inventory.impex-inventory.rw, sfcc_inventory_impex_inventory_rw] }
+
+      uriParameters:
+        uploadLinkId:
+          description: The ID of the import being uploaded.
+      post:
+        description: |
+          Upload an import file. <br>
+          The gateway has a filesize limit of 100MB. <br>
+          If the file is larger than 100MB, send it in compressed format. The supported algorithm is GZIP.
+        displayName: postUploadImportFile
+        is:
+          - AuthorizedEndpoint
+          - ApiStandards.RateLimited4:
+              responseStatus: 200
+              responseStatus2: 404
+              responseStatus3: 409
+              responseStatus4: 410
+        body:
+          multipart/form-data:
+            type: ImportLibrary.ImportsUploadLinkPostBody
+        responses:
+          200:
+            description: Successfully started the file upload. Details are available in the response body.
+            body:
+              application/json:
+                type: ImportLibrary.ImportUploadLinkResponse200
+          404:
+            description: Entity not found.
+            body:
+              application/problem+json:
+                type: ErrorResponses.404EntityNotFoundError
+                example: !include Examples/HttpErrors/404EntityNotFoundErrorExample.raml
+          409:
+            description: Already received the file. 
+            body:
+              application/problem+json:
+                type: ErrorResponses.409FileAlreadyReceivedError
+                example: !include Examples/HttpErrors/409FileAlreadyReceivedErrorExample.raml
+          410:
+            description: The uploadLink URI is no longer available at the server.
+            body:
+              application/problem+json:
+                type: ErrorResponses.410ExpiredUploadLinkError
+                example: !include Examples/HttpErrors/410ExpiredUploadLinkErrorExample.raml
+  /availability-records/exports:
+    securedBy:
+      - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.inventory.impex-inventory] }
+      - CommerceCloudStandards.BearerToken: { scopes: [sfcc.inventory.impex-inventory, sfcc_inventory_impex_inventory] }
+      - ApiStandards.GDoT: { scopes: [sfcc.inventory.impex-inventory, sfcc_inventory_impex_inventory] }
+    post:
+      description: Initiates an export of group or location level inventory availability. The current limit of requests for this endpoint for each tenant, is of 120 requests per second.
+      displayName: initiateAvailabilityExport
+      is:
+        - AuthorizedEndpoint
+        - ApiStandards.RateLimited2:
+            responseStatus: 200
+            responseStatus2: 400
+      body:
+        application/json:
+          properties:
+            objects:
+              properties:
+                groups:
+                  type: array
+                  required: false
+                  description: An array of group IDs whose availability information you want to export. Cannot be included if 'locations' is included below.
+                  example: !include Examples/InitiateGroupInventoryExportExample.raml
+                locations:
+                  type: array
+                  required: false
+                  description: An array of location IDs whose availability information you want to export.  Cannot be included if 'groups' is included above.
+                  example: !include Examples/InitiateLocationInventoryExportExample.raml
+          examples:
+            !include Examples/InitiateInventoryExportByLocationOrGroup.raml
+      responses:
+        200:
+          description: Successfully submitted request to initiate export.
+          body:
+            application/json:
+              type: ExportLibrary.InitiateGroupExportResponse200
+        400:
+          description: Invalid request.
+          body:
+            application/problem+json:
+              type: ErrorResponses.400InvalidRequestParameterErrorAvailabilityExport
+              examples: 
+                LocationsAndGroupsError: !include Examples/HttpErrors/400InvalidRequestParameterLocationAndGroupExample.raml
+                LocationDoesNotExistError: !include Examples/HttpErrors/400InvalidRequestParameterLocationDoesNotExist.raml
+                GroupDoesNotExistError: !include Examples/HttpErrors/400InvalidRequestParameterGroupDoesNotExist.raml
+    /{exportId}:
+      securedBy:
+      - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.inventory.impex-inventory] }
+      - CommerceCloudStandards.BearerToken: { scopes: [sfcc.inventory.impex-inventory, sfcc_inventory_impex_inventory] }
+      - ApiStandards.GDoT: { scopes: [sfcc.inventory.impex-inventory, sfcc_inventory_impex_inventory] }
+
+      uriParameters:
+        exportId:
+          description: The ID of the export on which the action is being performed.
+      delete:
+        description: Delete a single export ID. The current limit of requests for this endpoint for each tenant, is of 120 requests per second.
+        displayName: deleteAvailabilityExport
+        is:
+          - AuthorizedEndpoint
+          - ApiStandards.RateLimited3:
+              responseStatus: 204
+              responseStatus2: 404
+              responseStatus3: 409
+        responses:
+          204:
+            description: Successfully deleted batches of export group inventory availability.
+          404:
+            description: Entity not found.
+            body:
+              application/problem+json:
+                type: ErrorResponses.404EntityNotFoundError
+                example: !include Examples/HttpErrors/404EntityNotFoundErrorExample.raml
+          409:
+            description: Export in progress.
+            body:
+              application/problem+json:
+                type: ErrorResponses.409ExportInProcessError
+                example: !include Examples/HttpErrors/409ExportInProcessErrorExample.raml
+      /file-content:
+        securedBy:
+        - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.inventory.impex-inventory] }
+        - CommerceCloudStandards.BearerToken: { scopes: [sfcc.inventory.impex-inventory, sfcc_inventory_impex_inventory] }
+        - ApiStandards.GDoT: { scopes: [sfcc.inventory.impex-inventory, sfcc_inventory_impex_inventory] }
+
+        get:
+          description: Download the generated inventory availability export file. The current limit of requests for this endpoint for each tenant, is of 40 requests per second.
+          displayName: downloadAvailabilityExportFile
+          is:
+            - AuthorizedEndpoint
+            - ApiStandards.RateLimited4:
+                responseStatus: 200
+                responseStatus2: 404
+                responseStatus3: 409
+                responseStatus4: 410
+          responses:
+            200:
+              description: Successfully downloaded the file.
+              body:
+                application/json:
+                  type: ExportLibrary.ExportGroupDownloadRequestResponse200
+                application/text:
+                  type: ExportLibrary.ExportLocationDownloadRequestResponse200
+            404:
+              description: Entity not found.
+              body:
+                application/problem+json:
+                  type: ErrorResponses.404EntityNotFoundError
+                  example: !include Examples/HttpErrors/404EntityNotFoundErrorExample.raml
+            409:
+              description: Export in progress.
+              body:
+                application/problem+json:
+                  type: ErrorResponses.409ExportInProcessError
+                  example: !include Examples/HttpErrors/409ExportInProcessErrorExample.raml
+            410:
+              description: The download link is no longer available at the server.
+              body:
+                application/problem+json:
+                  type: ErrorResponses.410ExpiredResultLinkError
+                  example: !include Examples/HttpErrors/410ExpiredResultLinkErrorExample.raml
+      /status:
+        securedBy:
+        - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.inventory.impex-inventory] }
+        - CommerceCloudStandards.BearerToken: { scopes: [sfcc.inventory.impex-inventory, sfcc_inventory_impex_inventory] }
+        - ApiStandards.GDoT: { scopes: [sfcc.inventory.impex-inventory, sfcc_inventory_impex_inventory] }
+        
+        get:
+          description: Retrieve status information for a single export ID. The current limit of requests for this endpoint for each tenant, is of 120 requests per second.
+          displayName: retrieveGroupExportStatus
+          is:
+            - AuthorizedEndpoint
+            - ApiStandards.RateLimited2:
+                responseStatus: 200
+                responseStatus2: 404
+          queryParameters:
+            exportId: 
+              type: string
+              description: Export ID whose status you want to check.
+          responses:
+            200:
+              description: Successfully retrieved export status.
+              body:
+                application/json:
+                  type: ExportLibrary.ExportGroupStatusResponse200
+            404:
+              description: Entity not found.
+              body:
+                application/problem+json:
+                  type: ErrorResponses.404EntityNotFoundError
+                  example: !include Examples/HttpErrors/404EntityNotFoundErrorExample.raml
+  /event-log/exports:
+    securedBy:
+      - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.inventory.impex-inventory.rw] }
+      - CommerceCloudStandards.BearerToken: { scopes: [sfcc.inventory.impex-inventory.rw, sfcc_inventory_impex_inventory_rw] }
+      - ApiStandards.GDoT: { scopes: [sfcc.inventory.impex-inventory.rw, sfcc_inventory_impex_inventory_rw] }
+    post:
+      description: Submit events activity export.
+      displayName: submitEventsActivityExport
+      is:
+        - AuthorizedEndpoint
+        - ApiStandards.RateLimited2:
+            responseStatus: 200
+            responseStatus2: 400
+      body:
+        application/json:
+          type: EventLogLibrary.InitiateEventActivityExportRequestBody
+      responses:
+        200:
+          description: Successfully submitted export.
+          body:
+            type: EventLogLibrary.InitiateEventLogExportResponse200
+        400:
+          description: Invalid request.
+          body:
+            application/problem+json:
+              type: ErrorResponses.400InvalidRequestParameterError
+              example: !include Examples/HttpErrors/400InvalidRequestParameterErrorEventsExportExample.raml
+    /{exportId}/status:
+      securedBy:
+      - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.inventory.impex-inventory] }
+      - CommerceCloudStandards.BearerToken: { scopes: [sfcc.inventory.impex-inventory, sfcc_inventory_impex_inventory] }
+      - ApiStandards.GDoT: { scopes: [sfcc.inventory.impex-inventory, sfcc_inventory_impex_inventory] }
+      
+      get:
+        description: Retrieve status information for a single export ID. The current limit of requests for this endpoint for each tenant, is of 120 requests per second.
+        displayName: retrieveEventLogExportStatus
+        is:
+          - AuthorizedEndpoint
+          - ApiStandards.RateLimited2:
+              responseStatus: 200
+              responseStatus2: 404
+        queryParameters:
+          exportId: 
+            type: string
+            description: Export ID whose status you want to check.
+        responses:
+          200:
+            description: Successfully retrieved export status.
+            body:
+              application/json:
+                type: EventLogLibrary.ExportEventLogStatusResponse200
+          404:
+            description: Entity not found.
+            body:
+              application/problem+json:
+                type: ErrorResponses.404EntityNotFoundError
+                example: !include Examples/HttpErrors/404EntityNotFoundErrorExample.raml
+    /{exportId}/file-content:
+      securedBy:
+        - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.inventory.impex-inventory] }
+        - CommerceCloudStandards.BearerToken: { scopes: [sfcc.inventory.impex-inventory, sfcc_inventory_impex_inventory] }
+        - ApiStandards.GDoT: { scopes: [sfcc.inventory.impex-inventory, sfcc_inventory_impex_inventory] }
+      get:
+          description: Download the generated events activity export file.
+          displayName: downloadEventsActivityExportFile
+          is:
+            - AuthorizedEndpoint
+            - ApiStandards.RateLimited4:
+                responseStatus: 200
+                responseStatus2: 404
+                responseStatus3: 409
+                responseStatus4: 410
+          responses:
+            200:
+              description: Successfully downloaded the file.
+              body:
+                application/json:
+                  !include types/EventLog/EventLogExportDownloadFileRaw.raml
+            404:
+              description: The event activity export ID does not exist.
+              body:
+                 application/problem+json:
+                  type: ErrorResponses.404EntityNotFoundError
+                  example: !include Examples/HttpErrors/404EntityNotFoundErrorExample.raml
+            409:
+              description: Export in progress.
+              body:
+                application/problem+json:
+                  type: ErrorResponses.409ExportInProcessError
+                  example: !include Examples/HttpErrors/409ExportInProcessErrorExample.raml
+            410:
+              description: The download link is no longer available at the server.
+              body:
+                application/problem+json:
+                  type: ErrorResponses.410ExpiredResultLinkError
+                  example: !include Examples/HttpErrors/410ExpiredResultLinkErrorExample.raml

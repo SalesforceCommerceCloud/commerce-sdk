@@ -1,0 +1,133 @@
+#%RAML 1.0 Library
+types:
+  IdempotenceId: !include ../types/GlobalTypes/IdempotenceId.raml
+  ExternalRefId: !include ../types/GlobalTypes/ExternalRefId.raml
+  Place: !include ../types/GlobalTypes/Place.raml
+
+  # Added for work performed in W-7535728
+  MoveReservationBatchPostBody:
+    displayName: Move Reservations Batch Call
+    example: !include ../Examples/MoveReservationBatchPostBody.raml
+    properties:
+      records:
+        description: List of records to process in a batch update.  The maximum number of entries in the array is 100.
+        type: array
+        items: MoveReservationBodyRecords
+
+  # Added for work performed in W-7535728
+  MoveReservationBodyRecords:      
+    displayName: Location To Location Move Reservation Records
+    properties:
+      id:
+        type: IdempotenceId
+      externalRefId:
+        required: false
+        description: An external id to reference the reservation quantity move request by 
+        type: ExternalRefId
+        example: 7282822-9823-aaa
+      from:
+        description: The place from which the reservation quantity is being moved.
+        type: MoveReservationFromLocation | MoveReservationFromGroup
+      to:
+        description: The place where the reservation quantity is being moved to.
+        type: MoveReservationToLocation | MoveReservationToGroup
+      sku:
+        description: The sku associated with the reservation quantity move request
+        type: string
+        example: sku-001
+      quantity:
+        type: number
+        format: double
+        multipleOf: 0.001
+        minimum: 0.001
+        example: 2.011
+      ignoreAvailabilityCheck:
+        required: false
+        type: boolean
+        description: It specifies if the reservation should be moved even if there is no inventory at the destination.
+
+  # Added for work performed in W-7535728
+  MoveReservationFromLocation:
+    properties:
+      location:
+        type: string
+        example: warehouse5
+
+  # Added for work performed in W-7535728
+  MoveReservationToLocation:
+    properties:
+      location:
+        type: string
+        example: warehouse6
+
+  # Added for work performed in W-7535728
+  MoveReservationFromGroup:
+    properties:
+      group:
+        type: string
+        example: UnitedStates
+  
+  # Added for work performed in W-7535728
+  MoveReservationToGroup:
+    properties:
+      group:
+        type: string
+        example: Canada
+
+  # Added for work performed in W-7535728
+  MoveReservationErrorsResponse:
+    displayName: moveReservationsErrorResponse
+    example: !include ../Examples/MoveReservationErrors.raml
+    properties:
+      errors:
+        description: Errors generated during transfer/move reservation
+        type: array
+        items: MoveReservationError
+
+  MoveReservationError:
+    properties:
+      details:
+        type: MoveReservationErrorDetail
+      message:
+        type: string
+        example: "MoveError"
+      errorCode:
+        type: string
+        example: "error750"
+
+  # Added for work performed in W-7535728
+  MoveReservationErrorDetail:
+    properties:
+      id: 
+        type: string
+        example: 82251928-8863-488e-840b-2aebd10b57ba
+      externalRefId: 
+        type: string
+        example: 7282822-9823-aaa
+      from:
+        type: MoveReservationFromGroup | MoveReservationFromLocation
+      to:
+        type: MoveReservationToGroup | MoveReservationToLocation
+      sku:
+        type: string
+        example: sku-001
+      quantity:
+        type: number
+        example: 2.011
+
+  Error400GroupToGroupNotAllowed:
+    displayName: Group To Group Transfers Not Permitted
+    properties:
+      responseCode:
+        type: number
+        required: true
+        example: 400
+      description: 
+        type: string
+        example: Bad Request
+      errorCode:
+        type: string
+        example: err107
+      message:
+        type: string
+        example: Group to Group Transfers are not permitted

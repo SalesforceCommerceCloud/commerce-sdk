@@ -1,0 +1,233 @@
+#%RAML 1.0
+title: Inventory Availability
+description: !include inventory-availability-description.md
+version: v1
+mediaType: application/json
+protocols: HTTPS
+baseUri: https://{shortCode}.api.commercecloud.salesforce.com/inventory/availability/{version}
+baseUriParameters:
+  shortCode:
+    description: A region-specific merchant identifier.
+    example: 0dnz6oep
+    pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
+
+uses:
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.12/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml
+  AvailabilityByLocationAndGroupRequestTypes: libraries/AvailabilityByLocationAndGroup/AvailabilityByLocationAndGroup.raml
+  InventoryUpdateTypes: libraries/InventoryUpdates/InventoryUpdatesRequestAndResponses.raml
+  BatchInventoryUpdate: libraries/BatchInventoryUpdate/BatchInventoryUpdate.raml
+  GetAvailabilityDeltas : libraries/GetAvailabilityDeltas/GetAvailabilityDeltas.raml
+  ErrorTypes: libraries/ExceptionResponses/ErrorCodeTypesEnum.raml
+  PlaceType: libraries/PlaceType/PlaceType.raml
+
+
+securedBy: 
+  - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.inventory.availability] }
+  - CommerceCloudStandards.BearerToken: { scopes: [sfcc.inventory.availability, sfcc_inventory_availability] }
+  - ApiStandards.GDoT: { scopes: [sfcc.inventory.availability, sfcc_inventory_availability] }
+
+types:
+  DeltaTokenOld: !include types/DeltaToken.raml
+  LocationId: !include types/LocationId.raml
+  GroupId: !include types/GroupId.raml
+  4xxError: !include types/HttpErrors/IasError.raml
+
+traits:
+  generic4XXResponseErrorCode: !include traits/GenericResponseErrorCode.raml
+
+/organizations/{organizationId}:
+  type: CommerceCloudStandards.Organization
+  /availability-records/actions:
+    description: Use this collection of endpoints to perform various actions within the system.
+    /batch-update:
+      securedBy: 
+        - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.inventory.availability.rw] }
+        - CommerceCloudStandards.BearerToken: { scopes: [sfcc.inventory.availability.rw, sfcc_inventory_availability_rw] }
+        - ApiStandards.GDoT: { scopes: [sfcc.inventory.availability.rw, sfcc_inventory_availability_rw] }
+      post:
+        displayName: batchInventoryUpdate
+        description: Update a batch of inventory items with one call.
+        is:
+          - ApiStandards.RateLimited3:
+              responseStatus: 200
+              responseStatus2: 204
+              responseStatus3: 400
+        body:
+          type: BatchInventoryUpdate.BatchInventoryUpdateRequest
+        responses:
+          200:
+            description: Batch inventory update succeeded with errors.
+            body:
+              type: BatchInventoryUpdate.BatchInventoryUpdateErrors
+          204:
+            description: Batch inventory update successful.
+          400:
+            description: Invalid request. 
+            body:
+              application/problem+json:
+                type: !include types/HttpErrors/4xxInvalidRequestParameterOrLocationDoesNotExist.raml
+                example: !include Examples/400ErrorExample.raml
+          403:
+            description: Organization not authorized.
+            body: 
+              application/problem+json:
+                type: 4xxError
+            
+                example: !include Examples/403ErrorExample.raml
+    /get-deltas:
+      post:   
+        description : Retrieve changes that have occurred since a given delta token. An initial delta token is obtained from an export call; subsequent delta tokens are returned from this call.
+        displayName : getAvailabilityDeltas
+        is:
+          - ApiStandards.RateLimited3:
+              responseStatus: 200
+              responseStatus2: 400
+              responseStatus3: 410
+        body:
+          application/json:
+            type: GetAvailabilityDeltas.GetAvailabilityDeltasPostBody
+        responses:
+          200:
+            description: Changes are returned in the body (along with a new delta token to use for the next call).
+            body:
+              type: GetAvailabilityDeltas.GetAvailabilityDeltasResponse200
+          400:
+            description: Invalid request.
+            body:
+              application/problem+json:
+                type: !include types/HttpErrors/4xxInvalidRequestParameterOrExpiredDeltaLink.raml
+                example: !include Examples/400ErrorExpiredDeltaLink.raml
+          403:
+            description: Organization not authorized.
+            body: 
+              application/problem+json:
+                type: 4xxError
+            
+                example: !include Examples/403ErrorExample.raml
+          410:
+            description: Delta token link expired.
+            body:
+              application/problem+json:
+                type: !include types/HttpErrors/410ExpiredLink.raml
+                example: !include Examples/410ErrorExample.raml
+    /get-availability:
+      post:
+        description: Get SKU availability by location, by group, or by both.
+        displayName: skuAvailabilityByLocationAndOrGroup
+        is:
+          - ApiStandards.RateLimited2:
+              responseStatus: 200
+              responseStatus2: 400
+        body:
+          application/json:
+            type: AvailabilityByLocationAndGroupRequestTypes.InventoryAvailabilityRequestBody
+            examples: 
+              GetAllLocations: 
+                !include Examples/GetATSAllLocations.raml
+              GetAllUnAssignedLocations:
+                !include Examples/GetATSAllUnassignedLocations.raml
+              GetLocationsAndGroups:
+                !include Examples/GetATSLocationsAndGroups.raml
+        responses:
+          200:
+            description: Successful request for item availability information.
+            body:
+              type: AvailabilityByLocationAndGroupRequestTypes.Response200
+              examples:
+                GetLocationsAndGroupsResponse: !include Examples/GetAllLocationsAndGroupsResponse.raml
+                GetAllLocationsResponse: !include /Examples/GetAllLocationsResponse.raml
+                GetAllUnAssignedLocationsResponse: !include /Examples/GetAllUnassignedLocationsResponse.raml
+          400:
+            description: Invalid request.
+            body:
+              application/problem+json:
+                type: !include types/HttpErrors/4xxInvalidRequestParameterOrLocOrGroupDoesNotExist.raml
+                example: !include Examples/400ErrorInvalidLocation.raml
+          403:
+            description: Organization not authorized.
+            body: 
+              application/problem+json:
+                type: 4xxError
+            
+                example: !include Examples/403ErrorExample.raml
+  /locations/{locationId}/availability-records/skus/{sku}/{requestId}:
+    securedBy: 
+      - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.inventory.availability.rw] }
+      - CommerceCloudStandards.BearerToken: { scopes: [sfcc.inventory.availability.rw, sfcc_inventory_availability_rw] }
+      - ApiStandards.GDoT: { scopes: [sfcc.inventory.availability.rw, sfcc_inventory_availability_rw] }
+    uriParameters:
+      sku:
+        description: The SKU associated with the inventory record you want to update.
+      locationId:
+        description: The location for the SKU being updated.
+      requestId: 
+        description: The unique request ID associated with the attempt to update an item in inventory.
+    put:
+      displayName: replaceSkuLocation
+      description: 
+        API call that is used to update or create the data and quantity information for an item.
+        In the PUT call for updating, it replaces all fields of data.
+        Any fields that are not included, then the data that currently exists gets deleted.  Everything is defaulted to 0 (Zero) if the field is not included.
+      is:
+        - ApiStandards.RateLimited3:
+            responseStatus: 204
+            responseStatus2: 400
+            responseStatus3: 404
+      body:
+        type: InventoryUpdateTypes.InventoryUpdateRequestBodyPut
+      responses:
+        204:
+          description: Update was successful.
+        400:
+          description: Invalid request.
+          body:
+            application/problem+json:
+                type: !include types/HttpErrors/4xxInvalidRequestParameterLocDoesNotExistEntityAlreadyExistsOrEntityNotFound.raml
+                example: !include Examples/400ErrorEntityNotFound.raml
+        403:
+          description: Organization not authorized.
+          body: 
+            application/problem+json:
+              type: 4xxError
+              example: !include Examples/403ErrorExample.raml
+        404:
+          description: Entity not found.
+          body:
+            application/problem+json:
+              type: !include types/HttpErrors/404EntityNotFound.raml
+              example: !include Examples/404ErrorExample.raml
+    patch:
+      displayName: updateSkuLocation
+      description:
+        Update or patch the data or quantity information for an item.
+        On a PATCH call, most fields are optional, and only fields that are included are updated with the provided values.
+      is:
+        - ApiStandards.RateLimited3:
+            responseStatus: 204
+            responseStatus2: 400
+            responseStatus3: 404
+      body:
+        type: InventoryUpdateTypes.InventoryUpdateRequestBodyPatch
+      responses:
+        204:
+          description: Adjustment was successful.
+        400:
+          description: Invalid request.
+          body:
+            application/problem+json:
+                type: !include types/HttpErrors/4xxInvalidRequestParameterLocDoesNotExistOrEntityNotFound.raml
+                example: !include Examples/400ErrorEntityNotFound.raml
+        403:
+          description: Organization not authorized.
+          body: 
+            application/problem+json:
+              type: 4xxError
+          
+              example: !include Examples/403ErrorExample.raml
+        404:
+          description: Entity not found.
+          body:
+            application/problem+json:
+              type: !include types/HttpErrors/404EntityNotFound.raml
+              example: !include Examples/404ErrorExample.raml

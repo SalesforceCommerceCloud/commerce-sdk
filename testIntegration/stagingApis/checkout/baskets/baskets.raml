@@ -1,0 +1,386 @@
+#%RAML 1.0
+#In C4E review
+title: Baskets
+description: |-
+   Provides access to the Headless Commerce APIs for basket management related functionality.
+version: v1
+protocols: HTTPS
+mediaType: application/json
+baseUri: https://{shortCode}.api.commercecloud.salesforce.com/checkout/baskets/{version}
+baseUriParameters:
+  shortCode:
+    description: |-
+      Region-specific merchant identifier.
+    example: fd4gt8
+
+uses:
+  StatusCodes: status-codes.raml
+  DataTypes: data-types.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.18/commerce-cloud-standards.raml 
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.13/api-standards.raml
+
+types:
+'/organizations/{organizationId}':
+  type: CommerceCloudStandards.Organization
+  '/baskets':
+    type: CommerceCloudStandards.Organization
+    '/{basketId}':
+      type: CommerceCloudStandards.Organization
+      uriParameters:
+        basketId:
+          description: |-
+            The basket identifier.
+          minLength: 1
+          type: string
+          example: "bczFTaOjgEqUkaaadkvHwbgrP5"
+      get:
+        description: |-
+          Returns the details of the specified basket.
+        is:
+          - StatusCodes.OK-Basket
+          - StatusCodes.BasketNotFound
+          - StatusCodes.SiteNotFound
+          - CommerceCloudStandards.SiteSpecific
+          - ApiStandards.RateLimited:
+              responseStatus: 200
+          - ApiStandards.RateLimited:
+              responseStatus: 404
+        displayName: getBasket
+        securedBy:
+          - CommerceCloudStandards.TsobToken : { scopes: [ "sfcc.baskets", "sfcc.baskets.rw" ] } 
+      delete:
+        description: |-
+          Deletes the specified basket.
+        is:
+          - StatusCodes.NoContent
+          - StatusCodes.BasketNotFound
+          - StatusCodes.SiteNotFound
+          - CommerceCloudStandards.SiteSpecific
+          - ApiStandards.RateLimited:
+              responseStatus: 204
+          - ApiStandards.RateLimited:
+              responseStatus: 404
+        displayName: deleteBasket
+        securedBy:
+          - CommerceCloudStandards.TsobToken: { scopes: [ "sfcc.baskets.rw" ] }
+      '/price-adjustments':
+        type: CommerceCloudStandards.Organization
+        post:
+          description: |-
+            Creates an order-level price adjustment to apply to the basket.
+          is:
+            - StatusCodes.CreatedNoContent
+            - StatusCodes.BasketNotFound
+            - StatusCodes.SiteNotFound
+            - CommerceCloudStandards.SiteSpecific
+            - ApiStandards.RateLimited:
+                responseStatus: 201
+            - ApiStandards.RateLimited:
+                responseStatus: 404
+          displayName: addPriceAdjustmentToBasket
+          body:
+            type: DataTypes.PriceAdjustmentCreateRequest
+            examples:
+              OrderLevelPriceAdjustmentCreateRequest: !include examples/order-level-price-adjustment-create-request.raml
+          securedBy:
+            - CommerceCloudStandards.TsobToken: { scopes: [ "sfcc.baskets.rw" ] }
+        get:
+          description: |-
+            Returns all order-level price adjustments applied to the basket.
+          is:
+            - StatusCodes.OK-PriceAdjustments
+            - StatusCodes.BasketNotFound
+            - StatusCodes.SiteNotFound
+            - CommerceCloudStandards.SiteSpecific
+            - ApiStandards.RateLimited:
+                responseStatus: 200
+            - ApiStandards.RateLimited:
+                responseStatus: 404
+          displayName: getPriceAdjustmentsForBasket
+          securedBy:
+            - CommerceCloudStandards.TsobToken: { scopes: [ "sfcc.baskets", "sfcc.baskets.rw" ] }
+        '/{priceAdjustmentId}':
+          type: CommerceCloudStandards.Organization
+          uriParameters:
+            priceAdjustmentId:
+              description: |-
+                The price adjustment identifier.
+              minLength: 1
+              type: string
+              example: "bczFTaOjgEqUkaaadkvHwbgrP5"
+          get:
+            description: |-
+              Returns the details of the order-level price adjustment applied to the basket.
+            is:
+              - StatusCodes.OK-PriceAdjustment
+              - StatusCodes.PriceAdjustmentNotFound
+              - StatusCodes.BasketNotFound
+              - StatusCodes.SiteNotFound
+              - CommerceCloudStandards.SiteSpecific
+              - ApiStandards.RateLimited:
+                  responseStatus: 200
+              - ApiStandards.RateLimited:
+                  responseStatus: 404
+            displayName: getPriceAdjustmentForBasket
+            securedBy:
+              - CommerceCloudStandards.TsobToken: { scopes: [ "sfcc.baskets", "sfcc.baskets.rw" ] }
+          patch:
+            description: |-
+              Updates the specified order-level price adjustment.
+            is:
+              - StatusCodes.NoContent
+              - StatusCodes.BasketNotFound
+              - StatusCodes.PriceAdjustmentNotFound
+              - StatusCodes.SiteNotFound
+              - CommerceCloudStandards.SiteSpecific
+              - ApiStandards.RateLimited:
+                  responseStatus: 204
+              - ApiStandards.RateLimited:
+                  responseStatus: 404
+            displayName: updatePriceAdjustmentInBasket
+            body:
+              type: DataTypes.PriceAdjustmentRequest
+              examples:
+                OrderPriceAdjustmentPatchRequest: !include examples/order-level-price-adjustment-patch-request.raml
+            securedBy:
+              - CommerceCloudStandards.TsobToken: { scopes: [ "sfcc.baskets.rw" ] }
+          delete:
+            description: |-
+              Deletes the specified order-level price adjustment.
+            is:
+              - StatusCodes.NoContent
+              - StatusCodes.BasketNotFound
+              - StatusCodes.PriceAdjustmentNotFound
+              - StatusCodes.SiteNotFound
+              - CommerceCloudStandards.SiteSpecific
+              - ApiStandards.RateLimited:
+                  responseStatus: 204
+              - ApiStandards.RateLimited:
+                  responseStatus: 404
+            displayName: removePriceAdjustmentFromBasket
+            securedBy:
+              - CommerceCloudStandards.TsobToken: { scopes: [ "sfcc.baskets.rw" ] }
+      '/product-items':
+        '/{productItemId}':
+          uriParameters:
+            productItemId:
+              description: |-
+                The product item identifier.
+              minLength: 1
+              type: string
+              example: "db69d9efa1a270ab5cedf67bf8"
+          '/price-adjustments':
+            type: CommerceCloudStandards.Organization
+            post:
+              description: |-
+                Creates a price adjustment to apply to the product item.
+              is:
+                - StatusCodes.CreatedNoContent
+                - StatusCodes.BasketNotFound
+                - StatusCodes.ProductItemNotFound
+                - StatusCodes.SiteNotFound
+                - CommerceCloudStandards.SiteSpecific
+                - ApiStandards.RateLimited:
+                    responseStatus: 201
+                - ApiStandards.RateLimited:
+                    responseStatus: 404
+              displayName: addPriceAdjustmentToProductItem
+              body:
+                type: DataTypes.ProductPriceAdjustmentCreateRequest
+                examples:
+                  ProductPriceAdjustmentCreateRequest: !include examples/product-level-price-adjustment-create-request.raml
+                  ProductPriceAdjustmentWithEligibleProductsCreateRequest: !include examples/product-level-price-adjustment-create-request-with-eligible-products.raml
+              securedBy:
+                - CommerceCloudStandards.TsobToken: { scopes: [ "sfcc.baskets.rw" ] }
+            get:
+              description: |-
+                Returns all price adjustments applied to the product item.
+              is:
+                - StatusCodes.OK-ProductPriceAdjustments
+                - StatusCodes.BasketNotFound
+                - StatusCodes.ProductItemNotFound
+                - StatusCodes.SiteNotFound
+                - CommerceCloudStandards.SiteSpecific
+                - ApiStandards.RateLimited:
+                    responseStatus: 200
+                - ApiStandards.RateLimited:
+                    responseStatus: 404
+              displayName: getPriceAdjustmentsForProductItem
+              securedBy:
+                - CommerceCloudStandards.TsobToken: { scopes: [ "sfcc.baskets", "sfcc.baskets.rw" ] }
+            '/{priceAdjustmentId}':
+              type: CommerceCloudStandards.Organization
+              uriParameters:
+                priceAdjustmentId:
+                  description: |-
+                    The price adjustment identifier.
+                  minLength: 1
+                  type: string
+                  example: "bczFTaOjgEqUkaaadkvHwbgrP5"
+              get:
+                description: |-
+                  Returns the details of the price adjustment applied to the product item.
+                is:
+                  - StatusCodes.OK-ProductPriceAdjustment
+                  - StatusCodes.PriceAdjustmentNotFound
+                  - StatusCodes.ProductItemNotFound
+                  - StatusCodes.BasketNotFound
+                  - StatusCodes.SiteNotFound
+                  - CommerceCloudStandards.SiteSpecific
+                  - ApiStandards.RateLimited:
+                      responseStatus: 200
+                  - ApiStandards.RateLimited:
+                      responseStatus: 404
+                displayName: getPriceAdjustmentForProductItem
+                securedBy:
+                  - CommerceCloudStandards.TsobToken: { scopes: [ "sfcc.baskets", "sfcc.baskets.rw" ] }
+              patch:
+                description: |-
+                  Updates the specified product price adjustment.
+                is:
+                  - StatusCodes.NoContent
+                  - StatusCodes.BasketNotFound
+                  - StatusCodes.PriceAdjustmentNotFound
+                  - StatusCodes.ProductItemNotFound
+                  - StatusCodes.SiteNotFound
+                  - CommerceCloudStandards.SiteSpecific
+                  - ApiStandards.RateLimited:
+                      responseStatus: 204
+                  - ApiStandards.RateLimited:
+                      responseStatus: 404
+                displayName: updatePriceAdjustmentInProductItem
+                body:
+                  type: DataTypes.ProductPriceAdjustmentRequest
+                  examples:
+                    ProductPriceAdjustmentPatchRequest: !include examples/product-level-price-adjustment-patch-request.raml
+                    ProductPriceAdjustmentWithEligibleProductsPatchRequest: !include examples/product-level-price-adjustment-patch-request-with-eligible-products.raml
+                securedBy:
+                  - CommerceCloudStandards.TsobToken: { scopes: [ "sfcc.baskets.rw" ] }
+              delete:
+                description: |-
+                  Deletes the specified product price adjustment.
+                is:
+                  - StatusCodes.NoContent
+                  - StatusCodes.BasketNotFound
+                  - StatusCodes.PriceAdjustmentNotFound
+                  - StatusCodes.ProductItemNotFound
+                  - StatusCodes.SiteNotFound
+                  - CommerceCloudStandards.SiteSpecific
+                  - ApiStandards.RateLimited:
+                      responseStatus: 204
+                  - ApiStandards.RateLimited:
+                      responseStatus: 404
+                displayName: removePriceAdjustmentFromProductItem
+                securedBy:
+                  - CommerceCloudStandards.TsobToken: { scopes: [ "sfcc.baskets.rw" ] }
+      '/shipping-items':
+        '/{shippingItemId}':
+          uriParameters:
+            shippingItemId:
+              description: |-
+                The shipping item identifier.
+              minLength: 1
+              type: string
+              example: "4dee2a89e8779be591663138b0"
+          '/price-adjustments':
+            type: CommerceCloudStandards.Organization
+            post:
+              description: |-
+                Creates a price adjustment to apply to the shipping item.
+              is:
+                - StatusCodes.CreatedNoContent
+                - StatusCodes.BasketNotFound
+                - StatusCodes.ShippingItemNotFound
+                - StatusCodes.SiteNotFound
+                - CommerceCloudStandards.SiteSpecific
+                - ApiStandards.RateLimited:
+                    responseStatus: 201
+                - ApiStandards.RateLimited:
+                    responseStatus: 404
+              displayName: addPriceAdjustmentToShippingItem
+              body:
+                type: DataTypes.PriceAdjustmentCreateRequest
+                examples:
+                  DataTypes.PriceAdjustmentCreateRequest: !include examples/shipping-level-price-adjustment-create-request.raml
+              securedBy:
+                - CommerceCloudStandards.TsobToken: { scopes: [ "sfcc.baskets.rw" ] }
+            get:
+              description: |-
+                Returns all price adjustments applied to the shipping item.
+              is:
+                - StatusCodes.OK-PriceAdjustments
+                - StatusCodes.BasketNotFound
+                - StatusCodes.ShippingItemNotFound
+                - StatusCodes.SiteNotFound
+                - CommerceCloudStandards.SiteSpecific
+                - ApiStandards.RateLimited:
+                    responseStatus: 200
+                - ApiStandards.RateLimited:
+                    responseStatus: 404
+              displayName: getPriceAdjustmentsForShippingItem
+              securedBy:
+                - CommerceCloudStandards.TsobToken: { scopes: [ "sfcc.baskets", "sfcc.baskets.rw" ] }
+            '/{priceAdjustmentId}':
+              type: CommerceCloudStandards.Organization
+              uriParameters:
+                priceAdjustmentId:
+                  description: |-
+                    The price adjustment identifier.
+                  minLength: 1
+                  type: string
+                  example: "bczFTaOjgEqUkaaadkvHwbgrP5"
+              get:
+                description: |-
+                  Returns the details of the price adjustment applied to the shipping item.
+                is:
+                  - StatusCodes.OK-PriceAdjustment
+                  - StatusCodes.PriceAdjustmentNotFound
+                  - StatusCodes.ShippingItemNotFound
+                  - StatusCodes.BasketNotFound
+                  - StatusCodes.SiteNotFound
+                  - CommerceCloudStandards.SiteSpecific
+                  - ApiStandards.RateLimited:
+                      responseStatus: 200
+                  - ApiStandards.RateLimited:
+                      responseStatus: 404
+                displayName: getPriceAdjustmentForShippingItem
+                securedBy:
+                  - CommerceCloudStandards.TsobToken: { scopes: [ "sfcc.baskets", "sfcc.baskets.rw" ] }
+              patch:
+                description: |-
+                  Updates the specified shipping price adjustment.
+                is:
+                  - StatusCodes.NoContent
+                  - StatusCodes.BasketNotFound
+                  - StatusCodes.PriceAdjustmentNotFound
+                  - StatusCodes.ShippingItemNotFound
+                  - StatusCodes.SiteNotFound
+                  - CommerceCloudStandards.SiteSpecific
+                  - ApiStandards.RateLimited:
+                      responseStatus: 204
+                  - ApiStandards.RateLimited:
+                      responseStatus: 404
+                displayName: updatePriceAdjustmentInProductItem
+                body:
+                  type: DataTypes.PriceAdjustmentRequest
+                  examples:
+                    ShippingPriceAdjustmentPatchRequest: !include examples/shipping-level-price-adjustment-patch-request.raml
+                securedBy:
+                  - CommerceCloudStandards.TsobToken: { scopes: [ "sfcc.baskets.rw" ] }
+              delete:
+                description: |-
+                  Deletes the specified shipping price adjustment.
+                is:
+                  - StatusCodes.NoContent
+                  - StatusCodes.BasketNotFound
+                  - StatusCodes.PriceAdjustmentNotFound
+                  - StatusCodes.ShippingItemNotFound
+                  - StatusCodes.SiteNotFound
+                  - CommerceCloudStandards.SiteSpecific
+                  - ApiStandards.RateLimited:
+                      responseStatus: 204
+                  - ApiStandards.RateLimited:
+                      responseStatus: 404
+                displayName: removePriceAdjustmentFromShippingItem
+                securedBy:
+                  - CommerceCloudStandards.TsobToken: { scopes: [ "sfcc.baskets.rw" ] }

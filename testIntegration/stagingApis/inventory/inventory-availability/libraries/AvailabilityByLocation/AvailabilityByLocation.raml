@@ -1,0 +1,24 @@
+#%RAML 1.0 Library
+types:
+  Record: !include ../../types/Record.raml
+  SkuId: !include ../../types/SkuId.raml
+  LocationId: !include ../../types/LocationId.raml
+  
+  InventoryAvailabilityRequestBody:
+    description: The body that is sent requesting the item availability by location
+    properties:
+      skus:
+        type: array
+        items:
+          type: SkuId
+      locations:
+        type: array
+        items:
+          type: LocationId
+  Response200:
+    description: Successful request for item information
+    properties:
+      locations: 
+        type: array
+        items:
+          type: !include ../../types/ItemLocationInfo.raml

@@ -2,7 +2,16 @@
 title: CDN Zones
 
 version: v1
-description: !include cdnzones-description.md
+
+# description: Provides access to Commerce Cloud Digital CDN-related functionality.
+description: !include cdn-zones-description.md
+
+documentation:
+  - title: Use Cases
+    content: !include use-cases.md
+  - title: Glossary
+    content: !include glossary.md
+
 protocols: HTTPS
 baseUri: https://{shortCode}.api.commercecloud.salesforce.com/cdn/zones/{version}
 baseUriParameters:
@@ -28,7 +37,6 @@ types:
   SpeedSetting: !include dataTypes/SpeedSetting.raml
   Certificate: !include dataTypes/Certificate.raml
   CertificateRequest: !include dataTypes/CertificateRequest.raml
-  WorkerUpdateRequest: !include dataTypes/WorkerUpdateRequest.raml
 
   ZonesEnvelope:
     type: CollectionResponseEnvelope
@@ -367,21 +375,7 @@ traits:
       securedBy: 
         - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
         - CommerceCloudStandards.AmOAuth2
-  /zones/{zoneId}/workers:  
-    patch:
-      is: [hasBadRequestResponse, hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse]
-      displayName: workerUpdate
-      description: Updates the worker for the zone to the specified version
-      body:
-        application/json:
-          type: WorkerUpdateRequest
-          examples: !include /examples/zone/worker-update-request.raml
-      responses:
-        204:
-          description: Successfully updated the worker with the specified version.
-      securedBy:
-         - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
-         - CommerceCloudStandards.AmOAuth2
+
 
         
     

@@ -55,7 +55,9 @@ async function getGuestUserAuthToken(): Promise<Customer.ShopperLogin.TokenRespo
  * @param refreshToken - Valid refresh token
  * @returns New token with updated expiry time
  */
-async function getNewTokenUsingRefreshToken(refreshToken: string): Promise<Customer.ShopperLogin.TokenResponse> {
+async function getNewTokenUsingRefreshToken(
+  refreshToken: string
+): Promise<Customer.ShopperLogin.TokenResponse> {
   const credentials = `${CLIENT_ID}:${CLIENT_SECRET}`;
   const base64data = Buffer.from(credentials).toString("base64");
   const headers = { Authorization: `Basic ${base64data}` };
@@ -66,7 +68,7 @@ async function getNewTokenUsingRefreshToken(refreshToken: string): Promise<Custo
     body: {
       grant_type: "refresh_token",
       refresh_token: refreshToken,
-    }
+    },
   });
 
   return response;
@@ -75,7 +77,7 @@ async function getNewTokenUsingRefreshToken(refreshToken: string): Promise<Custo
 /**
  * Get auth token and then use it to get a refresh token
  */
- getGuestUserAuthToken()
+getGuestUserAuthToken()
   .then((authToken) => {
     console.log(`Authorization Token: ${authToken.access_token}`);
     console.log(`Token expires in ${authToken.expires_in} seconds`);

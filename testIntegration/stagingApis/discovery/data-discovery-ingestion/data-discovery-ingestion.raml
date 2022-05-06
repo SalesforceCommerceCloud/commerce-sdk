@@ -1,0 +1,155 @@
+#%RAML 1.0
+version: v2
+title: Data Discovery Ingestion
+
+uses:
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.12/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml
+  DiscoveryStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/discovery-standards/0.0.28/discovery-standards.raml
+  IngestionLibrary: discovery-ingestion-library.raml
+  IngestionJob: ingestion-job.raml
+  DataTransferRecord: data-transfer-record.raml
+  ErrorTypes: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/discovery-standards/0.0.28/Errors/discovery-error-types.raml
+  RamlToJaxrs: ramltojaxrs.raml
+
+mediaType: application/json
+protocols: [HTTPS]
+baseUri: https://{shortCode}.api.commercecloud.salesforce.com/discovery/ingestion/{version}
+baseUriParameters:
+  shortCode:
+    description: A region-specific merchant identifier.
+    pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
+    example: 0dnz6oep
+  version: DiscoveryStandards.Version
+
+description: These APIs are responsible for uploading the catalog files by creating a Data Transfer Record and then ingesting them using the Ingestion Job endpoints. Once the ingestion process is over, it provides the Data Set the ability to consume the data on which the query operation can be performed.
+
+(RamlToJaxrs.resources):
+  plugins:
+    - name: ramltojaxrs.displayName
+(RamlToJaxrs.responses):
+  plugins:
+    - name: ramltojaxrs.displayName
+(RamlToJaxrs.responseClasses):
+  plugins:
+    - name: ramltojaxrs.displayName
+(RamlToJaxrs.methods):
+  plugins:
+    - name: ramltojaxrs.displayName
+(RamlToJaxrs.types):
+  plugins:
+    - name: ramltojaxrs.chainSetter
+
+/organizations/{organizationId}/data-sets/{dataSetId}:
+    type: CommerceCloudStandards.Organization
+    uriParameters:
+      dataSetId: DiscoveryStandards.DataSetId
+    is:
+      - DiscoveryStandards.Traceable
+      - DiscoveryStandards.TenantTier
+    patch:
+      description: Ingest the data associated with the Data Transfer Record IDs to provide the ability to the Data Set to consume it for querying. This is a prerequisite step before using the query endpoint.
+      displayName: updateDataSet
+      is:
+        - DiscoveryStandards.ResourceCommonErrors
+      body:
+        type: IngestionJob.IngestionInput
+      responses:
+        202:
+          description: Data Transfer Record details are accepted for the ingestion process and use the link in the headers to track the progress of the ingenstion job process.
+          headers:
+            Location:
+              type: string
+              description: The location to track the ingestion progress.
+              example: https://0dnz6oep.api.commercecloud.salesforce.com/discovery/ingestion/v2/organizations/org-id/data-sets/a607ab82-5f3d-11ea-bc55-0242ac130003/ingestion-jobs/cb95f974-5f3f-11ea-bc55-0242ac130003
+          body:
+            type: IngestionJob.IngestionOutput
+       
+    /data-transfer-records:
+      type: CommerceCloudStandards.Organization
+      is:
+        - DiscoveryStandards.Traceable
+        - DiscoveryStandards.CommonErrors
+        - DiscoveryStandards.TenantTier
+      post:
+        description: Catalog files are not uploaded directly into the platform. The process is initiated by creating a Data Transfer Record, which provides a URL where the file has to be uploaded to be used by the platform. This endpoint creates a Data Transfer Record which contains the information about a catalog and a location with some header information in the response.
+        displayName: createDataTransferRecord
+        is:
+          - ApiStandards.SyncCreated:
+              responseType: DataTransferRecord.DataTransferRecordCreationOutput
+              resourcePath: https://0dnz6oep.api.commercecloud.salesforce.com/discovery/management/v2/organizations/org-id/data-transfer-records
+        body:
+          type: DataTransferRecord.DataTransferRecordCreationInput
+      get:
+        description: To retrieve all the created Data Transfer Records associated with a Data Set based on optional custom filters. The Data Transfer Records received will be sorted based on the earliest creation time.
+        displayName: getDataTransferRecords
+        is:
+          - DiscoveryStandards.Filterable
+          - ApiStandards.OffsetPaginated:
+              maxLimit: 50
+              defaultSize: 10
+        responses:
+          200:
+            description: Returned all the Data Transfer Records associated with a Data Set ordered based on the earliest creation time.
+            body:
+              type: DataTransferRecord.DataTransferRecordsBulkResponse
+      
+    /data-transfer-records/{dataTransferRecordId}:
+      type: CommerceCloudStandards.Organization
+      uriParameters:
+        dataTransferRecordId: IngestionLibrary.DataTransferRecordId
+      is:
+        - DiscoveryStandards.Traceable
+        - DiscoveryStandards.CommonErrors   
+        - DiscoveryStandards.TenantTier
+      get:
+        description: Returns the Data Transfer Record identified by its ID associated with a particular Data Set. Can be used for tracking the progress of the upload and validation process of your file.
+        displayName: getDataTransferRecord
+        responses:
+          200:
+            description: Successfully returned details about the Data Transfer Record.
+            body:
+              type: DataTransferRecord.DataTransferRecord
+
+    /ingestion-jobs:
+      type: CommerceCloudStandards.Organization
+      is:
+        - DiscoveryStandards.Traceable
+        - DiscoveryStandards.CommonErrors
+        - DiscoveryStandards.TenantTier
+      get:
+        description: Retrieves the execution status of all the custom filtered Ingestion Jobs along with a count of failed and successfully ingested items during the process.
+        displayName: getIngestionJobs
+        is:
+           - DiscoveryStandards.Filterable
+           - ApiStandards.OffsetPaginated:
+              maxLimit: 50
+              defaultSize: 10
+        queryParameters:
+          statuses?:
+            description: List of Ingestion Job statuses. 
+            type: string[]
+            items:
+              IngestionLibrary.IngestionStatus
+            example: [ ACCEPTED, SCHEDULED ]
+        responses:
+          200:
+            description: Returned the bulk status of all the Ingestion Jobs that match the refinement criteria. If the given inputs don't match any of the ingestion jobs, empty collection is returned.
+            body:
+              type: IngestionJob.IngestionJobsBulkStatus
+                
+    /ingestion-jobs/{ingestionJobId}:
+      is:
+        - DiscoveryStandards.Traceable
+        - DiscoveryStandards.CommonErrors  
+        - DiscoveryStandards.TenantTier
+      uriParameters:
+        ingestionJobId: IngestionLibrary.IngestionJobId
+      get:
+        description: Track the progress of the Ingestion Job process. The link to the ingestionJobId is received from the response header of the updateDataTransferRecords endpoint. 
+        displayName: getIngestionJob
+        responses:
+          200:
+            description: Successfully retrieved the Ingestion Job status.
+            body:
+              type: IngestionJob.IngestionJob

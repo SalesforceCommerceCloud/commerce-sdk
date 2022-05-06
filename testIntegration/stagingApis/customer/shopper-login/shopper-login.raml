@@ -1,5 +1,5 @@
 #%RAML 1.0
-title: Shopper Login
+title: Shopper Login (SLAS)
 description: !include shopper-login-and-api-access-description.md
 version: v1
 mediaType: application/json
@@ -10,88 +10,81 @@ baseUriParameters:
     description: A region-specific merchant identifier.
     example: 0dnz6oep
     pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
-
 traits:
   SlasRateLimit: !include traits/slasRateLimit.raml
+
 securitySchemes:
-    SlasJWT-BearerSecurityScheme.BearerToken: !include slasJWT-BearerSecurityScheme.raml
+  SlasJWT-BearerSecurityScheme.BearerToken: !include slasJWT-BearerSecurityScheme.raml
+
 uses:
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.8/api-standards.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.18/commerce-cloud-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.13/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.20/commerce-cloud-standards.raml
+
 types:
-  ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.8/dataTypes/error-response.raml
   ResponseType:
     type: string
     description: Response Type
     enum: [code]
-    example: "code"
   GrantType:
     type: string
     description: Grant Type
-    enum: [AUTHORIZATION_CODE, REFRESH_TOKEN, CLIENT_CREDENTIALS, AUTHORIZATION_CODE_PKCE]
-    example: "AUTHORIZATION_CODE"
+    enum: [authorization_code, refresh_token, client_credentials, authorization_code_pkce]
   TokenType:
     type: string
     description: Token Type
     enum: [Bearer]
-    example: "Bearer"
   TokenTypeHint:
     type: string
     description: Token Type Hint
-    enum: [ACCESS_TOKEN, REFRESH_TOKEN]  
-    example: "ACCESS_TOKEN"
+    enum: [access_token, refresh_token]
   ThirdPartyIdps:
     type: string
-    description: 3rd party IDPs that work with SLAS.
+    description: Third party IDPs that work with SLAS.
     enum: [google, facebook, auth0, okta, salesforce, nintendo, slas]
-    example: google
   TrustedOnBehalf:
     type: string
-    description: Types of Trusted On Behalf requests.
+    description: Type of system used for Trusted System On Behalf Of requests (external or interal).
     enum: [ts_ext_on_behalf_of, ts_int_on_behalf_of]
-    example: "ts_ext_on_behalf_of"
   TokenRequest:
     type: object
     properties:
       refresh_token:
-        description: Refresh Token - the long term token used to refresh the short term access token. Required only with Grant Type - "refresh_token".
+        description: The long term token used to refresh the short term access token. Required only with a grant type of `refresh_token`.
         type: string
         required: false
         minLength: 8
         maxLength: 256
-        example: "Jq4mlnVEyAXtuWTXBgmKEDUVsT3L-KLRotckvmwO8nk.P7VWTk-DxMBVc_MABhDeMv-UbcgmB3eh624sgGfFTx4"
-      code: 
-        description: Authorization Code - code from the OAuth service received in the front channel that is used to get access and refresh tokens. Required only with Grant Type -  "authorization_code".
+      code:
+        description: Authorization code from the OAuth 2.0 service received in the front channel that is used to get access tokens and refresh tokens. Required only with a grant type of `authorization_code`.
         type: string
         required: false
         minLength: 8
         maxLength: 256
         example: "M0t1K0pyoFKhBpUZnuUYO07xf8iYyMJrAc7h31h_ra8.gglPClJHsofqdTm_yPe5n6m2yCXzFmD8qICwIEjQGVA"
       usid:
-        description: The Shopper's unique identifier if known. This is an optional field, a new shopper ID will be generated if this field is empty.
+        description: The shopper's unique identifier, if known. If not provided, a new USID is generated.
         type: string
         required: false
         example: "54ad2c5a-91f0-44ab-817c-73d6b86872d9"
       grant_type:
-        description: Grant Type
+        description: OAuth 2.0 grant type
         type: GrantType
-        example: "AUTHORIZATION_CODE"
+        example: "authorization_code"
       redirect_uri:
-        description: The redirect that was used when getting the authorization code. If missing the redirectUri will default to http://localhost:9010/callback .
+        description: The redirect that was used when getting the authorization code.
         type: string
         required: false
         example: "http://localhost:9010/callback"
       code_verifier:
-        description: Created by the client calling the login endpoint.The code verifier should be a high-entropy cryptographic random string with a minimum of 43 characters and a maximum of 128 characters.<br><br>The code_challenge is created by SHA256 hashing the code_verifier and base64 URL encoding the resulting hash Base64UrlEncode(SHA256Hash(code_verifier).<br><br>
+        description: Created by the client calling the `login` endpoint.<br /><br />The `code_verifier` should be a high entropy cryptographically random string with a minimum of 43 characters and a maximum of 128 characters.
         type: string
         minLength: 43
         maxLength: 128
         required: false
-        example:
       client_id:
-        description: SLAS client Id. The SLAS client_id will be required when using the PKCE flow.
+        description: The SLAS client ID. Required when the grant type is `authorization_code_pkce`.
         required: false
-        type: string   
+        type: string
         minLength: 8
         maxLength: 256
         example: "z99ec276-cg53-4g94-cf72-76f300c6778zc"
@@ -99,7 +92,7 @@ types:
     type: object
     properties:
       access_token:
-        description: Short term Shopper JWT that can be used to access Commerce Cloud Shopper APIs. Good for 30 minutes.
+        description: Short term shopper JWT that can be used to access Shopper APIs. Valid for 30 minutes.
         type: string
         example: |
           "eyJ2ZXIiOiIxLjAiLCJraWQiOiJTTEFTIiwidHlwIjoiand0IiwiY2x2IjoiSjIuMS4wIiwiYWxnIjoiRVMyNTYifQ.eyJhdWQiOiJjb3JlL2Rldi9idGluZ2V5bHRtMiIsImF1dCI6IkdVSUQiLCJzdWIiOiJ1c2lkOjo1NGFkMmM1YS05MWYwLTQ0YWItODE3Yy03M2Q2Yjg2ODcyZDk6OnVwbjpndWVzdCIsIm5iZiI6MTU4Mjg0NTYyNCwiY3R4Ijoic2ZkYy5jb21tZXJjZWNsb3VkIiwiaXNzIjoiY29yZS9kZXYvYnRpbmdleWx0bTIiLCJzdHkiOiJVc2VyIiwiaXN0IjoxLCJleHAiOjE1ODI4NDU3NDQsImlhdCI6MTU4Mjg0NTY1NCwianRpIjoiQzJDOTA0ODg2NDA3MDkwNDg4NjQwNzMyMjExNzQ1ODEyMTQzIn0.2a6lMBSY17PrhDO8pvEk7PCXW_nkguMHi4J-Tuirkz-ETB6rnKyuRjF5yD6B55tMvm8dO8ulAHyDYqjObMxLJg"
@@ -108,28 +101,27 @@ types:
         type: string
         example: "eyJraWQiOiI3NGU2YjMxZS1lYTczLTQ3OTYtOWRkYi1jMDJmZGI4ZDgwYmUiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ1c2lkOmQ1MDBhMzY5LTc1MWQtNDkzYy1iNDAzLThmOThmYjg3MTdiNiIsImF1ZCI6IjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3YiIsImlzcyI6ImRldi51cy5zaG9wcGVyLmNjLnNhbGVzZm9yY2UuY29tIiwibmFtZSI6ImJsYWlyLnNsYXMudGVzdEBnbWFpbC5jb20iLCJleHAiOjE1OTExMTE0MzgsImlhdCI6MTU5MTEwOTYzOCwiZW1haWwiOiJibGFpci5zbGFzLnRlc3RAZ21haWwuY29tIn0.KgpAcq-G9Lz7IGnjkJlaFLFXYncVCwcVrRIuy3bEfgzRozqaDRvAori4oOz4RtgYjmoc5x2euoisHL0mVnHgPKOdYBty1wTJqneJEQt6hP4Kp0KFciID_ILCi-DE8VWS5t0NknnMP_iKhIkqcRL48iwPFUWkWA6AEWxE_yvJLNRLithsSxsx7EfBfpD8Hr2b5tMEwImQNmJNYGRTI4LSmcYspBORvJoAnfGpMC0kglxl40bhf5j4ItX4_DiWQC4zaGYD-HJV4BDr6C7iGCs5ZVPypF0yQD3iBio26fwj9Ys5WF9XMtPtqET2kqsz6fDC5GkE6HTUHH_r87jxbDq-8w"
       refresh_token:
-        description: Long term refresh token that can be used to refresh an access token. Good for 90 days.
+        description: Long term refresh token that can be used to refresh an access token. Valid for 90 days.
         type: string
         example: "EgMYpjfFKdlSy-a3PYeyihmP95IpIp3FaDpPmVH1yu8.lahomBi7zJbRa6yKAuAAiKu3lprTPsEueKwqcBvhRLU"
       expires_in:
-        description: Remaning access token expiry time, in seconds.
+        description: Remaining access token expiry time, in seconds.
         type: integer
         example: 900
-      token_type: 
+      token_type:
         description: Token Type
         type: TokenType
-        example: "Bearer"
       usid:
         type: string
-        description: The unique shopper ID. This will be returned when using the client credential grant type.
+        description: The unique shopper ID. Returned when using the `client_credentials` grant type.
         example: 18cda486-fe32-4e27-888b-6e4f89938e67
       customer_id:
         type: string
-        description: Customer's Id
+        description: Customer's ID
         example: "1000005"
       enc_user_id:
         type: string
-        description: MD5 Hashed ECOM user id in uppercase.
+        description: MD5 Hashed ECOM user ID in uppercase.
         example: "45D39A8499A95288F82855427EBA99B5"
   TokenActionRequest:
     type: object
@@ -142,44 +134,50 @@ types:
         description: Refresh token to be revoked.
         type: TokenTypeHint
         required: false
-        example: "REFRESH_TOKEN"
-  TrustedSystemTokenRequest: 
+  TrustedSystemTokenRequest:
     type: object
     description: Used to request an access token on behalf of a regestered user whose credentials are stored using a third party system.
     properties:
       usid:
-        description: The Shopper's unique identifier if known. This is an optional field, a new shopper ID will be generated if this field is empty.
+        description: The Shopper's unique identifier, if known. If not provided, a new USID is generated.
         type: string
         required: false
         example: "54ad2c5a-91f0-44ab-817c-73d6b86872d9"
       grant_type:
-        description: Grant Type. Must be set to "client_credentials" for Trusted System On Behalf.
+        description: Grant Type. Must be set to `client_credentials` for Trusted System On Behalf Of requests.
         type: GrantType
-        example: "CLIENT_CREDENTIALS"
+        example: "client_credentials"
       hint:
-        description: The hint will be used to identify the type of trusted system on behalf to use.
-        type: TrustedOnBehalf   
+        description: The type of trusted system to use (external or internal).
+        type: TrustedOnBehalf
         example: "ts_ext_on_behalf_of"
       login_id:
-        description: The login_id is used to identify who the shopper is is for trusted on behalf of.<br><br>If set to "guest" a token will be returned for a guest user.
-        type: string   
+        description: The ID that the shopper used for trusted on behalf of.<br /><br />If set to `guest`, a token is returned for a guest user.
+        type: string
         minLength: 8
         maxLength: 256
-        example: "john.doe@test.org"
+        example: "samantha.sampleson@example.com"
       idp_origin:
-        description: The idp_origin is used to identify the external IDP the users is associated with.
-        type: ThirdPartyIdps   
+        description: The external IDP that the user is associated with.
+        type: ThirdPartyIdps
         minLength: 4
         maxLength: 16
         example: "google"
       client_id:
-        description: The SLAS client used to identify the SLAS public client id for use with Trusted System Internal On Behalf Of.<br><br>A SLAS public client id must be used for ts_int_on_behalf_of.
-        type: string   
+        description: The SLAS public client ID for use with Trusted System Internal On Behalf Of requests.
+        type: string
         example: "6c388ebd-6843-4863-aef9-781382c9e8cd"
       channel_id:
-        description: The channel_id is used to identify the channel (ECOM Site) the user is associated with.
-        type: string   
+        description: The channel (ECOM site) that the user is associated with.
+        type: string
         example: "RefArch"
+      email_id:
+        description: The email address for the shopper who is used for trusted on behalf of.<br /><br />If not provided, `login_id` is used instead.
+        type: string
+        required: false
+        minLength: 8
+        maxLength: 256
+        example: "samantha.sampleson@example.com"
   PasswordLessAuthRequest:
     type: object
     description: Used to request an access token using a passwordless token.
@@ -191,55 +189,58 @@ types:
       mode:
         description: Notification mode for sending the passwordless token to the user. Use `email` or `sms`.
         type: string
-        example: "email|sms"
+        enum: [email, sms]
+        example: "email"
       channel_id:
-        description: Identifies the channel (ECOM site) that the user is associated with.
+        description: The channel (ECOM site) that the user is associated with.
         type: string
         example: "RefArch"
-  PasswordLessTokenRequest:
+      locale:
+        description: The locale of the template.
+        type: string
+        example: "en-us"
+  PasswordLessLoginTokenRequest:
     type: object
     description: Used to request an access token using a passwordless token.
     properties:
       grant_type:
         description: OAuth 2.0 grant type. Must be set to `client_credentials` for passwordless login.
         type: GrantType
-        example: "CLIENT_CREDENTIALS"
+        example: "client_credentials"
       hint:
         description: Passwordless hint. Use `pwdless_login`.
         type: string
         example: "pwdless_login"
-      pwdless_token:
-        description: Passwordless token that was created from the user ID.
+      pwdless_login_token:
+        description: Passwordless login token that was created from the user ID.
         type: string
         example: "QJO3CA7QTPVCQ3OMROXF2MTDDED3EEC3"
       usid:
-        description: The shopper's unique identifier, if known. If this field is empty, a new shopper ID will be generated.
+        description: The shopper's unique identifier, if known. If not provided, a new USID is generated.
         type: string
         required: false
         example: "54ad2c5a-91f0-44ab-817c-73d6b86872d9"
-
   IntrospectResponse:
     type: object
     properties:
-      active: 
+      active:
         type: boolean
-        example: true
-      scope: 
+      scope:
         type: string
         example: "offline_access openid"
-      client_id: 
+      client_id:
         type: string
         example: "553ac8ac-4db9-4ed3-825c-3ae3bf5d327b"
-      sub: 
+      sub:
         type: string
         example: "usid:156c4e69-e89b-406b-a4b7-576980bb234e::upn:Guest"
-      exp: 
+      exp:
         type: integer
         example: 1594733276
-      username: 
+      username:
         type: string
-        example: "testuser1@test.org"
-      token_type: 
+        example: "samantha.sampleson@example.com"
+      token_type:
         type: string
         example: "refresh_token"
   Oauth2ErrorResponse:
@@ -247,7 +248,7 @@ types:
     properties:
       error:
         type: string
-        example: invalid_client
+        example: "invalid_client"
       error_uri:
         type: string
         required: false
@@ -255,54 +256,53 @@ types:
       error_description:
         type: string
         required: false
-        example: "Missing access or refresh token."
+        example: "Missing access token or refresh token."
   LoginRequest:
     type: object
     properties:
       client_id:
-        description: SLAS client Id. The SLAS client_id will be required when using the PKCE flow.
+        description: SLAS client ID. Required when the grant type is `authorization_code_pkce`.
         required: false
-        type: string   
+        type: string
         minLength: 8
         maxLength: 256
         example: "z99ec276-cg53-4g94-cf72-76f300c6778zc"
       response_type:
-        description: Must be 'code'. This indicates the client wants an authorization code (grant type of authorization_code).
+        description: Must be `code`. Indicates that the client wants an authorization code (when the grant type is `authorization_code`).
         required: false
         type: ResponseType
-        example: "code"
       redirect_uri:
-          description: The URL to which the server redirects the browser after the user grants the authorization. The URI must be pre-registered.
-          required: true
-          minLength: 3
-          maxLength: 256
-          type: string
-          example: "http://localhost:9010/callback"
+        description: The URL to which the server redirects the browser after the user grants the authorization. The URI must be pre-registered.
+        required: true
+        minLength: 3
+        maxLength: 256
+        type: string
+        example: "http://localhost:9010/callback"
       state:
-        description: Value to be sent by the client to determine the state between the authorization request and the server response.  Optional, but strongly recommended.
+        description: Value to be sent by the client to determine the state between the authorization request and the server response. Optional, but strongly recommended.
         required: false
         type: string
         maxLength: 256
         example: "client-state"
       scope:
-          description: Scopes are to limit an application's access to a user's account. 
-          required: false
-          type: string
-          maxLength: 256
-          example: "openid|offline_access|email"
+        description: Scopes to limit an application's access to a user's account.
+        required: false
+        type: string
+        maxLength: 256
+        example: "openid|offline_access|email"
       usid:
         description: The unique shopper ID.
         required: false
         type: string
         example: "18cda486-fe32-4e27-888b-6e4f89938e67"
       channel_id:
-        description: The channel this request is for. For an ECOM request this is angalous to the site ID.
+        description: The channel that the request is for. For an ECOM request, this is angalous to the site ID.
         required: true
         type: string
         maxLength: 100
         example: "SiteGenesis"
       code_challenge:
-        description: Created by the client calling the login endpoint.<br><br>The code_challenge is created by SHA256 hashing the code_verifier and base64 URL encoding the resulting hash Base64UrlEncode(SHA256Hash(code_verifier).<br><br>The code verifier should be a high-entropy cryptographic random string with a minimum of 43 characters and a maximum of 128 characters. 
+        description: Created by the client calling the `login` endpoint.<br /><br />The `code_challenge` is created by SHA256 hashing the `code_verifier` and base64 URL encoding the resulting hash.<br /><br />The `code_verifier` should be a high entropy cryptographically random string with a minimum of 43 characters and a maximum of 128 characters.
         required: true
         type: string
         example: "krc5G3_5lRUcXDUzFZQ88oJA_-ZmlHWkyGsgOrSLEWg"
@@ -313,11 +313,11 @@ types:
         example: "aaaa_prd"
       username:
         type: string
-        example: "joe.shopper"
+        example: "samantha.sampleson"
       email:
         type: string
-        example: "joe.shopper@gmail.com"
-      credQualityMeasure: 
+        example: "samantha.sampleson@example.com"
+      credQualityMeasure:
         type: integer
         example: 1024
       pwdStrengthMeasure:
@@ -338,7 +338,6 @@ types:
       lastCredCheckDatetime:
         type: datetime
         example: 2021-02-18T16:41:41.090Z
-
 /organizations/{organizationId}:
   type: CommerceCloudStandards.Organization
   /cred-qual/user:
@@ -348,88 +347,88 @@ types:
       displayName: retrieveCredQualityUserInfo
       is:
         - SlasRateLimit:
-              responseStatus: 303
-              responseStatus2: 400
-              responseStatus3: 401
-              responseStatus4: 500
+            responseStatus: 303
+            responseStatus2: 400
+            responseStatus3: 401
+            responseStatus4: 500
       securedBy:
-        - SlasJWT-BearerSecurityScheme.BearerToken: {Bearer eyJ2ZXIiOiIxLjAiLCJraWQiOiI0ZTQyNTFkOS0zM2Y2LTRjMTMtYjZmZC1mOWJkNTJmYTZhNDciLCJ0eXAiOiJqd3QiLCJjbHYiOiJKMi4xLjAiLCJhbGciOiJFUzI1NiJ9.eyJhdXQiOiJHVUlEIiwic2NwIjoic2ZjYy5wcm9kdWN0cy5ybyBzZmNjLmNhdGFsb2dzLnJvIHNmY2Muc2hvcHBlci5ydyIsInN1YiI6ImNjLXNsYXM6OnNsc2FfZGV2OjpzY2lkOjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3Yjo6dXNpZDoxY2E3OWZiNi0xYjIyLTRmOWItOGJiNi05YmU5NWNjMjA4NjMiLCJjdHgiOiJzbGFzLm5vdF9mb3JfZXh0ZXJuYWxfdXNlIiwiaXNzIjoic2xhcy9kZXYvc2xzYV9kZXYiLCJpc3QiOjEsImF1ZCI6ImNvbW1lcmNlY2xvdWQvZGV2L3Nsc2FfZGV2IiwibmJmIjoxNTk0NzY0MDgwLCJzdHkiOiJVc2VyIiwiaXNiIjoidWlkbzpzbGFzOjp1cG46R3Vlc3Q6OnVpZG46R3Vlc3QgVXNlciIsImV4cCI6MTU5NDc2NTkxMCwiaWF0IjoxNTk0NzY0MTEwLCJqdGkiOiJDMkMxNjM0NTE0NTEwLTE3MTQzMTg2NzY0MjcwNTcyNjQ2NTYxMzgifQ.UVYAsWXCn3hoUPy8vLlc7O96RZEHD3N3ZgdNH-ZVvJ1G-R6uJ2VPrYvwKmYXF41Ujm2bo83AYOHVqEEEPT8Kgw}
-      
+        - SlasJWT-BearerSecurityScheme.BearerToken:
+            {
+              Bearer eyJ2ZXIiOiIxLjAiLCJraWQiOiI0ZTQyNTFkOS0zM2Y2LTRjMTMtYjZmZC1mOWJkNTJmYTZhNDciLCJ0eXAiOiJqd3QiLCJjbHYiOiJKMi4xLjAiLCJhbGciOiJFUzI1NiJ9.eyJhdXQiOiJHVUlEIiwic2NwIjoic2ZjYy5wcm9kdWN0cy5ybyBzZmNjLmNhdGFsb2dzLnJvIHNmY2Muc2hvcHBlci5ydyIsInN1YiI6ImNjLXNsYXM6OnNsc2FfZGV2OjpzY2lkOjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3Yjo6dXNpZDoxY2E3OWZiNi0xYjIyLTRmOWItOGJiNi05YmU5NWNjMjA4NjMiLCJjdHgiOiJzbGFzLm5vdF9mb3JfZXh0ZXJuYWxfdXNlIiwiaXNzIjoic2xhcy9kZXYvc2xzYV9kZXYiLCJpc3QiOjEsImF1ZCI6ImNvbW1lcmNlY2xvdWQvZGV2L3Nsc2FfZGV2IiwibmJmIjoxNTk0NzY0MDgwLCJzdHkiOiJVc2VyIiwiaXNiIjoidWlkbzpzbGFzOjp1cG46R3Vlc3Q6OnVpZG46R3Vlc3QgVXNlciIsImV4cCI6MTU5NDc2NTkxMCwiaWF0IjoxNTk0NzY0MTEwLCJqdGkiOiJDMkMxNjM0NTE0NTEwLTE3MTQzMTg2NzY0MjcwNTcyNjQ2NTYxMzgifQ.UVYAsWXCn3hoUPy8vLlc7O96RZEHD3N3ZgdNH-ZVvJ1G-R6uJ2VPrYvwKmYXF41Ujm2bo83AYOHVqEEEPT8Kgw
+            }
       queryParameters:
         username:
-          description: User's login id or email address.
+          description: User's login ID or email address.
           type: string
-          example: "joe.shopper@gmail.com"
+          example: "samantha.sampleson@example.com"
       responses:
-          200:
-            description: !include credential-quality-statistics-description.md
-            body:
-              application/json:
-                type: CredQualityUserResponse
-                example: |
-                    {
-                      "tenantId": "aaaa_prd",
-                      "username": "joe.shopper@gmail.com",
-                      "email": "joe.shopper@gmail.com",
-                      "credQualityMeasure": 0,
-                      "pwdStrengthMeasure": 0,
-                      "pwdQualityMeasure": 0,
-                      "credChangeCount": 0,
-                      "loginCount": 0,
-                      "lastLoginDatetime": "2021-02-18T16:41:41.090Z",
-                      "lastCredCheckDatetime": "2021-02-18T16:41:41.090Z",
-                      "atoScore": 3,
-                      "atoLastDatetime": "2021-02-18T16:41:41.090Z",
-                      "atoLastSourceIp": "",
-                      "atoScoreHistory": "5, 6, 7"
-                    }
-          400:
-            description: Bad Request
-            body:
-              application/problem+json:
-                type: Oauth2ErrorResponse
-                example: |
-                  {
-                    "error": "invalid_request",
-                    "error_description": "Bad or missing organization id."
-                  }
-          404:
-            description: Unauthorized
-            body:
-              application/problem+json:
-                type: Oauth2ErrorResponse
-                example: |
-                    {
-                    "error": "invalid_client",
-                    "error_description": "Basic Authorization failed."
-                    }
+        200:
+          description: !include credential-quality-statistics-description.md
+          body:
+            application/json:
+              type: CredQualityUserResponse
+              example: |
+                {
+                  "tenantId": "aaaa_prd",
+                  "username": "samantha.sampleson@example.com",
+                  "email": "samantha.sampleson@example.com",
+                  "credQualityMeasure": 0,
+                  "pwdStrengthMeasure": 0,
+                  "pwdQualityMeasure": 0,
+                  "credChangeCount": 0,
+                  "loginCount": 0,
+                  "lastLoginDatetime": "2021-02-18T16:41:41.090Z",
+                  "lastCredCheckDatetime": "2021-02-18T16:41:41.090Z",
+                  "atoScore": 3,
+                  "atoLastDatetime": "2021-02-18T16:41:41.090Z",
+                  "atoLastSourceIp": "",
+                  "atoScoreHistory": "5, 6, 7"
+                }
+        400:
+          description: Bad Request
+          body:
+            application/problem+json:
+              type: Oauth2ErrorResponse
+              example: |
+                {
+                  "error": "invalid_request",
+                  "error_description": "Bad or missing organization id."
+                }
+        404:
+          description: Unauthorized
+          body:
+            application/problem+json:
+              type: Oauth2ErrorResponse
+              example: |
+                {
+                "error": "invalid_client",
+                "error_description": "Basic Authorization failed."
+                }
   /oauth2:
     /login:
-      description: <b>The GET method is DEPRECATED - Please use the POST method.</b><br>Get authorization code after authenticating a user using an ECOM instance.
+      description: <b>The GET method is DEPRECATED - Please use the POST method.</b><br /><br />Get authorization code after authenticating a user using an ECOM instance.
       post:
         description: Get authorization code after authenticating a user using an ECOM instance.
         displayName: authenticateCustomer
         is:
           - SlasRateLimit:
-                responseStatus: 303
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 500
+              responseStatus: 303
+              responseStatus2: 400
+              responseStatus3: 401
+              responseStatus4: 500
         headers:
-          Authorization: 
+          Authorization:
             displayName: Login
-            description: Basic authentication base 64 encoded shopper user name and password.
+            description: Base64 encoded user name and password for HTTP Basic authentication.
             type: string
             required: true
             example: "Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW"
-            
         body:
           application/x-www-form-urlencoded:
             type: LoginRequest
-
         responses:
           303:
-            description: Success - authorization code will be added to the redirect_uri. For example, http://localhost:9010/callback?code=eyJ2ZXIiOiIxLjAiLCJraWQiOiJTTEFTIiwidHlwIjoiand0IiwiY2x2IjoiS&state=client-state
+            description: Success. The authorization code is added to the `redirect_uri`.
             body:
               application/json:
                 type: string
@@ -437,7 +436,7 @@ types:
                   {
                     "authorizationCode": "eyJ2ZXIiOiIxLjAiLCJraWQiOiJTTEFTIiwidHlwIjoiand0IiwiY2x2IjoiS",
                     "usid": "156c4e69-e89b-406b-a4b7-576980bb234e"              
-                  }           
+                  }
           400:
             description: Bad Request
             body:
@@ -454,22 +453,22 @@ types:
               application/problem+json:
                 type: Oauth2ErrorResponse
                 example: |
-                    {
-                    "error": "invalid_client",
-                    "error_description": "Basic Authorization failed."
-                    }
+                  {
+                  "error": "invalid_client",
+                  "error_description": "Basic Authorization failed."
+                  }
           500:
             description: Internal Server Error
             body:
               application/problem+json:
                 type: Oauth2ErrorResponse
                 example: |
-                    {
-                    "error": "server_error",
-                    "error_description": "The server has encountered a situation it doesn't know how to handle."
-                    }
+                  {
+                  "error": "server_error",
+                  "error_description": "The server has encountered a situation it doesn't know how to handle."
+                  }
     /passwordless/login:
-      description: Logs a customer in using Core with their customer profiles loaded in ECOM. Allows the user to authenticate when their identity provider (Core) is down.
+      description: Log in a customer using Core with their customer profiles loaded in ECOM. Allows the user to authenticate when their identity provider (Core) is down.
       post:
         description: Allows the customer to authenticate when their identity provider is down.
         displayName: authorizePasswordlessCustomer
@@ -480,9 +479,9 @@ types:
               responseStatus3: 401
               responseStatus4: 503
         headers:
-          Authorization: 
+          Authorization:
             displayName: Authorization
-            description: "Base64 encoded string for authentication. The string is composed of a client ID and client secret, separated by a colon (`:`). Example: `clientId:clientSecret`"
+            description: "Base64 encoded string for HTTP Basic authentication. The string is composed of a client ID and client secret, separated by a colon (`:`), like this: `clientId:clientSecret`"
             type: string
             required: false
             example: "Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW="
@@ -495,7 +494,7 @@ types:
             body:
               application/json:
                 type: string
-                
+
           400:
             description: Bad Request
             body:
@@ -512,40 +511,43 @@ types:
               application/problem+json:
                 type: Oauth2ErrorResponse
                 example: |
-                    {
-                    "error": "invalid_client",
-                    "error_description": "Authorization failed."
-                    }
+                  {
+                  "error": "invalid_client",
+                  "error_description": "Authorization failed."
+                  }
           503:
             description: Gateway Error
             body:
               application/problem+json:
                 type: Oauth2ErrorResponse
                 example: |
-                    {
-                    "error": "gateway_server_error",
-                    "error_description": "A service that the server relies on is down or is having difficulty."
-                    }
+                  {
+                  "error": "gateway_server_error",
+                  "error_description": "A service that the server relies on is down or is having difficulty."
+                  }
     /logout:
-      description: Log a shopper out. The shopper's access token and refresh token will be revoked. If the shopper authenticated with ECOM, the OCAPI JWT will also be revoked.
+      description: Log out a shopper. The shopper's access token and refresh token is revoked. If the shopper authenticated with ECOM, the OCAPI JWT is also revoked.
       get:
-        description: Log a shopper out.
+        description: Log out a shopper.
         displayName: logoutCustomer
         is:
           - SlasRateLimit:
-                responseStatus: 303
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 500
-    
+              responseStatus: 303
+              responseStatus2: 400
+              responseStatus3: 401
+              responseStatus4: 500
+
         securedBy:
-          - SlasJWT-BearerSecurityScheme.BearerToken: {Bearer eyJ2ZXIiOiIxLjAiLCJraWQiOiI0ZTQyNTFkOS0zM2Y2LTRjMTMtYjZmZC1mOWJkNTJmYTZhNDciLCJ0eXAiOiJqd3QiLCJjbHYiOiJKMi4xLjAiLCJhbGciOiJFUzI1NiJ9.eyJhdXQiOiJHVUlEIiwic2NwIjoic2ZjYy5wcm9kdWN0cy5ybyBzZmNjLmNhdGFsb2dzLnJvIHNmY2Muc2hvcHBlci5ydyIsInN1YiI6ImNjLXNsYXM6OnNsc2FfZGV2OjpzY2lkOjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3Yjo6dXNpZDoxY2E3OWZiNi0xYjIyLTRmOWItOGJiNi05YmU5NWNjMjA4NjMiLCJjdHgiOiJzbGFzLm5vdF9mb3JfZXh0ZXJuYWxfdXNlIiwiaXNzIjoic2xhcy9kZXYvc2xzYV9kZXYiLCJpc3QiOjEsImF1ZCI6ImNvbW1lcmNlY2xvdWQvZGV2L3Nsc2FfZGV2IiwibmJmIjoxNTk0NzY0MDgwLCJzdHkiOiJVc2VyIiwiaXNiIjoidWlkbzpzbGFzOjp1cG46R3Vlc3Q6OnVpZG46R3Vlc3QgVXNlciIsImV4cCI6MTU5NDc2NTkxMCwiaWF0IjoxNTk0NzY0MTEwLCJqdGkiOiJDMkMxNjM0NTE0NTEwLTE3MTQzMTg2NzY0MjcwNTcyNjQ2NTYxMzgifQ.UVYAsWXCn3hoUPy8vLlc7O96RZEHD3N3ZgdNH-ZVvJ1G-R6uJ2VPrYvwKmYXF41Ujm2bo83AYOHVqEEEPT8Kgw}
+          - SlasJWT-BearerSecurityScheme.BearerToken:
+              {
+                Bearer eyJ2ZXIiOiIxLjAiLCJraWQiOiI0ZTQyNTFkOS0zM2Y2LTRjMTMtYjZmZC1mOWJkNTJmYTZhNDciLCJ0eXAiOiJqd3QiLCJjbHYiOiJKMi4xLjAiLCJhbGciOiJFUzI1NiJ9.eyJhdXQiOiJHVUlEIiwic2NwIjoic2ZjYy5wcm9kdWN0cy5ybyBzZmNjLmNhdGFsb2dzLnJvIHNmY2Muc2hvcHBlci5ydyIsInN1YiI6ImNjLXNsYXM6OnNsc2FfZGV2OjpzY2lkOjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3Yjo6dXNpZDoxY2E3OWZiNi0xYjIyLTRmOWItOGJiNi05YmU5NWNjMjA4NjMiLCJjdHgiOiJzbGFzLm5vdF9mb3JfZXh0ZXJuYWxfdXNlIiwiaXNzIjoic2xhcy9kZXYvc2xzYV9kZXYiLCJpc3QiOjEsImF1ZCI6ImNvbW1lcmNlY2xvdWQvZGV2L3Nsc2FfZGV2IiwibmJmIjoxNTk0NzY0MDgwLCJzdHkiOiJVc2VyIiwiaXNiIjoidWlkbzpzbGFzOjp1cG46R3Vlc3Q6OnVpZG46R3Vlc3QgVXNlciIsImV4cCI6MTU5NDc2NTkxMCwiaWF0IjoxNTk0NzY0MTEwLCJqdGkiOiJDMkMxNjM0NTE0NTEwLTE3MTQzMTg2NzY0MjcwNTcyNjQ2NTYxMzgifQ.UVYAsWXCn3hoUPy8vLlc7O96RZEHD3N3ZgdNH-ZVvJ1G-R6uJ2VPrYvwKmYXF41Ujm2bo83AYOHVqEEEPT8Kgw
+              }
 
         queryParameters:
           client_id:
             description: The SLAS client ID.
             required: true
-            type: string   
+            type: string
             minLength: 8
             maxLength: 256
             example: "z99ec276-cg53-4g94-cf72-76f300c6778zc"
@@ -554,11 +556,17 @@ types:
             required: true
             type: string
           channel_id:
-            description: The channel_id parameter is a MUST (required) if the shopper authenticated using the /login with ECOM.
+            description: The `channel_id` parameter must be provided if the shopper authenticated using the `login` endpoint with ECOM.
             required: false
             type: string
             maxLength: 100
             example: "SiteGenesis"
+          hint:
+            description: The optional `hint` parameter will indicate if all user sessions should be logged out. Use <b>all-sessions</b> as the hint value to logout all user sessions. If `hint` is not used then only the current user session will be logged out.
+            required: false
+            type: string
+            maxLength: 12
+            example: all-sessions
         responses:
           200:
             description: Success
@@ -592,31 +600,31 @@ types:
               application/problem+json:
                 type: Oauth2ErrorResponse
                 example: |
-                    {
-                    "error": "invalid_client",
-                    "error_description": "Basic Authorization failed."
-                    }
+                  {
+                  "error": "invalid_client",
+                  "error_description": "Basic Authorization failed."
+                  }
           500:
             description: Internal Server Error
             body:
               application/problem+json:
                 type: Oauth2ErrorResponse
                 example: |
-                    {
-                    "error": "server_error",
-                    "error_description": "The server has encountered a situation it doesn't know how to handle."
-                    }
+                  {
+                  "error": "server_error",
+                  "error_description": "The server has encountered a situation it doesn't know how to handle."
+                  }
     /authorize:
-      description: Shopper Oauth2 Authorization Endpoints.
+      description: Oauth 2.0 authorization endpoints.
       get:
-        description: Get authorization code after authenticating a user against an IDP. This is the first step of the Authorization code grant flow, where a user is able to log in via federation to the IDP configured for the client, and gets an authorization code after successful login via a callback/redirect URI. Mandatory fields are the shopping app's clientId, redirectURI, responseType and authType. This API can be called from the front channel (from the browser).
+        description: Get an authorization code after authenticating a user against an identity provider (IDP). This is the first step of the OAuth 2.0 authorization code flow, where a user can log in via federation to the IDP configured for the client. After successfully logging in, the user gets an authorization code via a redirect URI.<br /><br />This endpoint can be called from the front channel (the browser).
         displayName: authorizeCustomer
         is:
           - SlasRateLimit:
-                responseStatus: 303
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 500
+              responseStatus: 303
+              responseStatus2: 400
+              responseStatus3: 401
+              responseStatus4: 500
         queryParameters:
           redirect_uri:
             description: The URL to which the server redirects the browser after the user grants the authorization. The URI must be pre-registered.
@@ -626,14 +634,13 @@ types:
             type: string
             example: "http://localhost:9010/callback"
           response_type:
-            description: Must be 'code'. 'code' indicates that the client wants an authorization code (authorization code grant flow).
+            description: Must be `code`. Indicates that the client wants an authorization code (using the `authorization_code` grant type).
             required: true
             type: ResponseType
-            example: "code"
           client_id:
             description: The client ID obtained during application registration.
             required: true
-            type: string   
+            type: string
             minLength: 8
             maxLength: 256
             example: "client-id1"
@@ -644,37 +651,37 @@ types:
             maxLength: 256
             example: "admin"
           state:
-            description: Value to be sent by the client to determine the state between the authorization request and the server response.  Optional but strongly recommended.
+            description: Value to send the client to determine the state between the authorization request and the server response.  Optional, but strongly recommended.
             required: false
             type: string
             maxLength: 256
             example: "client-state"
           usid:
-            description : ID that uniquely identifies the shopper much like a UUID. This is an optional field, a new USID will be generated if this field is empty.
+            description: A unique shopper identifier (USID). If not provided, a new USID is generated.
             required: false
             type: string
             maxLength: 256
             example: "d09c5010-4baa-11ea-98d8-01062d1a14bb"
           hint:
-            description : IDP name that can be optionally added to redirect directly to skipping the IDP selection step.<br/><br/>To use a public client the hint should be set to <b>guest</b> and a public client id should be used to get an authorization code.
+            description: IDP name that can be optionally added to redirect to, thereby skipping the IDP selection step.<br /><br />To use a public client, the hint should be set to `guest` and a public client ID should be used to get an authorization code.
             required: false
             type: string
             maxLength: 256
             example: "Google"
           channel_id:
-            description: The channel this request is for. For an ECOM request this is angalous to the site ID.
+            description: The channel that this request is for. For an ECOM request, this is angalous to the site ID.
             required: false
             type: string
             maxLength: 100
             example: "SiteGenesis"
           code_challenge:
-            description: Created by the client calling the login endpoint.<br><br>The code_challenge is created by SHA256 hashing the code_verifier and base64 URL encoding the resulting hash Base64UrlEncode(SHA256Hash(code_verifier).<br><br>The code verifier should be a high-entropy cryptographic random string with a minimum of 43 characters and a maximum of 128 characters. 
+            description: Created by the client calling the `login` endpoint.<br /><br />The `code_challenge` is created by SHA256 hashing the `code_verifier` and base64 URL encoding the resulting hash.<br /><br />The `code_verifier` should be a high entropy cryptographically random string with a minimum of 43 characters and a maximum of 128 characters.
             required: true
             type: string
             example: "krc5G3_5lRUcXDUzFZQ88oJA_-ZmlHWkyGsgOrSLEWg"
         responses:
           303:
-            description: Success - authorization code will be added to the redirect_uri ex. http://localhost:9010/callback?code=eyJ2ZXIiOiIxLjAiLCJraWQiOiJTTEFTIiwidHlwIjoiand0IiwiY2x2IjoiS&state=client-state
+            description: Success. The authorization code is added to the `redirect_uri`.
             body:
               application/json:
                 type: string
@@ -682,7 +689,7 @@ types:
                   {
                     "authorizationCode": "eyJ2ZXIiOiIxLjAiLCJraWQiOiJTTEFTIiwidHlwIjoiand0IiwiY2x2IjoiS",
                     "usid": "156c4e69-e89b-406b-a4b7-576980bb234e"              
-                  }           
+                  }
           400:
             description: Bad Request
             body:
@@ -699,36 +706,36 @@ types:
               application/problem+json:
                 type: Oauth2ErrorResponse
                 example: |
-                    {
-                    "error": "invalid_client",
-                    "error_description": "Basic Authorization failed."
-                    }
+                  {
+                  "error": "invalid_client",
+                  "error_description": "Basic Authorization failed."
+                  }
           500:
             description: Internal Server Error
             body:
               application/problem+json:
                 type: Oauth2ErrorResponse
                 example: |
-                    {
-                    "error": "server_error",
-                    "error_description": "The server has encountered a situation it doesn't know how to handle."
-                    }
+                  {
+                  "error": "server_error",
+                  "error_description": "The server has encountered a situation it doesn't know how to handle."
+                  }
 
     /token:
-      description: Shopper OAuth2 Token Endpoint.
+      description: Shopper OAuth 2.0 token endpoint.
       post:
-        description: Get the shopper or guest JWT/access token, along with a refresh token. This is the second step of the OAuth2 Authorization code flow where a client app is able to get an access token for the shopper through the backchannel (a trusted server side) by passing in the client credentials and the authorization code retrieved from authorize endpoint. Mandatory fields when using the token endpoint to get the access token are clientId, clientSecret, authorizationCode, grantType of authorization_code. <br/><br/> As a guest user get the shopper JWT / access token along with a refresh token. This is where a client app is able to get an access token for the guest user through the back-channel (a trusted server side) by passing in the client credentials. Mandatory fields when asking for the guest token endpoint to get the access token are clientId, clientSecret, grantType of client_credentials.<br/><br/>When refreshing the access token with a private client id and secret the refresh token will NOT be re-generated, but when refreshing the access token with a public client id the refresh token will aways be re-generated (i.e, old refresh token is voided with every refresh call, so the refresh token on the client needs to be replaced to always store the new refresh token).<br/><br/>Mandatory fields when using the token endpoint with a private client id to refresh an access token are grant_type, or refresh_token.<br/><br/>Mandatory fields when using the token endpoint with a public client id to refresh an access token are grant_type and refresh_token with the client_id as a query parameter.<br/><br/>Valid grant types for the token endpoint are REFRESH_TOKEN, CLIENT_CREDENTIALS, AUTHORIZATION_CODE_PKCE.
+        description: Get the shopper or guest JWT access token and a refresh token. This is the second step of the OAuth 2.0 authorization code flow where a client appplication is able to get an access token for the shopper through the back channel (a trusted server) by passing in the client credentials and the authorization code retrieved from the `authorize` endpoint.<br /><br />As a guest user, get the shopper JWT access token and a refresh token. This is where a client appplication is able to get an access token for the guest user through the back channel (a trusted server) by passing in the client credentials.<br /><br />When refreshing the access token with a private client ID and client secret the refresh token is _not_ regenerated. However, when refreshing the access token with a public client ID, the refresh token is _always_ regenerated. The old refresh token is voided with every refresh call, so the refresh token on the client needs to be replaced to always store the new refresh token.<br /><br />See the Body section for required parameters, including `grant_type` and others, depending on the value of `grant_type`.
         displayName: getAccessToken
         is:
           - SlasRateLimit:
-                responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 500
+              responseStatus: 200
+              responseStatus2: 400
+              responseStatus3: 401
+              responseStatus4: 500
         headers:
-          Authorization: 
+          Authorization:
             displayName: Authorization
-            description: "Base64 encoded string for authentication. The string is composed of a client ID and client secret, separated by a colon (`:`). Example: `clientId:clientSecret`"
+            description: "Base64 encoded string for HTTP Basic authentication. The string is composed of a client ID and client secret, separated by a colon (`:`), like this: `clientId:clientSecret`. Required unless the grant type is `authorization_code_pkce`."
             type: string
             required: false
             example: "Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW"
@@ -768,24 +775,24 @@ types:
               application/problem+json:
                 type: Oauth2ErrorResponse
                 example: |
-                    {
-                    "error": "invalid_client",
-                    "error_description": "Basic Authorization failed."
-                    }
+                  {
+                  "error": "invalid_client",
+                  "error_description": "Basic Authorization failed."
+                  }
           500:
             description: Internal Server Error
             body:
               application/problem+json:
                 type: Oauth2ErrorResponse
                 example: |
-                    {
-                    "error": "server_error",
-                    "error_description": "The server has encountered a situation it doesn't know how to handle."
-                    }
+                  {
+                  "error": "server_error",
+                  "error_description": "The server has encountered a situation it doesn't know how to handle."
+                  }
     /trusted-system/token:
-      description: Shopper OAuth2 Token Endpoint.
+      description: Shopper OAuth 2.0 token endpoint.
       post:
-        description: Get a shopper JWT/access token for registered customers whose credentials are stored using a third party system.</br></br>Mandatory fields for <b>Trusted On Behalf Of</b> to get an access token are grant_type, hint, login_id, login_origin, and channel_id.</br></br>Valid grant type for <b>Trusted On Behalf Of</b> is <i>client_credentials.</i></br></br>For<b>Trusted System External On Behalf Of</b> a basic auth authorization header of SLAS client id and SLAS client secret should be used in place of the bearer Token.</br></br>For <b>Trusted System Internal On Behalf Of </b>the authorization header bearer token should be a C2C JWT.</br>
+        description: Get a shopper JWT access token for a registered customer whose credentials are stored using a third party system.<br /><br />For Trusted System External On Behalf Of requests, a basic authorization header that includes a SLAS client ID and SLAS client secret can be used in place of the bearer token.<br /><br />For Trusted System Internal On Behalf Of requests, the authorization header bearer token should be a C2C JWT.
         displayName: getTrustedSystemAccessToken
         is:
           - SlasRateLimit:
@@ -794,7 +801,10 @@ types:
               responseStatus3: 401
               responseStatus4: 503
         securedBy:
-        - CommerceCloudStandards.ShopperToken: {Bearer eyJ2ZXIiOiIxLjAiLCJraWQiOiI0ZTQyNTFkOS0zM2Y2LTRjMTMtYjZmZC1mOWJkNTJmYTZhNDciLCJ0eXAiOiJqd3QiLCJjbHYiOiJKMi4xLjAiLCJhbGciOiJFUzI1NiJ9.eyJhdXQiOiJHVUlEIiwic2NwIjoic2ZjYy5wcm9kdWN0cy5ybyBzZmNjLmNhdGFsb2dzLnJvIHNmY2Muc2hvcHBlci5ydyIsInN1YiI6ImNjLXNsYXM6OnNsc2FfZGV2OjpzY2lkOjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3Yjo6dXNpZDoxY2E3OWZiNi0xYjIyLTRmOWItOGJiNi05YmU5NWNjMjA4NjMiLCJjdHgiOiJzbGFzLm5vdF9mb3JfZXh0ZXJuYWxfdXNlIiwiaXNzIjoic2xhcy9kZXYvc2xzYV9kZXYiLCJpc3QiOjEsImF1ZCI6ImNvbW1lcmNlY2xvdWQvZGV2L3Nsc2FfZGV2IiwibmJmIjoxNTk0NzY0MDgwLCJzdHkiOiJVc2VyIiwiaXNiIjoidWlkbzpzbGFzOjp1cG46R3Vlc3Q6OnVpZG46R3Vlc3QgVXNlciIsImV4cCI6MTU5NDc2NTkxMCwiaWF0IjoxNTk0NzY0MTEwLCJqdGkiOiJDMkMxNjM0NTE0NTEwLTE3MTQzMTg2NzY0MjcwNTcyNjQ2NTYxMzgifQ.UVYAsWXCn3hoUPy8vLlc7O96RZEHD3N3ZgdNH-ZVvJ1G-R6uJ2VPrYvwKmYXF41Ujm2bo83AYOHVqEEEPT8Kgw}
+          - CommerceCloudStandards.ShopperToken:
+              {
+                Bearer eyJ2ZXIiOiIxLjAiLCJraWQiOiI0ZTQyNTFkOS0zM2Y2LTRjMTMtYjZmZC1mOWJkNTJmYTZhNDciLCJ0eXAiOiJqd3QiLCJjbHYiOiJKMi4xLjAiLCJhbGciOiJFUzI1NiJ9.eyJhdXQiOiJHVUlEIiwic2NwIjoic2ZjYy5wcm9kdWN0cy5ybyBzZmNjLmNhdGFsb2dzLnJvIHNmY2Muc2hvcHBlci5ydyIsInN1YiI6ImNjLXNsYXM6OnNsc2FfZGV2OjpzY2lkOjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3Yjo6dXNpZDoxY2E3OWZiNi0xYjIyLTRmOWItOGJiNi05YmU5NWNjMjA4NjMiLCJjdHgiOiJzbGFzLm5vdF9mb3JfZXh0ZXJuYWxfdXNlIiwiaXNzIjoic2xhcy9kZXYvc2xzYV9kZXYiLCJpc3QiOjEsImF1ZCI6ImNvbW1lcmNlY2xvdWQvZGV2L3Nsc2FfZGV2IiwibmJmIjoxNTk0NzY0MDgwLCJzdHkiOiJVc2VyIiwiaXNiIjoidWlkbzpzbGFzOjp1cG46R3Vlc3Q6OnVpZG46R3Vlc3QgVXNlciIsImV4cCI6MTU5NDc2NTkxMCwiaWF0IjoxNTk0NzY0MTEwLCJqdGkiOiJDMkMxNjM0NTE0NTEwLTE3MTQzMTg2NzY0MjcwNTcyNjQ2NTYxMzgifQ.UVYAsWXCn3hoUPy8vLlc7O96RZEHD3N3ZgdNH-ZVvJ1G-R6uJ2VPrYvwKmYXF41Ujm2bo83AYOHVqEEEPT8Kgw
+              }
         body:
           application/x-www-form-urlencoded:
             type: TrustedSystemTokenRequest
@@ -831,22 +841,22 @@ types:
               application/problem+json:
                 type: Oauth2ErrorResponse
                 example: |
-                    {
-                    "error": "invalid_client",
-                    "error_description": "Authorization failed."
-                    }
+                  {
+                  "error": "invalid_client",
+                  "error_description": "Authorization failed."
+                  }
           503:
             description: Gateway Error
             body:
               application/problem+json:
                 type: Oauth2ErrorResponse
                 example: |
-                    {
-                    "error": "server_error",
-                    "error_description": "The server has encountered a situation it doesn't know how to handle."
-                    }    
+                  {
+                  "error": "server_error",
+                  "error_description": "The server has encountered a situation it doesn't know how to handle."
+                  }
     /passwordless/token:
-      description: Evaluate the `pwdless_token` and issue the shopper token (JWT).
+      description: Evaluate the passwordless token and issue a shopper token (JWT).
       post:
         description: Issue a shopper token (JWT).
         displayName: getPasswordLessAccessToken
@@ -857,15 +867,15 @@ types:
               responseStatus3: 401
               responseStatus4: 503
         headers:
-          Authorization: 
+          Authorization:
             displayName: Authorization
-            description: "Base64 encoded string for authentication. The string is composed of a client ID and client secret, separated by a colon (`:`). Example: `clientId:clientSecret`"
+            description: "Base64 encoded string for HTTP Basic authentication. The string is composed of a client ID and client secret, separated by a colon (`:`), like this: `clientId:clientSecret`"
             type: string
             required: false
             example: "Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW="
         body:
           application/x-www-form-urlencoded:
-            type: PasswordLessTokenRequest
+            type: PasswordLessLoginTokenRequest
         responses:
           200:
             description: Success
@@ -899,29 +909,29 @@ types:
               application/problem+json:
                 type: Oauth2ErrorResponse
                 example: |
-                    {
-                    "error": "invalid_client",
-                    "error_description": "Authorization failed."
-                    }
+                  {
+                  "error": "invalid_client",
+                  "error_description": "Authorization failed."
+                  }
           503:
             description: Gateway Error
             body:
               application/problem+json:
                 type: Oauth2ErrorResponse
                 example: |
-                    {
-                    "error": "gateway_server_error",
-                    "error_description": "A service that the server relies on is down or is having difficulty."
-                    }    
+                  {
+                  "error": "gateway_server_error",
+                  "error_description": "A service that the server relies on is down or is having difficulty."
+                  }
     /revoke:
-      description: Shopper OAuth2 Token revoke Endpoint.
+      description: Shopper OAuth 2.0 token revoke endpoint.
       post:
-        description: Invalidate the refresh token. A basic auth header with base64 encoded clientId:secret is required in the Authorization header, and the refresh token to be revoked is required in the body.
+        description: Invalidate the refresh token. A basic auth header with base64 encoded `clientId:secret` is required in the Authorization header, and the refresh token to be revoked is required in the body.
         displayName: revokeToken
         headers:
-          Authorization: 
+          Authorization:
             displayName: Authorization
-            description: Basic authentication base 64 encoded string.
+            description: Base64 string for HTTP Basic authentication.
             type: string
             required: true
             example: "Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW"
@@ -931,7 +941,7 @@ types:
             example: |
               {
                 "token": "ry5XU_WHX20S6Cn6W7keFIs7Pzkv4wTZJS9Yvh0Ve9A.cdBxoCY9Q3jffQQOFnb_qghbSmSRnn9-2H4GwFTDMTk",
-                "token_type_hint": "REFRESH_TOKEN"
+                "token_type_hint": "refresh_token"
               }
         responses:
           200:
@@ -966,29 +976,29 @@ types:
               application/problem+json:
                 type: Oauth2ErrorResponse
                 example: |
-                    {
-                    "error": "invalid_client",
-                    "error_description": "Basic Authorization failed."
-                    }
+                  {
+                  "error": "invalid_client",
+                  "error_description": "Basic Authorization failed."
+                  }
           500:
             description: Internal Server Error
             body:
               application/problem+json:
                 type: Oauth2ErrorResponse
                 example: |
-                    {
-                    "error": "server_error",
-                    "error_description": "The server has encountered a situation it doesn't know how to handle."
-                    }
+                  {
+                  "error": "server_error",
+                  "error_description": "The server has encountered a situation that it doesn't know how to handle."
+                  }
     /introspect:
-      description: Token Introspection returns information about an access token or refresh token, intended to be used by resource servers or other internal servers.
+      description: Returns information about an access token or refresh token. Used by resource servers or other internal servers.
       post:
-        description: Returns the token properties. A basic auth header with base64 encoded clientId:secret is required in the Authorization header, as well as an access token or refresh token. Use token_type_hint to help identify the token.
+        description: Returns the token properties. A basic auth header with base64 encoded `clientId:secret` is required in the Authorization header, as well as an access token or refresh token. Use `token_type_hint` to help identify the token.
         displayName: introspectToken
         headers:
-          Authorization: 
+          Authorization:
             displayName: Authorization
-            description: Basic authentication base 64 encoded string.
+            description: Base64 string for HTTP Basic authentication.
             type: string
             required: true
             example: "Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW"
@@ -998,7 +1008,7 @@ types:
             example: |
               {
                 "token": "eyJ2ZXIiOiIxLjAiLCJraWQiOiI0ZTQyNTFkOS0zM2Y2LTRjMTMtYjZmZC1mOWJkNTJmYTZhNDciLCJ0eXAiOiJqd3QiLCJjbHYiOiJKMi4xLjAiLCJhbGciOiJFUzI1NiJ9.eyJhdXQiOiJHVUlEIiwic2NwIjoic2ZjYy5wcm9kdWN0cy5ybyBzZmNjLmNhdGFsb2dzLnJvIHNmY2Muc2hvcHBlci5ydyIsInN1YiI6ImNjLXNsYXM6OnNsc2FfZGV2OjpzY2lkOjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3Yjo6dXNpZDoxY2E3OWZiNi0xYjIyLTRmOWItOGJiNi05YmU5NWNjMjA4NjMiLCJjdHgiOiJzbGFzLm5vdF9mb3JfZXh0ZXJuYWxfdXNlIiwiaXNzIjoic2xhcy9kZXYvc2xzYV9kZXYiLCJpc3QiOjEsImF1ZCI6ImNvbW1lcmNlY2xvdWQvZGV2L3Nsc2FfZGV2IiwibmJmIjoxNTk0NzY0MDgwLCJzdHkiOiJVc2VyIiwiaXNiIjoidWlkbzpzbGFzOjp1cG46R3Vlc3Q6OnVpZG46R3Vlc3QgVXNlciIsImV4cCI6MTU5NDc2NTkxMCwiaWF0IjoxNTk0NzY0MTEwLCJqdGkiOiJDMkMxNjM0NTE0NTEwLTE3MTQzMTg2NzY0MjcwNTcyNjQ2NTYxMzgifQ.UVYAsWXCn3hoUPy8vLlc7O96RZEHD3N3ZgdNH-ZVvJ1G-R6uJ2VPrYvwKmYXF41Ujm2bo83AYOHVqEEEPT8Kgw",
-                "token_type_hint": "ACCESS_TOKEN"
+                "token_type_hint": "access_token"
               }
         responses:
           200:
@@ -1032,37 +1042,40 @@ types:
               application/problem+json:
                 type: Oauth2ErrorResponse
                 example: |
-                    {
-                    "error": "invalid_client",
-                    "error_description": "Basic Authorization failed."
-                    }
+                  {
+                  "error": "invalid_client",
+                  "error_description": "Basic Authorization failed."
+                  }
           500:
             description: Internal Server Error
             body:
               application/problem+json:
                 type: Oauth2ErrorResponse
                 example: |
-                    {
-                    "error": "server_error",
-                    "error_description": "The server has encountered a situation it doesn't know how to handle."
-                    }    
+                  {
+                  "error": "server_error",
+                  "error_description": "The server has encountered a situation it doesn't know how to handle."
+                  }
     /userinfo:
-      description: Return claims about the authenticated end user.
+      description: Return claims about the authenticated user.
       get:
-        description: Returns a JSON document with claims about the currently authenticated end user.
+        description: Returns a JSON listing of claims about the currently authenticated user.
         displayName: getUserInfo
         securedBy:
-          - SlasJWT-BearerSecurityScheme.BearerToken: {Bearer eyJ2ZXIiOiIxLjAiLCJraWQiOiI0ZTQyNTFkOS0zM2Y2LTRjMTMtYjZmZC1mOWJkNTJmYTZhNDciLCJ0eXAiOiJqd3QiLCJjbHYiOiJKMi4xLjAiLCJhbGciOiJFUzI1NiJ9.eyJhdXQiOiJHVUlEIiwic2NwIjoic2ZjYy5wcm9kdWN0cy5ybyBzZmNjLmNhdGFsb2dzLnJvIHNmY2Muc2hvcHBlci5ydyIsInN1YiI6ImNjLXNsYXM6OnNsc2FfZGV2OjpzY2lkOjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3Yjo6dXNpZDoxY2E3OWZiNi0xYjIyLTRmOWItOGJiNi05YmU5NWNjMjA4NjMiLCJjdHgiOiJzbGFzLm5vdF9mb3JfZXh0ZXJuYWxfdXNlIiwiaXNzIjoic2xhcy9kZXYvc2xzYV9kZXYiLCJpc3QiOjEsImF1ZCI6ImNvbW1lcmNlY2xvdWQvZGV2L3Nsc2FfZGV2IiwibmJmIjoxNTk0NzY0MDgwLCJzdHkiOiJVc2VyIiwiaXNiIjoidWlkbzpzbGFzOjp1cG46R3Vlc3Q6OnVpZG46R3Vlc3QgVXNlciIsImV4cCI6MTU5NDc2NTkxMCwiaWF0IjoxNTk0NzY0MTEwLCJqdGkiOiJDMkMxNjM0NTE0NTEwLTE3MTQzMTg2NzY0MjcwNTcyNjQ2NTYxMzgifQ.UVYAsWXCn3hoUPy8vLlc7O96RZEHD3N3ZgdNH-ZVvJ1G-R6uJ2VPrYvwKmYXF41Ujm2bo83AYOHVqEEEPT8Kgw}
-#       headers:
-#          Authorization: 
-#            displayName: Authorization
-#            description: SLAS Access Token
-#            type: string
-#           required: true
-#            example: "eyJ2ZXIiOiIxLjAiLCJraWQiOiI0ZTQyNTFkOS0zM2Y2LTRjMTMtYjZmZC1mOWJkNTJmYTZhNDciLCJ0eXAiOiJqd3QiLCJjbHYiOiJKMi4xLjAiLCJhbGciOiJFUzI1NiJ9.eyJhdXQiOiJHVUlEIiwic2NwIjoic2ZjYy5wcm9kdWN0cy5ybyBzZmNjLmNhdGFsb2dzLnJvIHNmY2Muc2hvcHBlci5ydyIsInN1YiI6ImNjLXNsYXM6OnNsc2FfZGV2OjpzY2lkOjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3Yjo6dXNpZDoxY2E3OWZiNi0xYjIyLTRmOWItOGJiNi05YmU5NWNjMjA4NjMiLCJjdHgiOiJzbGFzLm5vdF9mb3JfZXh0ZXJuYWxfdXNlIiwiaXNzIjoic2xhcy9kZXYvc2xzYV9kZXYiLCJpc3QiOjEsImF1ZCI6ImNvbW1lcmNlY2xvdWQvZGV2L3Nsc2FfZGV2IiwibmJmIjoxNTk0NzY0MDgwLCJzdHkiOiJVc2VyIiwiaXNiIjoidWlkbzpzbGFzOjp1cG46R3Vlc3Q6OnVpZG46R3Vlc3QgVXNlciIsImV4cCI6MTU5NDc2NTkxMCwiaWF0IjoxNTk0NzY0MTEwLCJqdGkiOiJDMkMxNjM0NTE0NTEwLTE3MTQzMTg2NzY0MjcwNTcyNjQ2NTYxMzgifQ.UVYAsWXCn3hoUPy8vLlc7O96RZEHD3N3ZgdNH-ZVvJ1G-R6uJ2VPrYvwKmYXF41Ujm2bo83AYOHVqEEEPT8Kgw"
+          - SlasJWT-BearerSecurityScheme.BearerToken:
+              {
+                Bearer eyJ2ZXIiOiIxLjAiLCJraWQiOiI0ZTQyNTFkOS0zM2Y2LTRjMTMtYjZmZC1mOWJkNTJmYTZhNDciLCJ0eXAiOiJqd3QiLCJjbHYiOiJKMi4xLjAiLCJhbGciOiJFUzI1NiJ9.eyJhdXQiOiJHVUlEIiwic2NwIjoic2ZjYy5wcm9kdWN0cy5ybyBzZmNjLmNhdGFsb2dzLnJvIHNmY2Muc2hvcHBlci5ydyIsInN1YiI6ImNjLXNsYXM6OnNsc2FfZGV2OjpzY2lkOjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3Yjo6dXNpZDoxY2E3OWZiNi0xYjIyLTRmOWItOGJiNi05YmU5NWNjMjA4NjMiLCJjdHgiOiJzbGFzLm5vdF9mb3JfZXh0ZXJuYWxfdXNlIiwiaXNzIjoic2xhcy9kZXYvc2xzYV9kZXYiLCJpc3QiOjEsImF1ZCI6ImNvbW1lcmNlY2xvdWQvZGV2L3Nsc2FfZGV2IiwibmJmIjoxNTk0NzY0MDgwLCJzdHkiOiJVc2VyIiwiaXNiIjoidWlkbzpzbGFzOjp1cG46R3Vlc3Q6OnVpZG46R3Vlc3QgVXNlciIsImV4cCI6MTU5NDc2NTkxMCwiaWF0IjoxNTk0NzY0MTEwLCJqdGkiOiJDMkMxNjM0NTE0NTEwLTE3MTQzMTg2NzY0MjcwNTcyNjQ2NTYxMzgifQ.UVYAsWXCn3hoUPy8vLlc7O96RZEHD3N3ZgdNH-ZVvJ1G-R6uJ2VPrYvwKmYXF41Ujm2bo83AYOHVqEEEPT8Kgw
+              }
+        #       headers:
+        #          Authorization:
+        #            displayName: Authorization
+        #            description: SLAS Access Token
+        #            type: string
+        #           required: true
+        #            example: "eyJ2ZXIiOiIxLjAiLCJraWQiOiI0ZTQyNTFkOS0zM2Y2LTRjMTMtYjZmZC1mOWJkNTJmYTZhNDciLCJ0eXAiOiJqd3QiLCJjbHYiOiJKMi4xLjAiLCJhbGciOiJFUzI1NiJ9.eyJhdXQiOiJHVUlEIiwic2NwIjoic2ZjYy5wcm9kdWN0cy5ybyBzZmNjLmNhdGFsb2dzLnJvIHNmY2Muc2hvcHBlci5ydyIsInN1YiI6ImNjLXNsYXM6OnNsc2FfZGV2OjpzY2lkOjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3Yjo6dXNpZDoxY2E3OWZiNi0xYjIyLTRmOWItOGJiNi05YmU5NWNjMjA4NjMiLCJjdHgiOiJzbGFzLm5vdF9mb3JfZXh0ZXJuYWxfdXNlIiwiaXNzIjoic2xhcy9kZXYvc2xzYV9kZXYiLCJpc3QiOjEsImF1ZCI6ImNvbW1lcmNlY2xvdWQvZGV2L3Nsc2FfZGV2IiwibmJmIjoxNTk0NzY0MDgwLCJzdHkiOiJVc2VyIiwiaXNiIjoidWlkbzpzbGFzOjp1cG46R3Vlc3Q6OnVpZG46R3Vlc3QgVXNlciIsImV4cCI6MTU5NDc2NTkxMCwiaWF0IjoxNTk0NzY0MTEwLCJqdGkiOiJDMkMxNjM0NTE0NTEwLTE3MTQzMTg2NzY0MjcwNTcyNjQ2NTYxMzgifQ.UVYAsWXCn3hoUPy8vLlc7O96RZEHD3N3ZgdNH-ZVvJ1G-R6uJ2VPrYvwKmYXF41Ujm2bo83AYOHVqEEEPT8Kgw"
         queryParameters:
           channel_id:
-            description: Used when getting user information for a SFCC login. For an ECOM customer this is angalous to the site ID. This is a required parameter when getting user information for an ECOM customer.
+            description: Used when getting user information for a SFCC login. For an ECOM customer, this is angalous to the site ID. Required when getting user information for an ECOM customer.
             required: false
             maxLength: 100
             type: string
@@ -1083,7 +1096,7 @@ types:
                       "external_id": "okta-00u38qdjnScLOB1mq5d6",
                       "customer_id": "abxHc1lblIlKwRl0k1mqYYkewY",
                       "validated": true
-                  }          
+                  }
           400:
             description: Bad Request
             body:
@@ -1100,13 +1113,13 @@ types:
               application/problem+json:
                 type: Oauth2ErrorResponse
                 example: |
-                    {
-                    "error": "server_error",
-                    "error_description": "The server has encountered a situation it doesn't know how to handle."
-                    }
+                  {
+                  "error": "server_error",
+                  "error_description": "The server has encountered a situation it doesn't know how to handle."
+                  }
 
     /.well-known/openid-configuration:
-      description: OpenID Connect (OIDC) is an identity layer built on top of the OAuth 2.0 protocol and supported by some OAuth 2.0 providers, such as Google and Azure Active Directory. It defines a sign-in flow that enables a client application to authenticate a user, and to obtain information (or "claims") about that user, such as the user name, email, and so on. User identity information is encoded in a secure JSON Web Token (JWT), called ID token.  
+      description: OpenID Connect (OIDC) is an identity layer built on top of the OAuth 2.0 standard and supported by some OAuth 2.0 providers, such as Google. It defines a sign-in flow that enables a client application to authenticate a user, and to obtain information (or "claims") about that user, such as the user name, email, and so on. User identity information is encoded in a secure JSON Web Token (JWT).
       get:
         description: Returns a JSON listing of the OpenID/OAuth endpoints, supported scopes and claims, public keys used to sign the tokens, and other details.
         displayName: getWellknownOpenidConfiguration
@@ -1173,14 +1186,14 @@ types:
               application/problem+json:
                 type: Oauth2ErrorResponse
                 example: |
-                    {
-                    "error": "server_error",
-                    "error_description": "The server has encountered a situation it doesn't know how to handle."
-                    }
+                  {
+                  "error": "server_error",
+                  "error_description": "The server has encountered a situation it doesn't know how to handle."
+                  }
     /jwks:
-      description: The JSON Web Key Set (JWKS) is a set of keys which contains the public keys used to verify any JSON Web Token (JWT) issued by the authorization server and signed using the EC256 signing algorithm.
+      description: The JSON Web Key Set (JWKS) is a set of keys that contains the public keys used to verify any JSON Web Token (JWT) issued by the authorization server and signed using the EC256 signing algorithm.
       get:
-        description: Returns a JWKS containing public keys that enable clients to validate the Shopper JSON Web Token (JWT) issued by SLAS.
+        description: Returns a JSON Web Key Set (JWKS) containing public keys that enable clients to validate the Shopper JSON Web Token (JWT) issued by SLAS.
         displayName: getJwksUri
         responses:
           200:
@@ -1217,7 +1230,7 @@ types:
               application/problem+json:
                 type: Oauth2ErrorResponse
                 example: |
-                    {
+                  {
                     "error": "server_error",
                     "error_description": "The server has encountered a situation it doesn't know how to handle."
-                    }
+                  }

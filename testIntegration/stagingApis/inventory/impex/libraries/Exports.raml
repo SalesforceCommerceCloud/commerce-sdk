@@ -1,0 +1,200 @@
+#%RAML 1.0 Library
+    
+types:
+  ExportStatusLink: !include ../types/Exports/ExportStatusLink.raml
+  ExportStatuses: !include ../types/Exports/ExportStatuses.raml
+  FileHashTypes: !include ../types/FileHashTypes.raml
+  ExportStatsGroup: !include ../types/Exports/ExportStatsGroup.raml
+  ExportStatsLocation: !include ../types/Exports/ExportStatsLocation.raml
+  ExportGroupDownloadLink: !include ../types/Exports/ExportGroupDownloadLink.raml
+  ExportLocationDownloadLink: !include ../types/Exports/ExportLocationDownloadLink.raml   
+  ExportFileValidation: !include ../types/Exports/ExportFileValidation.raml
+  ExportResultsRecord: !include ../types/Exports/ExportResultsRecord.raml
+  DeltaToken: !include ../types/GlobalTypes/DeltaToken.raml
+  Date: !include ../types/GlobalTypes/Date.raml
+  GroupId: !include ../types/GlobalTypes/GroupId.raml
+  LocationId: !include ../types/GlobalTypes/LocationId.raml
+  UniqueId: !include ../types/GlobalTypes/UniqueId.raml
+  ExportBatchDataType: !include ../types/Exports/ExportBatchDataType.raml
+
+    
+  ExportDownloadRequestResponse200:
+    properties:
+      deltaToken:
+        type: DeltaToken
+      records:
+        type: array
+        items:
+          type: ExportResultsRecord
+
+  InitiateGroupExportResponse200:
+    properties:
+      exportId: 
+        type: UniqueId
+        description: The ID associated with the initiated export
+        example: a218f4b2-2dc3-4ea8-af6d-c75fafd62323
+      exportStatusLink: 
+        type: string
+        description: The URI to be used for accessing the export status. This resource is available immediately.
+        example: "/inventory/inventory-availability/v1/organizations/AtsisIntegrationTenant/availability-records/exports/a218f4b2-2dc3-4ea8-af6d-c75fafd62323/status"
+
+  InitiateLocationExportResponse200:
+    properties:
+      exportId: 
+        type: UniqueId
+        description: The ID associated with the initiated export
+        example: a218f4b2-2dc3-4ea8-af6d-c75fafd62323
+      exportStatusLink: 
+        type: string
+        description: The URI to be used for accessing the export status. This resource is available immediately.
+        example: "/inventory/inventory-availability/v1/organizations/AtsisIntegrationTenant/inventory/exports/locations/status?exportIds=a218f4b2-2dc3-4ea8-af6d-c75fafd62323"
+        
+  ExportDeleteResponse200:
+    properties:
+      errors:
+        type: array
+        items:
+          type: !include ../types/Exports/DeleteExportErrors.raml
+  
+  ExportDeleteBatchResponse200:
+    properties:
+      deleted: 
+        type: array
+        items:
+          type: string
+          example: "d88e54c5-23ed-4e33-a6a9-c31dc810662b"
+      errors:
+        type: array
+        items: 
+          type: !include ../types/Exports/DeleteExportErrors.raml
+
+  ExportLocationStatusResponse200:
+    properties:
+      id: 
+        description: The ID assocaited with this export request.
+        type: UniqueId
+        example: 323b0g69-d37d-423a-84f5-8f393fe80459
+      status:
+        description: The current status of the export request
+        type: ExportStatuses
+        example: COMPLETED
+      export:
+        properties:
+          startTimeUTC: 
+            description: The UTC time that the export process was started.
+            type: Date
+            example: 2019-02-12T12:34:00Z
+          endTimeUTC: 
+            description: The UTC time that the export process completed.
+            type: Date
+            example: 2019-02-12T12:52:00Z
+          recordsProcessedCount: 
+            description: The total number of records processed during the export request.
+            type: number
+            example: 2000
+          recordsExportedCount: 
+            description: The total number of records exported by the system.
+            type: number
+            example: 2000
+          locations:
+            description: Locations assocatiated with this export request
+            required: false
+            type: array
+            items: LocationId
+      download:
+        type: ExportLocationDownloadLink
+      validation:
+        type: ExportFileValidation
+        
+  ExportGroupStatusResponse200:
+    properties:
+      id: 
+        description: The ID associated with this export request.
+        type: UniqueId
+        example: ameff4b2-2dc3-4ea8-af6d-c75fafd62323
+      status:
+        description: The current status of the export request
+        type: ExportStatuses
+        example: COMPLETED
+      export:
+        properties:
+            startTimeUTC: 
+              description: The UTC time that the export process was started.
+              type: Date
+              example: 2019-02-12T12:34:00Z
+              required: false
+            endTimeUTC: 
+              description: The UTC time that the export process completed.
+              type: Date
+              example: 2019-02-12T12:52:00Z
+              required: false
+            recordsProcessedCount: 
+              description: The total number of records processed during the export request.
+              type: number
+              example: 2000
+            recordsExportedCount: 
+              description: The total number of records exported by the system.
+              type: number
+              example: 2000
+            groups:
+              description: Groups assocatiated with this export request
+              required: false
+              type: array
+              items: GroupId
+      download:
+        properties:
+          downloadLink:
+            description: The URI link to be used for retrieving the export file. This link is valid anytime after the status of the export is completed and the link has not expired.
+            type: string
+            example: /v2/organizations/AtsisIntegrationTenant/availability-records/exports/a218f4b2-2dc3-4ea8-af6d-c75fafd62323/file-content
+          downloadLinkExpirationUTC: 
+            description: The time at which the download link will expire, in UTC time.
+            type: !include ../types/GlobalTypes/Date.raml
+            example: 2019-02-12T13:23:51Z
+      validation:
+        required: false
+        properties:
+          fileHashType:
+            description: The file hash type associated with the export file.
+            type: FileHashTypes
+            example: SHA-256
+          fileHash:
+            description: The hash associated with the export file.
+            type: string
+            example: e9v2d11298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852c922
+          fileSize:
+            description: File size in bytes.
+            type: number
+            example: 5231942
+  
+  ExportGroupDownloadRequestResponse200:
+    description: "See the main API documentation for a full description of the content and formatting of the file."
+    example: "{\"groupId\":\"UnitedStates\"}
+    \n{\"sku\":\"123\",\"onHand\":10,\"reserved\":6,\"atf\":4,\"ato\":24,\"futures\":[{\"quantity\":20,\"expectedDate\":\"2019-07-24T21:13:00Z\"}]}
+    \n{\"sku\":\"456\",\"onHand\":100.25,\"reserved\":50.25,\"atf\":50,\"ato\":50}
+    \n{\"groupId\":\"Germany\"}
+    \n{\"sku\":\"789\",\"onHand\":1000,\"reserved\":500,\"atf\":500,\"ato\":500}
+    \n{\"sku\":\"012\",\"onHand\":15000,\"reserved\":1500,\"atf\":13500,\"ato\":13500}
+    \n{\"deltaToken\":\"eyJncm91cHMiOlsiRXhwb3J0LUdyb3VwMSIsIkV4cG9ydC1Hcm91cDIiXSwiaW50ZXJuYWxJZHMiOlsxMzgsMTM3XSwidHlwZSI6IkdST1VQX0VYUE9SVCJ9\"}"
+
+  ExportLocationDownloadRequestResponse200:
+    description: "See the main API documentation for a full description of the content and formatting of the file."
+    example: "{\"locationId\":\"warehouse5\"}
+    \n{\"sku\":\"123\",\"onHand\":10,\"reserved\":6,\"atf\":4,\"ato\":24,\"futures\":[{\"quantity\":20,\"expectedDate\":\"2019-07-24T21:13:00Z\"}]}
+    \n{\"sku\":\"456\",\"qoh\":100.25,\"reserved\":50.25,\"atf\":50,\"ato\":50}
+    \n{\"locationId\":\"warehouse6\"}
+    \n{\"sku\":\"789\",\"qoh\":1000,\"reserved\":500,\"atf\":500,\"ato\":500}
+    \n{\"sku\":\"012\",\"qoh\":15000,\"reserved\":1500,\"atf\":13500,\"ato\":13500}
+    \n{\"deltaToken\":\"eyJncm91cHMiOlsiRXhwb3J0LUdyb3VwMSIsIkV4cG9ydC1Hcm91cDIiXSwiaW50ZXJuYWxJZHMiOlsxMzgsMTM3XSwidHlwZSI6IkdST1VQX0VYUE9SVCJ9\"}"
+  
+  ExportBatchResponse200:
+    description: A JSON array with a collection of all the import Id values
+    type: ExportBatchDataType
+    example: |
+      {
+        "exports":[ 
+            "d88e54c5-23ed-4e33-a6a9-c31dc810662b",
+            "da39a3ee-5e6b-4b0d-3255-bfef95601890",
+            "a94a8fe5-ccb1-9ba6-1c4c-0873d391e987"
+        ]
+      }

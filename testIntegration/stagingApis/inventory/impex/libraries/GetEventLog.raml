@@ -1,0 +1,137 @@
+#%RAML 1.0 Library
+types:
+  Date: !include ../types/GlobalTypes/Date.raml
+  GroupId: !include ../types/GlobalTypes/GroupId.raml
+  SkuId: !include ../types/GlobalTypes/SkuId.raml
+  PlaceId: !include ../types/GlobalTypes/LocationGroup.raml
+  EventLogRecord: !include ../types/EventLog/EventLogRecord.raml
+  EventLogExportStatuses: !include ../types/EventLog/ExportStatuses.raml
+  LocationId: !include ../types/GlobalTypes/LocationId.raml
+  LocationOrGroup: !include ../types/GlobalTypes/LocationOrGroup.raml
+  DeleteErrors: !include ../types/EventLog/DeleteEventLogErrors.raml
+  UniqueId: !include ../types/GlobalTypes/UniqueId.raml
+  EventLogStats: !include ../types/EventLog/EventLogStats.raml
+  EventLogStatuses: !include ../types/EventLog/EventLogStatuses.raml
+  EventLogDownloadLink: !include ../types/EventLog/EventLogDownloadLink.raml
+  EventLogFileValidation: !include ../types/EventLog/EventLogFileValidation.raml
+  FileHashTypes: !include ../types/FileHashTypes.raml
+  GetEventLogRequestBody: !include ../types/Exports/GetEventLogRequestBody.raml
+  InitiateEventLogExportResponse200: !include ../types/Exports/InitiateEventLogExportResponse200.raml
+    
+  InitiateEventActivityExportRequestBody:
+    description: The body that is sent requesting an export to be initiated
+    type: GetEventLogRequestBody
+
+  EventLogDeleteResponse200:
+    properties:
+      deleted: 
+        type: array
+        items:
+          type: string
+          example: "d88e54c5-23ed-4e33-a6a9-c31dc810662b"
+      errors:
+        type: array
+        items: 
+          type: DeleteErrors
+          
+  EventLogDownloadRequestResponse200:
+    properties:
+      events:
+        type: array
+        items: EventLogRecord
+
+  EventLogStatusResponse200:
+    properties:
+      results:
+        type: array
+        items: EventLogStatusResponse200Item
+
+  EventLogStatusResponse200Item:
+    properties:
+      id: 
+        description: The ID associated with this event log request.
+        type: UniqueId
+        example: a218f4b2-2dc3-4ea8-af6d-c75fafd62323
+      status:
+        description: The current status of the event log request
+        type: EventLogStatuses
+        example: COMPLETED
+      export:
+        type: EventLogStats
+      download:
+        type: EventLogDownloadLink
+      validation:
+        properties:
+          fileHashType:
+            description: The file hash type associated with the export file.
+            type: FileHashTypes
+            example: SHA-256
+          fileHash:
+            description: The hash associated with the export file.
+            type: string
+            example: e9v2d11298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852c922
+          fileSize:
+            description: File size in bytes.
+            type: number
+            example: 5231942
+
+  ExportEventLogStatusResponse200:
+    properties:
+      id: 
+        description: The ID associated with this export request.
+        type: UniqueId
+        example: ameff4b2-2dc3-4ea8-af6d-c75fafd62323
+      status:
+        description: The current status of the export request
+        type: EventLogExportStatuses
+        example: COMPLETED
+      export:
+        properties:
+            startTimeUTC: 
+              description: The UTC time that the export process was started.
+              type: Date
+              example: 2019-02-12T12:34:00Z
+              required: false
+            endTimeUTC: 
+              description: The UTC time that the export process completed.
+              type: Date
+              example: 2019-02-12T12:52:00Z
+              required: false
+            recordsProcessedCount: 
+              description: The total number of records processed during the export request.
+              type: number
+              example: 2000
+            recordsExportedCount: 
+              description: The total number of records exported by the system.
+              type: number
+              example: 2000
+            groups:
+              description: Groups assocatiated with this export request
+              required: false
+              type: array
+              items: GroupId
+      download:
+        properties:
+          downloadLink:
+            description: The URI link to be used for retrieving the export file. This link is valid anytime after the status of the export is completed and the link has not expired.
+            type: string
+            example: /v2/organizations/AtsisIntegrationTenant/event-log/exports/a218f4b2-2dc3-4ea8-af6d-c75fafd62323/file-content
+          downloadLinkExpirationUTC: 
+            description: The time at which the download link will expire, in UTC time.
+            type: Date
+            example: 2019-02-12T13:23:51Z
+      validation:
+        required: false
+        properties:
+          fileHashType:
+            description: The file hash type associated with the export file.
+            type: FileHashTypes
+            example: SHA-256
+          fileHash:
+            description: The hash associated with the export file.
+            type: string
+            example: e9v2d11298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852c922
+          fileSize:
+            description: File size in bytes.
+            type: number
+            example: 5231942

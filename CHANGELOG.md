@@ -10,6 +10,35 @@ only use JavaScript, or if you use TypeScript but only import the client classes
 then your usage **will not change**. You will likely only need to make changes if
 you import the type definitions directly.
 
+### v2.8.0
+
+#### API Changes
+
+*SLAS admin*
+
+Endpoints Added:
+
+| **Endpoint Name** | **Description** |
+| ------------- |-------------|
+| retrievePwdlessTemplate | Retrieve a passwordless template |
+| registerPwdlessTemplate | Create or update a passwordless template |
+| deletePwdlessTemplate | Delete a passwordless template |
+| retrieveClients | Retrieve/Get all tenant clients |
+| retrieveClient | Retrieve a client |
+| registerClient | Create or Update a client |
+| deleteClient | Delete a client |
+
+Endpoints removed: 
+- `retrieveTenants`
+- `retrieveTenant`
+- `registerTenant`
+- `deleteTenant`
+
+
+#### Documentation
+
+Example data was updated to use inclusive language.
+
 ### v2.7.0
 
 #### New APIs

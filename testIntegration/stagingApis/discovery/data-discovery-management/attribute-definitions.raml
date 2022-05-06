@@ -1,0 +1,201 @@
+#%RAML 1.0 Library
+
+uses:
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml
+  DiscoveryStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/discovery-standards/0.0.30/discovery-standards.raml
+  ISOStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/Types/ISO-standards.raml
+
+types:
+
+  Path:
+    description: The path, using dot notation, to the data described by this definition.
+    type: string
+    example: item.description
+
+  LocalePath:
+    description: Entity describing the location where data for this attribute can be found in addition to the locale for that location.
+    type: CommerceCloudStandards.ClosedObject
+    properties:
+      path: Path
+      locale: ISOStandards.LanguageCountry
+
+  Name:
+    description: A human readable name string.
+    type: string
+    example: sku
+
+  LocalizedName:
+    description: An entity containing a human readable name and a locale that associates to that name.
+    type: CommerceCloudStandards.ClosedObject
+    properties:
+      name: Name
+      locale: ISOStandards.LanguageCountry
+
+  AttributeDefinition:
+    description: |
+      Base resource type for describing an attribute. All Attribute Definitions contain the following information.
+      * attributeId: A user defined, unique value, which is used to reference the Attribute Definition instance in other APIs.
+      * attributeDefinitionType: A String value describing the specific type of this Attribute Definition instance.
+      * dataType: An enumerated value which defines what form of data to expect in the object model at the given data locations. Different Attribute Definition types may have restrictions on allowed Data Types.
+
+      Additionally, each Attribute Definition will contain configuration information on where the data described by the definition is located.
+    type: CommerceCloudStandards.ClosedObject
+    properties:
+      attributeId: DiscoveryStandards.AttributeId
+      attributeDefinitionType:
+        description: The type of Attribute Definition being defined.
+        type: string
+      names?:
+        description: Collection of entities describing the name of the attribute in addition to the locale for that name.
+        type: LocalizedName[]
+    discriminator: attributeDefinitionType
+
+  ItemIdentifierAttributeDefinition:
+    description: Defines an attribute which uniquely identifies an item. There can be a single Item Identifier Attribute Definition defined per Data Set resource. This Attribute Definition may only be configured as a String or Integer data type, and may have any number of Usages.
+    type: AttributeDefinition
+    properties:
+      dataType:
+        description: The expected type of data which will be found at the given path's location.
+        enum:
+          - INTEGER
+          - STRING
+        example: INTEGER
+      usages?:
+        description: A collection of values defining how the attribute should be used within the domain during query operations.
+        type: string[]
+        minItems: 1
+        uniqueItems: true
+        items:
+          enum:
+            - FACETABLE
+            - FILTERABLE
+            - GROUP_RETURNABLE
+            - RETURNABLE
+            - SEARCHABLE
+            - SORTABLE
+        example: [FILTERABLE, SEARCHABLE]
+      path: Path
+    discriminatorValue: ITEM_IDENTIFIER_ATTRIBUTE_DEFINITION
+
+  SecondaryItemIdentifierAttributeDefinition:
+    description: Defines an attribute containing a Secondary Item Identifier which identifies information about the item and doesn't support any typo tolerance. There can be more than one Secondary Item Identifier Attribute Definition defined per Data Set resource. This Attribute Definition may only be configured as a String or Integer data type and must contain at least one usage.
+    type: AttributeDefinition
+    properties:
+      dataType:
+        description: The expected type of data which will be found at the given path's location.
+        enum:
+          - STRING
+          - INTEGER
+        example: STRING
+      usages:
+        description: A collection of values defining how the attribute should be used within the domain during query operations.
+        type: string[]
+        minItems: 1
+        uniqueItems: true
+        items:
+          enum:
+            - SEARCHABLE
+            - RETURNABLE
+            - GROUPABLE
+            - SORTABLE
+        example: [SEARCHABLE]
+      path: Path
+      isMultivalued:
+        description: Boolean determining if the data, found at the given path, is a single value or a collection, default to FALSE.
+        type: boolean
+        default: false
+        example: false
+    discriminatorValue: SECONDARY_ITEM_IDENTIFIER_ATTRIBUTE_DEFINITION
+
+  DataAttributeDefinition:
+    description: Defines an attribute which will not be analyzed for language. This Attribute Definition must have at least one usage.
+    type: AttributeDefinition
+    properties:
+      dataType:
+        description: The valid data type for the Attribute Definition.
+        enum:
+          - BOOLEAN
+          - DATE
+          - DATE_TIME
+          - DECIMAL
+          - INTEGER
+          - STRING
+        example: BOOLEAN
+      usages:
+        description: A collection of values defining how the attribute should be used within the domain.
+        type: string[]
+        minItems: 1
+        uniqueItems: true
+        items:
+          enum:
+            - FACETABLE
+            - FILTERABLE
+            - GROUPABLE
+            - GROUP_RETURNABLE
+            - RETURNABLE
+            - SEARCHABLE
+            - SORTABLE
+        example: [FILTERABLE, SEARCHABLE]
+      path: Path
+      isMultivalued:
+        description: Boolean determining if the data, found at the given path, is a single value or a collection.
+        type: boolean
+        example: true
+    discriminatorValue: DATA_ATTRIBUTE_DEFINITION
+
+  LocalizedAttributeDefinition:
+    description: Defines an attribute containing language analyzed data. To support language analysis, this definition is confgured with a collection of Locale Path entities. Each Locale Path takes in both a path as well as a Locale which should be used to analyze the data. This Attribute Definition requires at least one usage.
+    type: AttributeDefinition
+    properties:
+      dataType:
+        description: The valid data type for the Attribute Definition.
+        enum:
+          - STRING
+        example: STRING
+      usages:
+        description: A collection of values defining how the attribute should be used within the domain.
+        type: string[]
+        minItems: 1
+        uniqueItems: true
+        items:
+          enum:
+            - FACETABLE
+            - FILTERABLE
+            - GROUPABLE
+            - GROUP_RETURNABLE
+            - RETURNABLE
+            - SEARCHABLE
+            - SORTABLE
+        example: [FILTERABLE, SEARCHABLE]
+      paths:
+        description: Collection of entities describing the location where data for this attribute can be found in addition to the locale for that location.
+        type: LocalePath[]
+      isMultivalued:
+        description: Boolean determining if the data, found at the given paths, are a single value or a collection.
+        type: boolean
+        example: true
+    discriminatorValue: LOCALIZED_ATTRIBUTE_DEFINITION
+
+  UnstructuredAttributeDefinition:
+    description: Defines an attribute containing unstructured text which should be language analyzed. To support language analysis, this definition is confgured with a collection of Locale Path entities. Each Locale Path takes in both a path as well as a Locale which should be used to analyze the data. Due to the nature of the data being described by this attribute type, this attribute can only be searched against.
+    type: AttributeDefinition
+    properties:
+      dataType:
+        description: The expected type of data which will be found at the given path's location.
+        enum:
+          - STRING
+        example: STRING
+      usages?:
+        description: A collection of values defining how the attribute should be used within the domain during query operations.
+        type: string[]
+        minItems: 1
+        uniqueItems: true
+        items:
+          enum:
+            - SEARCHABLE
+            - HIGHLIGHTABLE
+        example: [SEARCHABLE]
+      paths:
+        description: Collection of entities describing the location where data for this attribute can be found in addition to the locale for that location.
+        type: LocalePath[]
+    discriminatorValue: UNSTRUCTURED_ATTRIBUTE_DEFINITION

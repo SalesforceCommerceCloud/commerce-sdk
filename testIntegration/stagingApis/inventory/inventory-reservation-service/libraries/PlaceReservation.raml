@@ -1,0 +1,165 @@
+#%RAML 1.0 Library
+
+types:
+  ExternalRefId: !include ../types/GlobalTypes/ExternalRefId.raml
+  GroupId: !include ../types/GlobalTypes/GroupId.raml
+  LocationId: !include ../types/GlobalTypes/LocationId.raml
+  ExpirationSeconds: !include ../types/ExpirationSeconds.raml
+  AllowPartialReservations: !include ../types/AllowPartialReservations.raml
+  FulfillOnlyReservations: !include ../types/FulfillOnlyReservations.raml
+  ReservationTime: !include ../types/ReservationTime.raml
+  ReservationTimeOf: !include ../types/ReservationTimeOf.raml
+  ReservationExpirationTime: !include ../types/ReservationExpirationTime.raml
+  ReservationSuccess: !include ../types/ReservationSuccess.raml
+  ReservationRequestGroup: !include ../types/ReservationRequestGroup.raml
+  ReservationRequestLocation: !include ../types/ReservationRequestLocation.raml
+  ReservationResponseErrorRecord: !include ../types/ReservationResponseErrorRecord.raml
+  ReservationResponseErrorRecord2: !include ../types/ReservationResponseErrorRecord2.raml
+  ReservedReservationRecord: !include ../types/ReservedReservationRecord.raml
+  
+  PlaceReservationAgainstATFBody:
+    description: The body for a request to place a reservation against locations.
+    displayName: Reserve For Locations ATF
+    properties:
+      externalRefId:
+        required: false
+        type: ExternalRefId
+      expirationSeconds:
+        required: false
+        type: ExpirationSeconds
+      allowPartialReservations:
+        required: false
+        type: AllowPartialReservations
+      fulfillOnly:
+        required: false
+        type: FulfillOnlyReservations
+      reservationTime:
+        required: false
+        type: ReservationTime
+        example: 2019-07-24T21:13:00Z
+      locations:
+        required: false
+        description: The reservations to request at the specified locations.
+        type: array
+        items: ReservationRequestLocation
+
+  PlaceReservationRequestBodyLocationAndGroup:
+    displayName: Reserve For Location And Group
+    description: Place a reservation for locations and groups in one call
+    properties:
+      externalRefId:
+        required: false
+        type: ExternalRefId
+      expirationSeconds:
+        required: false
+        type: ExpirationSeconds
+      allowPartialReservations:
+        required: false
+        type: AllowPartialReservations
+      reservationTime:
+        required: false
+        type: ReservationTime
+        example: 2019-07-24T21:13:00Z
+      groups:
+        required: false
+        description: The reservations to request at the specified location groups.
+        type: array
+        items: ReservationRequestGroup
+      locations:
+        required: false
+        description: The reservations to request at the specified locations.
+        type: array
+        items: ReservationRequestLocation
+
+  PlaceReservationRequestBodyLocation:
+    description: The body for a request to place a reservation against locations.
+    displayName: Reserve For Locations
+    properties:
+      externalRefId:
+        required: false
+        type: ExternalRefId
+      expirationSeconds:
+        required: false
+        type: ExpirationSeconds
+      allowPartialReservations:
+        required: false
+        type: AllowPartialReservations
+      reservationTime:
+        required: false
+        type: ReservationTime
+        example: 2019-07-24T21:13:00Z
+      locations:
+        required: false
+        description: The reservations to request at the specified locations.
+        type: array
+        items: ReservationRequestLocation
+
+  PlaceReservationRequestBodyGroups:
+    description: The body for a request to place a reservation against a group.
+    displayName: Reserve For Groups
+    properties:
+      externalRefId:
+        required: false
+        type: ExternalRefId
+      expirationSeconds:
+        required: false
+        type: ExpirationSeconds
+      allowPartialReservations:
+        required: false
+        type: AllowPartialReservations
+      reservationTime:
+        required: false
+        type: ReservationTime
+        example: 2019-07-24T21:13:00Z
+      groups:
+        required: false
+        description: The reservations to request at the specified location groups.
+        type: array
+        items: ReservationRequestGroup
+
+  PlaceReservationResponseBody:
+    description: The response for a successful reservation placement.
+    properties:
+      reservationTime:
+        type: ReservationTimeOf
+        example: 2019-07-24T21:13:00Z
+      expirationTime:
+        required: false
+        type: ReservationExpirationTime
+        example: 2019-07-24T22:13:00Z
+      success:
+        type: ReservationSuccess
+      groups:
+        required: false
+        description: The results for the requested location group reservations.
+        type: array
+        items:
+          properties:
+            id:
+              type: GroupId
+            errors:
+              type: array
+              items:
+                type: ReservationResponseErrorRecord2
+            details:
+              type: array
+              description: Information about the SKU, and the amount of quantity that was successfully reserved.
+              items:
+                type: ReservedReservationRecord
+      locations:
+        required: false
+        description: The results for the requested location reservations.
+        type: array
+        items:
+          properties:
+            id:
+              type: LocationId
+            errors:
+              type: array
+              items:
+                type: ReservationResponseErrorRecord2
+            details:
+              description: Information about the SKU, and the amount of quantity that was successfully reserved.
+              type: array
+              items:
+                type: ReservedReservationRecord

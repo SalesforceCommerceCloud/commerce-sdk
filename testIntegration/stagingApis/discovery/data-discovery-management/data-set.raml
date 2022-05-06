@@ -1,0 +1,87 @@
+#%RAML 1.0 Library
+
+uses:
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.12/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml
+  DiscoveryStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/discovery-standards/0.0.30/discovery-standards.raml
+  AttributeDefinitions: attribute-definitions.raml
+
+types:
+
+  EinsteinChannelId:
+    description: The identifier of the einstein channel to associate with the Data Set.
+    type: string
+
+  EinsteinTenantId:
+    description: Einstein tenant ID used for integrating the Data Set with the Einstein service.
+    type: string
+    example: search/prd/cloudtesttenant
+
+  DataSet:
+    description: An entity containing the configuration and status information about the requested Data Set resource. The Data Set's configuration instructs the domain on how to ingest data through a collection of Attribute Definitions. Additionally, status information such as the number of items associated with the Data Set, is also provided.
+    type: CommerceCloudStandards.ClosedObject
+    properties:
+      configuration:
+        description: An wrapper entity containing the data which defines the makeup of the Data Set.
+        properties:
+          einsteinTenantId?: EinsteinTenantId
+          attributeDefinitions: AttributeDefinitions.AttributeDefinition[]
+      status:
+        description: An entity containing current information about the Data Set such as the number of items associated with the Data Set, the time the Data Set was created, and the time it was last updated.
+        properties:
+          queryableItemCount:
+            description: The number of ingested items, available for query actions.
+            type: number
+            format: int64
+            example: 432
+          creationDateTime: DiscoveryStandards.CreationDateTime
+          lastUpdateDateTime: DiscoveryStandards.LastUpdateDateTime
+
+  DataSetReference:
+    description: An entity containing status information about a Data Set, in addition to a link to the actual resource. This resource represents a subset of information, taken from the actual Data Set entity.
+    properties:
+      dataSetId: DiscoveryStandards.DataSetId
+      queryableItemCount:
+        description: The number of ingested items, available for query actions.
+        type: number
+        format: int64
+        example: 432
+      creationDateTime: DiscoveryStandards.CreationDateTime
+      lastUpdateDateTime: DiscoveryStandards.LastUpdateDateTime
+      links: 
+        type: DiscoveryStandards.ResourceLink
+        examples:
+          links:
+            self:
+              href: https://0dnz6oep.api.commercecloud.salesforce.com/discovery/management/v2/organizations/org-id/data-sets/d4330450-df8a-439f-80f8-847ae3cb564f
+
+  DataSetCreationInput:
+    description: Body of the request to create a Data Set.
+    type: CommerceCloudStandards.ClosedObject
+    properties:
+      einsteinTenantId?: EinsteinTenantId
+      attributeDefinitions: 
+        description: A collection of attribute definition entities.
+        type: AttributeDefinitions.AttributeDefinition[]
+
+
+  DataSetCreationOutput:
+    description: An entity containing the identifier of the newly created resource and the time the resource was created.
+    type: CommerceCloudStandards.ClosedObject
+    properties:
+      dataSetId: DiscoveryStandards.DataSetId
+      creationDateTime: DiscoveryStandards.CreationDateTime
+
+  BulkDataSetRetrievalOutput:
+    description: An entity containing a collection of Data Set resource statuses and references.
+    type: CommerceCloudStandards.ClosedObject
+    properties:
+      hits:
+        description: A collection of Data Set instance references.
+        type: DataSetReference[]
+      limit: ApiStandards.Limit
+      offset: ApiStandards.Offset
+      total:
+        description: The total number of matching resources.
+        type: integer
+        example: 17

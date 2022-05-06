@@ -1,0 +1,265 @@
+#%RAML 1.0
+title: Inventory Reservation
+description: !include inventory-reservations-description.md
+version: v1
+mediaType: application/json
+protocols: HTTPS
+baseUri: https://{shortCode}.api.commercecloud.salesforce.com/inventory/reservation/{version}
+baseUriParameters:
+  shortCode:
+    description: A region-specific merchant identifier.
+    example: 0dnz6oep
+    pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
+
+uses:
+  # GLOBAL USES
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.12/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml
+  # PROJECT USES
+  CancelTypes: libraries/CancelReservations.raml
+  FulfillQuantities: libraries/FulfillQuantity.raml
+  GetReservation: libraries/GetReservation.raml
+  MoveReservation: libraries/MoveReservation.raml
+  PlaceReservation: libraries/PlaceReservation.raml
+  ReserveInventoryResources: libraries/ReserveInventoryRequestsAndResponses.raml
+  UnreserveReservations : libraries/UnreserveReservations.raml
+
+types:
+  4xxError: !include types/HttpErrors/IasError.raml
+  403Error: !include types/HttpErrors/403Error.raml
+
+securedBy:
+  - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.inventory.reservations] }
+  - CommerceCloudStandards.BearerToken: { scopes: [sfcc.inventory.reservations, sfcc_inventory_reservations] }
+  - ApiStandards.GDoT: { scopes: [sfcc.inventory.reservations, sfcc_inventory_reservations] }
+
+traits:
+  GenericResponseErrorCode: !include traits/GenericResponseErrorCode.raml
+
+/organizations/{organizationId}:
+  type: CommerceCloudStandards.Organization
+  /reservation-documents/{reservationId}:
+    uriParameters:
+      organizationId:
+        type: string
+        example: test-org
+      reservationId:
+        type: string
+        example: 12345-23456-3456-4567-5678
+    put:
+      description: Create or update reservations for a number of location groups, locations, or both.  If any of the location groups or locations provided in the request are invalid, nothing is processed.
+      displayName: createReservations
+      securedBy:
+        - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.inventory.reservations.rw] }
+        - CommerceCloudStandards.BearerToken: { scopes: [sfcc.inventory.reservations.rw, sfcc_inventory_reservations_rw] }
+        - ApiStandards.GDoT: { scopes: [sfcc.inventory.reservations.rw, sfcc_inventory_reservations_rw] }
+      is:
+        - ApiStandards.RateLimited3:
+            responseStatus: 200
+            responseStatus2: 400
+            responseStatus3: 409
+      body:
+        application/json:
+          type: PlaceReservation.PlaceReservationRequestBodyLocation | PlaceReservation.PlaceReservationRequestBodyGroups | PlaceReservation.PlaceReservationRequestBodyLocationAndGroup | PlaceReservation.PlaceReservationAgainstATFBody
+      responses:
+        200:
+          description: Successfully received and processed the request. The consumer is responsible for validating the returned data to ensure that the specified quantity was reserved as requested.
+          headers:
+            Location:
+              type: string
+              description: URI used to retrieve the recorded reservation document.
+              example: /inventory/reservation/v1/organizations/test-org/reservation-documents/12345-23456-3456-4567-5678
+          body:
+            application/json:
+              type: PlaceReservation.PlaceReservationResponseBody | ReserveInventoryResources.ResponseBodyReservationSuccess | ReserveInventoryResources.ResponseBodyReservationFail | ReserveInventoryResources.ResponseBodyReservationPartialQtySuccess | ReserveInventoryResources.ResponseBodyReservationPartialItemSuccess | ReserveInventoryResources.ResponseBodyReservationPartialNoItemSuccess | ReserveInventoryResources.ResponseBodyReservationNonPartialSomeItemSuccessSomeFail | ReserveInventoryResources.ResponseBodyReservationNonPartialAllItemsFail
+        400:
+          description: Invalid request.
+          body:
+            application/problem+json:
+              type: !include types/HttpErrors/400InvalidRequestLocOrGroupDoesNotExist.raml
+              examples:
+                locationGroupNotFound: !include Examples/4xxExamples/LocationGroupNotFound.raml
+                locationIdNotFound: !include Examples/4xxExamples/LocationNotFound.raml
+                noLocationOrGroupsNotProvided: !include Examples/4xxExamples/NoLocationOrGroupsProvided.raml
+        403:
+          description: Organization not authorized.
+          body:
+            application/problem+json:
+              type: 403Error
+              example: !include Examples/HttpErrors/403ErrorExample.raml
+        409:
+          description: A reservation with that ID already exists.
+          body:
+            application/problem+json:
+              type: !include types/ReserveInventoryRequestResponseTypes/CreateReservation409Error.raml
+    patch:
+      displayName: cancelReservation
+      description: Update the status on a reservation document, primarily for canceling the reservation. This endpoint references the reservation document directly, marking it as cancelled, and then adjusting the reservation and inventory counts based on the details of the reservation document.
+      securedBy:
+        - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.inventory.reservations.rw] }
+        - CommerceCloudStandards.BearerToken: { scopes: [sfcc.inventory.reservations.rw, sfcc_inventory_reservations_rw] }
+        - ApiStandards.GDoT: { scopes: [sfcc.inventory.reservations.rw, sfcc_inventory_reservations_rw] }
+      is:
+        - ApiStandards.RateLimited5:
+            responseStatus: 204
+            responseStatus2: 202
+            responseStatus3: 400
+            responseStatus4: 404
+            responseStatus5: 409
+      body:
+        application/json:
+          type: CancelTypes.CancelReservationRequestBody
+      responses:
+        204:
+          description: Reservation successfully cancelled.
+        202:
+          description: Reservation marked as cancelled. Inventory levels are updated asynchronously.
+        400:
+          description: Invalid request.
+          body:
+            application/problem+json:
+              type: !include types/HttpErrors/400InvalidRequestParameter.raml
+              example: !include Examples/4xxExamples/InvalidRequestParameterExample.raml
+        403:
+          description: Organization not authorized.
+          body:
+            application/problem+json:
+              type: 403Error
+              example: !include Examples/HttpErrors/403ErrorExample.raml
+        404:
+          description: Entity not found.
+          body:
+            application/problem+json:
+              type: !include types/HttpErrors/404ErrorEntityDoesNotExist.raml
+              example: !include Examples/HttpErrors/404ErrorExample.raml
+        409:
+          description: A reservation with that ID already exists.
+          body:
+            application/problem+json:
+              type: !include types/ReserveInventoryRequestResponseTypes/CancelReservation409Error.raml
+  /transfers:
+    securedBy:
+      - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.inventory.reservations.rw] }
+      - CommerceCloudStandards.BearerToken: { scopes: [sfcc.inventory.reservations.rw, sfcc_inventory_reservations_rw] }
+      - ApiStandards.GDoT: { scopes: [sfcc.inventory.reservations.rw, sfcc_inventory_reservations_rw] }
+    post:
+      displayName: moveReservationQuantity
+      description: Moves reservation quantities between a group and its locations, or between locations. The system does not support transfers between groups. In the case of All or Nothing movements, only Group to Location movements are allowed.
+      is:
+        - ApiStandards.RateLimited:
+            responseStatus: 200
+        - ApiStandards.RateLimited:
+            responseStatus: 204
+        - ApiStandards.RateLimited:
+            responseStatus: 400
+      body:
+        type: 
+          MoveReservation.MoveReservationBatchPostBody
+      responses:
+        200:
+          description: Batch reservation transfer partially succeeded -- with errors reported.
+          body:
+            MoveReservation.MoveReservationErrorsResponse
+        204:
+          description: Successfully moved the reservation quantities.
+        400:
+          description: Invalid request.
+          body:
+            application/problem+json:
+              type: !include types/HttpErrors/400InvalidRequestParameterLocOrGroupDoesNotExist.raml
+              examples:
+                locationNotFound: !include Examples/4xxExamples/LocationNotFound.raml
+                locationGroupNotFound: !include Examples/4xxExamples/LocationGroupNotFound.raml
+                groupToGroupNotAllowed: !include Examples/4xxExamples/GroupToGroupNotAllowed.raml
+                locationToLocationNotAllowed: !include Examples/4xxExamples/LocationToLocationNotAllowed.raml
+                forceReservationLocationToGroupNotAllowed: !include Examples/4xxExamples/ForceReserveLocationToGroupNotAllowed.raml
+                invalidTransferAllOrNothing: !include Examples/4xxExamples/InvalidTransferAllOrNothing.raml
+
+        403:
+          description: Organization not authorized.
+          body:
+            application/problem+json:
+              type: 403Error
+              example: !include Examples/HttpErrors/403ErrorExample.raml
+  /releases:
+    securedBy:
+      - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.inventory.reservations.rw] }
+      - CommerceCloudStandards.BearerToken: { scopes: [sfcc.inventory.reservations.rw, sfcc_inventory_reservations_rw] }
+      - ApiStandards.GDoT: { scopes: [sfcc.inventory.reservations.rw, sfcc_inventory_reservations_rw] }
+    # If we collect the actions and then define each one individually, we could define 400 once instead of on each endpoint.
+    post:
+      description: Remove reservations for canceled orders or carts. When using the unreserve/release endoint, the reservation counts are removed from the location or group using the details provided in the call instead of the details in a reservation document (which isn't provided as part of the call to this endpoint)
+      displayName: unreserveReservations
+      is:
+        - ApiStandards.RateLimited3:
+            responseStatus: 200
+            responseStatus2: 204
+            responseStatus3: 400
+      body:
+        application/json:
+          type: UnreserveReservations.RequestBodyGroup | UnreserveReservations.RequestBodyLocation | UnreserveReservations.RequestBodyGroupAndLocation
+      responses:
+        204:
+          description: Successfully unreserved the specified items.
+        200:
+          description: The request was received and processed successfully. The consumer is responsible for validating the returned data to ensure that the specified quantity was released as requested.
+          body:
+            application/json:
+              type: UnreserveReservations.ResponseBodyGroup | UnreserveReservations.ResponseBodyLocation | UnreserveReservations.ResponseBodyGroupAndLocation
+        400:
+          description: Invalid request.
+          body:
+            application/problem+json:
+              type: !include types/HttpErrors/400InvReqParamInvReqLocOrGroupDoesNotExist.raml
+              examples: 
+                genericErrorMessage: !include Examples/4xxExamples/Generic400ErrorMessage.raml
+                tooManyFieldsProvided: !include Examples/4xxExamples/TooManyFieldsProvided.raml
+                locationDoesNotExist: !include Examples/4xxExamples/LocationNotFound.raml
+                locationGroupNotFound: !include Examples/4xxExamples/LocationGroupNotFound.raml
+        403:
+          description: Organization not authorized.
+          body:
+            application/problem+json:
+              type: 403Error
+              example: !include Examples/HttpErrors/403ErrorExample.raml
+  /fulfillments:
+    securedBy:
+      - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.inventory.reservations.rw] }
+      - CommerceCloudStandards.BearerToken: { scopes: [sfcc.inventory.reservations.rw, sfcc_inventory_reservations_rw] }
+      - ApiStandards.GDoT: { scopes: [sfcc.inventory.reservations.rw, sfcc_inventory_reservations_rw] }
+    post: 
+      displayName: fulfillQuantity
+      description: Adjust quantity for an item after fulfillment.
+      is:
+        - ApiStandards.RateLimited4:
+            responseStatus: 200
+            responseStatus2: 204
+            responseStatus3: 400
+            responseStatus4: 409
+      body:
+        type: FulfillQuantities.FulfillQuantityRequestBody
+      responses:
+        200: 
+          description: Fulfillment partially succeeded -- with errors reported.
+          body:
+            type: FulfillQuantities.FulfillQuantityResponseErrors
+        204:
+          description: Successfully performed fulfillment process.
+        400:
+          description: Invalid request.
+          body:
+            application/problem+json:
+              type: !include types/HttpErrors/400MissingParameter.raml
+              example: !include Examples/HttpErrors/400ErrorExample.raml
+        403:
+          description: Organization not authorized.
+          body:
+            application/problem+json:
+              type: 403Error
+              example: !include Examples/HttpErrors/403ErrorExample.raml
+        409:
+          description: Reservation ID invalid.
+          body:
+            application/json:
+              type: !include types/HttpErrors/409InvalidRequestParameter.raml
+              example: !include Examples/HttpErrors/409ErrorExample.raml

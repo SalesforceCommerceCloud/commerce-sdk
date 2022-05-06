@@ -1,0 +1,26 @@
+#%RAML 1.0 DataType
+
+description: Export process vitals for a group export
+
+properties:
+  startTimeUTC: 
+    description: The UTC time that the export process was started.
+    type: !include ../GlobalTypes/Date.raml
+    example: 2019-02-12T12:34:00Z
+  endTimeUTC: 
+    description: The UTC time that the export process completed.
+    type: !include ../GlobalTypes/Date.raml
+    example: 2019-02-12T12:52:00Z
+  recordsProcessedCount: 
+    description: The total number of records processed during the export request.
+    type: number
+    example: 2000
+  recordsExportedCount: 
+    description: The total number of records exported by the system.
+    type: number
+    example: 2000
+  locations:
+    description: Locations associated with the export request
+    required: false
+    type: array
+    items: !include ../GlobalTypes/LocationId.raml

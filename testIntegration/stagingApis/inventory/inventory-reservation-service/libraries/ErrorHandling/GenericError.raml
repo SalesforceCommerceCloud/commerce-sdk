@@ -1,0 +1,188 @@
+#%RAML 1.0 Library
+
+uses:
+  ErrorCodeTypesEnum: ErrorCodeTypesEnum.raml
+
+types:
+  ApiErrors: !include /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.12/dataTypes/error-response.raml
+
+  ErrorResponse:
+    properties:
+      errorCode:
+        type: ErrorCodeTypesEnum.ErrorCodeTypesEnum
+        required: true
+        example: "InvalidRequest"
+      message:
+        type: string
+        required: true
+        example: "The delta token provided is invalid."
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+      parameterName:
+        description: When invalid json is passed to the service, this field will indicate which piece of the supplied json was invalid.
+        type: string
+        required: false
+        example: "location"
+
+  TenantNotProvisioned:
+    properties:
+      errorCode:
+        type: ErrorCodeTypesEnum.TenantNotProvisionedEnum
+        required: true
+        example: "TenantNotProvisioned"
+      message:
+        type: string
+        required: true
+        example: "The organization is not authorized."
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+      parameterName:
+        description: When invalid json is passed to the service, this field will indicate which piece of the supplied json was invalid.
+        type: string
+        required: false
+        example: "location"
+  
+  EntityDoesNotExist:
+    properties:
+      errorCode:
+        type: ErrorCodeTypesEnum.EntityNotFoundEnum
+        required: true
+        example: "EntityNotFound"
+      message:
+        type: string
+        required: true
+        example: "An invalid entity was provided."
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+      parameterName:
+        description: When invalid json is passed to the service, this field will indicate which piece of the supplied json was invalid.
+        type: string
+        required: false
+        example: "sku"
+  
+  InvalidRequestLocOrGroupDoesNotExist:
+    properties:
+      errorCode:
+        type: ErrorCodeTypesEnum.InvalidRequestLocOrGroupDoesNotExistEnum
+        required: true
+        example: "GroupDoesNotExist"
+      message:
+        type: string
+        required: true
+        example: "An invalid group was provided."
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+      parameterName:
+        description: When invalid json is passed to the service, this field will indicate which piece of the supplied json was invalid.
+        type: string
+        required: false
+        example: "sku"
+      group:
+        description: Indicates which group was provided that does not exist
+        type: string
+        example: "UnitedStates"
+        required: false
+      location: 
+        description: Indicates the location that was provided that does not exist
+        type: string
+        example: "warehouse5"
+        required: false
+  
+  InvalidRequestParameter:
+    properties:
+      errorCode:
+        type: ErrorCodeTypesEnum.InvalidRequestParameterEnum
+        required: true
+        example: "InvalidRequestParameter"
+      message:
+        type: string
+        required: true
+        example: "An invalid entity was provided."
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+      parameterName:
+        description: When invalid json is passed to the service, this field will indicate which piece of the supplied json was invalid.
+        type: string
+        required: false
+        example: "sku"
+  
+  InvalidRequestParameterLocOrGroupDoesNotExist:
+    properties:
+      errorCode:
+        type: ErrorCodeTypesEnum.InvalidRequestParameterLocOrGroupDoesNotExistEnum
+        required: true
+        example: "LocationDoesNotExist"
+      message:
+        type: string
+        required: true
+        example: "An invalid location was provided."
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+      parameterName:
+        description: When invalid json is passed to the service, this field will indicate which piece of the supplied json was invalid.
+        type: string
+        required: false
+        example: "sku"
+  
+  InvReqParamInvReqLocOrGroupDoesNotExist:
+    properties:
+      errorCode:
+        type: ErrorCodeTypesEnum.InvReqParamInvReqLocOrGroupDoesNotExistEnum
+        required: true
+        example: "GroupDoesNotExist"
+      message:
+        type: string
+        required: true
+        example: "An invalid group was provided."
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+      parameterName:
+        description: When invalid json is passed to the service, this field will indicate which piece of the supplied json was invalid.
+        type: string
+        required: false
+        example: "sku"
+  
+  MissingParameter:
+    properties:
+      errorCode:
+        type: ErrorCodeTypesEnum.MissingParameterEnum
+        required: true
+        example: "MissingParameter"
+      message:
+        type: string
+        required: true
+        example: "A required parameter was missing from the request"
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+      parameterName:
+        description: When invalid json is passed to the service, this field will indicate which piece of the supplied json was invalid.
+        type: string
+        required: false
+        example: "sku"
+
+  #Create the union of the standards error and our error
+  4xxError: [ErrorResponse, ApiErrors]
+  403Error: [TenantNotProvisioned, ApiErrors]
+  404ErrorEntityDoesNotExist: [EntityDoesNotExist, ApiErrors]
+  400InvalidRequestLocOrGroupDoesNotExist: [InvalidRequestLocOrGroupDoesNotExist, ApiErrors]
+  400InvalidRequestParameter: [InvalidRequestParameter, ApiErrors]
+  400InvalidRequestParameterLocOrGroupDoesNotExist: [InvalidRequestParameterLocOrGroupDoesNotExist, ApiErrors]
+  400InvReqParamInvReqLocOrGroupDoesNotExist: [InvReqParamInvReqLocOrGroupDoesNotExist, ApiErrors]
+  400MissingParameter: [MissingParameter, ApiErrors]
+  409InvalidRequestParameter: [InvalidRequestParameter, ApiErrors]
