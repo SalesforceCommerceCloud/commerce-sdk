@@ -14,6 +14,10 @@ you import the type definitions directly.
 
 #### API Changes
 
+*CDN*
+
+`workerUpdate` endpoint has been removed
+
 *SLAS admin*
 
 Endpoints Added:
