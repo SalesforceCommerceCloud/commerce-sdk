@@ -9,12 +9,13 @@
 
 // NOTE: This file is for development/testing purposes
 // In order for changes to be reflected in SDK generation, please edit the handlebars template, slas.ts.hbs in the helperTemplates directory
-// Due to the dynamic generation of the SDK, slas helper functions are rendered within a template so that organizational changes to file structure do not break import statements
+// Due to the dynamic generation of the SDK, SLAS helper functions are rendered within a template so that organizational changes to file structure do not break import statements
 
 import { nanoid } from "nanoid";
 import { URL, URLSearchParams } from "url";
 import { ResponseError } from "@commerce-apps/core";
 import { ShopperLogin } from "../../../renderedTemplates/customer/shopperLogin/shopperLogin";
+// import { ShopperLogin } from "../customer/shopperLogin/shopperLogin";
 
 /**
  * Converts a string into Base64 encoding
@@ -125,14 +126,14 @@ export async function authorize(
 }
 
 /**
- * A single function to execute the ShopperLogin Public Client Guest Login with proof key for code exchange flow as described in the [API documentation](https://developer.salesforce.com/docs/commerce/commerce-api/references?meta=shopper-login:Summary).
+ * A single function to execute the ShopperLogin Private Client Guest Login as described in the [API documentation](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-private-client.html).
  * @param slasClient - a configured instance of the ShopperLogin SDK client
  * @param credentials - client secret used for authentication
  * @param credentials.clientSecret - secret associated with client ID
  * @param usid? - optional Unique Shopper Identifier to enable personalization
  * @returns TokenResponse
  */
-export async function loginGuestUser(
+export async function loginGuestUserPrivate(
   slasClient: ShopperLogin,
   credentials: {
     clientSecret: string;
@@ -157,7 +158,42 @@ export async function loginGuestUser(
 }
 
 /**
- * A single function to execute the ShopperLogin Public Client Registered User B2C Login with proof key for code exchange flow as described in the [API documentation](https://developer.salesforce.com/docs/commerce/commerce-api/references?meta=shopper-login:Summary).
+ * A single function to execute the ShopperLogin Public Client Guest Login with proof key for code exchange flow as described in the [API documentation](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-public-client.html).
+ * @param slasClient a configured instance of the ShopperLogin SDK client.
+ * @param parameters - parameters to pass in the API calls.
+ * @param parameters.redirectURI - Per OAuth standard, a valid app route. Must be listed in your SLAS configuration. On server, this will not be actually called
+ * @param parameters.usid? - Unique Shopper Identifier to enable personalization.
+ * @returns TokenResponse
+ */
+export async function loginGuestUser(
+  slasClient: ShopperLogin,
+  parameters: {
+    redirectURI: string;
+    usid?: string;
+  }
+): Promise<ShopperLogin.TokenResponse> {
+  const codeVerifier = createCodeVerifier();
+
+  const authResponse = await authorize(slasClient, codeVerifier, {
+    redirectURI: parameters.redirectURI,
+    hint: "guest",
+    ...(parameters.usid && { usid: parameters.usid }),
+  });
+
+  const tokenBody: ShopperLogin.TokenRequest = {
+    client_id: slasClient.clientConfig.parameters.clientId,
+    code: authResponse.code,
+    code_verifier: codeVerifier,
+    grant_type: "authorization_code_pkce",
+    redirect_uri: parameters.redirectURI,
+    usid: authResponse.usid,
+  };
+
+  return slasClient.getAccessToken({ body: tokenBody });
+}
+
+/**
+ * A single function to execute the ShopperLogin Private Client Registered User B2C Login as described in the [API documentation](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-private-client.html).
  * @param slasClient - a configured instance of the ShopperLogin SDK client.
  * @param credentials - the shopper username and password for login and client secret for additional authentication
  * @param credentials.username - the id of the user to login with
@@ -168,7 +204,7 @@ export async function loginGuestUser(
  * @param parameters.usid? - optional Unique Shopper Identifier to enable personalization
  * @returns TokenResponse
  */
-export async function loginRegisteredUserB2C(
+export async function loginRegisteredUserB2Cprivate(
   slasClient: ShopperLogin,
   credentials: {
     username: string;
@@ -238,7 +274,81 @@ export async function loginRegisteredUserB2C(
     },
   };
 
-  return slasClient.getAccessToken(optionsToken);
+  return slasClientCopy.getAccessToken(optionsToken);
+}
+
+/**
+ * A single function to execute the ShopperLogin Private Client Registered User B2C Login with proof key for code exchange flow as described in the [API documentation](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-public-client.html).
+ * @param slasClient a configured instance of the ShopperLogin SDK client.
+ * @param credentials - the id and password to login with.
+ * @param credentials.username - the id of the user to login with.
+ * @param credentials.password - the password of the user to login with.
+ * @param parameters - parameters to pass in the API calls.
+ * @param parameters.redirectURI - Per OAuth standard, a valid app route. Must be listed in your SLAS configuration. On server, this will not be actually called. On browser, this will be called, but ignored.
+ * @param parameters.usid? - Unique Shopper Identifier to enable personalization.
+ * @returns TokenResponse
+ */
+export async function loginRegisteredUserB2C(
+  slasClient: ShopperLogin,
+  credentials: {
+    username: string;
+    password: string;
+  },
+  parameters: {
+    redirectURI: string;
+    usid?: string;
+  }
+): Promise<ShopperLogin.TokenResponse> {
+  const codeVerifier = createCodeVerifier();
+  const codeChallenge = await generateCodeChallenge(codeVerifier);
+
+  const authorization = `Basic ${stringToBase64(
+    `${credentials.username}:${credentials.password}`
+  )}`;
+
+  const options = {
+    headers: {
+      Authorization: authorization,
+    },
+    parameters: {
+      organizationId: slasClient.clientConfig.parameters.organizationId,
+    },
+    body: {
+      redirect_uri: parameters.redirectURI,
+      client_id: slasClient.clientConfig.parameters.clientId,
+      code_challenge: codeChallenge,
+      channel_id: slasClient.clientConfig.parameters.siteId,
+      ...(parameters.usid && { usid: parameters.usid }),
+    },
+  };
+
+  // Create a copy in order to modify behavior of the fetch call
+  // We do not want to redirect so manually control redirect behavior
+  const slasClientCopy = new ShopperLogin(slasClient.clientConfig);
+  slasClientCopy.clientConfig.fetchOptions = {
+    ...slasClient.clientConfig.fetchOptions,
+    redirect: "manual",
+  };
+
+  const response = await slasClientCopy.authenticateCustomer(options, true);
+
+  if (response.status !== 303) {
+    throw new ResponseError(response);
+  }
+
+  const redirectUrl = response.headers?.get("location") || response.url;
+  const authResponse = getCodeAndUsidFromUrl(redirectUrl);
+
+  const tokenBody = {
+    grant_type: "authorization_code_pkce",
+    code_verifier: codeVerifier,
+    code: authResponse.code,
+    client_id: slasClient.clientConfig.parameters.clientId,
+    redirect_uri: parameters.redirectURI,
+    usid: authResponse.usid,
+  };
+
+  return slasClientCopy.getAccessToken({ body: tokenBody });
 }
 
 /**
@@ -262,17 +372,53 @@ export function refreshAccessToken(
 }
 
 /**
+ * Exchange a refresh token for a new access token.
+ * @param slasClient - a configured instance of the ShopperLogin SDK client.
+ * @param credentials - client secret used for authentication
+ * @param credentials.clientSecret - secret associated with client ID
+ * @param parameters - parameters to pass in the API calls.
+ * @param parameters.refreshToken - a valid refresh token to exchange for a new access token (and refresh token).
+ * @returns TokenResponse
+ */
+export function refreshAccessTokenPrivate(
+  slasClient: ShopperLogin,
+  credentials: { clientSecret: string },
+  parameters: { refreshToken: string }
+): Promise<ShopperLogin.TokenResponse> {
+  const authorization = `Basic ${stringToBase64(
+    `${slasClient.clientConfig.parameters.clientId}:${credentials.clientSecret}`
+  )}`;
+  const options = {
+    headers: {
+      Authorization: authorization,
+    },
+    body: {
+      grant_type: "refresh_token",
+      refresh_token: parameters.refreshToken,
+    },
+  };
+  return slasClient.getAccessToken(options);
+}
+
+/**
  * Logout a shopper. The shoppers access token and refresh token will be revoked and if the shopper authenticated with ECOM the OCAPI JWT will also be revoked.
  * @param slasClient - a configured instance of the ShopperLogin SDK client.
  * @param parameters - parameters to pass in the API calls.
+ * @param parameters.accessToken - a valid access token to exchange for a new access token (and refresh token).
  * @param parameters.refreshToken - a valid refresh token to exchange for a new access token (and refresh token).
  * @returns TokenResponse
  */
 export function logout(
   slasClient: ShopperLogin,
-  parameters: { refreshToken: string }
+  parameters: {
+    accessToken: string;
+    refreshToken: string;
+  }
 ): Promise<ShopperLogin.TokenResponse> {
   return slasClient.logoutCustomer({
+    headers: {
+      Authorization: `Bearer ${parameters.accessToken}`,
+    },
     parameters: {
       refresh_token: parameters.refreshToken,
       client_id: slasClient.clientConfig.parameters.clientId,
