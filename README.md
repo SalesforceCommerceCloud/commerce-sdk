@@ -58,7 +58,7 @@ To use an SDK client, instantiate an object of that client and configure these p
 
 // Import the SDK in TypeScript
 // tsc requires the --esModuleInterop flag for this
-import { Search, Customer } from "commerce-sdk";
+import { Search, Customer, helpers } from "commerce-sdk";
 // Older Node.js versions can instead use:
 // const { ClientConfig, helpers, Search } = require("commerce-sdk");
 
@@ -97,6 +97,13 @@ async function getGuestUserAuthToken(): Promise<Customer.ShopperLogin.TokenRespo
   });
 }
 
+// Alternatively you may use the SLAS helper functions to generate JWT/access token
+const guestTokenResponse = await helpers.loginGuestUser(
+    new Customer.ShopperLogin(config), 
+    { redirectURI: 'http://localhost:3000/callback' }
+).catch(error => console.log("Error fetching token for guest login: ", error));
+console.log("Guest Token Response: ", guestTokenResponse);
+
 // Get a JWT to use with Shopper API clients
 getGuestUserAuthToken().then(async (token) => {
   // Add the token to the client configuration
@@ -122,6 +129,10 @@ getGuestUserAuthToken().then(async (token) => {
   console.error(await e.response.text());
 });
 ```
+
+### SLAS helpers
+
+The `commerce-sdk` includes helper functions to help developers easily onboard SLAS onto their applications to assist with authentication. A brief example is shown above in the [Sample Code](#Sample-Code). The SLAS helpers offer both public and private client functions, the main difference being the private functions require a `client_secret`. Code examples on how to use the different functions can be found the in the [examples](https://github.com/SalesforceCommerceCloud/commerce-sdk/tree/master/examples) folder (examples 04 and 05). More information about SLAS and the different type of clients can be found [here](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas.html).
 
 ### Error Handling
 
