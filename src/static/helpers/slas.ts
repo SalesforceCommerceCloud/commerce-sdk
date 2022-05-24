@@ -7,15 +7,11 @@
 
 /* eslint-disable tsdoc/syntax, @typescript-eslint/camelcase  */
 
-// NOTE: This file is for development/testing purposes
-// In order for changes to be reflected in SDK generation, please edit the handlebars template, slas.ts.hbs in the helperTemplates directory
-// Due to the dynamic generation of the SDK, SLAS helper functions are rendered within a template so that organizational changes to file structure do not break import statements
-
 import { nanoid } from "nanoid";
 import { URL, URLSearchParams } from "url";
 import { ResponseError } from "@commerce-apps/core";
-import { ShopperLogin } from "../../../renderedTemplates/customer/shopperLogin/shopperLogin";
-// import { ShopperLogin } from "../customer/shopperLogin/shopperLogin";
+import { ISlasClient, TokenResponse, TokenRequest } from "./slasClient";
+import type { RequestRedirect } from "node-fetch";
 
 /**
  * Converts a string into Base64 encoding
@@ -84,7 +80,7 @@ export const generateCodeChallenge = async (
  * @returns login url, user id and authorization code if available
  */
 export async function authorize(
-  slasClient: ShopperLogin,
+  slasClient: ISlasClient,
   codeVerifier: string,
   parameters: {
     redirectURI: string;
@@ -93,14 +89,6 @@ export async function authorize(
   }
 ): Promise<{ code: string; url: string; usid: string }> {
   const codeChallenge = await generateCodeChallenge(codeVerifier);
-
-  // Create a copy in order to modify behavior of the fetch call
-  // We do not want to redirect to redirectURI so manually control redirect
-  const slasClientCopy = new ShopperLogin(slasClient.clientConfig);
-  slasClientCopy.clientConfig.fetchOptions = {
-    ...slasClient.clientConfig.fetchOptions,
-    redirect: "manual",
-  };
 
   const options = {
     parameters: {
@@ -112,9 +100,13 @@ export async function authorize(
       response_type: "code",
       ...(parameters.usid && { usid: parameters.usid }),
     },
+    fetchOptions: {
+      // We do not want to redirect to redirectURI so manually control redirect
+      redirect: "manual" as RequestRedirect,
+    },
   };
 
-  const response = await slasClientCopy.authorizeCustomer(options, true);
+  const response = await slasClient.authorizeCustomer(options, true);
 
   if (response.status !== 303) {
     throw new ResponseError(response);
@@ -134,12 +126,12 @@ export async function authorize(
  * @returns TokenResponse
  */
 export async function loginGuestUserPrivate(
-  slasClient: ShopperLogin,
+  slasClient: ISlasClient,
   credentials: {
     clientSecret: string;
   },
   usid?: string
-): Promise<ShopperLogin.TokenResponse> {
+): Promise<TokenResponse> {
   const authorization = `Basic ${stringToBase64(
     `${slasClient.clientConfig.parameters.clientId}:${credentials.clientSecret}`
   )}`;
@@ -166,12 +158,12 @@ export async function loginGuestUserPrivate(
  * @returns TokenResponse
  */
 export async function loginGuestUser(
-  slasClient: ShopperLogin,
+  slasClient: ISlasClient,
   parameters: {
     redirectURI: string;
     usid?: string;
   }
-): Promise<ShopperLogin.TokenResponse> {
+): Promise<TokenResponse> {
   const codeVerifier = createCodeVerifier();
 
   const authResponse = await authorize(slasClient, codeVerifier, {
@@ -180,7 +172,7 @@ export async function loginGuestUser(
     ...(parameters.usid && { usid: parameters.usid }),
   });
 
-  const tokenBody: ShopperLogin.TokenRequest = {
+  const tokenBody: TokenRequest = {
     client_id: slasClient.clientConfig.parameters.clientId,
     code: authResponse.code,
     code_verifier: codeVerifier,
@@ -205,7 +197,7 @@ export async function loginGuestUser(
  * @returns TokenResponse
  */
 export async function loginRegisteredUserB2Cprivate(
-  slasClient: ShopperLogin,
+  slasClient: ISlasClient,
   credentials: {
     username: string;
     password: string;
@@ -215,7 +207,7 @@ export async function loginRegisteredUserB2Cprivate(
     redirectURI: string;
     usid?: string;
   }
-): Promise<ShopperLogin.TokenResponse> {
+): Promise<TokenResponse> {
   const codeVerifier = createCodeVerifier();
   const codeChallenge = await generateCodeChallenge(codeVerifier);
 
@@ -234,20 +226,13 @@ export async function loginRegisteredUserB2Cprivate(
       redirect_uri: parameters.redirectURI,
       ...(parameters.usid && { usid: parameters.usid }),
     },
+    fetchOptions: {
+      // We do not want to redirect to redirectURI so manually control redirect
+      redirect: "manual" as RequestRedirect,
+    },
   };
 
-  // Create a copy in order to modify behavior of the fetch call
-  // We do not want to redirect so manually control redirect behavior
-  const slasClientCopy = new ShopperLogin(slasClient.clientConfig);
-  slasClientCopy.clientConfig.fetchOptions = {
-    ...slasClient.clientConfig.fetchOptions,
-    redirect: "manual",
-  };
-
-  const response = await slasClientCopy.authenticateCustomer(
-    optionsLogin,
-    true
-  );
+  const response = await slasClient.authenticateCustomer(optionsLogin, true);
 
   if (response.status !== 303) {
     throw new ResponseError(response);
@@ -274,7 +259,7 @@ export async function loginRegisteredUserB2Cprivate(
     },
   };
 
-  return slasClientCopy.getAccessToken(optionsToken);
+  return slasClient.getAccessToken(optionsToken);
 }
 
 /**
@@ -289,7 +274,7 @@ export async function loginRegisteredUserB2Cprivate(
  * @returns TokenResponse
  */
 export async function loginRegisteredUserB2C(
-  slasClient: ShopperLogin,
+  slasClient: ISlasClient,
   credentials: {
     username: string;
     password: string;
@@ -298,7 +283,7 @@ export async function loginRegisteredUserB2C(
     redirectURI: string;
     usid?: string;
   }
-): Promise<ShopperLogin.TokenResponse> {
+): Promise<TokenResponse> {
   const codeVerifier = createCodeVerifier();
   const codeChallenge = await generateCodeChallenge(codeVerifier);
 
@@ -320,17 +305,13 @@ export async function loginRegisteredUserB2C(
       channel_id: slasClient.clientConfig.parameters.siteId,
       ...(parameters.usid && { usid: parameters.usid }),
     },
+    fetchOptions: {
+      // We do not want to redirect to redirectURI so manually control redirect
+      redirect: "manual" as RequestRedirect,
+    },
   };
 
-  // Create a copy in order to modify behavior of the fetch call
-  // We do not want to redirect so manually control redirect behavior
-  const slasClientCopy = new ShopperLogin(slasClient.clientConfig);
-  slasClientCopy.clientConfig.fetchOptions = {
-    ...slasClient.clientConfig.fetchOptions,
-    redirect: "manual",
-  };
-
-  const response = await slasClientCopy.authenticateCustomer(options, true);
+  const response = await slasClient.authenticateCustomer(options, true);
 
   if (response.status !== 303) {
     throw new ResponseError(response);
@@ -348,7 +329,7 @@ export async function loginRegisteredUserB2C(
     usid: authResponse.usid,
   };
 
-  return slasClientCopy.getAccessToken({ body: tokenBody });
+  return slasClient.getAccessToken({ body: tokenBody });
 }
 
 /**
@@ -359,9 +340,9 @@ export async function loginRegisteredUserB2C(
  * @returns TokenResponse
  */
 export function refreshAccessToken(
-  slasClient: ShopperLogin,
+  slasClient: ISlasClient,
   parameters: { refreshToken: string }
-): Promise<ShopperLogin.TokenResponse> {
+): Promise<TokenResponse> {
   const body = {
     grant_type: "refresh_token",
     refresh_token: parameters.refreshToken,
@@ -381,10 +362,10 @@ export function refreshAccessToken(
  * @returns TokenResponse
  */
 export function refreshAccessTokenPrivate(
-  slasClient: ShopperLogin,
+  slasClient: ISlasClient,
   credentials: { clientSecret: string },
   parameters: { refreshToken: string }
-): Promise<ShopperLogin.TokenResponse> {
+): Promise<TokenResponse> {
   const authorization = `Basic ${stringToBase64(
     `${slasClient.clientConfig.parameters.clientId}:${credentials.clientSecret}`
   )}`;
@@ -409,12 +390,12 @@ export function refreshAccessTokenPrivate(
  * @returns TokenResponse
  */
 export function logout(
-  slasClient: ShopperLogin,
+  slasClient: ISlasClient,
   parameters: {
     accessToken: string;
     refreshToken: string;
   }
-): Promise<ShopperLogin.TokenResponse> {
+): Promise<TokenResponse> {
   return slasClient.logoutCustomer({
     headers: {
       Authorization: `Bearer ${parameters.accessToken}`,
