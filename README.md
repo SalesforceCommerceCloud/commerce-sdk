@@ -132,7 +132,7 @@ getGuestUserAuthToken().then(async (token) => {
 
 ### SLAS helpers
 
-The `commerce-sdk` includes helper functions to help developers easily onboard SLAS onto their applications to assist with authentication. A brief example is shown above in the [Sample Code](#Sample-Code). The SLAS helpers offer both public and private client functions, the main difference being the private functions require a `client_secret`. Code examples on how to use the different functions can be found the in the [examples](https://github.com/SalesforceCommerceCloud/commerce-sdk/tree/master/examples) folder (examples 04 and 05). More information about SLAS and the different type of clients can be found [here](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas.html).
+The SDK includes helper functions to help developers easily onboard SLAS onto their applications to assist with authentication. A brief example is shown in the sample code above. The SLAS helpers offer both public and private client functions, the main difference being the private client functions require a `client_secret`. Code examples on how to use the different functions can be found the in the [examples](https://github.com/SalesforceCommerceCloud/commerce-sdk/tree/master/examples) folder (examples 05 and 06). More information about SLAS and public/private client flows can be found [here](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas.html).
 
 ### Error Handling
 
@@ -177,6 +177,42 @@ To view the details of a method or a variable, hover over methods and variables.
 Autocomplete also shows the available properties of the data returned by SDK methods.
 
 ![Result Autocomplete](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/images/ResultAutocomplete.jpg?raw=true 'Result Autocomplete')
+
+### Fetch Options
+
+Fetch options are able to be passed on to modify the behavior of the fetch call. There are two ways to pass on fetch options:
+
+1. Through the client config
+
+```javascript
+const config = {
+    parameters: {
+        clientId: CLIENT_ID,
+        organizationId: ORG_ID,
+        shortCode: SHORT_CODE,
+        siteId: SITE_ID,
+    },
+    fetchOptions: {
+        redirect: "error",
+    }
+}
+```
+
+2. Through the SDK function call
+
+```javascript
+const client = new ShopperLogin(config);
+
+client.authorizeCustomer({
+  headers: { ... },
+  body: { ... },
+  fetchOptions: {
+    redirect: "manual"
+  }
+});
+```
+
+If both the client config and the function call define the same fetch option with different values, the fetch option value for the function call will take priority. In the examples above, both pass in the `redirect` fetch option with different values, however, `redirect: "manual"` will take precedence because it was passed on the function call level. 
 
 ## Caching
 

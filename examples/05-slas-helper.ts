@@ -11,7 +11,7 @@
  *  - Get authorization token for a registered user
  *  - Get a new authorization token using refresh token
  *  - Logout
- * Usage: ts-node examples/04-slas-helper.ts
+ * Usage: ts-node examples/05-slas-helper.ts
  * For more information, see (Shopper Login and API Access Service)[https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-public-client.html].
  */
 import * as CommerceSdk from "commerce-sdk";
@@ -23,54 +23,61 @@ const ORG_ID = "f_ecom_zzte_053";
 const SHORT_CODE = "kv7kzm78";
 const SITE_ID = "RefArch";
 
-// demo shopper, if you replaced client credentials above please replace username/password below
+// TODO: Fill in with shopper credentials. Examples on how to register a shopper can be found in 04-register-shopper.ts
 const shopper = {
-    password: "", // TODO: add demo shopper
-    username: "",
-}
+  username: "<insert_username>",
+  password: "<insert_password>", // do not store password as plaintext. Store it in a secure location.
+};
 
 // must be registered in SLAS. On server, redirectURI is never called
-const redirectURI = 'http://localhost:3000/callback';
+const redirectURI = "http://localhost:3000/callback";
 
 // client configuration parameters
 const clientConfig = {
-    parameters: {
-        clientId: CLIENT_ID,
-        organizationId: ORG_ID,
-        shortCode: SHORT_CODE,
-        siteId: SITE_ID,
-    },
+  parameters: {
+    clientId: CLIENT_ID,
+    organizationId: ORG_ID,
+    shortCode: SHORT_CODE,
+    siteId: SITE_ID,
+  },
 };
 
-const slasClient = new Customer.ShopperLogin(clientConfig);
+const slasClient = new Customer.ShopperCustomer(clientConfig);
 
 // GUEST LOGIN
-const guestTokenResponse = await helpers.loginGuestUser(
-    slasClient, 
-    { redirectURI }
-).catch(error => console.log("Error fetching token for guest login: ", error));
+const guestTokenResponse = await helpers
+  .loginGuestUser(slasClient, { redirectURI })
+  .catch((error) =>
+    console.log("Error fetching token for guest login: ", error)
+  );
 
 // REGISTERED B2C USER LOGIN
-const registeredUserTokenResponse = await helpers.loginRegisteredUserB2C(
+const registeredUserTokenResponse = await helpers
+  .loginRegisteredUserB2C(
     slasClient,
     { username: shopper.username, password: shopper.password },
     { redirectURI }
-).catch(error => console.log("Error fetching token for registered user login: ", error));
+  )
+  .catch((error) =>
+    console.log("Error fetching token for registered user login: ", error)
+  );
 
 // REFRESH TOKEN
-const refreshTokenResponse = await helpers.refreshAccessToken(
-    slasClient, 
-    { refreshToken: registeredUserTokenResponse.refresh_token }
-).catch(error => console.log("Error refreshing token: ", error));
-  
- // LOGOUT
-const logoutTokenResponse = await helpers.logout(slasClient, {
+const refreshTokenResponse = await helpers
+  .refreshAccessToken(slasClient, {
+    refreshToken: guestTokenResponse.refresh_token,
+  })
+  .catch((error) => console.log("Error refreshing token: ", error));
+
+// LOGOUT
+const logoutTokenResponse = await helpers
+  .logout(slasClient, {
     accessToken: refreshTokenResponse.access_token,
     refreshToken: refreshTokenResponse.refresh_token,
-}).catch(error => console.log('Error with logout: ', error));
- 
+  })
+  .catch((error) => console.log("Error with logout: ", error));
+
 console.log("Guest Token Response: ", guestTokenResponse);
 console.log("Registered User Token Response: ", registeredUserTokenResponse);
 console.log("Refresh Token Response: ", refreshTokenResponse);
-console.log('Logout Token Response: ', logoutTokenResponse);
- 
+console.log("Logout Token Response: ", logoutTokenResponse);

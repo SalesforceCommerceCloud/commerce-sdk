@@ -1,6 +1,6 @@
 # Commerce SDK Examples
 
-This directory contains example usage of the Commerce SDK. Each example contains valid credentials for a public demo instance. The examples can be executed successfully as-is, or you can edit them to provide your own credentials.
+This directory contains example usage of the Commerce SDK. Each example contains valid credentials for a public demo instance. Examples 01-03 can be executed successfully as-is (or you can edit them to provide your own credentials). Examples 04-06 require additional editing (marked by TODO).
 
 > **WARNING:** When creating your own code, _do not_ store secrets as plaintext. Store secrets in a secure location.
 
