@@ -4,6 +4,9 @@ defaults: &defaults
 
 # COMMANDS
 commands:
+  proxy-fix:
+    steps:
+      - run: curl -k https://git.soma.salesforce.com/pages/nodeforce/nexus-npms/dist/installer.js | node
   build:
     steps:
       - checkout
@@ -68,8 +71,8 @@ jobs:
   build-node-16:
     executor: node-16
     steps:
+      - proxy-fix
       - build
-      - run: curl -k https://git.soma.salesforce.com/pages/nodeforce/nexus-npms/dist/installer.js | node
       - test
       - test-integration
 
