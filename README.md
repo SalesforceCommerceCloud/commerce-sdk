@@ -58,9 +58,9 @@ To use an SDK client, instantiate an object of that client and configure these p
 
 // Import the SDK in TypeScript
 // tsc requires the --esModuleInterop flag for this
-import { Search, Customer, helpers } from "commerce-sdk";
+import { Search, Customer, helpers, slasHelpers } from "commerce-sdk";
 // Older Node.js versions can instead use:
-// const { ClientConfig, helpers, Search } = require("commerce-sdk");
+// const { ClientConfig, helpers, slasHelpers Search } = require("commerce-sdk");
 
 // demo client credentials, if you have access to your own please replace them below.
 // do not store client secret as plaintext. Store it in a secure location.
@@ -98,11 +98,15 @@ async function getGuestUserAuthToken(): Promise<Customer.ShopperLogin.TokenRespo
 }
 
 // Alternatively you may use the SLAS helper functions to generate JWT/access token
-const guestTokenResponse = await helpers.loginGuestUser(
+const guestTokenResponse = await slasHelpers.loginGuestUser(
     new Customer.ShopperLogin(config), 
     { redirectURI: 'http://localhost:3000/callback' }
-).catch(error => console.log("Error fetching token for guest login: ", error));
-console.log("Guest Token Response: ", guestTokenResponse);
+  )
+  .then((guestTokenResponse) => {
+    console.log("Guest Token Response: ", guestTokenResponse);
+    return guestTokenResponse;
+  })
+  .catch(error => console.log("Error fetching token for guest login: ", error));
 
 // Get a JWT to use with Shopper API clients
 getGuestUserAuthToken().then(async (token) => {

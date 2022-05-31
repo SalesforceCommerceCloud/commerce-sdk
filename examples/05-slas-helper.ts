@@ -15,7 +15,7 @@
  * For more information, see (Shopper Login and API Access Service)[https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-public-client.html].
  */
 import * as CommerceSdk from "commerce-sdk";
-const { helpers, Customer } = CommerceSdk;
+const { slasHelpers, Customer } = CommerceSdk;
 
 // demo client credentials, if you have access to your own please replace them below.
 const CLIENT_ID = "1d763261-6522-4913-9d52-5d947d3b94c4";
@@ -42,42 +42,56 @@ const clientConfig = {
   },
 };
 
-const slasClient = new Customer.ShopperCustomer(clientConfig);
+const slasClient = new Customer.ShopperLogin(clientConfig);
 
 // GUEST LOGIN
-const guestTokenResponse = await helpers
+const guestTokenResponse = await slasHelpers
   .loginGuestUser(slasClient, { redirectURI })
+  .then((guestTokenResponse) => {
+    console.log("Guest Token Response: ", guestTokenResponse);
+    return guestTokenResponse;
+  })
   .catch((error) =>
     console.log("Error fetching token for guest login: ", error)
   );
 
 // REGISTERED B2C USER LOGIN
-const registeredUserTokenResponse = await helpers
+slasHelpers
   .loginRegisteredUserB2C(
     slasClient,
     { username: shopper.username, password: shopper.password },
     { redirectURI }
   )
+  .then((registeredUserTokenResponse) => {
+    console.log(
+      "Registered User Token Response: ",
+      registeredUserTokenResponse
+    );
+    return registeredUserTokenResponse;
+  })
   .catch((error) =>
     console.log("Error fetching token for registered user login: ", error)
   );
 
 // REFRESH TOKEN
-const refreshTokenResponse = await helpers
+const refreshTokenResponse = await slasHelpers
   .refreshAccessToken(slasClient, {
     refreshToken: guestTokenResponse.refresh_token,
+  })
+  .then((refreshTokenResponse) => {
+    console.log("Refresh Token Response: ", refreshTokenResponse);
+    return refreshTokenResponse;
   })
   .catch((error) => console.log("Error refreshing token: ", error));
 
 // LOGOUT
-const logoutTokenResponse = await helpers
+slasHelpers
   .logout(slasClient, {
     accessToken: refreshTokenResponse.access_token,
     refreshToken: refreshTokenResponse.refresh_token,
   })
+  .then((logoutTokenResponse) => {
+    console.log("Logout Token Response: ", logoutTokenResponse);
+    return logoutTokenResponse;
+  })
   .catch((error) => console.log("Error with logout: ", error));
-
-console.log("Guest Token Response: ", guestTokenResponse);
-console.log("Registered User Token Response: ", registeredUserTokenResponse);
-console.log("Refresh Token Response: ", refreshTokenResponse);
-console.log("Logout Token Response: ", logoutTokenResponse);

@@ -14,7 +14,7 @@
  * For more information, see (Shopper Login and API Access Service)[https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-private-client.html].
  */
 import * as CommerceSdk from "commerce-sdk";
-const { helpers, Customer } = CommerceSdk;
+const { slasHelpers, Customer } = CommerceSdk;
 
 // demo client credentials, if you have access to your own please replace them below.
 // do not store client secret as plaintext. Store it in a secure location.
@@ -46,14 +46,18 @@ const clientConfig = {
 const slasClient = new Customer.ShopperLogin(clientConfig);
 
 // GUEST LOGIN
-const guestTokenResponse = await helpers
+const guestTokenResponse = await slasHelpers
   .loginGuestUserPrivate(slasClient, { clientSecret: CLIENT_SECRET })
+  .then((guestTokenResponse) => {
+    console.log("Guest Token Response: ", guestTokenResponse);
+    return guestTokenResponse;
+  })
   .catch((error) =>
     console.log("Error fetching token for guest login: ", error)
   );
 
 // REGISTERED B2C USER LOGIN
-const registeredUserTokenResponse = await helpers
+slasHelpers
   .loginRegisteredUserB2Cprivate(
     slasClient,
     {
@@ -63,19 +67,26 @@ const registeredUserTokenResponse = await helpers
     },
     { redirectURI }
   )
+  .then((registeredUserTokenResponse) => {
+    console.log(
+      "Registered User Token Response: ",
+      registeredUserTokenResponse
+    );
+    return registeredUserTokenResponse;
+  })
   .catch((error) =>
     console.log("Error fetching token for registered user login: ", error)
   );
 
-// // REFRESH TOKEN
-const refreshTokenResponse = await helpers
+// REFRESH TOKEN
+slasHelpers
   .refreshAccessTokenPrivate(
     slasClient,
     { clientSecret: CLIENT_SECRET },
     { refreshToken: guestTokenResponse.refresh_token }
   )
+  .then((refreshTokenResponse) => {
+    console.log("Refresh Token Response: ", refreshTokenResponse);
+    return refreshTokenResponse;
+  })
   .catch((error) => console.log("Error refreshing token: ", error));
-
-console.log("Guest Token Response: ", guestTokenResponse);
-console.log("Registered User Token Response: ", registeredUserTokenResponse);
-console.log("Refresh Token Response: ", refreshTokenResponse);
