@@ -89,4 +89,4 @@ slasHelpers
     console.log("Refresh Token Response: ", refreshTokenResponse);
     return refreshTokenResponse;
   })
-  .catch((error) => console.log("Error refreshing token: ", error));
+  .catch((error) => console.log("Error refreshing token: ", error))
