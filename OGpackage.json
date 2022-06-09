@@ -1,0 +1,90 @@
+{
+    "name": "commerce-sdk",
+    "version": "2.7.1",
+    "description": "Salesforce Commerce Cloud SDK",
+    "homepage": "https://developer.salesforce.com/developer-centers/commerce-cloud",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/SalesforceCommerceCloud/commerce-sdk"
+    },
+    "license": "BSD-3-Clause",
+    "author": "",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "files": [
+      "dist",
+      "images",
+      "README.md",
+      "LICENSE.txt"
+    ],
+    "scripts": {
+      "backupApis": "rm -rf updateApisTmp && mkdir updateApisTmp && mv apis updateApisTmp/oldApis",
+      "build": "npm run clean && npm run renderTemplates && tsc && eslint dist --ext .ts,.js --quiet --fix",
+      "clean": "rm -rf renderedTemplates dist",
+      "depcheck": "depcheck",
+      "diffApis": "raml-toolkit diff --dir updateApisTmp/oldApis apis -f console -o updateApisTmp/ramlDiff.txt",
+      "doc": "npm run doc:generate && npm run doc:resources",
+      "doc:generate": "typedoc --mode modules --out ./docs renderedTemplates/** --tsconfig tsconfig.json --external-modulemap  \".*/renderedTemplates/([\\w\\-_]+)/\"",
+      "doc:resources": "cp CHANGELOG.md ./docs",
+      "lint": "npm run lint:dev -- --quiet",
+      "lint:dev": "sort-package-json && eslint . --ext .ts --fix",
+      "prepack": "npm run build",
+      "prepare": "snyk protect",
+      "renderTemplates": "ts-node src/generate.ts",
+      "pretest": "npm run lint && npm run depcheck",
+      "test": "nyc mocha \"src/**/*.test.ts\"",
+      "test:ci": "npm test -- --reporter=xunit --reporter-options output=./reports/generator.xml",
+      "updateApis": "npm run backupApis && ts-node src/updateApis.ts && git checkout apis/search && npm run diffApis"
+    },
+    "mocha": {
+      "file": [
+        "testResources/setup.ts"
+      ]
+    },
+    "dependencies": {
+      "@commerce-apps/core": "^1.5.5",
+      "lodash": "^4.17.21",
+      "retry": "^0.12.0",
+      "tslib": "^2.3.1"
+    },
+    "devDependencies": {
+      "@commerce-apps/raml-toolkit": "^0.5.11",
+      "@istanbuljs/nyc-config-typescript": "^1.0.2",
+      "@types/chai": "^4.3.0",
+      "@types/fs-extra": "^9.0.13",
+      "@types/handlebars-helpers": "^0.5.3",
+      "@types/lodash": "^4.14.178",
+      "@types/mocha": "^8.2.3",
+      "@types/retry": "^0.12.1",
+      "@types/sinon": "^9.0.11",
+      "@typescript-eslint/eslint-plugin": "^2.34.0",
+      "@typescript-eslint/parser": "^2.34.0",
+      "chai": "^4.3.5",
+      "depcheck": "^0.9.2",
+      "eslint": "^7.32.0",
+      "eslint-config-prettier": "^6.15.0",
+      "eslint-plugin-header": "^3.1.1",
+      "eslint-plugin-jsdoc": "^25.4.3",
+      "eslint-plugin-prettier": "^3.4.1",
+      "eslint-plugin-tsdoc": "^0.2.14",
+      "fs-extra": "^9.1.0",
+      "handlebars-helpers": "^0.10.0",
+      "mocha": "^8.4.0",
+      "nyc": "^15.1.0",
+      "prettier": "^2.5.1",
+      "sinon": "^9.2.4",
+      "snyk": "^1.836.0",
+      "sort-package-json": "^1.53.1",
+      "ts-node": "^9.1.1",
+      "typedoc": "^0.17.8",
+      "typedoc-plugin-external-module-map": "1.2.1",
+      "typedoc-plugin-nojekyll": "^1.0.1",
+      "typescript": "^3.9.10"
+    },
+    "publishConfig": {
+      "access": "public"
+    },
+    "gitHead": "2a6031f5f57c4ba5df8bfb5c4ca42b2631befe58",
+    "snyk": true
+  }
+  
