@@ -36,6 +36,7 @@
           {{/each}}
         },
         retrySettings?: OperationOptions,
+        fetchOptions?: RequestInit,
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}},
         body: {{{addNamespace (getPayloadTypeFromRequest request) @root.name.upperCamelCase}}}{{/or}}
       }
@@ -76,7 +77,8 @@
           {{/each}}
         },
         retrySettings?: OperationOptions,
-        headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}}, 
+        fetchOptions?: RequestInit,
+        headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}},
         body: {{{addNamespace (getPayloadTypeFromRequest request) @root.name.upperCamelCase}}}{{/or}}
       },
       rawResponse?: T
@@ -117,7 +119,8 @@
           {{/each}}
         },
         retrySettings?: OperationOptions,
-        headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}}, 
+        fetchOptions?: RequestInit,
+        headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}},
         body: {{{addNamespace (getPayloadTypeFromRequest request) @root.name.upperCamelCase}}}{{/or}}
       },
       rawResponse?: boolean,
@@ -161,7 +164,8 @@
         queryParameters: queryParameters,
         retrySettings: (options || {}).retrySettings,
         headers: headers{{#or (is method "patch") (is method "post") (is method "put")}}, 
-        body: (options || {}).body{{/or}}
+        body: (options || {}).body{{/or}},
+        ...(options.fetchOptions && { fetchOptions: options.fetchOptions })
       });
     }
 
