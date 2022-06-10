@@ -23,7 +23,7 @@ const ORG_ID = "f_ecom_zzte_053";
 const SHORT_CODE = "kv7kzm78";
 const SITE_ID = "RefArch";
 
-// TODO: Fill in with shopper credentials. Examples on how to register a shopper can be found in 04-register-shopper.ts
+// EDIT HERE: Fill in with shopper credentials. Examples on how to register a shopper can be found in 04-register-shopper.ts
 const shopper = {
   username: "<insert_username>",
   password: "<insert_password>", // do not store password as plaintext. Store it in a secure location.

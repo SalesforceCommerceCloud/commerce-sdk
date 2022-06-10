@@ -52,7 +52,7 @@ const options = {
     siteId: clientConfig.parameters.siteId,
   },
   body: {
-    // TODO: Fill in with shopper credentials
+    // EDIT HERE: Fill in with shopper credentials
     password: "<insert_password>",
     customer: {
       login: "<insert_login>",
