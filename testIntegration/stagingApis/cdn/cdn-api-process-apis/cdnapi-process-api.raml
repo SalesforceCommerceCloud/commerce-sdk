@@ -2,7 +2,16 @@
 title: CDN Zones
 
 version: v1
-description: !include cdnzones-description.md
+
+# description: Provides access to Commerce Cloud Digital CDN-related functionality.
+description: !include cdn-zones-description.md
+
+documentation:
+  - title: Use Cases
+    content: !include use-cases.md
+  - title: Glossary
+    content: !include glossary.md
+
 protocols: HTTPS
 baseUri: https://{shortCode}.api.commercecloud.salesforce.com/cdn/zones/{version}
 baseUriParameters:
@@ -28,7 +37,9 @@ types:
   SpeedSetting: !include dataTypes/SpeedSetting.raml
   Certificate: !include dataTypes/Certificate.raml
   CertificateRequest: !include dataTypes/CertificateRequest.raml
-  WorkerUpdateRequest: !include dataTypes/WorkerUpdateRequest.raml
+  OCAPICachingToggleRequest: !include dataTypes/OCAPICachingToggleRequest.raml
+  CachePurgeRequest: !include dataTypes/CachePurgeRequest.raml
+  CachePurgeResponse: !include dataTypes/CachePurgeResponse.raml
 
   ZonesEnvelope:
     type: CollectionResponseEnvelope
@@ -85,6 +96,11 @@ types:
     properties:
       data:
         type: Certificate[]
+  CachePurgeResponseEnvelope:
+    type: ItemResponseEnvelope
+    properties:
+      data:
+        type: CachePurgeResponse
 
 traits:
   hasUnauthorizedResponse: !include traits/HasUnauthorizedResponse.raml
@@ -331,12 +347,47 @@ traits:
       securedBy: 
         - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
         - CommerceCloudStandards.AmOAuth2
-
+  /zones/{zoneId}/cachepurge:
+    post:
+      is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse, hasResourceNotFoundResponse]
+      displayName: cachePurge
+      description: Request to purge the cache for the host given in the request body
+      body:
+        application/json:
+          type: CachePurgeRequest
+      responses:
+        '200':
+          description: Returns completed operationId statuses that represent the rule list operations the server processed.
+          body:
+            application/json:
+              type: CachePurgeResponseEnvelope
+      securedBy: 
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2
+  /zones/{zoneId}/ocapicachingpagerule:
+    is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse, hasResourceNotFoundResponse]
+    patch:
+      is: [ hasBadRequestResponse ]
+      displayName: toggleOcapiCachingPageRule
+      description: Request to enable or disable OCAPI Caching page rule.
+      body:
+        application/json:
+          type: OCAPICachingToggleRequest
+      responses:
+        '200':
+          description: Returns the current state of OCAPI Caching page rule.
+          body:
+            application/json:
+              type: OCAPICachingToggleRequest
+      securedBy: 
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2
   /zones/{zoneId}/certificates:
-    is: [hasResourceNotFoundResponse, hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse]
+    is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse]
     get:
+      is: [hasResourceNotFoundResponse]
       displayName: getCertificates
-      description: Retrieves a list of certificates information for a gven zone. 
+      description: Retrieves a list of certificates information for a zone. 
       responses:
         200:
           description: OK
@@ -345,8 +396,26 @@ traits:
               type: CertificatesEnvelope
               example: !include /examples/zone/certificates-get-response.raml
       securedBy:
-         - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
-         - CommerceCloudStandards.AmOAuth2
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2
+    post:
+      is: [hasBadRequestResponse]
+      displayName: addCertificateForZone
+      description: Add Certificates For Zone
+      body:
+        type: CertificateRequest
+        examples: !include /examples/zone/certificate-post-request.raml
+      responses:
+        '201':
+          description: Returns back information about added certificate.
+          body:
+            application/json:
+              type: CertificateEnvelope
+              examples:
+                  response : !include /examples/zone/certificate-post-response.raml
+      securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2
     /{certificateId}:
       patch:
         is: [hasBadRequestResponse]
@@ -364,24 +433,6 @@ traits:
                 type: CertificateEnvelope
                 examples:
                   response : !include /examples/zone/certificate-update-response.raml
-      securedBy: 
-        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
-        - CommerceCloudStandards.AmOAuth2
-  /zones/{zoneId}/workers:  
-    patch:
-      is: [hasBadRequestResponse, hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse]
-      displayName: workerUpdate
-      description: Updates the worker for the zone to the specified version
-      body:
-        application/json:
-          type: WorkerUpdateRequest
-          examples: !include /examples/zone/worker-update-request.raml
-      responses:
-        204:
-          description: Successfully updated the worker with the specified version.
-      securedBy:
-         - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
-         - CommerceCloudStandards.AmOAuth2
-
-        
-    
+        securedBy: 
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+          - CommerceCloudStandards.AmOAuth2

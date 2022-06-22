@@ -19,14 +19,11 @@ you import the type definitions directly.
 
 Download and install Node.js and npm [here](https://nodejs.org/en/download/).
 ​
-
-> **Note:** Only Node.js version 12 and 14 LTS are supported. Other versions can cause unexpected results. To use a different version of Node.js for other projects, you can manage multiple versions of Node.js with [nvm](https://github.com/nvm-sh/nvm).
-> ​
+> **Note:** Only Node.js version 14 and 16 LTS are supported. Other versions can cause unexpected results. To use a different version of Node.js for other projects, you can manage multiple versions of Node.js with [nvm](https://github.com/nvm-sh/nvm). ​
 
 ## Installation
 
 Use npm to install the Commerce SDK.
-​
 
 ```
 npm install commerce-sdk

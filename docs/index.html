@@ -87,14 +87,12 @@
 				<p>Download and install Node.js and npm <a href="https://nodejs.org/en/download/">here</a>.
 				​</p>
 				<blockquote>
-					<p><strong>Note:</strong> Only Node.js version 12 and 14 LTS are supported. Other versions can cause unexpected results. To use a different version of Node.js for other projects, you can manage multiple versions of Node.js with <a href="https://github.com/nvm-sh/nvm">nvm</a>.
-					​</p>
+					<p><strong>Note:</strong> Only Node.js version 14 and 16 LTS are supported. Other versions can cause unexpected results. To use a different version of Node.js for other projects, you can manage multiple versions of Node.js with <a href="https://github.com/nvm-sh/nvm">nvm</a>. ​</p>
 				</blockquote>
 				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
 					<h2>Installation</h2>
 				</a>
-				<p>Use npm to install the Commerce SDK.
-				​</p>
+				<p>Use npm to install the Commerce SDK.</p>
 				<pre><code>npm <span class="hljs-keyword">install</span> commerce-sdk</code></pre>
 				<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
 					<h2>Usage</h2>
@@ -143,9 +141,9 @@
 
 <span class="hljs-comment">// Import the SDK in TypeScript</span>
 <span class="hljs-comment">// tsc requires the --esModuleInterop flag for this</span>
-<span class="hljs-keyword">import</span> { Search, Customer } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
+<span class="hljs-keyword">import</span> { Search, Customer, helpers, slasHelpers } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
 <span class="hljs-comment">// Older Node.js versions can instead use:</span>
-<span class="hljs-comment">// const { ClientConfig, helpers, Search } = require(&quot;commerce-sdk&quot;);</span>
+<span class="hljs-comment">// const { ClientConfig, helpers, slasHelpers Search } = require(&quot;commerce-sdk&quot;);</span>
 
 <span class="hljs-comment">// demo client credentials, if you have access to your own please replace them below.</span>
 <span class="hljs-comment">// do not store client secret as plaintext. Store it in a secure location.</span>
@@ -182,6 +180,17 @@
   });
 }
 
+<span class="hljs-comment">// Alternatively you may use the SLAS helper functions to generate JWT/access token</span>
+<span class="hljs-keyword">const</span> guestTokenResponse = <span class="hljs-keyword">await</span> slasHelpers.loginGuestUser(
+    <span class="hljs-keyword">new</span> Customer.ShopperLogin(config), 
+    { <span class="hljs-attr">redirectURI</span>: <span class="hljs-string">&#x27;http://localhost:3000/callback&#x27;</span> }
+  )
+  .then(<span class="hljs-function">(<span class="hljs-params">guestTokenResponse</span>) =&gt;</span> {
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;Guest Token Response: &quot;</span>, guestTokenResponse);
+    <span class="hljs-keyword">return</span> guestTokenResponse;
+  })
+  .catch(<span class="hljs-function"><span class="hljs-params">error</span> =&gt;</span> <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;Error fetching token for guest login: &quot;</span>, error));
+
 <span class="hljs-comment">// Get a JWT to use with Shopper API clients</span>
 getGuestUserAuthToken().then(<span class="hljs-keyword">async</span> (token) =&gt; {
   <span class="hljs-comment">// Add the token to the client configuration</span>
@@ -206,6 +215,10 @@ getGuestUserAuthToken().then(<span class="hljs-keyword">async</span> (token) =&g
   <span class="hljs-built_in">console</span>.error(e);
   <span class="hljs-built_in">console</span>.error(<span class="hljs-keyword">await</span> e.response.text());
 });</code></pre>
+				<a href="#slas-helpers" id="slas-helpers" style="color: inherit; text-decoration: none;">
+					<h3>SLAS helpers</h3>
+				</a>
+				<p>The SDK includes helper functions to help developers easily onboard SLAS onto their applications to assist with authentication. A brief example is shown in the sample code above. The SLAS helpers offer both public and private client functions, the main difference being the private client functions require a <code>client_secret</code>. Code examples on how to use the different functions can be found the in the <a href="https://github.com/SalesforceCommerceCloud/commerce-sdk/tree/master/examples">examples</a> folder (examples 05 and 06). More information about SLAS and public/private client flows can be found <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas.html">here</a>.</p>
 				<a href="#error-handling" id="error-handling" style="color: inherit; text-decoration: none;">
 					<h3>Error Handling</h3>
 				</a>
@@ -238,6 +251,37 @@ getGuestUserAuthToken().then(<span class="hljs-keyword">async</span> (token) =&g
 				<p><img src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/images/ParameterDetails.jpg?raw=true" alt="Parameter Details" title="Parameter Details"></p>
 				<p>Autocomplete also shows the available properties of the data returned by SDK methods.</p>
 				<p><img src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/images/ResultAutocomplete.jpg?raw=true" alt="Result Autocomplete" title="Result Autocomplete"></p>
+				<a href="#fetch-options" id="fetch-options" style="color: inherit; text-decoration: none;">
+					<h3>Fetch Options</h3>
+				</a>
+				<p>Fetch options are able to be passed on to modify the behavior of the fetch call. There are two ways to pass on fetch options:</p>
+				<ol>
+					<li>Through the client config</li>
+				</ol>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> config = {
+    <span class="hljs-attr">parameters</span>: {
+        <span class="hljs-attr">clientId</span>: CLIENT_ID,
+        <span class="hljs-attr">organizationId</span>: ORG_ID,
+        <span class="hljs-attr">shortCode</span>: SHORT_CODE,
+        <span class="hljs-attr">siteId</span>: SITE_ID,
+    },
+    <span class="hljs-attr">fetchOptions</span>: {
+        <span class="hljs-attr">redirect</span>: <span class="hljs-string">&quot;error&quot;</span>,
+    }
+}</code></pre>
+				<ol start="2">
+					<li>Through the SDK function call</li>
+				</ol>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> client = <span class="hljs-keyword">new</span> ShopperLogin(config);
+
+client.authorizeCustomer({
+  <span class="hljs-attr">headers</span>: { ... },
+  <span class="hljs-attr">body</span>: { ... },
+  <span class="hljs-attr">fetchOptions</span>: {
+    <span class="hljs-attr">redirect</span>: <span class="hljs-string">&quot;manual&quot;</span>
+  }
+});</code></pre>
+				<p>If both the client config and the function call define the same fetch option with different values, the fetch option value for the function call will take priority. In the examples above, both pass in the <code>redirect</code> fetch option with different values, however, <code>redirect: &quot;manual&quot;</code> will take precedence because it was passed on the function call level. </p>
 				<a href="#caching" id="caching" style="color: inherit; text-decoration: none;">
 					<h2>Caching</h2>
 				</a>
@@ -388,7 +432,7 @@ sdkLogger.setLevel(sdkLogger.levels.INFO);</code></pre>
 				<p>For more information about security considerations related to developing headless commerce applications, see
 					<a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/security-considerations-for-headless-commerce.html">Security Considerations for Headless Commerce</a> on the
 				<a href="https://developer.salesforce.com/developer-centers/commerce-cloud">Commerce Cloud Developer Center</a>.</p>
-				<p>If you discover any potential security issues, please report them to <a href="mailto:&#115;&#101;&#x63;&#117;&#x72;&#105;&#116;&#121;&#x40;&#115;&#97;&#108;&#x65;&#x73;&#102;&#111;&#114;&#99;&#x65;&#46;&#99;&#x6f;&#x6d;">&#115;&#101;&#x63;&#117;&#x72;&#105;&#116;&#121;&#x40;&#115;&#97;&#108;&#x65;&#x73;&#102;&#111;&#114;&#99;&#x65;&#46;&#99;&#x6f;&#x6d;</a> as soon as possible.</p>
+				<p>If you discover any potential security issues, please report them to <a href="mailto:&#x73;&#101;&#99;&#x75;&#x72;&#105;&#x74;&#121;&#64;&#115;&#97;&#x6c;&#x65;&#x73;&#102;&#111;&#x72;&#99;&#x65;&#x2e;&#x63;&#111;&#109;">&#x73;&#101;&#99;&#x75;&#x72;&#105;&#x74;&#121;&#64;&#115;&#97;&#x6c;&#x65;&#x73;&#102;&#111;&#x72;&#99;&#x65;&#x2e;&#x63;&#111;&#109;</a> as soon as possible.</p>
 				<a href="#additional-documentation" id="additional-documentation" style="color: inherit; text-decoration: none;">
 					<h2>Additional Documentation</h2>
 				</a>
@@ -410,9 +454,6 @@ sdkLogger.setLevel(sdkLogger.levels.INFO);</code></pre>
 						<a href="globals.html"><em>Globals</em></a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="modules/_helpers_.html">&quot;helpers&quot;</a>
-					</li>
-					<li class=" tsd-kind-module">
 						<a href="modules/_index_.html">&quot;index&quot;</a>
 					</li>
 					<li class=" tsd-kind-module">
@@ -426,6 +467,9 @@ sdkLogger.setLevel(sdkLogger.levels.INFO);</code></pre>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="modules/discovery.html">discovery</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/helpers.html">helpers</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="modules/pricing.html">pricing</a>
@@ -453,6 +497,9 @@ sdkLogger.setLevel(sdkLogger.levels.INFO);</code></pre>
 				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
 				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
 				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
