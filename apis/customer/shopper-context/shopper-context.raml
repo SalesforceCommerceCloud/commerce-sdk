@@ -38,7 +38,7 @@ types:
   type: CommerceCloudStandards.Organization
   /shopper-context/{usid}:
     get:
-      description: Gets the shopper's context based on the shopperJWT.
+      description: Gets the shopper's context based on the shopperJWT. ******** This API is currently a work in progress, and not available to use yet. ********
       displayName: getShopperContext
       responses: 
         '200':
@@ -49,7 +49,7 @@ types:
               examples:
                 shopperContext: !include Examples/shopper-context-example.raml 
       securedBy:
-        - ApiStandards.GDoT: { scopes: [sfcc.shopper-context, sfcc.shopper-context.rw] }      
+        - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-context, sfcc.shopper-context.rw] }    
     put:
       description: Creates the shopper's context based on shopperJWT.
       displayName: createShopperContext
@@ -82,7 +82,7 @@ types:
       securedBy:
         - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-context.rw] }    
     patch:
-      description: Updates the shopper's context based on the shopperJWT. If the shopper context exists, it is updated with the patch body. If a customer qualifiier and/or an effectiveDateTime is already present in the existing shopper context, its value is replaced by corresponding value from patch body. If an effectiveDateTime/customer qualifers' value is set to null it is deleted from existing shopper context. If an effectiveDateTime/customer qualifiier is new, it is added to the existing Shopper context. 
+      description: Updates the shopper's context based on the Shopper JWT. If the shopper context exists, it's updated with the patch body. If a customer qualifier or an `effectiveDateTime` is already present in the existing shopper context, its value is replaced by the corresponding value from the patch body. If a customer qualifers' value is set to `null` it's deleted from existing shopper context. If `effectiveDateTime` value is set to set to an empty string (""), it's deleted from existing shopper context. If `effectiveDateTime` value is set to `null` it's ignored. If an `effectiveDateTime` or customer qualifiiers' value is new, it's added to the existing Shopper context. 
       displayName: updateShopperContext
       body:
         application/json:
