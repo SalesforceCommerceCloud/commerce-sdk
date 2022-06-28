@@ -10,6 +10,28 @@ only use JavaScript, or if you use TypeScript but only import the client classes
 then your usage **will not change**. You will likely only need to make changes if
 you import the type definitions directly.
 
+### v2.8.0
+
+#### Enchancements
+
+* SLAS helper functions have been added
+* `fetchOptions` are able to be passed to modify the fetch call behavior
+
+#### API Changes
+
+*Shopper Login*
+
+* New Endpoints
+
+  | **Endpoint Name** | **Description** |
+  | ------------- |-------------|
+  | getPasswordResetToken | Request a reset password token |
+  | resetPassword | Creates a new password |
+
+#### Documentation
+
+* Code examples have been added for the SLAS helpers and registering a shopper
+* `README` has been updated to reflect support for Node 16 LTS
 ### v2.7.1
 
 #### Documentation
