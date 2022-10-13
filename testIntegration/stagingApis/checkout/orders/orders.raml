@@ -15,7 +15,7 @@ baseUriParameters:
 uses:
   StatusCodes: status-codes.raml
   DataTypes: data-types.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.15/commerce-cloud-standards.raml 
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.20/commerce-cloud-standards.raml
   ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.13/api-standards.raml
 
 types:
@@ -98,6 +98,33 @@ types:
       securedBy:
         - CommerceCloudStandards.BearerToken: { scopes: [ "sfcc.orders", "sfcc.orders.rw" ] }
         - CommerceCloudStandards.AmOAuth2
+    post:
+      description: !include create-order-description.md
+      displayName: createOrders
+      is:
+        - StatusCodes.OrderCreated
+        - StatusCodes.SiteNotFound
+        - StatusCodes.BadRequest
+        - StatusCodes.InvalidCurrency
+        - StatusCodes.InvalidOrderTotal
+        - StatusCodes.InvalidTaxTotal
+        - StatusCodes.ShipmentNotFound
+        - CommerceCloudStandards.SiteSpecific
+        - ApiStandards.RateLimited:
+            responseStatus: 201
+        - ApiStandards.RateLimited:
+            responseStatus: 404
+        - ApiStandards.RateLimited:
+            responseStatus: 400
+      body:
+        type: DataTypes.CreateOrderRequest
+        examples:
+          minimalExample: !include examples/order_create/simple-order.raml
+          fullExample: !include examples/order_create/full-order.raml
+          multiShipmentExample: !include examples/order_create/multi-shipment.raml
+          fullPaymentInstrumentExample: !include examples/order_create/full-payment-instrument.raml
+      securedBy:
+        - CommerceCloudStandards.ShopperTokenTsob: { scopes: [ "sfcc.orders.rw" ] }
     '/{orderNo}':
       type: CommerceCloudStandards.Organization
       uriParameters:

@@ -10,6 +10,35 @@ only use JavaScript, or if you use TypeScript but only import the client classes
 then your usage **will not change**. You will likely only need to make changes if
 you import the type definitions directly.
 
+### v2.9.0
+
+#### API Changes
+
+*CDN Zones API*
+
+* Removal of non operational endpoint `workerUpdate`
+* New Endpoints
+
+  | **Endpoint Name** | **Description** |
+  | ------------- |-------------|
+  | createStorefrontZone | Create a new storefront zone |
+  | cachePurge | Request to purge the cache for the host given in the request body |
+  | toggleOcapiCachingPageRule | Request to enable or disable OCAPI Caching page rule |
+  | addCertificateForZone | Add Certificates For Zone |
+
+
+*Orders API*
+
+* New Endpoints
+
+  | **Endpoint Name** | **Description** |
+  | ------------- |-------------|
+  | createOrders | Create an order in the Commerce Cloud platform by passing the order as json payload in the body of the POST request |
+
+*Shopper Login (SLAS) Admin*
+
+* Removal of non-operational endpoints `retrieveTenants` and `deleteTenant`
+
 ### v2.8.0
 
 #### Enchancements

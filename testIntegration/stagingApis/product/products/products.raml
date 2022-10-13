@@ -14,8 +14,8 @@ description: !include products-description.md
 
 uses:
   ProductTraits: data-products-library.raml
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.8/api-standards.raml   
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.15/commerce-cloud-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml   
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.24/commerce-cloud-standards.raml
 
 types:
   CatalogCategoryId:
@@ -557,7 +557,7 @@ types:
     type: CommerceCloudStandards.PaginatedSearchResult
     properties:
       hits:
-        description: The sorted array of search hits. Can be empty.
+        description: A sorted array of search hits (`Product` objects). The array can be empty.
         type: Product[]
   ProductType:
     description: Document representing a product type.
@@ -693,7 +693,7 @@ types:
     type: CommerceCloudStandards.PaginatedSearchResult
     properties:
       hits:
-        description: The hits from the search.
+        description: An array of search hits (`Variant` objects).
         type: Variant[]
   Variants:
     description: Document representing an unfiltered list of variants.
@@ -2091,6 +2091,7 @@ types:
         | validTo | SiteSpecfic DateTime  |
         | type | ProductType |
         | creationDate | DateTime |
+        | lastModified | DateTime |
 
       Catalog:
 
@@ -2122,7 +2123,9 @@ types:
 
       The available expand attribute values are:
 
-      - ‘all' retrieves all the product properties.
+      - ‘all' retrieves all the product properties. This is the default used when no expand value is included in the request.
+
+      - 'none' retrieves no expansion properties.
 
       - ‘availability' retrieves the following properties:
           - ats
