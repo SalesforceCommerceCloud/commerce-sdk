@@ -39,6 +39,10 @@ you import the type definitions directly.
 
 * Removal of non-operational endpoints `retrieveTenants` and `deleteTenant`
 
+#### **Bug Fixes**
+
+* Fixes SLAS endpoints `getPasswordResetToken` and `resetPassword`
+
 ### v2.8.0
 
 #### Enchancements
