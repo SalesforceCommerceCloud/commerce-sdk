@@ -10,6 +10,61 @@ only use JavaScript, or if you use TypeScript but only import the client classes
 then your usage **will not change**. You will likely only need to make changes if
 you import the type definitions directly.
 
+### v2.9.0
+
+#### API Changes
+
+*CDN Zones API*
+
+* Removal of non operational endpoint `workerUpdate`
+* New Endpoints
+
+  | **Endpoint Name** | **Description** |
+  | ------------- |-------------|
+  | createStorefrontZone | Create a new storefront zone |
+  | cachePurge | Request to purge the cache for the host given in the request body |
+  | toggleOcapiCachingPageRule | Request to enable or disable OCAPI Caching page rule |
+  | addCertificateForZone | Add Certificates For Zone |
+
+
+*Orders API*
+
+* New Endpoints
+
+  | **Endpoint Name** | **Description** |
+  | ------------- |-------------|
+  | createOrders | Create an order in the Commerce Cloud platform by passing the order as json payload in the body of the POST request |
+
+*Shopper Login (SLAS) Admin*
+
+* Removal of non-operational endpoints `retrieveTenants` and `deleteTenant`
+
+#### **Bug Fixes**
+
+* Fixes SLAS endpoints `getPasswordResetToken` and `resetPassword`
+
+### v2.8.0
+
+#### Enchancements
+
+* SLAS helper functions have been added
+* `fetchOptions` are able to be passed to modify the fetch call behavior
+
+#### API Changes
+
+*Shopper Login*
+
+* New Endpoints
+
+  | **Endpoint Name** | **Description** |
+  | ------------- |-------------|
+  | getPasswordResetToken | Request a reset password token |
+  | resetPassword | Creates a new password |
+
+#### Documentation
+
+* Code examples have been added for the SLAS helpers and registering a shopper
+* `README` has been updated to reflect support for Node 16 LTS
 ### v2.7.1
 
 #### Documentation

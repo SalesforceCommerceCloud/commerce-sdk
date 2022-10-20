@@ -19,15 +19,12 @@ you import the type definitions directly.
 
 Download and install Node.js and npm [here](https://nodejs.org/en/download/).
 ​
-
-> **Note:** Only Node.js version 12 and 14 LTS are supported. Other versions can cause unexpected results. To use a different version of Node.js for other projects, you can manage multiple versions of Node.js with [nvm](https://github.com/nvm-sh/nvm).
-> ​
+> **Note:** Only Node.js version 14 and 16 LTS are supported. Other versions can cause unexpected results. To use a different version of Node.js for other projects, you can manage multiple versions of Node.js with [nvm](https://github.com/nvm-sh/nvm). ​
 
 ## Installation
 
 Use npm to install the Commerce SDK.
 ​
-
 ```
 npm install commerce-sdk
 ```
@@ -58,9 +55,9 @@ To use an SDK client, instantiate an object of that client and configure these p
 
 // Import the SDK in TypeScript
 // tsc requires the --esModuleInterop flag for this
-import { Search, Customer } from "commerce-sdk";
+import { Search, Customer, helpers, slasHelpers } from "commerce-sdk";
 // Older Node.js versions can instead use:
-// const { ClientConfig, helpers, Search } = require("commerce-sdk");
+// const { ClientConfig, helpers, slasHelpers Search } = require("commerce-sdk");
 
 // demo client credentials, if you have access to your own please replace them below.
 // do not store client secret as plaintext. Store it in a secure location.
@@ -97,6 +94,17 @@ async function getGuestUserAuthToken(): Promise<Customer.ShopperLogin.TokenRespo
   });
 }
 
+// Alternatively you may use the SLAS helper functions to generate JWT/access token
+const guestTokenResponse = await slasHelpers.loginGuestUser(
+    new Customer.ShopperLogin(config), 
+    { redirectURI: 'http://localhost:3000/callback' }
+  )
+  .then((guestTokenResponse) => {
+    console.log("Guest Token Response: ", guestTokenResponse);
+    return guestTokenResponse;
+  })
+  .catch(error => console.log("Error fetching token for guest login: ", error));
+
 // Get a JWT to use with Shopper API clients
 getGuestUserAuthToken().then(async (token) => {
   // Add the token to the client configuration
@@ -122,6 +130,10 @@ getGuestUserAuthToken().then(async (token) => {
   console.error(await e.response.text());
 });
 ```
+
+### SLAS helpers
+
+The SDK includes helper functions to help developers easily onboard SLAS onto their applications to assist with authentication. A brief example is shown in the sample code above. The SLAS helpers offer both public and private client functions, the main difference being the private client functions require a `client_secret`. Code examples on how to use the different functions can be found the in the [examples](https://github.com/SalesforceCommerceCloud/commerce-sdk/tree/master/examples) folder (examples 05 and 06). More information about SLAS and public/private client flows can be found [here](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas.html).
 
 ### Error Handling
 
@@ -166,6 +178,42 @@ To view the details of a method or a variable, hover over methods and variables.
 Autocomplete also shows the available properties of the data returned by SDK methods.
 
 ![Result Autocomplete](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/images/ResultAutocomplete.jpg?raw=true 'Result Autocomplete')
+
+### Fetch Options
+
+Fetch options are able to be passed on to modify the behavior of the fetch call. There are two ways to pass on fetch options:
+
+1. Through the client config
+
+```javascript
+const config = {
+    parameters: {
+        clientId: CLIENT_ID,
+        organizationId: ORG_ID,
+        shortCode: SHORT_CODE,
+        siteId: SITE_ID,
+    },
+    fetchOptions: {
+        redirect: "error",
+    }
+}
+```
+
+2. Through the SDK function call
+
+```javascript
+const client = new ShopperLogin(config);
+
+client.authorizeCustomer({
+  headers: { ... },
+  body: { ... },
+  fetchOptions: {
+    redirect: "manual"
+  }
+});
+```
+
+If both the client config and the function call define the same fetch option with different values, the fetch option value for the function call will take priority. In the examples above, both pass in the `redirect` fetch option with different values, however, `redirect: "manual"` will take precedence because it was passed on the function call level. 
 
 ## Caching
 
