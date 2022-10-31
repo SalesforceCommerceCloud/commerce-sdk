@@ -41,6 +41,7 @@ types:
   CachePurgeResponse: !include dataTypes/CachePurgeResponse.raml
   StorefrontZoneCreateRequest: !include dataTypes/StorefrontZoneCreateRequest.raml
   StorefrontZoneCreateResponse: !include dataTypes/StorefrontZoneCreateResponse.raml
+  CustomHostnameValidationResponse: !include dataTypes/CustomHostnameValidationResponse.raml
 
   ZonesEnvelope:
     type: CollectionResponseEnvelope
@@ -107,6 +108,11 @@ types:
     properties:
       data:
         type: StorefrontZoneCreateResponse
+  CustomHostnameValidationEnvelope:
+    type: ItemResponseEnvelope
+    properties:
+      data:
+        type: CustomHostnameValidationResponse
 
 traits:
   hasUnauthorizedResponse: !include traits/HasUnauthorizedResponse.raml
@@ -458,3 +464,19 @@ traits:
         securedBy:
           - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
           - CommerceCloudStandards.AmOAuth2
+    /custom-hostnames/{customHostnameId}:
+      patch:
+        is: [ hasBadRequestResponse, hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse ]
+        displayName: validateCustomHostname
+        description: Restart the validation checks for a given custom hostname for a particular zone.
+        responses:
+          '200':
+            description: Trigger custom hostname validation process.
+            body:
+              application/json:
+                type: CustomHostnameValidationEnvelope
+                examples:
+                  response : !include /examples/zone/custom-hostnames-patch-response.raml
+        securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+          - CommerceCloudStandards.AmOAuth2              
