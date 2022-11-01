@@ -10,6 +10,28 @@ only use JavaScript, or if you use TypeScript but only import the client classes
 then your usage **will not change**. You will likely only need to make changes if
 you import the type definitions directly.
 
+### v2.10.0
+
+#### API Changes
+
+*CDN Zones API*
+
+* New Endpoints
+
+  | **Endpoint Name** | **Description** |
+  | ------------- |-------------|
+  | validateCustomHostname | Restart the validation checks for a given custom hostname for a particular zone |
+
+*Shopper Login*
+
+* New Endpoints
+
+  | **Endpoint Name** | **Description** |
+  | ------------- |-------------|
+  | getSessionBridgeAccessToken | Get a shopper JWT access token for a registered customer using session bridge |
+  | getTrustedAgentAuthorizationToken | Obtains a new agent on behalf authorization token for a registered customer |
+  | getTrustedAgentAccessToken | Get a shopper JWT access token for a registered customer using a trusted agent (Merchant) |
+
 ### v2.9.0
 
 #### API Changes
