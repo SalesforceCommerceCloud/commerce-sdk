@@ -10,12 +10,12 @@ baseUriParameters:
     example: 0dnz6oep
     pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
 
-description: Let's customers to register, get authorization tokens, reset passwords, add/delete payment instruments, set up a wish list, add, delete, or modify addresses, and so on. 
+description: !include shopper-customers-description.md 
 
 uses:
   ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.13/api-standards.raml
   CustomerTraits: Customer-traits-library.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.17/commerce-cloud-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.20/commerce-cloud-standards.raml
 
 types:
   AuthRequest:
@@ -63,11 +63,13 @@ types:
       billingAddress:
         description: The billing address. This property is part of basket checkout information only.
         type: OrderAddress
+        required: false
       bonusDiscountLineItems:
         description: The bonus discount line items of the line item container.
         type: array
         items:
           type: BonusDiscountLineItem
+        required: false
       channelType:
         description: The sales channel for the order.
         type: string
@@ -89,6 +91,7 @@ types:
         type: array
         items:
           type: CouponItem
+        required: false
       creationDate:
         description: Returns the value of attribute 'creationDate'.
         type: datetime
@@ -104,9 +107,11 @@ types:
         type: array
         items:
           type: GiftCertificateItem
+        required: false
       inventoryReservationExpiry:
         description: Date on which the inventory reservation for this basket expires.
         type: datetime
+        required: false
       lastModified:
         description: Returns the value of attribute 'lastModified'.
         type: datetime
@@ -128,6 +133,7 @@ types:
         type: array
         items:
           type: PriceAdjustment
+        required: false
       orderTotal:
         description: |-
           The total price of the order, including products, shipping, and tax. This property is part of basket checkout information only.
@@ -138,11 +144,13 @@ types:
         type: array
         items:
           type: OrderPaymentInstrument
+        required: false
       productItems:
         description: The sorted array of product items (up to a maximum of 50 items). This array can be empty.
         type: array
         items:
           type: ProductItem
+        required: false
       productSubTotal:
         description: |-
           The total price of all product items after all product discounts.
@@ -184,6 +192,7 @@ types:
       sourceCode:
         description: Gets the source code assigned to this basket.
         type: string
+        required: false
       taxTotal:
         description: The total tax amount of the order. This property is part of basket checkout information only.
         type: number
@@ -205,6 +214,7 @@ types:
         type: array
         items:
           type: Basket
+        required: false
       total:
         description: The total number of baskets.
         type: integer
@@ -342,7 +352,7 @@ types:
         maxLength: 256
         type: string
         required: false
-        example: "rustin.peece@myemail.com"
+        example: "johnsmith@email.com"
       enabled:
         description: A flag indicating whether this customer is enabled and can log in.
         type: boolean
@@ -359,7 +369,7 @@ types:
         maxLength: 256
         type: string
         required: false
-        example: "Rustin"
+        example: "John"
       gender:
         description: The customer's gender.
         type: integer
@@ -374,7 +384,7 @@ types:
         maxLength: 256
         type: string
         required: false
-        example: "Boss"
+        example: "Supervisor"
       lastLoginTime:
         description: The time when the customer last logged in.
         type: datetime
@@ -390,7 +400,7 @@ types:
         maxLength: 256
         type: string
         required: false
-        example: "Peece"
+        example: "Smith"
       lastVisitTime:
         description: The time when the customer last visited.
         type: datetime
@@ -401,7 +411,7 @@ types:
         maxLength: 256
         type: string
         required: false
-        example: "rpeece"
+        example: "jsmith"
       note:
         description: The customer's note.
         type: string
@@ -457,7 +467,7 @@ types:
         maxLength: 256
         type: string
         required: false
-        example: "Peece"
+        example: "Smith"
       suffix:
         description: The customer's suffix (for example, "Jr." or "Sr.").
         maxLength: 256
@@ -495,13 +505,13 @@ types:
         maxLength: 256
         type: string
         required: false
-        example: "Gotham"
+        example: "New York"
       companyName:
         description: The company name.
         maxLength: 256
         type: string
         required: false
-        example: "PymTech"
+        example: "Acme Inc"
       countryCode:
         description: The two-letter ISO 3166-1 (Alpha-2) country code.
         maxLength: 2
@@ -518,19 +528,19 @@ types:
         maxLength: 256
         type: string
         required: false
-        example: "Rustin"
+        example: "John"
       fullName:
         description: The full name.
         maxLength: 256
         type: string
         required: false
-        example: "Rustin Peece"
+        example: "John Smith"
       jobTitle:
         description: The job title.
         maxLength: 256
         type: string
         required: false
-        example: "Supreme"
+        example: "Supervisor"
       lastModified:
         description: Returns the value of attribute 'lastModified'.
         type: datetime
@@ -540,7 +550,7 @@ types:
         description: The last name.
         maxLength: 256
         type: string
-        example: "Peece"
+        example: "Smith"
       phone:
         description: The phone number.
         maxLength: 32
@@ -575,7 +585,7 @@ types:
         maxLength: 256
         type: string
         required: false
-        example: "Al Coholic"
+        example: "Smith"
       stateCode:
         description: The state code.
         maxLength: 256
@@ -599,7 +609,7 @@ types:
         maxLength: 256
         type: string
         required: false
-        example: "Batman"
+        example: "Supervisor"
   CustomerAddressInfo:
     description: Result document of product list addresses.
     properties:
@@ -625,7 +635,7 @@ types:
         description: The customer's name.
         type: string
         required: false
-        example: "Al Coholic"
+        example: "John Smith"
       customerNo:
         description: The customer's number (ID).
         maxLength: 100
@@ -634,7 +644,7 @@ types:
       email:
         description: The customer's email address.
         type: string
-        example: "myemail@email.com"
+        example: "jsmith@email.com"
   CustomerOrderResult:
     description: Result document containing an array of customer orders.
     properties:
@@ -686,7 +696,7 @@ types:
         description: The payment card holder.
         maxLength: 256
         type: string
-        example: "Neil Down"
+        example: "John Smith"
       issueNumber:
         description: The payment card issue number.
         maxLength: 256
@@ -951,7 +961,7 @@ types:
       purchaserName:
         description: The name of the purchaser.
         type: string
-        example: "Justin Credible"
+        example: "John Smith"
       quantity:
         description: The quantity of this product list item purchased.
         minimum: 0
@@ -964,15 +974,15 @@ types:
       email:
         description: The email of the registrant.
         type: string
-        example: "justincredible@mail.com"
+        example: "jsmith@mail.com"
       firstName:
         description: The first name of the registrant.
         type: string
-        example: "Justin"
+        example: "John"
       lastName:
         description: The last name of the registrant.
         type: string
-        example: "Credible"
+        example: "Smith"
       role:
         description: The role of the registrant.
         type: string
@@ -1034,17 +1044,17 @@ types:
         description: The recipient's email.
         minLength: 1
         type: string
-        example: "justincredible@mail.com"
+        example: "jsmith@mail.com"
       recipientName:
         description: The recipient's name.
         type: string
         required: false
-        example: "Justin Credible"
+        example: "John Smith"
       senderName:
         description: The sender's name.
         type: string
         required: false
-        example: "Rustin Peece"
+        example: "Jane Smith"
       shipmentId:
         description: The shipment ID.
         type: string
@@ -1474,7 +1484,7 @@ types:
         description: The name of the customer associated with this order.
         type: string
         required: false
-        example: "Justin Credible"
+        example: "John Smith"
       exportStatus:
         description: The export status of the order.
         type: string
@@ -1665,12 +1675,12 @@ types:
       city:
         description: The city.
         type: string
-        example: "Gotham"
+        example: "New York"
       companyName:
         description: The company name.
         type: string
         required: false
-        example: "Pym Tech"
+        example: "Acme Inc"
       countryCode:
         description: The two-letter ISO 3166-1 (Alpha-2) country code.
         type: string
@@ -1679,12 +1689,12 @@ types:
       firstName:
         description: The first name.
         type: string
-        example: "Justin"
+        example: "John"
       fullName:
         description: The full name.
         type: string
         required: false
-        example: "Justin Credible"
+        example: "John Smith"
       id:
         description: ID used to identify this address
         type: string
@@ -1694,11 +1704,11 @@ types:
         description: The job title.
         type: string
         required: false
-        example: "Batman"
+        example: "Supervisor"
       lastName:
         description: The last name.
         type: string
-        example: "Credible"
+        example: "Smith"
       phone:
         description: The phone number.
         type: string
@@ -1722,7 +1732,7 @@ types:
         description: The second name.
         type: string
         required: false
-        example: "Rustin Peece"
+        example: "Smith"
       stateCode:
         description: The state code.
         type: string
@@ -1790,7 +1800,7 @@ types:
         description: The customer's new password.
         maxLength: 4096
         type: string
-        example: "p@assword2"
+        example: "p@ssword2"
   ResetPasswordRequest:
     description: Document representing a reset password request.
     properties:
@@ -1809,7 +1819,7 @@ types:
         description: New password to reset to.
         type: string
         maxLength: 4096
-        example: "p@assword2"
+        example: "p@ssword2"
   ResetPasswordTokenRequest:
     description: Document representing a reset password token request.
     properties:
@@ -1865,7 +1875,7 @@ types:
         maxLength: 256
         type: string
         required: false
-        example: "Justin Credible"
+        example: "John Smith"
       maskedDriversLicense:
         description: |-
           The decrypted drivers license number of the bank account with all but the last 4 characters replaced with a '*'.
@@ -1903,7 +1913,7 @@ types:
         description: The holder of the bank account.
         maxLength: 256
         type: string
-        example: "Justin Credible"
+        example: "John Smith"
       number:
         description: The payment bank account number.
         maxLength: 256
@@ -1946,7 +1956,7 @@ types:
         maxLength: 256
         type: string
         required: false
-        example: "Justin Credible"
+        example: "John Smith"
       issueNumber:
         description: The payment card issue number.
         maxLength: 256
@@ -2003,7 +2013,7 @@ types:
       createdBy:
         description: The user who created the price adjustment.
         type: string
-        example: "Joe Ramut"
+        example: "John Smith"
       creationDate:
         description: Returns the value of attribute 'creationDate'.
         type: datetime
@@ -2324,7 +2334,7 @@ types:
         description: The city where the event takes place.
         type: string
         required: false
-        example: "Gotham"
+        example: "New York"
       country:
         description: The country where the event takes place.
         type: string
@@ -2413,11 +2423,11 @@ types:
       firstName:
         description: The first name of the registrant.
         type: string
-        example: "Justin"
+        example: "John"
       lastName:
         description: The last name of the registrant.
         type: string
-        example: "Credible"
+        example: "Smith"
       role:
         description: The role of the registrant.
         type: string
@@ -2434,17 +2444,17 @@ types:
         description: The city of this address.
         type: string
         required: false
-        example: "Gotham"
+        example: "New York"
       firstName:
         description: The first name of this address.
         type: string
         required: false
-        example: "Rustin"
+        example: "John"
       lastName:
         description: The last name of this address.
         type: string
         required: false
-        example: "Peece"
+        example: "Smith"
   ProductListLink:
     description: Document representing a link to a product list.
     properties:
@@ -3297,19 +3307,19 @@ types:
         type: string
         minLength: 1
         required: true
-        example: "s@gmail.com"
+        example: "jsmith@gmail.com"
       firstName:
         description: The First Name of the customer.
         type: string
         minLength: 1
         required: false
-        example: "s"
+        example: "John"
       lastName:
         description: The Last Name of the customer.
         type: string
         minLength: 1
         required: false
-        example: "s"
+        example: "Smith"
   CustomerExternalProfile:
     description: The Document representing the External Profile of a Customer.
     type: CustomerExtProfileRequest
@@ -3353,7 +3363,14 @@ types:
     /actions:
       /logout:
         delete:
-          description: Invalidates the JSON Web Token (JWT) provided in the header.
+          description: |-
+            **DEPRECATION NOTICE**
+
+            To enhance the security and availability of Salesforce services, this endpoint is now _**deprecated**_, and _**we plan to remove it in mid-2022**_. This endpoint is not available to new customers, and we discourage existing customers from using it. Instead, we strongly recommend using the endpoints of the [Shopper Login and API Access Service](https://developer.commercecloud.com/s/api-details/a003k00000VWfNDAA1/commerce-cloud-developer-centershopperloginandapiaccessservice) (SLAS) because they meet our rigorous standards for security and availability.
+
+            ---
+
+            Log the user out.
           displayName: invalidateCustomerAuth
           is: 
             - CommerceCloudStandards.SiteSpecific:
@@ -3367,6 +3384,12 @@ types:
       /login:
         post:
           description: |-
+            **DEPRECATION NOTICE**
+
+            To enhance the security and availability of Salesforce services, this endpoint is now _**deprecated**_, and _**we plan to remove it in mid-2022**_. This endpoint is not available to new customers, and we discourage existing customers from using it. Instead, we strongly recommend using the endpoints of the [Shopper Login and API Access Service](https://developer.commercecloud.com/s/api-details/a003k00000VWfNDAA1/commerce-cloud-developer-centershopperloginandapiaccessservice) (SLAS) because they meet our rigorous standards for security and availability.
+
+            ---
+
             Obtains a new JSON Web Token (JWT)for a guest or registered
             customer. Tokens are returned as an HTTP Authorization:Bearer response
             header entry. These kinds of request are supported, as specified by the
@@ -3457,7 +3480,14 @@ types:
     /trusted-system/actions/login:
       post:
         description: |-
-            Obtain the JSON Web Token (JWT) for registered customers whose credentials are stored using a third party system. Accepts loginId and clientId, returns a customer object in the response body and the JWT generated against the clientId in the response header.
+            **DEPRECATION NOTICE**
+
+            To enhance the security and availability of Salesforce services, this endpoint is now _**deprecated**_, and _**we plan to remove it in mid-2022**_. This endpoint is not available to new customers, and we discourage existing customers from using it. Instead, we strongly recommend using the endpoints of the [Shopper Login and API Access Service](https://developer.commercecloud.com/s/api-details/a003k00000VWfNDAA1/commerce-cloud-developer-centershopperloginandapiaccessservice) (SLAS) because they meet our rigorous standards for security and availability.
+
+            ---
+
+            Obtain the JSON Web Token (JWT) for registered customers whose credentials are stored using a third party system. Accepts loginId and 
+            clientId, returns a customer object in the response body and the JWT generated against the clientId in the response header.
         displayName: authorizeTrustedSystem
         is:
           - CommerceCloudStandards.SiteSpecific:
@@ -3488,54 +3518,55 @@ types:
                 "login" : "f0a43dc2-692a-43bf-b008-e10918ea935d",
                 "clientId": "abdtkZzH6sqInJGIHNR1yUw90A" 
               }
-    /password/actions/reset:
-      post:
-        description: Reset customer password.
-        displayName: resetPassword
-        is:
-          - CommerceCloudStandards.SiteSpecific:
-          - ApiStandards.RateLimited:
-              responseStatus: 204
-          - ApiStandards.RateLimited:
-              responseStatus: 400
-          - CustomerTraits.BadRequest
-        responses:
-          '204':
-            description: Reset password successful. No Content
-        securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.shopper-customers.login] }
-            - CommerceCloudStandards.AmOAuth2
-        body:
-          application/json:
-            type: ResetPasswordRequest
-            example: !include Examples/ResetPasswordRequest.raml
-    /password/actions/create-reset-token:
-      post:
-        description: Get reset password token.
-        displayName: getResetPasswordToken
-        is:
-          - CommerceCloudStandards.SiteSpecific:
-          - ApiStandards.RateLimited:
-              responseStatus: 200
-          - ApiStandards.RateLimited:
-              responseStatus: 400
-          - CustomerTraits.BadRequest
-        responses:
-          '200':
-            description: Reset password token generated and returned successfully.
-            body:
-              application/json:
-                type: ResetPasswordToken
-                example: !include Examples/ResetTokenResult.raml
-        securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.shopper-customers.login] }
-            - CommerceCloudStandards.AmOAuth2
-        body:
-          application/json:
-            type: ResetPasswordTokenRequest
-            example: {
-              "login": "janedoe@test.com"
-            }
+    /password/actions:
+      /reset:
+        post:
+          description: Reset customer password, after obtaining a reset token. This is the second step in the reset customer password flow, where a customer password is reset by providing the new credentials along with a reset token. This call should be preceded by a call to the /create-reset-token endpoint.
+          displayName: resetPassword
+          is:
+            - CommerceCloudStandards.SiteSpecific:
+            - ApiStandards.RateLimited:
+                responseStatus: 204
+            - ApiStandards.RateLimited:
+                responseStatus: 400
+            - CustomerTraits.BadRequest
+          responses:
+            '204':
+              description: Reset password successful. No Content
+          securedBy:
+              - CommerceCloudStandards.BearerToken: { scopes: [sfcc.shopper-customers.login] }
+              - CommerceCloudStandards.AmOAuth2
+          body:
+            application/json:
+              type: ResetPasswordRequest
+              example: !include Examples/ResetPasswordRequest.raml
+      /create-reset-token:
+        post:
+          description: Get reset password token. This is the first step in the reset customer password flow, where a password reset token is requested for future use to reset a customer password. This call should be followed by a call to the /reset endpoint.
+          displayName: getResetPasswordToken
+          is:
+            - CommerceCloudStandards.SiteSpecific:
+            - ApiStandards.RateLimited:
+                responseStatus: 200
+            - ApiStandards.RateLimited:
+                responseStatus: 400
+            - CustomerTraits.BadRequest
+          responses:
+            '200':
+              description: Reset password token generated and returned successfully.
+              body:
+                application/json:
+                  type: ResetPasswordToken
+                  example: !include Examples/ResetTokenResult.raml
+          securedBy:
+              - CommerceCloudStandards.BearerToken: { scopes: [sfcc.shopper-customers.login] }
+              - CommerceCloudStandards.AmOAuth2
+          body:
+            application/json:
+              type: ResetPasswordTokenRequest
+              example: {
+                "login": "janedoe@test.com"
+              }
     /external-profile:
       post:
         description: Registers a new external profile for a customer. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program

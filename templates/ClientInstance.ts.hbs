@@ -1,7 +1,16 @@
 
-import { StaticClient, BaseClient, ClientConfig, Response, ResponseError } from "@commerce-apps/core";
+import {
+  BaseClient,
+  ClientConfig,
+  Response,
+  ResponseError,
+  StaticClient,
+  getHeaders,
+  mergeHeaders
+} from "@commerce-apps/core";
 import _ from "lodash";
-import { OperationOptions } from "retry";
+import type { OperationOptions } from "retry";
+import type { RequestInit } from "node-fetch";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace {{name.upperCamelCase}} {
@@ -25,8 +34,11 @@ export namespace {{name.upperCamelCase}} {
   {{/each}}
 }
 
+const USER_AGENT_HEADER = "user-agent";
+const USER_AGENT_VALUE = "commerce-sdk@{{parent.parent.metadata.sdkVersion}};"
+
 /**
-* [{{{metadata.name}}}](https://developer.commercecloud.com/s/api-details/{{{getObjectIdByAssetId metadata.assetId}}})
+* [{{{metadata.name}}}](https://developer.salesforce.com/docs/commerce/commerce-api/references?meta={{{metadata.assetId}}}:Summary)
 * ==================================
 *
 * *{{metadata.description}}*<br />
@@ -77,6 +89,6 @@ export class {{name.upperCamelCase}} extends BaseClient {
 
   }
 
-  {{> operationsPartial model}}
+  {{> operationsPartial}}
 
 }

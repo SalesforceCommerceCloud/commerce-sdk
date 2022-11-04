@@ -1,4 +1,4 @@
-{{#each encodes.endPoints}}
+{{#each model.encodes.endPoints}}
   {{#each operations}}
     /**
     * {{{formatForTsDoc description}}}
@@ -36,6 +36,7 @@
           {{/each}}
         },
         retrySettings?: OperationOptions,
+        fetchOptions?: RequestInit,
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}},
         body: {{{addNamespace (getPayloadTypeFromRequest request) @root.name.upperCamelCase}}}{{/or}}
       }
@@ -76,7 +77,8 @@
           {{/each}}
         },
         retrySettings?: OperationOptions,
-        headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}}, 
+        fetchOptions?: RequestInit,
+        headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}},
         body: {{{addNamespace (getPayloadTypeFromRequest request) @root.name.upperCamelCase}}}{{/or}}
       },
       rawResponse?: T
@@ -117,7 +119,8 @@
           {{/each}}
         },
         retrySettings?: OperationOptions,
-        headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}}, 
+        fetchOptions?: RequestInit,
+        headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}},
         body: {{{addNamespace (getPayloadTypeFromRequest request) @root.name.upperCamelCase}}}{{/or}}
       },
       rawResponse?: boolean,
@@ -145,6 +148,13 @@
         {{/if}}
       {{/each}}
 
+      const headers = mergeHeaders(getHeaders(options), {
+        {{#if (isRequestWithPayload request)}}
+        "Content-Type": "{{{getMediaTypeFromRequest request}}}",
+        {{/if}}
+        [USER_AGENT_HEADER]: USER_AGENT_VALUE
+      });
+
       // @ts-ignore
       return StaticClient.{{method}}({
         client: this,
@@ -153,8 +163,9 @@
         pathParameters: pathParameters,
         queryParameters: queryParameters,
         retrySettings: (options || {}).retrySettings,
-        headers: (options || {}).headers{{#or (is method "patch") (is method "post") (is method "put")}}, 
-        body: (options || {}).body{{/or}}
+        headers: headers{{#or (is method "patch") (is method "post") (is method "put")}}, 
+        body: (options || {}).body{{/or}},
+        ...(options.fetchOptions && { fetchOptions: options.fetchOptions })
       });
     }
 

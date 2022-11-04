@@ -5,8 +5,6 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-import { ASSET_OBJECT_MAP } from "./config";
-
 import { commonParameterPositions } from "@commerce-apps/core";
 import { amf } from "@commerce-apps/raml-toolkit";
 
@@ -65,27 +63,6 @@ export function addNamespace(content: string, namespace: string): string {
   }
   return processedTypes;
 }
-
-/**
- * Gets custom object id associated with the specified assetId.
- *
- * @param assetId - The assetId to look up
- *
- * @returns The custom object id as a string
- */
-export const getObjectIdByAssetId = (assetId: string): string => {
-  if (ASSET_OBJECT_MAP.hasOwnProperty(assetId)) {
-    return ASSET_OBJECT_MAP[assetId];
-  }
-
-  throw new Error(
-    `Missing CCDC object ID for "${assetId}"
-        When this error occurs, find the corresponding API in the CCDC and copy the
-        object ID from the URL. Add the asset ID and object ID to ASSET_OBJECT_MAP in ./config.ts.
-        CCDC API Reference: https://developer.commercecloud.com/s/api-reference
-    `
-  );
-};
 
 /**
  * Certain characters need to be handled for TSDoc.

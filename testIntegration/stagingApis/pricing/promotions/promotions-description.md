@@ -1,0 +1,1 @@
+Management API to create and modify Promotions.

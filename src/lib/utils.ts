@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, salesforce.com, inc.
+ * Copyright (c) 2021, salesforce.com, inc.
  * All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
@@ -7,16 +7,23 @@
 
 import { generate, download } from "@commerce-apps/raml-toolkit";
 import path from "path";
+import * as helpers from "./templateHelpers";
+import extendHandlebars from "handlebars-helpers";
+import { readJsonSync } from "fs-extra";
 
-const TEMPLATE_DIRECTORY = `${__dirname}/../../templates`;
+const PROJECT_ROOT = path.join(__dirname, "../..");
+const TEMPLATE_DIRECTORY = path.join(PROJECT_ROOT, "templates");
+const HELPERS_TEMPLATE_DIRECTORY = path.join(
+  PROJECT_ROOT,
+  "src",
+  "static",
+  "helperTemplates"
+);
+const PACKAGE_JSON = path.join(PROJECT_ROOT, "package.json");
 
 //////// HELPER REGISTRATION ////////
 const Handlebars = generate.HandlebarsWithAmfHelpers;
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-require("handlebars-helpers")({ handlebars: Handlebars });
-
-import * as helpers from "./templateHelpers";
+extendHandlebars({ handlebars: Handlebars });
 
 /**
  * Register the custom helpers defined in our pipeline
@@ -49,10 +56,14 @@ function addTemplates(
     path.join(TEMPLATE_DIRECTORY, "index.ts.hbs"),
     path.join(outputBasePath, "index.ts")
   );
-  apis.addTemplate(
-    path.join(TEMPLATE_DIRECTORY, "helpers.ts.hbs"),
-    path.join(outputBasePath, "helpers.ts")
-  );
+
+  const helperTemplateFileNames = ["index", "shopperCustomer"];
+  helperTemplateFileNames.forEach((name: string) => {
+    apis.addTemplate(
+      path.join(HELPERS_TEMPLATE_DIRECTORY, `${name}.ts.hbs`),
+      path.join(outputBasePath, "helpers", `${name}.ts`)
+    );
+  });
 
   apis.children.forEach((child: generate.ApiMetadata) => {
     child.addTemplate(
@@ -63,7 +74,7 @@ function addTemplates(
         `${child.name.lowerCamelCase}.ts`
       )
     );
-    child.children.forEach(async (api: generate.ApiModel) => {
+    child.children.forEach(async (api) => {
       api.addTemplate(
         path.join(TEMPLATE_DIRECTORY, "ClientInstance.ts.hbs"),
         path.join(
@@ -91,6 +102,9 @@ export async function setupApis(
   outputDir: string
 ): Promise<generate.ApiMetadata> {
   let apis = generate.loadApiDirectory(inputDir);
+  // SDK version is not API metadata, so it is not included in the file, but it
+  // is necessary for generating the SDK (as part of the user agent header).
+  apis.metadata.sdkVersion = await readJsonSync(PACKAGE_JSON).version;
   await apis.init();
 
   apis = addTemplates(apis, outputDir);

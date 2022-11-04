@@ -10,7 +10,7 @@ baseUriParameters:
     example: 0dnz6oep
     pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
 
-description: Use the Data Products API to interact with the API in the context of a Business Manager to get products.
+description: !include products-description.md
 
 uses:
   ProductTraits: data-products-library.raml
@@ -59,7 +59,7 @@ types:
         type: string
         example: ""
   Master:
-    description: Representation of a group of variant products by an attribute. This is a non-buyable entity, provides inheritable attributes for it's product variants, and is used for navigation. *Doesn't have a SKU.*
+    description: Representation of a group of variant products by an attribute. This is a non-buyable entity, provides inheritable attributes for it's product variants, and is used for navigation. *Does'nt have a SKU.*
     properties:
       masterId:
         maxLength: 100
@@ -142,7 +142,7 @@ types:
     description: Any product that is sold, shown alone, and does not have variations such as different sizes or colors. Product that has no reliance on any other product for inheritance. *A product has a SKU and can have a product option, which has a different SKU*.
     properties:
       assignedCategories:
-        description: The catalog categories that the product is assigned to.
+        description: The catalog categories that the product is assigned to. It is read only.
         type: CatalogCategoryId[]
         required: false
       ats:
@@ -157,7 +157,7 @@ types:
         required: false
         example: "Apple"
       bundledProducts:
-        description: The array of bundled products which the product includes.
+        description: The array of bundled products which the product includes. It is read only.
         type: Product[]
         required: false
       classificationCategory:
@@ -165,12 +165,12 @@ types:
         type: CatalogCategoryId
         required: false
       creationDate:
-        description: Returns the value of attribute 'creationDate'.
+        description: Returns the value of attribute 'creationDate'. It is read only.
         type: datetime
         required: false
         example: 9999-12-31T00:00:00.0Z
       defaultVariantId:
-        description: The ID of the product's default variant.
+        description: The ID of the product's default variant. It is read only.
         type: string
         required: false
         example: "apple-ipod-classic-8gb-black"
@@ -186,11 +186,11 @@ types:
         type: string
         example: "apple-ipod-classic"
       image:
-        description: The image(s) assigned to the product.
+        description: The image(s) assigned to the product. It is read only.
         type: MediaFile
         required: false
       imageGroups:
-        description: The array of product image groups.
+        description: The array of product image groups. It is read only.
         type: ImageGroup[]
         required: false
       inStock:
@@ -199,7 +199,7 @@ types:
         required: false
         example: true
       lastModified:
-        description: Returns the value of attribute 'lastModified'.
+        description: Returns the value of attribute 'lastModified'. It is read only.
         type: datetime
         required: false
         example: 9999-12-31T00:00:00.0Z
@@ -259,7 +259,7 @@ types:
         required: false
         example: "apple-master-catalog"
       owningCatalogName:
-        description: The localized name of the catalog that owns the product.
+        description: The localized name of the catalog that owns the product. It is read only.
         type: object
         properties:
           //:
@@ -308,24 +308,24 @@ types:
         required: false
         example: 1
       primaryCategories:
-        description: The primary catalog categories that the product is assigned to.
+        description: The primary catalog categories that the product is assigned to. It is read only.
         type: CatalogCategoryId[]
         required: false
       primaryCategoryId:
-        description: The ID of the products primary category. This is a read only field.
+        description: The ID of the products primary category. This is a read only field. It is read only.
         type: string
         required: false
         example: "electronics-media-players"
       productBundles:
-        description: The array of product bundles which the product belongs to.
+        description: The array of product bundles which the product belongs to. It is read only.
         type: Product[]
         required: false
       productOptions:
-        description: The array of product options. This is applicable for products of type "option".
+        description: The array of product options. This is applicable for products of type "option". It is read only.
         type: ProductOption[]
         required: false
       productSets:
-        description: The array of product sets which the product belongs to.
+        description: The array of product sets which the product belongs to. It is read only.
         type: Product[]
         required: false
       searchable:
@@ -337,7 +337,7 @@ types:
         required: false
         example: {"Site1":true}
       setProducts:
-        description: The array of set products which the product includes.
+        description: The array of set products which the product includes. It is read only.
         type: Product[]
         required: false
       shortDescription:
@@ -353,7 +353,7 @@ types:
         required: false
         example: "standard"
       type:
-        description: The type of the product. It can have one or more of the values "item", "master", "variationGroup", "variant", "bundle", and "set".
+        description: The type of the product. It can have one or more of the values "item", "master", "variationGroup", "variant", "bundle", and "set". It is read only.
         type: ProductType
         required: false
       unit:
@@ -394,23 +394,23 @@ types:
         required: false
         example: {"default@SiteGenesis":"2050-05-11T00:00:00.000Z"}
       variants:
-        description: The array of variants of the product. This is applicable for product types "master" and "variationGroup" only.
+        description: The array of variants of the product. This is applicable for product types "master" and "variationGroup" only. It is read only.
         type: Variant[]
         required: false
       variationAttributes:
         description: |-
           The sorted array of variation attributes assigned to the product. This is applicable for product types "master",
-           "variationGroup" and "variant" only.
+           "variationGroup" and "variant" only. It is read only.
         type: VariationAttribute[]
         required: false
       variationGroups:
-        description: The array of variation groups in the product. This is applicable for product type "master" only.
+        description: The array of variation groups in the product. This is applicable for product type "master" only. It is read only.
         type: VariationGroup[]
         required: false
       variationValues:
         description: |-
           The variation values selected for the product in variation attribute id and value pairs. This is applicable for product types "Variant" and
-           "VariationGroup" only.
+           "VariationGroup" only. It is read only.
         type: object
         properties:
           //:
@@ -945,9 +945,15 @@ types:
         example: ["equals","notEquals"]
         required: true
       allowedValues:
-        description: The list of allowed values for this attribute if its attributeType is an ENUM.
+        description: The list of allowed values for this attribute IF its attributeType is an ENUM.
         type: string[]
-        example: ["master","variationProduct"]
+        example: [ "1", "2" ]
+        required: false
+      allowedDisplayValues:
+        description: |
+            The list of allowed Localized Display values for this attribute IF its attributeType is an ENUM based on the locale query param requested. If no locale query param value is provided "default" locale is assumed.
+        type: string[]
+        example: [ "One", "Two" ]
         required: false
   CategorizationAttributeDefinitonsResult:
     description: The list of categorization attributes supported for rule based categorization.
@@ -2036,7 +2042,7 @@ types:
 /organizations/{organizationId}/categorization-attribute-definitions:
   get:
     description: |
-                Gets the list of allowed attributes, values, and operators for creating rule-based categorization conditions. This endpoint is in closed beta, available to select few customers. Note: Please get in touch with your Account Team if you'd like to participate in the beta program.
+                Gets the list of allowed attributes, values, and operators for creating rule-based categorization conditions.
     displayName: getCategorizationAttributeDefinitions
     is:
       - ApiStandards.RateLimited3:
@@ -2045,6 +2051,12 @@ types:
           responseStatus3: 401
       - ProductTraits.BadRequest
       - ProductTraits.Unauthorized
+    queryParameters:
+      locale:
+        description: The display locale context for Attribute names and Attribute Value names.
+        type: string
+        required: false
+        example: en-US
     responses:
       200:
         description: Categorization attribute definitions retrieved successfully.

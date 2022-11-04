@@ -11,7 +11,7 @@ baseUriParameters:
     example: 0dnz6oep
     pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
 
-description: Use the Data Catalogs API 
+description: !include catalogs-description.md 
 
 uses:
   CatalogTraits: catalogs-traits-library.raml
@@ -61,7 +61,7 @@ types:
         required: false
         example: 10
       creationDate:
-        description: Returns the value of attribute 'creationDate'.
+        description: Returns the value of attribute 'creationDate'. It is read only.
         type: datetime
         required: false
         example: 9999-12-31T00:00:00.0Z
@@ -77,7 +77,7 @@ types:
         type: string
         example: apparel-catalog         
       lastModified:
-        description: Returns the value of attribute 'lastModified'.
+        description: Returns the value of attribute 'lastModified'. It is read only.
         type: datetime
         required: false
         example: 9999-12-31T00:00:00.0Z
@@ -160,7 +160,7 @@ types:
         type: Category[]
         required: false
       creationDate:
-        description: Returns the value of attribute 'creationDate'.
+        description: Returns the value of attribute 'creationDate'. It is read only.
         type: datetime
         required: false
         example: 9999-12-31T00:00:00.0Z 
@@ -186,7 +186,7 @@ types:
         required: false
         example: Summer Bomber Jacket
       lastModified:
-        description: Returns the value of attribute 'lastModified'.
+        description: Returns the value of attribute 'lastModified'. It is read only.
         type: datetime
         required: false
         example: 9999-12-31T00:00:00.0Z
@@ -1319,7 +1319,7 @@ types:
         description: |
                 This field indicates the locale to be used for evaluating rules/conditions for the entire category. Note: this applies to all the rules for that category, and the last modification for this field will apply to the entire ruleset for that category.
         type: string
-        example: en_US
+        example: en-US
         required: false
       categorizationClassificationFlag:
         description: |
@@ -1368,19 +1368,19 @@ types:
       operator:
         description: The operator for the condition.
         type: string
-        example: startsWith
+        example: starts_with
         required: true
         enum:
-          - startsWith
+          - starts_with
           - contains
           - equals
-          - notEquals
-          - greaterThan
-          - lessThan
-          - isOneOf
-          - notOneOf
-          - isDefined
-          - isNotDefined
+          - not_equals
+          - greater_than
+          - less_than
+          - is_one_of
+          - not_one_of
+          - is_defined
+          - is_not_defined
   RulesResult:
     description: Result document containing an array of rules.
     properties:
@@ -1840,7 +1840,7 @@ types:
                 - CatalogTraits.NotFound
               responses:
                 '200':
-                  description: Assignments Searched Successfully
+                  description: Assignments searched successfully
                   body:
                     application/json:
                       type: CategoryProductAssignmentSearchResult
@@ -1994,7 +1994,7 @@ types:
                 example: apple-ipod-shuffle
           /rules-execution:
             post:
-              description: Submits a job to evaluate or execute the rules. The evaluation returns a set of matching products based on the rules and conditions. The execution categorizes the products based on the evaluated results. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+              description: Submits a job to evaluate or execute the rules. The evaluation returns a set of matching products based on the rules and conditions. The execution categorizes the products based on the evaluated results.
               displayName: runCategoryRules
               is:
                 - CatalogTraits.RateLimited4:
@@ -2017,7 +2017,7 @@ types:
                 - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
                 - CommerceCloudStandards.AmOAuth2  
             get:
-              description: Gets the status of the latest categorization job which could be evaluation or execution. For evaluation, the matched count and a paginated list of product IDs are returned. For execution, the counts of the products which are assigned or unassigned are returned.This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+              description: Gets the status of the latest categorization job which could be evaluation or execution. For evaluation, the matched count and a paginated list of product IDs are returned. For execution, the counts of the products which are assigned or unassigned are returned.
               displayName: getCategorizationStatus
               is:
                 - CatalogTraits.RateLimited4:
@@ -2043,7 +2043,7 @@ types:
                 - CommerceCloudStandards.AmOAuth2   
           /excluded-products:
             get:
-              description: Gets the list of excluded products for a given catalog and category. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+              description: Gets the list of excluded products for a given catalog and category.
               displayName: getExclusionList
               is:
                 - CatalogTraits.RateLimited4:
@@ -2066,7 +2066,7 @@ types:
                   - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
                   - CommerceCloudStandards.AmOAuth2
             post:
-              description: Adds the product to the excluded product list for a given catalog and category. Once a product is added as an excluded product for the category, then the the categorization process does not categorize that product for that category. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+              description: Adds the product to the excluded product list for a given catalog and category. Once a product is added as an excluded product for the category, then the the categorization process does not categorize that product for that category.
               displayName: addProductsToExclusionList
               is:
                 - CatalogTraits.RateLimited4:
@@ -2094,7 +2094,7 @@ types:
                 - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
                 - CommerceCloudStandards.AmOAuth2
             delete:
-              description: Deletes products from the excluded products list for a catalog category. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+              description: Deletes products from the excluded products list for a catalog category.
               displayName: removeProductsFromExclusionList
               is:
                 - CatalogTraits.RateLimited4:
@@ -2118,7 +2118,7 @@ types:
                 - CommerceCloudStandards.AmOAuth2                              
           /rules:
             get:
-              description: Gets all the rules for given catalog and category. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+              description: Gets all the rules for given catalog and category.
               displayName: getCategoryRules
               is:
                 - CatalogTraits.RateLimited4:
@@ -2141,7 +2141,7 @@ types:
                   - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
                   - CommerceCloudStandards.AmOAuth2
             delete:
-              description: Deletes all the rules along with conditions for given catalog and category. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+              description: Deletes all the rules along with conditions for given catalog and category.
               displayName: deleteCategoryRules
               is:
                 - CatalogTraits.RateLimited4:
@@ -2159,7 +2159,7 @@ types:
                 - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
                 - CommerceCloudStandards.AmOAuth2
             post:
-              description: Creates all rules and conditions within the catalog and category. This deletes any existing rules and conditions for that catalog-category and recreates them based on the new request. The LocaleID, PrimaryFlag, and ClassificationFlag can be set on any of the individual rules, but they apply to entire ruleset.  For simplicity, those values can just be provided with one of the rules.  If they are provided with multiple rules, then they must all have the same value for all rules or it could have undesired effects. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+              description: Creates all rules and conditions within the catalog and category. This deletes any existing rules and conditions for that catalog-category and recreates them based on the new request. The LocaleID, PrimaryFlag, and ClassificationFlag can be set on any of the individual rules, but they apply to entire ruleset.  For simplicity, those values can just be provided with one of the rules.  If they are provided with multiple rules, then they must all have the same value for all rules or it could have undesired effects.
               displayName: createCategoryRules
               is:
                 - CatalogTraits.RateLimited4:
@@ -2189,7 +2189,7 @@ types:
             
             /{ruleId}:
               get:
-                description: Gets rule by ID. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+                description: Gets rule by ID.
                 displayName: getRuleById
                 is:
                   - CatalogTraits.RateLimited4:
@@ -2212,7 +2212,7 @@ types:
                   - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
                   - CommerceCloudStandards.AmOAuth2 
               put:
-                description: Creates or updates a rule. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+                description: Creates or updates a rule.
                 displayName: createUpdateRule
                 is:
                   - CatalogTraits.RateLimited5:
@@ -2248,7 +2248,7 @@ types:
                   - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
                   - CommerceCloudStandards.AmOAuth2
               delete:
-                description: Deletes a rule. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+                description: Deletes a rule.
                 displayName: deleteRule
                 is:
                   - CatalogTraits.RateLimited4:
@@ -2273,7 +2273,7 @@ types:
                   example: VhRule    
               /conditions:
                 get:
-                  description: Gets the conditions for a given rule, catalog and category. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+                  description: Gets the conditions for a given rule, catalog and category.
                   displayName: getCategoryRuleConditions
                   is:
                     - CatalogTraits.RateLimited4:
@@ -2296,7 +2296,7 @@ types:
                   - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
                   - CommerceCloudStandards.AmOAuth2
                 delete:
-                  description: Deletes all the conditions for a given rule, catalog and category. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+                  description: Deletes all the conditions for a given rule, catalog and category.
                   displayName: deleteCategoryRuleConditions
                   is:
                     - CatalogTraits.RateLimited4:
@@ -2315,7 +2315,7 @@ types:
                     - CommerceCloudStandards.AmOAuth2
                 /{conditionId}:
                   get:
-                    description: Gets a condition By ID. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+                    description: Gets a condition By ID.
                     displayName: getCategoryRuleCondition
                     is:
                       - CatalogTraits.RateLimited4:
@@ -2338,7 +2338,7 @@ types:
                       - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
                       - CommerceCloudStandards.AmOAuth2
                   put:
-                    description: Creates or updates a condition. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+                    description: Creates or updates a condition.
                     displayName: createOrUpdateCategoryRuleCondition
                     is:
                       - CatalogTraits.RateLimited5:
@@ -2374,7 +2374,7 @@ types:
                       - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
                       - CommerceCloudStandards.AmOAuth2
                   delete:
-                    description: Deletes a condition. This endpoint is in closed beta, available to select few customers. Please get in touch with your Account Team if you'd like to participate in the beta program.
+                    description: Deletes a condition.
                     displayName: deleteCategoryRuleCondition
                     is:
                       - CatalogTraits.RateLimited4:

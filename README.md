@@ -4,7 +4,7 @@
 
 The Salesforce Commerce SDK allows easy interaction with the Salesforce B2C Commerce platform APIs on the Node.js runtime.  For a more lightweight SDK, which works in a browser and Node.js for the shopper experience, see [our Isomorphic SDK](https://github.com/SalesforceCommerceCloud/commerce-sdk-isomorphic)
 
-Visit the [Commerce Cloud Developer Center](https://developer.commercecloud.com/) to learn more about Salesforce Commerce. The developer center has API documentation, getting started guides, community forums, and more.
+Visit the [Commerce Cloud Developer Center](https://developer.salesforce.com/developer-centers/commerce-cloud) to learn more about Salesforce Commerce. The developer center has API documentation, getting started guides, community forums, and more.
 ​
 ## :warning: Planned future release will contain breaking changes :warning:
 Due to an issue with the generation of the type definitions, an upcoming release
@@ -19,15 +19,12 @@ you import the type definitions directly.
 
 Download and install Node.js and npm [here](https://nodejs.org/en/download/).
 ​
-
-> **Note:** Only Node.js version 12 and 14 LTS are supported. Other versions can cause unexpected results. To use a different version of Node.js for other projects, you can manage multiple versions of Node.js with [nvm](https://github.com/nvm-sh/nvm).
-> ​
+> **Note:** Only Node.js version 14 and 16 LTS are supported. Other versions can cause unexpected results. To use a different version of Node.js for other projects, you can manage multiple versions of Node.js with [nvm](https://github.com/nvm-sh/nvm). ​
 
 ## Installation
 
 Use npm to install the Commerce SDK.
 ​
-
 ```
 npm install commerce-sdk
 ```
@@ -53,67 +50,90 @@ To use an SDK client, instantiate an object of that client and configure these p
  * Sample TypeScript code that shows how Commerce SDK can access Salesforce Commerce
  * APIs.
  * 
- * To learn more about the parameters please refer to https://developer.commercecloud.com/s/article/CommerceAPI-Get-Started
+ * For more information, see [Get started with Salesforce Commerce B2C APIs](https://developer.salesforce.com/docs/commerce/commerce-api/guide/get-started.html).
  */
-​
+
 // Import the SDK in TypeScript
 // tsc requires the --esModuleInterop flag for this
-import * as CommerceSdk from "commerce-sdk";
-// For Javascript, use:
-// import CommerceSdk from "commerce-sdk";
-const { ClientConfig, helpers, Search } = CommerceSdk;
+import { Search, Customer, helpers, slasHelpers } from "commerce-sdk";
 // Older Node.js versions can instead use:
-// const { ClientConfig, helpers, Search } = require("commerce-sdk");
+// const { ClientConfig, helpers, slasHelpers Search } = require("commerce-sdk");
 
-// Create a configuration to use when creating API clients
+// demo client credentials, if you have access to your own please replace them below.
+// do not store client secret as plaintext. Store it in a secure location.
+const CLIENT_ID = "da422690-7800-41d1-8ee4-3ce983961078";
+const CLIENT_SECRET = "D*HHUrgO2%qADp2JTIUi";
+const ORG_ID = "f_ecom_zzte_053";
+const SHORT_CODE = "kv7kzm78";
+const SITE_ID = "RefArch";
+
+// client configuration parameters
 const config = {
-    headers: {},
-    parameters: {
-      clientId: '<your-client-id>',
-      organizationId: '<your-org-id>',
-      shortCode: '<your-short-code>',
-      siteId: '<your-site-id>'
-    }
+  headers: {},
+  parameters: {
+    clientId: CLIENT_ID,
+    organizationId: ORG_ID,
+    shortCode: SHORT_CODE,
+    siteId: SITE_ID,
+  },
+};
+
+/**
+ * Get the shopper or guest JWT/access token, along with a refresh token, using client credentials
+ *
+ * @returns guest user authorization token
+ */
+async function getGuestUserAuthToken(): Promise<Customer.ShopperLogin.TokenResponse> {
+  const base64data = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString("base64");
+  const headers = { Authorization: `Basic ${base64data}` };
+  const loginClient = new Customer.ShopperLogin(config);
+
+  return await loginClient.getAccessToken({
+    headers,
+    body: { grant_type: "client_credentials" },
+  });
 }
 
-// Get a JWT to use with Shopper API clients, a guest token in this case
-helpers.getShopperToken(config, { type: "guest" }).then(async (token) => {
+// Alternatively you may use the SLAS helper functions to generate JWT/access token
+const guestTokenResponse = await slasHelpers.loginGuestUser(
+    new Customer.ShopperLogin(config), 
+    { redirectURI: 'http://localhost:3000/callback' }
+  )
+  .then((guestTokenResponse) => {
+    console.log("Guest Token Response: ", guestTokenResponse);
+    return guestTokenResponse;
+  })
+  .catch(error => console.log("Error fetching token for guest login: ", error));
 
-    try {
-        // Add the token to the client configuration
-        config.headers["authorization"] = token.getBearerHeader();
+// Get a JWT to use with Shopper API clients
+getGuestUserAuthToken().then(async (token) => {
+  // Add the token to the client configuration
+  config.headers["authorization"] = `Bearer ${token.access_token}`;
 
-        // Create a new ShopperSearch API client
-        const searchClient = new Search.ShopperSearch(config);
+  const searchClient = new Search.ShopperSearch(config);
 
-        // Search for dresses
-        const searchResults = await searchClient.productSearch({
-            parameters: {
-                q: "dress",
-                limit: 5
-            }
-        });
+  // Search for dresses
+  const searchResults = await searchClient.productSearch({
+    parameters: { q: "dress", limit: 5 }
+  });
 
-        if (searchResults.total) {
-            const firstResult = searchResults.hits[0];
-            console.log(`${firstResult.productId} ${firstResult.productName}`);
-        } else {
-            console.log("No results for search");
-        }
+  if (searchResults.total) {
+    const firstResult = searchResults.hits[0];
+    console.log(`${firstResult.productId} ${firstResult.productName}`);
+  } else {
+    console.log("No results for search");
+  }
 
-        return searchResults;
-
-    } catch (e) {
-        // Print the status code and status text
-        console.error(e);
-        // Print the body of the error
-        console.error(await e.response.text());
-    }
+  return searchResults;
 }).catch(async (e) => {
-    console.error(e);
-    console.error(await e.response.text());
+  console.error(e);
+  console.error(await e.response.text());
 });
 ```
+
+### SLAS helpers
+
+The SDK includes helper functions to help developers easily onboard SLAS onto their applications to assist with authentication. A brief example is shown in the sample code above. The SLAS helpers offer both public and private client functions, the main difference being the private client functions require a `client_secret`. Code examples on how to use the different functions can be found the in the [examples](https://github.com/SalesforceCommerceCloud/commerce-sdk/tree/master/examples) folder (examples 05 and 06). More information about SLAS and public/private client flows can be found [here](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas.html).
 
 ### Error Handling
 
@@ -158,6 +178,42 @@ To view the details of a method or a variable, hover over methods and variables.
 Autocomplete also shows the available properties of the data returned by SDK methods.
 
 ![Result Autocomplete](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/images/ResultAutocomplete.jpg?raw=true 'Result Autocomplete')
+
+### Fetch Options
+
+Fetch options are able to be passed on to modify the behavior of the fetch call. There are two ways to pass on fetch options:
+
+1. Through the client config
+
+```javascript
+const config = {
+    parameters: {
+        clientId: CLIENT_ID,
+        organizationId: ORG_ID,
+        shortCode: SHORT_CODE,
+        siteId: SITE_ID,
+    },
+    fetchOptions: {
+        redirect: "error",
+    }
+}
+```
+
+2. Through the SDK function call
+
+```javascript
+const client = new ShopperLogin(config);
+
+client.authorizeCustomer({
+  headers: { ... },
+  body: { ... },
+  fetchOptions: {
+    redirect: "manual"
+  }
+});
+```
+
+If both the client config and the function call define the same fetch option with different values, the fetch option value for the function call will take priority. In the examples above, both pass in the `redirect` fetch option with different values, however, `redirect: "manual"` will take precedence because it was passed on the function call level. 
 
 ## Caching
 
@@ -330,8 +386,8 @@ This library doesn't store or refresh authentication tokens. Storing and refresh
  This library limits its runtime dependencies to reduce the total cost of ownership as much as possible. However, we recommend that you have security stakeholders review all third-party products (3PP) and their dependencies.
 
 For more information about security considerations related to developing headless commerce applications, see 
-[Security Considerations for Headless Commerce](https://developer.commercecloud.com/s/article/HeadlessSecurity) on the 
-[Commerce Cloud Developer Center](https://developer.commercecloud.com).
+[Security Considerations for Headless Commerce](https://developer.salesforce.com/docs/commerce/commerce-api/guide/security-considerations-for-headless-commerce.html) on the 
+[Commerce Cloud Developer Center](https://developer.salesforce.com/developer-centers/commerce-cloud).
 
 If you discover any potential security issues, please report them to security@salesforce.com as soon as possible.
 

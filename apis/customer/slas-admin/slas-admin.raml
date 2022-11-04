@@ -1,16 +1,16 @@
 #%RAML 1.0
 title: SLAS Admin
-description: SLAS (Shopper Login & API Authentication Service) Administration
+description: !include slas-admin-description.md
 version: v1
 mediaType: application/json
 protocols: HTTPS
 baseUri: https://{shortCode}.api.commercecloud.salesforce.com/shopper/auth-admin/{version}
 
 securitySchemes:
-   SlasSecurityScheme.BearerToken: !include slas-bearer-SecurityScheme.raml
-  
+  SlasSecurityScheme.BearerToken: !include slas-bearer-SecurityScheme.raml
+
 uses:
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.12/api-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
 
 types:
   AdminAuthRoles:
@@ -23,6 +23,33 @@ types:
     description: Client Type
     enum: [REF_ARCH, WEB_APP, MOBILE_APP, SITE_GENESIS]
 
+  # PasswordTemplateActionType:
+  #   type: string
+  #   description: |
+  #     Describes the type of action that the password action template will be used for. 
+
+  #     Here are the actions that each enumerated string refers to:
+
+  #     - `PWDLESS_LOGIN`: Passwordless login 
+  #     - `PWD_RESET_ACTION`: Password reset
+  #     - `PWD_FORGOT_ACTION`: Forgot password
+  #   enum: [PWDLESS_LOGIN, PWD_RESET_ACTION, PWD_FORGOT_ACTION]
+  
+  # PasswordTemplateType:
+  #     type: string
+  #     description: Identifies the type of mode that the password action template will be used for. 
+  #     enum: [SMS, REDIRECT]  
+
+  TierType:
+    type: string
+    description: |
+          This read only value relates to the ECOM realm of the customer.
+            - XS = Bronze and Bronze+
+            - S = Silver and Silver+
+            - M = Gold and Gold+
+            - L = Platinum and Platinum+
+    enum: [XS, S, M, L]
+
   Client:
     type: object
     properties:
@@ -34,29 +61,27 @@ types:
         description: Client Name
         type: string
         example: "Client Name"
-      type:
-        description: Client Type or Audience
-        type: string
-        example: "SiteGenesis"
       secret:
-        description: Client Secret
+        description: Client Secret. The secret will only display on create and if the secret was updated when updating the client.
         type: string
-        example: ""
+        example: "client-secret"
       scopes:
         description: Scope
         type: string[]
-        example: ["sfcc.products",
-              "sfcc.catalogs",
-              "sfcc.customers:ro"]
+        example: ["sfcc.products", "sfcc.catalogs", "sfcc.customers:ro"]
       redirectUri:
         description: Redirect URI
         type: ApiStandards.AbsoluteUrl
-        example: "http://localhost/callback"
+        example: "http://localhost:9010/callback"
+      callbackUri:
+        description: Redirect URI
+        type: ApiStandards.AbsoluteUrl
+        example: "http://localhost:9010/pwdless/login/callback"
       channels:
         description: Client Channels
         type: string[]
         example: ["RefArch", "SiteGenensis"]
-      privateClient:
+      isPrivateClient:
         description: Private or Public Client
         required: false
         type: boolean
@@ -68,39 +93,34 @@ types:
       name:
         description: Client Name
         type: string
-        example: "Client Name"
-      ecomTenant:
-        description: ECOM Tenant Name, clientTenant or owner
-        type: string
-        example: "shop_mart_prod"
+        example: "High Adventure Wear"
       clientId:
-        description: SLAS client id
+        description: SLAS client id. Must match the query parameter.
         type: string
-        example: "shop_mart_client_id"
+        example: "client_id"
       secret:
-        description: SLAS client secret
+        description: SLAS client secret. On create if left blank then a secret will be generated.
         type: string
-        example: "shop_mart_client_secret"
-      ecomSite:
-        description: ECOM site, clientType or audience
-        type: string
-        example: "SiteGenesis"
+        example: "client_secret"
       scopes:
         description: SLAS scopes
         type: string[]
-        example: ["sfcc.products",
-              "sfcc.catalogs",
-              "sfcc.customers:ro"]
+        example: ["sfcc.products", "sfcc.catalogs", "sfcc.customers:ro"]
       redirectUri:
-        description: SLAS redirect URL
-        type: ApiStandards.AbsoluteUrl
-        example: "http://localhost:9010/callback"
+        description: Array of SLAS redirect URLs. Include protocol and domain name in each URL. Wildcards supported.
+        type: string[]
+        example: ["http://localhost:3000/callback", "https://*.example.com/callback"]
+      callbackUri:
+        description: Array of SLAS callback URLs that will be used for passworless login and password reset when mode=callback. Include protocol and domain name in each URL. Wildcards are NOT supported.
+        type: string[]
+        required: false
+        example: ["localhost:3000/password-reset-callback", "localhost:3000/passwordless-login-callback"]
       channels:
         description: Client Channels
         type: string[]
         example: ["RefArch", "SiteGenensis"]
-      privateClient:
-        description: Private or Public Client
+      isPrivateClient:
+        description: Private or Public Client. If left blank the client will default to private.
         type: boolean
         example: true
 
@@ -115,10 +135,64 @@ types:
   IdentityProvider:
     description: Identity provider
     properties:
-      name: 
+      name:
         description: Identity Provider Name
         type: string
-        example: "Google Account"
+        example: "google"
+        enum: [apple, auth0, azure, cognito, facebook, gigya, google, okta, ping, salesforce]
+      authUrl:
+        description: Identity Provider auth URI
+        type: ApiStandards.AbsoluteUrl
+        example: "https://accounts.google.com/o/oauth2/v2/auth"
+      tokenUrl:
+        description: Identity Provider token URI
+        type: ApiStandards.AbsoluteUrl
+        example: "https://oauth2.googleapis.com/token"
+      tokenInfoUrl:
+        description: Identity Provider token info URI
+        type: ApiStandards.AbsoluteUrl
+        example: "https://oauth2.googleapis.com/tokeninfo"
+      userInfoUrl:
+        description: Identity Provider user info URI
+        type: ApiStandards.AbsoluteUrl
+        example: "https://www.googleapis.com/oauth2/v3/userinfo"
+      redirectUrl:
+        description: Identity Provider redirect URI
+        type: ApiStandards.AbsoluteUrl
+        example: "https://localhost:9010/my/callback"
+      clientId:
+        description: Client Id of the third party IDP.
+        type: string
+        example: "934277749308-02dg4398n3s31ofge8cot46jirn3kpkf.apps.googleusercontent.com"
+      clientSecret:
+        description: Client Secret of the third party IDP. For Apple copy the contents from the .p8 file that was downloaded from Apple between -*----BEGIN PRIVATE KEY-----* and -*---END PRIVATE KEY-----* markers.
+        type: string
+        example: "aKZM1xEnZopNP2bm2gc3GKex"
+      preferenceValue:
+        description: SLAS IDP Preference Value
+        type: boolean
+        example: true
+      scopes:
+              description: IDP Scopes
+              type: string[]
+              example: ["oidc", "email", "profile"]
+      teamId:
+          description: Apple Team Id. Used primarily for Sign with Apple in generating the client secret.
+          type: string
+          required: false
+          example: "appleTeamId"
+      keyId:
+          description: Apple key id. This is the Key ID that was obtained from Apple when the the private key for client authentication was created. Used primarily for Sign with Apple in generating the client secret.
+          type: string
+          required: false
+          example: "appleKeyId"
+  IdentityProviderResponse:
+    description: Identity provider Response
+    properties:
+      name:
+        description: Identity Provider Name
+        type: string
+        example: "google"
       authUrl:
         description: Identity Provider auth URI
         type: ApiStandards.AbsoluteUrl
@@ -150,7 +224,11 @@ types:
       isPreferred:
         description: SLAS IDP Preference Value
         type: boolean
-        example: true 
+        example: true
+      scopes:
+        description: Scopes needed by the IDP.
+        type: array
+        example: ["oidc", "email", "profile"]
 
   IdentityProviderListResponse:
     properties:
@@ -158,15 +236,11 @@ types:
         description: An array of identity providers
         type: array
         items:
-          type: IdentityProvider
+          type: IdentityProviderResponse
 
   TenantDto:
     description: Create Tenant Reqiest
     properties:
-      instance:
-        description: SLAS Tenant Id
-        type: string
-        example: "aaaa_prd"
       merchantName:
         description: SLAS Merchant Name
         type: string
@@ -197,7 +271,7 @@ types:
       merchantId:
         type: integer
         example: 1
-      description: 
+      description:
         type: string
         example: SLAS Merchant Name
       contact:
@@ -215,6 +289,13 @@ types:
       status:
         type: string
         example: CLEAR
+      tier:
+        type: TierType
+        example: "S"
+      requestQuotaPerMinute:
+        description: "This read only value shows the the number of requests that can be made per minute."
+        type: number
+        example: 8000
 
   TenantListResponse:
     properties:
@@ -224,13 +305,149 @@ types:
         items:
           type: Tenant
 
+  CredQualityResponse:
+    properties:
+      tenantId:
+        type: string
+        example: "aaaa_prd"
+      checkCount:
+        type: integer
+        example: 40
+      credsOkay:
+        type: integer
+        example: 1024
+      repeatedCompromisedUse:
+        type: integer
+        example: 12
+      credsCompromised:
+        type: integer
+        example: 0
+      exposure1:
+        type: integer
+        example: 0
+      exposure2to4:
+        type: integer
+        example: 0
+      exposure5to9:
+        type: integer
+        example: 0
+      exposure10plus:
+        type: integer
+        example: 0
+      pwdsOkay:
+        type: integer
+        example: 47
+      pwdsCompromised:
+        type: integer
+        example: 3
+      avgPwdStrength:
+        type: number
+        example: 5.0
+      avgCredQualityMeasure:
+        type: number
+        example: 0.0
+      avgPwdQualityMeasure:
+        type: number
+        example: 0.0
+      medPwdStrength:
+        type: number
+        example: 0.0
+      medCredQualityMeasure:
+        type: number
+        example: 0.0
+      medPwdQualityMeasure:
+        type: number
+        example: 0.0
+
+  CredQualityUserResponse:
+    properties:
+      tenantId:
+        type: string
+        example: "aaaa_prd"
+      username:
+        type: string
+        example: "joe.shopper"
+      email:
+        type: string
+        example: "joe.shopper@gmail.com"
+      credQualityMeasure:
+        type: integer
+        example: 1024
+      pwdStrengthMeasure:
+        type: integer
+        example: 12
+      pwdQualityMeasure:
+        type: integer
+        example: 0
+      credChangeCount:
+        type: integer
+        example: 0
+      loginCount:
+        type: integer
+        example: 0
+      lastLoginDatetime:
+        type: datetime
+        example: 2021-08-18T16:41:41.090Z
+      lastCredcheckDatetime:
+        type: datetime
+        example: 2021-02-18T16:41:41.090Z
+      atoScore:
+        type: integer
+        example: 3
+      atoLastDatetime:
+        type: datetime
+        example: 2021-02-18T16:41:41.090Z
+      atoLastSourceIp:
+        type: string
+      atoScoreHistory:
+        type: string
+        example: "5, 6, 7"
+
+  # PasswordActionTemplate:
+  #   properties:
+  #     channelId:
+  #       type: string
+  #       example: "SiteGenesis"
+  #     name:
+  #       type: string
+  #       example: "Password Action Email Template"
+  #     subject:
+  #       type: string
+  #       example: "Password Action Token Request"
+  #     link:
+  #       type: string
+  #       example: "This is your password action token: ${token}"
+  #     locale:
+  #       type: string
+  #       example: "en-us"
+  #       description: Identifies the locale of the template. Must be one of the [language tag strings supported by JDK 11](https://www.oracle.com/java/technologies/javase/jdk11-suported-locales.html). The string is stored in all lowercase.
+  #     actionType:
+  #       type: PasswordTemplateActionType
+  #       example: "PWDLESS_LOGIN"
+  #     templateType:
+  #       type: PasswordTemplateType
+  #       example: "SMS"
+  #     template:
+  #       type: string
+  #       example: "Passwordless Login Token Request\n\nYou're receiving this because you requested a passwordless login token for your account.\n${link}"
+
 /tenants:
-  get:
-    description: Retrieve a list of tenants
-    displayName: retrieveTenants
-    securedBy:
-            - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN] }
-    responses:
+  /{tenantId}:
+    get:
+      description: Retrieve a tenant by tenant id
+      displayName: retrieveTenant
+      securedBy:
+          - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN] }
+      responses:
+        400:
+          description: Bad Request.
+          body:
+            application/json:
+              type: ApiStandards.ErrorResponse
+              example: {
+                  "type": "TenantRequestException",
+                  "title": "Unable to retrieve resource because the tenant id was invalid"
+                }
         401:
           description: Unauthorized. Wrong Tenant.
           body:
@@ -244,60 +461,18 @@ types:
           description: Not Found.
           body:
             application/json:
-              type: ApiStandards.ErrorResponse                
+              type: ApiStandards.ErrorResponse
               example: {
                   "type": "TenantNotFoundException",
-                  "title": "Unable to retrieve resource because no resource was found"
+                  "title": "Unable to retrieve resource because no resource was found with that value"
               }
         200:
           description: Success
           body:
             application/json:
-              type: TenantListResponse
-              examples: 
-                Tenant : !include Examples/TenantListResponse.raml
-
-  /{tenantId}:
-    get:
-      description: Retrieve a tenant by tenant id
-      displayName: retrieveTenant
-      securedBy:
-              - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN] }
-      responses:
-            400:
-              description: Bad Request.
-              body:
-                application/json:
-                  type: ApiStandards.ErrorResponse
-                  example: {
-                      "type": "TenantRequestException",
-                      "title": "Unable to retrieve resource because the tenant id was invalid"
-                    }
-            401:
-              description: Unauthorized. Wrong Tenant.
-              body:
-                application/json:
-                  type: ApiStandards.ErrorResponse
-                  example: {
-                      "type": "TenantException",
-                      "title": "Unable to retrieve resource because the tenant id was invalid"
-                    }
-            404:
-              description: Not Found.
-              body:
-                application/json:
-                  type: ApiStandards.ErrorResponse
-                  example: {
-                      "type": "TenantNotFoundException",
-                      "title": "Unable to retrieve resource because no resource was found with that value"
-                  }
-            200:
-              description: Success
-              body:
-                application/json:
-                  type: Tenant
-                  examples:
-                    Tenant : !include Examples/Tenant.raml
+              type: Tenant
+              examples:
+                Tenant : !include Examples/Tenant.raml
     put:
         description: Create or Update a tenant.
         displayName: registerTenant
@@ -305,7 +480,7 @@ types:
           application/json:
             examples: !include Examples/TenantDto.raml
         securedBy:
-                - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN] }
+                - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN] }
         responses:
           400:
             description: Bad Request.
@@ -356,45 +531,20 @@ types:
                 type: Tenant
                 examples: 
                   Tenant : !include Examples/Tenant.raml
-    delete:
-      description: Delete a tenant
-      displayName: deleteTenant
-      securedBy:
-              - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN] }
-      responses:
-        400:
-          description: Bad Request.
-          body:
-            application/json:
-              type: ApiStandards.ErrorResponse
-              example: {
-                  "type": "TenantDeleteException",
-                  "title": "Delete all clients associated with tenant before deleting tenant."
-                }
-        404:
-          description: Not Found.
-          body:
-            application/json:
-              type: ApiStandards.ErrorResponse
-              example: {
-                  "type": "TenantNotFoundException",
-                  "title": "Tenant[abcd_prd] not found!"
-                }
-        204:
-          description: No Content
     /clients:
       get:
         description: Retrieve/Get all tenant clients
         displayName: retrieveClients
         securedBy:
-                - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN] }
+          - SlasSecurityScheme.BearerToken: {role: [SLAS_SERVICE_ADMIN]}
         responses:
           401:
             description: Unauthorized. Wrong Tenant.
             body:
               application/json:
                 type: ApiStandards.ErrorResponse
-                example: {
+                example:
+                  {
                     "type": "ClientTenantException",
                     "title": "Unable to retrieve resource because the tenant id was invalid"
                   }
@@ -403,7 +553,8 @@ types:
             body:
               application/json:
                 type: ApiStandards.ErrorResponse
-                example: {
+                example:
+                  {
                     "type": "ClientNotFoundException",
                     "title": "Unable to retrieve resource because no resource was found with that value"
                   }
@@ -411,22 +562,23 @@ types:
             description: Success
             body:
               application/json:
-                type: ClientListResponse
-                examples: !include Examples/ClientListResponse.raml
-                    
+                examples:
+                  ClientListResponse: !include Examples/ClientListResponse.raml
+
       /{clientId}:
         get:
           description: Retrieve a client
           displayName: retrieveClient
           securedBy:
-                  - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN] }
+            - SlasSecurityScheme.BearerToken: {role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN]}
           responses:
             400:
               description: Bad Request.
               body:
                 application/json:
                   type: ApiStandards.ErrorResponse
-                  example: {
+                  example:
+                    {
                       "type": "ClientRequestException",
                       "title": "Unable to retrieve resource because the client id was invalid"
                     }
@@ -435,7 +587,8 @@ types:
               body:
                 application/json:
                   type: ApiStandards.ErrorResponse
-                  example: {
+                  example:
+                    {
                       "type": "ClientTenantException",
                       "title": "Unable to retrieve resource because the tenant id was invalid"
                     }
@@ -444,7 +597,8 @@ types:
               body:
                 application/json:
                   type: ApiStandards.ErrorResponse
-                  example: {
+                  example:
+                    {
                       "type": "ClientNotFoundException",
                       "title": "Unable to retrieve resource because no resource was found with that value"
                     }
@@ -453,13 +607,13 @@ types:
               body:
                 application/json:
                   type: Client
-                  examples: 
+                  examples:
                     Client: !include Examples/Client.raml
         put:
           description: Create or Update a client.
           displayName: registerClient
           securedBy:
-                  - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN] }
+            - SlasSecurityScheme.BearerToken: {role: [SLAS_SERVICE_ADMIN]}
           body:
             application/json:
               type: ClientRequest
@@ -471,7 +625,8 @@ types:
               body:
                 application/json:
                   type: ApiStandards.ErrorResponse
-                  example: {
+                  example:
+                    {
                       "type": "ClientRequestException",
                       "title": "Unable to update resource because the request body was invalid"
                     }
@@ -480,7 +635,8 @@ types:
               body:
                 application/json:
                   type: ApiStandards.ErrorResponse
-                  example: {
+                  example:
+                    {
                       "type": "ClientTenantException",
                       "title": "Unable to update resource because the tenant id was invalid"
                     }
@@ -489,7 +645,8 @@ types:
               body:
                 application/json:
                   type: ApiStandards.ErrorResponse
-                  example: {
+                  example:
+                    {
                       "type": "ClientNotFoundException",
                       "title": "Unable to update resource because no resource was found with that value"
                     }
@@ -498,7 +655,8 @@ types:
               body:
                 application/json:
                   type: ApiStandards.ErrorResponse
-                  example: {
+                  example:
+                    {
                       "type": "ClientConflictException",
                       "title": "Unable to create resource because a duplicate resource was found"
                     }
@@ -507,36 +665,38 @@ types:
               body:
                 application/json:
                   type: Client
-                  examples: 
+                  examples:
                     Client: !include Examples/ClientWithSecret.raml
             201:
               description: Success - Client was Created. This is the only time the secret will be returned.
               body:
                 application/json:
                   type: Client
-                  examples: 
+                  examples:
                     Client: !include Examples/ClientWithSecret.raml
         delete:
           description: Delete a client
           displayName: deleteClient
           securedBy:
-                  - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN] }
+            - SlasSecurityScheme.BearerToken: {role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN]}
           responses:
             400:
               description: Bad Request.
               body:
                 application/json:
                   type: ApiStandards.ErrorResponse
-                  example: {
-                    "type": "ClientRequestException",
-                    "title": "Unable to delete resource because the request was invalid"
-                  }
+                  example:
+                    {
+                      "type": "ClientRequestException",
+                      "title": "Unable to delete resource because the request was invalid"
+                    }
             401:
               description: Unauthorized. Wrong Tenant.
               body:
                 application/json:
                   type: ApiStandards.ErrorResponse
-                  example: {
+                  example:
+                    {
                       "type": "ClientTenantException",
                       "title": "Unable to delete resource because the tenant id was invalid"
                     }
@@ -545,25 +705,197 @@ types:
               body:
                 application/json:
                   type: ApiStandards.ErrorResponse
-                  example: {
+                  example:
+                    {
                       "type": "ClientNotFoundException",
                       "title": "Unable to delete resource because no resource was found with that value"
                     }
             204:
               description: No Content
+
+        # /password-action-templates:
+        #   description: |
+        #     A password action template simplifies the process of sending notifications to customers about password logins and password reset using string substitution in the template body. The template body is determined by the `template` parameter. The only template type supported is `SMS`.
+
+        #     The following 3 strings are substituted in the template body according to the following rules:
+        #     1. `${name}`: The first name of the user based on the login that is given.
+        #     2. `${token}`: The password action token that is generated.
+        #     3. `${link}`: A string provided to the endpoint (using the `link` parameter) that can include `${token}` and `${name}` for substitution.
+        #   get:
+        #     description: Retrieve/get a password action template.
+        #     displayName: retrievePwdlessTemplate
+        #     securedBy:
+        #       - SlasSecurityScheme.BearerToken:
+        #           {role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN]}
+        #     queryParameters:
+        #       channelId:
+        #         type: string
+        #         example: "SiteGenesis"
+        #       actionType:
+        #         type: PasswordTemplateActionType
+        #         example: "PWDLESS_LOGIN"
+        #       templateType:
+        #         type: string
+        #         example: "SMS"
+        #     responses:
+        #       200:
+        #         description: Success
+        #         body:
+        #           application/json:
+        #             type: PasswordActionTemplate
+        #             examples:
+        #               Client: !include Examples/PasswordActionTemplate.raml
+        #       400:
+        #         description: Bad Request.
+        #         body:
+        #           application/json:
+        #             type: ApiStandards.ErrorResponse
+        #             example:
+        #               {
+        #                 "type": "BadRequestException",
+        #                 "title": "Unable to update resource because the request body was invalid"
+        #               }
+        #       401:
+        #         description: Unauthorized. Wrong Tenant.
+        #         body:
+        #           application/json:
+        #             type: ApiStandards.ErrorResponse
+        #             example:
+        #               {
+        #                 "type": "ClientTenantException",
+        #                 "title": "Unable to update resource because the tenant id was invalid"
+        #               }
+        #       404:
+        #         description: Not Found.
+        #         body:
+        #           application/json:
+        #             type: ApiStandards.ErrorResponse
+        #             example:
+        #               {
+        #                 "type": "PasswordActionTemplateNotFoundException",
+        #                 "title": "Template was not found"
+        #               }
+        #   put:
+        #     description: Create or update a password action template.
+        #     displayName: registerPwdlessTemplate
+        #     securedBy:
+        #       - SlasSecurityScheme.BearerToken:
+        #           {role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN]}
+        #     body:
+        #       application/json:
+        #         type: PasswordActionTemplate
+        #         example: !include Examples/PasswordActionTemplateRequest.raml
+        #     responses:
+        #       201:
+        #         description: Success - A password action template was created.
+        #         body:
+        #           application/json:
+        #             type: PasswordActionTemplate
+        #             examples:
+        #               Client: !include Examples/PasswordActionTemplate.raml
+        #       200:
+        #         description: Success - A password action template was updated.
+        #         body:
+        #           application/json:
+        #             type: PasswordActionTemplate
+        #             examples:
+        #               Client: !include Examples/PasswordActionTemplate.raml
+        #       400:
+        #         description: Bad Request.
+        #         body:
+        #           application/json:
+        #             type: ApiStandards.ErrorResponse
+        #             example:
+        #               {
+        #                 "type": "PasswordActionTemplateCreateException",
+        #                 "title": "Template was not created or updated"
+        #               }
+        #       401:
+        #         description: Unauthorized. Wrong tenant.
+        #         body:
+        #           application/json:
+        #             type: ApiStandards.ErrorResponse
+        #             example:
+        #               {
+        #                 "type": "ClientTenantException",
+        #                 "title": "Unable to update resource because the tenant id was invalid"
+        #               }
+        #       404:
+        #         description: Not Found.
+        #         body:
+        #           application/json:
+        #             type: ApiStandards.ErrorResponse
+        #             example:
+        #               {
+        #                 "type": "PasswordActionTemplateNotFoundException",
+        #                 "title": "Template was not found"
+        #               }
+        #   delete:
+        #     description: Delete a password action template.
+        #     displayName: deletePwdlessTemplate
+        #     securedBy:
+        #       - SlasSecurityScheme.BearerToken:
+        #           {role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN]}
+        #     queryParameters:
+        #       channelId:
+        #         type: string
+        #         example: "SiteGenesis"
+        #       actionType:
+        #         type: PasswordTemplateActionType
+        #         example: "PWDLESS_LOGIN"
+        #       templateType:
+        #         type: string
+        #         example: "REDIRECT"
+        #       locale:
+        #         type: string
+        #         example: "en-us"
+        #     responses:
+        #       204:
+        #         description: No Content
+        #       400:
+        #         description: Bad Request.
+        #         body:
+        #           application/json:
+        #             type: ApiStandards.ErrorResponse
+        #             example:
+        #               {
+        #                 "type": "PasswordActionTemplateDeleteException",
+        #                 "title": "Template was not deleted"
+        #               }
+        #       401:
+        #         description: Unauthorized. Wrong Tenant.
+        #         body:
+        #           application/json:
+        #             type: ApiStandards.ErrorResponse
+        #             example:
+        #               {
+        #                 "type": "ClientTenantException",
+        #                 "title": "Unable to update resource because the tenant id was invalid"
+        #               }
+        #       404:
+        #         description: Not Found.
+        #         body:
+        #          application/json:
+        #             type: ApiStandards.ErrorResponse
+        #             example:
+        #               {
+        #                 "type": "PasswordActionTemplateNotFoundException",
+        #                 "title": "Template was not found"
+        #               }
     /idps:
       get:
         description: Retrieve/Get all tenant identity providers
         displayName: retrieveIdentityProviders
         securedBy:
-                - SlasSecurityScheme.BearerToken:  { role: [SLAS_SERVICE_ADMIN] }
+          - SlasSecurityScheme.BearerToken: {role: [SLAS_SERVICE_ADMIN]}
         responses:
           400:
             description: Bad Request.
             body:
               application/json:
                 type: ApiStandards.ErrorResponse
-                example: {
+                example:
+                  {
                     "type": "IdpRequestException",
                     "title": "Unable to retrieve resource because the tenant was deleted"
                   }
@@ -572,7 +904,8 @@ types:
             body:
               application/json:
                 type: ApiStandards.ErrorResponse
-                example: {
+                example:
+                  {
                     "type": "IdpTenantException",
                     "title": "Unable to retrieve resource because the tenant id was invalid"
                   }
@@ -581,7 +914,8 @@ types:
             body:
               application/json:
                 type: ApiStandards.ErrorResponse
-                example: {
+                example:
+                  {
                     "type": "IdpNotFoundException",
                     "title": "Unable to retrieve resource, no resource was found with that value"
                   }
@@ -590,21 +924,22 @@ types:
             body:
               application/json:
                 type: IdentityProviderListResponse
-                examples: 
-                  IdentityProvider : !include Examples/IdpListResponse.raml
+                examples:
+                  IdentityProvider: !include Examples/IdpListResponse.raml
       /{idpId}:
         get:
           description: Retrieve/Get a specific identity provider
           displayName: retrieveIdentityProvider
           securedBy:
-                - SlasSecurityScheme.BearerToken:  { role: [SLAS_SERVICE_ADMIN] }
+            - SlasSecurityScheme.BearerToken: {role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN]}
           responses:
             400:
               description: Bad Request.
               body:
                 application/json:
                   type: ApiStandards.ErrorResponse
-                  example: {
+                  example:
+                    {
                       "type": "IdpRequestException",
                       "title": "Unable to create resource because the request was invalid"
                     }
@@ -613,7 +948,8 @@ types:
               body:
                 application/json:
                   type: ApiStandards.ErrorResponse
-                  example: {
+                  example:
+                    {
                       "type": "IdpTenantException",
                       "title": "Unable to create resource because the tenant id was invalid"
                     }
@@ -622,7 +958,8 @@ types:
               body:
                 application/json:
                   type: ApiStandards.ErrorResponse
-                  example: {
+                  example:
+                    {
                       "type": "IdpNotFoundException",
                       "title": "Unable to delete resource, no resource was found with that value"
                     }
@@ -631,81 +968,86 @@ types:
               body:
                 application/json:
                   type: IdentityProvider
-                  examples: 
-                    IdentityProvider : !include Examples/IdentityProvider.raml
+                  examples:
+                    IdentityProvider: !include Examples/IdentityProvider.raml
         put:
-            description: Create or Update an identity provider
-            displayName: registerIdentityProvider
-            body:
-              application/json:
-                type: IdentityProvider
-                examples:
-                  IdentityProvider: !include Examples/IdentityProvider.raml
-            securedBy:
-                    - SlasSecurityScheme.BearerToken:  { role: [SLAS_SERVICE_ADMIN] }
-            responses:
-              400:
-                description: Bad Request.
-                body:
-                  application/json:
-                    type: ApiStandards.ErrorResponse
-                    example: {
-                        "type": "IdpRequestException",
-                        "title": "Unable to update resource because the request body was invalid"
-                      }
-              401:
-                description: Unauthorized. Wrong Tenant.
-                body:
-                  application/json:
-                    type: ApiStandards.ErrorResponse
-                    example: {
-                        "type": "IdpTenantException",
-                        "title": "Unable to update resource because the tenant id was invalid"
-                      }
-              404:
-                description: Not Found.
-                body:
-                  application/json:
-                    type: ApiStandards.ErrorResponse
-                    example: {
-                        "type": "IdpNotFoundException",
-                        "title": "Unable to update resource because no resource was found with that value"
-                      }
-              409:
-                description: Conflict - Duplicate
-                body:
-                  application/json:
-                    type: ApiStandards.ErrorResponse
-                    example: {
-                        "type": "IdpConflictException",
-                        "title": "Unable to create resource because a duplicate resource was found"
-                      }
-              200:
-                description: Success - Updated an Idp.
-                body:
-                  application/json:
-                    type: IdentityProvider
-                    examples: 
-                      IdentityProvider: !include Examples/IdentityProvider.raml
-              201:
-                description: Success - Created an Idp.
-                body:
-                  application/json:
-                    type: IdentityProvider
-                    examples: 
-                      IdentityProvider : !include Examples/IdentityProvider.raml
-        delete:
-          description: Delete a identity provider
-          displayName: deleteIdentityProvider
+          description: Create or Update an identity provider
+          displayName: registerIdentityProvider
+          body:
+            application/json:
+              type: IdentityProvider
+              examples:
+                IdentityProvider: !include Examples/IdentityProvider.raml
           securedBy:
-                  - SlasSecurityScheme.BearerToken:  { role: [SLAS_SERVICE_ADMIN] }
+            - SlasSecurityScheme.BearerToken: {role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN]}
           responses:
             400:
               description: Bad Request.
               body:
                 application/json:
                   type: ApiStandards.ErrorResponse
-                  example: {
+                  example:
+                    {
+                      "type": "IdpRequestException",
+                      "title": "Unable to update resource because the request body was invalid"
+                    }
+            401:
+              description: Unauthorized. Wrong Tenant.
+              body:
+                application/json:
+                  type: ApiStandards.ErrorResponse
+                  example:
+                    {
+                      "type": "IdpTenantException",
+                      "title": "Unable to update resource because the tenant id was invalid"
+                    }
+            404:
+              description: Not Found.
+              body:
+                application/json:
+                  type: ApiStandards.ErrorResponse
+                  example:
+                    {
+                      "type": "IdpNotFoundException",
+                      "title": "Unable to update resource because no resource was found with that value"
+                    }
+            409:
+              description: Conflict - Duplicate
+              body:
+                application/json:
+                  type: ApiStandards.ErrorResponse
+                  example:
+                    {
+                      "type": "IdpConflictException",
+                      "title": "Unable to create resource because a duplicate resource was found"
+                    }
+            200:
+              description: Success - Updated an Idp.
+              body:
+                application/json:
+                  type: IdentityProviderResponse
+                  examples:
+                    IdentityProviderResponse: !include Examples/IdentityProviderResponse.raml
+            201:
+              description: Success - Created an Idp.
+              body:
+                application/json:
+                  type: IdentityProviderResponse
+                  examples:
+                    IdentityProviderResponse: !include Examples/IdentityProviderResponse.raml
+        delete:
+          description: Delete a identity provider
+          displayName: deleteIdentityProvider
+          securedBy:
+            - SlasSecurityScheme.BearerToken: {role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN]}
+          responses:
+            400:
+              description: Bad Request.
+              body:
+                application/json:
+                  type: ApiStandards.ErrorResponse
+                  example:
+                    {
                       "type": "IdpRequestException",
                       "title": "Unable to create resource because the request was invalid"
                     }
@@ -714,7 +1056,8 @@ types:
               body:
                 application/json:
                   type: ApiStandards.ErrorResponse
-                  example: {
+                  example:
+                    {
                       "type": "IdpTenantException",
                       "title": "Unable to create resource because the tenant id was invalid"
                     }
@@ -723,7 +1066,8 @@ types:
               body:
                 application/json:
                   type: ApiStandards.ErrorResponse
-                  example: {
+                  example:
+                    {
                       "type": "IdpNotFoundException",
                       "title": "Unable to delete resource, no resource was found with that value"
                     }
@@ -734,12 +1078,12 @@ types:
         description: Completely deletes all shopper records associated with the shoppers customer id. The email id will be used if passed as a query parameter. This conforms to the GDPR regulations.
         displayName: deleteShopper
         securedBy:
-                - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN] }
+          - SlasSecurityScheme.BearerToken: {role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN]}
         queryParameters:
           emailAddress:
             description: The shoppers email address.
             required: false
-            type: string   
+            type: string
             example: "test.user@salesforce.tst"
         responses:
           400:
@@ -747,7 +1091,8 @@ types:
             body:
               application/json:
                 type: ApiStandards.ErrorResponse
-                example: {
+                example:
+                  {
                     "type": "ShopperDeleteException",
                     "title": "Email address does not match stored email address"
                   }
@@ -756,10 +1101,84 @@ types:
             body:
               application/json:
                 type: ApiStandards.ErrorResponse
-                example: {
+                example:
+                  {
                     "type": "ShopperNotFoundException",
                     "title": "SLAS USER was not found by customer id"
                   }
 
           204:
             description: No Content
+
+    /cred-qual/login:
+      get:
+        description: Retrieve credential quality statistics for a tenant.
+        displayName: retrieveCredQuailtyStats
+        securedBy:
+          - SlasSecurityScheme.BearerToken: {role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN]}
+        queryParameters:
+          action:
+            description: Returns averages
+            required: false
+            type: string
+            example: "avgs"
+        responses:
+          200:
+            description: !include tenant-credential-quality-statistics-description.md
+            body:
+              application/json:
+                type: CredQualityResponse
+                examples:
+                  CredQualityResponse: !include Examples/CredQualityResponse.raml
+          400:
+            description: Bad Request.
+            body:
+              application/json:
+                type: ApiStandards.ErrorResponse
+                example: {"type": "CredentialQualityException", "title": "Invalid Tenant Id"}
+          404:
+            description: Not Found.
+            body:
+              application/json:
+                type: ApiStandards.ErrorResponse
+                example:
+                  {
+                    "type": "CredentialQualityException",
+                    "title": "Credential Quality Not Found for tenant"
+                  }
+    /cred-qual/user:
+      get:
+        description: Retrieve credential quality statistics for a user.
+        displayName: retrieveCredQuailtyUserStats
+        securedBy:
+          - SlasSecurityScheme.BearerToken: {role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN]}
+        queryParameters:
+          username:
+            description: Login id or email address.
+            required: false
+            type: string
+            example: "joe.shopper@gmail.com"
+        responses:
+          200:
+            description: !include credential-quality-statistics-description.md
+            body:
+              application/json:
+                type: CredQualityUserResponse
+                examples:
+                  CredQualityResponse: !include Examples/CredQualityUserResponse.raml
+          400:
+            description: Bad Request.
+            body:
+              application/json:
+                type: ApiStandards.ErrorResponse
+                example: {"type": "CredentialQualityException", "title": "Invalid Tenant Id"}
+          404:
+            description: Not Found.
+            body:
+              application/json:
+                type: ApiStandards.ErrorResponse
+                example:
+                  {
+                    "type": "CredentialQualityException",
+                    "title": "Credential Quality not found for user"
+                  }

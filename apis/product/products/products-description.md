@@ -1,0 +1,1 @@
+Use the Data Products API to interact with the API in the context of a Business Manager to get products.
