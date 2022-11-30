@@ -1,0 +1,28 @@
+name: Integration tests
+
+name: tests
+
+on:
+  push:
+    branches-ignore: [master]
+  workflow_dispatch:
+
+jobs:
+  linux-unit-tests:
+    strategy:
+      matrix:
+        node: [10, 12, 14, 16]
+        # node_version: [lts/-1, lts/*, latest]
+        # node_version: [lts/-1, lts/*]
+      fail-fast: false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node_version }}
+          cache: npm
+      - run: npm install --legacy-peer-deps
+      - run: npm run build
+      - run: cd testIntegration
+      - run: npm test:ci
