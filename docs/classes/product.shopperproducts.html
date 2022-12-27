@@ -77,15 +77,12 @@
 						</a>
 					</div>
 					<p><em>Display product details across your storefront.</em><br /></p>
-					<p>Simple example:</p>
-					<pre><code class="language-typescript">  <span class="hljs-keyword">import</span> { Product, ClientConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
-  <span class="hljs-comment">// or</span>
-  <span class="hljs-keyword">const</span> { Product, ClientConfig } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;commerce-sdk&quot;</span>);
-
-  <span class="hljs-keyword">const</span> clientConfig: ClientConfig = { ... };
-  <span class="hljs-keyword">const</span> shopperProductsClient = <span class="hljs-keyword">new</span> Product.ShopperProducts(clientConfig);</code></pre>
 					<p>Example with shopper auth</p>
-					<pre><code class="language-typescript"><span class="hljs-keyword">const</span> clientConfig: ClientConfig = {
+					<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { Product, ClientConfig, Customer, slasHelpers } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
+<span class="hljs-comment">// or</span>
+<span class="hljs-keyword">const</span> { Product, ClientConfig, Customer, slasHelpers } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;commerce-sdk&quot;</span>);
+
+<span class="hljs-keyword">const</span> clientConfig: ClientConfig = {
   <span class="hljs-attr">parameters</span>: {
     <span class="hljs-attr">clientId</span>: <span class="hljs-string">&quot;XXXXXX&quot;</span>,
     <span class="hljs-attr">organizationId</span>: <span class="hljs-string">&quot;XXXX&quot;</span>,
@@ -93,8 +90,13 @@
     <span class="hljs-attr">siteId</span>: <span class="hljs-string">&quot;XX&quot;</span>
   }
 };
-token = <span class="hljs-keyword">await</span> helpers.getShopperToken(clientConfig, { <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;guest&quot;</span> });
-clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>] = token.getBearerHeader();
+
+<span class="hljs-comment">// must be registered in SLAS. On server, redirectURI is never called</span>
+<span class="hljs-keyword">const</span> redirectURI = <span class="hljs-string">&quot;http://localhost:3000/callback&quot;</span>;
+<span class="hljs-keyword">const</span> slasClient = <span class="hljs-keyword">new</span> Customer.ShopperLogin(clientConfig);
+token = <span class="hljs-keyword">await</span> slasHelpers.loginGuestUser(slasClient, { redirectURI });
+
+clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>] = <span class="hljs-string">`Bearer <span class="hljs-subst">${token.access_token}</span>`</span>;
 <span class="hljs-keyword">const</span> shopperProductsClient = <span class="hljs-keyword">new</span> Product.ShopperProducts(clientConfig);</code></pre>
 					<span style="font-size:.7em; display:block; text-align: right">
 						API Version: 0.0.24<br />

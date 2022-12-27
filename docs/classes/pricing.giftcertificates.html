@@ -77,15 +77,13 @@
 						</a>
 					</div>
 					<p><em>Manage your gift certificates.</em><br /></p>
-					<p>Simple example:</p>
-					<pre><code class="language-typescript">  <span class="hljs-keyword">import</span> { Pricing, ClientConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
-  <span class="hljs-comment">// or</span>
-  <span class="hljs-keyword">const</span> { Pricing, ClientConfig } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;commerce-sdk&quot;</span>);
+					<p>For instructions on how to retrieve access token for admin APIs: <a><a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html">https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html</a></a><br/><br/>
+					Example with admin auth</p>
+					<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { Pricing, ClientConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
+<span class="hljs-comment">// or</span>
+<span class="hljs-keyword">const</span> { Pricing, ClientConfig } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;commerce-sdk&quot;</span>);
 
-  <span class="hljs-keyword">const</span> clientConfig: ClientConfig = { ... };
-  <span class="hljs-keyword">const</span> giftCertificatesClient = <span class="hljs-keyword">new</span> Pricing.GiftCertificates(clientConfig);</code></pre>
-					<p>Example with shopper auth</p>
-					<pre><code class="language-typescript"><span class="hljs-keyword">const</span> clientConfig: ClientConfig = {
+<span class="hljs-keyword">const</span> clientConfig: ClientConfig = {
   <span class="hljs-attr">parameters</span>: {
     <span class="hljs-attr">clientId</span>: <span class="hljs-string">&quot;XXXXXX&quot;</span>,
     <span class="hljs-attr">organizationId</span>: <span class="hljs-string">&quot;XXXX&quot;</span>,
@@ -93,8 +91,10 @@
     <span class="hljs-attr">siteId</span>: <span class="hljs-string">&quot;XX&quot;</span>
   }
 };
-token = <span class="hljs-keyword">await</span> helpers.getShopperToken(clientConfig, { <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;guest&quot;</span> });
-clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>] = token.getBearerHeader();
+
+token = { <span class="hljs-attr">access_token</span>: <span class="hljs-string">&#x27;INSERT_ACCESS_TOKEN_HERE&#x27;</span> };
+
+clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>] = <span class="hljs-string">`Bearer <span class="hljs-subst">${token.access_token}</span>`</span>;
 <span class="hljs-keyword">const</span> giftCertificatesClient = <span class="hljs-keyword">new</span> Pricing.GiftCertificates(clientConfig);</code></pre>
 					<span style="font-size:.7em; display:block; text-align: right">
 						API Version: 1.0.24<br />
@@ -1105,7 +1105,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 							<aside class="tsd-sources">
 								<p>Overrides BaseClient.__constructor</p>
 								<ul>
-									<li>Defined in renderedTemplates/pricing/giftCertificates/giftCertificates.ts:388</li>
+									<li>Defined in renderedTemplates/pricing/giftCertificates/giftCertificates.ts:386</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1146,7 +1146,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/giftCertificates/giftCertificates.ts:415</li>
+									<li>Defined in renderedTemplates/pricing/giftCertificates/giftCertificates.ts:413</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1203,7 +1203,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/giftCertificates/giftCertificates.ts:444</li>
+									<li>Defined in renderedTemplates/pricing/giftCertificates/giftCertificates.ts:442</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1283,7 +1283,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/giftCertificates/giftCertificates.ts:723</li>
+									<li>Defined in renderedTemplates/pricing/giftCertificates/giftCertificates.ts:721</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1339,7 +1339,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/giftCertificates/giftCertificates.ts:751</li>
+									<li>Defined in renderedTemplates/pricing/giftCertificates/giftCertificates.ts:749</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1418,7 +1418,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/giftCertificates/giftCertificates.ts:844</li>
+									<li>Defined in renderedTemplates/pricing/giftCertificates/giftCertificates.ts:842</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1474,7 +1474,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/giftCertificates/giftCertificates.ts:872</li>
+									<li>Defined in renderedTemplates/pricing/giftCertificates/giftCertificates.ts:870</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1553,7 +1553,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/giftCertificates/giftCertificates.ts:559</li>
+									<li>Defined in renderedTemplates/pricing/giftCertificates/giftCertificates.ts:557</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1686,7 +1686,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/giftCertificates/giftCertificates.ts:609</li>
+									<li>Defined in renderedTemplates/pricing/giftCertificates/giftCertificates.ts:607</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1842,7 +1842,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/giftCertificates/giftCertificates.ts:966</li>
+									<li>Defined in renderedTemplates/pricing/giftCertificates/giftCertificates.ts:964</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1901,7 +1901,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/giftCertificates/giftCertificates.ts:996</li>
+									<li>Defined in renderedTemplates/pricing/giftCertificates/giftCertificates.ts:994</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">

@@ -77,15 +77,13 @@
 						</a>
 					</div>
 					<p><em>Build searchable product categories and catalogs.</em><br /></p>
-					<p>Simple example:</p>
-					<pre><code class="language-typescript">  <span class="hljs-keyword">import</span> { Product, ClientConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
-  <span class="hljs-comment">// or</span>
-  <span class="hljs-keyword">const</span> { Product, ClientConfig } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;commerce-sdk&quot;</span>);
+					<p>For instructions on how to retrieve access token for admin APIs: <a><a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html">https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html</a></a><br/><br/>
+					Example with admin auth</p>
+					<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { Product, ClientConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
+<span class="hljs-comment">// or</span>
+<span class="hljs-keyword">const</span> { Product, ClientConfig } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;commerce-sdk&quot;</span>);
 
-  <span class="hljs-keyword">const</span> clientConfig: ClientConfig = { ... };
-  <span class="hljs-keyword">const</span> catalogsClient = <span class="hljs-keyword">new</span> Product.Catalogs(clientConfig);</code></pre>
-					<p>Example with shopper auth</p>
-					<pre><code class="language-typescript"><span class="hljs-keyword">const</span> clientConfig: ClientConfig = {
+<span class="hljs-keyword">const</span> clientConfig: ClientConfig = {
   <span class="hljs-attr">parameters</span>: {
     <span class="hljs-attr">clientId</span>: <span class="hljs-string">&quot;XXXXXX&quot;</span>,
     <span class="hljs-attr">organizationId</span>: <span class="hljs-string">&quot;XXXX&quot;</span>,
@@ -93,8 +91,10 @@
     <span class="hljs-attr">siteId</span>: <span class="hljs-string">&quot;XX&quot;</span>
   }
 };
-token = <span class="hljs-keyword">await</span> helpers.getShopperToken(clientConfig, { <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;guest&quot;</span> });
-clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>] = token.getBearerHeader();
+
+token = { <span class="hljs-attr">access_token</span>: <span class="hljs-string">&#x27;INSERT_ACCESS_TOKEN_HERE&#x27;</span> };
+
+clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>] = <span class="hljs-string">`Bearer <span class="hljs-subst">${token.access_token}</span>`</span>;
 <span class="hljs-keyword">const</span> catalogsClient = <span class="hljs-keyword">new</span> Product.Catalogs(clientConfig);</code></pre>
 					<span style="font-size:.7em; display:block; text-align: right">
 						API Version: 0.0.27<br />
@@ -1271,7 +1271,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 							<aside class="tsd-sources">
 								<p>Overrides BaseClient.__constructor</p>
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:742</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:740</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1312,7 +1312,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3058</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3056</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1371,7 +1371,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3088</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3086</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1453,7 +1453,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2520</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2518</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1521,7 +1521,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2561</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2559</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1612,7 +1612,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:1626</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:1624</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1671,7 +1671,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:1656</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:1654</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1753,7 +1753,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3551</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3549</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1812,7 +1812,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3581</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3579</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1894,7 +1894,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:4479</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:4477</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1959,7 +1959,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:4513</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:4511</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2047,7 +2047,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3811</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3809</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2109,7 +2109,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3843</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3841</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2194,7 +2194,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:1239</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:1237</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2250,7 +2250,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:1267</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:1265</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2329,7 +2329,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:4625</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:4623</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2391,7 +2391,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:4657</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:4655</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2476,7 +2476,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:4208</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:4206</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2535,7 +2535,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:4238</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:4236</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2617,7 +2617,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3429</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3427</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2673,7 +2673,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3457</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3455</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2752,7 +2752,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3948</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3946</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2811,7 +2811,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3978</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3976</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2893,7 +2893,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2068</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2066</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2954,7 +2954,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2102</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2100</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3038,7 +3038,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:882</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:880</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3091,7 +3091,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:908</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:906</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3167,7 +3167,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:768</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:766</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3223,7 +3223,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:796</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:794</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3302,7 +3302,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:1116</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:1114</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3361,7 +3361,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:1146</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:1144</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3443,7 +3443,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2805</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2803</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3505,7 +3505,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2837</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2835</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3590,7 +3590,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:1364</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:1362</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3652,7 +3652,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:1397</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:1395</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3737,7 +3737,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:4339</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:4337</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3799,7 +3799,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:4371</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:4369</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3884,7 +3884,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:4078</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:4076</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3943,7 +3943,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:4108</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:4106</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4025,7 +4025,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3308</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3306</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4081,7 +4081,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3336</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3334</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4160,7 +4160,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2936</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2934</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4216,7 +4216,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2964</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2962</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4295,7 +4295,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3680</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3678</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4354,7 +4354,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3710</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3708</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4436,7 +4436,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3186</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3184</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4492,7 +4492,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3214</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:3212</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4571,7 +4571,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2675</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2673</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4630,7 +4630,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2705</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2703</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4712,7 +4712,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:5002</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:5000</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4851,7 +4851,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:5062</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:5060</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5013,7 +5013,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:5208</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:5206</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5139,7 +5139,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:5262</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:5260</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5288,7 +5288,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:4790</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:4788</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5417,7 +5417,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:4847</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:4845</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5569,7 +5569,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:1813</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:1811</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5765,7 +5765,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:1902</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:1900</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5984,7 +5984,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2210</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2208</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -6045,7 +6045,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2244</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2242</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -6129,7 +6129,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:995</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:993</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -6185,7 +6185,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:1023</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:1021</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -6264,7 +6264,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:1497</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:1495</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -6323,7 +6323,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:1527</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:1525</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -6405,7 +6405,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2357</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2355</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -6473,7 +6473,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2397</li>
+									<li>Defined in renderedTemplates/product/catalogs/catalogs.ts:2395</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
