@@ -127,11 +127,11 @@ export const isAllowedTrait = (trait: amf.model.domain.Trait): boolean => {
 };
 
 /**
- * Checks if a given API is a shopper API (vs data/admin API)
+ * Checks if API name is a shopper API (vs admin/data API)
  *
  * @param name - name of API
  * @returns true if API is shopper API
  */
-export const isShopperAPI = (name: String): boolean => {
-  return name.toString().toLowerCase().startsWith('shop')
+export const isShopperAPI = (name: string): boolean => {
+  return name.toString().toLowerCase().startsWith("shop");
 };
