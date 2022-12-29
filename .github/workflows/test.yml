@@ -19,6 +19,8 @@ jobs:
           node-version: ${{ matrix.node_version }}
           cache: npm
       - uses: ./.github/actions/slack
+        secrets:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         with:
           message: 'testing commerce-sdk unit tests'
       - name: Cache node modules
