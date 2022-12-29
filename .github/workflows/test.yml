@@ -6,11 +6,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  send-slack-msg:
-    uses: ./.github/actions/slack
-    secrets: inherit
-    with:
-      message: 'testing commerce-sdk unit tests'
   linux-unit-tests:
     strategy:
       matrix:
@@ -35,3 +30,23 @@ jobs:
         if: ${{ steps.cache-nodemodules.outputs.cache-hit != 'true' }}
       - run: npm run build
       - run: npm test
+      - name: send message to slack
+        id: slack
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          # For posting a rich message using Block Kit
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "done with unit tests for commerce-sdk"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
