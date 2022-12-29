@@ -18,6 +18,9 @@ jobs:
         with:
           node-version: ${{ matrix.node_version }}
           cache: npm
+      - uses: ./.github/actions/slack
+        with:
+          message: 'testing commerce-sdk unit tests'
       - name: Cache node modules
         id: cache-nodemodules
         uses: actions/cache@v3
@@ -26,27 +29,6 @@ jobs:
         with:
           path: "**/node_modules"
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
-      - name: send message to slack
-        id: slack
-        uses: slackapi/slack-github-action@v1.23.0
-        with:
-          # For posting a rich message using Block Kit
-          payload: |
-            {
-              "text": "Testing sending slack notifications from GH actions",
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "testing testing testing"
-                  }
-                }
-              ]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
       - run: npm install --legacy-peer-deps
         if: ${{ steps.cache-nodemodules.outputs.cache-hit != 'true' }}
       - run: npm run build

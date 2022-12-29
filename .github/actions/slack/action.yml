@@ -1,0 +1,25 @@
+name: Send message to slack
+
+inputs:
+  message: 
+    required: true
+    description: Message to be sent to slack
+
+  uses: slackapi/slack-github-action@v1.23.0
+  with:
+    # For posting a rich message using Block Kit
+    payload: |
+      {
+        "blocks": [
+          {
+            "type": "section",
+            "text": {
+              "type": "mrkdwn",
+              "text": ${{ inputs.message }}
+            }
+          }
+        ]
+      }
+  env:
+    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
