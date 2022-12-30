@@ -30,23 +30,22 @@ jobs:
         if: ${{ steps.cache-nodemodules.outputs.cache-hit != 'true' }}
       - run: npm run build
       - run: npm test
-      - name: send message to slack
-        id: slack
-        uses: slackapi/slack-github-action@v1.23.0
-        with:
-          # For posting a rich message using Block Kit
-          payload: |
+  slack-job:
+    uses: slackapi/slack-github-action@v1.23.0
+    with:
+      # For posting a rich message using Block Kit
+      payload: |
+        {
+          "blocks": [
             {
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "done with unit tests for commerce-sdk"
-                  }
-                }
-              ]
+              "type": "section",
+              "text": {
+                "type": "mrkdwn",
+                "text": "done with unit tests for commerce-sdk"
+              }
             }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+          ]
+        }
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
