@@ -77,15 +77,13 @@
 						</a>
 					</div>
 					<p><em>Manage customer information within a customer list.</em><br /></p>
-					<p>Simple example:</p>
-					<pre><code class="language-typescript">  <span class="hljs-keyword">import</span> { Customer, ClientConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
-  <span class="hljs-comment">// or</span>
-  <span class="hljs-keyword">const</span> { Customer, ClientConfig } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;commerce-sdk&quot;</span>);
+					<p>For instructions on how to retrieve access token for admin APIs: <a><a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html">https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html</a></a><br/><br/>
+					Example with admin auth</p>
+					<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { Customer, ClientConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
+<span class="hljs-comment">// or</span>
+<span class="hljs-keyword">const</span> { Customer, ClientConfig } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;commerce-sdk&quot;</span>);
 
-  <span class="hljs-keyword">const</span> clientConfig: ClientConfig = { ... };
-  <span class="hljs-keyword">const</span> customersClient = <span class="hljs-keyword">new</span> Customer.Customers(clientConfig);</code></pre>
-					<p>Example with shopper auth</p>
-					<pre><code class="language-typescript"><span class="hljs-keyword">const</span> clientConfig: ClientConfig = {
+<span class="hljs-keyword">const</span> clientConfig: ClientConfig = {
   <span class="hljs-attr">parameters</span>: {
     <span class="hljs-attr">clientId</span>: <span class="hljs-string">&quot;XXXXXX&quot;</span>,
     <span class="hljs-attr">organizationId</span>: <span class="hljs-string">&quot;XXXX&quot;</span>,
@@ -93,8 +91,10 @@
     <span class="hljs-attr">siteId</span>: <span class="hljs-string">&quot;XX&quot;</span>
   }
 };
-token = <span class="hljs-keyword">await</span> helpers.getShopperToken(clientConfig, { <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;guest&quot;</span> });
-clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>] = token.getBearerHeader();
+
+token = { <span class="hljs-attr">access_token</span>: <span class="hljs-string">&#x27;INSERT_ACCESS_TOKEN_HERE&#x27;</span> };
+
+clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>] = <span class="hljs-string">`Bearer <span class="hljs-subst">${token.access_token}</span>`</span>;
 <span class="hljs-keyword">const</span> customersClient = <span class="hljs-keyword">new</span> Customer.Customers(clientConfig);</code></pre>
 					<span style="font-size:.7em; display:block; text-align: right">
 						API Version: 0.0.19<br />
@@ -1096,7 +1096,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 							<aside class="tsd-sources">
 								<p>Overrides BaseClient.__constructor</p>
 								<ul>
-									<li>Defined in renderedTemplates/customer/customers/customers.ts:428</li>
+									<li>Defined in renderedTemplates/customer/customers/customers.ts:426</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1137,7 +1137,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/customer/customers/customers.ts:1446</li>
+									<li>Defined in renderedTemplates/customer/customers/customers.ts:1444</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1197,7 +1197,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/customer/customers/customers.ts:1477</li>
+									<li>Defined in renderedTemplates/customer/customers/customers.ts:1475</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1280,7 +1280,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/customer/customers/customers.ts:1166</li>
+									<li>Defined in renderedTemplates/customer/customers/customers.ts:1164</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1345,7 +1345,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/customer/customers/customers.ts:1203</li>
+									<li>Defined in renderedTemplates/customer/customers/customers.ts:1201</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1433,7 +1433,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/customer/customers/customers.ts:650</li>
+									<li>Defined in renderedTemplates/customer/customers/customers.ts:648</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1495,7 +1495,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/customer/customers/customers.ts:685</li>
+									<li>Defined in renderedTemplates/customer/customers/customers.ts:683</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1580,7 +1580,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/customer/customers/customers.ts:784</li>
+									<li>Defined in renderedTemplates/customer/customers/customers.ts:782</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1636,7 +1636,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/customer/customers/customers.ts:812</li>
+									<li>Defined in renderedTemplates/customer/customers/customers.ts:810</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1715,7 +1715,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/customer/customers/customers.ts:1577</li>
+									<li>Defined in renderedTemplates/customer/customers/customers.ts:1575</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1774,7 +1774,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/customer/customers/customers.ts:1607</li>
+									<li>Defined in renderedTemplates/customer/customers/customers.ts:1605</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1856,7 +1856,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/customer/customers/customers.ts:1311</li>
+									<li>Defined in renderedTemplates/customer/customers/customers.ts:1309</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1919,7 +1919,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/customer/customers/customers.ts:1344</li>
+									<li>Defined in renderedTemplates/customer/customers/customers.ts:1342</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2005,7 +2005,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/customer/customers/customers.ts:905</li>
+									<li>Defined in renderedTemplates/customer/customers/customers.ts:903</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2061,7 +2061,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/customer/customers/customers.ts:933</li>
+									<li>Defined in renderedTemplates/customer/customers/customers.ts:931</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2140,7 +2140,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/customer/customers/customers.ts:1707</li>
+									<li>Defined in renderedTemplates/customer/customers/customers.ts:1705</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2199,7 +2199,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/customer/customers/customers.ts:1737</li>
+									<li>Defined in renderedTemplates/customer/customers/customers.ts:1735</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2281,7 +2281,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/customer/customers/customers.ts:477</li>
+									<li>Defined in renderedTemplates/customer/customers/customers.ts:475</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2411,7 +2411,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/customer/customers/customers.ts:528</li>
+									<li>Defined in renderedTemplates/customer/customers/customers.ts:526</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2564,7 +2564,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/customer/customers/customers.ts:1838</li>
+									<li>Defined in renderedTemplates/customer/customers/customers.ts:1836</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2626,7 +2626,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/customer/customers/customers.ts:1870</li>
+									<li>Defined in renderedTemplates/customer/customers/customers.ts:1868</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2711,7 +2711,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/customer/customers/customers.ts:1028</li>
+									<li>Defined in renderedTemplates/customer/customers/customers.ts:1026</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2771,7 +2771,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/customer/customers/customers.ts:1059</li>
+									<li>Defined in renderedTemplates/customer/customers/customers.ts:1057</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">

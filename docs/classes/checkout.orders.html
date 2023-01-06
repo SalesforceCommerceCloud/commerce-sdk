@@ -77,15 +77,13 @@
 						</a>
 					</div>
 					<p><em>Manage order and order payment status.</em><br /></p>
-					<p>Simple example:</p>
-					<pre><code class="language-typescript">  <span class="hljs-keyword">import</span> { Checkout, ClientConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
-  <span class="hljs-comment">// or</span>
-  <span class="hljs-keyword">const</span> { Checkout, ClientConfig } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;commerce-sdk&quot;</span>);
+					<p>For instructions on how to retrieve access token for admin APIs: <a><a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html">https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html</a></a><br/><br/>
+					Example with admin auth</p>
+					<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { Checkout, ClientConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
+<span class="hljs-comment">// or</span>
+<span class="hljs-keyword">const</span> { Checkout, ClientConfig } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;commerce-sdk&quot;</span>);
 
-  <span class="hljs-keyword">const</span> clientConfig: ClientConfig = { ... };
-  <span class="hljs-keyword">const</span> ordersClient = <span class="hljs-keyword">new</span> Checkout.Orders(clientConfig);</code></pre>
-					<p>Example with shopper auth</p>
-					<pre><code class="language-typescript"><span class="hljs-keyword">const</span> clientConfig: ClientConfig = {
+<span class="hljs-keyword">const</span> clientConfig: ClientConfig = {
   <span class="hljs-attr">parameters</span>: {
     <span class="hljs-attr">clientId</span>: <span class="hljs-string">&quot;XXXXXX&quot;</span>,
     <span class="hljs-attr">organizationId</span>: <span class="hljs-string">&quot;XXXX&quot;</span>,
@@ -93,8 +91,10 @@
     <span class="hljs-attr">siteId</span>: <span class="hljs-string">&quot;XX&quot;</span>
   }
 };
-token = <span class="hljs-keyword">await</span> helpers.getShopperToken(clientConfig, { <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;guest&quot;</span> });
-clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>] = token.getBearerHeader();
+
+token = { <span class="hljs-attr">access_token</span>: <span class="hljs-string">&#x27;INSERT_ACCESS_TOKEN_HERE&#x27;</span> };
+
+clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>] = <span class="hljs-string">`Bearer <span class="hljs-subst">${token.access_token}</span>`</span>;
 <span class="hljs-keyword">const</span> ordersClient = <span class="hljs-keyword">new</span> Checkout.Orders(clientConfig);</code></pre>
 					<span style="font-size:.7em; display:block; text-align: right">
 						API Version: 1.3.5<br />
@@ -1891,7 +1891,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 							<aside class="tsd-sources">
 								<p>Overrides BaseClient.__constructor</p>
 								<ul>
-									<li>Defined in renderedTemplates/checkout/orders/orders.ts:764</li>
+									<li>Defined in renderedTemplates/checkout/orders/orders.ts:762</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1932,7 +1932,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1058</li>
+									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1056</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2068,7 +2068,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1158</li>
+									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1156</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2227,7 +2227,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1322</li>
+									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1320</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2283,7 +2283,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1350</li>
+									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1348</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2362,7 +2362,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/checkout/orders/orders.ts:803</li>
+									<li>Defined in renderedTemplates/checkout/orders/orders.ts:801</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2457,7 +2457,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/checkout/orders/orders.ts:857</li>
+									<li>Defined in renderedTemplates/checkout/orders/orders.ts:855</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2575,7 +2575,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1444</li>
+									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1442</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2634,7 +2634,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1474</li>
+									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1472</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2716,7 +2716,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1573</li>
+									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1571</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2775,7 +2775,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1603</li>
+									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1601</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2857,7 +2857,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1702</li>
+									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1700</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2916,7 +2916,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1732</li>
+									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1730</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2998,7 +2998,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1831</li>
+									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1829</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3057,7 +3057,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1861</li>
+									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1859</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3139,7 +3139,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/checkout/orders/orders.ts:2378</li>
+									<li>Defined in renderedTemplates/checkout/orders/orders.ts:2376</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3201,7 +3201,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/checkout/orders/orders.ts:2410</li>
+									<li>Defined in renderedTemplates/checkout/orders/orders.ts:2408</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3286,7 +3286,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1960</li>
+									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1958</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3345,7 +3345,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1990</li>
+									<li>Defined in renderedTemplates/checkout/orders/orders.ts:1988</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3427,7 +3427,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/checkout/orders/orders.ts:2516</li>
+									<li>Defined in renderedTemplates/checkout/orders/orders.ts:2514</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3489,7 +3489,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/checkout/orders/orders.ts:2548</li>
+									<li>Defined in renderedTemplates/checkout/orders/orders.ts:2546</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3574,7 +3574,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/checkout/orders/orders.ts:2654</li>
+									<li>Defined in renderedTemplates/checkout/orders/orders.ts:2652</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3636,7 +3636,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/checkout/orders/orders.ts:2686</li>
+									<li>Defined in renderedTemplates/checkout/orders/orders.ts:2684</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3721,7 +3721,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/checkout/orders/orders.ts:2089</li>
+									<li>Defined in renderedTemplates/checkout/orders/orders.ts:2087</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3780,7 +3780,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/checkout/orders/orders.ts:2119</li>
+									<li>Defined in renderedTemplates/checkout/orders/orders.ts:2117</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3862,7 +3862,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/checkout/orders/orders.ts:2228</li>
+									<li>Defined in renderedTemplates/checkout/orders/orders.ts:2226</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3928,7 +3928,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/checkout/orders/orders.ts:2268</li>
+									<li>Defined in renderedTemplates/checkout/orders/orders.ts:2266</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">

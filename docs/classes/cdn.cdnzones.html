@@ -77,15 +77,13 @@
 						</a>
 					</div>
 					<p><em>Extend your eCDN beyond Business Manager configuration.</em><br /></p>
-					<p>Simple example:</p>
-					<pre><code class="language-typescript">  <span class="hljs-keyword">import</span> { Cdn, ClientConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
-  <span class="hljs-comment">// or</span>
-  <span class="hljs-keyword">const</span> { Cdn, ClientConfig } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;commerce-sdk&quot;</span>);
+					<p>For instructions on how to retrieve access token for admin APIs: <a><a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html">https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html</a></a><br/><br/>
+					Example with admin auth</p>
+					<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { Cdn, ClientConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
+<span class="hljs-comment">// or</span>
+<span class="hljs-keyword">const</span> { Cdn, ClientConfig } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;commerce-sdk&quot;</span>);
 
-  <span class="hljs-keyword">const</span> clientConfig: ClientConfig = { ... };
-  <span class="hljs-keyword">const</span> cdnZonesClient = <span class="hljs-keyword">new</span> Cdn.CdnZones(clientConfig);</code></pre>
-					<p>Example with shopper auth</p>
-					<pre><code class="language-typescript"><span class="hljs-keyword">const</span> clientConfig: ClientConfig = {
+<span class="hljs-keyword">const</span> clientConfig: ClientConfig = {
   <span class="hljs-attr">parameters</span>: {
     <span class="hljs-attr">clientId</span>: <span class="hljs-string">&quot;XXXXXX&quot;</span>,
     <span class="hljs-attr">organizationId</span>: <span class="hljs-string">&quot;XXXX&quot;</span>,
@@ -93,8 +91,10 @@
     <span class="hljs-attr">siteId</span>: <span class="hljs-string">&quot;XX&quot;</span>
   }
 };
-token = <span class="hljs-keyword">await</span> helpers.getShopperToken(clientConfig, { <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;guest&quot;</span> });
-clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>] = token.getBearerHeader();
+
+token = { <span class="hljs-attr">access_token</span>: <span class="hljs-string">&#x27;INSERT_ACCESS_TOKEN_HERE&#x27;</span> };
+
+clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>] = <span class="hljs-string">`Bearer <span class="hljs-subst">${token.access_token}</span>`</span>;
 <span class="hljs-keyword">const</span> cdnZonesClient = <span class="hljs-keyword">new</span> Cdn.CdnZones(clientConfig);</code></pre>
 					<span style="font-size:.7em; display:block; text-align: right">
 						API Version: 1.0.19<br />
@@ -1363,7 +1363,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 							<aside class="tsd-sources">
 								<p>Overrides BaseClient.__constructor</p>
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:501</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:499</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1404,7 +1404,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2549</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2547</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1460,7 +1460,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2577</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2575</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1539,7 +1539,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2197</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2195</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1595,7 +1595,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2225</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2223</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1674,7 +1674,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1474</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1472</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1730,7 +1730,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1502</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1500</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1809,7 +1809,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:526</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:524</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1862,7 +1862,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:552</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:550</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1938,7 +1938,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1844</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1842</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1994,7 +1994,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1872</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1870</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2073,7 +2073,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2436</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2434</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2126,7 +2126,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2462</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2460</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2202,7 +2202,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1594</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1592</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2258,7 +2258,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1622</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1620</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2337,7 +2337,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1361</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1359</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2390,7 +2390,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1387</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1385</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2466,7 +2466,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1964</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1962</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2519,7 +2519,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1990</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1988</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2595,7 +2595,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:752</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:750</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2648,7 +2648,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:778</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:776</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2724,7 +2724,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1112</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1110</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2780,7 +2780,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1140</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1138</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2859,7 +2859,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:994</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:992</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2915,7 +2915,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1022</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1020</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2994,7 +2994,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:638</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:636</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3050,7 +3050,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:666</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:664</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3129,7 +3129,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2317</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2315</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3185,7 +3185,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2345</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2343</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3264,7 +3264,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2670</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2668</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3323,7 +3323,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2700</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2698</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3405,7 +3405,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1716</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1714</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3464,7 +3464,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1746</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1744</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3546,7 +3546,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2077</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2075</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3602,7 +3602,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2105</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2103</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3681,7 +3681,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:866</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:864</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3740,7 +3740,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:896</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:894</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3822,7 +3822,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1234</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1232</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3881,7 +3881,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1264</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:1262</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3963,7 +3963,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2799</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2797</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4022,7 +4022,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2829</li>
+									<li>Defined in renderedTemplates/cdn/cdnZones/cdnZones.ts:2827</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
