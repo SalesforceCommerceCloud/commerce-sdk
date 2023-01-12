@@ -1,12 +1,12 @@
-name: tests
+name: tests # runs unit and integration tests
 
 on:
   push:
-    branches-ignore: [master]
+    branches-ignore: [master] # TODO: update this when renaming default branch to main
   workflow_dispatch:
 
 jobs:
-  linux-unit-tests:
+  linux-tests:
     strategy:
       matrix:
         node: [10, 12, 14, 16]
@@ -29,25 +29,8 @@ jobs:
       - run: npm install --legacy-peer-deps
         if: ${{ steps.cache-nodemodules.outputs.cache-hit != 'true' }}
       - run: npm run build
-      - run: npm test
-  slack-job:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: slackapi/slack-github-action@v1.23.0
-      with:
-        # For posting a rich message using Block Kit
-        payload: |
-          {
-            "blocks": [
-              {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": "${{ runner.os }} testing string interpolation"
-                }
-              }
-            ]
-          }
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+      - name: Unit tests
+        run: npm test
+      - run: cd testIntegration
+      - name: Integration tests
+        run: npm run test:ci
