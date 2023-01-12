@@ -11,9 +11,10 @@ import {
   formatForTsDoc,
   isCommonPathParameter,
   isCommonQueryParameter,
+  isAllowedTrait,
+  isShopperAPI,
 } from "./templateHelpers";
 import { commonParameterPositions } from "@commerce-apps/core";
-import { isAllowedTrait } from "./templateHelpers";
 import { amf } from "@commerce-apps/raml-toolkit";
 
 describe("When adding namespaces to individual content (types)", () => {
@@ -227,5 +228,17 @@ describe("Allowed trait check", () => {
     const trait = new amf.model.domain.Trait();
     trait.withName("offset paginated");
     expect(isAllowedTrait(trait)).to.be.false;
+  });
+});
+
+describe("isShopperAPI", () => {
+  it("returns true if name begins with 'shop'", () => {
+    const name = "Shopper Login";
+    expect(isShopperAPI(name)).to.be.true;
+  });
+
+  it("returns false if name does not begin with 'shop'", () => {
+    const name = "Orders";
+    expect(isShopperAPI(name)).to.be.false;
   });
 });
