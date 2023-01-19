@@ -133,7 +133,7 @@ getGuestUserAuthToken().then(async (token) => {
 
 ### SLAS helpers
 
-The SDK includes helper functions to help developers easily onboard SLAS onto their applications to assist with authentication. A brief example is shown in the sample code above. The SLAS helpers offer both public and private client functions, the main difference being the private client functions require a `client_secret`. Code examples on how to use the different functions can be found the in the [examples](https://github.com/SalesforceCommerceCloud/commerce-sdk/tree/master/examples) folder (examples 05 and 06). More information about SLAS and public/private client flows can be found [here](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas.html).
+The SDK includes helper functions to help developers easily onboard SLAS onto their applications to assist with authentication. A brief example is shown in the sample code above. The SLAS helpers offer both public and private client functions, the main difference being the private client functions require a `client_secret`. Code examples on how to use the different functions can be found the in the [examples](https://github.com/SalesforceCommerceCloud/commerce-sdk/tree/main/examples) folder (examples 05 and 06). More information about SLAS and public/private client flows can be found [here](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas.html).
 
 ### Error Handling
 
@@ -166,18 +166,18 @@ SDK methods return an appropriate object by default when the API call returns a 
 When using an IDE such as VSCode, the autocomplete feature lets you view the available method and class definitions, including parameters.
 ​
 
-![Autocomplete](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/images/Autocomplete.jpg?raw=true 'Autocomplete')
+![Autocomplete](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/main/images/Autocomplete.jpg?raw=true 'Autocomplete')
 
 To view the details of a method or a variable, hover over methods and variables.
 ​
 
-![Method Details](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/images/MethodDetails.jpg?raw=true 'Method Details')
+![Method Details](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/main/images/MethodDetails.jpg?raw=true 'Method Details')
 
-![Parameter Details](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/images/ParameterDetails.jpg?raw=true 'Parameter Details')
+![Parameter Details](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/main/images/ParameterDetails.jpg?raw=true 'Parameter Details')
 
 Autocomplete also shows the available properties of the data returned by SDK methods.
 
-![Result Autocomplete](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/images/ResultAutocomplete.jpg?raw=true 'Result Autocomplete')
+![Result Autocomplete](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/main/images/ResultAutocomplete.jpg?raw=true 'Result Autocomplete')
 
 ### Fetch Options
 
@@ -217,7 +217,7 @@ If both the client config and the function call define the same fetch option wit
 
 ## Caching
 
-The SDK currently supports two types of caches - In-memory and Redis. Both the implementations respect [standard cache headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control). To use another type of cache, write your own implementation of the [CacheManager](https://github.com/SalesforceCommerceCloud/commerce-sdk-core/tree/master/src/base/cacheManager.ts). See the [default cache manager](https://github.com/SalesforceCommerceCloud/commerce-sdk-core/tree/master/src/base/cacheManagerKeyv.ts) to design your implementation.
+The SDK currently supports two types of caches - In-memory and Redis. Both the implementations respect [standard cache headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control). To use another type of cache, write your own implementation of the [CacheManager](https://github.com/SalesforceCommerceCloud/commerce-sdk-core/tree/main/src/base/cacheManager.ts). See the [default cache manager](https://github.com/SalesforceCommerceCloud/commerce-sdk-core/tree/main/src/base/cacheManagerKeyv.ts) to design your implementation.
 
 ### Cache storage adapter
 
