@@ -77,15 +77,13 @@
 						</a>
 					</div>
 					<p><em>Create, update, delete, and search for source code groups.</em><br /></p>
-					<p>Simple example:</p>
-					<pre><code class="language-typescript">  <span class="hljs-keyword">import</span> { Pricing, ClientConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
-  <span class="hljs-comment">// or</span>
-  <span class="hljs-keyword">const</span> { Pricing, ClientConfig } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;commerce-sdk&quot;</span>);
+					<p>For instructions on how to retrieve access token for admin APIs: <a><a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html">https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html</a></a><br/><br/>
+					Example with admin auth</p>
+					<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { Pricing, ClientConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
+<span class="hljs-comment">// or</span>
+<span class="hljs-keyword">const</span> { Pricing, ClientConfig } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;commerce-sdk&quot;</span>);
 
-  <span class="hljs-keyword">const</span> clientConfig: ClientConfig = { ... };
-  <span class="hljs-keyword">const</span> sourceCodeGroupsClient = <span class="hljs-keyword">new</span> Pricing.SourceCodeGroups(clientConfig);</code></pre>
-					<p>Example with shopper auth</p>
-					<pre><code class="language-typescript"><span class="hljs-keyword">const</span> clientConfig: ClientConfig = {
+<span class="hljs-keyword">const</span> clientConfig: ClientConfig = {
   <span class="hljs-attr">parameters</span>: {
     <span class="hljs-attr">clientId</span>: <span class="hljs-string">&quot;XXXXXX&quot;</span>,
     <span class="hljs-attr">organizationId</span>: <span class="hljs-string">&quot;XXXX&quot;</span>,
@@ -93,8 +91,10 @@
     <span class="hljs-attr">siteId</span>: <span class="hljs-string">&quot;XX&quot;</span>
   }
 };
-token = <span class="hljs-keyword">await</span> helpers.getShopperToken(clientConfig, { <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;guest&quot;</span> });
-clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>] = token.getBearerHeader();
+
+token = { <span class="hljs-attr">access_token</span>: <span class="hljs-string">&#x27;INSERT_ACCESS_TOKEN_HERE&#x27;</span> };
+
+clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>] = <span class="hljs-string">`Bearer <span class="hljs-subst">${token.access_token}</span>`</span>;
 <span class="hljs-keyword">const</span> sourceCodeGroupsClient = <span class="hljs-keyword">new</span> Pricing.SourceCodeGroups(clientConfig);</code></pre>
 					<span style="font-size:.7em; display:block; text-align: right">
 						API Version: 1.0.23<br />
@@ -1041,7 +1041,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 							<aside class="tsd-sources">
 								<p>Overrides BaseClient.__constructor</p>
 								<ul>
-									<li>Defined in renderedTemplates/pricing/sourceCodeGroups/sourceCodeGroups.ts:371</li>
+									<li>Defined in renderedTemplates/pricing/sourceCodeGroups/sourceCodeGroups.ts:369</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1082,7 +1082,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/sourceCodeGroups/sourceCodeGroups.ts:769</li>
+									<li>Defined in renderedTemplates/pricing/sourceCodeGroups/sourceCodeGroups.ts:767</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1141,7 +1141,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/sourceCodeGroups/sourceCodeGroups.ts:799</li>
+									<li>Defined in renderedTemplates/pricing/sourceCodeGroups/sourceCodeGroups.ts:797</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1223,7 +1223,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/sourceCodeGroups/sourceCodeGroups.ts:397</li>
+									<li>Defined in renderedTemplates/pricing/sourceCodeGroups/sourceCodeGroups.ts:395</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1279,7 +1279,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/sourceCodeGroups/sourceCodeGroups.ts:425</li>
+									<li>Defined in renderedTemplates/pricing/sourceCodeGroups/sourceCodeGroups.ts:423</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1358,7 +1358,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/sourceCodeGroups/sourceCodeGroups.ts:518</li>
+									<li>Defined in renderedTemplates/pricing/sourceCodeGroups/sourceCodeGroups.ts:516</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1414,7 +1414,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/sourceCodeGroups/sourceCodeGroups.ts:546</li>
+									<li>Defined in renderedTemplates/pricing/sourceCodeGroups/sourceCodeGroups.ts:544</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1493,7 +1493,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/sourceCodeGroups/sourceCodeGroups.ts:923</li>
+									<li>Defined in renderedTemplates/pricing/sourceCodeGroups/sourceCodeGroups.ts:921</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1617,7 +1617,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/sourceCodeGroups/sourceCodeGroups.ts:977</li>
+									<li>Defined in renderedTemplates/pricing/sourceCodeGroups/sourceCodeGroups.ts:975</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1764,7 +1764,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/sourceCodeGroups/sourceCodeGroups.ts:640</li>
+									<li>Defined in renderedTemplates/pricing/sourceCodeGroups/sourceCodeGroups.ts:638</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1823,7 +1823,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/sourceCodeGroups/sourceCodeGroups.ts:670</li>
+									<li>Defined in renderedTemplates/pricing/sourceCodeGroups/sourceCodeGroups.ts:668</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">

@@ -77,15 +77,13 @@
 						</a>
 					</div>
 					<p><em>Manage coupons for use in your storefront.</em><br /></p>
-					<p>Simple example:</p>
-					<pre><code class="language-typescript">  <span class="hljs-keyword">import</span> { Pricing, ClientConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
-  <span class="hljs-comment">// or</span>
-  <span class="hljs-keyword">const</span> { Pricing, ClientConfig } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;commerce-sdk&quot;</span>);
+					<p>For instructions on how to retrieve access token for admin APIs: <a><a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html">https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html</a></a><br/><br/>
+					Example with admin auth</p>
+					<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { Pricing, ClientConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
+<span class="hljs-comment">// or</span>
+<span class="hljs-keyword">const</span> { Pricing, ClientConfig } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;commerce-sdk&quot;</span>);
 
-  <span class="hljs-keyword">const</span> clientConfig: ClientConfig = { ... };
-  <span class="hljs-keyword">const</span> couponsClient = <span class="hljs-keyword">new</span> Pricing.Coupons(clientConfig);</code></pre>
-					<p>Example with shopper auth</p>
-					<pre><code class="language-typescript"><span class="hljs-keyword">const</span> clientConfig: ClientConfig = {
+<span class="hljs-keyword">const</span> clientConfig: ClientConfig = {
   <span class="hljs-attr">parameters</span>: {
     <span class="hljs-attr">clientId</span>: <span class="hljs-string">&quot;XXXXXX&quot;</span>,
     <span class="hljs-attr">organizationId</span>: <span class="hljs-string">&quot;XXXX&quot;</span>,
@@ -93,8 +91,10 @@
     <span class="hljs-attr">siteId</span>: <span class="hljs-string">&quot;XX&quot;</span>
   }
 };
-token = <span class="hljs-keyword">await</span> helpers.getShopperToken(clientConfig, { <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;guest&quot;</span> });
-clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>] = token.getBearerHeader();
+
+token = { <span class="hljs-attr">access_token</span>: <span class="hljs-string">&#x27;INSERT_ACCESS_TOKEN_HERE&#x27;</span> };
+
+clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>] = <span class="hljs-string">`Bearer <span class="hljs-subst">${token.access_token}</span>`</span>;
 <span class="hljs-keyword">const</span> couponsClient = <span class="hljs-keyword">new</span> Pricing.Coupons(clientConfig);</code></pre>
 					<span style="font-size:.7em; display:block; text-align: right">
 						API Version: 1.0.22<br />
@@ -1062,7 +1062,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 							<aside class="tsd-sources">
 								<p>Overrides BaseClient.__constructor</p>
 								<ul>
-									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:408</li>
+									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:406</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1103,7 +1103,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:609</li>
+									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:607</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1187,7 +1187,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:653</li>
+									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:651</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1294,7 +1294,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:447</li>
+									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:445</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1377,7 +1377,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:488</li>
+									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:486</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1483,7 +1483,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:1137</li>
+									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:1135</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1543,7 +1543,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:1168</li>
+									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:1166</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1626,7 +1626,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:761</li>
+									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:759</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1682,7 +1682,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:789</li>
+									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:787</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1761,7 +1761,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:883</li>
+									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:881</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1818,7 +1818,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:912</li>
+									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:910</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1898,7 +1898,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:1271</li>
+									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:1269</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1961,7 +1961,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:1305</li>
+									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:1303</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2047,7 +2047,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:1007</li>
+									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:1005</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2106,7 +2106,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:1037</li>
+									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:1035</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2188,7 +2188,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:1408</li>
+									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:1406</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2250,7 +2250,7 @@ clientConfig.headers[<span class="hljs-string">&quot;authorization&quot;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:1440</li>
+									<li>Defined in renderedTemplates/pricing/coupons/coupons.ts:1438</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">

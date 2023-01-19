@@ -43,19 +43,17 @@ const USER_AGENT_VALUE = "commerce-sdk@{{parent.parent.metadata.sdkVersion}};"
 *
 * *{{metadata.description}}*<br />
 *
-* Simple example:
-*
-* ```typescript
-*   import { {{pascalcase metadata.categories.[CC API Family].[0]}}, ClientConfig } from "commerce-sdk";
-*   // or
-*   const { {{pascalcase metadata.categories.[CC API Family].[0]}}, ClientConfig } = require("commerce-sdk");
-*
-*   const clientConfig: ClientConfig = { ... };
-*   const {{name.lowerCamelCase}}Client = new {{pascalcase metadata.categories.[CC API Family].[0]}}.{{name.upperCamelCase}}(clientConfig);
-* ```
-*
+* {{#if (isShopperAPI name) }}
 * Example with shopper auth
+* {{else}}
+* For instructions on how to retrieve access token for admin APIs: <a>https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html</a><br/><br/>
+* Example with admin auth
+* {{/if}}
 * ```typescript
+* import { {{pascalcase metadata.categories.[CC API Family].[0]}}, ClientConfig{{#if (isShopperAPI name) }}, Customer, slasHelpers{{/if}} } from "commerce-sdk";
+* // or
+* const { {{pascalcase metadata.categories.[CC API Family].[0]}}, ClientConfig{{#if (isShopperAPI name) }}, Customer, slasHelpers{{/if}} } = require("commerce-sdk");
+* 
 * const clientConfig: ClientConfig = {
 *   parameters: {
 *     clientId: "XXXXXX",
@@ -64,8 +62,15 @@ const USER_AGENT_VALUE = "commerce-sdk@{{parent.parent.metadata.sdkVersion}};"
 *     siteId: "XX"
 *   }
 * };
-* token = await helpers.getShopperToken(clientConfig, { type: "guest" });
-* clientConfig.headers["authorization"] = token.getBearerHeader();
+* {{#if (isShopperAPI name) }}
+* // must be registered in SLAS. On server, redirectURI is never called
+* const redirectURI = "http://localhost:3000/callback";
+* const slasClient = new Customer.ShopperLogin(clientConfig);
+* token = await slasHelpers.loginGuestUser(slasClient, { redirectURI });
+* {{else}}
+* token = { access_token: 'INSERT_ACCESS_TOKEN_HERE' };
+* {{/if}}
+* clientConfig.headers['authorization'] = `Bearer ${token.access_token}`;
 * const {{name.lowerCamelCase}}Client = new {{pascalcase metadata.categories.[CC API Family].[0]}}.{{name.upperCamelCase}}(clientConfig);
 * ```
 *

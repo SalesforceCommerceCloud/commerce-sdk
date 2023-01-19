@@ -125,3 +125,13 @@ export const isCommonQueryParameter = (property: string): boolean =>
 export const isAllowedTrait = (trait: amf.model.domain.Trait): boolean => {
   return /^[A-Za-z][A-Za-z0-9]*$/.test(trait.name.value());
 };
+
+/**
+ * Checks if API name is a shopper API (vs admin/data API)
+ *
+ * @param name - name of API
+ * @returns true if API is shopper API
+ */
+export const isShopperAPI = (name: string): boolean => {
+  return name.toString().toLowerCase().startsWith("shop");
+};
