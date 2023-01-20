@@ -1,0 +1,36 @@
+name: tests # runs unit and integration tests
+
+on:
+  push:
+    branches-ignore: [main] # TODO: update this when renaming default branch to main
+  workflow_dispatch:
+
+jobs:
+  linux-tests:
+    strategy:
+      matrix:
+        node: [10, 12, 14, 16]
+      fail-fast: false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node_version }}
+          cache: npm
+      - name: Cache node modules
+        id: cache-nodemodules
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
+      - run: npm install
+        if: ${{ steps.cache-nodemodules.outputs.cache-hit != 'true' }}
+      - run: npm run build
+      - name: Unit tests
+        run: npm test
+      - run: cd testIntegration
+      - name: Integration tests
+        run: npm run test:ci
