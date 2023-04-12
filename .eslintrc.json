@@ -13,15 +13,24 @@
   ],
   "extends": [
     "plugin:@typescript-eslint/recommended",
-    "prettier/@typescript-eslint",
     "plugin:jsdoc/recommended",
-    "plugin:prettier/recommended"
+    "plugin:prettier/recommended",
+    "prettier"
   ],
   "rules": {
-    "@typescript-eslint/interface-name-prefix": [
-      "error",
+    "@typescript-eslint/naming-convention": [
+      "warn",
       {
-        "prefixWithI": "always"
+        "selector": ["variable", "function"],
+        "format": ["camelCase"]
+      },
+      {
+        "selector": "interface",
+        "format": ["PascalCase"],
+        "custom": {
+          "regex": "^I[A-Z]",
+          "match": false
+        }
       }
     ],
     "header/header": [
@@ -72,8 +81,7 @@
         "dist/**"
       ],
       "rules": {
-        "@typescript-eslint/ban-ts-ignore": "warn",
-        "@typescript-eslint/camelcase": "warn",
+        "@typescript-eslint/ban-ts-comment": "warn",
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/no-var-requires": "warn"
       }
@@ -83,7 +91,13 @@
         "examples/**"
       ],
       "rules": {
-        "@typescript-eslint/camelcase": "warn"
+        "@typescript-eslint/naming-convention": [
+          "warn",
+          {
+            "selector": ["variable", "function"],
+            "format": ["camelCase"]
+          }
+        ]
       }
     }
   ],

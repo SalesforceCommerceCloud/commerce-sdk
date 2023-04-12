@@ -5,8 +5,6 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-/* eslint-disable @typescript-eslint/camelcase  */
-
 import nock from "nock";
 import { expect } from "chai";
 import { ShopperLogin } from "../../../renderedTemplates/customer/shopperLogin/shopperLogin";

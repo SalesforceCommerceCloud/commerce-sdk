@@ -5,7 +5,8 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-/* eslint-disable tsdoc/syntax, @typescript-eslint/camelcase  */
+// tsdoc doesn't support dot notation for @param
+/* eslint-disable tsdoc/syntax */
 
 import { nanoid } from "nanoid";
 import { URL, URLSearchParams } from "url";
@@ -15,6 +16,7 @@ import type { RequestRedirect } from "node-fetch";
 
 /**
  * Converts a string into Base64 encoding
+ *
  * @param unencoded - A string to be encoded
  * @returns Base64 encoded string
  */
@@ -23,6 +25,7 @@ export const stringToBase64 = (unencoded: string): string =>
 
 /**
  * Parse out the code and usid from a redirect url
+ *
  * @param urlString - A url that contains `code` and `usid` query parameters, typically returned when calling a Shopper Login endpoint
  * @returns An object containing the code and usid.
  */
@@ -42,12 +45,14 @@ export const getCodeAndUsidFromUrl = (
 
 /**
  * Creates a random string to use as a code verifier. This code is created by the client and sent with both the authorization request (as a code challenge) and the token request.
+ *
  * @returns code verifier
  */
 export const createCodeVerifier = (): string => nanoid(128);
 
 /**
  * Encodes a code verifier to a code challenge to send to the authorization endpoint
+ *
  * @param codeVerifier - random string to use as a code verifier
  * @returns code challenge
  */
@@ -71,12 +76,15 @@ export const generateCodeChallenge = async (
 
 /**
  * Wrapper for the authorization endpoint. For federated login (3rd party IDP non-guest), the caller should redirect the user to the url in the url field of the returned object. The url will be the login page for the 3rd party IDP and the user will be sent to the redirectURI on success. Guest sessions return the code and usid directly with no need to redirect.
+ *
  * @param slasClient - a configured instance of the ShopperLogin SDK client
  * @param codeVerifier - random string created by client app to use as a secret in the request
  * @param parameters - Request parameters used by the `authorizeCustomer` endpoint.
  * @param parameters.redirectURI - the location the client will be returned to after successful login with 3rd party IDP. Must be registered in SLAS.
  * @param parameters.hint? - optional string to hint at a particular IDP. Guest sessions are created by setting this to 'guest'
  * @param parameters.usid? - optional saved SLAS user id to link the new session to a previous session
+ * @param parameters.hint
+ * @param parameters.usid
  * @returns login url, user id and authorization code if available
  */
 export async function authorize(
@@ -119,10 +127,12 @@ export async function authorize(
 
 /**
  * A single function to execute the ShopperLogin Private Client Guest Login as described in the [API documentation](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-private-client.html).
+ *
  * @param slasClient - a configured instance of the ShopperLogin SDK client
  * @param credentials - client secret used for authentication
  * @param credentials.clientSecret - secret associated with client ID
  * @param usid? - optional Unique Shopper Identifier to enable personalization
+ * @param usid
  * @returns TokenResponse
  */
 export async function loginGuestUserPrivate(
@@ -151,10 +161,12 @@ export async function loginGuestUserPrivate(
 
 /**
  * A single function to execute the ShopperLogin Public Client Guest Login with proof key for code exchange flow as described in the [API documentation](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-public-client.html).
+ *
  * @param slasClient a configured instance of the ShopperLogin SDK client.
  * @param parameters - parameters to pass in the API calls.
  * @param parameters.redirectURI - Per OAuth standard, a valid app route. Must be listed in your SLAS configuration. On server, this will not be actually called
  * @param parameters.usid? - Unique Shopper Identifier to enable personalization.
+ * @param parameters.usid
  * @returns TokenResponse
  */
 export async function loginGuestUser(
@@ -186,6 +198,7 @@ export async function loginGuestUser(
 
 /**
  * A single function to execute the ShopperLogin Private Client Registered User B2C Login as described in the [API documentation](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-private-client.html).
+ *
  * @param slasClient - a configured instance of the ShopperLogin SDK client.
  * @param credentials - the shopper username and password for login and client secret for additional authentication
  * @param credentials.username - the id of the user to login with
@@ -194,6 +207,7 @@ export async function loginGuestUser(
  * @param parameters - parameters to pass in the API calls.
  * @param parameters.redirectURI - Per OAuth standard, a valid app route. Must be listed in your SLAS configuration. On server, this will not be actually called
  * @param parameters.usid? - optional Unique Shopper Identifier to enable personalization
+ * @param parameters.usid
  * @returns TokenResponse
  */
 export async function loginRegisteredUserB2Cprivate(
@@ -264,13 +278,15 @@ export async function loginRegisteredUserB2Cprivate(
 
 /**
  * A single function to execute the ShopperLogin Private Client Registered User B2C Login with proof key for code exchange flow as described in the [API documentation](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-public-client.html).
- * @param slasClient a configured instance of the ShopperLogin SDK client.
+ *
+ * @param slasClient - a configured instance of the ShopperLogin SDK client.
  * @param credentials - the id and password to login with.
  * @param credentials.username - the id of the user to login with.
  * @param credentials.password - the password of the user to login with.
  * @param parameters - parameters to pass in the API calls.
  * @param parameters.redirectURI - Per OAuth standard, a valid app route. Must be listed in your SLAS configuration. On server, this will not be actually called. On browser, this will be called, but ignored.
  * @param parameters.usid? - Unique Shopper Identifier to enable personalization.
+ * @param parameters.usid
  * @returns TokenResponse
  */
 export async function loginRegisteredUserB2C(
@@ -334,6 +350,7 @@ export async function loginRegisteredUserB2C(
 
 /**
  * Exchange a refresh token for a new access token.
+ *
  * @param slasClient - a configured instance of the ShopperLogin SDK client.
  * @param parameters - parameters to pass in the API calls.
  * @param parameters.refreshToken - a valid refresh token to exchange for a new access token (and refresh token).
@@ -354,6 +371,7 @@ export function refreshAccessToken(
 
 /**
  * Exchange a refresh token for a new access token.
+ *
  * @param slasClient - a configured instance of the ShopperLogin SDK client.
  * @param credentials - client secret used for authentication
  * @param credentials.clientSecret - secret associated with client ID
@@ -383,6 +401,7 @@ export function refreshAccessTokenPrivate(
 
 /**
  * Logout a shopper. The shoppers access token and refresh token will be revoked and if the shopper authenticated with ECOM the OCAPI JWT will also be revoked.
+ *
  * @param slasClient - a configured instance of the ShopperLogin SDK client.
  * @param parameters - parameters to pass in the API calls.
  * @param parameters.accessToken - a valid access token to exchange for a new access token (and refresh token).
