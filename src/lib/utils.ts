@@ -22,6 +22,7 @@ const HELPERS_TEMPLATE_DIRECTORY = path.join(
 const PACKAGE_JSON = path.join(PROJECT_ROOT, "package.json");
 
 //////// HELPER REGISTRATION ////////
+// eslint-disable-next-line @typescript-eslint/naming-convention
 const Handlebars = generate.HandlebarsWithAmfHelpers;
 extendHandlebars({ handlebars: Handlebars });
 
@@ -94,7 +95,6 @@ function addTemplates(
  *
  * @param inputDir - Directory for input
  * @param outputDir - Directory for output
- *
  * @returns - The a promise to have the ApiMetaData tree ready to be rendered
  */
 export async function setupApis(
@@ -121,7 +121,6 @@ export async function setupApis(
  * @param apiFamily - Api family to download
  * @param deployment - What deployment to build for
  * @param rootPath - Root path to download to
- *
  * @returns a promise that we will complete
  */
 export async function updateApis(

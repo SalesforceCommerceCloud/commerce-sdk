@@ -25,7 +25,6 @@ describe("Requests with body", () => {
   it("sends correct media type for urlencoded endpoints", async () => {
     const body = {
       token: "TOKEN",
-      // eslint-disable-next-line @typescript-eslint/camelcase
       token_type_hint: "REFRESH_TOKEN",
     };
     nock("https://short_code.api.commercecloud.salesforce.com")

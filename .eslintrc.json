@@ -13,15 +13,28 @@
   ],
   "extends": [
     "plugin:@typescript-eslint/recommended",
-    "prettier/@typescript-eslint",
     "plugin:jsdoc/recommended",
-    "plugin:prettier/recommended"
+    "plugin:prettier/recommended",
+    "prettier"
   ],
   "rules": {
-    "@typescript-eslint/interface-name-prefix": [
+    "@typescript-eslint/naming-convention": [
       "error",
       {
-        "prefixWithI": "always"
+        "selector": ["variable"],
+        "format": ["camelCase", "UPPER_CASE"]
+      },
+      {
+        "selector": ["function"],
+        "format": ["camelCase"]
+      },
+      {
+        "selector": "interface",
+        "format": ["PascalCase"],
+        "custom": {
+          "regex": "^I[A-Z]",
+          "match": true
+        }
       }
     ],
     "header/header": [
@@ -72,10 +85,16 @@
         "dist/**"
       ],
       "rules": {
-        "@typescript-eslint/ban-ts-ignore": "warn",
-        "@typescript-eslint/camelcase": "warn",
+        "@typescript-eslint/ban-ts-comment": "warn",
         "@typescript-eslint/no-explicit-any": "off",
-        "@typescript-eslint/no-var-requires": "warn"
+        "@typescript-eslint/no-var-requires": "warn",
+        "@typescript-eslint/naming-convention": [
+          "warn",
+          {
+            "selector": ["variable", "function"],
+            "format": ["camelCase"]
+          }
+        ]
       }
     },
     {
@@ -83,7 +102,17 @@
         "examples/**"
       ],
       "rules": {
-        "@typescript-eslint/camelcase": "warn"
+        "@typescript-eslint/naming-convention": [
+          "warn",
+          {
+            "selector": ["variable"],
+            "format": ["camelCase", "UPPER_CASE"]
+          },
+          {
+            "selector": ["function"],
+            "format": ["camelCase"]
+          }
+        ]
       }
     }
   ],

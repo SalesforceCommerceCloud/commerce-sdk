@@ -68,7 +68,6 @@ export function addNamespace(content: string, namespace: string): string {
  * Certain characters need to be handled for TSDoc.
  *
  * @param str - The string to be formatted for TSDoc
- *
  * @returns string reformatted for TSDoc
  */
 export const formatForTsDoc = (str: string): string => {
@@ -90,7 +89,6 @@ export const formatForTsDoc = (str: string): string => {
  * Checks if a path parameter is one of the set that are configurable at the client level
  *
  * @param property - The string name of the parameter to check
- *
  * @returns true if the parameter is a common parameter
  */
 export const isCommonPathParameter = (property: string): boolean =>
@@ -102,7 +100,6 @@ export const isCommonPathParameter = (property: string): boolean =>
  * Checks if a query parameter is one of the set that are configurable at the client level
  *
  * @param property - The string name of the parameter to check
- *
  * @returns true if the parameter is a common parameter
  */
 export const isCommonQueryParameter = (property: string): boolean =>
