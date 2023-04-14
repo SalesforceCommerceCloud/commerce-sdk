@@ -83,8 +83,6 @@ export const generateCodeChallenge = async (
  * @param parameters.redirectURI - the location the client will be returned to after successful login with 3rd party IDP. Must be registered in SLAS.
  * @param parameters.hint? - optional string to hint at a particular IDP. Guest sessions are created by setting this to 'guest'
  * @param parameters.usid? - optional saved SLAS user id to link the new session to a previous session
- * @param parameters.hint
- * @param parameters.usid
  * @returns login url, user id and authorization code if available
  */
 export async function authorize(
@@ -132,7 +130,6 @@ export async function authorize(
  * @param credentials - client secret used for authentication
  * @param credentials.clientSecret - secret associated with client ID
  * @param usid? - optional Unique Shopper Identifier to enable personalization
- * @param usid
  * @returns TokenResponse
  */
 export async function loginGuestUserPrivate(
@@ -166,7 +163,6 @@ export async function loginGuestUserPrivate(
  * @param parameters - parameters to pass in the API calls.
  * @param parameters.redirectURI - Per OAuth standard, a valid app route. Must be listed in your SLAS configuration. On server, this will not be actually called
  * @param parameters.usid? - Unique Shopper Identifier to enable personalization.
- * @param parameters.usid
  * @returns TokenResponse
  */
 export async function loginGuestUser(
@@ -207,7 +203,6 @@ export async function loginGuestUser(
  * @param parameters - parameters to pass in the API calls.
  * @param parameters.redirectURI - Per OAuth standard, a valid app route. Must be listed in your SLAS configuration. On server, this will not be actually called
  * @param parameters.usid? - optional Unique Shopper Identifier to enable personalization
- * @param parameters.usid
  * @returns TokenResponse
  */
 export async function loginRegisteredUserB2Cprivate(
@@ -286,7 +281,6 @@ export async function loginRegisteredUserB2Cprivate(
  * @param parameters - parameters to pass in the API calls.
  * @param parameters.redirectURI - Per OAuth standard, a valid app route. Must be listed in your SLAS configuration. On server, this will not be actually called. On browser, this will be called, but ignored.
  * @param parameters.usid? - Unique Shopper Identifier to enable personalization.
- * @param parameters.usid
  * @returns TokenResponse
  */
 export async function loginRegisteredUserB2C(

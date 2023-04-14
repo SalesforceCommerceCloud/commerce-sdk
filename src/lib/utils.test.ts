@@ -12,6 +12,7 @@ import sinon from "sinon";
 
 const sandbox = sinon.createSandbox();
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 const Handlebars = generate.HandlebarsWithAmfHelpers;
 const API_DIRECTORY = `${__dirname}/../../apis`;
 

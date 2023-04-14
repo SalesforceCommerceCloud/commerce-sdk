@@ -19,9 +19,13 @@
   ],
   "rules": {
     "@typescript-eslint/naming-convention": [
-      "warn",
+      "error",
       {
-        "selector": ["variable", "function"],
+        "selector": ["variable"],
+        "format": ["camelCase", "UPPER_CASE"]
+      },
+      {
+        "selector": ["function"],
         "format": ["camelCase"]
       },
       {
@@ -29,7 +33,7 @@
         "format": ["PascalCase"],
         "custom": {
           "regex": "^I[A-Z]",
-          "match": false
+          "match": true
         }
       }
     ],
@@ -83,7 +87,14 @@
       "rules": {
         "@typescript-eslint/ban-ts-comment": "warn",
         "@typescript-eslint/no-explicit-any": "off",
-        "@typescript-eslint/no-var-requires": "warn"
+        "@typescript-eslint/no-var-requires": "warn",
+        "@typescript-eslint/naming-convention": [
+          "warn",
+          {
+            "selector": ["variable", "function"],
+            "format": ["camelCase"]
+          }
+        ]
       }
     },
     {
@@ -94,7 +105,11 @@
         "@typescript-eslint/naming-convention": [
           "warn",
           {
-            "selector": ["variable", "function"],
+            "selector": ["variable"],
+            "format": ["camelCase", "UPPER_CASE"]
+          },
+          {
+            "selector": ["function"],
             "format": ["camelCase"]
           }
         ]

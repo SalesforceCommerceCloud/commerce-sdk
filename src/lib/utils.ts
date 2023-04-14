@@ -22,6 +22,7 @@ const HELPERS_TEMPLATE_DIRECTORY = path.join(
 const PACKAGE_JSON = path.join(PROJECT_ROOT, "package.json");
 
 //////// HELPER REGISTRATION ////////
+// eslint-disable-next-line @typescript-eslint/naming-convention
 const Handlebars = generate.HandlebarsWithAmfHelpers;
 extendHandlebars({ handlebars: Handlebars });
 
