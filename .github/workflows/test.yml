@@ -9,7 +9,7 @@ jobs:
   linux-tests:
     strategy:
       matrix:
-        node: [10, 12, 14, 16]
+        node: [14, 16, 18]
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
@@ -26,7 +26,7 @@ jobs:
         with:
           path: "**/node_modules"
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
-      - run: npm install --force
+      - run: npm install --legacy-peer-deps
         if: ${{ steps.cache-nodemodules.outputs.cache-hit != 'true' }}
       - run: npm run build
       - name: Unit tests
