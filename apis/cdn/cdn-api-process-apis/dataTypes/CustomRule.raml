@@ -1,0 +1,28 @@
+#%RAML 1.0 DataType
+description: A custom rule.
+type: object
+properties:
+  ruleId:
+    description: The ID of the custom rule.
+    type: string
+    example: 2c0fc9fa937b11eaa1b71c4d701ab86e
+  description:
+    description: The description of the custom rule.
+    type: string
+    example: Block traffic for malformed URL requests.
+  expression:
+    type: string
+    description: The expression that determines the custom rule's behavior.
+    example: (http.request.uri.path matches \"^/path1/.*\")
+  actions:
+    description: The action(s) applied by the custom rule. Valid actions include "block", "managed_challenge", "js_challenge", "legacy_captcha", "skip_custom_rules", "skip_waf", "skip_security_level", and "log".
+    type: string[]
+    example: ["block"]
+  lastUpdated:
+    description: Date when the custom rule was last updated.
+    type: datetime
+    example: 2022-01-01T05:20:00Z
+  enabled:
+    description: Whether or not the custom rule is enabled.
+    type: boolean
+    example: true

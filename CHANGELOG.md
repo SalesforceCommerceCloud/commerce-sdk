@@ -10,6 +10,72 @@ only use JavaScript, or if you use TypeScript but only import the client classes
 then your usage **will not change**. You will likely only need to make changes if
 you import the type definitions directly.
 
+### v2.11.0
+
+#### API Changes
+
+*CDN Zones API*
+
+* New Endpoints
+
+  | **Endpoint Name** | **Description** |
+  | ------------- |-------------|
+  | getSecuritySettings | Retrieve security settings for a zone |
+  | updateSecuritySettings | Update security settings for a zone |
+  | deleteCertificate | This action deletes a custom hostname and the certificate associated with it. Note that a valid certificate is necessary for a site to remain operational. DELETING AN IN-USE CERTIFICATE MAY RESULT IN DOWNTIME |
+  | createMrtRules | Create MRT rules |
+  | updateMrtRuleset | Update the MRT hostname or add MRT rules to the ruleset |
+  | getMrtRules | Get MRT rules associated with a zone |
+  | deleteMrtRuleset | Delete the MRT ruleset specified for that particular zone |
+  | deleteMrtRule | elete an MRT rule in the specified ruleset |
+  | updateMrtRule | Update the expression and enable or disable an MRT rule |
+  | createLogpushOwnership | Create Logpush ownership token file |
+  | createLogpushJob | Create Logpush job |
+  | listLogpushJob | List Logpush job |
+  | getLogpushJob | Get Logpush job details |
+  | updateLogpushJob | Update Logpush job |
+  | deleteLogpushJob | Delete Logpush job by job ID |
+  | createCustomRule | Creates a custom rule |
+  | getCustomRules | Retrieves existing custom rules |
+  | updateOrderOfCustomRules | Updates the order of all existing custom rules |
+  | getCustomRule | Retrieves a specific custom rule |
+  | updateCustomRule | Updates a specific custom rule |
+  | deleteCustomRule | Deletes a specific custom rule |
+  | createRateLimitingRule | Creates a rate limiting rule |
+  | getRateLimitingRules | Retrieves existing rate limiting rules |
+  | getRateLimitingRule | Retrieves a specific rate limiting rule |
+  | updateRateLimitingRule | Updates a specific rate limiting rule |
+  | deleteRateLimitingRule | Deletes a specific rate limiting rule |
+
+*Shopper Baskets API*
+
+* New Endpoints
+
+  | **Endpoint Name** | **Description** |
+  | ------------- |-------------|
+  | updateAsAgentBasket | Marks a basket as an agent basket |
+  | addPriceAdjustmentToBasket | Adds a custom manual price adjustment to the basket |
+  | removePriceAdjustmentFromBasket | Removes a custom manual price adjustment from the basket |
+  | updatePriceAdjustmentInBasket | Updates a custom manual price adjustment on the basket. Only the following path values are considered for the update (`discount`, `itemText`, `reasonCode`, `custom properties`); all other attributes are ignored. The discount `type` of a price adjustment cannot be updated and therefore, the value of the existing type must be passed. For an adjustment of type `percentage`, the `percentage` attribute is mandatory. For adjustments of type `amount` and `fixed_price`, the `amount` attribute is mandatory.|
+  | updateAsStorefrontBasket | Marks a basket as a storefront basket |
+
+*SLAS Admin API*
+
+* New Endpoints
+
+  | **Endpoint Name** | **Description** |
+  | ------------- |-------------|
+  | retrievePwdlessTemplate | Retrieve/get a password action template |
+  | registerPwdlessTemplate | Create or update a password action template |
+  | deletePwdlessTemplate | Delete a password action template |
+
+* Removed Endpoints
+  - `retrieveCredQuailtyStats` and `retrieveCredQuailtyUserStats` endpoints have been removed as that functionality has been eliminated from SLAS and no customers were using these operations. 
+
+#### Documentation
+
+* Admin API examples have been updated in the [generated documentation site](https://salesforcecommercecloud.github.io/commerce-sdk/)
+
 ### v2.10.1
 
 #### **Bug Fixes**

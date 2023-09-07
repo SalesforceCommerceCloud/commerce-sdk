@@ -21,8 +21,8 @@ baseUriParameters:
 mediaType: application/json
 
 uses:
-  ApiStandards: /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
-  CommerceCloudStandards: /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.24/commerce-cloud-standards.raml
+  ApiStandards: /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.12/api-standards.raml
+  CommerceCloudStandards: /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.17/commerce-cloud-standards.raml
 
 types:
   
@@ -42,6 +42,27 @@ types:
   StorefrontZoneCreateRequest: !include dataTypes/StorefrontZoneCreateRequest.raml
   StorefrontZoneCreateResponse: !include dataTypes/StorefrontZoneCreateResponse.raml
   CustomHostnameValidationResponse: !include dataTypes/CustomHostnameValidationResponse.raml
+  Hsts: !include dataTypes/Hsts.raml
+  SecuritySetting: !include dataTypes/SecuritySetting.raml
+  MRTRulesPostRequest: !include dataTypes/MRTRulesPostRequest.raml
+  MRTRulePatchRequest: !include dataTypes/MRTRulePatchRequest.raml
+  MRTRulesetPatchRequest: !include dataTypes/MRTRulesetPatchRequest.raml
+  MRTRulesResponse: !include dataTypes/MRTRulesResponse.raml
+  MRTRuleset: !include dataTypes/MRTRuleset.raml
+  MRTRules: !include dataTypes/MRTRules.raml
+  LogpushOwnershipPostRequest: !include dataTypes/LogpushOwnershipPostRequest.raml
+  LogpushOwnershipPostResponse: !include dataTypes/LogpushOwnershipPostResponse.raml
+  LogpushCreateRequest: !include dataTypes/LogpushCreateRequest.raml
+  LogpushResponse: !include dataTypes/LogpushResponse.raml
+  LogpushUpdateRequest: !include dataTypes/LogpushUpdateRequest.raml
+  CustomRulesPostRequest: !include dataTypes/CustomRulesPostRequest.raml
+  CustomRulesPatchRequest: !include dataTypes/CustomRulesPatchRequest.raml
+  CustomRulesPatchOrderRequest: !include dataTypes/CustomRulesPatchOrderRequest.raml
+  CustomRule: !include dataTypes/CustomRule.raml
+  RulePosition: !include dataTypes/RulePosition.raml
+  RateLimitingRule: !include dataTypes/RateLimitingRule.raml
+  RateLimitingRulesPostRequest: !include dataTypes/RateLimitingRulesPostRequest.raml
+  RateLimitingRulesPatchRequest: !include dataTypes/RateLimitingRulesPatchRequest.raml
 
   ZonesEnvelope:
     type: CollectionResponseEnvelope
@@ -62,7 +83,7 @@ types:
     type: ItemResponseEnvelope
     properties:
       data:
-        type: FirewallRule      
+        type: FirewallRule
   WafGroupsEnvelope:
     type: CollectionResponseEnvelope
     properties:
@@ -88,6 +109,11 @@ types:
     properties:
       data:
         type: SpeedSetting
+  SecuritySettingsEnvelope:
+    type: ItemResponseEnvelope
+    properties:
+      data:
+        type: SecuritySetting
   CertificateEnvelope:
     type: ItemResponseEnvelope
     properties:
@@ -109,10 +135,45 @@ types:
       data:
         type: StorefrontZoneCreateResponse
   CustomHostnameValidationEnvelope:
+      type: ItemResponseEnvelope
+      properties:
+        data:
+          type: CustomHostnameValidationResponse
+  MRTRulesResponseEnvelope:
     type: ItemResponseEnvelope
     properties:
       data:
-        type: CustomHostnameValidationResponse
+        type: MRTRulesResponse
+  LogpushEnvelope:
+    type: ItemResponseEnvelope
+    properties:
+      data:
+        type: LogpushResponse
+  LogpushJobsEnvelope:
+    type: CollectionResponseEnvelope
+    properties:
+      data:
+        type: LogpushResponse[]
+  CustomRuleEnvelope:
+    type: ItemResponseEnvelope
+    properties:
+      data:
+        type: CustomRule
+  CustomRulesEnvelope:
+    type: CollectionResponseEnvelope
+    properties:
+      data:
+        type: CustomRule[]
+  RateLimitingRuleEnvelope:
+    type: ItemResponseEnvelope
+    properties:
+      data:
+        type: RateLimitingRule
+  RateLimitingRulesEnvelope:
+    type: CollectionResponseEnvelope
+    properties:
+      data:
+        type: RateLimitingRule[]
 
 traits:
   hasUnauthorizedResponse: !include traits/HasUnauthorizedResponse.raml
@@ -124,7 +185,7 @@ traits:
 
 /organizations/{organizationId}:
   type: CommerceCloudStandards.Organization
-  
+
   /storefront-zones:
     post:
       is: [hasBadRequestResponse, hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse, hasResourceNotFoundResponse]
@@ -173,10 +234,10 @@ traits:
             application/json:
               type: WafGroupsEnvelope
               example: !include /examples/waf/wafgroups-get-response.raml
-      securedBy: 
+      securedBy:
         - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
         - CommerceCloudStandards.AmOAuth2
-    
+
     /{groupId}:
       put:
         is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse, hasBadRequestResponse]
@@ -193,7 +254,7 @@ traits:
               application/json:
                 type: WafGroupEnvelope
                 example: !include /examples/waf/wafgroup-put-response.raml
-        securedBy: 
+        securedBy:
           - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
           - CommerceCloudStandards.AmOAuth2
 
@@ -217,7 +278,7 @@ traits:
             application/json:
               type: WafRulesEnvelope
               example: !include /examples/waf/wafrules-get-response.raml
-      securedBy: 
+      securedBy:
         - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
         - CommerceCloudStandards.AmOAuth2
     /{ruleId}:
@@ -233,7 +294,7 @@ traits:
               application/json:
                 type: WafRuleEnvelope
                 example: !include /examples/waf/wafrule-get-response.raml
-        securedBy: 
+        securedBy:
           - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
           - CommerceCloudStandards.AmOAuth2
       put:
@@ -251,7 +312,7 @@ traits:
               application/json:
                 type: WafRuleEnvelope
                 example: !include /examples/waf/wafrule-put-response.raml
-        securedBy: 
+        securedBy:
           - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
           - CommerceCloudStandards.AmOAuth2
 
@@ -268,7 +329,7 @@ traits:
             application/json:
               type: FirewallRulesEnvelope
               example: !include /examples/firewall/firewall-rules-get-response.raml
-      securedBy: 
+      securedBy:
         - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
         - CommerceCloudStandards.AmOAuth2
 
@@ -280,7 +341,7 @@ traits:
         application/json:
           type: FirewallRule
           example: !include /examples/firewall/firewall-rules-post-request.raml
-            
+
       responses:
         '201':
           description: Successfully created the firewall rule requested by the caller.
@@ -288,7 +349,7 @@ traits:
             application/json:
               type: FirewallRuleEnvelope
               example: !include /examples/firewall/firewall-rules-post-response.raml
-      securedBy: 
+      securedBy:
         - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
         - CommerceCloudStandards.AmOAuth2
 
@@ -305,7 +366,7 @@ traits:
               application/json:
                 type: FirewallRuleEnvelope
                 example: !include /examples/firewall/firewall-rule-get-response.raml
-        securedBy: 
+        securedBy:
           - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
           - CommerceCloudStandards.AmOAuth2
       put:
@@ -316,7 +377,7 @@ traits:
           application/json:
             type: FirewallRule
             example: !include /examples/firewall/firewall-rules-put-request.raml
-        
+
         responses:
           '200':
             description: Successfully updated the firewall rule specified by the caller.
@@ -324,10 +385,10 @@ traits:
               application/json:
                 type: FirewallRuleEnvelope
                 example: !include /examples/firewall/firewall-rules-put-response.raml
-        securedBy: 
+        securedBy:
           - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
           - CommerceCloudStandards.AmOAuth2
-      
+
       delete:
         is: [hasResourceNotFoundResponse]
         displayName: deleteFirewallRule
@@ -335,10 +396,10 @@ traits:
         responses:
           '204':
             description: Successfully deleted the firewall rule specified by the caller.
-        securedBy: 
+        securedBy:
           - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
           - CommerceCloudStandards.AmOAuth2
-  
+
   /zones/{zoneId}/speed-settings:
     is: [hasResourceNotFoundResponse, hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse]
     get:
@@ -351,7 +412,7 @@ traits:
             application/json:
               type: SpeedSettingsEnvelope
               example: !include /examples/zone/speed-settings-response.raml
-      securedBy: 
+      securedBy:
         - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
         - CommerceCloudStandards.AmOAuth2
     patch:
@@ -372,7 +433,39 @@ traits:
               type: SpeedSettingsEnvelope
               examples:
                 response : !include /examples/zone/speed-settings-response.raml
-      securedBy: 
+      securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2
+  /zones/{zoneId}/security-settings:
+    is: [hasBadRequestResponse, hasInternalServerErrorResponse, hasForbiddenAccessResponse, hasUnauthorizedResponse]
+    get:
+      displayName: getSecuritySettings
+      description: Retrieve security settings for a zone.
+      responses:
+        '200':
+          description: Successfully returned security settings for zone.
+          body:
+            application/json:
+              type: SecuritySettingsEnvelope
+              example: !include /examples/zone/security-settings-response.raml
+      securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2
+    patch:
+      displayName: updateSecuritySettings
+      description: Update security settings for a zone.
+      body:
+        application/json:
+          type: SecuritySetting
+          example: !include /examples/zone/security-settings-update-request.raml
+      responses:
+        '200':
+          description: Successfully updated security settings.
+          body:
+            application/json:
+              type: SecuritySettingsEnvelope
+              example: !include /examples/zone/security-settings-response.raml
+      securedBy:
         - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
         - CommerceCloudStandards.AmOAuth2
   /zones/{zoneId}/cachepurge:
@@ -427,7 +520,7 @@ traits:
         - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
         - CommerceCloudStandards.AmOAuth2
     post:
-      is: [hasBadRequestResponse, hasConflictResponse]
+      is: [hasBadRequestResponse, hasConflictResponse, hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse, hasResourceNotFoundResponse]
       displayName: addCertificateForZone
       description: Add Certificates For Zone
       body:
@@ -440,11 +533,23 @@ traits:
             application/json:
               type: CertificateEnvelope
               examples:
-                  response : !include /examples/zone/certificate-post-response.raml
+                  Self-Managed Certificate Response: !include /examples/zone/certificate-post-response1.raml
+                  eCDN-Managed Certificate Response: !include /examples/zone/certificate-post-response2.raml
       securedBy:
         - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
         - CommerceCloudStandards.AmOAuth2
     /{certificateId}:
+      is: [ hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse ]
+      delete:
+        is: [ hasResourceNotFoundResponse ]
+        displayName: deleteCertificate
+        description: This action deletes a custom hostname and the certificate associated with it. Note that a valid certificate is necessary for a site to remain operational. DELETING AN IN-USE CERTIFICATE MAY RESULT IN DOWNTIME.
+        responses:
+          204:
+            description: Successfully deleted the custom hostname and certificate associated with it.
+        securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+          - CommerceCloudStandards.AmOAuth2
       patch:
         is: [hasBadRequestResponse]
         displayName: updateCertificate
@@ -460,7 +565,8 @@ traits:
               application/json:
                 type: CertificateEnvelope
                 examples:
-                  response : !include /examples/zone/certificate-update-response.raml
+                  Self-Managed Certificate Response: !include /examples/zone/certificate-update-response1.raml
+                  eCDN-Managed Certificate Response: !include /examples/zone/certificate-update-response2.raml
         securedBy:
           - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
           - CommerceCloudStandards.AmOAuth2
@@ -468,10 +574,10 @@ traits:
       patch:
         is: [ hasBadRequestResponse, hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse ]
         displayName: validateCustomHostname
-        description: Restart the validation checks for a given custom hostname for a particular zone.
+        description: Trigger the validation of a custom hostname.
         responses:
           '200':
-            description: Trigger custom hostname validation process.
+            description: Trigger the custom hostname validation process.
             body:
               application/json:
                 type: CustomHostnameValidationEnvelope
@@ -479,4 +585,364 @@ traits:
                   response : !include /examples/zone/custom-hostnames-patch-response.raml
         securedBy:
           - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
-          - CommerceCloudStandards.AmOAuth2              
+          - CommerceCloudStandards.AmOAuth2
+  /zones/{zoneId}/mrtrules:
+    is: [hasResourceNotFoundResponse, hasInternalServerErrorResponse, hasForbiddenAccessResponse, hasUnauthorizedResponse]
+    post:
+      is: [hasBadRequestResponse]
+      displayName: createMrtRules
+      description: Create MRT rules.
+      body:
+        application/json:
+          type: MRTRulesPostRequest
+          example: !include /examples/mrtrules/mrt-rules-post-request.raml
+      responses:
+        201:
+          description: Create new MRT rules.
+          body:
+            application/json:
+              type: MRTRulesResponseEnvelope
+              example: !include /examples/mrtrules/mrt-rules-post-response.raml
+      securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2
+    patch:
+      is: [hasBadRequestResponse]
+      displayName: updateMrtRuleset
+      description: Update the MRT hostname or add MRT rules to the ruleset.
+      body:
+        application/json:
+          type: MRTRulesetPatchRequest
+          example: !include /examples/mrtrules/mrt-ruleset-patch-request.raml
+      responses:
+        200:
+          description: Update the MRT hostname or add MRT rules to the ruleset.
+          body:
+            application/json:
+              type: MRTRulesResponseEnvelope
+              example: !include /examples/mrtrules/mrt-ruleset-patch-response.raml
+      securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2
+    get:
+      is: [hasBadRequestResponse]
+      displayName: getMrtRules
+      description: Get MRT rules associated with a zone.
+      responses:
+        200:
+          description: Get MRT rules associated with a zone.
+          body:
+            application/json:
+              type: MRTRulesResponseEnvelope
+              example: !include /examples/mrtrules/mrt-rules-get-response.raml
+      securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2
+    /{rulesetId}:
+      delete:
+        displayName: deleteMrtRuleset
+        description: Delete the MRT ruleset specified for that particular zone.
+        responses:
+          204:
+            description: Delete the MRT ruleset specified for that particular zone.
+        securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+          - CommerceCloudStandards.AmOAuth2
+      /rules/{ruleId}:
+        is: [hasResourceNotFoundResponse, hasInternalServerErrorResponse, hasForbiddenAccessResponse, hasUnauthorizedResponse]
+        delete:
+          displayName: deleteMrtRule
+          description: Delete an MRT rule in the specified ruleset.
+          responses:
+            204:
+              description: Delete the MRT rule specified for the particular zone.
+          securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+            - CommerceCloudStandards.AmOAuth2
+        patch:
+          is: [hasBadRequestResponse]
+          displayName: updateMrtRule
+          description: Update the expression and enable or disable an MRT rule.
+          body:
+            application/json:
+              type: MRTRulePatchRequest
+              example: !include /examples/mrtrules/mrt-rule-patch-request.raml
+          responses:
+            200:
+              description: Successfully updated the MRT rule.
+              body:
+                application/json:
+                  type: MRTRulesResponseEnvelope
+                  example: !include /examples/mrtrules/mrt-rule-patch-response.raml
+          securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+            - CommerceCloudStandards.AmOAuth2
+  /zones/{zoneId}/logpush/ownership:
+    is: [ hasResourceNotFoundResponse, hasInternalServerErrorResponse, hasForbiddenAccessResponse, hasUnauthorizedResponse ]
+    post:
+      is: [ hasBadRequestResponse ]
+      displayName: createLogpushOwnership
+      description: Create Logpush ownership token file.
+      body:
+        application/json:
+          type: LogpushOwnershipPostRequest
+          example: !include /examples/logpush/logpush-ownership-post-request.raml
+      responses:
+        '201':
+          description: Creates new Logpush Ownership token.
+          body:
+            application/json:
+              type: LogpushOwnershipPostResponse
+              example: !include /examples/logpush/logpush-ownership-post-response.raml
+      securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2
+  /zones/{zoneId}/logpush/jobs:
+    is: [ hasResourceNotFoundResponse, hasInternalServerErrorResponse, hasForbiddenAccessResponse, hasUnauthorizedResponse ]
+    post:
+      is: [ hasBadRequestResponse ]
+      displayName: createLogpushJob
+      description: Create Logpush job.
+      body:
+        application/json:
+          type: LogpushCreateRequest
+          examples:
+            request1 : !include /examples/logpush/logpush-create-request1.raml
+            request2 : !include /examples/logpush/logpush-create-request2.raml
+      responses:
+        '201':
+          description: Returns job detail after successful Logpush job creation.
+          body:
+            application/json:
+              type: LogpushEnvelope
+              examples:
+                response1 : !include /examples/logpush/logpush-create-response1.raml
+                response2 : !include /examples/logpush/logpush-create-response2.raml
+      securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2
+    get:
+      is: [ hasBadRequestResponse ]
+      displayName: listLogpushJob
+      description: List Logpush job.
+      responses:
+        '200':
+          description: Returns all jobs with detail in zone.
+          body:
+            application/json:
+              type: LogpushJobsEnvelope
+              example: !include /examples/logpush/logpush-get-list-job.raml
+      securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2
+    /{jobId}:
+      is: [ hasResourceNotFoundResponse, hasInternalServerErrorResponse, hasForbiddenAccessResponse, hasUnauthorizedResponse ]
+      get:
+        is: [ hasBadRequestResponse ]
+        displayName: getLogpushJob
+        description: Get Logpush job details.
+        responses:
+          '200':
+            description: Returns job detail from given Logpush job ID.
+            body:
+              application/json:
+                type: LogpushEnvelope
+                examples:
+                  response1: !include /examples/logpush/logpush-get-job-by-id1.raml
+                  response2: !include /examples/logpush/logpush-get-job-by-id2.raml
+                  response3: !include /examples/logpush/logpush-get-job-by-id3.raml
+        securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
+          - CommerceCloudStandards.AmOAuth2
+      put:
+        is: [ hasResourceNotFoundResponse, hasInternalServerErrorResponse, hasForbiddenAccessResponse, hasUnauthorizedResponse ]
+        displayName: updateLogpushJob
+        description: Update Logpush job.
+        body:
+          application/json:
+            type: LogpushUpdateRequest
+            example: !include /examples/logpush/logpush-update-request.raml
+        responses:
+          '200':
+            description: Returns job detail after successful logpush is enabled or disabled.
+            body:
+              application/json:
+                type: LogpushEnvelope
+                example: !include /examples/logpush/logpush-update-response.raml
+        securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+          - CommerceCloudStandards.AmOAuth2
+      delete:
+        displayName: deleteLogpushJob
+        description: Delete Logpush job by job ID.
+        responses:
+          204:
+            description: Delete Logpush job by job ID.
+        securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+          - CommerceCloudStandards.AmOAuth2
+  /zones/{zoneId}/firewall-custom/rules:
+    is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse, hasResourceNotFoundResponse]
+    post:
+      is: [hasBadRequestResponse]
+      displayName: createCustomRule
+      description: Creates a custom rule.
+      body:
+        application/json:
+          type: CustomRulesPostRequest
+          example: !include /examples/customrules/custom-rules-post-request.raml
+      responses:
+        '201':
+          description: Successfully created the custom rule requested by the caller.
+          body:
+            application/json:
+              type: CustomRuleEnvelope
+              example: !include /examples/customrules/custom-rule-response.raml
+      securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2
+    get:
+      displayName: getCustomRules
+      description: Retrieves existing custom rules.
+      responses:
+        '200':
+          description: Successfully returned back the list of custom rules requested by the caller.
+          body:
+            application/json:
+              type: CustomRulesEnvelope
+              example: !include /examples/customrules/custom-rules-response.raml
+      securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2
+    patch:
+      is: [hasBadRequestResponse]
+      displayName: updateOrderOfCustomRules
+      description: Updates the order of all existing custom rules.
+      body:
+        application/json:
+          type: CustomRulesPatchOrderRequest
+      responses:
+        '200':
+          description: Successfully updated the order of existing custom rules as requested by the caller.
+          body:
+            application/json:
+              type: CustomRulesEnvelope
+              example: !include /examples/customrules/custom-rules-response.raml
+      securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2
+    /{ruleId}:
+      is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse, hasResourceNotFoundResponse]
+      get:
+        displayName: getCustomRule
+        description: Retrieves a specific custom rule.
+        responses:
+          '200':
+            description: Successfully returned back the custom rule requested by the caller.
+            body:
+              application/json:
+                type: CustomRuleEnvelope
+                example: !include /examples/customrules/custom-rule-response.raml
+        securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
+          - CommerceCloudStandards.AmOAuth2
+      patch:
+        is: [hasBadRequestResponse]
+        displayName: updateCustomRule
+        description: Updates a specific custom rule.
+        body:
+          application/json:
+            type: CustomRulesPatchRequest
+        responses:
+          '200':
+            description: Successfully updated the custom rule requested by the caller.
+            body:
+              application/json:
+                type: CustomRuleEnvelope
+                example: !include /examples/customrules/custom-rule-response.raml
+        securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+          - CommerceCloudStandards.AmOAuth2
+      delete:
+        displayName: deleteCustomRule
+        description: Deletes a specific custom rule.
+        responses:
+          '204':
+            description: Successfully deleted the custom rule requested by the caller.
+        securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+          - CommerceCloudStandards.AmOAuth2
+  /zones/{zoneId}/rate-limiting/rules:
+    is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse, hasResourceNotFoundResponse]
+    post:
+      is: [hasBadRequestResponse]
+      displayName: createRateLimitingRule
+      description: Creates a rate limiting rule.
+      body:
+        application/json:
+          type: RateLimitingRulesPostRequest
+          example: !include /examples/ratelimitingrules/rate-limiting-rules-post-request.raml
+      responses:
+        '201':
+          description: Successfully created the rate limiting rule requested by the caller.
+          body:
+            application/json:
+              type: RateLimitingRuleEnvelope
+              example: !include /examples/ratelimitingrules/rate-limiting-rule-response.raml
+      securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2
+    get:
+      displayName: getRateLimitingRules
+      description: Retrieves existing rate limiting rules.
+      responses:
+        '200':
+          description: Successfully returned back the list of rate limiting rules requested by the caller.
+          body:
+            application/json:
+              type: RateLimitingRulesEnvelope
+              example: !include /examples/ratelimitingrules/rate-limiting-rules-response.raml
+      securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2
+    /{ruleId}:
+      is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse, hasResourceNotFoundResponse]
+      get:
+        displayName: getRateLimitingRule
+        description: Retrieves a specific rate limiting rule.
+        responses:
+          '200':
+            description: Successfully returned back the rate limiting rule requested by the caller.
+            body:
+              application/json:
+                type: RateLimitingRuleEnvelope
+                example: !include /examples/ratelimitingrules/rate-limiting-rule-response.raml
+        securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2
+      patch:
+        is: [hasBadRequestResponse]
+        displayName: updateRateLimitingRule
+        description: Updates a specific rate limiting rule.
+        body:
+          application/json:
+            type: RateLimitingRulesPatchRequest
+        responses:
+          '200':
+            description: Successfully updated the rate limiting rule requested by the caller.
+            body:
+              application/json:
+                type: RateLimitingRuleEnvelope
+                example: !include /examples/ratelimitingrules/rate-limiting-rule-response.raml
+        securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2
+      delete:
+        displayName: deleteRateLimitingRule
+        description: Deletes a specific rate limiting rule.
+        responses:
+          '204':
+            description: Successfully deleted the rate limiting rule requested by the caller.
+        securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2

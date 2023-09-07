@@ -23,22 +23,22 @@ types:
     description: Client Type
     enum: [REF_ARCH, WEB_APP, MOBILE_APP, SITE_GENESIS]
 
-  # PasswordTemplateActionType:
-  #   type: string
-  #   description: |
-  #     Describes the type of action that the password action template will be used for. 
+  PasswordTemplateActionType:
+    type: string
+    description: |
+      Describes the type of action that the password action template will be used for. 
 
-  #     Here are the actions that each enumerated string refers to:
+      Here are the actions that each enumerated string refers to:
 
-  #     - `PWDLESS_LOGIN`: Passwordless login 
-  #     - `PWD_RESET_ACTION`: Password reset
-  #     - `PWD_FORGOT_ACTION`: Forgot password
-  #   enum: [PWDLESS_LOGIN, PWD_RESET_ACTION, PWD_FORGOT_ACTION]
+      - `PWDLESS_LOGIN`: Passwordless login 
+      - `PWD_RESET_ACTION`: Password reset
+      - `PWD_FORGOT_ACTION`: Forgot password
+    enum: [PWDLESS_LOGIN, PWD_RESET_ACTION, PWD_FORGOT_ACTION]
   
-  # PasswordTemplateType:
-  #     type: string
-  #     description: Identifies the type of mode that the password action template will be used for. 
-  #     enum: [SMS, REDIRECT]  
+  PasswordTemplateType:
+      type: string
+      description: Identifies the type of mode that the password action template will be used for. 
+      enum: [SMS]  
 
   TierType:
     type: string
@@ -139,7 +139,7 @@ types:
         description: Identity Provider Name
         type: string
         example: "google"
-        enum: [apple, auth0, azure, cognito, facebook, gigya, google, okta, ping, salesforce]
+        enum: [adfs, apple, auth0, azure, cognito, facebook, forgerock, gigya, google, okta, ping, salesforce]
       authUrl:
         description: Identity Provider auth URI
         type: ApiStandards.AbsoluteUrl
@@ -186,6 +186,16 @@ types:
           type: string
           required: false
           example: "appleKeyId"
+      loginMergeClaims:
+        description: List of user info claims that can be used as identifiers to look up and merge with an existing ECOM profile for a registered shopper or an existing ECOM profile created via federated login with an external Identity Provider with the same merge claim as this one. If multiple matching ECOM shopper (customer) profiles are found, the external profile is merged to the most recently created shopper (customer) profile. Refer to Merge Shopper Profiles user guide for more details.
+        type: string[]
+        required: false
+        example: ["email", "phone"]
+      oidcClaimMapper:
+        description: Mapping from the identity provider’s token claims for SLAS to get user information values when the user successfully authenticates. The values in this array should be setup using the following `key=value` pair pattern. The key part is the SLAS key with the value part being the OIDC claim key.
+        type: string[]
+        required: false
+        example: ["accessToken=access_token","refreshToken=refresh_token","accessTokenTTL=expires_in","idToken=id_token","subject=sub","email=email","userId=sub","familyName=family_name","givenName=given_name","name=name"]
   IdentityProviderResponse:
     description: Identity provider Response
     properties:
@@ -229,6 +239,27 @@ types:
         description: Scopes needed by the IDP.
         type: array
         example: ["oidc", "email", "profile"]
+      teamId:
+          description: Apple Team ID. Used primarily for Sign with Apple in generating the client secret.
+          type: string
+          required: false
+          example: "appleTeamId"
+      keyId:
+          description: Apple key ID. This is the Key ID that was obtained from Apple when the the private key for client authentication was created. Used primarily for Sign with Apple in generating the client secret.
+          type: string
+          required: false
+          example: "appleKeyId"
+      loginMergeClaims:
+        description: List of user info claims that can be used as identifiers to look up and merge with an existing ECOM profile for a registered shopper or an existing ECOM profile created via federated login with an external Identity Provider with the same merge claim as this one. If multiple matching ECOM shopper (customer) profiles are found, the external profile is merged to the most recently created shopper (customer) profile. Refer to Merge Shopper Profiles user guide for more details.
+        type: string[]
+        required: false
+        example: ["email", "phone"]
+      oidcClaimMapper:
+        description: Mapping from the identity provider’s token claims for SLAS to get user information values when the user successfully authenticates. The values in this array should be setup using the following `key=value` pair pattern. The key part is the SLAS key with the value part being the OIDC claim key.
+        type: string[]
+        required: false
+        example: ["accessToken=access_token","refreshToken=refresh_token","accessTokenTTL=expires_in","idToken=id_token","subject=sub","email=email","userId=sub","familyName=family_name","givenName=given_name","name=name"]
+
 
   IdentityProviderListResponse:
     properties:
@@ -237,30 +268,6 @@ types:
         type: array
         items:
           type: IdentityProviderResponse
-
-  TenantDto:
-    description: Create Tenant Reqiest
-    properties:
-      merchantName:
-        description: SLAS Merchant Name
-        type: string
-        example: "Merchant Name"
-      description:
-        description: SLAS Tenant Description
-        type: string
-        example: "Tenant Description"
-      contact:
-        description: SLAS Tenant Contact Name
-        type: string
-        example: "Jerry Smith"
-      emailAddress:
-        description: SLAS Tenant Contact Email
-        type: string
-        example: "jerry@merchant.com"
-      phoneNo:
-        description: SLAS Tenant Contact Phone
-        type: string
-        example: "801-555-1234"
 
   Tenant:
     description: Tenant
@@ -296,6 +303,24 @@ types:
         description: "This read only value shows the the number of requests that can be made per minute."
         type: number
         example: 8000
+  TenantDto:
+    description: Create or update tenants
+    properties:
+      merchantName:
+        description: Name of the merchant.
+        type: string
+      description:
+        description: Additional information about the tenant.
+        type: string
+      contact:
+        description: Name of the merchant's designated contact.
+        type: string
+      emailAddress:
+        description: Email address of the designated contact.
+        type: string
+      phoneNo:
+        description: Phone number of the designated contact.
+        type: string
 
   TenantListResponse:
     properties:
@@ -403,33 +428,33 @@ types:
         type: string
         example: "5, 6, 7"
 
-  # PasswordActionTemplate:
-  #   properties:
-  #     channelId:
-  #       type: string
-  #       example: "SiteGenesis"
-  #     name:
-  #       type: string
-  #       example: "Password Action Email Template"
-  #     subject:
-  #       type: string
-  #       example: "Password Action Token Request"
-  #     link:
-  #       type: string
-  #       example: "This is your password action token: ${token}"
-  #     locale:
-  #       type: string
-  #       example: "en-us"
-  #       description: Identifies the locale of the template. Must be one of the [language tag strings supported by JDK 11](https://www.oracle.com/java/technologies/javase/jdk11-suported-locales.html). The string is stored in all lowercase.
-  #     actionType:
-  #       type: PasswordTemplateActionType
-  #       example: "PWDLESS_LOGIN"
-  #     templateType:
-  #       type: PasswordTemplateType
-  #       example: "SMS"
-  #     template:
-  #       type: string
-  #       example: "Passwordless Login Token Request\n\nYou're receiving this because you requested a passwordless login token for your account.\n${link}"
+  PasswordActionTemplate:
+    properties:
+      channelId:
+        type: string
+        example: "SiteGenesis"
+      name:
+        type: string
+        example: "Password Action Email Template"
+      subject:
+        type: string
+        example: "Password Action Token Request"
+      link:
+        type: string
+        example: "This is your password action token: ${token}"
+      locale:
+        type: string
+        example: "en-us"
+        description: Identifies the locale of the template. Must be one of the [language tag strings supported by JDK 11](https://www.oracle.com/java/technologies/javase/jdk11-suported-locales.html). The string is stored in all lowercase.
+      actionType:
+        type: PasswordTemplateActionType
+        example: "PWDLESS_LOGIN"
+      templateType:
+        type: PasswordTemplateType
+        example: "SMS"
+      template:
+        type: string
+        example: "Passwordless Login Token Request\n\nYou're receiving this because you requested a passwordless login token for your account.\n${link}"
 
 /tenants:
   /{tenantId}:
@@ -474,10 +499,11 @@ types:
               examples:
                 Tenant : !include Examples/Tenant.raml
     put:
-        description: Create or Update a tenant.
+        description: Create or update a tenant. Use the request body to provide identification and contact information for the tenant and its associated merchant.
         displayName: registerTenant
         body:
           application/json:
+            type: TenantDto
             examples: !include Examples/TenantDto.raml
         securedBy:
                 - SlasSecurityScheme.BearerToken: { role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN] }
@@ -713,175 +739,175 @@ types:
             204:
               description: No Content
 
-        # /password-action-templates:
-        #   description: |
-        #     A password action template simplifies the process of sending notifications to customers about password logins and password reset using string substitution in the template body. The template body is determined by the `template` parameter. The only template type supported is `SMS`.
+        /password-action-templates:
+          description: |
+            A password action template simplifies the process of sending notifications to customers about password logins and password reset using string substitution in the template body. The template body is determined by the `template` parameter. The only template type supported is `SMS`.
 
-        #     The following 3 strings are substituted in the template body according to the following rules:
-        #     1. `${name}`: The first name of the user based on the login that is given.
-        #     2. `${token}`: The password action token that is generated.
-        #     3. `${link}`: A string provided to the endpoint (using the `link` parameter) that can include `${token}` and `${name}` for substitution.
-        #   get:
-        #     description: Retrieve/get a password action template.
-        #     displayName: retrievePwdlessTemplate
-        #     securedBy:
-        #       - SlasSecurityScheme.BearerToken:
-        #           {role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN]}
-        #     queryParameters:
-        #       channelId:
-        #         type: string
-        #         example: "SiteGenesis"
-        #       actionType:
-        #         type: PasswordTemplateActionType
-        #         example: "PWDLESS_LOGIN"
-        #       templateType:
-        #         type: string
-        #         example: "SMS"
-        #     responses:
-        #       200:
-        #         description: Success
-        #         body:
-        #           application/json:
-        #             type: PasswordActionTemplate
-        #             examples:
-        #               Client: !include Examples/PasswordActionTemplate.raml
-        #       400:
-        #         description: Bad Request.
-        #         body:
-        #           application/json:
-        #             type: ApiStandards.ErrorResponse
-        #             example:
-        #               {
-        #                 "type": "BadRequestException",
-        #                 "title": "Unable to update resource because the request body was invalid"
-        #               }
-        #       401:
-        #         description: Unauthorized. Wrong Tenant.
-        #         body:
-        #           application/json:
-        #             type: ApiStandards.ErrorResponse
-        #             example:
-        #               {
-        #                 "type": "ClientTenantException",
-        #                 "title": "Unable to update resource because the tenant id was invalid"
-        #               }
-        #       404:
-        #         description: Not Found.
-        #         body:
-        #           application/json:
-        #             type: ApiStandards.ErrorResponse
-        #             example:
-        #               {
-        #                 "type": "PasswordActionTemplateNotFoundException",
-        #                 "title": "Template was not found"
-        #               }
-        #   put:
-        #     description: Create or update a password action template.
-        #     displayName: registerPwdlessTemplate
-        #     securedBy:
-        #       - SlasSecurityScheme.BearerToken:
-        #           {role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN]}
-        #     body:
-        #       application/json:
-        #         type: PasswordActionTemplate
-        #         example: !include Examples/PasswordActionTemplateRequest.raml
-        #     responses:
-        #       201:
-        #         description: Success - A password action template was created.
-        #         body:
-        #           application/json:
-        #             type: PasswordActionTemplate
-        #             examples:
-        #               Client: !include Examples/PasswordActionTemplate.raml
-        #       200:
-        #         description: Success - A password action template was updated.
-        #         body:
-        #           application/json:
-        #             type: PasswordActionTemplate
-        #             examples:
-        #               Client: !include Examples/PasswordActionTemplate.raml
-        #       400:
-        #         description: Bad Request.
-        #         body:
-        #           application/json:
-        #             type: ApiStandards.ErrorResponse
-        #             example:
-        #               {
-        #                 "type": "PasswordActionTemplateCreateException",
-        #                 "title": "Template was not created or updated"
-        #               }
-        #       401:
-        #         description: Unauthorized. Wrong tenant.
-        #         body:
-        #           application/json:
-        #             type: ApiStandards.ErrorResponse
-        #             example:
-        #               {
-        #                 "type": "ClientTenantException",
-        #                 "title": "Unable to update resource because the tenant id was invalid"
-        #               }
-        #       404:
-        #         description: Not Found.
-        #         body:
-        #           application/json:
-        #             type: ApiStandards.ErrorResponse
-        #             example:
-        #               {
-        #                 "type": "PasswordActionTemplateNotFoundException",
-        #                 "title": "Template was not found"
-        #               }
-        #   delete:
-        #     description: Delete a password action template.
-        #     displayName: deletePwdlessTemplate
-        #     securedBy:
-        #       - SlasSecurityScheme.BearerToken:
-        #           {role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN]}
-        #     queryParameters:
-        #       channelId:
-        #         type: string
-        #         example: "SiteGenesis"
-        #       actionType:
-        #         type: PasswordTemplateActionType
-        #         example: "PWDLESS_LOGIN"
-        #       templateType:
-        #         type: string
-        #         example: "REDIRECT"
-        #       locale:
-        #         type: string
-        #         example: "en-us"
-        #     responses:
-        #       204:
-        #         description: No Content
-        #       400:
-        #         description: Bad Request.
-        #         body:
-        #           application/json:
-        #             type: ApiStandards.ErrorResponse
-        #             example:
-        #               {
-        #                 "type": "PasswordActionTemplateDeleteException",
-        #                 "title": "Template was not deleted"
-        #               }
-        #       401:
-        #         description: Unauthorized. Wrong Tenant.
-        #         body:
-        #           application/json:
-        #             type: ApiStandards.ErrorResponse
-        #             example:
-        #               {
-        #                 "type": "ClientTenantException",
-        #                 "title": "Unable to update resource because the tenant id was invalid"
-        #               }
-        #       404:
-        #         description: Not Found.
-        #         body:
-        #          application/json:
-        #             type: ApiStandards.ErrorResponse
-        #             example:
-        #               {
-        #                 "type": "PasswordActionTemplateNotFoundException",
-        #                 "title": "Template was not found"
-        #               }
+            The following 3 strings are substituted in the template body according to the following rules:
+            1. `${name}`: The first name of the user based on the login that is given.
+            2. `${token}`: The password action token that is generated.
+            3. `${link}`: A string provided to the endpoint (using the `link` parameter) that can include `${token}` and `${name}` for substitution.
+          get:
+            description: Retrieve/get a password action template.
+            displayName: retrievePwdlessTemplate
+            securedBy:
+              - SlasSecurityScheme.BearerToken:
+                  {role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN]}
+            queryParameters:
+              channelId:
+                type: string
+                example: "SiteGenesis"
+              actionType:
+                type: PasswordTemplateActionType
+                example: "PWDLESS_LOGIN"
+              templateType:
+                type: string
+                example: "SMS"
+            responses:
+              200:
+                description: Success
+                body:
+                  application/json:
+                    type: PasswordActionTemplate
+                    examples:
+                      Client: !include Examples/PasswordActionTemplate.raml
+              400:
+                description: Bad Request.
+                body:
+                  application/json:
+                    type: ApiStandards.ErrorResponse
+                    example:
+                      {
+                        "type": "BadRequestException",
+                        "title": "Unable to update resource because the request body was invalid"
+                      }
+              401:
+                description: Unauthorized. Wrong Tenant.
+                body:
+                  application/json:
+                    type: ApiStandards.ErrorResponse
+                    example:
+                      {
+                        "type": "ClientTenantException",
+                        "title": "Unable to update resource because the tenant id was invalid"
+                      }
+              404:
+                description: Not Found.
+                body:
+                  application/json:
+                    type: ApiStandards.ErrorResponse
+                    example:
+                      {
+                        "type": "PasswordActionTemplateNotFoundException",
+                        "title": "Template was not found"
+                      }
+          put:
+            description: Create or update a password action template.
+            displayName: registerPwdlessTemplate
+            securedBy:
+              - SlasSecurityScheme.BearerToken:
+                  {role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN]}
+            body:
+              application/json:
+                type: PasswordActionTemplate
+                example: !include Examples/PasswordActionTemplateRequest.raml
+            responses:
+              201:
+                description: Success - A password action template was created.
+                body:
+                  application/json:
+                    type: PasswordActionTemplate
+                    examples:
+                      Client: !include Examples/PasswordActionTemplate.raml
+              200:
+                description: Success - A password action template was updated.
+                body:
+                  application/json:
+                    type: PasswordActionTemplate
+                    examples:
+                      Client: !include Examples/PasswordActionTemplate.raml
+              400:
+                description: Bad Request.
+                body:
+                  application/json:
+                    type: ApiStandards.ErrorResponse
+                    example:
+                      {
+                        "type": "PasswordActionTemplateCreateException",
+                        "title": "Template was not created or updated"
+                      }
+              401:
+                description: Unauthorized. Wrong tenant.
+                body:
+                  application/json:
+                    type: ApiStandards.ErrorResponse
+                    example:
+                      {
+                        "type": "ClientTenantException",
+                        "title": "Unable to update resource because the tenant id was invalid"
+                      }
+              404:
+                description: Not Found.
+                body:
+                  application/json:
+                    type: ApiStandards.ErrorResponse
+                    example:
+                      {
+                        "type": "PasswordActionTemplateNotFoundException",
+                        "title": "Template was not found"
+                      }
+          delete:
+            description: Delete a password action template.
+            displayName: deletePwdlessTemplate
+            securedBy:
+              - SlasSecurityScheme.BearerToken:
+                  {role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN]}
+            queryParameters:
+              channelId:
+                type: string
+                example: "SiteGenesis"
+              actionType:
+                type: PasswordTemplateActionType
+                example: "PWDLESS_LOGIN"
+              templateType:
+                type: string
+                example: "REDIRECT"
+              locale:
+                type: string
+                example: "en-us"
+            responses:
+              204:
+                description: No Content
+              400:
+                description: Bad Request.
+                body:
+                  application/json:
+                    type: ApiStandards.ErrorResponse
+                    example:
+                      {
+                        "type": "PasswordActionTemplateDeleteException",
+                        "title": "Template was not deleted"
+                      }
+              401:
+                description: Unauthorized. Wrong Tenant.
+                body:
+                  application/json:
+                    type: ApiStandards.ErrorResponse
+                    example:
+                      {
+                        "type": "ClientTenantException",
+                        "title": "Unable to update resource because the tenant id was invalid"
+                      }
+              404:
+                description: Not Found.
+                body:
+                 application/json:
+                    type: ApiStandards.ErrorResponse
+                    example:
+                      {
+                        "type": "PasswordActionTemplateNotFoundException",
+                        "title": "Template was not found"
+                      }
     /idps:
       get:
         description: Retrieve/Get all tenant identity providers
@@ -1109,76 +1135,3 @@ types:
 
           204:
             description: No Content
-
-    /cred-qual/login:
-      get:
-        description: Retrieve credential quality statistics for a tenant.
-        displayName: retrieveCredQuailtyStats
-        securedBy:
-          - SlasSecurityScheme.BearerToken: {role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN]}
-        queryParameters:
-          action:
-            description: Returns averages
-            required: false
-            type: string
-            example: "avgs"
-        responses:
-          200:
-            description: !include tenant-credential-quality-statistics-description.md
-            body:
-              application/json:
-                type: CredQualityResponse
-                examples:
-                  CredQualityResponse: !include Examples/CredQualityResponse.raml
-          400:
-            description: Bad Request.
-            body:
-              application/json:
-                type: ApiStandards.ErrorResponse
-                example: {"type": "CredentialQualityException", "title": "Invalid Tenant Id"}
-          404:
-            description: Not Found.
-            body:
-              application/json:
-                type: ApiStandards.ErrorResponse
-                example:
-                  {
-                    "type": "CredentialQualityException",
-                    "title": "Credential Quality Not Found for tenant"
-                  }
-    /cred-qual/user:
-      get:
-        description: Retrieve credential quality statistics for a user.
-        displayName: retrieveCredQuailtyUserStats
-        securedBy:
-          - SlasSecurityScheme.BearerToken: {role: [SLAS_SERVICE_ADMIN, SLAS_ORGANIZATION_ADMIN]}
-        queryParameters:
-          username:
-            description: Login id or email address.
-            required: false
-            type: string
-            example: "joe.shopper@gmail.com"
-        responses:
-          200:
-            description: !include credential-quality-statistics-description.md
-            body:
-              application/json:
-                type: CredQualityUserResponse
-                examples:
-                  CredQualityResponse: !include Examples/CredQualityUserResponse.raml
-          400:
-            description: Bad Request.
-            body:
-              application/json:
-                type: ApiStandards.ErrorResponse
-                example: {"type": "CredentialQualityException", "title": "Invalid Tenant Id"}
-          404:
-            description: Not Found.
-            body:
-              application/json:
-                type: ApiStandards.ErrorResponse
-                example:
-                  {
-                    "type": "CredentialQualityException",
-                    "title": "Credential Quality not found for user"
-                  }
