@@ -30,8 +30,9 @@
     "lint:dev": "sort-package-json && eslint . --ext .ts --fix",
     "prepack": "npm run build",
     "prepare": "snyk protect",
-    "renderTemplates": "ts-node src/generate.ts",
     "pretest": "npm run lint && npm run depcheck",
+    "renderTemplates": "ts-node src/generate.ts",
+    "snyk:auth": "snyk auth",
     "test": "nyc mocha \"src/**/*.test.ts\"",
     "test:ci": "npm test -- --reporter=xunit --reporter-options output=./reports/generator.xml",
     "updateApis": "npm run backupApis && ts-node src/updateApis.ts && git checkout apis/search && npm run diffApis"
