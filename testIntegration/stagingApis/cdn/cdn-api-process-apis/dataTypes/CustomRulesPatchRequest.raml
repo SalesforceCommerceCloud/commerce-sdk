@@ -1,0 +1,28 @@
+#%RAML 1.0 DataType
+description: Update a custom rule.
+type: object 
+properties:
+  description:
+    description: A description of the custom rule.
+    type: string
+    example: Block traffic for malformed URL requests
+    required: false
+  expression:
+    description: The expression that determines the custom rule's behavior.
+    type: string
+    example: (http.request.uri.path matches \"^/path1/.*\")
+    required: false
+  actions:
+    description: The actions applied by the custom rule. Valid actions include "block", "managed_challenge", "js_challenge", "legacy_captcha", "skip_custom_rules", "skip_waf", "skip_security_level", and "log".
+    type: string[]
+    example: ["block"]
+    required: false
+  enabled:
+    description: Whether or not the custom rule is enabled.
+    type: boolean
+    example: true
+    required: false
+  position:
+    description: Used to specify the position in the ruleset at which to insert the custom rule.
+    type: RulePosition
+    required: false

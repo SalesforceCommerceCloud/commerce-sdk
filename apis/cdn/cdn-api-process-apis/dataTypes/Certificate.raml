@@ -10,7 +10,7 @@ properties:
     description: List of hosts the certificate applies to.
     type: string[]
   expiresOn:
-    description: Date of exiration for the certificate. 
+    description: Date of expiration for the certificate.
     type: datetime
   uploadedOn:
     description: Date the certificate was uploaded.
@@ -27,6 +27,37 @@ properties:
     description: Current status of the certificate. 
     type: string
     enum: [ACTIVE, EXPIRED, DELETED, PENDING, INITIALIZING, PENDING_VALIDATION, PENDING_ISSUANCE, PENDING_DEPLOYMENT, PENDING_DELETION]
+  minTlsVersion:
+    type: string
+    description: Minimum TLS Version only allows HTTPS connections from visitors that support the selected TLS protocol version or newer.
+    required: false
+  certificateType:
+    description: Indicates certificate is custom cert uploaded by customer or automatic renewal certificate by eCDN.
+    enum: [custom, automatic, custom_legacy]
+    type: string
+  certificateAuthority:
+    description: Indicates certificate issuer for automatic renewal certificate by eCDN.
+    type: string
+    enum: [google, lets_encrypt, digicert]
+    required: false
+  certificateValidation:
+    description: Indicates certificate validation type for automatic renewal certificate by eCDN.
+    type: string
+    enum: [http, txt]
+    required: false
+  certificateVerificationTXTName:
+    description: eCDN automatic renewal certificate verification txt name.
+    type: string
+    required: false
+  certificateVerificationTXTValue:
+    description: eCDN automatic renewal certificate verification txt value.
+    type: string
+    required: false
+  certificateVerificationStatus:
+    description: Current status of certificate verification.
+    type: string
+    enum: [ACTIVE, EXPIRED, PENDING, INITIALIZING, PENDING_VALIDATION, PENDING_ISSUANCE, PENDING_DEPLOYMENT]
+    required: false
   customHostnameVerificationTXTName:
     description: Custom Hostname verification txt name.
     type: string
@@ -48,32 +79,3 @@ properties:
     type: string
     enum: [ACTIVE, EXPIRED, DELETED, PENDING, INITIALIZING, PENDING_VALIDATION, PENDING_ISSUANCE, PENDING_DEPLOYMENT, PENDING_DELETION, MOVED]
     required: false
-
-
-examples:
-  example1:
-    certificateId: 3822ff90-ea29-44df-9e55-21300bb9419b
-    status: EXPIRED
-    hosts: [example.com, www.example.com]
-    expiresOn: 2021-01-01T05:20:00Z
-    uploadedOn: 2016-01-01T05:20:00Z
-    issuer: DigiCert
-    signature: SHA256WithRSA
-    customHostnameVerificationTXTName: _example.com
-    customHostnameVerificationTXTValue: 4c9c3f4f-2e91-4c5d-a902-f12f9c285b9e
-    customHostnameId: 354a48f6-3d98-4c15-9312-211984ee8518
-    customHostname: custom.example.com
-    customHostnameStatus: PENDING
-  example2:
-    certificateId: 730a1be4-22d7-11eb-adc1-0242ac120002
-    status: ACTIVE
-    hosts: [ntoretail.com, nto-retail.com, example.com]
-    expiresOn: 2021-01-01T05:20:00Z
-    uploadedOn: 2015-01-01T05:20:00Z
-    issuer: DigiCert
-    signature: SHA256WithRSA
-    customHostnameVerificationTXTName: _ntoretail.com
-    customHostnameVerificationTXTValue: 4c9c3f4f-2e91-4c5d-a902-f12f9c285b9e
-    customHostnameId: 465a48f6-3d98-4c15-9312-211984ee8629
-    customHostname: test.ntoretail.com
-    customHostnameStatus: ACTIVE

@@ -17,7 +17,7 @@ type LoginRequest = {
   scope?: string;
   usid?: string;
   channel_id: string;
-  code_challenge: string;
+  code_challenge?: string;
 } & { [key: string]: any };
 
 export type TokenRequest = {
@@ -28,6 +28,7 @@ export type TokenRequest = {
   redirect_uri?: string;
   code_verifier?: string;
   client_id?: string;
+  channel_id?: string;
 } & { [key: string]: any };
 
 export type TokenResponse = {
@@ -39,6 +40,7 @@ export type TokenResponse = {
   usid: string;
   customer_id: string;
   enc_user_id: string;
+  idp_access_token: string;
 } & { [key: string]: any };
 
 // prefix interface with I

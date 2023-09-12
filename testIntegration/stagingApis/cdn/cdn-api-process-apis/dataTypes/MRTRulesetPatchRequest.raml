@@ -1,0 +1,18 @@
+#%RAML 1.0 DataType
+description: Patch request for updating the mrtHostname pointing to an environment.
+type: object
+properties:
+  oldMrtHostname:
+    description: The customer's current MRT instance hostname.
+    type: string
+    example: customer-react-projec-production.mobify-storefront.com
+    required: false
+  mrtHostname:
+    description: The customer's MRT instance hostname. 
+    type: string
+    example: customer-react-projec-production.mobify-storefront.com
+  expressions:
+    description: An array containing the expressions for each MRT rule.
+    type: string[]
+    example: ["(http.host eq \"dev-customer.salesforce.com\" and not ( http.request.uri.path matches \"^/path1/.*\" or http.request.uri.path matches \"^.*/path2/.*/products/.*\"))"]
+    required: false

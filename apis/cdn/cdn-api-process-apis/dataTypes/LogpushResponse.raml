@@ -1,0 +1,60 @@
+#%RAML 1.0 DataType
+description: Logpush job response
+type: object
+properties:
+  jobId:
+    description: Unique ID of the job.
+    type: integer
+    example: 123456
+    required: false
+  name:
+    description: Logpush job name; the name cannot be changed after the job is created.
+    type: string
+    example: my-logpush-job
+    required: false
+  logType:
+    description: Type of logs; available log types are `http_requests` and `firewall_events`.
+    type: string
+    enum: ["http_requests", "firewall_events"]
+    example: http_requests
+    required: false
+  filter:
+    description: Filter provides a way to customize which logs you want to receive. Filters are added as escaped JSON strings formatted. If the filter is not displayed, it indicates that all logs should be included.
+    type: string
+    required: false
+  logFields:
+    description: List of log fields. Depending on the type of log, the list of fields that you would like to see in the logs may vary.
+    type: array
+    items: string
+    example: ["ClientRequestBytes", "ClientRequestHost", "ClientRequestMethod"]
+    required: false
+  destinationPath:
+    description: Uniquely identifies s3 bucket for logs.
+    type: string
+    example: s3://customer-bucket/site-name/{DATE}?region=us-east-1&sse=AES256
+    required: false
+  enabled:
+    description: Flag that indicates if the job is enabled or disabled.
+    type: boolean
+    example: false
+    required: false
+  lastComplete:
+    description: The last time that the log has been successfully transmitted to the destination.
+    type: datetime
+    example: 2023-01-02T00:00:00Z
+    required: false
+  lastError:
+    description: The last time the job failed. If empty, the job has either never failed or has run successfully at least once since the last failure.
+    type: datetime
+    example: 2023-01-01T10:00:00Z
+    required: false
+  errorMessage:
+    description: Provide details for the last failure message. If this field is empty, it indicates that the job successfully transmitted logs to the destination.
+    type: string
+    example: no permissions to write to destination bucket
+    required: false
+  createdOn:
+    description: Job creation time.
+    type: datetime
+    example: 2023-01-01T00:00:27Z
+    required: false
