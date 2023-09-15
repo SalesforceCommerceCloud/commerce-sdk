@@ -45,6 +45,7 @@ usage: |-
 
   This project provides the following reusable traits. These traits are referenced in a plurality of APIs, to the point where it makes sense to have a common definition where the documentation, validation, and usage of them can be well documented.
 
+  -   `Selectable`: adds a query parameter called `select` of type `Select` to the request.
   -   `SiteSpecific`: adds a query parameter called `siteId` of type `SiteId` to the request.
   -   `QueryParamsLimit`: adds an offset query parameter without the limit query parameter. Some Commerce Cloud use cases do not currently require both. Prefer the use of `ApiStandards.OffsetPaginated` because this trait will be deprecated in the future if there is no use case for it.
   -   `QueryParamsOffset`: adds a limit query parameter without the offset query parameter. Some Commerce Cloud use cases do not currently require both. Prefer the use of `ApiStandards.OffsetPaginated` because this trait will be deprecated in the future if there is no use case for it.
@@ -61,12 +62,19 @@ securitySchemes:
   ShopperToken: !include SecuritySchemes/shopper-token.raml
   BearerToken: !include SecuritySchemes/bearer-token.raml
   ShopperTokenTsob: !include SecuritySchemes/shopper-token-tsob.raml
+  ShopperTokenTaob: !include SecuritySchemes/shopper-token-taob.raml
 
 types:
   SiteId:
     description: The identifer of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites
     example:
       SiteGenesis
+    type: string
+    minLength: 1
+  Select:
+    description: The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names or work with wildcards. You can also specify array operations and filter expressions. The actual selector value must be enclosed within parentheses.
+    example:
+      (name,id,variationAttributes.(**))
     type: string
     minLength: 1
   SearchRequest: Search.SearchRequestBase
@@ -106,3 +114,7 @@ traits:
     usage: This trait should be used whenever a resource has the context of a site assoicated with its request. This will add a siteId query parameter
     queryParameters:
       siteId: SiteId
+  Selectable:
+    usage: This trait should be used whenever a resource supports generic property selection. This will add a select query parameter.
+    queryParameters:
+      select?: Select

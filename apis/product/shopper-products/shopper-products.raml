@@ -15,7 +15,7 @@ description: !include shopper-products-description.md
 uses:
   ProdTraits: products-traits-library.raml
   ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.24/commerce-cloud-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.27/commerce-cloud-standards.raml
 
 types:
   BundledProduct:
@@ -856,8 +856,13 @@ types:
         - ApiStandards.RateLimited:
             responseStatus: 401
         - ProdTraits.Unauthorized
-        - ProdTraits.BadRequest 
+        - ProdTraits.BadRequest2 
       queryParameters:
+          select:
+            description: The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names, or work with wildcards.You can also sepcify Array Operations.The select will be available, tentatively from october 2023.The exact date will be announced via changelog. 
+            type: CommerceCloudStandards.Select
+            required: false
+            example: (data.(name,id,variationAttributes.(**)))
           ids: 
             description: The IDs of the requested products (comma-separated, max 24 IDs).
             type: string
@@ -873,11 +878,12 @@ types:
             type: string
             required: false
             example: USD
-          expand:
+          expand?:
             description: The expand parameter. A comma separated list with the allowed values (availability, links, promotions, options, images, prices, variations, recommendations). All expand parameters are used for the request when no expand parameter is provided. The value "none" may be used to turn off all expand options.
-            type: string
-            required: false
-            example: prices
+            type: array
+            items:
+              enum: [availability,links,promotions,options,images,prices,variations,recommendations]
+            example: [prices,promotions]
           locale:
             description: The locale context.
             type: string
@@ -918,7 +924,7 @@ types:
           - ApiStandards.RateLimited:
               responseStatus: 404       
           - ProdTraits.Unauthorized
-          - ProdTraits.BadRequest
+          - ProdTraits.BadRequest1
           - ProdTraits.NotFound
         responses:
           '200':
@@ -929,6 +935,11 @@ types:
                 examples:
                   product: !include Examples/product-example.raml
         queryParameters:
+          select:
+            description: The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names, or work with wildcards.You can also sepcify Array Operations. The select will be available, tentatively from october 2023.The exact date will be announced via changelog.
+            type: CommerceCloudStandards.Select
+            required: false
+            example: (name,id,variationAttributes.(**))
           inventoryIds:
             description: The optional inventory list IDs, for which the availability should be shown (comma-separated, max 5 inventoryListIDs).
             type: string
@@ -941,9 +952,10 @@ types:
             example: USD
           expand:
             description: The expand parameter. A comma separated list with the allowed values (availability, bundled_products, links, promotions, options, images, prices, variations, set_products, recommendations). All expand parameters are used for the request when no expand parameter is provided. The value "none" may be used to turn off all expand options.
-            type: string
-            required: false
-            example: prices
+            type: array
+            items:
+              enum: [availability,bundled_products,links,promotions,options,images,prices,variations,set_products,recommendations]
+            example: [prices,promotions]
           locale:
             description: The locale context.
             type: string

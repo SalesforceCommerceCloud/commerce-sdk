@@ -149,6 +149,10 @@ types:
         description: Remaining access token expiry time, in seconds.
         type: integer
         example: 900
+      refresh_token_expires_in:
+        description: Remaining refresh token expiry time, in seconds.
+        type: number
+        example: 2592000
       token_type:
         description: Token Type
         type: TokenType
@@ -596,104 +600,8 @@ types:
         minLength: 43
         maxLength: 128
         example: "krc5G3_5lRUcXDUzFZQ88oJA_-ZmlHWkyGsgOrSLEWg"
-  CredQualityUserResponse:
-    properties:
-      tenantId:
-        type: string
-        example: "aaaa_prd"
-      username:
-        type: string
-        example: "samantha.sampleson"
-      email:
-        type: string
-        example: "samantha.sampleson@example.com"
-      credQualityMeasure:
-        type: integer
-        example: 1024
-      pwdStrengthMeasure:
-        type: integer
-        example: 12
-      pwdQualityMeasure:
-        type: integer
-        example: 0
-      credChangeCount:
-        type: integer
-        example: 0
-      loginCount:
-        type: integer
-        example: 0
-      lastLoginDatetime:
-        type: datetime
-        example: 2021-08-18T16:41:41.090Z
-      lastCredCheckDatetime:
-        type: datetime
-        example: 2021-02-18T16:41:41.090Z
 /organizations/{organizationId}:
   type: CommerceCloudStandards.Organization
-  /cred-qual/user:
-    description: description
-    get:
-      description: Get credential quality statistics for a user.
-      displayName: retrieveCredQualityUserInfo
-      is:
-        - SlasRateLimit:
-            responseStatus: 303
-            responseStatus2: 400
-            responseStatus3: 401
-            responseStatus4: 500
-      securedBy:
-        - CommerceCloudStandards.ShopperToken:
-            {
-              Bearer eyJ2ZXIiOiIxLjAiLCJraWQiOiI0ZTQyNTFkOS0zM2Y2LTRjMTMtYjZmZC1mOWJkNTJmYTZhNDciLCJ0eXAiOiJqd3QiLCJjbHYiOiJKMi4xLjAiLCJhbGciOiJFUzI1NiJ9.eyJhdXQiOiJHVUlEIiwic2NwIjoic2ZjYy5wcm9kdWN0cy5ybyBzZmNjLmNhdGFsb2dzLnJvIHNmY2Muc2hvcHBlci5ydyIsInN1YiI6ImNjLXNsYXM6OnNsc2FfZGV2OjpzY2lkOjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3Yjo6dXNpZDoxY2E3OWZiNi0xYjIyLTRmOWItOGJiNi05YmU5NWNjMjA4NjMiLCJjdHgiOiJzbGFzLm5vdF9mb3JfZXh0ZXJuYWxfdXNlIiwiaXNzIjoic2xhcy9kZXYvc2xzYV9kZXYiLCJpc3QiOjEsImF1ZCI6ImNvbW1lcmNlY2xvdWQvZGV2L3Nsc2FfZGV2IiwibmJmIjoxNTk0NzY0MDgwLCJzdHkiOiJVc2VyIiwiaXNiIjoidWlkbzpzbGFzOjp1cG46R3Vlc3Q6OnVpZG46R3Vlc3QgVXNlciIsImV4cCI6MTU5NDc2NTkxMCwiaWF0IjoxNTk0NzY0MTEwLCJqdGkiOiJDMkMxNjM0NTE0NTEwLTE3MTQzMTg2NzY0MjcwNTcyNjQ2NTYxMzgifQ.UVYAsWXCn3hoUPy8vLlc7O96RZEHD3N3ZgdNH-ZVvJ1G-R6uJ2VPrYvwKmYXF41Ujm2bo83AYOHVqEEEPT8Kgw,
-            }
-      queryParameters:
-        username:
-          description: User's login ID or email address.
-          type: string
-          example: "samantha.sampleson@example.com"
-      responses:
-        200:
-          description: !include credential-quality-statistics-description.md
-          body:
-            application/json:
-              type: CredQualityUserResponse
-              example: |
-                {
-                  "tenantId": "aaaa_prd",
-                  "username": "samantha.sampleson@example.com",
-                  "email": "samantha.sampleson@example.com",
-                  "credQualityMeasure": 0,
-                  "pwdStrengthMeasure": 0,
-                  "pwdQualityMeasure": 0,
-                  "credChangeCount": 0,
-                  "loginCount": 0,
-                  "lastLoginDatetime": "2021-02-18T16:41:41.090Z",
-                  "lastCredCheckDatetime": "2021-02-18T16:41:41.090Z",
-                  "atoScore": 3,
-                  "atoLastDatetime": "2021-02-18T16:41:41.090Z",
-                  "atoLastSourceIp": "",
-                  "atoScoreHistory": "5, 6, 7"
-                }
-        400:
-          description: Bad Request
-          body:
-            application/problem+json:
-              type: Oauth2ErrorResponse
-              example: |
-                {
-                  "error": "invalid_request",
-                  "error_description": "Bad or missing organization ID."
-                }
-        404:
-          description: Unauthorized
-          body:
-            application/problem+json:
-              type: Oauth2ErrorResponse
-              example: |
-                {
-                "error": "invalid_client",
-                "error_description": "Basic Authorization failed."
-                }
   /oauth2:
     /login:
       description: |
@@ -901,6 +809,7 @@ types:
                       "id_token": "null",
                       "refresh_token": "EnL9U2f3-WiVPwL60CFBI21UY_oxWAwX5JkgO-X12Vs",
                       "expires_in": 0,
+                      "refresh_token_expires_in": 0,
                       "token_type": "Bearer",
                       "usid": "null",
                       "customer_id": "null",
@@ -1107,6 +1016,7 @@ types:
                     "id_token": "eyJraWQiOiI3NGU2YjMxZS1lYTczLTQ3OTYtOWRkYi1jMDJmZGI4ZDgwYmUiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ1c2lkOmQ1MDBhMzY5LTc1MWQtNDkzYy1iNDAzLThmOThmYjg3MTdiNiIsImF1ZCI6IjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3YiIsImlzcyI6ImRldi51cy5zaG9wcGVyLmNjLnNhbGVzZm9yY2UuY29tIiwibmFtZSI6ImJsYWlyLnNsYXMudGVzdEBnbWFpbC5jb20iLCJleHAiOjE1OTExMTE0MzgsImlhdCI6MTU5MTEwOTYzOCwiZW1haWwiOiJibGFpci5zbGFzLnRlc3RAZ21haWwuY29tIn0.KgpAcq-G9Lz7IGnjkJlaFLFXYncVCwcVrRIuy3bEfgzRozqaDRvAori4oOz4RtgYjmoc5x2euoisHL0mVnHgPKOdYBty1wTJqneJEQt6hP4Kp0KFciID_ILCi-DE8VWS5t0NknnMP_iKhIkqcRL48iwPFUWkWA6AEWxE_yvJLNRLithsSxsx7EfBfpD8Hr2b5tMEwImQNmJNYGRTI4LSmcYspBORvJoAnfGpMC0kglxl40bhf5j4ItX4_DiWQC4zaGYD-HJV4BDr6C7iGCs5ZVPypF0yQD3iBio26fwj9Ys5WF9XMtPtqET2kqsz6fDC5GkE6HTUHH_r87jxbDq-8w",
                     "refresh_token": "EgMYpjfFKdlSy-a3PYeyihmP95IpIp3FaDpPmVH1yu8.lahomBi7zJbRa6yKAuAAiKu3lprTPsEueKwqcBvhRLU",
                     "expires_in": 900,
+                    "refresh_token_expires_in": 7776000,
                     "token_type": "Bearer",
                     "usid": "18cda486-fe32-4e27-888b-6e4f89938e67",
                     "customer_id": "1000005",
@@ -1175,6 +1085,7 @@ types:
                     "id_token": "eyJraWQiOiI3NGU2YjMxZS1lYTczLTQ3OTYtOWRkYi1jMDJmZGI4ZDgwYmUiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ1c2lkOmQ1MDBhMzY5LTc1MWQtNDkzYy1iNDAzLThmOThmYjg3MTdiNiIsImF1ZCI6IjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3YiIsImlzcyI6ImRldi51cy5zaG9wcGVyLmNjLnNhbGVzZm9yY2UuY29tIiwibmFtZSI6ImJsYWlyLnNsYXMudGVzdEBnbWFpbC5jb20iLCJleHAiOjE1OTExMTE0MzgsImlhdCI6MTU5MTEwOTYzOCwiZW1haWwiOiJibGFpci5zbGFzLnRlc3RAZ21haWwuY29tIn0.KgpAcq-G9Lz7IGnjkJlaFLFXYncVCwcVrRIuy3bEfgzRozqaDRvAori4oOz4RtgYjmoc5x2euoisHL0mVnHgPKOdYBty1wTJqneJEQt6hP4Kp0KFciID_ILCi-DE8VWS5t0NknnMP_iKhIkqcRL48iwPFUWkWA6AEWxE_yvJLNRLithsSxsx7EfBfpD8Hr2b5tMEwImQNmJNYGRTI4LSmcYspBORvJoAnfGpMC0kglxl40bhf5j4ItX4_DiWQC4zaGYD-HJV4BDr6C7iGCs5ZVPypF0yQD3iBio26fwj9Ys5WF9XMtPtqET2kqsz6fDC5GkE6HTUHH_r87jxbDq-8w",
                     "refresh_token": "EgMYpjfFKdlSy-a3PYeyihmP95IpIp3FaDpPmVH1yu8.lahomBi7zJbRa6yKAuAAiKu3lprTPsEueKwqcBvhRLU",
                     "expires_in": 900,
+                    "refresh_token_expires_in": 7776000,
                     "token_type": "Bearer",
                     "usid": "18cda486-fe32-4e27-888b-6e4f89938e67",
                     "customer_id": "1000005",
@@ -1249,6 +1160,7 @@ types:
                     "id_token": "eyJraWQiOiI3NGU2YjMxZS1lYTczLTQ3OTYtOWRkYi1jMDJmZGI4ZDgwYmUiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ1c2lkOmQ1MDBhMzY5LTc1MWQtNDkzYy1iNDAzLThmOThmYjg3MTdiNiIsImF1ZCI6IjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3YiIsImlzcyI6ImRldi51cy5zaG9wcGVyLmNjLnNhbGVzZm9yY2UuY29tIiwibmFtZSI6ImJsYWlyLnNsYXMudGVzdEBnbWFpbC5jb20iLCJleHAiOjE1OTExMTE0MzgsImlhdCI6MTU5MTEwOTYzOCwiZW1haWwiOiJibGFpci5zbGFzLnRlc3RAZ21haWwuY29tIn0.KgpAcq-G9Lz7IGnjkJlaFLFXYncVCwcVrRIuy3bEfgzRozqaDRvAori4oOz4RtgYjmoc5x2euoisHL0mVnHgPKOdYBty1wTJqneJEQt6hP4Kp0KFciID_ILCi-DE8VWS5t0NknnMP_iKhIkqcRL48iwPFUWkWA6AEWxE_yvJLNRLithsSxsx7EfBfpD8Hr2b5tMEwImQNmJNYGRTI4LSmcYspBORvJoAnfGpMC0kglxl40bhf5j4ItX4_DiWQC4zaGYD-HJV4BDr6C7iGCs5ZVPypF0yQD3iBio26fwj9Ys5WF9XMtPtqET2kqsz6fDC5GkE6HTUHH_r87jxbDq-8w",
                     "refresh_token": "EgMYpjfFKdlSy-a3PYeyihmP95IpIp3FaDpPmVH1yu8.lahomBi7zJbRa6yKAuAAiKu3lprTPsEueKwqcBvhRLU",
                     "expires_in": 900,
+                    "refresh_token_expires_in": 7776000,
                     "token_type": "Bearer",
                     "usid": "18cda486-fe32-4e27-888b-6e4f89938e67",
                     "customer_id": "1000005",
@@ -1437,6 +1349,7 @@ types:
                     "refresh_token": "EgMYpjfFKdlSy-a3PYeyihmP95IpIp3FaDpPmVH1yu8.lahomBi7zJbRa6yKAuAAiKu3lprTPsEueKwqcBvhRLU",
                     "expires_in": 900,
                     "token_type": "Bearer",
+                    "refresh_token_expires_in": 7776000,
                     "usid": "18cda486-fe32-4e27-888b-6e4f89938e67",
                     "customer_id": "1000005",
                     "enc_user_id": "45D39A8499A95288F82855427EBA99B5",
@@ -1608,6 +1521,7 @@ types:
                     "id_token": "eyJraWQiOiI3NGU2YjMxZS1lYTczLTQ3OTYtOWRkYi1jMDJmZGI4ZDgwYmUiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ1c2lkOmQ1MDBhMzY5LTc1MWQtNDkzYy1iNDAzLThmOThmYjg3MTdiNiIsImF1ZCI6IjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3YiIsImlzcyI6ImRldi51cy5zaG9wcGVyLmNjLnNhbGVzZm9yY2UuY29tIiwibmFtZSI6ImJsYWlyLnNsYXMudGVzdEBnbWFpbC5jb20iLCJleHAiOjE1OTExMTE0MzgsImlhdCI6MTU5MTEwOTYzOCwiZW1haWwiOiJibGFpci5zbGFzLnRlc3RAZ21haWwuY29tIn0.KgpAcq-G9Lz7IGnjkJlaFLFXYncVCwcVrRIuy3bEfgzRozqaDRvAori4oOz4RtgYjmoc5x2euoisHL0mVnHgPKOdYBty1wTJqneJEQt6hP4Kp0KFciID_ILCi-DE8VWS5t0NknnMP_iKhIkqcRL48iwPFUWkWA6AEWxE_yvJLNRLithsSxsx7EfBfpD8Hr2b5tMEwImQNmJNYGRTI4LSmcYspBORvJoAnfGpMC0kglxl40bhf5j4ItX4_DiWQC4zaGYD-HJV4BDr6C7iGCs5ZVPypF0yQD3iBio26fwj9Ys5WF9XMtPtqET2kqsz6fDC5GkE6HTUHH_r87jxbDq-8w",
                     "refresh_token": "EgMYpjfFKdlSy-a3PYeyihmP95IpIp3FaDpPmVH1yu8.lahomBi7zJbRa6yKAuAAiKu3lprTPsEueKwqcBvhRLU",
                     "expires_in": 900,
+                    "refresh_token_expires_in": 7776000,
                     "token_type": "Bearer",
                     "usid": "18cda486-fe32-4e27-888b-6e4f89938e67",
                     "customer_id": "1000005",
@@ -1677,6 +1591,7 @@ types:
                       "id_token": "null",
                       "refresh_token": "EnL9U2f3-WiVPwL60CFBI21UY_oxWAwX5JkgO-X12Vs",
                       "expires_in": 0,
+                      "refresh_token_expires_in": 0,
                       "token_type": "Bearer",
                       "usid": "null",
                       "customer_id": "null",

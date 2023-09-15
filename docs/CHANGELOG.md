@@ -10,6 +10,13 @@ only use JavaScript, or if you use TypeScript but only import the client classes
 then your usage **will not change**. You will likely only need to make changes if
 you import the type definitions directly.
 
+### v2.11.1
+
+#### Bug fixes
+
+- Fix `expand` query parameter for `shopper-products`
+- Remove `retrieveCredQualityUserInfo` endpoint from `shopper-login` as this functionality was removed from SLAS
+
 ### v2.11.0
 
 #### API Changes
