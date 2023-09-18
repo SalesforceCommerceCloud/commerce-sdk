@@ -36,6 +36,7 @@ const expectedTokenResponse: ShopperLogin.TokenResponse = {
   id_token: "id_token",
   refresh_token: "refresh_token",
   expires_in: 0,
+  refresh_token_expires_in: 0,
   token_type: "token_type",
   usid: "usid",
   customer_id: "customer_id",
