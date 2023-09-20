@@ -10,6 +10,12 @@ only use JavaScript, or if you use TypeScript but only import the client classes
 then your usage **will not change**. You will likely only need to make changes if
 you import the type definitions directly.
 
+## v2.11.2
+
+#### Bug fixes
+
+- Mark `expand` query parameter for `getProduct` endpoint as optional instead of required
+
 ### v2.11.1
 
 #### Bug fixes
