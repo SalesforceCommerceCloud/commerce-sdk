@@ -1,0 +1,275 @@
+#%RAML 1.0 Library
+
+types:
+  ExternalRefId: !include ../types/GlobalTypes/ExternalRefId.raml
+  IdempotentId: !include ../types/GlobalTypes/IdempotenceId.raml
+  SkuId: !include ../types/GlobalTypes/SkuId.raml
+  PlaceId: !include ../types/GlobalTypes/PlaceId.raml
+  GroupId: !include ../types/GlobalTypes/GroupId.raml
+  PlaceType: !include ../types/GlobalTypes/PlaceType.raml
+  ReserveQuantity: !include ../types/GlobalTypes/ReservedQuantity.raml
+  Date: !include ../types/GlobalTypes/Date.raml
+  LocationId: !include ../types/GlobalTypes/LocationId.raml
+  ExpirationDateTime: !include ../types/ReservationExpirationTime.raml
+  LocationReservationRecordsNoErrors: !include ../types/ReserveInventoryRequestResponseTypes/LocationReservationRecordsNoErrors.raml
+  LocationReservationRecordsAllErrors: !include ../types/ReserveInventoryRequestResponseTypes/LocationReservationRecordsAllErrors.raml
+  ReservationErrorLines: !include ../types/ReserveInventoryRequestResponseTypes/ReservationErrorLines.raml
+  ReservationItemErrorLines: !include ../types/ReserveInventoryRequestResponseTypes/ReservationItemErrorLines.raml
+  ReservationErrorLines2: !include ../types/ReserveInventoryRequestResponseTypes/ReservationErrorLines2.raml
+  ReservationSuccessfulLines: !include ../types/ReserveInventoryRequestResponseTypes/ReservationSuccessfulLines.raml
+  LocationReservationRecordsWithItemErrors: !include ../types/ReserveInventoryRequestResponseTypes/LocationReservationRecordsWithItemErrors.raml
+  GroupReservationRecordsWithErrors: !include ../types/ReserveInventoryRequestResponseTypes/GroupReservationRecordsWithErrors.raml
+  LocationReservationRecordsWithErrors: !include ../types/ReserveInventoryRequestResponseTypes/LocationReservationRecordsWithErrors.raml
+  GroupReservationRecordsWithItemErrors: !include ../types/ReserveInventoryRequestResponseTypes/GroupReservationRecordsWithItemErrors.raml
+  GroupReservationRecordsNoErrors: !include ../types/ReserveInventoryRequestResponseTypes/GroupReservationRecordsNoErrors.raml
+  RequestBodyRecord: !include ../types/ReserveInventoryRequestResponseTypes/RequestReservationBodyRecord.raml
+
+  RequestBody:
+    properties:
+      externalRefId:
+        required: false
+        type: ExternalRefId
+      records:
+        type: array
+        items: 
+          type: RequestBodyRecord
+      allowFewer:
+        required: false
+        type: boolean
+        description: Indicates whether it's okay to reserve fewer than requested. Default is true.
+      atfOnly:
+        required: false
+        type: boolean
+        description: Only reserve against available to fulfill. Default is false.
+
+  ResponseBodyReservationSuccess:
+    displayName: Successful Reservation
+    description: Successful Reservation 
+    properties:
+      reservationTime:
+        description: The time the reservation was placed
+        type: Date
+        example: 2019-07-24T21:13:00Z
+      expirationTime:
+        type: ExpirationDateTime
+      success:
+        description: Whether or not the reservation was successful
+        type: boolean
+        default: true    
+      groups:
+        description: Group level reservation information
+        type: array
+        required: false
+        items: GroupReservationRecordsNoErrors
+      locations:
+        description: Location level reservation information.
+        required: false
+        items: LocationReservationRecordsNoErrors
+
+  ResponseBodyReservationPartialItemSuccess:
+    displayName: Reservation With Partial Item Success
+    properties:
+      reservationTime:
+        description: The time the reservation was placed
+        type: Date
+        example: 2019-07-24T21:13:00Z
+      expirationTime:
+        type: ExpirationDateTime
+      success:
+        description: Whether or not the reservation was successful
+        type: boolean
+        default: true
+      groups:
+        required: false
+        description: Group level reservation information
+        type: array
+        items: GroupReservationRecordsWithItemErrors
+      locations:
+        required: false
+        description: Location level reservation information
+        type: array
+        items: LocationReservationRecordsWithItemErrors
+
+  ResponseBodyReservationPartialQtySuccess:
+    displayName: Reservation With Partial Quantity Success
+    properties:
+      reservationTime:
+        description: The time the reservation was placed
+        type: Date
+        example: 2019-07-24T21:13:00Z
+      expirationTime:
+        type: ExpirationDateTime
+      success:
+        description: Whether or not the reservation was successful
+        type: boolean
+        default: false
+      groups:
+        required: false
+        description: Group level reservation information
+        type: array
+        items: GroupReservationRecordsWithErrors
+      locations:
+        required: false
+        description: Location level reservation information
+        type: array
+        items: LocationReservationRecordsWithErrors
+  
+  ResponseBodyReservationFail:
+    displayName: Reservation Failure
+    properties:
+      reservationTime:
+        description: The time the reservation was placed
+        type: Date
+        example: 2019-07-24T21:13:00Z
+      expirationTime: 
+        type: ExpirationDateTime
+      success:
+        description: Whether or not the reservation was successful
+        type: boolean
+        default: true
+        example:
+          value: false
+      groups:
+        description: Group level reservation information.
+        type: array
+        required: false
+        items: GroupReservationRecordsAllErrors
+      locations:
+        description: Location level reservation information
+        type: array
+        required: false
+        items: LocationReservationRecordsAllErrors
+
+  ResponseBodyReservationPartialNoItemSuccess:
+    displayName: Reservation With Partial Allowed No Item Success
+    example: !include ../Examples/ResponseBodyReservationPartialNoItemSuccess.raml
+    properties:
+      reservationTime:
+        description: The time the reservation was placed
+        type: Date
+        example: 2019-07-24T21:13:00Z
+      expirationTime:
+        type: ExpirationDateTime
+      success:
+        description: Whether or not the reservation was successful
+        type: boolean
+        default: false
+      groups:
+        required: false
+        description: Group level reservation information
+        type: array
+        items: GroupReservationRecordsAllErrors
+      locations:
+        required: false
+        description: Location level reservation information
+        type: array
+        items: LocationReservationRecordsAllErrors
+
+  ResponseBodyReservationNonPartialSomeItemSuccessSomeFail:
+    displayName: Non-Partial Allowed Reservation With Some Item Success and Some Failed
+    example: !include ../Examples/ResponseBodyReservationNonPartialSomeItemSuccessSomeFail.raml
+    properties:
+      reservationTime:
+        description: The time the reservation was placed
+        type: Date
+        example: 2019-07-24T21:13:00Z
+      expirationTime:
+        type: ExpirationDateTime
+      success:
+        description: Whether or not the reservation was successful
+        type: boolean
+        default: false
+      groups:
+        required: false
+        description: Group level reservation information
+        type: array
+        items: GroupReservationRecordsWithItemErrors
+      locations:
+        required: false
+        description: Location level reservation information
+        type: array
+        items: LocationReservationRecordsWithItemErrors
+
+  ResponseBodyReservationNonPartialAllItemsFail:
+    displayName: Non-Partial Allowed Reservation With All Items Failed
+    example: !include ../Examples/ResponseBodyReservationNonPartialAllItemsFail.raml
+    properties:
+      reservationTime:
+        description: The time the reservation was placed
+        type: Date
+        example: 2019-07-24T21:13:00Z
+      expirationTime:
+        type: ExpirationDateTime
+      success:
+        description: Whether or not the reservation was successful
+        type: boolean
+        default: false
+      groups:
+        required: false
+        description: Group level reservation information
+        type: array
+        items: GroupReservationRecordsAllErrors
+      locations:
+        required: false
+        description: Location level reservation information
+        type: array
+        items: LocationReservationRecordsAllErrors
+
+  GroupReservationRecordsAllErrors:
+    description: Group level line items for reservation responses.
+    properties:
+      id: 
+        type: GroupId
+        description: The group ID associated with these reservations
+        required: true
+        example: UnitedStates
+      errors:
+        type: array
+        description: Errors that were encountered while trying to place a reservation
+        items: [ReservationErrorLines,ReservationErrorLines2]
+
+  ResponseBodyReservationFailedErrorDetail:
+    properties:
+      type:
+        type: PlaceType
+      id: 
+        type: PlaceId
+        examples: {location: warehouse5 , group: UnitedStates}
+      uniqueId:
+        type: IdempotentId
+      externalRefId:
+        type: ExternalRefId
+      sku:
+        type: SkuId
+        example: sku123
+        required: true
+ 
+  ResponseBodyReservationFailedError409:
+    properties:
+      message:
+        example: Id already exists. 
+        type: string
+      reason:
+        type: string
+        example: Id already exists.
+      details: 
+        type: array
+        items:
+          type: ResponseBodyReservationFailedErrorDetail
+
+  ResponseBodyReservationFailed409:
+    properties:
+      errors: 
+        type: array
+        items:
+          type: ResponseBodyReservationFailedError409
+          
+  Error400NoLocationOrGroupsProvided:
+    displayName: No Location Or Group Provided
+    properties:
+      errorCode:
+        type: string
+        example: err104
+      message:
+        type: string
+        example: No location or groups provided

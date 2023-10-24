@@ -1,0 +1,16 @@
+#%RAML 1.0 DataType
+
+description: Information about any errors that occurred attempting to place the reservation.
+properties:
+  sku:
+    required: true
+    description: The inventory identifier
+    type: string
+    example: "sku5678"
+    minLength: 1
+    maxLength: 250
+    pattern: ^[a-zA-Z0-9|-]*$
+  errorCode:
+    type: !include PlaceReservationErrorCode.raml
+    required: true
+    example: "Unknown"

@@ -1,0 +1,34 @@
+#%RAML 1.0 DataType
+description: A record contained within the lookup results containing details about the item.  Those details include the sku, available to fulfill amount, available to order amount, quantity on hand amount, and the safety stock count value.
+
+properties:
+  sku:
+    type: !include SkuId.raml
+  atf:
+    type: !include ATFForGroup.raml
+  ato:
+    type: !include ATOForGroup.raml
+  onHand:
+    description: The amount on hand within the location group
+    type: !include QOHForGroup.raml
+  reserved:
+    type: !include ReservedQuantityForGroup.raml
+  safetyStockCount:
+    description: The safety stock value for the item within the location group
+    type: !include SafetyStock.raml
+  groupReserved:
+    description: The total group reservations for the group NOT including shared
+    type: !include GroupReserved.raml
+    required: False
+  sharedGroupReserved:
+    description: The amount of the soft_reserved count that comes from other groups
+    type: !include SharedGroupReserved.raml
+    required: False
+  effectiveDate:
+    type: !include EffectiveDateGeneric.raml
+    required: false
+  futures:
+    required: false
+    type: array
+    items: 
+      type: !include FutureForGroup.raml

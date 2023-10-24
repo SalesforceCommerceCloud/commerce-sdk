@@ -1,0 +1,21 @@
+#%RAML 1.0 Library
+types:
+  DeltaTokenType: !include ../../types/DeltaToken.raml
+  DeltaRecordType: !include ../../types/DeltaRecord.raml
+  ShouldQueryAgain: !include ../../types/ShouldQueryAgain.raml
+
+  GetAvailabilityDeltasPostBody:
+    properties:
+      deltaToken:
+        type: DeltaTokenType
+
+  GetAvailabilityDeltasResponse200:
+    properties:
+      nextDeltaToken:
+        type: DeltaTokenType
+        example: e3NoYXJkSWQtMDAwMDAwMDE1NzczOTkxNTc2MDItYmE5MGYxNGE6MDAwMDAwMDAwMDAwMDAwMDAwNDQ0fQ==
+      shouldQueryAgain:
+        type: ShouldQueryAgain
+      records:
+        type: array
+        items: DeltaRecordType

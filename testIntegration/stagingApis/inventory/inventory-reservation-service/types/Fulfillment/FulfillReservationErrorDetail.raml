@@ -1,0 +1,22 @@
+#%RAML 1.0 DataType
+
+description: Reservation fulfillment error detail information
+properties:
+  id:
+    type: !include ../GlobalTypes/IdempotenceId.raml
+  externalRefId:
+    required: false 
+    type: !include ../GlobalTypes/ExternalRefId.raml
+  location:
+    type: !include ../GlobalTypes/LocationId.raml
+    required: true
+  sku:
+    type: !include ../GlobalTypes/SkuId.raml
+    required: true
+    minLength: 1
+  quantity:
+    description: Must be a positive value
+    type: !include ../GlobalTypes/QOH.raml
+    required: true
+    minimum: 0.001
+    example: 1200.35

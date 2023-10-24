@@ -313,7 +313,15 @@ types:
         type: string
         example: "Ar0lAwU_jsuA~ZXX8-JnMbZFxrnDot2OtgLEi1kOT_FxD6Bo0EQDbbrvoym9xHvatNGnNzrObLJeK6e4U9m4pveRMbdwNGa4jwiAlKGvijVn0PW0hqb03_w1gQE00wTo"
       dwsid:
-        description: Cookie passed back from the '/authorize' endpoint call for session bridge. This parameter is optional and not needed if using the `dwsgst` parameter.
+        description: |-
+          Cookie passed back from the '/authorize' endpoint call for session bridge. This parameter is optional and not needed if using the `dwsgst` parameter.
+
+          DEPRECATED - As of January 31, 2024, SLAS will no longer support the SESB `dwsid` parameter for `guest` users for session-bridge/token calls. It is recommended to transition over to using a SESB `dwsgst` token. 
+          
+          The `dwsid` will still be needed for `registered` user session-bridge/token calls.
+
+           
+
         type: string
         example: pATvWUO3KSdt-Kmcy-8-RsxKnoO4BMDwoec7ACVlW6tZNnhaOL7gt7mHqL-h7QYn5TyE61z0DeSMCqxngsWeHw==
       grant_type:
@@ -631,8 +639,7 @@ types:
               responseStatus: 303
               responseStatus2: 400
               responseStatus3: 401
-              responseStatus4: 401
-              responseStatus5: 500
+              responseStatus4: 500
         headers:
           Authorization:
             displayName: Login
@@ -928,6 +935,16 @@ types:
             minLength: 43
             maxLength: 128
             example: "krc5G3_5lRUcXDUzFZQ88oJA_-ZmlHWkyGsgOrSLEWg"
+          ui_locales:
+            description: |-
+              End-User's preferred languages and scripts for the user interface, represented as a space-separated list of BCP47 [RFC5646] language tag values, ordered by preference. For example, the value `fr-CA fr en` represents a preference for French as spoken in Canada, then French (without a region designation), followed by English (without a region designation). 
+
+              In most cases the IDP supports one language tag and has a default language set on the server. SLAS will support the space-separated list and pass them to the IDP.
+            required: false
+            type: string
+            maxLength: 256
+            example: "en es-A fr-CA"
+
         responses:
           303:
             description: Success. The authorization code is added to the `redirect_uri`.
@@ -1063,6 +1080,10 @@ types:
 
           For  private client_id and secret the grant_type must be set to `client_credentials` along with a basic authorization header.
 
+          **DEPRECATED** - As of January 31, 2024, SLAS will no longer support the SESB `dwsid` parameter for `guest` users for `session-bridge/token` calls. It is recommended to transition over to using a SESB `dwsgst` token. 
+          
+          The `dwsid` will still be needed for `registered` user `session-bridge/token` calls.
+
         displayName: getSessionBridgeAccessToken
         is:
           - SlasRateLimit:
@@ -1186,6 +1207,16 @@ types:
                   {
                   "error": "invalid_client",
                   "error_description": "Authorization failed."
+                  }
+          409:
+            description: Conflict
+            body:
+              application/problem+json:
+                type: Oauth2ErrorResponse
+                example: |
+                  {
+                  "error": "conflict",
+                  "error_description": "The same loginId and tenantId tried to login twice within 1 second."
                   }
           503:
             description: Gateway Error

@@ -1,0 +1,193 @@
+#%RAML 1.0 Library
+usage:
+    
+types:
+  UnreserveDetail: !include ../types/Unreserve/UnreserveDetail.raml
+  UnreserveDetailGroupOnly: !include ../types/Unreserve/UnreserveDetailGroupOnly.raml
+  UnreserveDetailLocationOnly: !include ../types/Unreserve/UnreserveDetailLocationOnly.raml
+  
+  RequestBodyGroup:
+    displayName: Request Body By Group Only
+    properties:
+      records:
+        type: array
+        items:
+          properties:
+            id: 
+              type: !include ../types/GlobalTypes/IdempotenceId.raml
+            externalRefId: 
+              type: !include ../types/GlobalTypes/ExternalRefId.raml
+              required: false
+            group:
+              description: Either a location or a group is required, but both results in an error
+              type: !include ../types/GlobalTypes/GroupId.raml
+              example: UnitedStates
+              required: false
+            sku:
+              type: !include ../types/GlobalTypes/SkuId.raml
+              required: true
+            quantity:
+              #description: Required, positive
+              type: !include ../types/GlobalTypes/QOH.raml
+              #example: 1200.35
+
+  RequestBodyGroupAndLocation:
+    displayName: Request Body By Groups and Locations
+    example:
+      value: | 
+        {
+          "records": [
+            {
+              "id": "82251928-8863-488e-840b-2aebd10b57ba",
+              "externalRefId": "7282822-9823-aaa"
+              "location": "warehouse5",
+              "sku": "sku1234",
+              "quantity": 1200.35
+            },
+            {
+              "id": "82251928-8863-488e-840b-2aebd10b6666",
+              "externalRefId": "7282822-9823-bbb"
+              "group": "UnitedStates",
+              "sku": "sku5678",
+              "quantity": 1.35
+            }
+          ]
+        }  
+        
+  RequestBodyLocation:
+    displayName: Request Body By Location Only
+    properties:
+      records:
+        type: array
+        items:
+          properties:
+            id: 
+              type: !include ../types/GlobalTypes/IdempotenceId.raml
+            externalRefId: 
+              type: !include ../types/GlobalTypes/ExternalRefId.raml
+              required: false
+            location: 
+              description: Either a location or a group is required, but both results in an error
+              type: !include ../types/GlobalTypes/LocationId.raml
+              example: warehouse5
+              required: false
+            sku:
+              type: !include ../types/GlobalTypes/SkuId.raml
+              required: true
+              minLength: 1
+            quantity:
+              #description: Required, positive
+              type: !include ../types/GlobalTypes/QOH.raml
+              #required: true
+              #minimum: 0.001
+
+  ResponseBodyGroup:
+    displayName: Response Body By Group Only
+    properties:
+      errors:
+        type: array
+        items:
+          properties:
+            details:
+              type: UnreserveDetailGroupOnly
+            errorCode:
+              type: string
+              required: false
+              example: InsufficientQuantity
+            message:
+              type: string
+              required: false
+              example: Insufficient Quantity
+        example:
+          value: |
+              [
+                {
+                  "details": {
+                    "id": "82251928-8863-488e-840b-2aebd10b6666",
+                    "externalRefId": "7282822-9823-bbb",
+                    "group": "UnitedStates",
+                    "sku": "sku5678",
+                    "quantity": 0
+                  },
+                  "message": "Insufficient Quantity",
+                  "errorCode": "InsufficientQuantity"
+                }
+              ]
+
+  ResponseBodyLocation:
+    displayName: Response Body By Location Only
+    properties:
+      errors:
+        type: array
+        items:
+          properties:
+            details:
+              type: UnreserveDetailLocationOnly
+            errorCode:
+              type: string
+              required: false
+              example: InsufficientQuantity
+            message:
+              type: string
+              required: false
+              example: Insufficient Quantity
+        example:
+          value: |
+              [
+                {
+                  "details": {
+                    "id": "82251928-8863-488e-840b-2aebd10b57ba",
+                    "externalRefId": "7282822-9823-aaa",
+                    "location": "warehouse5",
+                    "sku": "sku1234",
+                    "quantity": 0
+                  },
+                  "message": "Insufficient Quantity",
+                  "errorCode": "InsufficientQuantity"
+                }
+              ]
+
+  ResponseBodyGroupAndLocation:
+    displayName: Response Body By Groups and Locations
+    properties:
+      errors:
+        type: array
+        items:
+          properties:
+            details:
+              type: UnreserveDetail
+            errorCode:
+              type: string
+              required: false
+              example: InsufficientQuantity
+            message:
+              type: string
+              required: false
+              example: No group exists with ID 'UnitedStates'
+        example:
+          value: |
+              [
+                {
+                  "details": {
+                    "id": "82251928-8863-488e-840b-2aebd10b6666",
+                    "externalRefId": "7282822-9823-bbb",
+                    "group": "UnitedStates",
+                    "sku": "sku5678",
+                    "quantity": 0
+                  },
+                  "message": "Insufficient Quantity",
+                  "errorCode": "InsufficientQuantity"
+                },
+                {
+                  "details": {
+                    "id": "82251928-8863-488e-840b-2aebd10b57ba",
+                    "externalRefId": "7282822-9823-aaa",
+                    "location": "warehouse5",
+                    "sku": "sku1234",
+                    "quantity": 0
+                  },
+                  "message": "Insufficient Quantity",
+                  "errorCode": "InsufficientQuantity"
+                }
+              ]
+            

@@ -1,0 +1,23 @@
+#%RAML 1.0 DataType
+description: This object is the import inventory record
+type: object
+properties:
+  sku:
+    description: The SKU associated with the item
+    type: string
+    example: sku123
+  quantity:
+    description: The quantity to insert for the item
+    type: number
+    minimum: 0.001
+    example: 100
+  safety-stock-count:
+    description: Quantity to ‘Hold Back’ from ATS/ATF/ATO
+    type: number
+    minimum: 0.001
+    example: 20
+  futures:
+    required: false
+    type: array
+    items:
+      type: !include ../Imports/ImportInventoryFuture.raml

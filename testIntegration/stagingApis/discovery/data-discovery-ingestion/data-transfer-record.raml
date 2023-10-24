@@ -1,0 +1,127 @@
+#%RAML 1.0 Library
+uses:
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.12/api-standards.raml
+  IngestionLibrary: discovery-ingestion-library.raml
+  DiscoveryStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/discovery-standards/0.0.28/discovery-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml
+
+types:
+  FileCommonAttributes:
+    description: File upload common attributes used by different data types.
+    type: CommerceCloudStandards.ClosedObject
+    properties:
+      fileName:
+        description: The name of the file.
+        type: string
+        example: file1.dat
+      hashAlgorithm: IngestionLibrary.FileHashAlgorithm
+      fileHash:
+        description: The expected hash of the file.
+        type: string
+        example: 35245312A7EB9A085F57A3031D29FD7E78B8ED9FDE52AB35957F20C68F79F168
+
+  DataTransferRecordCommonAttributesWithFileData:
+    description: Common attributes of the Data Transfer Record including the file data that are used by multiple data types.
+    type: FileCommonAttributes
+    properties:
+      dataTransferRecordId: IngestionLibrary.DataTransferRecordId
+      validationStatus: IngestionLibrary.FileStatus
+      creationDateTime: DiscoveryStandards.CreationDateTime
+      lastUpdateDateTime: DiscoveryStandards.LastUpdateDateTime
+
+  DataTransferRecordCommonAttributes:
+    description: Common attributes of the Data Transfer Record excluding the file data.
+    type: CommerceCloudStandards.ClosedObject
+    properties:
+      dataTransferRecordId: IngestionLibrary.DataTransferRecordId
+      validationStatus: IngestionLibrary.FileStatus
+      creationDateTime: DiscoveryStandards.CreationDateTime
+      lastUpdateDateTime: DiscoveryStandards.LastUpdateDateTime
+
+  DataTransferRecord:
+    description: Details about the Data Transfer Record.
+    type: DataTransferRecordCommonAttributesWithFileData
+    properties:
+      uploadLinkDetails: UploadLinkDetails
+
+  DataTransferRecordCreationInput:
+    description: The information describing the data file.
+    type: FileCommonAttributes
+    properties:
+      expirationDurationInMinutes?:
+         description: The number of minutes to keep the upload link active.
+         type: integer
+         example: 10
+         minimum: 1
+         maximum: 30
+         default: 5
+
+  DataTransferRecordCreationOutput:
+    description: Details about the created Data Transfer Record.
+    type: CommerceCloudStandards.ClosedObject
+    properties:
+      dataTransferRecordId: IngestionLibrary.DataTransferRecordId
+      uploadLinkDetails: UploadLinkDetails
+      creationDateTime: DiscoveryStandards.CreationDateTime
+
+  DataTransferRecordsBulkResponse:
+    type: CommerceCloudStandards.ClosedObject
+    description: Details of all the custom filtered Data Transfer Records associated with the Data Set.
+    properties:
+      hits:
+        description: Bulk status of the Data Transfer Records.
+        type: DataTransferRecordStatus[]
+      limit: 
+        type: ApiStandards.Limit
+        maximum: 200
+        description: Maximum records to retrieve per request, not to exceed 200.
+      offset: ApiStandards.Offset
+      total:
+        description: The total number of hits that match the search's criteria. This can be greater than the number of results returned as search results are pagenated.
+        type: integer
+        format: int64
+        
+  DataTransferRecordStatus:
+    description: Details and status of the Data Transfer Records.
+    type: DataTransferRecordCommonAttributes
+    properties:
+      fileName:
+        description: The name of the file.
+        type: string
+        example: file1.dat
+      links: 
+        type: DiscoveryStandards.ResourceLink
+        examples:
+          links:
+            self:
+                href: https://0dnz6oep.api.commercecloud.salesforce.com/discovery/management/v2/organizations/org-id/data-transfer-records/a607ab82-5f3d-11ea-bc55-0242ac130003
+
+  UploadLinkDetails:
+    description: Details about the data file.
+    type: CommerceCloudStandards.ClosedObject
+    properties:
+      url: 
+        description: The URL containing the location to be used for transferring the data file.
+        type: string
+        example: https://{upload-bucket-name}/04e0da11-cc0c-4306-9761-e20739347a5f/3130aae1-0137-48d3-882e-94b8beb782aa
+      uploadMethod: IngestionLibrary.UploadMethod
+      headers:
+        description: A collection of headers used by the API. 
+        type: Header[]
+      expirationDateTime:
+        description: The expiry of the URL link. The file transfer must happen before this time.
+        type: datetime
+        example: 2019-03-19T12:34:56Z
+
+  Header:
+    description: Headers used by the API. 
+    type: CommerceCloudStandards.ClosedObject
+    properties:
+      name:
+        description: The key of the header value.
+        type: string
+        example: Content-Type
+      value:
+        description: The value of the header key used.
+        type: string
+        example: text/plain

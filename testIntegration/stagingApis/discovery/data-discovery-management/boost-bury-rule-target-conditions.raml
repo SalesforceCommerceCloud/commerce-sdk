@@ -1,0 +1,41 @@
+#%RAML 1.0 Library
+
+uses:
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml
+  DiscoveryStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/discovery-standards/0.0.34/discovery-standards.raml
+  ISOStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/Types/ISO-standards.raml
+
+types:
+  BoostBuryRuleTargetCondition:
+    description: |
+      Base resource type that defines a set of conditions to be satisfied by the items in search results. If the conditions are met, boost and bury search result rules can be applied to adjust the ranking of search results. The aim of BoostBuryRuleTargetCondition is to offer control over the ordering of the search results, allowing client to prioritize (boost) or deprioritize (bury) certain items based on predefined conditions only when "RELEVANCE" sorting is used in the query. All BoostBuryRuleTargetCondition contain folllowing the following information:
+      * operation: An enumerated value which defines the type of operation with which condition should be applied.
+      
+      Additionally, each BoostBuryRuleTargetCondition will contain configuration information on how the target condition should be applied. 
+    properties:
+      conditionType:
+        description: The type of target condition being defined, example "STRING_MULTIVALUED_TARGET_CONDITION" can be used to define a target condition that applies to mulitple values in the field "attributeValues"
+        type: string
+      attributeId: 
+        description: The unique identifier of the attribute to be targeted for the search result rule
+        type: string
+    discriminator: conditionType
+    additionalProperties: false
+
+  StringMultivaluedBoostBuryRuleTargetCondition:
+    description: This target condition allows targeting multiple items based on some attribute value. Boost/Bury search result rule will be applicable to all items defined in the resouce if they satisfy the condition in the target.
+    type: BoostBuryRuleTargetCondition
+    properties:
+      operation:
+        description: The type of operation with which condition should be applied. This operation checks if the value of the targeted attribute is contained within a specific set of values.
+        enum:
+          - IN
+        example: IN
+      attributeValues:
+        description: A collection of values for which condition is applicable
+        type: string[]
+        minItems: 1
+        maxItems: 100
+        example: ["ID-123", "ID-345"]
+    discriminatorValue: STRING_MULTIVALUED_TARGET_CONDITION
+    additionalProperties: false

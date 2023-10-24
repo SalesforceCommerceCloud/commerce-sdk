@@ -1,0 +1,117 @@
+#%RAML 1.0 Library
+
+types:
+  InitiateLocationGraphExportResponse:
+    description: Initiate location graph export response
+    type: object
+    properties:
+      exportId:
+        type: string
+        required: true
+        example: a218f4b2-2dc3-4ea8-af6d-c75fafd62323
+      exportStatusLink:
+        type: string
+        required: true
+        example: /inventory/impex/v1/organizations/AtsisIntegrationTenant/location-graph/exports/a218f4b2-2dc3-4ea8-af6d-c75fafd62323/status
+          
+  ExportLocationGraphStatusResponse200:
+    description: Export location graph status request response
+    type: object
+    example: !include ../Examples/ExportLocationGraphStatusResponseExample.raml
+    properties:
+      id:
+        type: string
+        required: true
+        example: "a218f4b2-2dc3-4ea8-af6d-c75fafd62323"
+      status:
+        type: !include ../types/GlobalTypes/GenericStatuses.raml
+        required: true
+      export:
+        properties:
+          startTimeUTC: 
+            required: true
+            type: !include ../types/GlobalTypes/Date.raml
+            example: "2020-04-15T21:21:23.675Z"
+          endTimeUTC:
+            required: false
+            type: !include ../types/GlobalTypes/Date.raml
+            example: "2020-04-15T21:21:23.812Z"
+          recordsProcessedCount: 
+            required: true
+            type: integer
+            example: 7
+          recordsExportedCount:
+            required: true
+            type: integer
+            example: 7
+      download:
+        required: false
+        properties:
+          downloadLink:
+            type: string
+            required: true
+            description: The URI link to be used for retrieving the event log export file. This link is valid anytime after the status of the export is completed and the link has not expired.
+            example: "/inventory/impex/v1/organizations/AtsisIntegrationTenant/location-graph/exports/a218f4b2-2dc3-4ea8-af6d-c75fafd62323/file-content"
+          downloadLinkExpirationUTC: 
+            type: !include ../types/GlobalTypes/Date.raml
+      validation:
+        required: false
+        properties:
+          fileHash: 
+            required: true
+            type: string
+            example: 15fba5d9facf494749b9cfabdc2c8fe1c73d974b9579bc67ab293e607f3c92bb
+          fileHashType:
+            required: true
+            description: The file hash type associated with the export file.
+            type: !include ../types/FileHashTypes.raml
+            example: SHA-256
+          fileSize:
+            required: true
+            type: integer
+            example: 607
+
+  ExportLocationGraphDownloadFile:
+    description: Export location graph download file information
+    type: object
+    example: !include ../Examples/ExportLocationGraphDownloadFileExample.raml
+    properties:
+      locations:
+        type: array
+        items: string
+        examples:
+          ex1: [l4b17f6a0-b4e6-43a1-bfee-a4a2db37b3f2]
+          ex2: [ld3b3090b-11c0-4c7d-bb5f-0ca88c7da8f8]
+          ex3: [ld3b3090b-11c0-4c7d-bb5f-0ca88c7da8f8, l4b17f6a0-b4e6-43a1-bfee-a4a2db37b3f2]
+      groups:
+        type: array
+        items: !include ../types/LocationGraph/ExportLocationGraphGroups.raml
+
+  LocationGraphExportBatchDeleteResponse200:
+    description: Response body provided for a Location Graph Export batch delete.
+    type: object
+    properties:
+      deleted:
+        description: The location graph export ID's that were successfully deleted.
+        type: array
+        items:
+          type: string
+          example: l4b17f6a0-b4e6-43a1-bfee-a4a2db37b3f2
+      errors:
+        description: List of location graph export ID's that failed to delete.
+        type: array
+        items: !include ../types/LocationGraph/ExportLocationGraphDeleteErrors.raml
+
+  LocationGraphExportBatchDeleteBody:
+    description: Post body for performing a batch delete on location graph export requests
+    type: object
+    example: !include ../Examples/LocationGraphExportBatchDeleteBodyExample.raml
+    properties:
+      exportIds:
+        description: The list of export ID's that are to be deleted.
+        type: array
+        items: string
+        examples:
+          ex1: [a218f4b2-2dc3-4ea8-af6d-c75fafd62256]
+          ex2: [fs34223-1fd2-64dc-4312-f35c25cd2a48]
+          ex3: [a218f4b2-2dc3-4ea8-af6d-c75fafd62256, fs34223-1fd2-64dc-4312-f35c25cd2a48]

@@ -1,0 +1,129 @@
+#%RAML 1.0 Library
+
+uses:
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.12/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml
+  DiscoveryStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/discovery-standards/0.0.34/discovery-standards.raml
+  ISOStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/Types/ISO-standards.raml
+  AttributeDefinitions: attribute-definitions.raml
+  FeatureDefinitions: feature-definitions.raml
+  SearchResultRuleDefinitions: search-result-rule-definitions.raml
+
+types:
+  
+  SearchResultRule:
+    description: An entity which defines information about the requested search result rule resource.
+    properties:
+      ruleName:
+        description: An entity containing the data which defines name of the search result rule.
+        required: false
+      externalId:
+        description: Unique Identifier for the search rule resource
+        required: false
+      creationDateTime: DiscoveryStandards.CreationDateTime
+      lastUpdateDateTime: DiscoveryStandards.LastUpdateDateTime
+      startDateTime:
+        description: Coordinated Universal Time (UTC) which defines the moment at which search rule takes effect.
+        type: datetime
+        example: 2020-02-28T10:41:50Z
+        required: false
+      endDateTime:
+        description: Coordinated Universal Time (UTC) that defines the moment at which the effect of the search rule ends.
+        type: datetime
+        example: 2023-02-28T10:41:50Z
+        required: false
+      locales: ISOStandards.LanguageCountry[]
+      searchRuleDefinition:
+        description: An entity of search rule definition which will define the Search Result instance being created.
+        type: SearchResultRuleDefinitions.RuleDefinition
+        required: true
+      isActive:
+        description: An entity containing the data which defines if the search result rule is active or not.
+        type: boolean
+        required: true
+    additionalProperties: false
+
+  SearchResultRuleReference:
+    description: An entity containing information about a Search Result Rule, in addition to a link to the actual resource.
+    properties:
+      searchResultRuleId: DiscoveryStandards.SearchResultRuleId
+      ruleName:
+        description: An entity containing the data which defines name of the search result rule.
+      externalId:
+        description: Unique Identifier for the search rule resource
+      isActive:
+        description: An entity containing the data which defines if the search result rule is active or not.
+        type: boolean
+      creationDateTime: DiscoveryStandards.CreationDateTime
+      lastUpdateDateTime: DiscoveryStandards.LastUpdateDateTime
+      startDateTime:
+        description: Coordinated Universal Time (UTC) which defines the moment at which search rule takes effect.
+        type: datetime
+        example: 2020-02-28T10:41:50Z
+      endDateTime:
+        description: Coordinated Universal Time (UTC) that defines the moment at which the effect of the search rule ends.
+        type: datetime
+        example: 2023-02-28T10:41:50Z
+      locales: ISOStandards.LanguageCountry[]
+      searchRuleDefinition:
+        description: An entity of search result rule definition which will define the Search Result instance being created.
+        type: SearchResultRuleDefinitions.RuleDefinition
+      _links: DiscoveryStandards.ResourceLink
+    additionalProperties: false
+
+  SearchResultRuleCreationInput:
+    description: Input resource, used to create a Search Result Rule.
+    properties:
+      rules:
+        description: Collection of search result rule definitions which will define the Search Result instance being created.
+        type: SearchResultRule[]
+        required: true
+        minItems: 1
+    additionalProperties: false
+
+  SearchResultRuleOutput:
+    description: Output resource, used to represent details of Search Result creation
+    properties:
+      externalId:
+        description: Unique Identifier for the search rule resource
+      searchResultRuleId: DiscoveryStandards.SearchResultRuleId
+      ruleName:
+        description: An entity containing the data which defines name of the search result rule.
+        type: string
+      status:
+        description: An entity containing the status indicating if the search result rule entity is created or not.
+        type: string
+        example: CREATED
+      isActive:
+        description: An entity containing the data which defines if the search result rule is active or not.
+        type: boolean
+      lastUpdateDateTime: DiscoveryStandards.LastUpdateDateTime
+      creationDateTime: DiscoveryStandards.CreationDateTime
+
+    additionalProperties: false
+
+  SearchResultRuleCreationOutput:
+    description: An entity containing the identifier of the newly created search result resource, and the time the resource was created.
+    properties:
+      rules:
+        description: Collection of search result rule definitions which provide resource statuses and references.
+        type: SearchResultRuleOutput[]
+      errors:
+        description: Collection of errors which provide failures in the bulk operation if any.
+        type: DiscoveryStandards.BaseErrors[]
+        
+    additionalProperties: false
+
+  BulkSearchResultRuleRetrievalOutput:
+    description: An entity containing a collection of Search Result Rule resource statuses and references by default sorted by creation time.
+    properties:
+      rules:
+        description: A collection of references to Search Result Rule instances.
+        type: SearchResultRuleReference[]
+      limit: ApiStandards.Limit
+      offset: ApiStandards.Offset
+      total:
+        description: The total number of matching resources.
+        type: integer
+        example: 25
+    additionalProperties: false

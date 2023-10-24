@@ -1,0 +1,30 @@
+#%RAML 1.0 DataType
+description: An availability delta record that is returned from the availability delta calls. All fields that are Required will be reported, however if there is not a value for any particular field, it will be 0, empty or null.
+
+properties:
+  sku:
+    type: !include SkuId.raml
+  deltaType: 
+    #description: The type delta change that occurred.
+    type: !include DelteRecordTypeEnum.raml
+  id: 
+    type: !include PlaceId.raml
+  effectiveDate:
+    description: The effective date for the info is provided, but the field is NOT required. The date represents when the onHand value was accurate at the location.
+    type: !include Date.raml
+    example: 2019-07-24T21:13:00Z
+    required: false
+    format: rfc3339
+  onHand:
+    type: !include QOH.raml
+  atf:
+    type: !include ATF.raml
+  ato:
+    type: !include ATO.raml
+  reserved:
+    type: !include QuantityReserved.raml
+  safetyStockCount:
+    type: !include SafetyStock.raml
+  futures:
+    type: array
+    items: !include Future.raml
