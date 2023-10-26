@@ -1,0 +1,63 @@
+#%RAML 1.0 Library
+types:
+  ProductSegmentationAppendRequestBody:
+    type: object
+    properties:
+      groups:
+        type: array
+        items:
+          properties:
+            groupId:
+              required: true
+              description: An identifier for a collection of locations
+              type: string
+              minLength: 1
+              maxLength: 128
+              pattern: ^[*a-zA-Z0-9-_]*$
+              example: "WarehouseOne"
+            mode:
+              required: true
+              enum: ["APPEND", "DELETE"]
+              type: string
+              example: "APPEND"
+            skus:
+              required: true
+              type: array
+              example: ["AppendNewSku1", "AppendNewSku2"]
+              items:
+                description: The inventory identifier
+                type: string
+                minLength: 2
+                maxLength: 250
+                pattern: ^[^\\<>;%/\s]*$
+
+  ProductSegmentationDeleteRequestBody:
+    type: object
+    properties:
+      groups:
+        type: array
+        items:
+          properties:
+            groupId:
+              required: true
+              description: An identifier for a collection of locations
+              type: string
+              minLength: 1
+              maxLength: 128
+              pattern: ^[*a-zA-Z0-9-_]*$
+              example: "WarehouseTwo"
+            mode:
+              required: true
+              enum: ["APPEND", "DELETE"]
+              type: string
+              example: "DELETE"
+            skus:
+              required: true
+              type: array
+              example: ["DeleteSku1", "DeleteSku2"]
+              items:
+                description: The inventory identifier
+                type: string
+                minLength: 2
+                maxLength: 250
+                pattern: ^[^\\<>;%/\s]*$

@@ -72,6 +72,7 @@ describe("setupApis", () => {
       "checkout",
       "customer",
       "discovery",
+      "experience",
       "pricing",
       "product",
       "search",

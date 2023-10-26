@@ -1,0 +1,32 @@
+#%RAML 1.0 DataType
+description: This object will contain the request objects that are being supplied to an initiate import request call
+properties:
+  fileName:
+    description: Name of the file.
+    example: "inventory.json"
+    type: string
+  fileFormat:
+    required: false
+    description: The file format. If specified must be JSON, if not provided then is assumed to be JSON.
+    example: "JSON"
+    type: string
+  fileEncoding:
+    required: false
+    description: Encoding format desired. Specify "GZIP" if compressed. The gateway has a filesize limit of 100MB. If the file is larger than 100MB, send it in compressed format.
+    example: "GZIP"
+    type: string
+  fileHash:
+    required: false
+    description: File hash used for file validation.
+    example: "79f6f0c85a15253c4a5bddaa3f74ee974f70163666aaa1dbcd1c7c7bb5acfee0"
+    type: string
+  fileHashType:
+    required: false
+    description: Hash algorithm type. If fileHash is specified, this value will be used.  If fileHash is specified and this value is not provided, SHA-256 is assumed.
+    type: !include ../FileHashTypes.raml
+    example: SHA-256
+  linkDuration:
+    required: false
+    description: Time-to-live (TTL), in minutes up to 60 minutes max, uploadLink is valid for in response.
+    example: 60
+    type: integer

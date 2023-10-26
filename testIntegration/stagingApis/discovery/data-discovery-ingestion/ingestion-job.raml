@@ -1,0 +1,80 @@
+#%RAML 1.0 Library
+
+uses:
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.12/api-standards.raml
+  IngestionLibrary: discovery-ingestion-library.raml
+  DiscoveryStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/discovery-standards/0.0.28/discovery-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml
+  
+types:
+  IngestionInput:
+    description: Details about the Data Transfer Records to be ingested.
+    type: CommerceCloudStandards.ClosedObject
+    properties:
+      behavior: IngestionLibrary.IngestionBehavior
+      dataTransferRecordIds:
+        description: List of the Data Transfer Records to be ingested.
+        type: string[]
+        minItems: 1
+        uniqueItems: true
+        example: [a4824d46-9bd7-48ad-b88b-28ec238e1e78, 494de35e-3297-43ae-8e08-5d92cd55c49f]
+  
+  IngestionOutput:
+    description: Details about the Ingestion Job created to ingest the data in Discovery.
+    type: CommerceCloudStandards.ClosedObject
+    properties:
+      ingestionJobId: IngestionLibrary.IngestionJobId
+      creationDateTime: DiscoveryStandards.CreationDateTime
+  
+  IngestionJob:
+    description: The progress details of the Ingestion Job process.
+    type: CommerceCloudStandards.ClosedObject
+    properties:
+      status: IngestionLibrary.IngestionStatus
+      totalItemCount:
+        description: The total count of items sent across all the Data Transfer Records during the ingestion job process.
+        type: integer
+        format: int64
+        example: 10
+      processedItemCount:
+        description: The total count of items successfully ingested across all the Data Transfer Records.
+        type: integer
+        format: int64
+        example: 8
+      failedItemCount:
+        description: The total count of items failed to be ingested across all the Data Transfer Records.
+        type: integer
+        format: int64
+        example: 2
+      creationDateTime: DiscoveryStandards.CreationDateTime
+      lastUpdateDateTime: DiscoveryStandards.LastUpdateDateTime
+      
+  IngestionJobStatus:
+    description: Details and status of the Ingestion Job process.
+    type: IngestionJob
+    properties:
+      ingestionJobId: IngestionLibrary.IngestionJobId
+      links: 
+        type: DiscoveryStandards.ResourceLink
+        examples:
+          links:
+            self:
+              href: https://0dnz6oep.api.commercecloud.salesforce.com/discovery/management/v2/organizations/org-id/ingestion-jobs/cb95f974-5f3f-11ea-bc55-0242ac130003
+
+  IngestionJobsBulkStatus:
+    description: The bulk progress details about the Ingestion Jobs process.
+    type: CommerceCloudStandards.ClosedObject
+    properties:
+      hits:
+        description: A collection of progress details of all the Ingestion Job processes.
+        type: IngestionJobStatus[]
+      limit: 
+        type: ApiStandards.Limit
+        maximum: 200
+        description: Maximum records to retrieve per request, not to exceed 200.
+      offset: ApiStandards.Offset
+      total:
+        description: The total number of hits that match the search's criteria. This can be greater than the number of results returned as search results are pagenated.
+        type: integer
+        format: int64
+      

@@ -27,6 +27,13 @@ types:
         required: false
         type: string | nil
         description: Qualifier to set the source code for the context to apply. Set the source code to evaluate source code group that triggers the promotion (campaign assignment) and Price books (assigned to Source code group).        
+      customerGroupIds:
+        required: false
+        type: array
+        description: Qualifier to set the Customer Group Ids for the context to apply. Set the Customer Group Ids to evaluate customer groups that trigger the promotions (campaign assignment) assigned to the customer groups.
+        items:
+          type: string
+          maxLength: 256
       customQualifiers:
         type: object
         description: Map of custom qualifiers for the shopper context. Set this object to trigger pricing and promotion experiences using a dynamic session-based customer group. Object size is limited to 20 key-value pairs (properties).
@@ -106,6 +113,8 @@ types:
       body:
         application/json:
           type: ShopperContext
+          examples:
+            shopperContext: !include Examples/shopper-context-example.raml 
       responses: 
         '201':
           description: Created Shopper Context.
@@ -172,7 +181,7 @@ types:
       securedBy:
         - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-context.rw] }    
     patch:
-      description: Updates the shopper's context based on the Shopper JWT. If the shopper context exists, it's updated with the patch body. If a customer qualifier or an `effectiveDateTime` is already present in the existing shopper context, its value is replaced by the corresponding value from the patch body. If a customer qualifers' value is set to `null` it's deleted from existing shopper context. If `effectiveDateTime` value is set to set to an empty string (""), it's deleted from existing shopper context. If `effectiveDateTime` value is set to `null` it's ignored. If an `effectiveDateTime` or customer qualifiiers' value is new, it's added to the existing Shopper context. 
+      description: Updates the shopper's context based on the Shopper JWT. If the shopper context exists, it's updated with the patch body. If a `custom qualifier/assignment qualifer` or an `effectiveDateTime` or a `sourceCode` or a `customerGroupIds` is already present in the existing shopper context, its value is replaced by the corresponding value from the patch body. If a `custom qualifers'` or a `assignment qualifiers'` value is set to `null` it's deleted from existing shopper context. If `effectiveDateTime` or `sourceCode` value is set to set to an empty string (""), it's deleted from existing shopper context. If `effectiveDateTime` or `sourceCode` value is set to `null` it's ignored. If an `effectiveDateTime` or `sourceCode` or `custom/assignment qualifiiers'` value is new, it's added to the existing Shopper context. If `customerGroupIds` is set to empty array `[]` the existing value in shopper context is deleted.
       displayName: updateShopperContext
       queryParameters:
         siteId: 

@@ -18,7 +18,7 @@ export const API_FAMILIES = [
   "checkout",
   "customer",
   "discovery",
-  "inventory",
+  "experience",
   "pricing",
   "product",
   "search",

@@ -1,0 +1,52 @@
+#%RAML 1.0 Library
+
+uses:
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml
+  DiscoveryStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/discovery-standards/0.0.34/discovery-standards.raml
+  ISOStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/Types/ISO-standards.raml
+  TargetConditions: boost-bury-rule-target-conditions.raml
+
+types:
+  RuleDefinition:
+    description: Base resource type for describing an search result rule
+    properties:
+      ruleDefinitionType:
+        description: The type of Search result rule definition being defined.
+        type: string
+    discriminator: ruleDefinitionType
+    additionalProperties: false
+
+  IncludeTermsDefinition:
+    description: Definition which defines the search result rule to include terms
+    type: RuleDefinition
+    properties:
+      terms:
+        description: A collection of values defining which search terms should be included
+        type: string[]
+        minItems: 2
+        uniqueItems: true
+        example: [jeans, denim, wranglers]
+    discriminatorValue: INCLUDE_TERMS
+    additionalProperties: false
+
+  BoostBuryItemsDefinition:
+    description: Definition which defines the Search Result Rule to boost or bury certain items in the search result
+    type: RuleDefinition
+    properties:
+      action:
+        description: Defines the action to be taken when the associated conditions are met. Actions include 'boost', 'bury'. Boost is to increase boost rank of the item in the search results and Bury is to decrease rank of the item in the search results, the Search Result Rule gets applied only if items meets the defined target condition and sorting is "RELEVANCE" in the query. 
+        enum:
+          - BOOST
+          - BURY
+        example: BOOST
+      level:
+        description: Defines impact with which Search Result Rule should be applied, 1 defines minimum effect, 100 defines maximum allowed effect.
+        type: number     
+        example: 70
+        minimum: 1
+        maximum: 100
+      targetConditions:
+        description: Specifies conditions that need to be satisfied for the Search Result Rule to apply. Each object represents a condition that is evaluated against the items in search result. If any of the conditions are true, that Search Result Rule will be applied to all items of the Search Results satisfying the condition. 
+        type: TargetConditions.BoostBuryRuleTargetCondition[]
+    discriminatorValue: BOOST_BURY_ITEMS
+    additionalProperties: false

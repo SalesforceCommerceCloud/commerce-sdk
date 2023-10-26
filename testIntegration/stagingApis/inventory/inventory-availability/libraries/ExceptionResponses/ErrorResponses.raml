@@ -1,0 +1,30 @@
+#%RAML 1.0 Library
+
+uses:
+  ErrorCodeTypesEnum: ErrorCodeTypesEnum.raml
+
+types:
+  ApiErrors: !include /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/dataTypes/error-response.raml
+
+  ExportInProcessError:
+    properties:
+      errorCode:
+        type: ErrorCodeTypesEnum.ExportInProcess
+        required: true
+        example: "ExportInProcess"
+      message:
+        type: string
+        required: true
+        example: ""
+      type:
+        type: string
+        required: true
+        example: "about:blank"
+      parameterName:
+        description: When invalid JSON is passed to the service, this field indicates which piece of the supplied JSON is invalid.
+        type: string
+        required: false
+        example: "location"
+
+  409ExportInProcessError: [ExportInProcessError, ApiErrors]
+  

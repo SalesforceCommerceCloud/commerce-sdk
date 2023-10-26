@@ -1,0 +1,30 @@
+#%RAML 1.0 DataType
+description: This object will contain the request objects that are being supplied to initiate export request call
+properties:
+  sku:
+    description: Sku to be queried for.
+    type: string
+    example: "dcbd797a-73e7-11ec-90d6-0242ac120003"
+  startsOn:
+    description: ISO Date from which OCI will start to query for the sku activity.
+    type: string
+    example: "2022-03-19T15:41:25.553Z"
+  endsOn:
+    description: ISO Date that sets the range OCI will use in order to query for the sku activity. This field is optional, in which case, OCI will set the range to be 30 days from the startsOn date. The value that gets set in the endsOn property, cannot be bigger than 30 days from the starsOn date.
+    type: string
+    example: "2022-04-10T15:41:25.553Z"
+    required: false
+  locations:
+    description: Lists which locations should be considered while querying the activity around the sku. The total locations to query, combined with total groups (if specified) cannot be more than 10. If no locations or groups are specified, OCI will query all activity related to the sku.
+    required: false
+    type: array
+    items: string
+    example:
+      ["warehouse1", "warehouse2"]
+  groups:
+    description: Lists which groups should be considered while querying the activity around the sku. The total groups to query, combined with total locations (if specified) cannot be more than 10. If no locations or groups are specified, OCI will query all activity related to the sku.
+    required: false
+    type: array
+    items: string
+    example:
+      ["united-states"]

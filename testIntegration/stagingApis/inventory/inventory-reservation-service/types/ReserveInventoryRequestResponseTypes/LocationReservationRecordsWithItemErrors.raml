@@ -1,0 +1,21 @@
+#%RAML 1.0 DataType
+
+#LocationReservationRecordsWithItemErrors:
+description: Location level line items for reservation responses - overrides sku so that the failed items do not match the successful items
+properties:
+  id:
+    type: string
+    minLength: 2
+    maxLength: 128
+    pattern: ^[a-zA-Z0-9]*$
+    example: warehouse5
+    description: The location ID associated with these reservations
+    required: true
+  errors:
+    type: array
+    description: Errors that were encounterd while trying to place this location level reservation
+    items: !include ReservationItemErrorLines.raml
+  details:
+    type: array
+    description: Successfule reservation lines for this location.
+    items: !include ReservationSuccessfulLines.raml
