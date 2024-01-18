@@ -34,7 +34,7 @@
           {{#each request/queryParameters}}
           {{name}}{{#if (or (not (is required "true")) (isCommonQueryParameter name))}}?{{/if}}: {{{ getTypeFromParameter this}}}
           {{/each}}
-        },
+        } & { [key in `c_${string}`]: any },
         retrySettings?: OperationOptions,
         fetchOptions?: RequestInit,
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}},
@@ -75,7 +75,7 @@
           {{#each request/queryParameters}}
           {{name}}{{#if (or (not (is required "true")) (isCommonQueryParameter name))}}?{{/if}}: {{{ getTypeFromParameter this}}}
           {{/each}}
-        },
+        } & { [key in `c_${string}`]: any },
         retrySettings?: OperationOptions,
         fetchOptions?: RequestInit,
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}},
@@ -117,7 +117,7 @@
           {{#each request/queryParameters}}
           {{name}}{{#if (or (not (is required "true")) (isCommonQueryParameter name))}}?{{/if}}: {{{ getTypeFromParameter this}}}
           {{/each}}
-        },
+        } & { [key in `c_${string}`]: any },
         retrySettings?: OperationOptions,
         fetchOptions?: RequestInit,
         headers?: { [key: string]: string }{{#or (is method "patch") (is method "post") (is method "put")}},
@@ -139,6 +139,7 @@
 
       const queryParameters = _.omit(parameters, _.keys(pathParameters));
 
+      // TODO: filter for pathParams and queryParams
       {{#each request.queryParameters}}
         {{! for queryParameters that are common query parameters, fallback to client config for undefined }}
         {{#if (isCommonQueryParameter name)}}
