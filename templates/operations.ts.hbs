@@ -125,28 +125,31 @@
       },
       rawResponse?: boolean,
     ): Promise<Response | {{addNamespace (getReturnTypeFromOperation this) @root.name.upperCamelCase}}> {
-    
-      const parameters = (options && options.parameters) ? options.parameters : {};
-      
-      const pathParameters = {
+      const optionParams = options?.parameters || ({} as Partial<NonNullable<NonNullable<typeof options>["parameters"]>>);
+      const configParams = this.clientConfig.parameters;
+
+      const pathParams = {
       {{#each ../parameters}}
-        "{{{name}}}": parameters["{{{name}}}"]
+        "{{{name}}}": optionParams["{{{name}}}"]
         {{! if it is a common path parameter, fallback to client config for undefined }}
-        {{#if (isCommonPathParameter name)}} !== undefined ? parameters["{{{name}}}"] : this.clientConfig.parameters["{{{name}}}"]{{/if}}
+        {{#if (isCommonPathParameter name)}} !== undefined ? optionParams["{{{name}}}"] : configParams["{{{name}}}"]{{/if}}
         {{#unless @last}},{{/unless}}
       {{/each}}
       };
 
-      const queryParameters = _.omit(parameters, _.keys(pathParameters));
+      const queryParams: Partial<{ [key in `c_${string}`]: any }> = {};
 
-      // TODO: filter for pathParams and queryParams
       {{#each request.queryParameters}}
-        {{! for queryParameters that are common query parameters, fallback to client config for undefined }}
-        {{#if (isCommonQueryParameter name)}}
-        queryParameters["{{{name}}}"] =
-          queryParameters["{{{name}}}"] !== undefined 
-            ? parameters["{{{name}}}"] : this.clientConfig.parameters["{{{name}}}"];
-        {{/if}}
+      if (optionParams["{{{name}}}"] !== undefined) {
+        queryParams["{{{name}}}"] = optionParams["{{{name}}}"];
+      } else if (configParams["{{{name}}}"] !== undefined) {
+        queryParams["{{{name}}}"] = configParams["{{{name}}}"];
+      }
+      {{#if (is required "true")}}
+      else {
+        throw new Error('Missing required query parameter: {{{name}}}');
+      }
+      {{/if}}
       {{/each}}
 
       const headers = mergeHeaders(getHeaders(options), {
@@ -160,8 +163,8 @@
         client: this,
         rawResponse: rawResponse,
         path: "{{../path}}",
-        pathParameters: pathParameters,
-        queryParameters: queryParameters,
+        pathParameters: pathParams,
+        queryParameters: queryParams,
         retrySettings: (options || {}).retrySettings,
         headers: headers{{#or (is method "patch") (is method "post") (is method "put")}}, 
         body: (options || {}).body{{/or}},
