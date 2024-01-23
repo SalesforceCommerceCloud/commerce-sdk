@@ -1,7 +1,5 @@
 # commerce-sdk
 
-[![CircleCI][circleci-image]][circleci-url]
-
 The Salesforce Commerce SDK allows easy interaction with the Salesforce B2C Commerce platform APIs on the Node.js runtime.  For a more lightweight SDK, which works in a browser and Node.js for the shopper experience, see [our Isomorphic SDK](https://github.com/SalesforceCommerceCloud/commerce-sdk-isomorphic)
 
 Visit the [Commerce Cloud Developer Center](https://developer.salesforce.com/developer-centers/commerce-cloud) to learn more about Salesforce Commerce. The developer center has API documentation, getting started guides, community forums, and more.
