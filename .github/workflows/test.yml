@@ -29,7 +29,7 @@ jobs:
       - run: npm install snyk --legacy-peer-deps
       - run: npm run snyk:auth ${{ secrets.SNYK_TOKEN }}
       - run: npm install --legacy-peer-deps
-        # if: ${{ steps.cache-nodemodules.outputs.cache-hit != 'true' }}
+        if: ${{ steps.cache-nodemodules.outputs.cache-hit != 'true' }}
       - run: npm run build
       - name: Unit tests
         run: npm test
