@@ -98,7 +98,7 @@ describe("Generate code challenge", () => {
     } catch (error) {
       expectedError = error;
     }
-    expect(expectedError?.message).to.be.equal(
+    expect(expectedError.message).to.be.equal(
       "Problem generating code challenge"
     );
   });
