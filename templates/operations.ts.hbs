@@ -152,6 +152,12 @@
       {{/if}}
       {{/each}}
 
+      Object.keys(optionParams).forEach((key) => {
+        if(key.startsWith('c_') && optionParams[key] !== undefined) {
+          queryParams[key] = optionParams[key]
+        }
+      })
+
       const headers = mergeHeaders(getHeaders(options), {
         {{#if (isRequestWithPayload request)}}
         "Content-Type": "{{{getMediaTypeFromRequest request}}}",
