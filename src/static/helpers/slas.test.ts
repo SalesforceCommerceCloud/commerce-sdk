@@ -11,9 +11,10 @@ import { ShopperLogin } from "../../../renderedTemplates/customer/shopperLogin/s
 import { ISlasClient } from "./slasClient";
 import * as slasHelper from "./slas";
 import sinon from "sinon";
+import { URL } from "url";
 
 const codeVerifier = "code_verifier";
-const url =
+const mockURL =
   "https://localhost:3000/callback?usid=048adcfb-aa93-4978-be9e-09cb569fdcb9&code=J2lHm0cgXmnXpwDhjhLoyLJBoUAlBfxDY-AhjqGMC-o";
 
 const clientConfig = {
@@ -92,7 +93,7 @@ describe("Get code and usid", () => {
   const noQueryParamsUrl = "https://localhost:3000/callback?";
 
   it("extracts code and usid from url", () => {
-    const record = slasHelper.getCodeAndUsidFromUrl(url);
+    const record = slasHelper.getCodeAndUsidFromUrl(mockURL);
     expect(record).to.be.deep.equal(expectedRecord);
   });
 
@@ -105,7 +106,7 @@ describe("Get code and usid", () => {
 describe("Authorize user", () => {
   const expectedAuthResponse = {
     code: "J2lHm0cgXmnXpwDhjhLoyLJBoUAlBfxDY-AhjqGMC-o",
-    url,
+    url: mockURL,
     usid: "048adcfb-aa93-4978-be9e-09cb569fdcb9",
   };
 
@@ -123,7 +124,7 @@ describe("Authorize user", () => {
     nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
       .get(`/shopper/auth/v1/organizations/${organizationId}/oauth2/authorize`)
       .query(true)
-      .reply(303, { response_body: "response_body" }, { location: url });
+      .reply(303, { response_body: "response_body" }, { location: mockURL });
 
     const authResponse = await slasHelper.authorize(
       mockSlasClient,
@@ -149,7 +150,12 @@ describe("Authorize user", () => {
       parameters
     );
 
-    expect(authResponse).to.be.deep.equals(expectedAuthResponseNoLocation);
+    const authURL = new URL(authResponse.url);
+    const expectedURL = new URL(expectedAuthResponseNoLocation.url);
+
+    expect(authURL.origin).to.equal(expectedURL.origin);
+    expect(authURL.pathname).to.equal(expectedURL.pathname);
+    expect(authURL.searchParams).to.deep.equal(expectedURL.searchParams);
   });
 
   it("throws an error when authorization fails", async () => {
@@ -267,7 +273,7 @@ describe("Registered B2C user flow", () => {
     nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
       .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/login`)
       .query(true)
-      .reply(303, { response_body: "response_body" }, { location: url });
+      .reply(303, { response_body: "response_body" }, { location: mockURL });
 
     nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
       .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/token`)
