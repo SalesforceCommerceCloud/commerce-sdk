@@ -13,6 +13,7 @@ import * as slasHelper from "./slas";
 import sinon from "sinon";
 import { URL } from "url";
 import { CommonParameters } from "@commerce-apps/core";
+import crypto from "crypto";
 
 const codeVerifier = "code_verifier";
 const mockURL =
@@ -58,8 +59,11 @@ const createSlasClient = (): ISlasClient => {
   return new ShopperLogin(clientConfig);
 };
 
+const sandbox = sinon.createSandbox();
+
 beforeEach(() => {
   nock.cleanAll();
+  sandbox.restore();
 });
 
 describe("Create code verifier", () => {
@@ -77,6 +81,26 @@ describe("Generate code challenge", () => {
   it("generates correct code challenge for verifier", async () => {
     const challenge = await slasHelper.generateCodeChallenge(verifier);
     expect(challenge).to.be.deep.equal(expectedChallenge);
+  });
+
+  it("throws error when code challenge is not generated correctly", async () => {
+    sandbox.stub(crypto, "createHash").callsFake(() => {
+      return {
+        update: () => ({
+          digest: () => "",
+        }),
+      } as any;
+    });
+
+    let expectedError;
+    try {
+      await slasHelper.generateCodeChallenge(verifier);
+    } catch (error) {
+      expectedError = error;
+    }
+    expect(expectedError?.message).to.be.equal(
+      "Problem generating code challenge"
+    );
   });
 });
 
