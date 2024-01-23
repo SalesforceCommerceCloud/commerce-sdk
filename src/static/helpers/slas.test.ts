@@ -12,6 +12,7 @@ import { ISlasClient } from "./slasClient";
 import * as slasHelper from "./slas";
 import sinon from "sinon";
 import { URL } from "url";
+import { CommonParameters } from "@commerce-apps/core";
 
 const codeVerifier = "code_verifier";
 const mockURL =
@@ -136,8 +137,8 @@ describe("Authorize user", () => {
 
   it("uses response.url if location header is unavailable", async () => {
     const mockSlasClient = createSlasClient();
-    const { shortCode, organizationId } =
-      mockSlasClient.clientConfig.parameters;
+    const { shortCode, organizationId } = mockSlasClient.clientConfig
+      .parameters as CommonParameters;
 
     nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
       .get(`/shopper/auth/v1/organizations/${organizationId}/oauth2/authorize`)
@@ -160,8 +161,8 @@ describe("Authorize user", () => {
 
   it("throws an error when authorization fails", async () => {
     const mockSlasClient = createSlasClient();
-    const { shortCode, organizationId } =
-      mockSlasClient.clientConfig.parameters;
+    const { shortCode, organizationId } = mockSlasClient.clientConfig
+      .parameters as CommonParameters;
 
     nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
       .get(`/shopper/auth/v1/organizations/${organizationId}/oauth2/authorize`)
@@ -197,8 +198,8 @@ describe("Guest user flow", () => {
   it("using a private client takes in a client secret to generate token", async () => {
     const mockSlasClient = createSlasClient();
     const spy = sinon.spy(mockSlasClient, "getAccessToken");
-    const { shortCode, organizationId } =
-      mockSlasClient.clientConfig.parameters;
+    const { shortCode, organizationId } = mockSlasClient.clientConfig
+      .parameters as CommonParameters;
 
     nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
       .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/token`)
@@ -217,8 +218,8 @@ describe("Guest user flow", () => {
   it("using a public client uses a code verifier and code challenge to generate token", async () => {
     const mockSlasClient = createSlasClient();
     const spy = sinon.spy(mockSlasClient, "getAccessToken");
-    const { shortCode, organizationId } =
-      mockSlasClient.clientConfig.parameters;
+    const { shortCode, organizationId } = mockSlasClient.clientConfig
+      .parameters as CommonParameters;
 
     nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
       .get(`/shopper/auth/v1/organizations/${organizationId}/oauth2/authorize`)
@@ -246,8 +247,8 @@ describe("Guest user flow", () => {
 describe("Registered B2C user flow", () => {
   it("using a private client uses hits login and token endpoints to generate JWT", async () => {
     const mockSlasClient = createSlasClient();
-    const { shortCode, organizationId } =
-      mockSlasClient.clientConfig.parameters;
+    const { shortCode, organizationId } = mockSlasClient.clientConfig
+      .parameters as CommonParameters;
     nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
       .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/login`)
       .query(true)
@@ -268,8 +269,8 @@ describe("Registered B2C user flow", () => {
 
   it("using a public client uses hits login and token endpoints to generate JWT", async () => {
     const mockSlasClient = createSlasClient();
-    const { shortCode, organizationId } =
-      mockSlasClient.clientConfig.parameters;
+    const { shortCode, organizationId } = mockSlasClient.clientConfig
+      .parameters as CommonParameters;
     nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
       .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/login`)
       .query(true)
@@ -291,8 +292,8 @@ describe("Registered B2C user flow", () => {
 
   it("throws an error when login is unsuccessful for public", async () => {
     const mockSlasClient = createSlasClient();
-    const { shortCode, organizationId } =
-      mockSlasClient.clientConfig.parameters;
+    const { shortCode, organizationId } = mockSlasClient.clientConfig
+      .parameters as CommonParameters;
     nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
       .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/login`)
       .query(true)
@@ -305,8 +306,8 @@ describe("Registered B2C user flow", () => {
 
   it("throws an error when login is unsuccessful for private", async () => {
     const mockSlasClient = createSlasClient();
-    const { shortCode, organizationId } =
-      mockSlasClient.clientConfig.parameters;
+    const { shortCode, organizationId } = mockSlasClient.clientConfig
+      .parameters as CommonParameters;
     nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
       .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/login`)
       .query(true)
