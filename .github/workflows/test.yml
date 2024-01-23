@@ -9,7 +9,7 @@ jobs:
   linux-tests:
     strategy:
       matrix:
-        node: [10, 12, 14, 16] # TODO: add 18 & 20
+        node: [10, 12, 14, 16, 18, 20]
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
@@ -26,10 +26,10 @@ jobs:
         with:
           path: "**/node_modules"
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
-      - run: npm install snyk --legacy-peer-deps # TODO: try to remove snyk auth step
+      - run: npm install snyk --legacy-peer-deps
       - run: npm run snyk:auth ${{ secrets.SNYK_TOKEN }}
-      - run: npm install --legacy-peer-deps # TODO: try to remove --legacy-peer-deps flag
-        if: ${{ steps.cache-nodemodules.outputs.cache-hit != 'true' }}
+      - run: npm install --legacy-peer-deps
+        # if: ${{ steps.cache-nodemodules.outputs.cache-hit != 'true' }}
       - run: npm run build
       - name: Unit tests
         run: npm test
