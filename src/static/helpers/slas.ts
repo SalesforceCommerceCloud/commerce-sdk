@@ -98,10 +98,10 @@ export async function authorize(
 
   const options = {
     parameters: {
-      client_id: slasClient.clientConfig.parameters?.clientId as string,
+      client_id: slasClient.clientConfig.parameters.clientId,
       code_challenge: codeChallenge,
       ...(parameters.hint && { hint: parameters.hint }),
-      organizationId: slasClient.clientConfig.parameters?.organizationId,
+      organizationId: slasClient.clientConfig.parameters.organizationId,
       redirect_uri: parameters.redirectURI,
       response_type: "code",
       ...(parameters.usid && { usid: parameters.usid }),
@@ -140,7 +140,7 @@ export async function loginGuestUserPrivate(
   usid?: string
 ): Promise<TokenResponse> {
   const authorization = `Basic ${stringToBase64(
-    `${slasClient.clientConfig.parameters?.clientId}:${credentials.clientSecret}`
+    `${slasClient.clientConfig.parameters.clientId}:${credentials.clientSecret}`
   )}`;
 
   const options = {
@@ -181,7 +181,7 @@ export async function loginGuestUser(
   });
 
   const tokenBody: TokenRequest = {
-    client_id: slasClient.clientConfig.parameters?.clientId,
+    client_id: slasClient.clientConfig.parameters.clientId,
     code: authResponse.code,
     code_verifier: codeVerifier,
     grant_type: "authorization_code_pkce",
@@ -230,8 +230,8 @@ export async function loginRegisteredUserB2Cprivate(
     },
     body: {
       code_challenge: codeChallenge,
-      channel_id: slasClient.clientConfig.parameters?.siteId as string,
-      client_id: slasClient.clientConfig.parameters?.clientId,
+      channel_id: slasClient.clientConfig.parameters.siteId,
+      client_id: slasClient.clientConfig.parameters.clientId,
       redirect_uri: parameters.redirectURI,
       ...(parameters.usid && { usid: parameters.usid }),
     },
@@ -251,7 +251,7 @@ export async function loginRegisteredUserB2Cprivate(
   const authResponse = getCodeAndUsidFromUrl(redirectUrl);
 
   const authHeaderIdSecret = `Basic ${stringToBase64(
-    `${slasClient.clientConfig.parameters?.clientId}:${credentials.clientSecret}`
+    `${slasClient.clientConfig.parameters.clientId}:${credentials.clientSecret}`
   )}`;
 
   const optionsToken = {
@@ -262,7 +262,7 @@ export async function loginRegisteredUserB2Cprivate(
       grant_type: "authorization_code_pkce",
       code_verifier: codeVerifier,
       code: authResponse.code,
-      client_id: slasClient.clientConfig.parameters?.clientId,
+      client_id: slasClient.clientConfig.parameters.clientId,
       redirect_uri: parameters.redirectURI,
       ...(parameters.usid && { usid: parameters.usid }),
     },
@@ -306,13 +306,13 @@ export async function loginRegisteredUserB2C(
       Authorization: authorization,
     },
     parameters: {
-      organizationId: slasClient.clientConfig.parameters?.organizationId,
+      organizationId: slasClient.clientConfig.parameters.organizationId,
     },
     body: {
       redirect_uri: parameters.redirectURI,
-      client_id: slasClient.clientConfig.parameters?.clientId,
+      client_id: slasClient.clientConfig.parameters.clientId,
       code_challenge: codeChallenge,
-      channel_id: slasClient.clientConfig.parameters?.siteId as string,
+      channel_id: slasClient.clientConfig.parameters.siteId,
       ...(parameters.usid && { usid: parameters.usid }),
     },
     fetchOptions: {
@@ -334,7 +334,7 @@ export async function loginRegisteredUserB2C(
     grant_type: "authorization_code_pkce",
     code_verifier: codeVerifier,
     code: authResponse.code,
-    client_id: slasClient.clientConfig.parameters?.clientId,
+    client_id: slasClient.clientConfig.parameters.clientId,
     redirect_uri: parameters.redirectURI,
     usid: authResponse.usid,
   };
@@ -357,7 +357,7 @@ export function refreshAccessToken(
   const body = {
     grant_type: "refresh_token",
     refresh_token: parameters.refreshToken,
-    client_id: slasClient.clientConfig.parameters?.clientId,
+    client_id: slasClient.clientConfig.parameters.clientId,
   };
 
   return slasClient.getAccessToken({ body });
@@ -379,7 +379,7 @@ export function refreshAccessTokenPrivate(
   parameters: { refreshToken: string }
 ): Promise<TokenResponse> {
   const authorization = `Basic ${stringToBase64(
-    `${slasClient.clientConfig.parameters?.clientId}:${credentials.clientSecret}`
+    `${slasClient.clientConfig.parameters.clientId}:${credentials.clientSecret}`
   )}`;
   const options = {
     headers: {
@@ -415,8 +415,8 @@ export function logout(
     },
     parameters: {
       refresh_token: parameters.refreshToken,
-      client_id: slasClient.clientConfig.parameters?.clientId as string,
-      channel_id: slasClient.clientConfig.parameters?.siteId,
+      client_id: slasClient.clientConfig.parameters.clientId,
+      channel_id: slasClient.clientConfig.parameters.siteId,
     },
   });
 }
