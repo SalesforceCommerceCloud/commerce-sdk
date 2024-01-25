@@ -49,7 +49,7 @@ export interface ISlasClient {
     options: {
       parameters?: {
         organizationId?: string;
-      };
+      } & { [key in `c_${string}`]: any };
       retrySettings?: OperationOptions;
       headers?: { [key: string]: string };
       fetchOptions?: RequestInit;
@@ -57,6 +57,7 @@ export interface ISlasClient {
     },
     rawResponse?: boolean
   ): Promise<Response | void>;
+
   authorizeCustomer(
     options?: {
       parameters?: {
@@ -70,7 +71,7 @@ export interface ISlasClient {
         hint?: string;
         channel_id?: string;
         code_challenge: string;
-      };
+      } & { [key in `c_${string}`]: any };
       retrySettings?: OperationOptions;
       fetchOptions?: RequestInit;
       headers?: { [key: string]: string };
@@ -82,7 +83,7 @@ export interface ISlasClient {
     options: {
       parameters?: {
         organizationId?: string;
-      };
+      } & { [key in `c_${string}`]: any };
       retrySettings?: OperationOptions;
       fetchOptions?: RequestInit;
       headers?: { [key: string]: string };
@@ -90,6 +91,7 @@ export interface ISlasClient {
     },
     rawResponse?: boolean
   ): Promise<Response | TokenResponse>;
+
   logoutCustomer(
     options?: {
       parameters?: {
@@ -97,7 +99,7 @@ export interface ISlasClient {
         client_id: string;
         refresh_token: string;
         channel_id?: string;
-      };
+      } & { [key in `c_${string}`]: any };
       retrySettings?: OperationOptions;
       fetchOptions?: RequestInit;
       headers?: { [key: string]: string };
