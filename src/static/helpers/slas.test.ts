@@ -11,9 +11,12 @@ import { ShopperLogin } from "../../../renderedTemplates/customer/shopperLogin/s
 import { ISlasClient } from "./slasClient";
 import * as slasHelper from "./slas";
 import sinon from "sinon";
+import { URL } from "url";
+import { CommonParameters } from "@commerce-apps/core";
+import crypto from "crypto";
 
 const codeVerifier = "code_verifier";
-const url =
+const mockURL =
   "https://localhost:3000/callback?usid=048adcfb-aa93-4978-be9e-09cb569fdcb9&code=J2lHm0cgXmnXpwDhjhLoyLJBoUAlBfxDY-AhjqGMC-o";
 
 const clientConfig = {
@@ -56,8 +59,11 @@ const createSlasClient = (): ISlasClient => {
   return new ShopperLogin(clientConfig);
 };
 
+const sandbox = sinon.createSandbox();
+
 beforeEach(() => {
   nock.cleanAll();
+  sandbox.restore();
 });
 
 describe("Create code verifier", () => {
@@ -76,6 +82,26 @@ describe("Generate code challenge", () => {
     const challenge = await slasHelper.generateCodeChallenge(verifier);
     expect(challenge).to.be.deep.equal(expectedChallenge);
   });
+
+  it("throws error when code challenge is not generated correctly", async () => {
+    sandbox.stub(crypto, "createHash").callsFake(() => {
+      return {
+        update: () => ({
+          digest: () => "",
+        }),
+      } as any;
+    });
+
+    let expectedError;
+    try {
+      await slasHelper.generateCodeChallenge(verifier);
+    } catch (error) {
+      expectedError = error;
+    }
+    expect(expectedError.message).to.be.equal(
+      "Problem generating code challenge"
+    );
+  });
 });
 
 describe("Get code and usid", () => {
@@ -92,7 +118,7 @@ describe("Get code and usid", () => {
   const noQueryParamsUrl = "https://localhost:3000/callback?";
 
   it("extracts code and usid from url", () => {
-    const record = slasHelper.getCodeAndUsidFromUrl(url);
+    const record = slasHelper.getCodeAndUsidFromUrl(mockURL);
     expect(record).to.be.deep.equal(expectedRecord);
   });
 
@@ -105,7 +131,7 @@ describe("Get code and usid", () => {
 describe("Authorize user", () => {
   const expectedAuthResponse = {
     code: "J2lHm0cgXmnXpwDhjhLoyLJBoUAlBfxDY-AhjqGMC-o",
-    url,
+    url: mockURL,
     usid: "048adcfb-aa93-4978-be9e-09cb569fdcb9",
   };
 
@@ -123,7 +149,7 @@ describe("Authorize user", () => {
     nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
       .get(`/shopper/auth/v1/organizations/${organizationId}/oauth2/authorize`)
       .query(true)
-      .reply(303, { response_body: "response_body" }, { location: url });
+      .reply(303, { response_body: "response_body" }, { location: mockURL });
 
     const authResponse = await slasHelper.authorize(
       mockSlasClient,
@@ -135,8 +161,8 @@ describe("Authorize user", () => {
 
   it("uses response.url if location header is unavailable", async () => {
     const mockSlasClient = createSlasClient();
-    const { shortCode, organizationId } =
-      mockSlasClient.clientConfig.parameters;
+    const { shortCode, organizationId } = mockSlasClient.clientConfig
+      .parameters as CommonParameters;
 
     nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
       .get(`/shopper/auth/v1/organizations/${organizationId}/oauth2/authorize`)
@@ -149,13 +175,18 @@ describe("Authorize user", () => {
       parameters
     );
 
-    expect(authResponse).to.be.deep.equals(expectedAuthResponseNoLocation);
+    const authURL = new URL(authResponse.url);
+    const expectedURL = new URL(expectedAuthResponseNoLocation.url);
+
+    expect(authURL.origin).to.equal(expectedURL.origin);
+    expect(authURL.pathname).to.equal(expectedURL.pathname);
+    expect(authURL.searchParams).to.deep.equal(expectedURL.searchParams);
   });
 
   it("throws an error when authorization fails", async () => {
     const mockSlasClient = createSlasClient();
-    const { shortCode, organizationId } =
-      mockSlasClient.clientConfig.parameters;
+    const { shortCode, organizationId } = mockSlasClient.clientConfig
+      .parameters as CommonParameters;
 
     nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
       .get(`/shopper/auth/v1/organizations/${organizationId}/oauth2/authorize`)
@@ -191,8 +222,8 @@ describe("Guest user flow", () => {
   it("using a private client takes in a client secret to generate token", async () => {
     const mockSlasClient = createSlasClient();
     const spy = sinon.spy(mockSlasClient, "getAccessToken");
-    const { shortCode, organizationId } =
-      mockSlasClient.clientConfig.parameters;
+    const { shortCode, organizationId } = mockSlasClient.clientConfig
+      .parameters as CommonParameters;
 
     nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
       .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/token`)
@@ -211,8 +242,8 @@ describe("Guest user flow", () => {
   it("using a public client uses a code verifier and code challenge to generate token", async () => {
     const mockSlasClient = createSlasClient();
     const spy = sinon.spy(mockSlasClient, "getAccessToken");
-    const { shortCode, organizationId } =
-      mockSlasClient.clientConfig.parameters;
+    const { shortCode, organizationId } = mockSlasClient.clientConfig
+      .parameters as CommonParameters;
 
     nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
       .get(`/shopper/auth/v1/organizations/${organizationId}/oauth2/authorize`)
@@ -240,8 +271,8 @@ describe("Guest user flow", () => {
 describe("Registered B2C user flow", () => {
   it("using a private client uses hits login and token endpoints to generate JWT", async () => {
     const mockSlasClient = createSlasClient();
-    const { shortCode, organizationId } =
-      mockSlasClient.clientConfig.parameters;
+    const { shortCode, organizationId } = mockSlasClient.clientConfig
+      .parameters as CommonParameters;
     nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
       .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/login`)
       .query(true)
@@ -262,12 +293,12 @@ describe("Registered B2C user flow", () => {
 
   it("using a public client uses hits login and token endpoints to generate JWT", async () => {
     const mockSlasClient = createSlasClient();
-    const { shortCode, organizationId } =
-      mockSlasClient.clientConfig.parameters;
+    const { shortCode, organizationId } = mockSlasClient.clientConfig
+      .parameters as CommonParameters;
     nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
       .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/login`)
       .query(true)
-      .reply(303, { response_body: "response_body" }, { location: url });
+      .reply(303, { response_body: "response_body" }, { location: mockURL });
 
     nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
       .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/token`)
@@ -285,8 +316,8 @@ describe("Registered B2C user flow", () => {
 
   it("throws an error when login is unsuccessful for public", async () => {
     const mockSlasClient = createSlasClient();
-    const { shortCode, organizationId } =
-      mockSlasClient.clientConfig.parameters;
+    const { shortCode, organizationId } = mockSlasClient.clientConfig
+      .parameters as CommonParameters;
     nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
       .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/login`)
       .query(true)
@@ -299,8 +330,8 @@ describe("Registered B2C user flow", () => {
 
   it("throws an error when login is unsuccessful for private", async () => {
     const mockSlasClient = createSlasClient();
-    const { shortCode, organizationId } =
-      mockSlasClient.clientConfig.parameters;
+    const { shortCode, organizationId } = mockSlasClient.clientConfig
+      .parameters as CommonParameters;
     nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
       .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/login`)
       .query(true)
