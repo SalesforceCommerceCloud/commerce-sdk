@@ -15,24 +15,22 @@ const SHORT_CODE = "SHORT_CODE";
 const ORGANIZATION_ID = "ORGANIZATION_ID";
 
 const MOCK_RESPONSE = { mockResponse: true };
-
 describe("Parameters", () => {
   afterEach(() => nock.cleanAll());
 
   it("allow custom query params", async () => {
     const customersClient = new ShopperCustomers({
       parameters: {
+        clientId: CLIENT_ID,
+        organizationId: ORGANIZATION_ID,
         shortCode: SHORT_CODE,
+        siteId: SITE_ID,
       },
     });
 
     const options = {
       parameters: {
-        siteId: SITE_ID,
-        organizationId: ORGANIZATION_ID,
-        clientId: CLIENT_ID,
         c_validCustomParam: "custom_param",
-        invalidParam: "invalid_param",
       },
       body: { type: "guest" },
     };
@@ -44,12 +42,40 @@ describe("Parameters", () => {
       .query({
         siteId: SITE_ID,
         clientId: CLIENT_ID,
-        // expect `c_validCustomParam` but not `invalidParam`
         c_validCustomParam: "custom_param",
       })
       .reply(200, MOCK_RESPONSE);
 
     const response = await customersClient.authorizeCustomer(options);
     expect(response).to.be.deep.equal(MOCK_RESPONSE);
+  });
+
+  it("throws error on invalid params", async () => {
+    const customersClient = new ShopperCustomers({
+      parameters: {
+        clientId: CLIENT_ID,
+        organizationId: ORGANIZATION_ID,
+        shortCode: SHORT_CODE,
+        siteId: SITE_ID,
+      },
+    });
+
+    const options = {
+      parameters: {
+        c_validCustomParam: "custom_param",
+        invalidQueryParam: "invalid_param",
+      },
+      body: { type: "guest" },
+    };
+
+    let expectedError;
+    try {
+      await customersClient.authorizeCustomer(options);
+    } catch (error) {
+      expectedError = error;
+    }
+    expect(expectedError.message).to.be.equal(
+      "Invalid Parameter: invalidQueryParam"
+    );
   });
 });
