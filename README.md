@@ -399,7 +399,3 @@ If you discover any potential security issues, please report them to security@sa
 ## License Information
 
 The Commerce SDK is licensed under BSD-3-Clause license. See the [license](./LICENSE.txt) for details.
-
-<!-- Markdown link & img dfn's -->
-[circleci-image]: https://circleci.com/gh/SalesforceCommerceCloud/commerce-sdk.svg?style=svg&circle-token=c68cee5cb20ee75f00cbda1b0eec5b5484c58b2a
-[circleci-url]: https://circleci.com/gh/SalesforceCommerceCloud/commerce-sdk

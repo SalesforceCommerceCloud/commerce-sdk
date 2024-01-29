@@ -67,3 +67,12 @@ The B2C Commerce API calculates taxes internally using tax tables. If you want t
 When using external taxation, you must set a tax rate either in one request to the `/baskets/{basketId}/taxes` or with separate requests for each line item, using `/baskets/{basketId}/items/{lineItemId}/taxes`.
 
 If the tax mode of a basket is set to `external`, a tax item is required for all line items even for zero-tax items to avoid oversights.
+
+## Temporary Baskets
+
+A temporary basket is populated with all the data required to ready the basket for checkout but differs from a shopper basket in the following ways:
+- Basket lifetime is limited to 15 minutes
+- The shopper can have up to 10 (default 4) temporary baskets, which can be configured via Basket Preferences (Sites -> Merchant Tools -> Basket Preferences ) with the preference "Temporary Baskets per Customer"
+- Available to all shoppers including guests, registered and agent use cases
+
+To create a temporary basket , set the `temporary` parameter to `true` when creating a basket.

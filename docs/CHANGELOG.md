@@ -10,6 +10,12 @@ only use JavaScript, or if you use TypeScript but only import the client classes
 then your usage **will not change**. You will likely only need to make changes if
 you import the type definitions directly.
 
+## v2.13.0
+
+#### Enchancements
+
+* Add support for custom query parameters [#396](https://github.com/SalesforceCommerceCloud/commerce-sdk/pull/396)
+
 ## v2.12.0
 
 #### New APIs
