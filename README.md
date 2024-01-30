@@ -222,12 +222,12 @@ const searchResults = await searchClient.productSearch({
   parameters: { 
     q: "dress", 
     limit: 5,
-    c_customQueryParam: '<your-custom-query-param>'
+    c_paramkey: '<param-value>'
   }
 });
 ```
 
-Invalid query parameters that are not a part of the API and do not follow the `c_` custom query parameter convention will be filtered from the request have an error thrown.
+Invalid query parameters that are not a part of the API and do not follow the `c_` custom query parameter convention will be filtered from the request and a warning will be displayed.
 
 ## Caching
 
