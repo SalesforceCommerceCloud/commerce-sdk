@@ -213,6 +213,22 @@ client.authorizeCustomer({
 
 If both the client config and the function call define the same fetch option with different values, the fetch option value for the function call will take priority. In the examples above, both pass in the `redirect` fetch option with different values, however, `redirect: "manual"` will take precedence because it was passed on the function call level. 
 
+### Custom Query Parameters
+
+With the introduction of [hooks for Commerce APIs](https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html), customers can pass custom query parameters through the SDK to be used in their custom hook. Custom query parameters must begin with `c_`:
+
+```javascript
+const searchResults = await searchClient.productSearch({
+  parameters: { 
+    q: "dress", 
+    limit: 5,
+    c_customQueryParam: '<your-custom-query-param>'
+  }
+});
+```
+
+Invalid query parameters that are not a part of the API and do not follow the `c_` custom query parameter convention will be filtered from the request have an error thrown.
+
 ## Caching
 
 The SDK currently supports two types of caches - In-memory and Redis. Both the implementations respect [standard cache headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control). To use another type of cache, write your own implementation of the [CacheManager](https://github.com/SalesforceCommerceCloud/commerce-sdk-core/tree/main/src/base/cacheManager.ts). See the [default cache manager](https://github.com/SalesforceCommerceCloud/commerce-sdk-core/tree/main/src/base/cacheManagerKeyv.ts) to design your implementation.
