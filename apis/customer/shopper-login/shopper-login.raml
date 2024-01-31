@@ -50,11 +50,11 @@ types:
         auth0,
         azure,
         azure_adb2c,
-        adfs,
         cognito,
         facebook,
         forgerock,
         gigya,
+        gigya_socialize,
         google,
         okta,
         ping,
@@ -66,8 +66,8 @@ types:
     enum: [callback, sms]
   TrustedOnBehalf:
     type: string
-    description: Type of system used for Trusted System On Behalf of requests (external or interal).
-    enum: [ts_ext_on_behalf_of, ts_int_on_behalf_of]
+    description: Type of system used for Trusted System On Behalf of requests.
+    enum: [ts_ext_on_behalf_of]
   TokenRequest:
     type: object
     properties:
@@ -199,7 +199,7 @@ types:
         type: GrantType
         example: "client_credentials"
       hint:
-        description: The type of trusted system to use (external or internal).
+        description: The type of trusted system to use.
         type: TrustedOnBehalf
         example: "ts_ext_on_behalf_of"
       login_id:
@@ -216,7 +216,7 @@ types:
         maxLength: 16
         example: "google"
       client_id:
-        description: The SLAS public client ID for use with internal trusted-system requests.
+        description: The SLAS public client ID for use with trusted-system requests.
         type: string
         maxLength: 40
         example: "6c388ebd-6843-4863-aef9-781382c9e8cd"
@@ -241,7 +241,7 @@ types:
         example: "merchant@example.com"
       client_id:
         description: |-
-          The SLAS public client ID or SLAS private client ID for use with internal, trusted-system requests.
+          The SLAS public client ID or SLAS private client ID for use with trusted-system requests.
 
           The `client_id` is not needed if a using a SLAS private `client_id` and the `_sfdc_client_auth` header.
         type: string
@@ -283,6 +283,11 @@ types:
         required: true
         maxLength: 16
         example: "ecom"
+      usid:
+        description: The shopper's unique identifier, if known. If not provided, a new USID is generated.
+        type: string
+        required: false
+        example: "54ad2c5a-91f0-44ab-817c-73d6b86872d9"  
   SessionBridgeTokenRequest:
     properties:
       code:
@@ -757,7 +762,7 @@ types:
                 example: |
                   {
                   "error": "precondition_failure",
-                  "error_description": "Depenant service is not available."
+                  "error_description": "Dependent service is not available."
                   }
     /logout:
       description: Log out a shopper.
@@ -1149,9 +1154,8 @@ types:
         description: |-
           Get a shopper JWT access token for a registered customer whose credentials are stored using a third party system.
 
-          For external trusted-system requests, a basic authorization header that includes a SLAS client ID and SLAS client secret can be used in place of the bearer token.
+          For trusted-system requests, a basic authorization header that includes a SLAS client ID and SLAS client secret can be used in place of the bearer token.
 
-          For internal trusted-system requests, the bearer token must be a C2C JWT.
         displayName: getTrustedSystemAccessToken
         is:
           - SlasRateLimit:
@@ -1241,7 +1245,7 @@ types:
               responseStatus4: 500
         queryParameters:
           client_id:
-            description: The SLAS public client ID or SLAS private client ID for use with internal, trusted-agent requests. When using a private client ID a PKCE code challenge is not required.
+            description: The SLAS public client ID or SLAS private client ID for use with trusted-agent requests. When using a private client ID a PKCE code challenge is not required.
             type: string
             required: true
             maxLength: 40
