@@ -282,6 +282,18 @@ client.authorizeCustomer({
   }
 });</code></pre>
 				<p>If both the client config and the function call define the same fetch option with different values, the fetch option value for the function call will take priority. In the examples above, both pass in the <code>redirect</code> fetch option with different values, however, <code>redirect: &quot;manual&quot;</code> will take precedence because it was passed on the function call level. </p>
+				<a href="#custom-query-parameters" id="custom-query-parameters" style="color: inherit; text-decoration: none;">
+					<h3>Custom Query Parameters</h3>
+				</a>
+				<p>With the introduction of <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html">hooks for Commerce APIs</a>, customers can pass custom query parameters through the SDK to be used in their custom hook. Custom query parameters must begin with <code>c_</code>:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> searchResults = <span class="hljs-keyword">await</span> searchClient.productSearch({
+  <span class="hljs-attr">parameters</span>: { 
+    <span class="hljs-attr">q</span>: <span class="hljs-string">&quot;dress&quot;</span>, 
+    <span class="hljs-attr">limit</span>: <span class="hljs-number">5</span>,
+    <span class="hljs-attr">c_paramkey</span>: <span class="hljs-string">&#x27;&lt;param-value&gt;&#x27;</span>
+  }
+});</code></pre>
+				<p>Invalid query parameters that are not a part of the API and do not follow the <code>c_</code> custom query parameter convention will be filtered from the request and a warning will be displayed.</p>
 				<a href="#caching" id="caching" style="color: inherit; text-decoration: none;">
 					<h2>Caching</h2>
 				</a>
@@ -432,7 +444,7 @@ sdkLogger.setLevel(sdkLogger.levels.INFO);</code></pre>
 				<p>For more information about security considerations related to developing headless commerce applications, see
 					<a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/security-considerations-for-headless-commerce.html">Security Considerations for Headless Commerce</a> on the
 				<a href="https://developer.salesforce.com/developer-centers/commerce-cloud">Commerce Cloud Developer Center</a>.</p>
-				<p>If you discover any potential security issues, please report them to <a href="mailto:&#115;&#x65;&#x63;&#x75;&#x72;&#105;&#116;&#x79;&#x40;&#115;&#x61;&#108;&#x65;&#115;&#102;&#111;&#x72;&#99;&#x65;&#x2e;&#x63;&#111;&#109;">&#115;&#x65;&#x63;&#x75;&#x72;&#105;&#116;&#x79;&#x40;&#115;&#x61;&#108;&#x65;&#115;&#102;&#111;&#x72;&#99;&#x65;&#x2e;&#x63;&#111;&#109;</a> as soon as possible.</p>
+				<p>If you discover any potential security issues, please report them to <a href="mailto:&#x73;&#x65;&#x63;&#x75;&#x72;&#105;&#x74;&#x79;&#64;&#x73;&#x61;&#x6c;&#x65;&#115;&#102;&#x6f;&#114;&#x63;&#101;&#x2e;&#x63;&#111;&#109;">&#x73;&#x65;&#x63;&#x75;&#x72;&#105;&#x74;&#x79;&#64;&#x73;&#x61;&#x6c;&#x65;&#115;&#102;&#x6f;&#114;&#x63;&#101;&#x2e;&#x63;&#111;&#109;</a> as soon as possible.</p>
 				<a href="#additional-documentation" id="additional-documentation" style="color: inherit; text-decoration: none;">
 					<h2>Additional Documentation</h2>
 				</a>

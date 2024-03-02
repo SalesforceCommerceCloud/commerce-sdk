@@ -104,3 +104,7 @@ You can sort the results in ascending or descending order by these attributes (d
 ## Create Orders
 
 Use the Create Order endpoint to create orders from a third-party system, such as a social media platform. Before using the endpoint, you must complete the checkout process first: apply all sanity checks, reserve inventory, authorize payment, apply promotions, and calculate the full cost of the order. Orders made by third-party systems are treated the same way as order made directly through the B2C Commerce platform, including how status updates and exports are handled.
+
+## Update Orders
+
+Use the Update Order endpoint to make changes to custom order attributes.
