@@ -10,18 +10,6 @@ only use JavaScript, or if you use TypeScript but only import the client classes
 then your usage **will not change**. You will likely only need to make changes if
 you import the type definitions directly.
 
-
-## v2.14.0
-
-* Shopper SEO API*
-* 
-* New Endpoints
-
-  | **Endpoint Name** | **Description** |
-  | ------------- |-------------|
-  | getUrlMapping | Gets URL mapping information for a URL that a shopper clicked or typed in. The mapping information is based on URL rules and redirects set up in Business Manager. For more information about prerequisites and sample usage, see [URL Resolution](/docs/commerce/commerce-api/guide/url-resolution.html). You can customize the behavior of this endpoint by using hooks. See the hooks for getUrlMapping in the [Hook List](https://developer.salesforce.com/docs/commerce/commerce-api/guide/hook_list.html).|
-
-
 ## v2.13.0
 
 #### Enchancements
