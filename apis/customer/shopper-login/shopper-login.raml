@@ -16,7 +16,6 @@ traits:
 uses:
   ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
   CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.24/commerce-cloud-standards.raml
-
 types:
   ResponseType:
     type: string
@@ -43,7 +42,7 @@ types:
     enum: [access_token, refresh_token]
   ThirdPartyIdps:
     type: string
-    description: Third party IDPs that work with SLAS.
+    description: IDPs that work with SLAS. Use `ecom` when using ECOM is the identity provider.
     enum:
       [
         apple,
@@ -51,6 +50,7 @@ types:
         azure,
         azure_adb2c,
         cognito,
+        ecom,
         facebook,
         forgerock,
         gigya,
@@ -126,6 +126,21 @@ types:
         type: string
         maxLength: 100
         example: "RefArch"
+      dnt:
+        description: |-
+          This is an optional parameter to set `Do Not Track` for the session. 
+          
+          SLAS is making this available, but will not be used by ECOM until after the 24.4 release.
+          
+          Values are:
+            * `false`
+            * `true`
+          
+          If not added the `dnt` value will default to `false`.
+          
+        required: false
+        type: string
+        example: "true"
   TokenResponse:
     type: object
     properties:
@@ -142,7 +157,11 @@ types:
         type: string
         example: "eyJraWQiOiI3NGU2YjMxZS1lYTczLTQ3OTYtOWRkYi1jMDJmZGI4ZDgwYmUiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ1c2lkOmQ1MDBhMzY5LTc1MWQtNDkzYy1iNDAzLThmOThmYjg3MTdiNiIsImF1ZCI6IjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3YiIsImlzcyI6ImRldi51cy5zaG9wcGVyLmNjLnNhbGVzZm9yY2UuY29tIiwibmFtZSI6ImJsYWlyLnNsYXMudGVzdEBnbWFpbC5jb20iLCJleHAiOjE1OTExMTE0MzgsImlhdCI6MTU5MTEwOTYzOCwiZW1haWwiOiJibGFpci5zbGFzLnRlc3RAZ21haWwuY29tIn0.KgpAcq-G9Lz7IGnjkJlaFLFXYncVCwcVrRIuy3bEfgzRozqaDRvAori4oOz4RtgYjmoc5x2euoisHL0mVnHgPKOdYBty1wTJqneJEQt6hP4Kp0KFciID_ILCi-DE8VWS5t0NknnMP_iKhIkqcRL48iwPFUWkWA6AEWxE_yvJLNRLithsSxsx7EfBfpD8Hr2b5tMEwImQNmJNYGRTI4LSmcYspBORvJoAnfGpMC0kglxl40bhf5j4ItX4_DiWQC4zaGYD-HJV4BDr6C7iGCs5ZVPypF0yQD3iBio26fwj9Ys5WF9XMtPtqET2kqsz6fDC5GkE6HTUHH_r87jxbDq-8w"
       refresh_token:
-        description: Long term refresh token that can be used to refresh an access token. Valid for 30 days.
+        description: |-
+          Long term refresh token that can be used to refresh an access token. Valid for 30 days. 
+          
+          The refresh_token will not be returned for trusted agents JWTs. A JWT for trusted agents expires after 15 minutes and is not refreshable. When expired, then app must restart the authorization flow and make another request to the /trusted-agent/authorize endpoint.
+
         type: string
         example: "EgMYpjfFKdlSy-a3PYeyihmP95IpIp3FaDpPmVH1yu8.lahomBi7zJbRa6yKAuAAiKu3lprTPsEueKwqcBvhRLU"
       expires_in:
@@ -211,7 +230,7 @@ types:
         maxLength: 128
         example: "samantha.sampleson@example.com"
       idp_origin:
-        description: The external IDP that the user is associated with.
+        description: The external IDP that the user is associated with. Use `ecom` as the `idp_origin` value when using ECOM as the identity provider.
         type: ThirdPartyIdps
         maxLength: 16
         example: "google"
@@ -231,10 +250,28 @@ types:
         required: false
         maxLength: 128
         example: "samantha.sampleson@example.com"
+      dnt:
+        description: |-
+          This is an optional parameter to set `Do Not Track` for the session.
+
+          SLAS is making this available, but will not be used by ECOM until after the 24.4 release.
+          
+          Values are:
+            * `false`
+            * `true`
+          
+          If not added the `dnt` value will default to `false`.
+          
+        required: false
+        type: string
+        example: "true"
   TrustedAgentTokenRequest:
     properties:
       agent_id:
-        description: The ID of the merchant. This is an optional parameter. If passed in, the `agent_id` will be validated using the SUB claim in the response from Account Manager.
+        description: |-
+          The ID of the merchant. If passed in, the `agent_id` will be validated using the SUB claim in the response from Account Manager.
+
+          This is an optional parameter unless the request is for a Trusted Agent on Behalf then `agent_id` is required.
         type: string
         required: false
         maxLength: 40
@@ -287,7 +324,22 @@ types:
         description: The shopper's unique identifier, if known. If not provided, a new USID is generated.
         type: string
         required: false
-        example: "54ad2c5a-91f0-44ab-817c-73d6b86872d9"  
+        example: "54ad2c5a-91f0-44ab-817c-73d6b86872d9"
+      dnt:
+        description: |-
+          This is an optional parameter to set `Do Not Track` for the session. 
+
+          SLAS is making this available, but will not be used by ECOM until after the 24.4 release.
+          
+          Values are:
+            * `false`
+            * `true`
+          
+          If not added the `dnt` value will default to `false`.
+
+        required: false
+        type: string
+        example: "true"
   SessionBridgeTokenRequest:
     properties:
       code:
@@ -358,6 +410,21 @@ types:
         required: false
         description: The unique shopper ID. Returned when from session bridge authorization.
         example: 18cda486-fe32-4e27-888b-6e4f89938e67
+      dnt:
+        description: |-
+          This is an optional parameter to set `Do Not Track` for the session. 
+
+          SLAS is making this available, but will not be used by ECOM until after the 24.4 release.
+          
+          Values are:
+            * `false`
+            * `true`
+          
+          If not added the `dnt` value will default to `false`.
+          
+        required: false
+        type: string
+        example: "true"
   PasswordlessLoginRequest:
     type: object
     description: A request for a passwordless login token. This is only available for resgistered users using ECOM.
@@ -480,7 +547,7 @@ types:
         required: true
         type: string
         maxLength: 100
-        example: "SiteGenesis"
+        example: "RefArch"
   PasswordLessLoginTokenRequest:
     type: object
     description: A request for an access token using a passwordless token.
@@ -598,7 +665,7 @@ types:
         required: true
         type: string
         maxLength: 100
-        example: "SiteGenesis"
+        example: "RefArch"
       code_challenge:
         description: |-
           PKCE code verifier. Created by the client calling the `login` endpoint.
@@ -802,7 +869,7 @@ types:
             required: false
             type: string
             maxLength: 100
-            example: "SiteGenesis"
+            example: "RefArch"
           hint:
             description: Optional parameter for logging out user sessions. Use `all-sessions` to log out all user sessions. If `hint` is not used, only the current user session will be logged out.
             required: false
@@ -927,7 +994,7 @@ types:
             required: false
             type: string
             maxLength: 100
-            example: "SiteGenesis"
+            example: "RefArch"
           code_challenge:
             description: |-
               PKCE code challenge. Created by the client calling the `login` endpoint.
@@ -1678,7 +1745,7 @@ types:
         body:
           application/x-www-form-urlencoded:
             type: TokenActionRequest
-            example: |
+            example: | 
               {
                 "token": "eyJ2ZXIiOiIxLjAiLCJraWQiOiI0ZTQyNTFkOS0zM2Y2LTRjMTMtYjZmZC1mOWJkNTJmYTZhNDciLCJ0eXAiOiJqd3QiLCJjbHYiOiJKMi4xLjAiLCJhbGciOiJFUzI1NiJ9.eyJhdXQiOiJHVUlEIiwic2NwIjoic2ZjYy5wcm9kdWN0cy5ybyBzZmNjLmNhdGFsb2dzLnJvIHNmY2Muc2hvcHBlci5ydyIsInN1YiI6ImNjLXNsYXM6OnNsc2FfZGV2OjpzY2lkOjU1M2FjOGFjLTRkYjktNGVkMy04MjVjLTNhZTNiZjVkMzI3Yjo6dXNpZDoxY2E3OWZiNi0xYjIyLTRmOWItOGJiNi05YmU5NWNjMjA4NjMiLCJjdHgiOiJzbGFzLm5vdF9mb3JfZXh0ZXJuYWxfdXNlIiwiaXNzIjoic2xhcy9kZXYvc2xzYV9kZXYiLCJpc3QiOjEsImF1ZCI6ImNvbW1lcmNlY2xvdWQvZGV2L3Nsc2FfZGV2IiwibmJmIjoxNTk0NzY0MDgwLCJzdHkiOiJVc2VyIiwiaXNiIjoidWlkbzpzbGFzOjp1cG46R3Vlc3Q6OnVpZG46R3Vlc3QgVXNlciIsImV4cCI6MTU5NDc2NTkxMCwiaWF0IjoxNTk0NzY0MTEwLCJqdGkiOiJDMkMxNjM0NTE0NTEwLTE3MTQzMTg2NzY0MjcwNTcyNjQ2NTYxMzgifQ.UVYAsWXCn3hoUPy8vLlc7O96RZEHD3N3ZgdNH-ZVvJ1G-R6uJ2VPrYvwKmYXF41Ujm2bo83AYOHVqEEEPT8Kgw",
                 "token_type_hint": "access_token"
@@ -1752,7 +1819,7 @@ types:
             required: false
             maxLength: 100
             type: string
-            example: "SiteGenesis"
+            example: "RefArch"
         responses:
           200:
             description: Success

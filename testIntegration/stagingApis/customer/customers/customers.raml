@@ -371,7 +371,53 @@ types:
       hits:
         description: The sorted array of search hits. Can be empty.
         type: CustomerSearchHit[]
-
+  CustomerGroupRule:
+    description: Customer Group Rule
+    properties:
+      description: 
+        description: Customer Group Rule description. Describing its conditions in natural language.
+        type: string
+        example: "Customers who spend more than $1000 in the last month"
+  CustomerGroup:
+    description: Document representing a customer group.
+    properties:
+      creationDate:
+        description: The date the customer group was created.
+        type: string
+      description: 
+        description: Customer Group description.
+        type: string
+        example: "Customers who spent more than $1000 in last month"
+      id:
+        description: Customer Group id.
+        type: string
+        example: "Big Spenders"
+      inDeletion:
+        description: Boolean to indicate if the customer group is marked for deletion.
+        type: boolean
+        example: false
+      memberCount:
+        description: Number of members in the customer group
+        type: integer
+        example: 109
+      rule:
+        description: Customer Group Rule
+        type: CustomerGroupRule
+      type: 
+        description: Customer Group Type. 
+        type: string
+        enum: 
+          - system
+          - dynamic
+          - static
+        example: "static" 
+  CustomerGroupSearchResult:
+    description: Document representing a customer group search result.
+    type: CommerceCloudStandards.PaginatedSearchResult
+    properties:
+      hits:
+        description: The sorted array of search hits. Can be empty.
+        type: CustomerGroup[]
 /organizations/{organizationId}:
   type: CommerceCloudStandards.Organization
   /customer-lists:
@@ -404,11 +450,6 @@ types:
             
         displayName: searchCustomerInCustomerList
         is:
-          - ApiStandards.RateLimited4:
-              responseStatus: 200
-              responseStatus2: 400
-              responseStatus3: 401
-              responseStatus4: 404
           - CustomerListsTraits.Unauthorized
           - CustomerListsTraits.BadRequest
           - CustomerListsTraits.NotFound
@@ -427,7 +468,7 @@ types:
               result: !include Examples/customerSearchBody.raml
         securedBy:
           - CommerceCloudStandards.BearerToken: { scopes: [sfcc.customerlists,sfcc.customerlists.rw] }
-          - CommerceCloudStandards.AmOAuth2
+          - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.customerlists,sfcc.customerlists.rw] }
       uriParameters:
         customerListId:
           description: The customer list ID to search in.
@@ -447,11 +488,6 @@ types:
           If the action fails to create the customer, it returns a 400 fault with an appropriate message.
         displayName: createCustomerList
         is:
-          - ApiStandards.RateLimited4:
-              responseStatus: 200
-              responseStatus2: 400
-              responseStatus3: 401
-              responseStatus4: 404
           - CustomerListsTraits.Unauthorized
           - CustomerListsTraits.NotFound
           - CustomerListsTraits.BadRequest
@@ -470,17 +506,12 @@ types:
               body: !include Examples/post-customer-body.raml
         securedBy:
           - CommerceCloudStandards.BearerToken: { scopes: [sfcc.customerlists.rw] }
-          - CommerceCloudStandards.AmOAuth2
+          - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.customerlists.rw] }
       /{customerNo}:
         delete:
           description: Deletes the customer, including all related information like the customer addresses.
           displayName: deleteCustomerFromCustomerList
           is:
-            - ApiStandards.RateLimited4:
-                responseStatus: 204
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 404
             - CustomerListsTraits.Unauthorized
             - CustomerListsTraits.NotFound
             - CustomerListsTraits.BadRequest
@@ -489,16 +520,11 @@ types:
               description: No Content
           securedBy:
             - CommerceCloudStandards.BearerToken: { scopes: [sfcc.customerlists.rw] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.customerlists.rw] }
         get:
           description: Action to get customer information.
           displayName: getCustomerFromCustomerList
           is:
-            - ApiStandards.RateLimited4:
-                responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 404
             - CustomerListsTraits.Unauthorized
             - CustomerListsTraits.NotFound
             - CustomerListsTraits.BadRequest
@@ -512,18 +538,13 @@ types:
                     get-customer: !include Examples/post-customers.raml
           securedBy:
             - CommerceCloudStandards.BearerToken: { scopes: [sfcc.customerlists,sfcc.customerlists.rw] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.customerlists,sfcc.customerlists.rw] }
         patch:
           description: |-
             Updates the customer with the specified information. The customer number is allowed to be updated but results in a
             CustomerNumberAlreadyInUseException if there is another customer with the same customer number existing.
           displayName: updateCustomerInCustomerList
           is:
-            - ApiStandards.RateLimited4:
-                responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 404
             - CustomerListsTraits.Unauthorized
             - CustomerListsTraits.NotFound
             - CustomerListsTraits.BadRequest
@@ -542,7 +563,7 @@ types:
                 patch-body: !include Examples/post-customer-body.raml
           securedBy:
             - CommerceCloudStandards.BearerToken: { scopes: [sfcc.customerlists.rw] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.customerlists.rw] }
         put:
           description: |
             Action to create a new customer. The customer is created using the specified customer number, credentials, and
@@ -554,12 +575,6 @@ types:
             If the action fails to create the customer, it returns a 400 fault with an appropriate message.
           displayName: createCustomerInCustomerList
           is:
-            - ApiStandards.RateLimited5:
-                responseStatus: 200
-                responseStatus2: 201
-                responseStatus3: 400
-                responseStatus4: 401
-                responseStatus5: 404
             - CustomerListsTraits.Unauthorized
             - CustomerListsTraits.NotFound
             - CustomerListsTraits.BadRequest
@@ -585,7 +600,7 @@ types:
                 put-body: !include Examples/post-customer-body.raml
           securedBy:
             - CommerceCloudStandards.BearerToken: { scopes: [sfcc.customerlists.rw] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.customerlists.rw] }
         uriParameters:
           customerNo:
             description: The customer number.
@@ -599,11 +614,6 @@ types:
               default page size is 10 customer addresses.
             displayName: getAddressesForCustomerFromCustomerList
             is:
-              - ApiStandards.RateLimited4:
-                  responseStatus: 200
-                  responseStatus2: 400
-                  responseStatus3: 401
-                  responseStatus4: 404
               - CustomerListsTraits.BadRequest
               - CustomerListsTraits.Unauthorized
               - CustomerListsTraits.NotFound
@@ -620,18 +630,13 @@ types:
                       address-example: !include Examples/addresses-get.raml
             securedBy:
               - CommerceCloudStandards.BearerToken: { scopes: [sfcc.customerlists,sfcc.customerlists.rw] }
-              - CommerceCloudStandards.AmOAuth2
+              - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.customerlists,sfcc.customerlists.rw] }
           post:
             description: |-
               The action creates a new customer address with the given address
               information.
             displayName: createAddressForCustomerInCustomerList
             is:
-              - ApiStandards.RateLimited4:
-                  responseStatus: 200
-                  responseStatus2: 400
-                  responseStatus3: 401
-                  responseStatus4: 404
               - CustomerListsTraits.BadRequest
               - CustomerListsTraits.Unauthorized
               - CustomerListsTraits.NotFound
@@ -650,18 +655,13 @@ types:
                   address-body: !include Examples/addresses-body.raml
             securedBy:
               - CommerceCloudStandards.BearerToken: { scopes: [sfcc.customerlists.rw] }
-              - CommerceCloudStandards.AmOAuth2
+              - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.customerlists.rw] }
           /{addressId}:
             get:
               description: |-
                 Action that returns a single customer address from a customer list.
               displayName: getAddressForCustomerFromCustomerList
               is:
-                - ApiStandards.RateLimited4:
-                    responseStatus: 200
-                    responseStatus2: 400
-                    responseStatus3: 401
-                    responseStatus4: 404
                 - CustomerListsTraits.BadRequest
                 - CustomerListsTraits.Unauthorized
                 - CustomerListsTraits.NotFound
@@ -675,16 +675,11 @@ types:
                         address-example: !include Examples/address-get.raml
               securedBy:
                 - CommerceCloudStandards.BearerToken: { scopes: [sfcc.customerlists,sfcc.customerlists.rw] }
-                - CommerceCloudStandards.AmOAuth2
+                - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.customerlists,sfcc.customerlists.rw] }
             delete:
               description: Action which deletes a customer address.
               displayName: removeAddressForCustomerInCustomerList
               is:
-                - ApiStandards.RateLimited4:
-                    responseStatus: 204
-                    responseStatus2: 400
-                    responseStatus3: 401
-                    responseStatus4: 404
                 - CustomerListsTraits.BadRequest
                 - CustomerListsTraits.Unauthorized
                 - CustomerListsTraits.NotFound
@@ -693,16 +688,11 @@ types:
                   description: No Content
               securedBy:
                 - CommerceCloudStandards.BearerToken: { scopes: [sfcc.customerlists.rw] }
-                - CommerceCloudStandards.AmOAuth2
+                - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.customerlists.rw] }
             patch:
               description: Action which updates an address of a customer with the given address information.
               displayName: updateAddressForCustomerInCustomerList
               is:
-                - ApiStandards.RateLimited4:
-                    responseStatus: 200
-                    responseStatus2: 400
-                    responseStatus3: 401
-                    responseStatus4: 404
                 - CustomerListsTraits.BadRequest
                 - CustomerListsTraits.Unauthorized
                 - CustomerListsTraits.NotFound
@@ -721,10 +711,44 @@ types:
                     address-body: !include Examples/addresses-body.raml
               securedBy:
                 - CommerceCloudStandards.BearerToken: { scopes: [sfcc.customerlists.rw] }
-                - CommerceCloudStandards.AmOAuth2
+                - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.customerlists.rw] }
             uriParameters:
               addressId:
                 description: The address ID.
                 minLength: 1
                 type: string
                 example: "Home"
+  /customer-group-search: 
+       post:
+        description: |-
+          BETA: This API is in Beta stage and expected to be avialable in March 2024. API to search for customer groups for a given Site Id.
+          The query attribute specifies a complex query that can be used to narrow down the search. These are the list
+          of searchable attributes:
+            
+          | Attribute | Type |
+          |-----------|--------|
+          | id| String |
+          | description | String |
+          | type | String |
+            
+        displayName: searchCustomerGroup
+        is:
+          - CommerceCloudStandards.SiteSpecific:
+          - CustomerListsTraits.Unauthorized
+          - CustomerListsTraits.CustomerGroupSearchBadRequest
+        responses:
+          '200':
+            description: Success
+            body:
+              application/json:
+                type: CustomerGroupSearchResult
+                examples:
+                  result: !include Examples/customerGroupSearchResult.raml
+        body:
+          application/json:
+            type: CommerceCloudStandards.SearchRequest
+            examples:
+              result: !include Examples/customerSearchBody.raml
+        securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.customergroups,sfcc.customergroups.rw] }
+          - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.customergroups,sfcc.customergroups.rw] }

@@ -1,5 +1,10 @@
 # API Overview
 
+Shopper Baskets V2 provides all Shopper Basket V1 functionality and adds support for temporary baskets. 
+Temporary baskets can perform calculations to generate totals, line items, promotions, and item availability without affecting the shopper’s storefront cart, and you can use those calculations for temporary basket checkout. You can also use a temporary basket for an immediate order request.
+
+**Note**: `dw.ocapi.shop.basket.beforePOST` hook is no longer supported and is replaced by the `dw.ocapi.shop.basket.beforePOST_v2` hook.
+
 Use the Shopper Baskets API to create a basket in the B2C Commerce system and populate it with all the data required to ready the basket for checkout.
 
 To create a basket, start with the [Create basket](https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=createBasket) endpoint. The endpoint creates the basket in the B2C Commerce system and returns a JSON representation of the basket with a `basketId` property.
@@ -66,13 +71,13 @@ The B2C Commerce API calculates taxes internally using tax tables. If you want t
 
 When using external taxation, you must set a tax rate either in one request to the `/baskets/{basketId}/taxes` or with separate requests for each line item, using `/baskets/{basketId}/items/{lineItemId}/taxes`.
 
-If the tax mode of a basket is set to `external`, a tax item is required for all line items even for zero-tax items to avoid oversights.
+If the tax mode of a basket is set to `external`, a tax item is required for all line items to avoid oversights, including zero-tax items.
 
 ## Temporary Baskets
 
-A temporary basket is populated with all the data required to ready the basket for checkout but differs from a shopper basket in the following ways:
-- Basket lifetime is limited to 15 minutes
-- The shopper can have up to 10 (default 4) temporary baskets, which can be configured via Basket Preferences (Sites -> Merchant Tools -> Basket Preferences ) with the preference "Temporary Baskets per Customer"
-- Available to all shoppers including guests, registered and agent use cases
+A temporary basket is populated with all the data required to ready the basket for checkout, but differs from a shopper basket in the following ways:
+- Basket lifetime is limited to 15 minutes.
+- The shopper can have up to 10 (default 4) temporary baskets, which can be configured via Basket Preferences (Sites -> Merchant Tools -> Basket Preferences) and specifying the preference **Temporary Baskets per Customer**.
+- Available to all shoppers (guest and registered shoppers), as well as agents.
 
-To create a temporary basket , set the `temporary` parameter to `true` when creating a basket.
+To create a temporary basket, set the `temporary` parameter to `true` with the [Create basket](https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=createBasket) endpoint.
