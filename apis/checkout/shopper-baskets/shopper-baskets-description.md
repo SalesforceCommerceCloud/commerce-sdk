@@ -44,6 +44,12 @@ The following resources require an Account Manager OAuth token with a client ID:
 -   `/baskets/{basketId}/items/{itemId}/taxes`
 -   `/baskets/{basketId}/price-books`
 
+## Use Cases
+
+### Use Hooks
+
+For details on working with hooks, see [Extensibility with Hooks.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html)
+
 ## Basket Calculation
 
 Unless you’re using [hooks](https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html), each modification to a basket triggers the following calculations:

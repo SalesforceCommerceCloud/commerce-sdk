@@ -139,11 +139,11 @@ types:
         description: Identity Provider Name
         type: string
         example: "google"
-        enum: [adfs, apple, auth0, azure, cognito, facebook, forgerock, gigya, google, okta, ping, salesforce]
+        enum: [adfs, apple, auth0, azure, cognito, facebook, forgerock, gigya, gigya_social, google, okta, ping, salesforce]
       authUrl:
         description: Identity Provider auth URI
         type: ApiStandards.AbsoluteUrl
-        example: "https://accounts.google.com/o/oauth2/v2/auth"
+        example: "https://accounts.google.com/oauth2/v2/auth"
       tokenUrl:
         description: Identity Provider token URI
         type: ApiStandards.AbsoluteUrl
@@ -171,7 +171,12 @@ types:
       preferenceValue:
         description: SLAS IDP Preference Value
         type: boolean
+        required: false
         example: true
+      isClientCredsBody:
+        description: Default is to place the client credentials in a basic authorization header for the call to the IDP. If true, the client credentials are placed in the POST body to the IDP.
+        type: boolean
+        example: false
       scopes:
               description: IDP Scopes
               type: string[]
@@ -235,6 +240,10 @@ types:
         description: SLAS IDP Preference Value
         type: boolean
         example: true
+      isClientCredsBody:
+        description: Default is to place the client credentials in a basic authorization header for the call to the IDP. If true, the client credentials are placed in the POST body to the IDP.
+        type: boolean
+        example: false
       scopes:
         description: Scopes needed by the IDP.
         type: array
@@ -329,104 +338,6 @@ types:
         type: array
         items:
           type: Tenant
-
-  CredQualityResponse:
-    properties:
-      tenantId:
-        type: string
-        example: "aaaa_prd"
-      checkCount:
-        type: integer
-        example: 40
-      credsOkay:
-        type: integer
-        example: 1024
-      repeatedCompromisedUse:
-        type: integer
-        example: 12
-      credsCompromised:
-        type: integer
-        example: 0
-      exposure1:
-        type: integer
-        example: 0
-      exposure2to4:
-        type: integer
-        example: 0
-      exposure5to9:
-        type: integer
-        example: 0
-      exposure10plus:
-        type: integer
-        example: 0
-      pwdsOkay:
-        type: integer
-        example: 47
-      pwdsCompromised:
-        type: integer
-        example: 3
-      avgPwdStrength:
-        type: number
-        example: 5.0
-      avgCredQualityMeasure:
-        type: number
-        example: 0.0
-      avgPwdQualityMeasure:
-        type: number
-        example: 0.0
-      medPwdStrength:
-        type: number
-        example: 0.0
-      medCredQualityMeasure:
-        type: number
-        example: 0.0
-      medPwdQualityMeasure:
-        type: number
-        example: 0.0
-
-  CredQualityUserResponse:
-    properties:
-      tenantId:
-        type: string
-        example: "aaaa_prd"
-      username:
-        type: string
-        example: "joe.shopper"
-      email:
-        type: string
-        example: "joe.shopper@gmail.com"
-      credQualityMeasure:
-        type: integer
-        example: 1024
-      pwdStrengthMeasure:
-        type: integer
-        example: 12
-      pwdQualityMeasure:
-        type: integer
-        example: 0
-      credChangeCount:
-        type: integer
-        example: 0
-      loginCount:
-        type: integer
-        example: 0
-      lastLoginDatetime:
-        type: datetime
-        example: 2021-08-18T16:41:41.090Z
-      lastCredcheckDatetime:
-        type: datetime
-        example: 2021-02-18T16:41:41.090Z
-      atoScore:
-        type: integer
-        example: 3
-      atoLastDatetime:
-        type: datetime
-        example: 2021-02-18T16:41:41.090Z
-      atoLastSourceIp:
-        type: string
-      atoScoreHistory:
-        type: string
-        example: "5, 6, 7"
 
   PasswordActionTemplate:
     properties:
@@ -952,7 +863,7 @@ types:
                 type: IdentityProviderListResponse
                 examples:
                   IdentityProvider: !include Examples/IdpListResponse.raml
-      /{idpId}:
+      /{name}:
         get:
           description: Retrieve/Get a specific identity provider
           displayName: retrieveIdentityProvider

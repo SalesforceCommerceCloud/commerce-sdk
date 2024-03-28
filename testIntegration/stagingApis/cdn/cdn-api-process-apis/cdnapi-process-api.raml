@@ -317,10 +317,11 @@ traits:
           - CommerceCloudStandards.AmOAuth2
 
   /zones/{zoneId}/firewall/rules:
+    is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse]
     get:
-      is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse, hasResourceNotFoundResponse]
+      is: [hasResourceNotFoundResponse]
       displayName: getFirewallRules
-      description: Retrieves existing firewall rules. This endpoint will be deprecated at a later date and additional documentation will be provided. Use eCDN custom rules moving forward. Any existing firewall rules are accessible and can be updated using the custom rule endpoints.
+      description: Retrieves existing firewall rules.
       responses:
         '200':
           description: Successfully returned back the list of firewall rules requested by the caller.
@@ -333,13 +334,14 @@ traits:
         - CommerceCloudStandards.AmOAuth2
 
     post:
-      is: [hasBadRequestResponse]
+      is: [hasBadRequestResponse, hasConflictResponse]
       displayName: createFirewallRule
-      description: (DEPRECATED) Creates a firewall rule. This endpoint is deprecated as of February 6, 2024. Requests return a 400 Bad Request response. Use eCDN custom rules moving forward. Any existing firewall rules are accessible and can be updated using the custom rule endpoints.
+      description: Creates a firewall rule.
       body:
         application/json:
           type: FirewallRule
           example: !include /examples/firewall/firewall-rules-post-request.raml
+
       responses:
         '201':
           description: Successfully created the firewall rule requested by the caller.
@@ -352,10 +354,11 @@ traits:
         - CommerceCloudStandards.AmOAuth2
 
     /{firewallRuleId}:
+      is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse]
       get:
-        is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse, hasResourceNotFoundResponse]
+        is: [hasResourceNotFoundResponse]
         displayName: getFirewallRule
-        description: Retrieve a specific firewall rule. This endpoint will be deprecated at a later date and additional documentation will be provided. Use eCDN custom rules moving forward. Any existing firewall rules are accessible and can be updated using the custom rule endpoints.
+        description: Retrieve a specific firewall rule.
         responses:
           '200':
             description: Successfully returned back the firewall rule requested by the caller.
@@ -369,11 +372,12 @@ traits:
       put:
         is: [hasBadRequestResponse]
         displayName: updateFirewallRule
-        description: (DEPRECATED) Update a specific firewall rule. This endpoint is deprecated as of February 6, 2024. Requests return a 400 Bad Request response. Use eCDN custom rules moving forward. Any existing firewall rules are accessible and can be updated using the custom rule endpoints.
+        description: Update a specific firewall rule.
         body:
           application/json:
             type: FirewallRule
             example: !include /examples/firewall/firewall-rules-put-request.raml
+
         responses:
           '200':
             description: Successfully updated the firewall rule specified by the caller.
@@ -384,10 +388,11 @@ traits:
         securedBy:
           - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
           - CommerceCloudStandards.AmOAuth2
+
       delete:
-        is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse, hasResourceNotFoundResponse]
+        is: [hasResourceNotFoundResponse]
         displayName: deleteFirewallRule
-        description: Delete a specific firewall rule. This endpoint will be deprecated at a later date and additional documentation will be provided. Use eCDN custom rules moving forward. Any existing firewall rules are accessible and can be updated using the custom rule endpoints.
+        description: Delete a specific firewall rule.
         responses:
           '204':
             description: Successfully deleted the firewall rule specified by the caller.
@@ -501,12 +506,12 @@ traits:
   /zones/{zoneId}/certificates:
     is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse]
     get:
-      is: [ApiStandards.OffsetPaginated: {maxLimit: 50, defaultSize: 25}, hasResourceNotFoundResponse]
+      is: [hasResourceNotFoundResponse]
       displayName: getCertificates
       description: Retrieves a list of certificates information for a zone.
       responses:
-        '200':
-          description: Successfully retrieved list of certificates for the specified zone.
+        200:
+          description: OK
           body:
             application/json:
               type: CertificatesEnvelope
@@ -797,7 +802,6 @@ traits:
         - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
         - CommerceCloudStandards.AmOAuth2
     get:
-      is: [ApiStandards.OffsetPaginated: {maxLimit: 50, defaultSize: 25}]
       displayName: getCustomRules
       description: Retrieves existing custom rules.
       responses:

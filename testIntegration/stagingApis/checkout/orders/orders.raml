@@ -258,16 +258,20 @@ types:
 
             Changing the status processes different actions on inventory, coupons, wishlists and the order itself. Here are the supported actions:
 
-            Fail Order: Release inventory and remove coupon redemptions. (CREATED -> FAILED)
-            Undo Fail Order: Reserve inventory and recreate coupon redemptions. (FAILED -> CREATED)
-            Place Order: Generate Shipment and Invoice numbers. (CREATED -> NEW, COMPLETED or CANCELLED)
-            Cancel Order: Release inventory, remove wishlist purchases, and remove coupon redemptions. (NEW, COMPLETED -> CANCELLED)
-            Undo Cancel Order: Reserve inventory, add wishlist purchases, and recreate coupon redemptions. (CANCELLED -> NEW, COMPLETED)
+            - Fail Order: Release inventory and remove coupon redemptions. (CREATED -> FAILED)
+            - Fail Order With Reopen Basket: Release inventory, remove coupon redemptions, and reopen the basket, if applicable. A basket can only be 
+            reopened if no other basket for the customer exists at the moment of failing the order since a customer is limited to 1 storefront basket at a
+            time.  (CREATED -> FAILED)
+            - Undo Fail Order: Reserve inventory and recreate coupon redemptions. (FAILED -> CREATED)
+            - Place Order: Generate Shipment and Invoice numbers. (CREATED -> NEW, COMPLETED or CANCELLED)
+            - Cancel Order: Release inventory, remove wishlist purchases, and remove coupon redemptions. (NEW, COMPLETED -> CANCELLED)
+            - Undo Cancel Order: Reserve inventory, add wishlist purchases, and recreate coupon redemptions. (CANCELLED -> NEW, COMPLETED)
 
             Actions can fail for example when inventory is not available anymore.
           displayName: updateOrderStatus
           is:
             - StatusCodes.NoContent
+            - StatusCodes.BasketReopen
             - StatusCodes.BadRequest
             - StatusCodes.OrderNotFound
             - StatusCodes.SiteNotFound
