@@ -16,6 +16,8 @@ you import the type definitions directly.
 
 - Update APIs for [Shopper Search](https://developer.salesforce.com/docs/commerce/commerce-api/references/about-commerce-api/about.html#282024)
 
+* New Endpoints
+
   | **Endpoint Name** | **Description**                                         |
   | ------------- |---------------------------------------------------------|
   | getWafManagedRulesets | Successfully returned the list of WAF managed rulesets. |
