@@ -10,11 +10,23 @@ only use JavaScript, or if you use TypeScript but only import the client classes
 then your usage **will not change**. You will likely only need to make changes if
 you import the type definitions directly.
 
+## v2.15.0
+
+#### API Changes
+
+- Update APIs for [Shopper Search](https://developer.salesforce.com/docs/commerce/commerce-api/references/about-commerce-api/about.html#282024)
+
+* New Endpoints
+
+  | **Endpoint Name** | **Description**                   |
+  | ------------- |-----------------------------------|
+  | getWafManagedRulesets | Retrieves WAFv2 managed rulesets. |
+  | updateWafManagedRuleset | Updates WAFv2 managed ruleset.    |  
 
 ## v2.14.0
 
 * Shopper SEO API*
-* 
+
 * New Endpoints
 
   | **Endpoint Name** | **Description** |

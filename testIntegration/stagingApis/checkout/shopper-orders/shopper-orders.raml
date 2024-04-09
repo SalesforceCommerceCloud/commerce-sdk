@@ -14,7 +14,7 @@ baseUriParameters:
 
 uses:
   OrderTraits: shopper-orders-traits.raml
-  dataTypes: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/checkout-data-types.raml
+  dataTypes: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.70/checkout-data-types.raml
   ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
   CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.26/commerce-cloud-standards.raml
   
@@ -65,14 +65,14 @@ types:
           body:
               type: ErrorResponse
               examples:
-                dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/examples/error/bad-request-example.raml
+                dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.70/examples/error/bad-request-example.raml
         '404':
           description: |-
             The basket with the given basket ID is unknown.
           body:
               type: ErrorResponse
               examples:
-                dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/examples/error/basket-not-found.raml
+                dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.70/examples/error/basket-not-found.raml
       body:
           type: dataTypes.Basket
           examples:
@@ -112,9 +112,55 @@ types:
             body:
                 type: ErrorResponse
                 examples:
-                  dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/examples/error/basket-not-found.raml
+                  dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.70/examples/error/basket-not-found.raml
         securedBy:
           - CommerceCloudStandards.ShopperToken: { scopes: [ "sfcc.shopper-baskets-orders", "sfcc.shopper-baskets-orders.rw" ] }
+      /lookup:
+        type: CommerceCloudStandards.Organization
+        post:
+          is:
+          - CommerceCloudStandards.SiteSpecific:
+          - OrderTraits.LocaleSpecific:
+          - ApiStandards.RateLimited:
+              responseStatus: 200
+          - ApiStandards.RateLimited:
+              responseStatus: 400
+          - ApiStandards.RateLimited:
+              responseStatus: 404
+          description: !include order-lookup-description.md
+          displayName: guestOrderLookup
+          responses:
+            '200':
+              description: |-
+                Success, the response body contains the order found with the order view code.
+              body:
+                  type: dataTypes.Order
+                  examples:
+                    dataTypes.Order: !include examples/order/order-post-response.raml
+            '400':
+              description: |-
+                Possible reasons:
+                - order view code or email is missing.
+              body:
+                  type: ErrorResponse
+                  examples:
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.70/examples/error/bad-request-example.raml
+            '404':
+              description: |-
+                Order was not found. Possible reasons:
+                - the order with the given order no is unknown.
+                - the given order view code does not match the one in the order.
+                - the given email does not match the one in the order.
+                - the authorized customer of a registered customer order lookup does not match the customer in the order.
+              body:
+                  type: ErrorResponse
+                  examples:
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.70/examples/error/order-not-found.raml
+          body:
+            type: dataTypes.OrderLookupRequest
+            examples: !include examples/order/order-lookup-request.raml   
+          securedBy:
+            - CommerceCloudStandards.ShopperTokenTsob: { scopes: [  "sfcc.shopper-baskets-orders", "sfcc.shopper-baskets-orders.rw" ] }  
       /payment-instruments:
         type: CommerceCloudStandards.Organization
         post:
@@ -152,7 +198,7 @@ types:
               body:
                   type: ErrorResponse
                   examples:
-                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/examples/error/bad-request-example.raml
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.70/examples/error/bad-request-example.raml
             '404':
               description: |-
                 The order with the given order number is unknown.
@@ -160,7 +206,7 @@ types:
               body:
                   type: ErrorResponse
                   examples:
-                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/examples/error/order-not-found.raml
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.70/examples/error/order-not-found.raml
           body:
               type: dataTypes.OrderPaymentInstrumentRequest
               examples:
@@ -194,7 +240,7 @@ types:
                 body:
                     type: ErrorResponse
                     examples:
-                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/examples/error/order-not-found.raml
+                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.70/examples/error/order-not-found.raml
             securedBy:
               - CommerceCloudStandards.ShopperToken: { scopes: [ "sfcc.shopper-baskets-orders.rw" ] }
           patch:
@@ -234,7 +280,7 @@ types:
                 body:
                     type: ErrorResponse
                     examples:
-                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/examples/error/bad-request-example.raml
+                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.70/examples/error/bad-request-example.raml
               '404':
                 description: |-
                   Possible reasons:
@@ -244,7 +290,7 @@ types:
                 body:
                     type: ErrorResponse
                     examples:
-                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/examples/error/order-not-found.raml
+                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.70/examples/error/order-not-found.raml
             body:
                 type: dataTypes.OrderPaymentInstrumentRequest
                 examples:
@@ -288,14 +334,14 @@ types:
               body:
                   type: ErrorResponse
                   examples:
-                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/examples/error/bad-request-auth.raml
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.70/examples/error/bad-request-auth.raml
             '404':
               description: |-
                 The order with the given order number is unknown.
               body:
                   type: ErrorResponse
                   examples:
-                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/examples/error/order-not-found.raml
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.70/examples/error/order-not-found.raml
           securedBy:
             - CommerceCloudStandards.ShopperToken: { scopes: [ "sfcc.shopper-baskets-orders", "sfcc.shopper-baskets-orders.rw" ] }
       /taxes:
@@ -329,7 +375,7 @@ types:
               body:
                 type: ErrorResponse
                 examples:
-                  dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/examples/error/order-not-found.raml
+                  dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.70/examples/error/order-not-found.raml
             '409':
               description: |-
                  Possible Reasons:
@@ -338,8 +384,8 @@ types:
               body:
                 type: ErrorResponse
                 examples:
-                  dataTypes.InvalidTaxMode: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/examples/error/invalid-tax-mode.raml   
-                  dataTypes.UnsupportedRequest: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/examples/error/unsupported-request.raml
+                  dataTypes.InvalidTaxMode: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.70/examples/error/invalid-tax-mode.raml   
+                  dataTypes.UnsupportedRequest: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.70/examples/error/unsupported-request.raml
           securedBy:
             - CommerceCloudStandards.BearerToken: { scopes: [ "sfcc.shopper-baskets-orders", "sfcc.shopper-baskets-orders.rw" ] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [ "sfcc.shopper-baskets-orders", "sfcc.shopper-baskets-orders.rw" ] }

@@ -10,11 +10,16 @@ only use JavaScript, or if you use TypeScript but only import the client classes
 then your usage **will not change**. You will likely only need to make changes if
 you import the type definitions directly.
 
+## v2.15.0
+
+#### API Changes
+
+- Update APIs
 
 ## v2.14.0
 
 * Shopper SEO API*
-* 
+
 * New Endpoints
 
   | **Endpoint Name** | **Description** |

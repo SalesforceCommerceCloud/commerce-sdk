@@ -2,8 +2,8 @@
 version: v1
 title: Shopper Search
 uses:
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.20/commerce-cloud-standards.raml
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.13/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.27/commerce-cloud-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
   SearchTypeLibrary: shopper-search-library.raml
     
 mediaType: application/json
@@ -26,13 +26,8 @@ description: !include shopper-search-description.md
         the product search hit. The search result contains only products that are online and assigned to site catalog.
       displayName: productSearch
       is:
-          - ApiStandards.RateLimited:
-              responseStatus: 200
-          - ApiStandards.RateLimited:  
-              responseStatus: 400
-          - ApiStandards.RateLimited:
-              responseStatus: 401
           - SearchTypeLibrary.Unauthorized
+          - SearchTypeLibrary.BadRequest
           - ApiStandards.OffsetPaginated:
               maxLimit: 200
               defaultSize: 25
@@ -53,6 +48,11 @@ description: !include shopper-search-description.md
       securedBy:
         - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-product-search] }
       queryParameters:
+        select:
+            description: The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names, or work with wildcards.You can also sepcify Array Operations and filter expressions.The actual selector value must be enclosed within parentheses. 
+            type: CommerceCloudStandards.Select
+            required: false
+            example: (hits.(**))
         siteId:
           type: CommerceCloudStandards.SiteId
         q:
@@ -87,10 +87,27 @@ description: !include shopper-search-description.md
           type: CommerceCloudStandards.LocaleCode
           required: false
         expand:
-          description: The expand parameter. A list with the allowed values (availability, images, prices, represented_products, variations). If the parameter is missing all the values will be returned.
-          type: string[]
+          description: The expand parameter. A comma-separated list with the allowed values (availability, images, prices, represented_products, variations, promotions, custom_properties). The expand parameter `availability, images, prices, represented_products, variations` is used as the default value when no expand parameter is provided. The value `none` can be used to turn off all expand options. The expand values `promotions` and `custom_properties` are optional and are available from version 24.3 and 24.4, respectively.
+          type: array
+          items:
+              enum: [none,availability,images,prices,represented_products,variations,promotions,custom_properties]
           required: false
-
+          example: [prices,represented_products]
+        allImages:
+          description: When this flag is passed along with the expand parameter `images` in the request, a property named `imageGroups`, which contains an image model, is returned in the response. If the flag is set to `true`, the whole image model is returned. If it is set to `false`, the returned image model contains only matching images. If no flag is passed in the request, the response does not include the `imageGroups property`. This parameter is available from version 24.3.
+          type: boolean
+          required: false
+          example: false
+        perPricebook:
+          description: When this flag is passed as `true` in the request, along with the expand parameter `prices`, then per PriceBook prices and tiered prices (if available) are returned. This parameter is available from version 24.3.
+          type: boolean
+          required: false
+          example: false
+        allVariationProperties:
+          description: The flag that indicates which variation properties are to be included in the result. When the flag is passed as `true` along with the expand parameter `variations` in the request, all variation properties (`variationAttributes`, `variationGroups`, and `variants`) are returned. When it is passed as `false` along with the expand parameter `variations` in the request, only the default property (`variationAttributes`) is returned. This parameter is available from version 24.3.
+          type: boolean
+          required: false
+          example: false
   /search-suggestions:
     type: CommerceCloudStandards.Organization
     get:
@@ -98,12 +115,6 @@ description: !include shopper-search-description.md
         Returns suggested products, suggested categories, and suggested brands for the given search phrase.
       displayName: getSearchSuggestions
       is:
-          - ApiStandards.RateLimited:
-              responseStatus: 200
-          - ApiStandards.RateLimited:  
-              responseStatus: 400
-          - ApiStandards.RateLimited:
-              responseStatus: 401
           - SearchTypeLibrary.Unauthorized
       responses:
         '200':
