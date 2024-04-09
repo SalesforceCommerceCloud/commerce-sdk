@@ -14,7 +14,7 @@ you import the type definitions directly.
 
 #### API Changes
 
-- Update APIs
+- Update APIs for [Shopper Search](https://developer.salesforce.com/docs/commerce/commerce-api/references/about-commerce-api/about.html#282024)
 
 ## v2.14.0
 
