@@ -15,11 +15,11 @@ you import the type definitions directly.
 #### API Changes
 
 - Update APIs for [Shopper Search](https://developer.salesforce.com/docs/commerce/commerce-api/references/about-commerce-api/about.html#282024)
-- New CDN Zones Types:
-  - [WAFManagedRuleset](https://developer.salesforce.com/docs/commerce/commerce-api/references/cdn-api-process-apis?meta=type%3AWAFManagedRuleset)
-  - [WAFManagedRuleset](https://developer.salesforce.com/docs/commerce/commerce-api/references/cdn-api-process-apis?meta=type%3AWAFManagedRulesetRequest)
-  - [WAFManagedRulesetsEnvelope](https://developer.salesforce.com/docs/commerce/commerce-api/references/cdn-api-process-apis?meta=type%3AWAFManagedRulesetsEnvelope)
-  - [WAFManagedRulesetEnvelope](https://developer.salesforce.com/docs/commerce/commerce-api/references/cdn-api-process-apis?meta=type%3AWAFManagedRulesetEnvelope)
+
+  | **Endpoint Name** | **Description**                                         |
+  | ------------- |---------------------------------------------------------|
+  | getWafManagedRulesets | Successfully returned the list of WAF managed rulesets. |
+  | updateWafManagedRuleset | Updates WAFv2 managed ruleset |  
 
 ## v2.14.0
 
