@@ -18,10 +18,10 @@ you import the type definitions directly.
 
 * New Endpoints
 
-  | **Endpoint Name** | **Description**                                         |
-  | ------------- |---------------------------------------------------------|
-  | getWafManagedRulesets | Successfully returned the list of WAF managed rulesets. |
-  | updateWafManagedRuleset | Updates WAFv2 managed ruleset |  
+  | **Endpoint Name** | **Description**                   |
+  | ------------- |-----------------------------------|
+  | getWafManagedRulesets | Retrieves WAFv2 managed rulesets. |
+  | updateWafManagedRuleset | Updates WAFv2 managed ruleset.    |  
 
 ## v2.14.0
 
