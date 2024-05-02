@@ -8,10 +8,7 @@ import { BodyInit, RequestInit } from "node-fetch";
 import { ClientConfig, Response, StaticClient } from "@commerce-apps/core";
 import { PathParameters } from "@commerce-apps/core/dist/base/resource";
 import type { OperationOptions } from "retry";
-
-// TODO: move into config file
-const CUSTOM_API_DEFAULT_BASE_URI =
-  "https://{shortCode}.api.commercecloud.salesforce.com/custom/{apiName}/{apiVersion}";
+import { CUSTOM_API_DEFAULT_BASE_URI } from "./config";
 
 // Helper method to find Content Type header
 // returns true if it exists, false otherwise
@@ -93,13 +90,13 @@ export const callCustomEndpoint = async (args: {
     pathParams.apiVersion = "v1";
   }
 
-  let clientConfigCopy = clientConfig;
-  if (!clientConfig.baseUri) {
-    clientConfigCopy = {
-      ...clientConfig,
-      baseUri: CUSTOM_API_DEFAULT_BASE_URI,
-    };
-  }
+  const clientConfigCopy = {
+    ...clientConfig,
+    ...(!clientConfig.baseUri && { baseUri: CUSTOM_API_DEFAULT_BASE_URI }),
+    parameters: {
+      ...pathParams,
+    },
+  };
 
   // Use siteId from clientConfig if it is not defined in options and is available in clientConfig
   const useSiteId = Boolean(
