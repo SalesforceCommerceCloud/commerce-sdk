@@ -257,6 +257,6 @@ describe("callCustomEndpoint", () => {
 
     const runFetchPassedArgs = runFetchSpy.getCall(0).args;
     expect(runFetchSpy.callCount).to.equal(1);
-    expect(runFetchPassedArgs[1].headers).to.deep.equal(expectedJsonHeaders)
+    expect(runFetchPassedArgs[1].headers).to.deep.equal(expectedJsonHeaders);
   });
 });
