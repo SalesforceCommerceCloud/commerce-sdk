@@ -229,6 +229,85 @@ const searchResults = await searchClient.productSearch({
 
 Invalid query parameters that are not a part of the API and do not follow the `c_` custom query parameter convention will be filtered from the request and a warning will be displayed.
 
+### Custom APIs
+
+The SDK supports calling [custom APIs](https://developer.salesforce.com/docs/commerce/commerce-api/guide/custom-apis.html) with a helper function, `customApiHelper.callCustomEndpoint()`.
+
+Example usage:
+
+```javascript
+import * as CommerceSdk from "commerce-sdk";
+const { customApiHelper } = CommerceSdk;
+
+// client configuration parameters
+const clientConfigExample = {
+  parameters: {
+    clientId: "<your-client-id>",
+    organizationId: "<your-org-id>",
+    shortCode: "<your-short-code>",
+    siteId: "<your-site-id>",
+  },
+  // If not provided, it'll use the default production URI:
+  // 'https://{shortCode}.api.commercecloud.salesforce.com/custom/{apiName}/{apiVersion}'
+  // path parameters should be wrapped in curly braces like the default production URI
+  baseUri: "<your-base-uri>"
+};
+
+const access_token = "'<INSERT_ACCESS_TOKEN_HERE>'"
+
+// Required params: apiName, endpointPath, shortCode, organizaitonId
+// Required path params can be passed into:
+// options.customApiPathParameters or clientConfig.parameters
+// customApiPathParameters will take priority for duplicate values
+const customApiArgs = { 
+  apiName: 'loyalty-info',
+  apiVersion: 'v1', // defaults to v1 if not provided
+  endpointPath: 'customers'
+}
+
+const getResponse = await customApiHelper.callCustomEndpoint({ 
+  options: {
+    // http operation is defaulted to 'GET' if not provided
+    method: 'GET',
+    parameters: {
+      queryParameter: 'queryParameter1',
+    },
+    headers: {
+      // Content-Type is defaulted to application/json if not provided
+      'Content-type': 'application/json',
+      authorization: `Bearer ${access_token}`
+    },
+    customApiPathParameters: customApiArgs,
+  }, 
+  clientConfig: clientConfigExample,
+  // Flag to retrieve raw response or data from helper function
+  rawResponse: false
+})
+
+const postResponse = await customApiHelper.callCustomEndpoint({ 
+  options: {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${access_token}`
+    },
+    customApiPathParameters: {
+      apiVersion: 'v1',
+      endpointPath: 'greeting',
+      apiName: 'e2e-tests',
+    },
+    // The body will be automatically formatted for 'Content-Type' 
+    // 'application/json' and 'application/x-www-form-urlencoded',
+    // so an object can be passed
+    body: { data: 'data' }
+  }, 
+  clientConfig: clientConfigExample, 
+  rawResponse: false
+})
+
+console.log('get response: ', getResponse)
+console.log('post response: ', postResponse)
+```
+
 ## Caching
 
 The SDK currently supports two types of caches - In-memory and Redis. Both the implementations respect [standard cache headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control). To use another type of cache, write your own implementation of the [CacheManager](https://github.com/SalesforceCommerceCloud/commerce-sdk-core/tree/main/src/base/cacheManager.ts). See the [default cache manager](https://github.com/SalesforceCommerceCloud/commerce-sdk-core/tree/main/src/base/cacheManagerKeyv.ts) to design your implementation.
