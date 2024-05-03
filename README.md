@@ -242,18 +242,18 @@ const { customApiHelper } = CommerceSdk;
 // client configuration parameters
 const clientConfigExample = {
   parameters: {
-    clientId: "<your-client-id>",
-    organizationId: "<your-org-id>",
-    shortCode: "<your-short-code>",
-    siteId: "<your-site-id>",
+    clientId: '<your-client-id>',
+    organizationId: '<your-org-id>',
+    shortCode: '<your-short-code>',
+    siteId: '<your-site-id>',
   },
   // If not provided, it'll use the default production URI:
   // 'https://{shortCode}.api.commercecloud.salesforce.com/custom/{apiName}/{apiVersion}'
   // path parameters should be wrapped in curly braces like the default production URI
-  baseUri: "<your-base-uri>"
+  baseUri: '<your-base-uri>'
 };
 
-const access_token = "'<INSERT_ACCESS_TOKEN_HERE>'"
+const access_token = '<INSERT_ACCESS_TOKEN_HERE>'
 
 // Required params: apiName, endpointPath, shortCode, organizaitonId
 // Required path params can be passed into:
