@@ -16,6 +16,7 @@ import {
   CommonParameters,
 } from "@commerce-apps/core";
 import { CUSTOM_API_DEFAULT_BASE_URI } from "./config";
+import { QueryParameters } from "@commerce-apps/core/dist/base/resource";
 
 describe("callCustomEndpoint", () => {
   const runFetchSpy = sinon.spy(StaticClient, "runFetch");
@@ -63,6 +64,7 @@ describe("callCustomEndpoint", () => {
 
     try {
       await callCustomEndpoint({ options: copyOptions, clientConfig });
+      // istanbul ignore next
       expect(true).to.equal(false); // fails if we don't catch an error
     } catch (error) {
       expect(runFetchSpy.callCount).to.equal(0);
@@ -104,7 +106,10 @@ describe("callCustomEndpoint", () => {
     expect(runFetchSpy.callCount).to.equal(1);
     // commerce-sdk-core expects apiVersion in clientConfig.parameters
     expect(
-      (runFetchPassedArgs[1]?.client?.clientConfig?.parameters as CustomApiParameters)?.apiVersion
+      (
+        runFetchPassedArgs[1].client.clientConfig
+          .parameters as CustomApiParameters
+      ).apiVersion
     ).to.equal("v1");
   });
 
@@ -142,7 +147,7 @@ describe("callCustomEndpoint", () => {
     );
     expect(runFetchPassedArgs[1].queryParameters).to.deep.equal({
       ...options.parameters,
-      siteId: clientConfig.parameters?.siteId,
+      siteId: (clientConfig.parameters as CustomApiParameters).siteId as string,
     });
     expect(runFetchPassedArgs[1].headers).to.deep.equal(options.headers);
     expect(runFetchPassedArgs[1].rawResponse).to.equal(true);
@@ -247,5 +252,38 @@ describe("callCustomEndpoint", () => {
     const runFetchPassedArgs = runFetchSpy.getCall(0).args;
     expect(runFetchSpy.callCount).to.equal(1);
     expect(runFetchPassedArgs[1].headers).to.deep.equal(expectedJsonHeaders);
+  });
+
+  it("uses siteId in options over clientConfig if available", async () => {
+    const copyOptions = {
+      ...options,
+      parameters: {
+        ...options.parameters,
+        siteId: "customApiPathParameters_siteId",
+      },
+    };
+
+    const { apiName, endpointPath, apiVersion } =
+      copyOptions.customApiPathParameters;
+
+    const { shortCode, organizationId } =
+      clientConfig.parameters as CustomApiParameters;
+
+    const nockBasePath = `https://${shortCode}.api.commercecloud.salesforce.com`;
+    const nockEndpointPath = `/custom/${apiName}/${apiVersion}/organizations/${
+      organizationId as string
+    }/${endpointPath}`;
+    nock(nockBasePath).post(nockEndpointPath).query(true).reply(200);
+
+    await callCustomEndpoint({
+      options: copyOptions,
+      clientConfig,
+    });
+
+    const runFetchPassedArgs = runFetchSpy.getCall(0).args;
+    expect(runFetchSpy.callCount).to.equal(1);
+    expect(
+      (runFetchPassedArgs[1].queryParameters as QueryParameters).siteId
+    ).to.equal(copyOptions.parameters.siteId);
   });
 });

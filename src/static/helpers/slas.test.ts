@@ -180,7 +180,12 @@ describe("Authorize user", () => {
 
     expect(authURL.origin).to.equal(expectedURL.origin);
     expect(authURL.pathname).to.equal(expectedURL.pathname);
-    expect(authURL.searchParams).to.deep.equal(expectedURL.searchParams);
+
+    authURL.searchParams.sort();
+    expectedURL.searchParams.sort();
+    expect(authURL.searchParams.toString()).to.equal(
+      expectedURL.searchParams.toString()
+    );
   });
 
   it("throws an error when authorization fails", async () => {

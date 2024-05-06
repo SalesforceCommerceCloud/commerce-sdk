@@ -4,6 +4,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
+
+// tsdoc doesn't support dot notation for @param
+/* eslint-disable tsdoc/syntax */
+
 import { BodyInit, RequestInit } from "node-fetch";
 import { ClientConfig, Response, StaticClient } from "@commerce-apps/core";
 import { PathParameters } from "@commerce-apps/core/dist/base/resource";
@@ -43,14 +47,16 @@ export type CustomApiParameters = {
  * @param args.options.parameters? - Query parameters that are added to the request
  * @param args.options.customApiPathParameters? - Path parameters used for custom API. Required path parameters (apiName, endpointPath, organizationId, and shortCode) can be in this object, or args.clientConfig.parameters, where this object will take priority for duplicates. apiVersion is defaulted to 'v1' if not provided.
  * @param args.options.headers? - Headers that are added to the request. Authorization header should be in this parameter or in the clientConfig.headers. If "Content-Type" is not provided in either header, it will be defaulted to "application/json".
- * @param options.body? - Body that is used for the request. The body will be automatically formatted for Content-Type application/json and application/x-www-form-urlencoded
+ * @param args.options.body? - Body that is used for the request. The body will be automatically formatted for Content-Type application/json and application/x-www-form-urlencoded
+ * @param args.options.retrySettings? - Object for facilitating request retries. For more information, please refer to the [README](https://github.com/SalesforceCommerceCloud/commerce-sdk?tab=readme-ov-file#retry-policies)
+ * @param args.options.fetchOptions? - fetchOptions that are passed onto the fetch request, where this will take precedence over clientConfig.fetchOptions
+ * @param args.options.enableTransformBody? - Flag when set to true will transform the request body (if available) to match the format expected from the content type header for "application/json" or "application/x-www-form-urlencoded" 
  * @param args.clientConfig - Client Configuration object used by the SDK with properties that can affect the fetch call
  * @param args.clientConfig.parameters - Path parameters used for custom API endpoints. The required properties are: apiName, endpointPath, organizationId, and shortCode. An error will be thrown if these are not provided.
  * @param args.clientConfig.headers? - Additional headers that are added to the request. Authorization header should be in this argument or in the options?.headers. options?.headers will override any duplicate properties. If "Content-Type" is not provided in either header, it will be defaulted to "application/json".
  * @param args.clientConfig.baseUri? - baseUri used for the request, where the path parameters are wrapped in curly braces. Default value is 'https://{shortCode}.api.commercecloud.salesforce.com/custom/{apiName}/{apiVersion}'
  * @param args.clientConfig.fetchOptions? - fetchOptions that are passed onto the fetch request
  * @param args.clientConfig.throwOnBadResponse? - flag that when set true will throw a response error if the fetch request fails (returns with a status code outside the range of 200-299 or 304 redirect)
- * @param args.clientConfig.proxy? - Routes API calls through a proxy when set
  * @param args.rawResponse? - Flag to return the raw response from the fetch call. True for raw response object, false for the data from the response
  * @returns Raw response or data from response based on rawResponse argument from fetch call
  */
@@ -73,6 +79,7 @@ export const callCustomEndpoint = async (args: {
     body?: BodyInit | unknown;
     retrySettings?: OperationOptions;
     fetchOptions?: RequestInit;
+    enableTransformBody?: boolean;
   };
   clientConfig: ClientConfig<CustomApiParameters>;
   rawResponse?: boolean;
@@ -88,7 +95,7 @@ export const callCustomEndpoint = async (args: {
 
   const pathParams: Record<string, unknown> = {
     ...clientConfig.parameters,
-    ...options?.customApiPathParameters,
+    ...options.customApiPathParameters,
   };
 
   requiredArgs.forEach((arg) => {
@@ -147,6 +154,7 @@ export const callCustomEndpoint = async (args: {
     retrySettings: (optionsCopy || {})?.retrySettings,
     fetchOptions: optionsCopy.fetchOptions,
     body: optionsCopy?.body,
+    disableBodyTransformation: !optionsCopy?.enableTransformBody,
   };
 
   const operation = options.method
