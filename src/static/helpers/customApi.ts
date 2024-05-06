@@ -4,10 +4,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-
-// tsdoc doesn't support dot notation for @param
-/* eslint-disable tsdoc/syntax */
-
 import { BodyInit, RequestInit } from "node-fetch";
 import { ClientConfig, Response, StaticClient } from "@commerce-apps/core";
 import { PathParameters } from "@commerce-apps/core/dist/base/resource";
@@ -38,6 +34,8 @@ export type CustomApiParameters = {
   apiVersion?: string;
 };
 
+// tsdoc doesn't support dot notation for @param
+/* eslint-disable tsdoc/syntax */
 /**
  * A helper function designed to make calls to a custom API endpoint
  * For more information about custom APIs, please refer to the [API documentation](https://developer.salesforce.com/docs/commerce/commerce-api/guide/custom-apis.html)
@@ -154,7 +152,7 @@ export const callCustomEndpoint = async (args: {
     retrySettings: (optionsCopy || {})?.retrySettings,
     fetchOptions: optionsCopy.fetchOptions,
     body: optionsCopy?.body,
-    disableBodyTransformation: !optionsCopy?.enableTransformBody,
+    disableTransformBody: !optionsCopy?.enableTransformBody,
   };
 
   const operation = options.method
