@@ -24,6 +24,16 @@ const contentTypeHeaderExists = (
   return foundHeader;
 };
 
+export type CustomApiParameters = {
+  clientId?: string;
+  organizationId?: string;
+  shortCode?: string;
+  siteId?: string;
+  endpointName?: string;
+  apiName?: string;
+  apiVersion?: string;
+};
+
 /**
  * A helper function designed to make calls to a custom API endpoint
  * For more information about custom APIs, please refer to the [API documentation](https://developer.salesforce.com/docs/commerce/commerce-api/guide/custom-apis.html)
@@ -64,7 +74,7 @@ export const callCustomEndpoint = async (args: {
     retrySettings?: OperationOptions;
     fetchOptions?: RequestInit;
   };
-  clientConfig: ClientConfig;
+  clientConfig: ClientConfig<CustomApiParameters>;
   rawResponse?: boolean;
 }): Promise<Response | unknown> => {
   const { options, clientConfig, rawResponse } = args;
