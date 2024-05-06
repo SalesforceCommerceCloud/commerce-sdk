@@ -6,7 +6,7 @@
  */
 
 import nock from "nock";
-import { callCustomEndpoint } from "./customApi";
+import { callCustomEndpoint, CustomApiParameters } from "./customApi";
 import { expect } from "chai";
 import sinon from "sinon";
 import {
@@ -25,7 +25,7 @@ describe("callCustomEndpoint", () => {
     nock.cleanAll();
   });
 
-  const clientConfig: ClientConfig = {
+  const clientConfig: ClientConfig<CustomApiParameters> = {
     parameters: {
       shortCode: "short_code",
       organizationId: "organization_id",
@@ -51,21 +51,6 @@ describe("callCustomEndpoint", () => {
     },
     body: "Hello World",
   };
-
-  const queryParamString = new URLSearchParams({
-    ...options.parameters,
-    siteId: clientConfig.parameters?.siteId as string,
-  }).toString();
-
-  // helper function that creates a copy of the options object
-  // and adds siteId to the parameters object that comes from clientConfig
-  const addSiteIdToOptions = (optionsObj: Record<string, unknown>) => ({
-    ...optionsObj,
-    parameters: {
-      ...(optionsObj.parameters as Record<string, unknown>),
-      siteId: clientConfig.parameters?.siteId,
-    },
-  });
 
   it("throws an error when required path parameters are not passed", async () => {
     const copyOptions = {
@@ -98,7 +83,7 @@ describe("callCustomEndpoint", () => {
     };
 
     const { shortCode, organizationId } =
-      clientConfig.parameters as CommonParameters;
+      clientConfig.parameters as CustomApiParameters;
     const { apiName, endpointPath } = copyOptions.customApiPathParameters;
 
     const nockBasePath = `https://${shortCode}.api.commercecloud.salesforce.com`;
@@ -119,7 +104,7 @@ describe("callCustomEndpoint", () => {
     expect(runFetchSpy.callCount).to.equal(1);
     // commerce-sdk-core expects apiVersion in clientConfig.parameters
     expect(
-      runFetchPassedArgs[1]?.client?.clientConfig?.parameters?.apiVersion
+      (runFetchPassedArgs[1]?.client?.clientConfig?.parameters as CustomApiParameters)?.apiVersion
     ).to.equal("v1");
   });
 
@@ -207,8 +192,12 @@ describe("callCustomEndpoint", () => {
     const runFetchPassedArgs = runFetchSpy.getCall(0).args;
 
     const expectedPathParams = {
-      ...copyClientConfig.parameters,
-      ...copyOptions.customApiPathParameters,
+      shortCode: "clientconfig_shortcode",
+      siteId: "site_id",
+      endpointPath: "customApiPathParameters_endpoint_path",
+      apiName: "customApiPathParameters_api_name",
+      apiVersion: "v3",
+      organizationId: "customApiPathParameters_organizationId",
     };
 
     expect(runFetchSpy.callCount).to.equal(1);
