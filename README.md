@@ -237,7 +237,7 @@ Example usage:
 
 ```javascript
 import * as CommerceSdk from "commerce-sdk";
-const { customApiHelper } = CommerceSdk;
+const { helpers } = CommerceSdk;
 
 // client configuration parameters
 const clientConfigExample = {
@@ -265,7 +265,7 @@ const customApiArgs = {
   endpointPath: 'customers'
 }
 
-const getResponse = await customApiHelper.callCustomEndpoint({ 
+const getResponse = await helpers.callCustomEndpoint({ 
   options: {
     // http operation is defaulted to 'GET' if not provided
     method: 'GET',
