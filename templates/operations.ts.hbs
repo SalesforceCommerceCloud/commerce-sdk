@@ -132,7 +132,7 @@
       {{#each ../parameters}}
         "{{{name}}}": optionParams["{{{name}}}"]
         {{! if it is a common path parameter, fallback to client config for undefined }}
-        {{#if (isCommonPathParameter name)}} !== undefined ? optionParams["{{{name}}}"] : configParams?.["{{{name}}}"]{{/if}}
+        {{#if (isCommonPathParameter name)}} !== undefined ? optionParams["{{{name}}}"] : configParams["{{{name}}}"]{{/if}}
         {{#unless @last}},{{/unless}}
       {{/each}}
       };
@@ -142,8 +142,8 @@
       {{#each request.queryParameters}}
       if (optionParams["{{{name}}}"] !== undefined) {
         queryParams["{{{name}}}"] = optionParams["{{{name}}}"];
-      } else if (configParams?.["{{{name}}}"] !== undefined) {
-        queryParams["{{{name}}}"] = configParams?.["{{{name}}}"];
+      } else if (configParams["{{{name}}}"] !== undefined) {
+        queryParams["{{{name}}}"] = configParams["{{{name}}}"];
       }
       {{#if (is required "true")}}
       else {
@@ -171,12 +171,12 @@
         client: this,
         rawResponse: rawResponse,
         path: "{{../path}}",
-        pathParameters: pathParams as PathParameters,
+        pathParameters: pathParams,
         queryParameters: queryParams,
         retrySettings: (options || {}).retrySettings,
         headers: headers{{#or (is method "patch") (is method "post") (is method "put")}}, 
         body: (options || {}).body{{/or}},
-        ...(options?.fetchOptions && { fetchOptions: options.fetchOptions })
+        ...(options.fetchOptions && { fetchOptions: options.fetchOptions })
       });
     }
 

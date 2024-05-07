@@ -48,7 +48,7 @@ export type CustomApiParameters = {
  * @param args.options.body? - Body that is used for the request. The body will be automatically formatted for Content-Type application/json and application/x-www-form-urlencoded
  * @param args.options.retrySettings? - Object for facilitating request retries. For more information, please refer to the [README](https://github.com/SalesforceCommerceCloud/commerce-sdk?tab=readme-ov-file#retry-policies)
  * @param args.options.fetchOptions? - fetchOptions that are passed onto the fetch request, where this will take precedence over clientConfig.fetchOptions
- * @param args.options.enableTransformBody? - Flag when set to true will transform the request body (if available) to match the format expected from the content type header for "application/json" or "application/x-www-form-urlencoded" 
+ * @param args.options.enableTransformBody? - Flag when set to true will transform the request body (if available) to match the format expected from the content type header for "application/json" or "application/x-www-form-urlencoded"
  * @param args.clientConfig - Client Configuration object used by the SDK with properties that can affect the fetch call
  * @param args.clientConfig.parameters - Path parameters used for custom API endpoints. The required properties are: apiName, endpointPath, organizationId, and shortCode. An error will be thrown if these are not provided.
  * @param args.clientConfig.headers? - Additional headers that are added to the request. Authorization header should be in this argument or in the options?.headers. options?.headers will override any duplicate properties. If "Content-Type" is not provided in either header, it will be defaulted to "application/json".
