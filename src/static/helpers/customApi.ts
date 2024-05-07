@@ -5,7 +5,7 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import { BodyInit, RequestInit } from "node-fetch";
-import { ClientConfig, Response, StaticClient } from "@commerce-apps/core";
+import { ClientConfig, Response, StaticClient, CommonParameters } from "@commerce-apps/core";
 import { PathParameters } from "@commerce-apps/core/dist/base/resource";
 import type { OperationOptions } from "retry";
 import { CUSTOM_API_DEFAULT_BASE_URI } from "./config";
@@ -25,10 +25,8 @@ const contentTypeHeaderExists = (
 };
 
 export type CustomApiParameters = {
-  clientId?: string;
   organizationId?: string;
   shortCode?: string;
-  siteId?: string;
   endpointName?: string;
   apiName?: string;
   apiVersion?: string;
@@ -64,13 +62,7 @@ export const callCustomEndpoint = async (args: {
     parameters?: {
       [key: string]: string | number | boolean | string[] | number[];
     };
-    customApiPathParameters?: {
-      apiName?: string;
-      apiVersion?: string;
-      endpointPath?: string;
-      organizationId?: string;
-      shortCode?: string;
-    };
+    customApiPathParameters?: CustomApiParameters;
     headers?: {
       authorization?: string;
     } & { [key: string]: string };
@@ -79,7 +71,7 @@ export const callCustomEndpoint = async (args: {
     fetchOptions?: RequestInit;
     enableTransformBody?: boolean;
   };
-  clientConfig: ClientConfig<CustomApiParameters>;
+  clientConfig: ClientConfig<CustomApiParameters & CommonParameters>;
   rawResponse?: boolean;
 }): Promise<Response | unknown> => {
   const { options, clientConfig, rawResponse } = args;
