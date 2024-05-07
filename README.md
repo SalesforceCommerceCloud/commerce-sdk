@@ -295,10 +295,16 @@ const postResponse = await customApiHelper.callCustomEndpoint({
       endpointPath: 'greeting',
       apiName: 'e2e-tests',
     },
-    // The body will be automatically formatted for 'Content-Type' 
-    // 'application/json' and 'application/x-www-form-urlencoded',
-    // so an object can be passed
+    // When this flag is set to true, the request body will be automatically 
+    // formatted in the expected format set by the 'Content-type' headers
+    // 'application/json' or 'application/x-www-form-urlencoded'
+    enableTransformBody: true,
+
+    // object can be passed since we have enableTransformBody set to true
     body: { data: 'data' }
+    // if enableTransformBody is not set to true,
+    // we have to ensure the request body is correctly formatted
+    // body: JSON.stringify({ data: 'data' })
   }, 
   clientConfig: clientConfigExample, 
   rawResponse: false
