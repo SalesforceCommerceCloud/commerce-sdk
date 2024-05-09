@@ -26,7 +26,7 @@ describe("callCustomEndpoint", () => {
     nock.cleanAll();
   });
 
-  const clientConfig: ClientConfig<CustomApiParameters> = {
+  const clientConfig: ClientConfig<CustomApiParameters & CommonParameters> = {
     parameters: {
       shortCode: "short_code",
       organizationId: "organization_id",
@@ -147,7 +147,7 @@ describe("callCustomEndpoint", () => {
     );
     expect(runFetchPassedArgs[1].queryParameters).to.deep.equal({
       ...options.parameters,
-      siteId: (clientConfig.parameters as CustomApiParameters).siteId as string,
+      siteId: (clientConfig.parameters as CommonParameters).siteId as string,
     });
     expect(runFetchPassedArgs[1].headers).to.deep.equal(options.headers);
     expect(runFetchPassedArgs[1].rawResponse).to.equal(true);

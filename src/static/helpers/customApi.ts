@@ -5,7 +5,12 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import { BodyInit, RequestInit } from "node-fetch";
-import { ClientConfig, Response, StaticClient, CommonParameters } from "@commerce-apps/core";
+import {
+  ClientConfig,
+  Response,
+  StaticClient,
+  CommonParameters,
+} from "@commerce-apps/core";
 import { PathParameters } from "@commerce-apps/core/dist/base/resource";
 import type { OperationOptions } from "retry";
 import { CUSTOM_API_DEFAULT_BASE_URI } from "./config";
