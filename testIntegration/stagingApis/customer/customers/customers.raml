@@ -15,7 +15,7 @@ description: !include customers-description.md
 uses:
   CustomerListsTraits: data-customer-traits-library.raml
   ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.24/commerce-cloud-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.0/commerce-cloud-standards.raml
 
 types:
   Credentials:
@@ -467,7 +467,6 @@ types:
             examples:
               result: !include Examples/customerSearchBody.raml
         securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.customerlists,sfcc.customerlists.rw] }
           - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.customerlists,sfcc.customerlists.rw] }
       uriParameters:
         customerListId:
@@ -505,7 +504,6 @@ types:
             examples:
               body: !include Examples/post-customer-body.raml
         securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.customerlists.rw] }
           - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.customerlists.rw] }
       /{customerNo}:
         delete:
@@ -519,7 +517,6 @@ types:
             '204': 
               description: No Content
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.customerlists.rw] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.customerlists.rw] }
         get:
           description: Action to get customer information.
@@ -537,7 +534,6 @@ types:
                   examples:
                     get-customer: !include Examples/post-customers.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.customerlists,sfcc.customerlists.rw] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.customerlists,sfcc.customerlists.rw] }
         patch:
           description: |-
@@ -562,7 +558,6 @@ types:
               examples:
                 patch-body: !include Examples/post-customer-body.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.customerlists.rw] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.customerlists.rw] }
         put:
           description: |
@@ -599,7 +594,6 @@ types:
               examples:
                 put-body: !include Examples/post-customer-body.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.customerlists.rw] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.customerlists.rw] }
         uriParameters:
           customerNo:
@@ -629,7 +623,6 @@ types:
                     examples:
                       address-example: !include Examples/addresses-get.raml
             securedBy:
-              - CommerceCloudStandards.BearerToken: { scopes: [sfcc.customerlists,sfcc.customerlists.rw] }
               - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.customerlists,sfcc.customerlists.rw] }
           post:
             description: |-
@@ -654,7 +647,6 @@ types:
                 examples:
                   address-body: !include Examples/addresses-body.raml
             securedBy:
-              - CommerceCloudStandards.BearerToken: { scopes: [sfcc.customerlists.rw] }
               - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.customerlists.rw] }
           /{addressId}:
             get:
@@ -674,7 +666,6 @@ types:
                       examples:
                         address-example: !include Examples/address-get.raml
               securedBy:
-                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.customerlists,sfcc.customerlists.rw] }
                 - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.customerlists,sfcc.customerlists.rw] }
             delete:
               description: Action which deletes a customer address.
@@ -687,7 +678,6 @@ types:
                 '204': 
                   description: No Content
               securedBy:
-                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.customerlists.rw] }
                 - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.customerlists.rw] }
             patch:
               description: Action which updates an address of a customer with the given address information.
@@ -710,7 +700,6 @@ types:
                   examples:
                     address-body: !include Examples/addresses-body.raml
               securedBy:
-                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.customerlists.rw] }
                 - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.customerlists.rw] }
             uriParameters:
               addressId:
@@ -721,7 +710,7 @@ types:
   /customer-group-search: 
        post:
         description: |-
-          BETA: This API is in Beta stage and expected to be avialable in March 2024. API to search for customer groups for a given Site Id.
+          Search for customer groups in a given Site Id.
           The query attribute specifies a complex query that can be used to narrow down the search. These are the list
           of searchable attributes:
             
@@ -730,6 +719,8 @@ types:
           | id| String |
           | description | String |
           | type | String |
+
+          Note: This endpoint is available with the B2C Commerce release 24.2.
             
         displayName: searchCustomerGroup
         is:
@@ -750,5 +741,4 @@ types:
             examples:
               result: !include Examples/customerSearchBody.raml
         securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.customergroups,sfcc.customergroups.rw] }
           - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.customergroups,sfcc.customergroups.rw] }

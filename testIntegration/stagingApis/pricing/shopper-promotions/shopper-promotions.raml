@@ -12,8 +12,8 @@ baseUriParameters:
     pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
 uses:
   PromotionTraits: promotion-traits-library.raml
-  ApiStandards: /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.13/api-standards.raml    
-  CommerceCloudStandards: /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.20/commerce-cloud-standards.raml
+  ApiStandards: /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml    
+  CommerceCloudStandards: /exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.24/commerce-cloud-standards.raml
 
 types:
   Promotion:
@@ -68,7 +68,7 @@ types:
     examples:
       promotion: !include Examples/promotions_result.raml
     properties:
-      count:
+      limit:
         description: The number of returned documents.
         type: integer
         format: int32
@@ -90,10 +90,6 @@ types:
     displayName: getPromotions
     is:
         - PromotionTraits.PromotionNotFound
-        - ApiStandards.RateLimited:
-            responseStatus: 200
-        - ApiStandards.RateLimited:    
-            responseStatus: 404
     responses:
         '200':
           description: Retrieved promotion information successfully.
@@ -135,12 +131,6 @@ types:
       is:
         - PromotionTraits.PromotionNotFound
         - PromotionTraits.badrequest
-        - ApiStandards.RateLimited:
-            responseStatus: 200
-        - ApiStandards.RateLimited:    
-            responseStatus: 400
-        - ApiStandards.RateLimited:    
-            responseStatus: 404
       responses:
         '200':
           description: Retrieved Promotion Information successfully.

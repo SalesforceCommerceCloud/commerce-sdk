@@ -6,4 +6,15 @@ properties:
     description: Flag that indicates if the job is enabled or disabled.
     type: boolean
     example: true
-    required: true
+    required: false
+  filter:
+    description: Provides customized selection for logs you want to receive. Filters are added as escaped, formatted JSON strings. By default, all logs are included.
+    type: string
+    example: "{\"where\":{\"key\":\"ClientRequestPath\",\"operator\":\"contains\",\"value\":\"/example-path\"}}"
+    required: false
+  logFields:
+    description: List of log fields. Depending on the log type, the list of fields that you can specify to be displayed in the log might vary.
+    type: array
+    items: string
+    example: ["ClientRequestBytes", "ClientRequestHost", "ClientRequestMethod"]
+    required: false

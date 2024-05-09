@@ -10,6 +10,35 @@ only use JavaScript, or if you use TypeScript but only import the client classes
 then your usage **will not change**. You will likely only need to make changes if
 you import the type definitions directly.
 
+## v2.16.0
+
+#### API Changes
+
+*Shopper Customers*
+
+- Removal of deprecated endpoints:
+  - `invalidateCustomerAuth`
+  - `authorizeCustomer`
+  - `authorizeTrustedSystem`
+
+*Shopper Orders*
+
+  | **Endpoint Name** | **Description** |
+  | ------------- |-------------|
+  | guestOrderLookup | Lookup a guest order |
+
+*Customers*
+
+  | **Endpoint Name** | **Description** |
+  | ------------- |-------------|
+  | searchCustomerGroup | Search for customer groups in a given Site Id |
+
+*Coupons*
+
+  | **Endpoint Name** | **Description** |
+  | ------------- |-------------|
+  | redeemCoupon | Redeems a coupon code for an existing coupon within the selected site. The coupon code must be redeemable. |
+
 ## v2.15.0
 
 #### API Changes

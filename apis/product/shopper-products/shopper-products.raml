@@ -126,7 +126,7 @@ types:
         type: string
         example: "82349"
       orderable:
-        description: A flag indicating whether at least one of the variants is orderable.
+        description: A flag indicating whether at least one of the variants can be ordered.
         type: boolean
         required: false
         example: true
@@ -778,6 +778,11 @@ types:
         type: string
         required: false
         example: "Men's Category"
+      onlineSubCategoriesCount:
+        description: The total number of online sub-categories. This information will be available from B2C Commerce version 24.5. 
+        type: integer
+        format: int64
+        required: false
       pageDescription:
         description: The localized page description of the category.
         type: string
@@ -849,17 +854,11 @@ types:
       displayName: getProducts      
       is:
         - CommerceCloudStandards.SiteSpecific:
-        - ApiStandards.RateLimited:
-            responseStatus: 200
-        - ApiStandards.RateLimited:
-            responseStatus: 400
-        - ApiStandards.RateLimited:
-            responseStatus: 401
         - ProdTraits.Unauthorized
         - ProdTraits.BadRequest2 
       queryParameters:
           select:
-            description: The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names, or work with wildcards.You can also sepcify Array Operations.The select will be available, tentatively from october 2023.The exact date will be announced via changelog. 
+            description: The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names, or work with wildcards.You can also sepcify Array Operations and filter expressions.The actual selector value must be enclosed within parentheses. 
             type: CommerceCloudStandards.Select
             required: false
             example: (data.(name,id,variationAttributes.(**)))
@@ -882,7 +881,7 @@ types:
             description: The expand parameter. A comma separated list with the allowed values (availability, links, promotions, options, images, prices, variations, recommendations). All expand parameters are used for the request when no expand parameter is provided. The value "none" may be used to turn off all expand options.
             type: array
             items:
-              enum: [availability,links,promotions,options,images,prices,variations,recommendations]
+              enum: [none,availability,links,promotions,options,images,prices,variations,recommendations]
             required: false
             example: [prices,promotions]
           locale:
@@ -915,15 +914,7 @@ types:
         description: 'Allows access to product details for a single product ID. Only products that are online and assigned to a site catalog are returned. Along with product details, the availability, images, price, bundled_products, set_products, recommedations, product options, variations, and promotions for the products will be included, as appropriate.'
         displayName: getProduct
         is: 
-          - CommerceCloudStandards.SiteSpecific:
-          - ApiStandards.RateLimited:
-              responseStatus: 200
-          - ApiStandards.RateLimited:
-              responseStatus: 400
-          - ApiStandards.RateLimited:
-              responseStatus: 401 
-          - ApiStandards.RateLimited:
-              responseStatus: 404       
+          - CommerceCloudStandards.SiteSpecific:      
           - ProdTraits.Unauthorized
           - ProdTraits.BadRequest1
           - ProdTraits.NotFound
@@ -937,7 +928,7 @@ types:
                   product: !include Examples/product-example.raml
         queryParameters:
           select:
-            description: The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names, or work with wildcards.You can also sepcify Array Operations. The select will be available, tentatively from october 2023.The exact date will be announced via changelog.
+            description: The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names, or work with wildcards.You can also sepcify Array Operations and filter expressions.The actual selector value must be enclosed within parentheses.
             type: CommerceCloudStandards.Select
             required: false
             example: (name,id,variationAttributes.(**))
@@ -955,7 +946,7 @@ types:
             description: The expand parameter. A comma separated list with the allowed values (availability, bundled_products, links, promotions, options, images, prices, variations, set_products, recommendations). All expand parameters are used for the request when no expand parameter is provided. The value "none" may be used to turn off all expand options.
             type: array
             items:
-              enum: [availability,bundled_products,links,promotions,options,images,prices,variations,set_products,recommendations]
+              enum: [none,availability,bundled_products,links,promotions,options,images,prices,variations,set_products,recommendations]
             required: false
             example: [prices,promotions]
           locale:
@@ -988,12 +979,6 @@ types:
       displayName: getCategories
       is:
         - CommerceCloudStandards.SiteSpecific:
-        - ApiStandards.RateLimited:
-            responseStatus: 200
-        - ApiStandards.RateLimited:
-            responseStatus: 400
-        - ApiStandards.RateLimited:
-            responseStatus: 401
         - ProdTraits.BadRequest
         - ProdTraits.Unauthorized
       queryParameters:
@@ -1034,14 +1019,6 @@ types:
         displayName: getCategory
         is: 
           - CommerceCloudStandards.SiteSpecific:
-          - ApiStandards.RateLimited:
-              responseStatus: 200
-          - ApiStandards.RateLimited:
-              responseStatus: 400
-          - ApiStandards.RateLimited:
-              responseStatus: 401
-          - ApiStandards.RateLimited: 
-              responseStatus: 404
           - ProdTraits.Unauthorized
           - ProdTraits.BadRequest
           - ProdTraits.NotFound

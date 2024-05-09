@@ -7,25 +7,62 @@ traits:
 
 uses:
   ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.27/commerce-cloud-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.0/commerce-cloud-standards.raml
 
 types:
   UrlMapping:
-    description: URL mapping information for a given URL segment.
+    description: The URL mapping information for a URL that a shopper clicked or typed in.
     type: object
     properties:
       resourceType:
-        description: The type of resource.
+        description: The type of resource that corresponds to the requested URL. If you set up a URL redirect in Business Manager, resourceType returns the corresponding destination type value from the redirect. If there's a URI redirect, resourceType isn't returned. The URL redirect feature is available from B2C Commerce version 24.3.
         type: string
+        required: false
         enum: ['CATEGORY', 'PRODUCT', 'CONTENT_ASSET']
         minLength: 1
         maxLength: 256
-      resourceId:
-        description: Identifier for the resource.
+      resourceSubType:
+        description: If the resourceType is CONTENT_ASSET, this field tells you whether the resource is a standard content asset or a Page Designer content asset. This output is available from B2C Commerce version 24.2.
         type: string
+        required: false
+        enum: ['STANDARD_CONTENT_ASSET', 'PAGE_DESIGNER_CONTENT_ASSET']
+        minLength: 1
+        maxLength: 256        
+      resourceId:
+        description: The identifier for the resource that corresponds to the requested URL. If you set up a URL redirect in Business Manager, resourceId returns the corresponding destination ID value from the redirect. If there's a URI redirect, resourceId isn't returned. The URL redirect feature is available from B2C Commerce version 24.3.
+        type: string
+        required: false        
         minLength: 1
         maxLength: 256
       refinements:
-        description: Relevant refinement filters inferred from the URL. It is only applicable when resource type is CATEGORY, optional for other resource types.
+        description: The refinement filters that correspond to the URL and resourceType. Refinements are returned only if all of these conditions are met - a) the resourceType is CATEGORY, b) refinements are included in the urlSegment, and c) the refinements are configured in Business Manager. This field returns a key-value pair of refinement name and refinement value. If there’s a matching URL redirect for the requested URL. the refinements output isn’t returned. The URL redirect feature is available from B2C Commerce version 24.3.
         type: object
+        required: false        
         additionalProperties: true
+      statusCode:
+        description: This field is populated only if you set up a URL redirect in Business Manager. It specifies whether the redirect is temporary (302 or 307) or permanent (301). See [Create a Redirect from a B2C Commerce URL.](https://help.salesforce.com/s/articleView?id=cc.b2c_creating_a_redirect_from_a_digital_url.htm&type=5) This parameter is available from B2C Commerce version 24.3.
+        type: integer
+        format: int32
+        required: false        
+      destinationUrl:
+        description: This field is populated if the urlSegment resolves to a redirect. Specifies the URL you want to redirect to as an absolute or relative URL. The destinationUrl is based on your configuration in Business Manager. It's either a calculated value indicating the Commerce Cloud object (product, category, or content asset) URL or your specified URL. Note that an object's path may not necessarily match your headless storefront URLs but can be used as a reference for calculating the destinationUrl. See [Create a Redirect from a B2C Commerce URL.](https://help.salesforce.com/s/articleView?id=cc.b2c_creating_a_redirect_from_a_digital_url.htm&type=5). Available from B2C Commerce 24.3.
+        type: string
+        required: false        
+        minLength: 1
+        maxLength: 2048
+      copySourceParams:
+        description: This field is populated only if you set up a URL redirect in Business Manager. It’s a flag that shows whether the parameters of the source URL have been copied to the destination URL. This parameter is available from B2C Commerce version 24.3.
+        type: boolean
+        required: false        
+      additionalUrlParams:
+        description: This field is populated only if you set up a URL redirect in Business Manager. It returns the parameters you want to add to the end of the URL. This parameter is available from B2C Commerce version 24.3.
+        type: string
+        required: false
+        minLength: 1
+        maxLength: 2048        
+      productCategoryId:
+        description: This field is populated only if you set up a URL redirect in Business Manager. It identifies the destination product's category ID. This field is returned only when the destination type is product. This parameter is available from B2C Commerce version 24.3.
+        type: string
+        required: false
+        minLength: 1
+        maxLength: 256

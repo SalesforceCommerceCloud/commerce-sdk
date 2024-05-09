@@ -139,11 +139,11 @@ types:
         description: Identity Provider Name
         type: string
         example: "google"
-        enum: [adfs, apple, auth0, azure, cognito, facebook, forgerock, gigya, google, okta, ping, salesforce]
+        enum: [adfs, apple, auth0, azure, cognito, facebook, forgerock, gigya, gigya_social, google, okta, ping, salesforce]
       authUrl:
         description: Identity Provider auth URI
         type: ApiStandards.AbsoluteUrl
-        example: "https://accounts.google.com/o/oauth2/v2/auth"
+        example: "https://accounts.google.com/oauth2/v2/auth"
       tokenUrl:
         description: Identity Provider token URI
         type: ApiStandards.AbsoluteUrl
@@ -169,9 +169,19 @@ types:
         type: string
         example: "aKZM1xEnZopNP2bm2gc3GKex"
       preferenceValue:
-        description: SLAS IDP Preference Value
+        description: Set the IDP configuration as the Preferred SLAS IDP. Default value is `false`.
         type: boolean
+        required: false
         example: true
+      isClientCredsBody:
+        description: Default is to place the client credentials in a basic authorization header for the call to the IDP. If true, the client credentials are placed in the POST body to the IDP.
+        type: boolean
+        example: false
+      useWellKnown:
+        description: If set to `true`, SLAS uses the `wellKnowUrl` value to populate the `authUrl`, `tokenUrl`, `userInfoUrl`, and `scopes` values from the identity provider. Default value is `false`.
+        required: false
+        type: boolean
+        example: false
       scopes:
               description: IDP Scopes
               type: string[]
@@ -187,7 +197,10 @@ types:
           required: false
           example: "appleKeyId"
       loginMergeClaims:
-        description: List of user info claims that can be used as identifiers to look up and merge with an existing ECOM profile for a registered shopper or an existing ECOM profile created via federated login with an external Identity Provider with the same merge claim as this one. If multiple matching ECOM shopper (customer) profiles are found, the external profile is merged to the most recently created shopper (customer) profile. Refer to Merge Shopper Profiles user guide for more details.
+        description: |
+            List of user info claims that can be used as identifiers to look up and merge with an existing B2C Commerce profile for a registered shopper or an existing B2C Commerce profile created via federated login with an external Identity Provider with the same merge claim as this one. If multiple matching B2C Commerce shopper (customer) profiles are found, the external profile is merged with the most recently created shopper (customer) profile. Refer to the Merge Shopper Profiles user guide for more details.
+
+            Note: When configuring an Apple IDP, 'email' and 'sub' are the only supported merge claims.
         type: string[]
         required: false
         example: ["email", "phone"]
@@ -232,9 +245,13 @@ types:
         type: string
         example: "aKZM1xEnZopNP2bm2gc3GKex"
       isPreferred:
-        description: SLAS IDP Preference Value
+        description: Indicates if the IDP configuration is the Preferred SLAS IDP.
         type: boolean
         example: true
+      isClientCredsBody:
+        description: Default is to place the client credentials in a basic authorization header for the call to the IDP. If true, the client credentials are placed in the POST body to the IDP.
+        type: boolean
+        example: false
       scopes:
         description: Scopes needed by the IDP.
         type: array
@@ -250,7 +267,10 @@ types:
           required: false
           example: "appleKeyId"
       loginMergeClaims:
-        description: List of user info claims that can be used as identifiers to look up and merge with an existing ECOM profile for a registered shopper or an existing ECOM profile created via federated login with an external Identity Provider with the same merge claim as this one. If multiple matching ECOM shopper (customer) profiles are found, the external profile is merged to the most recently created shopper (customer) profile. Refer to Merge Shopper Profiles user guide for more details.
+        description: |
+            List of user info claims that can be used as identifiers to look up and merge with an existing B2C Commerce profile for a registered shopper or an existing B2C Commerce profile created via federated login with an external Identity Provider with the same merge claim as this one. If multiple matching B2C Commerce shopper (customer) profiles are found, the external profile is merged with the most recently created shopper (customer) profile. Refer to the Merge Shopper Profiles user guide for more details.
+
+            Note: When configuring an Apple IDP, 'email' and 'sub' are the only supported merge claims.
         type: string[]
         required: false
         example: ["email", "phone"]
@@ -329,104 +349,6 @@ types:
         type: array
         items:
           type: Tenant
-
-  CredQualityResponse:
-    properties:
-      tenantId:
-        type: string
-        example: "aaaa_prd"
-      checkCount:
-        type: integer
-        example: 40
-      credsOkay:
-        type: integer
-        example: 1024
-      repeatedCompromisedUse:
-        type: integer
-        example: 12
-      credsCompromised:
-        type: integer
-        example: 0
-      exposure1:
-        type: integer
-        example: 0
-      exposure2to4:
-        type: integer
-        example: 0
-      exposure5to9:
-        type: integer
-        example: 0
-      exposure10plus:
-        type: integer
-        example: 0
-      pwdsOkay:
-        type: integer
-        example: 47
-      pwdsCompromised:
-        type: integer
-        example: 3
-      avgPwdStrength:
-        type: number
-        example: 5.0
-      avgCredQualityMeasure:
-        type: number
-        example: 0.0
-      avgPwdQualityMeasure:
-        type: number
-        example: 0.0
-      medPwdStrength:
-        type: number
-        example: 0.0
-      medCredQualityMeasure:
-        type: number
-        example: 0.0
-      medPwdQualityMeasure:
-        type: number
-        example: 0.0
-
-  CredQualityUserResponse:
-    properties:
-      tenantId:
-        type: string
-        example: "aaaa_prd"
-      username:
-        type: string
-        example: "joe.shopper"
-      email:
-        type: string
-        example: "joe.shopper@gmail.com"
-      credQualityMeasure:
-        type: integer
-        example: 1024
-      pwdStrengthMeasure:
-        type: integer
-        example: 12
-      pwdQualityMeasure:
-        type: integer
-        example: 0
-      credChangeCount:
-        type: integer
-        example: 0
-      loginCount:
-        type: integer
-        example: 0
-      lastLoginDatetime:
-        type: datetime
-        example: 2021-08-18T16:41:41.090Z
-      lastCredcheckDatetime:
-        type: datetime
-        example: 2021-02-18T16:41:41.090Z
-      atoScore:
-        type: integer
-        example: 3
-      atoLastDatetime:
-        type: datetime
-        example: 2021-02-18T16:41:41.090Z
-      atoLastSourceIp:
-        type: string
-      atoScoreHistory:
-        type: string
-        example: "5, 6, 7"
 
   PasswordActionTemplate:
     properties:
@@ -636,7 +558,7 @@ types:
                   examples:
                     Client: !include Examples/Client.raml
         put:
-          description: Create or Update a client.
+          description: Create or Update a client. Note - It is strongly advised to refrain from using the “sfcc-shopper-context.rw” scope with a PUBLIC Client because it offers fewer protections and could potentially enable malicious actors to access Shopper Context enabled promotions. It is highly recommended to use “sfcc-shopper-context.rw” scope with a private client.
           displayName: registerClient
           securedBy:
             - SlasSecurityScheme.BearerToken: {role: [SLAS_SERVICE_ADMIN]}
@@ -952,7 +874,7 @@ types:
                 type: IdentityProviderListResponse
                 examples:
                   IdentityProvider: !include Examples/IdpListResponse.raml
-      /{idpId}:
+      /{name}:
         get:
           description: Retrieve/Get a specific identity provider
           displayName: retrieveIdentityProvider

@@ -14,9 +14,9 @@ baseUriParameters:
 
 uses:
   OrderTraits: shopper-orders-traits.raml
-  dataTypes: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/checkout-data-types.raml
+  dataTypes: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/2.0.4/checkout-data-types.raml
   ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.26/commerce-cloud-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.27/commerce-cloud-standards.raml
   
 types:
     ErrorResponse: ApiStandards.ErrorResponse
@@ -29,12 +29,6 @@ types:
       is: 
         - CommerceCloudStandards.SiteSpecific: 
         - OrderTraits.LocaleSpecific:
-        - ApiStandards.RateLimited:
-            responseStatus: 200
-        - ApiStandards.RateLimited:
-            responseStatus: 400
-        - ApiStandards.RateLimited:
-            responseStatus: 404
       description: |-
         Submits an order based on a prepared basket. The only considered value from the request body is basketId.
       displayName: createOrder
@@ -65,14 +59,14 @@ types:
           body:
               type: ErrorResponse
               examples:
-                dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/examples/error/bad-request-example.raml
+                dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/2.0.4/examples/error/bad-request-example.raml
         '404':
           description: |-
             The basket with the given basket ID is unknown.
           body:
               type: ErrorResponse
               examples:
-                dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/examples/error/basket-not-found.raml
+                dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/2.0.4/examples/error/basket-not-found.raml
       body:
           type: dataTypes.Basket
           examples:
@@ -91,10 +85,6 @@ types:
         is: 
           - CommerceCloudStandards.SiteSpecific:  
           - OrderTraits.LocaleSpecific:
-          - ApiStandards.RateLimited:
-              responseStatus: 200
-          - ApiStandards.RateLimited:
-              responseStatus: 404
         description: |-
           Gets information for an order.
         displayName: getOrder
@@ -112,21 +102,55 @@ types:
             body:
                 type: ErrorResponse
                 examples:
-                  dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/examples/error/basket-not-found.raml
+                  dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/2.0.4/examples/error/basket-not-found.raml
         securedBy:
           - CommerceCloudStandards.ShopperToken: { scopes: [ "sfcc.shopper-baskets-orders", "sfcc.shopper-baskets-orders.rw" ] }
+      /lookup:
+        type: CommerceCloudStandards.Organization
+        post:
+          is:
+          - CommerceCloudStandards.SiteSpecific:
+          - OrderTraits.LocaleSpecific:
+          description: !include order-lookup-description.md
+          displayName: guestOrderLookup
+          responses:
+            '200':
+              description: |-
+                Success, the response body contains the order found with the order view code.
+              body:
+                  type: dataTypes.Order
+                  examples:
+                    dataTypes.Order: !include examples/order/order-post-response.raml
+            '400':
+              description: |-
+                Possible reasons:
+                - order view code or email is missing.
+              body:
+                  type: ErrorResponse
+                  examples:
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/2.0.4/examples/error/bad-request-example.raml
+            '404':
+              description: |-
+                Order was not found. Possible reasons:
+                - the order with the given order no is unknown.
+                - the given order view code does not match the one in the order.
+                - the given email does not match the one in the order.
+                - the authorized customer of a registered customer order lookup does not match the customer in the order.
+              body:
+                  type: ErrorResponse
+                  examples:
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/2.0.4/examples/error/order-not-found.raml
+          body:
+            type: dataTypes.OrderLookupRequest
+            examples: !include examples/order/order-lookup-request.raml   
+          securedBy:
+            - CommerceCloudStandards.ShopperTokenTsob: { scopes: [  "sfcc.shopper-baskets-orders", "sfcc.shopper-baskets-orders.rw" ] }  
       /payment-instruments:
         type: CommerceCloudStandards.Organization
         post:
           is: 
           - CommerceCloudStandards.SiteSpecific: 
           - OrderTraits.LocaleSpecific:
-          - ApiStandards.RateLimited:
-              responseStatus: 200
-          - ApiStandards.RateLimited:
-              responseStatus: 400
-          - ApiStandards.RateLimited:
-              responseStatus: 404
           description: |-
             Adds a payment instrument to an order. 
 
@@ -152,7 +176,7 @@ types:
               body:
                   type: ErrorResponse
                   examples:
-                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/examples/error/bad-request-example.raml
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/2.0.4/examples/error/bad-request-example.raml
             '404':
               description: |-
                 The order with the given order number is unknown.
@@ -160,7 +184,7 @@ types:
               body:
                   type: ErrorResponse
                   examples:
-                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/examples/error/order-not-found.raml
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/2.0.4/examples/error/order-not-found.raml
           body:
               type: dataTypes.OrderPaymentInstrumentRequest
               examples:
@@ -173,10 +197,6 @@ types:
             is: 
               - CommerceCloudStandards.SiteSpecific: 
               - OrderTraits.LocaleSpecific:
-              - ApiStandards.RateLimited:
-                  responseStatus: 200
-              - ApiStandards.RateLimited:
-                  responseStatus: 404
             description: |-
               Removes a payment instrument of an order.
             displayName: removePaymentInstrumentFromOrder
@@ -194,19 +214,13 @@ types:
                 body:
                     type: ErrorResponse
                     examples:
-                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/examples/error/order-not-found.raml
+                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/2.0.4/examples/error/order-not-found.raml
             securedBy:
               - CommerceCloudStandards.ShopperToken: { scopes: [ "sfcc.shopper-baskets-orders.rw" ] }
           patch:
             is: 
               - CommerceCloudStandards.SiteSpecific: 
               - OrderTraits.LocaleSpecific:
-              - ApiStandards.RateLimited:
-                  responseStatus: 200
-              - ApiStandards.RateLimited:
-                  responseStatus: 400
-              - ApiStandards.RateLimited:
-                  responseStatus: 404
             description: |-
               Updates a payment instrument of an order.
 
@@ -234,7 +248,7 @@ types:
                 body:
                     type: ErrorResponse
                     examples:
-                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/examples/error/bad-request-example.raml
+                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/2.0.4/examples/error/bad-request-example.raml
               '404':
                 description: |-
                   Possible reasons:
@@ -244,7 +258,7 @@ types:
                 body:
                     type: ErrorResponse
                     examples:
-                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/examples/error/order-not-found.raml
+                      dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/2.0.4/examples/error/order-not-found.raml
             body:
                 type: dataTypes.OrderPaymentInstrumentRequest
                 examples:
@@ -264,12 +278,6 @@ types:
           is: 
             - CommerceCloudStandards.SiteSpecific: 
             - OrderTraits.LocaleSpecific:
-            - ApiStandards.RateLimited:
-                  responseStatus: 200
-            - ApiStandards.RateLimited:
-                  responseStatus: 400
-            - ApiStandards.RateLimited:
-                  responseStatus: 404
           description: |-
             Gets the applicable payment methods for an existing order considering the open payment amount only.
           displayName: getPaymentMethodsForOrder
@@ -288,27 +296,21 @@ types:
               body:
                   type: ErrorResponse
                   examples:
-                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/examples/error/bad-request-auth.raml
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/2.0.4/examples/error/bad-request-auth.raml
             '404':
               description: |-
                 The order with the given order number is unknown.
               body:
                   type: ErrorResponse
                   examples:
-                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/examples/error/order-not-found.raml
+                    dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/2.0.4/examples/error/order-not-found.raml
           securedBy:
             - CommerceCloudStandards.ShopperToken: { scopes: [ "sfcc.shopper-baskets-orders", "sfcc.shopper-baskets-orders.rw" ] }
       /taxes:
         type: CommerceCloudStandards.Organization
         get:
           is:
-            - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited:
-                responseStatus: 200
-            - ApiStandards.RateLimited:
-                responseStatus: 404
-            - ApiStandards.RateLimited:
-                responseStatus: 409  
+            - CommerceCloudStandards.SiteSpecific: 
           description: |-
             This method gives you the external taxation data of the order transferred from the basket during 
             order creation. This endpoint can be called only if external taxation was used. See POST /baskets 
@@ -329,17 +331,16 @@ types:
               body:
                 type: ErrorResponse
                 examples:
-                  dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/examples/error/order-not-found.raml
+                  dataTypes.ErrorResponse: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/2.0.4/examples/error/order-not-found.raml
             '409':
               description: |-
                  Possible Reasons:
                  - The tax mode of the referenced basket is not set to EXTERNAL. 
-                 - Salesforce Commerce API Hook Execution is enabled.
               body:
                 type: ErrorResponse
                 examples:
-                  dataTypes.InvalidTaxMode: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/examples/error/invalid-tax-mode.raml   
-                  dataTypes.UnsupportedRequest: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/1.0.66/examples/error/unsupported-request.raml
+                  dataTypes.InvalidTaxMode: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/2.0.4/examples/error/invalid-tax-mode.raml   
+                  dataTypes.UnsupportedRequest: !include exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/checkout-data-types/2.0.4/examples/error/unsupported-request.raml
           securedBy:
             - CommerceCloudStandards.BearerToken: { scopes: [ "sfcc.shopper-baskets-orders", "sfcc.shopper-baskets-orders.rw" ] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [ "sfcc.shopper-baskets-orders", "sfcc.shopper-baskets-orders.rw" ] }

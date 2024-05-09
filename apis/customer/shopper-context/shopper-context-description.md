@@ -14,8 +14,6 @@ As part of this, when creating a new public client in SLAS for a tenant, if addi
 
 **Note**: The context is valid for 1 day for guest shoppers and 7 days for registered shoppers. To extend the context set, create a new context. As a best practice, refresh your contexts periodically to ensure that the right personalized experience is rendered for your shoppers.
 
-**Important:** For detailed usage information, see the [Shopper Context guides](https://developer.salesforce.com/docs/commerce/commerce-api/guide/shopper-context-api.html).
-
 To use the Shopper Context API, you must:
 
 - Get a JSON Web Token (JWT) for the Shopper Login and API Access Service (SLAS).
@@ -24,3 +22,7 @@ To use the Shopper Context API, you must:
 For more information, see [Authorization for Shopper APIs](https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-shopper-apis.html) in the Get Started guides.
 
 **Warning**: As with all APIs, never store access tokens in the browser because this creates a security vulnerability.
+
+## Use Cases
+
+For detailed usage information, see the [Shopper Context guides](https://developer.salesforce.com/docs/commerce/commerce-api/guide/shopper-context-api.html).
