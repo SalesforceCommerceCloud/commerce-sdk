@@ -58,7 +58,7 @@ function addTemplates(
     path.join(outputBasePath, "index.ts")
   );
 
-  const helperTemplateFileNames = ["index", "shopperCustomer"];
+  const helperTemplateFileNames = ["index"];
   helperTemplateFileNames.forEach((name: string) => {
     apis.addTemplate(
       path.join(HELPERS_TEMPLATE_DIRECTORY, `${name}.ts.hbs`),

@@ -39,6 +39,10 @@ you import the type definitions directly.
   | ------------- |-------------|
   | redeemCoupon | Redeems a coupon code for an existing coupon within the selected site. The coupon code must be redeemable. |
 
+#### Other Changes
+
+- Removal of deprecated helper function `getShopperToken`
+
 ## v2.15.0
 
 #### API Changes
