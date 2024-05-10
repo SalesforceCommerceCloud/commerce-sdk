@@ -4,13 +4,13 @@
 
 Due to an issue with the generation of the type definitions, an upcoming release
 of the SDK will change type definitions to include namespaces. As this is a
-breaking change, a new major version will be released (v3.0.0). Only the names of
+breaking change, a new major version will be released (v4.0.0). Only the names of
 the types will change, not their contents or any of the exported code. If you
 only use JavaScript, or if you use TypeScript but only import the client classes,
 then your usage **will not change**. You will likely only need to make changes if
 you import the type definitions directly.
 
-## v2.16.0
+## v3.0.0
 
 #### API Changes
 
