@@ -8,7 +8,7 @@
 import nock from "nock";
 import { expect } from "chai";
 import sinon from "sinon";
-import { ShopperCustomers } from "../../renderedTemplates/customer/shopperCustomers/shopperCustomers";
+import { ShopperProducts } from "../../renderedTemplates/product/shopperProducts/shopperProducts";
 
 const SITE_ID = "SITE_ID";
 const CLIENT_ID = "CLIENT_ID";
@@ -16,11 +16,12 @@ const SHORT_CODE = "SHORT_CODE";
 const ORGANIZATION_ID = "ORGANIZATION_ID";
 
 const MOCK_RESPONSE = { mockResponse: true };
+
 describe("Parameters", () => {
   afterEach(() => nock.cleanAll());
 
   it("allow custom query params", async () => {
-    const customersClient = new ShopperCustomers({
+    const productClient = new ShopperProducts({
       parameters: {
         clientId: CLIENT_ID,
         organizationId: ORGANIZATION_ID,
@@ -31,28 +32,28 @@ describe("Parameters", () => {
 
     const options = {
       parameters: {
+        ids: "ids",
         c_validCustomParam: "custom_param",
       },
-      body: { type: "guest" },
     };
 
     nock(`https://${SHORT_CODE}.api.commercecloud.salesforce.com`)
-      .post(
-        `/customer/shopper-customers/v1/organizations/${ORGANIZATION_ID}/customers/actions/login`
+      .get(
+        `/product/shopper-products/v1/organizations/${ORGANIZATION_ID}/products`
       )
       .query({
         siteId: SITE_ID,
-        clientId: CLIENT_ID,
+        ids: "ids",
         c_validCustomParam: "custom_param",
       })
       .reply(200, MOCK_RESPONSE);
 
-    const response = await customersClient.authorizeCustomer(options);
+    const response = await productClient.getProducts(options);
     expect(response).to.be.deep.equal(MOCK_RESPONSE);
   });
 
   it("warns user when invalid param is passed", async () => {
-    const customersClient = new ShopperCustomers({
+    const productClient = new ShopperProducts({
       parameters: {
         clientId: CLIENT_ID,
         organizationId: ORGANIZATION_ID,
@@ -63,23 +64,23 @@ describe("Parameters", () => {
 
     const options = {
       parameters: {
+        ids: "ids",
         invalidQueryParam: "invalid_param",
       },
-      body: { type: "guest" },
     };
 
     nock(`https://${SHORT_CODE}.api.commercecloud.salesforce.com`)
-      .post(
-        `/customer/shopper-customers/v1/organizations/${ORGANIZATION_ID}/customers/actions/login`
+      .get(
+        `/product/shopper-products/v1/organizations/${ORGANIZATION_ID}/products`
       )
       .query({
         siteId: SITE_ID,
-        clientId: CLIENT_ID,
+        ids: "ids",
       })
       .reply(200, MOCK_RESPONSE);
 
     const warnSpy = sinon.spy(console, "warn");
-    const response = await customersClient.authorizeCustomer(options);
+    const response = await productClient.getProducts(options);
 
     expect(response).to.be.deep.equal(MOCK_RESPONSE);
     expect(warnSpy.calledWith("Invalid Parameter: invalidQueryParam")).to.be
