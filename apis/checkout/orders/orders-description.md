@@ -19,6 +19,7 @@ Order Status can have one of these values:
 -   `created` - Default value; denotes that the order was created in the system but is not yet placed.
 -   `new` - Set this value to place the order. When you set this value, the system generates shipment and invoice numbers. After the order is placed, you can’t change its Order Status to `created` or `failed`.
 -   `failed` - Set this value to fail the order, for example, when you reject the order or when its payment fails. When you set this value, the system releases the order’s inventory reservations and removes any coupon redemptions. You can only set this value if the current Order Status is `created`. If you change the Order Status from `failed` to `created`, the system tries to revert the actions taken when it was set to `failed`. If inventory isn’t available, the reversion can fail.
+-   `failed_with_reopen` - Set this value to fail the order and reopen the basket, if applicable. The order status is set to `failed`.
 -   `completed` - Set this value to mark the order as complete, based on your business process. For example, when the order is fully paid, exported, and shipped.
 -   `cancelled` - Set this value to cancel the order, for example, when the shopper requests it. When you set this value, the system releases the order’s inventory reservations, restores any wishlist items, and removes any coupon redemptions. If you change the Order Status from `cancelled` to `completed` or `new`, the system tries to revert the actions taken when it was set to `cancelled`. If inventory isn’t available, the reversion can fail.
 
@@ -104,3 +105,7 @@ You can sort the results in ascending or descending order by these attributes (d
 ## Create Orders
 
 Use the Create Order endpoint to create orders from a third-party system, such as a social media platform. Before using the endpoint, you must complete the checkout process first: apply all sanity checks, reserve inventory, authorize payment, apply promotions, and calculate the full cost of the order. Orders made by third-party systems are treated the same way as order made directly through the B2C Commerce platform, including how status updates and exports are handled.
+
+## Update Orders
+
+Use the Update Order endpoint to make changes to custom order attributes.

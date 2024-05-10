@@ -169,12 +169,17 @@ types:
         type: string
         example: "aKZM1xEnZopNP2bm2gc3GKex"
       preferenceValue:
-        description: SLAS IDP Preference Value
+        description: Set the IDP configuration as the Preferred SLAS IDP. Default value is `false`.
         type: boolean
         required: false
         example: true
       isClientCredsBody:
         description: Default is to place the client credentials in a basic authorization header for the call to the IDP. If true, the client credentials are placed in the POST body to the IDP.
+        type: boolean
+        example: false
+      useWellKnown:
+        description: If set to `true`, SLAS uses the `wellKnowUrl` value to populate the `authUrl`, `tokenUrl`, `userInfoUrl`, and `scopes` values from the identity provider. Default value is `false`.
+        required: false
         type: boolean
         example: false
       scopes:
@@ -192,7 +197,10 @@ types:
           required: false
           example: "appleKeyId"
       loginMergeClaims:
-        description: List of user info claims that can be used as identifiers to look up and merge with an existing ECOM profile for a registered shopper or an existing ECOM profile created via federated login with an external Identity Provider with the same merge claim as this one. If multiple matching ECOM shopper (customer) profiles are found, the external profile is merged to the most recently created shopper (customer) profile. Refer to Merge Shopper Profiles user guide for more details.
+        description: |
+            List of user info claims that can be used as identifiers to look up and merge with an existing B2C Commerce profile for a registered shopper or an existing B2C Commerce profile created via federated login with an external Identity Provider with the same merge claim as this one. If multiple matching B2C Commerce shopper (customer) profiles are found, the external profile is merged with the most recently created shopper (customer) profile. Refer to the Merge Shopper Profiles user guide for more details.
+
+            Note: When configuring an Apple IDP, 'email' and 'sub' are the only supported merge claims.
         type: string[]
         required: false
         example: ["email", "phone"]
@@ -237,7 +245,7 @@ types:
         type: string
         example: "aKZM1xEnZopNP2bm2gc3GKex"
       isPreferred:
-        description: SLAS IDP Preference Value
+        description: Indicates if the IDP configuration is the Preferred SLAS IDP.
         type: boolean
         example: true
       isClientCredsBody:
@@ -259,7 +267,10 @@ types:
           required: false
           example: "appleKeyId"
       loginMergeClaims:
-        description: List of user info claims that can be used as identifiers to look up and merge with an existing ECOM profile for a registered shopper or an existing ECOM profile created via federated login with an external Identity Provider with the same merge claim as this one. If multiple matching ECOM shopper (customer) profiles are found, the external profile is merged to the most recently created shopper (customer) profile. Refer to Merge Shopper Profiles user guide for more details.
+        description: |
+            List of user info claims that can be used as identifiers to look up and merge with an existing B2C Commerce profile for a registered shopper or an existing B2C Commerce profile created via federated login with an external Identity Provider with the same merge claim as this one. If multiple matching B2C Commerce shopper (customer) profiles are found, the external profile is merged with the most recently created shopper (customer) profile. Refer to the Merge Shopper Profiles user guide for more details.
+
+            Note: When configuring an Apple IDP, 'email' and 'sub' are the only supported merge claims.
         type: string[]
         required: false
         example: ["email", "phone"]

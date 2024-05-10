@@ -1,1 +1,1 @@
-Create, update, delete, and search source code groups.
+APIs to support the creation, update, deletions and search of source code groups. 

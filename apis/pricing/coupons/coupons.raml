@@ -15,8 +15,8 @@ mediaType: application/json
 
 uses:
   CouponTraits: coupons-traits-library.raml
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.13/api-standards.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.20/commerce-cloud-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.24/commerce-cloud-standards.raml
 
 types:
   Coupon:
@@ -224,6 +224,25 @@ types:
       hits:
         description: The array of coupon redemption search hits. Can be empty.
         type: CouponRedemption[]
+  CouponCodeRedemptionRequest:
+    description: Document representing a request to redeem a coupon.
+    properties:
+      code:
+        description: The coupon code to redeem.
+        type: string
+        example: Code1
+      customerEmail?:
+        description: The customer email to use on the redemption.
+        type: string
+        example: shopper@salesforce-test.com
+      orderNo:
+        description: |
+            The order number to use on the redemption. In case the coupon 
+            was redeemed externally and no order number is associated, use 
+            a reference id or custom string to identify the source of the 
+            redemption.
+        type: string
+        example: 00023120@store4
 
 '/organizations/{organizationId}/coupons':
     type: CommerceCloudStandards.Organization
@@ -246,11 +265,6 @@ types:
 
          Note that only searchable attributes can be used in sorting.         
       displayName: couponsSearch
-      is:
-        - ApiStandards.RateLimited:
-            responseStatus: 200
-        - ApiStandards.RateLimited:
-            responseStatus: 400
       responses:
         '200':
           description: API executed Successfully.
@@ -264,7 +278,7 @@ types:
           type: CommerceCloudStandards.SearchRequest
       securedBy:
         - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
-        - CommerceCloudStandards.AmOAuth2
+        - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
     '/redemptions':
       is:
         - CommerceCloudStandards.SiteSpecific
@@ -288,11 +302,6 @@ types:
 
           If the user role does not have the `View_Coupon_Codes` permission, then the coupon codes returned are masked.
         displayName: couponRedemptionsSearch
-        is:
-        - ApiStandards.RateLimited:
-            responseStatus: 200
-        - ApiStandards.RateLimited:    
-            responseStatus: 400
         responses:
           '200':
             description: API executed Successfully.
@@ -306,22 +315,55 @@ types:
             type: CommerceCloudStandards.SearchRequest
         securedBy:
           - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
-          - CommerceCloudStandards.AmOAuth2
+          - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
+    '/actions/redeem':
+      is:
+        - CommerceCloudStandards.SiteSpecific
+      post:
+        description: |-
+          Redeems a coupon code for an existing coupon within the selected site. 
+          The coupon code must be redeemable.
+        displayName: redeemCoupon
+        body:
+          application/json:
+            type: CouponCodeRedemptionRequest
+            example: !include Examples/redeem_coupon_code.raml
+        responses:
+          '201':
+            description: |
+                Coupon was redeemed successfully and a redemption record created.
+          '400':
+            description: |
+                Thrown if the coupon code can not redeemed, e.g. disabled, 
+                already redeemed, redemption limit (maximum number or timeframe) 
+                exceeded or it has no active promotion assigned.
+            body:
+                application/json:
+                  type: ApiStandards.ErrorResponse
+                  example: !include Examples/post_sites_siteid_coupons_actions_redeem_400.raml
+          '404':
+            description: |
+                Thrown if the site does not contain a coupon, which 
+                defines the coupon code requested to be redeemed.
+            body:
+                application/json:
+                  type: ApiStandards.ErrorResponse
+                  example: !include Examples/post_sites_siteid_coupons_actions_redeem_404.raml
+        securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
+          - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions.rw ] }
     '/{couponId}':
       is:
         - CommerceCloudStandards.SiteSpecific
       delete:
         description: Delete a coupon by ID.
         displayName: deleteCoupon
-        is:
-        - ApiStandards.RateLimited:
-            responseStatus: 204
         responses:
           '204':
             description: API returned successfully.
         securedBy:
           - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
-          - CommerceCloudStandards.AmOAuth2
+          - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions.rw ] }
       get:
         description: |-
           Returns coupon information for the given coupon ID.
@@ -329,10 +371,6 @@ types:
         displayName: getCoupon
         is:
           - CouponTraits.CouponNotFound
-          - ApiStandards.RateLimited:
-              responseStatus: 200
-          - ApiStandards.RateLimited:    
-              responseStatus: 404
         responses:
           '200':
             description: API returned successfully.
@@ -342,17 +380,10 @@ types:
                 example: !include Examples/put_sites_siteid_coupons_couponid.raml
         securedBy:
           - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
-          - CommerceCloudStandards.AmOAuth2
+          - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
       patch:
         description: Updates the coupon with the specified information.
         displayName: updateCoupon
-        is:
-        - ApiStandards.RateLimited:
-            responseStatus: 200
-        - ApiStandards.RateLimited:    
-            responseStatus: 400
-        - ApiStandards.RateLimited:    
-            responseStatus: 403
         responses:
           '200':
             description: API returned successfully.
@@ -379,19 +410,12 @@ types:
             type: Coupon
         securedBy:
           - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
-          - CommerceCloudStandards.AmOAuth2
+          - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions.rw ] }
       put:
         description: |-
           Creates a coupon using the information provided. If a coupon exists with the same unique identifier,
            the coupon is replaced completely.
         displayName: createCoupon
-        is:
-        - ApiStandards.RateLimited:
-            responseStatus: 200
-        - ApiStandards.RateLimited:    
-            responseStatus: 400
-        - ApiStandards.RateLimited:    
-            responseStatus: 403
         responses:
           '200':
             description: API returned successfully.
@@ -418,7 +442,7 @@ types:
             type: Coupon
         securedBy:
           - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
-          - CommerceCloudStandards.AmOAuth2
+          - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions.rw ] }
       uriParameters:
         couponId:
           description: The ID of the coupon to create.
@@ -439,10 +463,6 @@ types:
             - ApiStandards.OffsetPaginated:
                 maxLimit: 200
                 defaultSize: 25
-            - ApiStandards.RateLimited:
-                responseStatus: 200
-            - ApiStandards.RateLimited:    
-                responseStatus: 404
           responses:
             '200':
               description: API returned successfully.
@@ -452,18 +472,12 @@ types:
                   example: !include Examples/get_sites_siteid_coupons_couponid_codes.raml
           securedBy:
             - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
         post:
           description: Add or delete (modify) multiple codes to and from the supplied coupon.
           displayName: updateCouponCodes
           is:
             - CouponTraits.CouponNotFound
-            - ApiStandards.RateLimited:
-                responseStatus: 204
-            - ApiStandards.RateLimited:    
-                responseStatus: 400
-            - ApiStandards.RateLimited:    
-                responseStatus: 404
           responses:
             '204':
               description: API returned successfully.
@@ -485,4 +499,4 @@ types:
               type: CouponMultiCodesRequest
           securedBy:
             - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions.rw ] }

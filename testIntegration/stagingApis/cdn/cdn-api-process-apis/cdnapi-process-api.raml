@@ -63,6 +63,8 @@ types:
   RateLimitingRule: !include dataTypes/RateLimitingRule.raml
   RateLimitingRulesPostRequest: !include dataTypes/RateLimitingRulesPostRequest.raml
   RateLimitingRulesPatchRequest: !include dataTypes/RateLimitingRulesPatchRequest.raml
+  WAFManagedRuleset: !include dataTypes/WAFManagedRuleset.raml
+  WAFManagedRulesetRequest: !include dataTypes/WAFManagedRulesetRequest.raml
 
   ZonesEnvelope:
     type: CollectionResponseEnvelope
@@ -174,6 +176,16 @@ types:
     properties:
       data:
         type: RateLimitingRule[]
+  WAFManagedRulesetsEnvelope:
+    type: CollectionResponseEnvelope
+    properties:
+      data:
+        type: WAFManagedRuleset[]
+  WAFManagedRulesetEnvelope:
+    type: ItemResponseEnvelope
+    properties:
+      data:
+        type: WAFManagedRuleset
 
 traits:
   hasUnauthorizedResponse: !include traits/HasUnauthorizedResponse.raml
@@ -226,7 +238,7 @@ traits:
     get:
       is: [hasResourceNotFoundResponse]
       displayName: getWafGroups
-      description: Retrieves all WAF groups accessible to the caller.
+      description: Retrieves all WAF groups accessible to the caller. Not applicable for zones using WAFv2. For any zones created after the 24.5 release, use the endpoints for WAF managed rulesets instead.
       responses:
         '200':
           description: Successfully retrieved details of WAF groups that caller has access to.
@@ -242,7 +254,7 @@ traits:
       put:
         is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse, hasBadRequestResponse]
         displayName: updateWafGroup
-        description: Update action or mode of a specific WAF group.
+        description: Updates action or mode of a specific WAF group. Not applicable for zones using WAFv2. For any zones created after the 24.5 release, use the endpoints for WAF managed rulesets instead.
         body:
           application/json:
             type: WafGroup
@@ -263,7 +275,7 @@ traits:
     get:
       is: [hasResourceNotFoundResponse]
       displayName: getWafRules
-      description: Retrieve WAF rules under the waf group specified by the caller.
+      description: Retrieves WAF rules under the waf group specified by the caller. Not applicable for zones using WAFv2. For any zones created after the 24.5 release, use the endpoints for WAF managed rulesets instead.
       queryParameters:
         groupId:
           displayName: GroupId
@@ -286,7 +298,7 @@ traits:
       get:
         is: [hasResourceNotFoundResponse]
         displayName: getWafRule
-        description: Retrieve details of a specific WAF rule.
+        description: Retrieves details of a specific WAF rule. Not applicable for zones using WAFv2. For any zones created after the 24.5 release, use the endpoints for WAF managed rulesets instead.
         responses:
           '200':
             description: Successfully retrieved details of the WAF rule requested by the caller.
@@ -300,7 +312,7 @@ traits:
       put:
         is: [hasBadRequestResponse]
         displayName: updateWafRule
-        description: Update action of a specific WAF rule.
+        description: Updates action of a specific WAF rule. Not applicable for zones using WAFv2. For any zones created after the 24.5 release, use the endpoints for WAF managed rulesets instead.
         body:
           application/json:
             type: WafRule
@@ -317,11 +329,10 @@ traits:
           - CommerceCloudStandards.AmOAuth2
 
   /zones/{zoneId}/firewall/rules:
-    is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse]
     get:
-      is: [hasResourceNotFoundResponse]
+      is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse, hasResourceNotFoundResponse]
       displayName: getFirewallRules
-      description: Retrieves existing firewall rules.
+      description: (DEPRECATED) Retrieves existing firewall rules. This endpoint is deprecated. Requests return a 400 Bad Request response. Use [eCDN custom rules](https://developer.salesforce.com/docs/commerce/commerce-api/guide/cdn-zones-custom-rules.html) moving forward. Any existing firewall rules are accessible and can be updated using the custom rule endpoints.
       responses:
         '200':
           description: Successfully returned back the list of firewall rules requested by the caller.
@@ -334,14 +345,13 @@ traits:
         - CommerceCloudStandards.AmOAuth2
 
     post:
-      is: [hasBadRequestResponse, hasConflictResponse]
+      is: [hasBadRequestResponse]
       displayName: createFirewallRule
-      description: Creates a firewall rule.
+      description: (DEPRECATED) Creates a firewall rule. This endpoint is deprecated. Requests return a 400 Bad Request response. Use [eCDN custom rules](https://developer.salesforce.com/docs/commerce/commerce-api/guide/cdn-zones-custom-rules.html) moving forward. Any existing firewall rules are accessible and can be updated using the custom rule endpoints.
       body:
         application/json:
           type: FirewallRule
           example: !include /examples/firewall/firewall-rules-post-request.raml
-
       responses:
         '201':
           description: Successfully created the firewall rule requested by the caller.
@@ -354,11 +364,10 @@ traits:
         - CommerceCloudStandards.AmOAuth2
 
     /{firewallRuleId}:
-      is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse]
       get:
-        is: [hasResourceNotFoundResponse]
+        is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse, hasResourceNotFoundResponse]
         displayName: getFirewallRule
-        description: Retrieve a specific firewall rule.
+        description: (DEPRECATED) Retrieve a specific firewall rule. This endpoint is deprecated. Requests return a 400 Bad Request response. Use [eCDN custom rules](https://developer.salesforce.com/docs/commerce/commerce-api/guide/cdn-zones-custom-rules.html) moving forward. Any existing firewall rules are accessible and can be updated using the custom rule endpoints.
         responses:
           '200':
             description: Successfully returned back the firewall rule requested by the caller.
@@ -372,12 +381,11 @@ traits:
       put:
         is: [hasBadRequestResponse]
         displayName: updateFirewallRule
-        description: Update a specific firewall rule.
+        description: (DEPRECATED) Update a specific firewall rule. This endpoint is deprecated. Requests return a 400 Bad Request response. Use [eCDN custom rules](https://developer.salesforce.com/docs/commerce/commerce-api/guide/cdn-zones-custom-rules.html) moving forward. Any existing firewall rules are accessible and can be updated using the custom rule endpoints.
         body:
           application/json:
             type: FirewallRule
             example: !include /examples/firewall/firewall-rules-put-request.raml
-
         responses:
           '200':
             description: Successfully updated the firewall rule specified by the caller.
@@ -388,11 +396,10 @@ traits:
         securedBy:
           - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
           - CommerceCloudStandards.AmOAuth2
-
       delete:
-        is: [hasResourceNotFoundResponse]
+        is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse, hasResourceNotFoundResponse]
         displayName: deleteFirewallRule
-        description: Delete a specific firewall rule.
+        description: (DEPRECATED) Delete a specific firewall rule. This endpoint is deprecated. Requests return a 400 Bad Request response. Use [eCDN custom rules](https://developer.salesforce.com/docs/commerce/commerce-api/guide/cdn-zones-custom-rules.html) moving forward. Any existing firewall rules are accessible and can be updated using the custom rule endpoints.
         responses:
           '204':
             description: Successfully deleted the firewall rule specified by the caller.
@@ -506,16 +513,18 @@ traits:
   /zones/{zoneId}/certificates:
     is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse]
     get:
-      is: [hasResourceNotFoundResponse]
+      is: [ApiStandards.OffsetPaginated: {maxLimit: 50, defaultSize: 25}, hasResourceNotFoundResponse]
       displayName: getCertificates
       description: Retrieves a list of certificates information for a zone.
       responses:
-        200:
-          description: OK
+        '200':
+          description: Successfully retrieved list of certificates for the specified zone.
           body:
             application/json:
               type: CertificatesEnvelope
-              example: !include /examples/zone/certificates-get-response.raml
+              examples:
+                  Proxy Zone Certificates Response: !include /examples/zone/certificates-get-response1.raml
+                  Legacy Zone Certificates Response: !include /examples/zone/certificates-get-response2.raml
       securedBy:
         - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
         - CommerceCloudStandards.AmOAuth2
@@ -802,6 +811,7 @@ traits:
         - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
         - CommerceCloudStandards.AmOAuth2
     get:
+      is: [ApiStandards.OffsetPaginated: {maxLimit: 50, defaultSize: 25}]
       displayName: getCustomRules
       description: Retrieves existing custom rules.
       responses:
@@ -943,6 +953,40 @@ traits:
         responses:
           '204':
             description: Successfully deleted the rate limiting rule requested by the caller.
+        securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
+        - CommerceCloudStandards.AmOAuth2
+  /zones/{zoneId}/firewall-managed/rulesets:
+    is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse, hasResourceNotFoundResponse]
+    get:
+      displayName: getWafManagedRulesets
+      description: Retrieves WAFv2 managed rulesets.
+      responses:
+        '200':
+          description: Successfully returned the list of WAF managed rulesets.
+          body:
+            application/json:
+              type: WAFManagedRulesetsEnvelope
+              example: !include /examples/wafmanagedrulesets/waf-managed-rulesets-response.raml
+      securedBy:
+      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
+      - CommerceCloudStandards.AmOAuth2
+    /{rulesetId}:
+      is: [hasBadRequestResponse, hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse, hasResourceNotFoundResponse]
+      patch:
+        displayName: updateWafManagedRuleset
+        description: Updates WAFv2 managed ruleset.
+        body:
+          application/json:
+            type: WAFManagedRulesetRequest
+            example: !include /examples/wafmanagedrulesets/waf-managed-rulesets-update-request.raml
+        responses:
+          '200':
+            description: Successfully returned the updated WAF managed rulesets.
+            body:
+              application/json:
+                type: WAFManagedRulesetEnvelope
+                example: !include /examples/wafmanagedrulesets/waf-managed-rulesets-update-response.raml
         securedBy:
         - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.cdn-zones.rw ] }
         - CommerceCloudStandards.AmOAuth2

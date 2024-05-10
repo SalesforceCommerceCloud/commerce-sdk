@@ -4,17 +4,61 @@
 
 Due to an issue with the generation of the type definitions, an upcoming release
 of the SDK will change type definitions to include namespaces. As this is a
-breaking change, a new major version will be released (v3.0.0). Only the names of
+breaking change, a new major version will be released (v4.0.0). Only the names of
 the types will change, not their contents or any of the exported code. If you
 only use JavaScript, or if you use TypeScript but only import the client classes,
 then your usage **will not change**. You will likely only need to make changes if
 you import the type definitions directly.
 
+## v3.0.0
+
+#### API Changes
+
+*Shopper Customers*
+
+- Removal of deprecated endpoints:
+  - `invalidateCustomerAuth`
+  - `authorizeCustomer`
+  - `authorizeTrustedSystem`
+
+*Shopper Orders*
+
+  | **Endpoint Name** | **Description** |
+  | ------------- |-------------|
+  | guestOrderLookup | Lookup a guest order |
+
+*Customers*
+
+  | **Endpoint Name** | **Description** |
+  | ------------- |-------------|
+  | searchCustomerGroup | Search for customer groups in a given Site Id |
+
+*Coupons*
+
+  | **Endpoint Name** | **Description** |
+  | ------------- |-------------|
+  | redeemCoupon | Redeems a coupon code for an existing coupon within the selected site. The coupon code must be redeemable. |
+
+#### Enchancements
+
+- Add helper function `customApiHelper.callCustomEndpoint` to call [Custom APIs](https://developer.salesforce.com/docs/commerce/commerce-api/guide/custom-apis.html) - [#402](https://github.com/SalesforceCommerceCloud/commerce-sdk/pull/402)
+
+#### Other Changes
+
+- Removal of deprecated helper function `getShopperToken`
+
 ## v2.15.0
 
 #### API Changes
 
-- Update APIs
+- Update APIs for [Shopper Search](https://developer.salesforce.com/docs/commerce/commerce-api/references/about-commerce-api/about.html#282024)
+
+* New Endpoints
+
+  | **Endpoint Name** | **Description**                   |
+  | ------------- |-----------------------------------|
+  | getWafManagedRulesets | Retrieves WAFv2 managed rulesets. |
+  | updateWafManagedRuleset | Updates WAFv2 managed ruleset.    |  
 
 ## v2.14.0
 

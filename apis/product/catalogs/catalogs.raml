@@ -15,8 +15,8 @@ description: !include catalogs-description.md
 
 uses:
   CatalogTraits: catalogs-traits-library.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.15/commerce-cloud-standards.raml
-  Search: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.15/Types/search-types.raml 
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.24/commerce-cloud-standards.raml
+  Search: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.24/Types/search-types.raml 
 
 types:
   Catalogs:
@@ -1535,10 +1535,6 @@ types:
       description: Action to get the list of catalog IDs with no filtering.
       displayName: getCatalogs
       is:
-        - CatalogTraits.RateLimited3:
-            responseStatus: 200
-            responseStatus2: 400
-            responseStatus3: 401
         - CatalogTraits.Unauthorized
         - CatalogTraits.BadRequest
         - CatalogTraits.offset-paginated:
@@ -1555,16 +1551,12 @@ types:
                 catalogs: !include Examples/catalogs.raml
       securedBy:
         - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
-        - CommerceCloudStandards.AmOAuth2
+        - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
     /{catalogId}:
       get:
         description: Gets the catalog with the specified information.
         displayName: getCatalog
         is:
-          - CatalogTraits.RateLimited3:
-              responseStatus: 200
-              responseStatus2: 401
-              responseStatus3: 404
           - CatalogTraits.Unauthorized
           - CatalogTraits.NotFound
         responses:
@@ -1577,15 +1569,11 @@ types:
                   catalog: !include Examples/catalog.raml
         securedBy:
           - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
-          - CommerceCloudStandards.AmOAuth2
+          - CommerceCloudStandards.AmOAuth2:  { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
       patch:
         description: Updates the catalog with the specified information.
         displayName: updateCatalog
         is:
-          - CatalogTraits.RateLimited3:
-              responseStatus: 200
-              responseStatus2: 401
-              responseStatus3: 404
           - CatalogTraits.Unauthorized
           - CatalogTraits.NotFound
         responses:
@@ -1604,7 +1592,7 @@ types:
               catalog: !include Examples/catalog-body.raml
         securedBy:
           - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
-          - CommerceCloudStandards.AmOAuth2
+          - CommerceCloudStandards.AmOAuth2:  { scopes: [sfcc.catalogs.rw] }
       uriParameters:
         catalogId:
           description: The ID of the requested catalog.
@@ -1616,11 +1604,6 @@ types:
           description: Action to get all the categories with no filtering.
           displayName: getCategoriesFromCatalog
           is:
-            - CatalogTraits.RateLimited4:
-                responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 404 
             - CatalogTraits.Unauthorized
             - CatalogTraits.BadRequest
             - CatalogTraits.NotFound
@@ -1637,16 +1620,12 @@ types:
                     categories: !include Examples/categories.raml
           securedBy:
             - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
         /{categoryId}:
           delete:
             description: Deletes the category by catalog ID and category ID.
             displayName: deleteCategoryFromCatalog
             is:
-              - CatalogTraits.RateLimited3:
-                  responseStatus: 204
-                  responseStatus2: 401
-                  responseStatus3: 404
               - CatalogTraits.Unauthorized
               - CatalogTraits.NotFound
               - CatalogTraits.NotFound
@@ -1655,7 +1634,7 @@ types:
                 description: Category Deleted Successfully
             securedBy:
               - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
-              - CommerceCloudStandards.AmOAuth2
+              - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
           get:
             description: |-
               Action to read an existing category within a catalog. By default, the server
@@ -1664,11 +1643,6 @@ types:
               issues in case of a large and deep category tree.
             displayName: getCategoryFromCatalog
             is:
-              - CatalogTraits.RateLimited4:
-                  responseStatus: 200
-                  responseStatus2: 400
-                  responseStatus3: 401
-                  responseStatus4: 404
               - CatalogTraits.Unauthorized
               - CatalogTraits.BadRequest
               - CatalogTraits.NotFound
@@ -1691,16 +1665,11 @@ types:
                 example: 0
             securedBy:
               - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
-              - CommerceCloudStandards.AmOAuth2
+              - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
           patch:
             description: Updates a catalog category using the information provided.
             displayName: updateCategoryInCatalog
             is:
-              - CatalogTraits.RateLimited4:
-                  responseStatus: 200
-                  responseStatus2: 400
-                  responseStatus3: 401
-                  responseStatus4: 404
               - CatalogTraits.Unauthorized
               - CatalogTraits.BadRequest
               - CatalogTraits.NotFound
@@ -1720,17 +1689,11 @@ types:
                   category: !include Examples/category-body.raml
             securedBy:
               - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
-              - CommerceCloudStandards.AmOAuth2
+              - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
           put:
             description: Creates a catalog category using the information provided.
             displayName: createCategoryInCatalog
-            is:
-              - CatalogTraits.RateLimited5:
-                  responseStatus: 201
-                  responseStatus2: 200
-                  responseStatus3: 400
-                  responseStatus4: 401
-                  responseStatus5: 404                             
+            is:                          
               - CatalogTraits.Unauthorized
               - CatalogTraits.BadRequest
               - CatalogTraits.NotFound              
@@ -1756,7 +1719,7 @@ types:
                   category: !include Examples/category-body.raml
             securedBy:
               - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
-              - CommerceCloudStandards.AmOAuth2
+              - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
           uriParameters:
             categoryId:
               description: The ID of the category to be created.
@@ -1798,6 +1761,7 @@ types:
 
                   | Attribute | Type | Function |
                   |-----------|--------|-----|
+                  | none | String | Will not fetch any expanded information.
                   | productImages| String | Fetch preview image and image groups specified for the given product. |
                   | productAllImages | String | Fetch preview image, image groups specified for the product, and variant and variation group images. |
                   | productVariations | String | Fetch variations related information. |
@@ -1805,7 +1769,7 @@ types:
                   | productCategories | String | Fetch category related information. | 
                   | productPrices | String | Fetch price related information. |
                   | productOptions | String | Fetch options related information. |
-                  | productAll | String | Fetch all expanded information. |
+                  | productAll | String | Fetch all expanded information. This is the default used when no expand value is included in the request.|
 
                 Note: productAll includes the following:
                   - brand
@@ -1832,10 +1796,6 @@ types:
                   required: false
                   example: SiteGenesis
               is:
-                - CatalogTraits.RateLimited3:
-                    responseStatus: 200
-                    responseStatus2: 401
-                    responseStatus3: 404
                 - CatalogTraits.Unauthorized
                 - CatalogTraits.NotFound
               responses:
@@ -1855,7 +1815,7 @@ types:
                   
               securedBy:
                 - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
-                - CommerceCloudStandards.AmOAuth2
+                - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
           /products/{productId}:
             get:
               description: |-
@@ -1866,10 +1826,6 @@ types:
                   the products end up A, B, C at positions 1, null, 7.5.
               displayName: getAssignedProductFromCategory
               is:
-                - CatalogTraits.RateLimited3:
-                    responseStatus: 200
-                    responseStatus2: 401
-                    responseStatus3: 404
                 - CatalogTraits.Unauthorized
                 - CatalogTraits.NotFound
               responses:
@@ -1882,7 +1838,7 @@ types:
                         category-prod-assignment: !include Examples/catalogcategoryprdAssignment-example.raml
               securedBy:
                 - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
-                - CommerceCloudStandards.AmOAuth2
+                - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
             delete:
               description: |-
                 Removes a category product assignment.
@@ -1892,10 +1848,6 @@ types:
                 the products end up A, B, C at positions 1, null, 7.5.
               displayName: unassignProductFromCategory
               is:
-                - CatalogTraits.RateLimited3:
-                    responseStatus: 204
-                    responseStatus2: 401
-                    responseStatus3: 404
                 - CatalogTraits.Unauthorized
                 - CatalogTraits.NotFound
               responses:
@@ -1904,7 +1856,7 @@ types:
 
               securedBy:
                 - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
-                - CommerceCloudStandards.AmOAuth2
+                - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
             patch:
               description: |-
                 Updates the category product assignment with the specified information, such as position. 
@@ -1918,10 +1870,6 @@ types:
                 If there are n existing positioned assignments, updating product to position >= n will end with a new assignment with a position such that the order of positions is maintained.
               displayName: updateProductCategoryAssignment
               is:
-                - CatalogTraits.RateLimited3:
-                    responseStatus: 200
-                    responseStatus2: 401
-                    responseStatus3: 404
                 - CatalogTraits.Unauthorized
                 - CatalogTraits.NotFound
               responses:
@@ -1940,7 +1888,7 @@ types:
                     body-example: !include Examples/catalogcategoryprodAssignment-body.raml
               securedBy:
                 - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
-                - CommerceCloudStandards.AmOAuth2
+                - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
             put:
               description: |-
                 Creates a category product assignment using the information provided. 
@@ -1955,11 +1903,6 @@ types:
                 with the new assignment with position n+1.
               displayName: assignProductToCategory
               is:
-                - CatalogTraits.RateLimited4:
-                    responseStatus: 201
-                    responseStatus2: 200
-                    responseStatus3: 401
-                    responseStatus4: 404
                 - CatalogTraits.Unauthorized
                 - CatalogTraits.NotFound
               responses:
@@ -1985,7 +1928,7 @@ types:
                     body-example: !include Examples/catalogcategoryprodAssignment-body.raml
               securedBy:
                 - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
-                - CommerceCloudStandards.AmOAuth2
+                - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
             uriParameters:
               productId:
                 description: The ID (SKU) of the requested product to assign.
@@ -1997,11 +1940,6 @@ types:
               description: Submits a job to evaluate or execute the rules. The evaluation returns a set of matching products based on the rules and conditions. The execution categorizes the products based on the evaluated results.
               displayName: runCategoryRules
               is:
-                - CatalogTraits.RateLimited4:
-                    responseStatus: 202
-                    responseStatus2: 400
-                    responseStatus3: 401
-                    responseStatus4: 404
                 - CatalogTraits.BadRequest
                 - CatalogTraits.Unauthorized
                 - CatalogTraits.NotFound            
@@ -2015,16 +1953,11 @@ types:
                     executionRequest: !include Examples/executionRequest.raml
               securedBy:
                 - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
-                - CommerceCloudStandards.AmOAuth2  
+                - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
             get:
               description: Gets the status of the latest categorization job which could be evaluation or execution. For evaluation, the matched count and a paginated list of product IDs are returned. For execution, the counts of the products which are assigned or unassigned are returned.
               displayName: getCategorizationStatus
               is:
-                - CatalogTraits.RateLimited4:
-                    responseStatus: 200
-                    responseStatus2: 400
-                    responseStatus3: 401
-                    responseStatus4: 404
                 - CatalogTraits.BadRequest
                 - CatalogTraits.Unauthorized
                 - CatalogTraits.JobExecutionNotFound
@@ -2040,17 +1973,12 @@ types:
                         executionJobStatusResponse: !include Examples/executionJobStatusResponse.raml
               securedBy:
                 - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
-                - CommerceCloudStandards.AmOAuth2   
+                - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
           /excluded-products:
             get:
               description: Gets the list of excluded products for a given catalog and category.
               displayName: getExclusionList
               is:
-                - CatalogTraits.RateLimited4:
-                    responseStatus: 200
-                    responseStatus2: 400
-                    responseStatus3: 401
-                    responseStatus4: 404
                 - CatalogTraits.BadRequest
                 - CatalogTraits.Unauthorized
                 - CatalogTraits.NotFound
@@ -2064,16 +1992,11 @@ types:
                         excludedProductResponse: !include Examples/getExcludedProducts.raml
               securedBy:
                   - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
-                  - CommerceCloudStandards.AmOAuth2
+                  - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
             post:
               description: Adds the product to the excluded product list for a given catalog and category. Once a product is added as an excluded product for the category, then the the categorization process does not categorize that product for that category.
               displayName: addProductsToExclusionList
               is:
-                - CatalogTraits.RateLimited4:
-                    responseStatus: 200
-                    responseStatus2: 400
-                    responseStatus3: 401
-                    responseStatus4: 404
                 - CatalogTraits.BadRequest
                 - CatalogTraits.Unauthorized
                 - CatalogTraits.NotFound            
@@ -2092,16 +2015,11 @@ types:
                     excludedProdRequest: !include Examples/excludedProductsRequest.raml
               securedBy:
                 - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
-                - CommerceCloudStandards.AmOAuth2
+                - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
             delete:
               description: Deletes products from the excluded products list for a catalog category.
               displayName: removeProductsFromExclusionList
-              is:
-                - CatalogTraits.RateLimited4:
-                    responseStatus: 204
-                    responseStatus2: 400
-                    responseStatus3: 401
-                    responseStatus4: 404                 
+              is:                 
                 - CatalogTraits.BadRequest
                 - CatalogTraits.Unauthorized
                 - CatalogTraits.RuleNotFound    
@@ -2115,17 +2033,12 @@ types:
                     excludedProdReq: !include Examples/excludedProductsRequest.raml
               securedBy:
                 - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
-                - CommerceCloudStandards.AmOAuth2                              
+                - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
           /rules:
             get:
               description: Gets all the rules for given catalog and category.
               displayName: getCategoryRules
               is:
-                - CatalogTraits.RateLimited4:
-                    responseStatus: 200
-                    responseStatus2: 400
-                    responseStatus3: 401
-                    responseStatus4: 404
                 - CatalogTraits.BadRequest
                 - CatalogTraits.Unauthorized
                 - CatalogTraits.NotFound
@@ -2139,16 +2052,11 @@ types:
                         rulesResponse: !include Examples/getRules.raml
               securedBy:
                   - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
-                  - CommerceCloudStandards.AmOAuth2
+                  - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
             delete:
               description: Deletes all the rules along with conditions for given catalog and category.
               displayName: deleteCategoryRules
-              is:
-                - CatalogTraits.RateLimited4:
-                    responseStatus: 204
-                    responseStatus2: 400
-                    responseStatus3: 401
-                    responseStatus4: 404                 
+              is:                
                 - CatalogTraits.BadRequest
                 - CatalogTraits.Unauthorized
                 - CatalogTraits.RuleNotFound    
@@ -2157,16 +2065,11 @@ types:
                   description: No Content
               securedBy:
                 - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
-                - CommerceCloudStandards.AmOAuth2
+                - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
             post:
               description: Creates all rules and conditions within the catalog and category. This deletes any existing rules and conditions for that catalog-category and recreates them based on the new request. The LocaleID, PrimaryFlag, and ClassificationFlag can be set on any of the individual rules, but they apply to entire ruleset.  For simplicity, those values can just be provided with one of the rules.  If they are provided with multiple rules, then they must all have the same value for all rules or it could have undesired effects.
               displayName: createCategoryRules
               is:
-                - CatalogTraits.RateLimited4:
-                    responseStatus: 200
-                    responseStatus2: 400
-                    responseStatus3: 401
-                    responseStatus4: 404
                 - CatalogTraits.BadRequest
                 - CatalogTraits.Unauthorized
                 - CatalogTraits.NotFound
@@ -2185,18 +2088,13 @@ types:
                     ruleBody: !include Examples/postRuleRequestBody.raml
               securedBy:
                 - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
-                - CommerceCloudStandards.AmOAuth2
+                - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
             
             /{ruleId}:
               get:
                 description: Gets rule by ID.
                 displayName: getRuleById
-                is:
-                  - CatalogTraits.RateLimited4:
-                      responseStatus: 200
-                      responseStatus2: 400
-                      responseStatus3: 401
-                      responseStatus4: 404                
+                is:               
                   - CatalogTraits.BadRequest
                   - CatalogTraits.Unauthorized
                   - CatalogTraits.RuleNotFound
@@ -2210,17 +2108,11 @@ types:
                           ruleResponse: !include Examples/getRulesByID.raml
                 securedBy:
                   - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
-                  - CommerceCloudStandards.AmOAuth2 
+                  - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
               put:
                 description: Creates or updates a rule.
                 displayName: createUpdateRule
                 is:
-                  - CatalogTraits.RateLimited5:
-                      responseStatus: 201
-                      responseStatus2: 400
-                      responseStatus3: 401
-                      responseStatus4: 200
-                      responseStatus5: 404
                   - CatalogTraits.BadRequest
                   - CatalogTraits.Unauthorized
                   - CatalogTraits.NotFound
@@ -2246,16 +2138,11 @@ types:
                       ruleBody: !include Examples/putRuleRequestBody.raml
                 securedBy:
                   - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
-                  - CommerceCloudStandards.AmOAuth2
+                  - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
               delete:
                 description: Deletes a rule.
                 displayName: deleteRule
-                is:
-                  - CatalogTraits.RateLimited4:
-                      responseStatus: 204
-                      responseStatus2: 400
-                      responseStatus3: 401
-                      responseStatus4: 404                 
+                is:              
                   - CatalogTraits.BadRequest
                   - CatalogTraits.Unauthorized
                   - CatalogTraits.RuleNotFound    
@@ -2264,7 +2151,7 @@ types:
                     description: No Content
                 securedBy:
                   - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
-                  - CommerceCloudStandards.AmOAuth2  
+                  - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
 
               uriParameters:
                 ruleId:
@@ -2276,11 +2163,6 @@ types:
                   description: Gets the conditions for a given rule, catalog and category.
                   displayName: getCategoryRuleConditions
                   is:
-                    - CatalogTraits.RateLimited4:
-                        responseStatus: 200
-                        responseStatus2: 400
-                        responseStatus3: 401
-                        responseStatus4: 404
                     - CatalogTraits.BadRequest
                     - CatalogTraits.Unauthorized
                     - CatalogTraits.NotFound
@@ -2294,16 +2176,11 @@ types:
                             conditionsResult: !include Examples/getConditions.raml
                   securedBy:
                   - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
-                  - CommerceCloudStandards.AmOAuth2
+                  - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
                 delete:
                   description: Deletes all the conditions for a given rule, catalog and category.
                   displayName: deleteCategoryRuleConditions
-                  is:
-                    - CatalogTraits.RateLimited4:
-                        responseStatus: 204
-                        responseStatus2: 400
-                        responseStatus3: 401
-                        responseStatus4: 404                 
+                  is:               
                     - CatalogTraits.BadRequest
                     - CatalogTraits.Unauthorized
                     - CatalogTraits.RuleNotFound    
@@ -2312,17 +2189,12 @@ types:
                       description: No Content
                   securedBy:
                     - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
-                    - CommerceCloudStandards.AmOAuth2
+                    - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
                 /{conditionId}:
                   get:
                     description: Gets a condition By ID.
                     displayName: getCategoryRuleCondition
                     is:
-                      - CatalogTraits.RateLimited4:
-                          responseStatus: 200
-                          responseStatus2: 400
-                          responseStatus3: 401
-                          responseStatus4: 404
                       - CatalogTraits.BadRequest
                       - CatalogTraits.Unauthorized
                       - CatalogTraits.NotFound
@@ -2336,17 +2208,11 @@ types:
                               conditionResponse: !include Examples/getConditionByID.raml
                     securedBy:
                       - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
-                      - CommerceCloudStandards.AmOAuth2
+                      - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
                   put:
                     description: Creates or updates a condition.
                     displayName: createOrUpdateCategoryRuleCondition
                     is:
-                      - CatalogTraits.RateLimited5:
-                          responseStatus: 201
-                          responseStatus2: 400
-                          responseStatus3: 401
-                          responseStatus4: 404
-                          responseStatus5: 200
                       - CatalogTraits.BadRequest
                       - CatalogTraits.Unauthorized
                       - CatalogTraits.NotFound
@@ -2372,16 +2238,11 @@ types:
                           conditionBody: !include Examples/putConditionRequestBody.raml
                     securedBy:
                       - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
-                      - CommerceCloudStandards.AmOAuth2
+                      - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
                   delete:
                     description: Deletes a condition.
                     displayName: deleteCategoryRuleCondition
                     is:
-                      - CatalogTraits.RateLimited4:
-                          responseStatus: 204
-                          responseStatus2: 400
-                          responseStatus3: 401
-                          responseStatus4: 404
                       - CatalogTraits.BadRequest
                       - CatalogTraits.Unauthorized
                       - CatalogTraits.RuleNotFound       
@@ -2390,7 +2251,7 @@ types:
                         description: No Content
                     securedBy:
                       - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
-                      - CommerceCloudStandards.AmOAuth2 
+                      - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
                   uriParameters:
                     conditionId:
                       description: The Id of the condition.
@@ -2431,11 +2292,6 @@ types:
             
           displayName: searchCategoriesInCatalog
           is:
-            - CatalogTraits.RateLimited4:
-                responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 401 
-                responseStatus4: 404
             - CatalogTraits.Unauthorized
             - CatalogTraits.BadRequest
             - CatalogTraits.NotFound
@@ -2446,8 +2302,7 @@ types:
                 application/json:
                   type: CategorySearchResult
                   examples:
-                    result: !include Examples/catalog-search-result.raml
-
+                    result: !include Examples/category_search-result-example.raml
           queryParameters:
             levels:
               description: The level number.
@@ -2463,7 +2318,7 @@ types:
                     result: !include Examples/catalog-search-body.raml
           securedBy:
             - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
   /catalog-search:
     post:
       description: |-
@@ -2505,11 +2360,6 @@ types:
         
       displayName: searchCatalogs
       is:
-        - CatalogTraits.RateLimited4:
-            responseStatus: 200
-            responseStatus2: 400
-            responseStatus3: 401 
-            responseStatus4: 404 
         - CatalogTraits.Unauthorized
         - CatalogTraits.BadRequest
         - CatalogTraits.NotFound
@@ -2529,7 +2379,7 @@ types:
             catalog-search-body: !include Examples/catalog-search-body-query.raml
       securedBy:
         - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
-        - CommerceCloudStandards.AmOAuth2
+        - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
   /category-search:
     post:
       description: |-
@@ -2571,11 +2421,6 @@ types:
           required: false
           example: 0      
       is:
-        - CatalogTraits.RateLimited4:
-            responseStatus: 200
-            responseStatus2: 400
-            responseStatus3: 401 
-            responseStatus4: 404
         - CatalogTraits.BadRequest
         - CatalogTraits.NotFound
         - CatalogTraits.Unauthorized
@@ -2599,4 +2444,4 @@ types:
             body : !include Examples/category_search-body-example.raml
       securedBy:
         - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
-        - CommerceCloudStandards.AmOAuth2
+        - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }

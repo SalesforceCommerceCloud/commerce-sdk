@@ -15,7 +15,7 @@ description: !include shopper-customers-description.md
 uses:
   ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
   CustomerTraits: Customer-traits-library.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.24/commerce-cloud-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.0/commerce-cloud-standards.raml
 
 types:
   AuthRequest:
@@ -108,6 +108,14 @@ types:
         items:
           type: GiftCertificateItem
         required: false
+      groupedTaxItems?:
+        description: |-
+          Tax values that are grouped and summed based on the tax rate. The tax totals of the line items with the same
+          tax rate are grouped together and summed up. This does not affect the calculation in any way. It is read only.
+        type:
+          array
+        items:
+          type: GroupedTaxItem
       inventoryReservationExpiry:
         description: Date on which the inventory reservation for this basket expires.
         type: datetime
@@ -161,7 +169,7 @@ types:
         example: 150.99
       productTotal:
         description: |-
-          The total price of all product items after all product and order discounts.
+          The total price of all product items after all product and order discounts
 
           Depending on taxation policy, the returned price is net or gross.
         type: number
@@ -207,7 +215,19 @@ types:
           - gross
           - net
         example: net
-
+      taxRoundedAtGroup?:
+        description: |-
+          If the tax is rounded at the group level, this is set to true. If the tax is rounded at the item or unit level, 
+          it is set to  false. It is read only.
+        type: boolean
+        example:
+          true
+      temporaryBasket?:
+        description: |-
+          If the created basket is a temporary basket, this is set to true. Otherwise, it is set to false. It is read only.
+        type: boolean
+        example:
+          true
   BasketsResult:
     description: Result document containing an array of baskets.
     properties:
@@ -349,6 +369,10 @@ types:
         type: string
         required: false
         example: "D0000123"
+      currentPassword:
+        description: The shopper's current password. This is only used when attempting to update a shopper's `loginId` in a PATCH call. This value is never returned in any response for security reasons, but is validated and must match shopper's existing password in order to update `loginId`. Otherwise, an HTTP 400 statusCode is returned and the `loginId` is not updated. This field and functionality is available with B2C Commerce version 24.7.
+        type: string
+        required: false
       email:
         description: The customer's email address.
         maxLength: 256
@@ -406,7 +430,7 @@ types:
         required: false
         example: 9999-12-31T00:00:00.0Z
       login:
-        description: The customer's login.
+        description: The customer's login. In a PATCH call, this field can only be updated by providing a valid `currentPassword` for the shopper. The `loginId` update feature is available with B2C Commerce version 24.7.
         maxLength: 256
         type: string
         required: false
@@ -745,18 +769,22 @@ types:
       paymentBankAccount:
         description: The payment bank account.
         type: PaymentBankAccount
+        required: false
       paymentCard:
         description: The payment card.
         type: PaymentCard
+        required: false
       paymentInstrumentId:
         description: The payment instrument ID.
         type: string
         example: "Personal"
+        required: false
       paymentMethodId:
         description: The payment method ID. Optional if a customer payment instrument ID is specified.
         maxLength: 256
         type: string
         example: "Personal"
+        required: false
   CustomerPaymentInstrumentRequest:
     description: Document representing a customer payment instrument request.
     properties:
@@ -765,11 +793,13 @@ types:
         maxLength: 256
         type: string
         example: "AB123"
+        required: false
       giftCertificateCode:
         description: The gift certificate code.
         maxLength: 256
         type: string
         example: "gift-code"
+        required: false
       paymentBankAccount:
         description: The payment bank account request data.
         type: PaymentBankAccountRequest
@@ -777,11 +807,13 @@ types:
       paymentCard:
         description: The customer payment card.
         type: CustomerPaymentCardRequest
+        required: false
       paymentMethodId:
         description: The payment method ID. Optional if a customer payment instrument ID is specified.
         maxLength: 256
         type: string
         example: "Credit Card"
+        required: false
   Discount:
     description: Document representing a discount that was applied to the price.
     properties:
@@ -1054,6 +1086,24 @@ types:
         type: string
         required: false
         example: "Express"
+  GroupedTaxItem:
+    description: |-
+      Document representing the grouped tax item.
+    type: 
+      CommerceCloudStandards.ClosedObject
+    properties:
+      taxRate?:
+        description: |-
+          The tax rate. It is read only.
+        type: number
+        format: double
+        example: 0.10
+      taxValue?:
+        description: |-
+          The summed up tax total for the tax rate. It is read only.
+        type: number
+        format: double
+        example: 10.03
   Image:
     description: Image of the product within a customer's productList.
     properties:
@@ -3321,16 +3371,10 @@ types:
   type: CommerceCloudStandards.Organization
   /customers:
     post:
-      description: Registers a new customer. The mandatory data are the credentials, profile last name, and email. This requires a JSON Web Token (JWT) which needs to be obtained using the POST /customers/auth API with type "guest", or from the Shopper Login (SLAS) API.
+      description: Registers a new customer. The mandatory data are the credentials, profile last name, and email. This requires a JSON Web Token (JWT) which needs to be obtained using the POST /customers/auth API with type "guest", or from the Shopper Login (SLAS) API. The return type object for this endpoint is a common customer object shared by multiple Shopper Customer endpoints. In this case, all customer object details are returned, but attributes that are not included in the response, although they might be part of the customer object, are ignored. For example, although address information is included in the customer object, it is not displayed in the response for this endpoint and is ignored.
       displayName: registerCustomer
       is:
         - CommerceCloudStandards.SiteSpecific:
-        - ApiStandards.RateLimited:
-            responseStatus: 200
-        - ApiStandards.RateLimited:
-            responseStatus: 400
-        - ApiStandards.RateLimited:
-            responseStatus: 401
         - CustomerTraits.BadRequest
         - CustomerTraits.CustomerAuthenticationFailed
       responses:
@@ -3347,136 +3391,6 @@ types:
           example: !include Examples/CustomerRegistrationRequest.raml
       securedBy:
         - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-customers.register] }
-    /actions:
-      /logout:
-        delete:
-          description: |-
-            🚨 **DEPRECATION NOTICE**
-
-            To enhance the security and availability of Salesforce services, this endpoint is now **deprecated**, and **we plan to remove it in mid-2022**. This endpoint is not available to new customers, and we discourage existing customers from using it. Instead, we strongly recommend using the endpoints of the [Shopper Login and API Access Service](https://developer.salesforce.com/docs/commerce/commerce-api/references?meta=shopper-login:Summary) (SLAS) because they meet our rigorous standards for security and availability.
-
-            ---
-
-            Log the user out.
-          displayName: invalidateCustomerAuth
-          is:
-            - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited:
-                responseStatus: 204
-          responses:
-            "204":
-              description: No Content
-          securedBy:
-            - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-customers.login] }
-      /login:
-        post:
-          description: |-
-            🚨 **DEPRECATION NOTICE**
-
-            To enhance the security and availability of Salesforce services, this endpoint is now **deprecated**, and **we plan to remove it in mid-2022**. This endpoint is not available to new customers, and we discourage existing customers from using it. Instead, we strongly recommend using the endpoints of the [Shopper Login and API Access Service](https://developer.salesforce.com/docs/commerce/commerce-api/references?meta=shopper-login:Summary) (SLAS) because they meet our rigorous standards for security and availability.
-
-            ---
-
-            Obtains a new JSON Web Token (JWT) for a guest or registered
-            customer. Tokens are returned as an HTTP `Authorization: Bearer` response
-            header entry. The following kinds of request are supported, as specified by the
-            `type`:
-
-            - `{"type": "guest"}` → Creates a guest (non-authenticated) customer and returns a token for the customer.
-            - `{"type": "credentials"}` → Authenticates credentials passed in the `HTTP Authorization: Basic` request header and returns a token for a successfully authenticated customer (otherwise, it throws an `AuthenticationFailedException`). This type of request also updates profile attributes for the customer (for example, `last-visited`) and handles the maximum number of failed login attempts.
-            - `{"type": "refresh"}` → Examines the token passed in the `HTTP Authorization: Bearer` request header. If valid, a new token is returned with an updated expiry time.
-
-            The JWT contains 3 sections:
-
-            1. Header: Specifies token type and algorithm used.
-            2. Payload: Contains customer information, client ID, issue, and expiration time.
-            3. Signature: Records the token signature.
-
-            A token is created and returned to the client whenever a registered customer logs in (`credentials` type) or a guest customer requests it (`guest` type). The token is returned in the response header as `Authorization: Bearer --token--`.
-
-            The client has to include the token in the request header as `Authorization: Bearer --token--` in any follow-up request. The server declines any follow-up requests without a token. The server declines any requests that cannot be verified based on the token signature or expiration time. A token nearing its expiration time should be exchanged for a new one (`refresh` type).
-          displayName: authorizeCustomer
-          is:
-            - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited:
-                responseStatus: 200
-            - ApiStandards.RateLimited:
-                responseStatus: 400
-            - ApiStandards.RateLimited:
-                responseStatus: 401
-            - CustomerTraits.BadRequest
-            - CustomerTraits.CustomerAuthenticationFailed
-          responses:
-            "200":
-              headers:
-                authorization:
-                  type: string
-                  example: "Bearer eyJfdiI6IjEiLCJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfdiI6IjEiLCJleHAiOjE1ODE3MTM4MzYsImlhdCI6MTU4MTcxMjAzNiwiaXNzIjoiZjY2ZjBlNGYtZmE0NC00MWViLTliMzUtODlkZTllZTY3ZTcxIiwic3ViIjoie1wiX3ZcIjpcIjFcIixcImN1c3RvbWVyX2luZm9cIjp7XCJjdXN0b21lcl9pZFwiOlwiYmRScUlHTzdYeVFZR1JjTTlhbThKQTBHYWJcIixcImd1ZXN0XCI6dHJ1ZX19In0.dl8XgldAVo8SGRDrrSAdnbD_tnRnfYwIrohjhsPW78JsdfsgTif2kukQqnB74RgKHRx6U5CTBee8ktTVwqnmtguRTy6Zh6rbi49JGjiXOvrVFjcqaztf64RUB41sWgQuORV30ic8a5D2bQta-TfsiCZTCBbXaKSnJCcdLdvbxTuppzLF0fW-yzpLi4caFUidewTrFoFBUj7M4UpF2gd0DtJhX2YEJCTn5jA4y-ue4oY7Vcp6Y2NpG_mOX_gOmYm_m7hJzKuY4zU90SGc-GYkbBKfRPK3GthTr0LNXVsknydirpsZDI1hlBjrCxNz689-ogulwX0CfkFVMfuEEr9Ac89UqOyfYkFg6VJ42htDRGVRpZR9T5sG6g49jnvkS9U-3-RoGsk4N6kLozoGuuA2mwZbgOr9uPQAHTGMF4XbA_zjhU62q4xiRFJs-L-ZpRyQfmjy50vHCU9wuriBAdc5zDJo7hjNMQSmsJGA774WTDA"
-              description: Success
-              body:
-                application/json:
-                  type: Customer
-                  examples:
-                    customer: !include Examples/guestAuthResponse.raml
-          headers:
-            Authorization:
-              description: |-
-                Use `Authorization:Basic` for type `credentials` and use
-                `Authorization:Bearer` for type `refresh`
-              type: string
-              required: false
-          queryParameters:
-            clientId:
-              type: string
-              description: Client ID for application identification
-              required: true
-              example: "f45f0e4f-fa44-63gh-9b35-91dc1dd78e82"
-          body:
-            application/json:
-              type: AuthRequest
-              example: {"type": "guest"}
-    /trusted-system/actions/login:
-      post:
-        description: |-
-          🚨 **DEPRECATION NOTICE**
-
-          To enhance the security and availability of Salesforce services, this endpoint is now **deprecated**, and **we plan to remove it in mid-2022**. This endpoint is not available to new customers, and we discourage existing customers from using it. Instead, we strongly recommend using the endpoints of the [Shopper Login and API Access Service](https://developer.salesforce.com/docs/commerce/commerce-api/references?meta=shopper-login:Summary) (SLAS) because they meet our rigorous standards for security and availability.
-
-          ---
-
-          Obtain the JSON Web Token (JWT) for registered customers whose credentials are stored using a third party system. Accepts `loginId` and 
-          `clientId`, returns a customer object in the response body and the JWT generated against the `clientId` in the response header.
-        displayName: authorizeTrustedSystem
-        is:
-          - CommerceCloudStandards.SiteSpecific:
-          - ApiStandards.RateLimited:
-              responseStatus: 200
-          - ApiStandards.RateLimited:
-              responseStatus: 401
-          - CustomerTraits.CustomerAuthenticationFailed
-        responses:
-          "200":
-            headers:
-              authorization:
-                type: string
-                example: "Bearer eyJfdiI6IjEiLCJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfdiI6IjEiLCJleHAiOjE1ODE3MTM4MzYsImlhdCI6MTU4MTcxMjAzNiwiaXNzIjoiZjY2ZjBlNGYtZmE0NC00MWViLTliMzUtODlkZTllZTY3ZTcxIiwic3ViIjoie1wiX3ZcIjpcIjFcIixcImN1c3RvbWVyX2luZm9cIjp7XCJjdXN0b21lcl9pZFwiOlwiYmRScUlHTzdYeVFZR1JjTTlhbThKQTBHYWJcIixcImd1ZXN0XCI6dHJ1ZX19In0.dl8XgldAVo8SGRDrrSAdnbD_tnRnfYwIrohjhsPW78JsdfsgTif2kukQqnB74RgKHRx6U5CTBee8ktTVwqnmtguRTy6Zh6rbi49JGjiXOvrVFjcqaztf64RUB41sWgQuORV30ic8a5D2bQta-TfsiCZTCBbXaKSnJCcdLdvbxTuppzLF0fW-yzpLi4caFUidewTrFoFBUj7M4UpF2gd0DtJhX2YEJCTn5jA4y-ue4oY7Vcp6Y2NpG_mOX_gOmYm_m7hJzKuY4zU90SGc-GYkbBKfRPK3GthTr0LNXVsknydirpsZDI1hlBjrCxNz689-ogulwX0CfkFVMfuEEr9Ac89UqOyfYkFg6VJ42htDRGVRpZR9T5sG6g49jnvkS9U-3-RoGsk4N6kLozoGuuA2mwZbgOr9uPQAHTGMF4XbA_zjhU62q4xiRFJs-L-ZpRyQfmjy50vHCU9wuriBAdc5zDJo7hjNMQSmsJGA774WTDA"
-            description: Success
-            body:
-              application/json:
-                type: Customer
-                examples:
-                  customer: !include Examples/TrustedAuthResponse.raml
-        securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.shopper-customers.login] }
-          - CommerceCloudStandards.AmOAuth2
-        body:
-          application/json:
-            type: TrustedSystemAuthRequest
-            example:
-              {
-                "login": "f0a43dc2-692a-43bf-b008-e10918ea935d",
-                "clientId": "abdtkZzH6sqInJGIHNR1yUw90A"
-              }
     /password/actions:
       /reset:
         post:
@@ -3484,17 +3398,12 @@ types:
           displayName: resetPassword
           is:
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited:
-                responseStatus: 204
-            - ApiStandards.RateLimited:
-                responseStatus: 400
             - CustomerTraits.BadRequest
           responses:
             "204":
               description: Reset password successful. No Content
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.shopper-customers.login] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.shopper-customers.login] }
           body:
             application/json:
               type: ResetPasswordRequest
@@ -3505,10 +3414,6 @@ types:
           displayName: getResetPasswordToken
           is:
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited:
-                responseStatus: 200
-            - ApiStandards.RateLimited:
-                responseStatus: 400
             - CustomerTraits.BadRequest
           responses:
             "200":
@@ -3518,8 +3423,7 @@ types:
                   type: ResetPasswordToken
                   example: !include Examples/ResetTokenResult.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.shopper-customers.login] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.shopper-customers.login] }
           body:
             application/json:
               type: ResetPasswordTokenRequest
@@ -3530,12 +3434,6 @@ types:
         displayName: registerExternalProfile
         is:
           - CommerceCloudStandards.SiteSpecific:
-          - ApiStandards.RateLimited:
-              responseStatus: 200
-          - ApiStandards.RateLimited:
-              responseStatus: 400
-          - ApiStandards.RateLimited:
-              responseStatus: 401
           - CustomerTraits.BadRequest
           - CustomerTraits.CustomerAuthenticationFailed
         responses:
@@ -3556,12 +3454,6 @@ types:
         displayName: getExternalProfile
         is:
           - CommerceCloudStandards.SiteSpecific:
-          - ApiStandards.RateLimited:
-              responseStatus: 200
-          - ApiStandards.RateLimited:
-              responseStatus: 400
-          - ApiStandards.RateLimited:
-              responseStatus: 404
           - CustomerTraits.CustomerExtProfileBadRequest
           - CustomerTraits.CustomerExtProfileNotFound
         queryParameters:
@@ -3585,8 +3477,7 @@ types:
                 type: CustomerExternalProfile
                 example: !include Examples/CustomerExternalProfile.raml
         securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.shopper-customers.login] }
-          - CommerceCloudStandards.AmOAuth2
+          - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.shopper-customers.login] }
 
     /{customerId}:
       get:
@@ -3594,12 +3485,6 @@ types:
         displayName: getCustomer
         is:
           - CommerceCloudStandards.SiteSpecific:
-          - ApiStandards.RateLimited:
-              responseStatus: 200
-          - ApiStandards.RateLimited:
-              responseStatus: 400
-          - ApiStandards.RateLimited:
-              responseStatus: 404
           - CustomerTraits.BadRequest
           - CustomerTraits.NotFound
         responses:
@@ -3616,12 +3501,6 @@ types:
         displayName: updateCustomer
         is:
           - CommerceCloudStandards.SiteSpecific:
-          - ApiStandards.RateLimited:
-              responseStatus: 200
-          - ApiStandards.RateLimited:
-              responseStatus: 400
-          - ApiStandards.RateLimited:
-              responseStatus: 404
           - CustomerTraits.BadRequest
           - CustomerTraits.NotFound
         responses:
@@ -3651,12 +3530,6 @@ types:
           displayName: createCustomerAddress
           is:
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited:
-                responseStatus: 200
-            - ApiStandards.RateLimited:
-                responseStatus: 400
-            - ApiStandards.RateLimited:
-                responseStatus: 404
             - CustomerTraits.BadRequest
             - CustomerTraits.NotFound
           responses:
@@ -3680,12 +3553,6 @@ types:
             displayName: getCustomerAddress
             is:
               - CommerceCloudStandards.SiteSpecific:
-              - ApiStandards.RateLimited:
-                  responseStatus: 200
-              - ApiStandards.RateLimited:
-                  responseStatus: 400
-              - ApiStandards.RateLimited:
-                  responseStatus: 404
               - CustomerTraits.BadRequest
               - CustomerTraits.NotFound
             responses:
@@ -3703,12 +3570,6 @@ types:
             displayName: removeCustomerAddress
             is:
               - CommerceCloudStandards.SiteSpecific:
-              - ApiStandards.RateLimited:
-                  responseStatus: 204
-              - ApiStandards.RateLimited:
-                  responseStatus: 400
-              - ApiStandards.RateLimited:
-                  responseStatus: 404
               - CustomerTraits.BadRequest
               - CustomerTraits.NotFound
             responses:
@@ -3721,12 +3582,6 @@ types:
             displayName: updateCustomerAddress
             is:
               - CommerceCloudStandards.SiteSpecific:
-              - ApiStandards.RateLimited:
-                  responseStatus: 200
-              - ApiStandards.RateLimited:
-                  responseStatus: 400
-              - ApiStandards.RateLimited:
-                  responseStatus: 404
               - CustomerTraits.BadRequest
               - CustomerTraits.NotFound
             responses:
@@ -3758,12 +3613,6 @@ types:
           displayName: getCustomerBaskets
           is:
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited:
-                responseStatus: 200
-            - ApiStandards.RateLimited:
-                responseStatus: 400
-            - ApiStandards.RateLimited:
-                responseStatus: 404
             - CustomerTraits.BadRequest
             - CustomerTraits.NotFound
           responses:
@@ -3775,19 +3624,13 @@ types:
                   examples:
                     basketsResult: !include Examples/CustomerBasketsResult.raml
           securedBy:
-            - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-myaccount.baskets] }
+            - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-myaccount.baskets] }            
       /orders:
         get:
           description: Returns a pageable list of all customer's orders. The default page size is 10. This endpoint accepts a registered customer ShopperToken (JWT) or a guest customer ShopperToken.
           displayName: getCustomerOrders
           is:
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited:
-                responseStatus: 200
-            - ApiStandards.RateLimited:
-                responseStatus: 400
-            - ApiStandards.RateLimited:
-                responseStatus: 404
             - CustomerTraits.BadRequest
             - CustomerTraits.NotFound
             - CustomerTraits.OffsetPaginated:
@@ -3795,6 +3638,7 @@ types:
                 defaultSize: 10
           queryParameters:
             crossSites:
+              description: The flag indicating whether all sites should be searched. This flag is ignored unless a valid User / Agent is present with a trusted agent on behalf (TAOB) token. Without a TAOB token, only the customer's orders placed on the site specified by siteId are returned.
               type: boolean
               required: false
               example: false
@@ -3826,12 +3670,6 @@ types:
           displayName: updateCustomerPassword
           is:
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited:
-                responseStatus: 204
-            - ApiStandards.RateLimited:
-                responseStatus: 400
-            - ApiStandards.RateLimited:
-                responseStatus: 404
             - CustomerTraits.BadRequest
             - CustomerTraits.NotFound
           responses:
@@ -3849,12 +3687,6 @@ types:
           displayName: createCustomerPaymentInstrument
           is:
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited:
-                responseStatus: 200
-            - ApiStandards.RateLimited:
-                responseStatus: 400
-            - ApiStandards.RateLimited:
-                responseStatus: 404
             - CustomerTraits.BadRequest
             - CustomerTraits.NotFound
           responses:
@@ -3878,12 +3710,6 @@ types:
             displayName: deleteCustomerPaymentInstrument
             is:
               - CommerceCloudStandards.SiteSpecific:
-              - ApiStandards.RateLimited:
-                  responseStatus: 204
-              - ApiStandards.RateLimited:
-                  responseStatus: 400
-              - ApiStandards.RateLimited:
-                  responseStatus: 404
               - CustomerTraits.BadRequest
               - CustomerTraits.NotFound
             responses:
@@ -3896,12 +3722,6 @@ types:
             displayName: getCustomerPaymentInstrument
             is:
               - CommerceCloudStandards.SiteSpecific:
-              - ApiStandards.RateLimited:
-                  responseStatus: 200
-              - ApiStandards.RateLimited:
-                  responseStatus: 400
-              - ApiStandards.RateLimited:
-                  responseStatus: 404
               - CustomerTraits.BadRequest
               - CustomerTraits.NotFound
             responses:
@@ -3925,12 +3745,6 @@ types:
           displayName: getCustomerProductLists
           is:
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited:
-                responseStatus: 200
-            - ApiStandards.RateLimited:
-                responseStatus: 400
-            - ApiStandards.RateLimited:
-                responseStatus: 404
             - CustomerTraits.BadRequest
             - CustomerTraits.NotFound
           responses:
@@ -3948,12 +3762,6 @@ types:
           displayName: createCustomerProductList
           is:
             - CommerceCloudStandards.SiteSpecific:
-            - ApiStandards.RateLimited:
-                responseStatus: 200
-            - ApiStandards.RateLimited:
-                responseStatus: 400
-            - ApiStandards.RateLimited:
-                responseStatus: 404
             - CustomerTraits.BadRequest
             - CustomerTraits.NotFound
           responses:
@@ -3977,12 +3785,6 @@ types:
             displayName: deleteCustomerProductList
             is:
               - CommerceCloudStandards.SiteSpecific:
-              - ApiStandards.RateLimited:
-                  responseStatus: 204
-              - ApiStandards.RateLimited:
-                  responseStatus: 400
-              - ApiStandards.RateLimited:
-                  responseStatus: 404
               - CustomerTraits.BadRequest
               - CustomerTraits.NotFound
             responses:
@@ -3995,12 +3797,6 @@ types:
             displayName: getCustomerProductList
             is:
               - CommerceCloudStandards.SiteSpecific:
-              - ApiStandards.RateLimited:
-                  responseStatus: 200
-              - ApiStandards.RateLimited:
-                  responseStatus: 400
-              - ApiStandards.RateLimited:
-                  responseStatus: 404
               - CustomerTraits.BadRequest
               - CustomerTraits.NotFound
             responses:
@@ -4018,12 +3814,6 @@ types:
             displayName: updateCustomerProductList
             is:
               - CommerceCloudStandards.SiteSpecific:
-              - ApiStandards.RateLimited:
-                  responseStatus: 200
-              - ApiStandards.RateLimited:
-                  responseStatus: 400
-              - ApiStandards.RateLimited:
-                  responseStatus: 404
               - CustomerTraits.BadRequest
               - CustomerTraits.NotFound
             responses:
@@ -4065,12 +3855,6 @@ types:
               displayName: createCustomerProductListItem
               is:
                 - CommerceCloudStandards.SiteSpecific:
-                - ApiStandards.RateLimited:
-                    responseStatus: 200
-                - ApiStandards.RateLimited:
-                    responseStatus: 400
-                - ApiStandards.RateLimited:
-                    responseStatus: 404
                 - CustomerTraits.BadRequest
                 - CustomerTraits.NotFound
               responses:
@@ -4094,10 +3878,6 @@ types:
                 displayName: deleteCustomerProductListItem
                 is:
                   - CommerceCloudStandards.SiteSpecific:
-                  - ApiStandards.RateLimited:
-                      responseStatus: 204
-                  - ApiStandards.RateLimited:
-                      responseStatus: 404
                   - CustomerTraits.NotFound
                 responses:
                   "204":
@@ -4109,12 +3889,6 @@ types:
                 displayName: getCustomerProductListItem
                 is:
                   - CommerceCloudStandards.SiteSpecific:
-                  - ApiStandards.RateLimited:
-                      responseStatus: 200
-                  - ApiStandards.RateLimited:
-                      responseStatus: 400
-                  - ApiStandards.RateLimited:
-                      responseStatus: 404
                   - CustomerTraits.BadRequest
                   - CustomerTraits.NotFound
                 responses:
@@ -4142,10 +3916,6 @@ types:
                 displayName: updateCustomerProductListItem
                 is:
                   - CommerceCloudStandards.SiteSpecific:
-                  - ApiStandards.RateLimited:
-                      responseStatus: 200
-                  - ApiStandards.RateLimited:
-                      responseStatus: 404
                   - CustomerTraits.NotFound
                 responses:
                   "200":
@@ -4189,14 +3959,6 @@ types:
           example: Smith
       is:
         - CommerceCloudStandards.SiteSpecific:
-        - ApiStandards.RateLimited:
-            responseStatus: 200
-        - ApiStandards.RateLimited:
-            responseStatus: 400
-        - ApiStandards.RateLimited:
-            responseStatus: 401
-        - ApiStandards.RateLimited:
-            responseStatus: 404
         - CustomerTraits.BadRequest
         - CustomerTraits.NotFound
         - CustomerTraits.Unauthorized
@@ -4216,14 +3978,6 @@ types:
         displayName: getPublicProductList
         is:
           - CommerceCloudStandards.SiteSpecific:
-          - ApiStandards.RateLimited:
-              responseStatus: 200
-          - ApiStandards.RateLimited:
-              responseStatus: 400
-          - ApiStandards.RateLimited:
-              responseStatus: 401
-          - ApiStandards.RateLimited:
-              responseStatus: 404
           - CustomerTraits.BadRequest
           - CustomerTraits.NotFound
           - CustomerTraits.Unauthorized
@@ -4259,14 +4013,6 @@ types:
                       PublicProductListItem: !include Examples/PublicProductListItem.raml
             is:
               - CommerceCloudStandards.SiteSpecific:
-              - ApiStandards.RateLimited:
-                  responseStatus: 200
-              - ApiStandards.RateLimited:
-                  responseStatus: 400
-              - ApiStandards.RateLimited:
-                  responseStatus: 401
-              - ApiStandards.RateLimited:
-                  responseStatus: 404
               - CustomerTraits.BadRequest
               - CustomerTraits.NotFound
               - CustomerTraits.Unauthorized

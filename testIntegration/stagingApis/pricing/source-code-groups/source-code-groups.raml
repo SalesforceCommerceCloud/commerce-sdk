@@ -13,8 +13,8 @@ description: !include source-code-groups-description.md
 
 uses:
   SourceCodeGroupTraits: data-source-code-group-traits-library.raml
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.13/api-standards.raml
-  CommerceCloudStandards:  exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.20/commerce-cloud-standards.raml  
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
+  CommerceCloudStandards:  exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.24/commerce-cloud-standards.raml  
 
 types:
   SourceCodeGroup:
@@ -132,24 +132,18 @@ types:
     displayName: deleteSourceCodeGroup
     is:
      - CommerceCloudStandards.SiteSpecific
-     - ApiStandards.RateLimited:
-          responseStatus: 204
     responses:
       '204':
         description: API returned successfully.
     securedBy:
       - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.source-codes.rw ] }
-      - CommerceCloudStandards.AmOAuth2
+      - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.source-codes.rw ] }
   get:
     description: Action to retrieve source code group information.
     displayName: getSourceCodeGroup
     is:
       - SourceCodeGroupTraits.SourceCodeGroupNotFound
       - CommerceCloudStandards.SiteSpecific
-      - ApiStandards.RateLimited:
-            responseStatus: 200
-      - ApiStandards.RateLimited:      
-            responseStatus: 404
     responses:
       '200':
         description: API returned successfully.
@@ -159,17 +153,13 @@ types:
             example: !include Examples/get_source_code_groups_id.raml
     securedBy:
       - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.source-codes, sfcc.source-codes.rw ] }
-      - CommerceCloudStandards.AmOAuth2
+      - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.source-codes, sfcc.source-codes.rw ] }
   patch:
     description: Updates the source code group with the specified information.
     displayName: updateSourceCodeGroup
     is:
       - SourceCodeGroupTraits.SourceCodeGroupNotFound
       - CommerceCloudStandards.SiteSpecific
-      - ApiStandards.RateLimited:
-            responseStatus: 200
-      - ApiStandards.RateLimited:      
-            responseStatus: 404
     responses:
       '200':
         description: API returned successfully.
@@ -182,7 +172,7 @@ types:
         type: SourceCodeGroup
     securedBy:
       - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.source-codes.rw ] }
-      - CommerceCloudStandards.AmOAuth2
+      - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.source-codes.rw ] }
   put:
     description: Creates a source code group using the information provided.
     displayName: createSourceCodeGroup
@@ -190,10 +180,6 @@ types:
       - SourceCodeGroupTraits.SourceCodeGroupInvalid
       - SourceCodeGroupTraits.IdConflict
       - CommerceCloudStandards.SiteSpecific
-      - ApiStandards.RateLimited:
-            responseStatus: 200
-      - ApiStandards.RateLimited:      
-            responseStatus: 400
     responses:
       '200':
         description: API returned successfully.
@@ -207,7 +193,7 @@ types:
         type: SourceCodeGroup
     securedBy:
       - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.source-codes.rw ] }
-      - CommerceCloudStandards.AmOAuth2
+      - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.source-codes.rw ] }
   uriParameters:
     id:
       description: The ID of the source code group to create.
@@ -234,7 +220,7 @@ types:
         | active | Boolean |
         
       The sourceCode and active fields can only be used in Queries as conjunctions (using AND). If the field is used in a disjunction
-      (OR) an exception will be thrown.
+      (OR) an exception will be thrown. 
       
       The output of the query can also be sorted, with the following sortable attributes:
         
@@ -248,10 +234,6 @@ types:
     is:
       - SourceCodeGroupTraits.InvalidQuery
       - CommerceCloudStandards.SiteSpecific
-      - ApiStandards.RateLimited:
-            responseStatus: 200
-      - ApiStandards.RateLimited:      
-            responseStatus: 400
     responses:
       '200':
         description: The API executed successfully.
@@ -267,4 +249,4 @@ types:
         type: CommerceCloudStandards.SearchRequest
     securedBy:
       - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.source-codes, sfcc.source-codes.rw ] }
-      - CommerceCloudStandards.AmOAuth2
+      - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.source-codes, sfcc.source-codes.rw ] }

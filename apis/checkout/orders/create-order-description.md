@@ -12,6 +12,8 @@ Other than the Basket API, this endpoint decouples any relation to other system 
 
 The order isn't treated differently than any other orders in the Commerce Cloud platform, and any status updates or order exports behave the same.
 
+**Note**: For the custom attribute to be available for orders, configure it in Business Manager for both Basket and Order objects.
+
 **Important**: This endpoint uses the `ShopperTokenTsob` security scheme. Always check the Security section of the endpoint documentation, which is hidden by default.
 
 ## Preconditions

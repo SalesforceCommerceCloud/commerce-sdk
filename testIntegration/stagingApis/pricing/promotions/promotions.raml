@@ -13,8 +13,8 @@ description: !include promotions-description.md
 
 uses:
     DataPromotionTraits: promotions-traits-library.raml
-    ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.13/api-standards.raml
-    CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.20/commerce-cloud-standards.raml
+    ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
+    CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.24/commerce-cloud-standards.raml
 
 types:
   Campaign:
@@ -381,11 +381,6 @@ types:
           | promotionClass | String |
 
       displayName: promotionsSearch
-      is:
-        - ApiStandards.RateLimited:
-            responseStatus: 200
-        - ApiStandards.RateLimited:    
-            responseStatus: 400
       responses:
         '200':
           description: Search promotions successfully.
@@ -399,7 +394,7 @@ types:
           type: CommerceCloudStandards.SearchRequest
       securedBy:
         - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
-        - CommerceCloudStandards.AmOAuth2
+        - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
     '/{id}':
       is:
         - CommerceCloudStandards.SiteSpecific
@@ -414,24 +409,17 @@ types:
       delete:
           description: Deletes the promotion by ID.
           displayName: deletePromotion  
-          is:
-            - ApiStandards.RateLimited:
-                responseStatus: 204
           responses:
             '204':
               description: Deleted the promotion successfully.
           securedBy:
             - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions.rw ] }
       get:
           description: Action to get promotion information.
           displayName: getPromotion
           is:
             - DataPromotionTraits.PromotionNotFound:
-            - ApiStandards.RateLimited:
-                responseStatus: 200
-            - ApiStandards.RateLimited:    
-                responseStatus: 404
           responses:
             '200':
               description: Retrieved promotion information successfully.
@@ -442,16 +430,12 @@ types:
                     promotionGetResponse: !include Examples/get-promotion-response.raml
           securedBy:
             - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
       patch:
           description: Updates the promotion with the specified information.
           displayName: updatePromotion
           is:
             - DataPromotionTraits.PromotionNotFound:
-            - ApiStandards.RateLimited:
-                responseStatus: 200
-            - ApiStandards.RateLimited:    
-                responseStatus: 404
           responses:
             '200':
               description: |-
@@ -470,16 +454,12 @@ types:
                 promotionPatchRequest: !include Examples/patch-promotion-request.raml
           securedBy:
             - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions.rw ] }
       put:
           description: Creates a promotion using the information provided.
           displayName: createPromotion
           is:
             - DataPromotionTraits.PromotionIdConflict:
-            - ApiStandards.RateLimited:
-                responseStatus: 200
-            - ApiStandards.RateLimited:    
-                responseStatus: 400
           responses:
             '200':
               description: Creates a promotion using the information provided.
@@ -495,4 +475,4 @@ types:
                 promotionPutRequest: !include Examples/put-promotion-request.raml
           securedBy:  
             - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions.rw ] }

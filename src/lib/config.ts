@@ -22,6 +22,7 @@ export const API_FAMILIES = [
   "pricing",
   "product",
   "search",
+  "seller",
 ];
 
 export const PRODUCTION_API_PATH = `${__dirname}/../../apis`;

@@ -10,8 +10,8 @@ baseUriParameters:
       example: 0dnz6oep
 description: !include gift-certificates-description.md
 uses:
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.13/api-standards.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.20/commerce-cloud-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.0/commerce-cloud-standards.raml
   GiftCertificateTraits: gift-certificate-traits-library.raml
 types:
   AccountTransaction:
@@ -208,12 +208,6 @@ types:
       - GiftCertificateTraits.InvalidGiftCertificateException
       - GiftCertificateTraits.GiftCertificateAmountOutOfRangeException
       - GiftCertificateTraits.GiftCertificateCreateMerchantIdNotUniqueException
-      - ApiStandards.RateLimited:
-            responseStatus: 200
-      - ApiStandards.RateLimited:      
-            responseStatus: 400
-      - ApiStandards.RateLimited:      
-            responseStatus: 404
     responses:
       '200':
         description: Successfully created gift certificate.
@@ -228,10 +222,9 @@ types:
       application/json:
         type: GiftCertificate
         example:
-              GiftCertificate: !include Examples/gift-certificate-create-example.raml
+            !include Examples/gift-certificate-create-example.raml
     securedBy:
-      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.gift-certificates.rw ] }
-      - CommerceCloudStandards.AmOAuth2
+      - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.gift-certificates.rw ] }
   post:
     description: |-
         Searches for gift certificates. The query attribute specifies a complex query that can be used to narrow down the search. These are the list of searchable attributes:
@@ -261,10 +254,6 @@ types:
     is:
         - GiftCertificateTraits.MalformedQuery
         - GiftCertificateTraits.UnqueryableField
-        - ApiStandards.RateLimited:
-            responseStatus: 200
-        - ApiStandards.RateLimited:    
-            responseStatus: 400
     responses:
       '200':
         description: Returns Gift Certificates.
@@ -279,8 +268,7 @@ types:
       application/json:
         type: CommerceCloudStandards.SearchRequest
     securedBy:
-         - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.gift-certificates, sfcc.gift-certificates.rw ] }
-         - CommerceCloudStandards.AmOAuth2
+         - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.gift-certificates, sfcc.gift-certificates.rw ] }
 /organizations/{organizationId}/gift-certificates/{merchantId}:
   type: CommerceCloudStandards.Organization
   is: 
@@ -293,9 +281,6 @@ types:
   delete:
       description: Deletes the gift certificate by merchant ID.
       displayName: deleteGiftCertificate
-      is:
-        - ApiStandards.RateLimited:
-            responseStatus: 204
       responses:
         '204':
           description: Successfully deleted gift certificate.
@@ -303,17 +288,12 @@ types:
             application/json:
               type: GiftCertificate
       securedBy:
-        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.gift-certificates.rw ] }
-        - CommerceCloudStandards.AmOAuth2
+        - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.gift-certificates.rw ] }
   get:
       description: Action to get gift certificate information using merchant ID.
       displayName: getGiftCertificate
       is:
         - GiftCertificateTraits.GiftCertificateNotFound
-        - ApiStandards.RateLimited:
-            responseStatus: 200
-        - ApiStandards.RateLimited:    
-            responseStatus: 404
       responses:
         '200':
           description: Successfully retrieved gift certificate for given merchant ID.
@@ -325,8 +305,7 @@ types:
         '404':
           description: Thrown in case the gift certificate does not exist matching the given merchant ID.
       securedBy:
-        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.gift-certificates, sfcc.gift-certificates.rw ] }
-        - CommerceCloudStandards.AmOAuth2
+        - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.gift-certificates, sfcc.gift-certificates.rw ] }
   patch:
       description: Updates the gift certificate with the specified information using merchant ID.
       displayName: updateGiftCertificate
@@ -334,12 +313,6 @@ types:
         - GiftCertificateTraits.GiftCertificateNotFound
         - GiftCertificateTraits.InvalidGiftCertificateStatus
         - GiftCertificateTraits.InvalidRecipientEmail
-        - ApiStandards.RateLimited:
-            responseStatus: 200
-        - ApiStandards.RateLimited:    
-            responseStatus: 400
-        - ApiStandards.RateLimited:    
-            responseStatus: 404
       responses:
         '200':
           description: Successfully updated gift certificate.
@@ -358,5 +331,4 @@ types:
           example:
             patchGiftCertificate: !include Examples/gift-certificate-update-example.raml
       securedBy:
-         - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.gift-certificates.rw ] }
-         - CommerceCloudStandards.AmOAuth2
+         - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.gift-certificates.rw ] }

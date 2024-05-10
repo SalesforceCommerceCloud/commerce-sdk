@@ -76,6 +76,7 @@ describe("setupApis", () => {
       "pricing",
       "product",
       "search",
+      "seller",
     ]);
   });
 });

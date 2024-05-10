@@ -10,7 +10,7 @@ uses:
   ShopperSeoTrait: Traits/ShopperSeoTrait.raml
   ShopperSeoLib: shopper-seo-library.raml
   ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.27/commerce-cloud-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.0/commerce-cloud-standards.raml
 baseUriParameters:
   shortCode:
     description: A region-specific merchant identifier.
@@ -35,6 +35,8 @@ baseUriParameters:
           description: Returns URL mapping information for a URL that a shopper clicked or typed in.
           body:
             type: ShopperSeoLib.UrlMapping
+            examples:
+                Url Mapping: !include Example/seo-url-mapping-response-example.raml
       queryParameters:
         urlSegment:
           description: The part of the requested URL that comes after the domain name. For example, the urlSegment for "www.abc.com/blue/new-arrivals/tops" is "blue/new-arrivals/tops". There's no limit on the length of the urlSegment. However, for this endpoint, the maximum allowed length of the URL (after URL encoding) is 2047 characters. Make this field URL-encoded so that it properly handles special values such as whitespace. If a urlSegment includes a query string, a 404 error code is returned.

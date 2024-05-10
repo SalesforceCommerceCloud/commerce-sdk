@@ -1,6 +1,6 @@
 # API Overview
 
-The Customers API enables you to search for and manage customer information within a customer list.
+The Customers API enables you to search for and manage customer information within a customer list. It also enables you to search for customer groups.
 
 Once you find the customer, you can also use the API to manage customer addresses. 
 

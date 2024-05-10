@@ -1,0 +1,98 @@
+#%RAML 1.0
+title: Shopper Stores
+version: v1
+description: !include shopper-stores-description.md
+mediaType: application/json
+protocols: [HTTPS]
+baseUri: https://{shortCode}.api.commercecloud.salesforce.com/store/shopper-stores/{version}
+uses:
+  StoresTraits :  Traits/ShopperStoresTrait.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.0/commerce-cloud-standards.raml
+  StoresLib: stores-library.raml
+baseUriParameters:
+  shortCode:
+    description: Region-specific merchant identifier.
+    example: fd4gt8
+    pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
+
+/organizations/{organizationId}:
+  /store-search:
+    type: CommerceCloudStandards.Organization
+    get:
+      description: This resource retrieves a list of stores for the given site that are within a configured distance of a geolocation. The distance is interpreted either in miles or kilometers, depending on the distanceUnit input parameter. The location is specified either by directly providing a latitude and longitude coordinate pair, or by providing a country and a postal code. If a postal code is passed, the resource looks in the system's geolocation mappings to find the coordinates for this postal code. If no matching geolocation is found, the resource returns an empty list of stores. If coordinates are passed, the values for country and postal code are ignored.
+      displayName: searchStores
+      is: 
+        - CommerceCloudStandards.SiteSpecific:
+        - StoresTraits.LocaleSpecific:
+        - ApiStandards.OffsetPaginated:
+            maxLimit: 200
+            defaultSize: 25
+        - StoresLib.BadRequest
+        - StoresLib.Unauthorized
+      responses:
+        '200':
+          description: Returns a list of stores for the given search parameters, up to the paging size, including their distance from the given geolocation and additional information on the pagination of objects.
+          body:
+            type: StoresLib.StoreResult
+            examples:
+              stores-result-example: !include Example/store-search-result-example.raml
+      queryParameters:  
+        countryCode:
+          description: The two letter ISO country code, such as "US". This value is required when a postalCode is provided.
+          type: CommerceCloudStandards.CountryCode
+          required: false
+        distanceUnit:
+          description: The distance unit. Supported values are "mi" (miles) and "km" (kilometers). The default is "km".
+          type: StoresLib.DistanceUnit
+          required: false
+        latitude:
+          description: The geographical latitude to search for stores (value range -90.00 .. 90.00). This value is required when a longitude is provided.
+          type: StoresLib.Latitude
+          required: false
+        longitude:
+          description: The geographical longitude to search for stores (value range -180.00 .. 180.00). You must provide a longitude when a latitude is provided.
+          type: StoresLib.Longitude
+          required: false
+        maxDistance:
+          description: The area (radius) in distanceUnit where stores will be searched.
+          type: StoresLib.Distance
+          required: false
+        postalCode:
+          description: The postal code, such as "84121". You must provide a countryCode when a postalCode is provided.
+          type: StoresLib.PostalCode
+          required: false
+      securedBy:
+        - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-stores] }
+
+
+  /stores:
+    type: CommerceCloudStandards.Organization
+    get:
+      description: Returns stores identified by the IDs provided as input.
+      displayName: getStores
+      is: 
+        - CommerceCloudStandards.SiteSpecific:
+        - StoresTraits.LocaleSpecific:
+            maxLimit: 200
+            defaultSize: 25
+        - StoresLib.BadRequest
+        - StoresLib.Unauthorized
+      responses:
+        '200':
+          description: Returns details about a specific store.
+          body:
+            type: StoresLib.StoreResult
+            examples:
+              store-result-example: !include Example/get-stores-result-example.raml
+      queryParameters:
+        siteId:
+            type: CommerceCloudStandards.SiteId
+        ids:
+          description: The IDs of a requested stores (comma separated, max 50 IDs).
+          maxLength: 256
+          minLength: 1
+          type: string
+          required: true
+      securedBy:
+        - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-stores] }
