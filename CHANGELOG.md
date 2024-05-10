@@ -10,6 +10,12 @@ only use JavaScript, or if you use TypeScript but only import the client classes
 then your usage **will not change**. You will likely only need to make changes if
 you import the type definitions directly.
 
+## v2.16.0-dev
+
+#### Enchancements
+
+- Add helper function `customApiHelper.callCustomEndpoint` to call [Custom APIs](https://developer.salesforce.com/docs/commerce/commerce-api/guide/custom-apis.html) - [#402](https://github.com/SalesforceCommerceCloud/commerce-sdk/pull/402)
+
 ## v2.15.0
 
 #### API Changes

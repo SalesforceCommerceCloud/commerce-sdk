@@ -4,11 +4,5 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-
-import { getShopperToken } from "./shopperCustomer"
-import { callCustomEndpoint } from "./customApi";
-export const helpers = {
-    callCustomEndpoint,
-    getShopperToken
-}
-export * as slasHelpers from "./slas";
+export const CUSTOM_API_DEFAULT_BASE_URI =
+  "https://{shortCode}.api.commercecloud.salesforce.com/custom/{apiName}/{apiVersion}";
