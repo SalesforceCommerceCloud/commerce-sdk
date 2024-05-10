@@ -294,6 +294,87 @@ client.authorizeCustomer({
   }
 });</code></pre>
 				<p>Invalid query parameters that are not a part of the API and do not follow the <code>c_</code> custom query parameter convention will be filtered from the request and a warning will be displayed.</p>
+				<a href="#custom-apis" id="custom-apis" style="color: inherit; text-decoration: none;">
+					<h3>Custom APIs</h3>
+				</a>
+				<p>The SDK supports calling <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/custom-apis.html">custom APIs</a> with a helper function, <code>customApiHelper.callCustomEndpoint()</code>.</p>
+				<p>Example usage:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> CommerceSdk <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
+<span class="hljs-keyword">const</span> { helpers } = CommerceSdk;
+
+<span class="hljs-comment">// client configuration parameters</span>
+<span class="hljs-keyword">const</span> clientConfigExample = {
+  <span class="hljs-attr">parameters</span>: {
+    <span class="hljs-attr">clientId</span>: <span class="hljs-string">&#x27;&lt;your-client-id&gt;&#x27;</span>,
+    <span class="hljs-attr">organizationId</span>: <span class="hljs-string">&#x27;&lt;your-org-id&gt;&#x27;</span>,
+    <span class="hljs-attr">shortCode</span>: <span class="hljs-string">&#x27;&lt;your-short-code&gt;&#x27;</span>,
+    <span class="hljs-attr">siteId</span>: <span class="hljs-string">&#x27;&lt;your-site-id&gt;&#x27;</span>,
+  },
+  <span class="hljs-comment">// If not provided, it&#x27;ll use the default production URI:</span>
+  <span class="hljs-comment">// &#x27;https://{shortCode}.api.commercecloud.salesforce.com/custom/{apiName}/{apiVersion}&#x27;</span>
+  <span class="hljs-comment">// path parameters should be wrapped in curly braces like the default production URI</span>
+  <span class="hljs-attr">baseUri</span>: <span class="hljs-string">&#x27;&lt;your-base-uri&gt;&#x27;</span>
+};
+
+<span class="hljs-keyword">const</span> access_token = <span class="hljs-string">&#x27;&lt;INSERT_ACCESS_TOKEN_HERE&gt;&#x27;</span>
+
+<span class="hljs-comment">// Required params: apiName, endpointPath, shortCode, organizaitonId</span>
+<span class="hljs-comment">// Required path params can be passed into:</span>
+<span class="hljs-comment">// options.customApiPathParameters or clientConfig.parameters</span>
+<span class="hljs-comment">// customApiPathParameters will take priority for duplicate values</span>
+<span class="hljs-keyword">const</span> customApiArgs = { 
+  <span class="hljs-attr">apiName</span>: <span class="hljs-string">&#x27;loyalty-info&#x27;</span>,
+  <span class="hljs-attr">apiVersion</span>: <span class="hljs-string">&#x27;v1&#x27;</span>, <span class="hljs-comment">// defaults to v1 if not provided</span>
+  <span class="hljs-attr">endpointPath</span>: <span class="hljs-string">&#x27;customers&#x27;</span>
+}
+
+<span class="hljs-keyword">const</span> getResponse = <span class="hljs-keyword">await</span> helpers.callCustomEndpoint({ 
+  <span class="hljs-attr">options</span>: {
+    <span class="hljs-comment">// http operation is defaulted to &#x27;GET&#x27; if not provided</span>
+    <span class="hljs-attr">method</span>: <span class="hljs-string">&#x27;GET&#x27;</span>,
+    <span class="hljs-attr">parameters</span>: {
+      <span class="hljs-attr">queryParameter</span>: <span class="hljs-string">&#x27;queryParameter1&#x27;</span>,
+    },
+    <span class="hljs-attr">headers</span>: {
+      <span class="hljs-comment">// Content-Type is defaulted to application/json if not provided</span>
+      <span class="hljs-string">&#x27;Content-type&#x27;</span>: <span class="hljs-string">&#x27;application/json&#x27;</span>,
+      <span class="hljs-attr">authorization</span>: <span class="hljs-string">`Bearer <span class="hljs-subst">${access_token}</span>`</span>
+    },
+    <span class="hljs-attr">customApiPathParameters</span>: customApiArgs,
+  }, 
+  <span class="hljs-attr">clientConfig</span>: clientConfigExample,
+  <span class="hljs-comment">// Flag to retrieve raw response or data from helper function</span>
+  <span class="hljs-attr">rawResponse</span>: <span class="hljs-literal">false</span>
+})
+
+<span class="hljs-keyword">const</span> postResponse = <span class="hljs-keyword">await</span> customApiHelper.callCustomEndpoint({ 
+  <span class="hljs-attr">options</span>: {
+    <span class="hljs-attr">method</span>: <span class="hljs-string">&#x27;POST&#x27;</span>,
+    <span class="hljs-attr">headers</span>: {
+      <span class="hljs-attr">authorization</span>: <span class="hljs-string">`Bearer <span class="hljs-subst">${access_token}</span>`</span>
+    },
+    <span class="hljs-attr">customApiPathParameters</span>: {
+      <span class="hljs-attr">apiVersion</span>: <span class="hljs-string">&#x27;v1&#x27;</span>,
+      <span class="hljs-attr">endpointPath</span>: <span class="hljs-string">&#x27;greeting&#x27;</span>,
+      <span class="hljs-attr">apiName</span>: <span class="hljs-string">&#x27;e2e-tests&#x27;</span>,
+    },
+    <span class="hljs-comment">// When this flag is set to true, the request body will be automatically </span>
+    <span class="hljs-comment">// formatted in the expected format set by the &#x27;Content-type&#x27; headers</span>
+    <span class="hljs-comment">// &#x27;application/json&#x27; or &#x27;application/x-www-form-urlencoded&#x27;</span>
+    <span class="hljs-attr">enableTransformBody</span>: <span class="hljs-literal">true</span>,
+
+    <span class="hljs-comment">// object can be passed since we have enableTransformBody set to true</span>
+    <span class="hljs-attr">body</span>: { <span class="hljs-attr">data</span>: <span class="hljs-string">&#x27;data&#x27;</span> }
+    <span class="hljs-comment">// if enableTransformBody is not set to true,</span>
+    <span class="hljs-comment">// we have to ensure the request body is correctly formatted</span>
+    <span class="hljs-comment">// body: JSON.stringify({ data: &#x27;data&#x27; })</span>
+  }, 
+  <span class="hljs-attr">clientConfig</span>: clientConfigExample, 
+  <span class="hljs-attr">rawResponse</span>: <span class="hljs-literal">false</span>
+})
+
+<span class="hljs-built_in">console</span>.log(<span class="hljs-string">&#x27;get response: &#x27;</span>, getResponse)
+<span class="hljs-built_in">console</span>.log(<span class="hljs-string">&#x27;post response: &#x27;</span>, postResponse)</code></pre>
 				<a href="#caching" id="caching" style="color: inherit; text-decoration: none;">
 					<h2>Caching</h2>
 				</a>
@@ -444,7 +525,7 @@ sdkLogger.setLevel(sdkLogger.levels.INFO);</code></pre>
 				<p>For more information about security considerations related to developing headless commerce applications, see
 					<a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/security-considerations-for-headless-commerce.html">Security Considerations for Headless Commerce</a> on the
 				<a href="https://developer.salesforce.com/developer-centers/commerce-cloud">Commerce Cloud Developer Center</a>.</p>
-				<p>If you discover any potential security issues, please report them to <a href="mailto:&#115;&#x65;&#x63;&#117;&#114;&#x69;&#x74;&#121;&#x40;&#115;&#97;&#108;&#101;&#115;&#102;&#x6f;&#x72;&#x63;&#101;&#x2e;&#99;&#111;&#x6d;">&#115;&#x65;&#x63;&#117;&#114;&#x69;&#x74;&#121;&#x40;&#115;&#97;&#108;&#101;&#115;&#102;&#x6f;&#x72;&#x63;&#101;&#x2e;&#99;&#111;&#x6d;</a> as soon as possible.</p>
+				<p>If you discover any potential security issues, please report them to <a href="mailto:&#x73;&#101;&#99;&#x75;&#114;&#x69;&#116;&#x79;&#x40;&#115;&#97;&#x6c;&#x65;&#115;&#102;&#111;&#x72;&#99;&#101;&#46;&#99;&#x6f;&#109;">&#x73;&#101;&#99;&#x75;&#114;&#x69;&#116;&#x79;&#x40;&#115;&#97;&#x6c;&#x65;&#115;&#102;&#111;&#x72;&#99;&#101;&#46;&#99;&#x6f;&#109;</a> as soon as possible.</p>
 				<a href="#additional-documentation" id="additional-documentation" style="color: inherit; text-decoration: none;">
 					<h2>Additional Documentation</h2>
 				</a>
@@ -511,6 +592,7 @@ sdkLogger.setLevel(sdkLogger.levels.INFO);</code></pre>
 		<h2>Legend</h2>
 		<div class="tsd-legend-group">
 			<ul class="tsd-legend">
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
 				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
 				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
 				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>

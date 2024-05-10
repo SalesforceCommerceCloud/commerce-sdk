@@ -39,6 +39,10 @@ you import the type definitions directly.
   | ------------- |-------------|
   | redeemCoupon | Redeems a coupon code for an existing coupon within the selected site. The coupon code must be redeemable. |
 
+#### Enchancements
+
+- Add helper function `customApiHelper.callCustomEndpoint` to call [Custom APIs](https://developer.salesforce.com/docs/commerce/commerce-api/guide/custom-apis.html) - [#402](https://github.com/SalesforceCommerceCloud/commerce-sdk/pull/402)
+
 #### Other Changes
 
 - Removal of deprecated helper function `getShopperToken`
