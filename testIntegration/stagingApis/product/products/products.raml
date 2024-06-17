@@ -15,7 +15,7 @@ description: !include products-description.md
 uses:
   ProductTraits: data-products-library.raml
   ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml   
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.24/commerce-cloud-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.1/commerce-cloud-standards.raml
 
 types:
   CatalogCategoryId:
@@ -987,7 +987,6 @@ types:
             '204':
               description: Deleted the product successfully.
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
       get:
           description: Action to get product information.
@@ -1011,7 +1010,6 @@ types:
               required: false
               example: SiteGenesis
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
       patch:
           description: |-
@@ -1041,7 +1039,6 @@ types:
               examples:
                 productRequest: !include Examples/Data-Product-Expand.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
       put:
           description: Creates a product using the information provided. If a product with the same unique identifier exists, it is cleaned and overwritten unless the header x-dw-validate-existing=true is passed in with the request.
@@ -1071,7 +1068,6 @@ types:
               examples:
                 productRequest: !include Examples/Data-Product-Expand.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
       uriParameters:
           productId:
@@ -1159,7 +1155,6 @@ types:
               examples: 
                 variantSearchRequest: !include Examples/VariantSearchRequest.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
     /{masterProductId}/variation-groups:
       get:
@@ -1187,7 +1182,6 @@ types:
             description: The site context.
             example: SiteGenesis
         securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
           - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
       /{id}:
         delete:
@@ -1202,7 +1196,6 @@ types:
             '204':
               description: Deleted the variation group successfully.
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
         get:
           description: Read a variation group for a product master.
@@ -1226,7 +1219,6 @@ types:
               required: false
               example: SiteGenesis
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
         patch:
           description: Update a variation group for a product master.
@@ -1249,7 +1241,6 @@ types:
               examples: 
                 variantGroupsIdRequest: !include Examples/VariationGroupsIdRequest.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
         put:
           description: |-
@@ -1274,7 +1265,6 @@ types:
               examples: 
                 variantGroupsIdRequest: !include Examples/VariationGroupsIdRequest.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
         uriParameters:
           masterProductId:
@@ -1313,7 +1303,6 @@ types:
               required: false
               example: SiteGenesis
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
       /{id}:
         delete:
@@ -1328,7 +1317,6 @@ types:
             '204':
               description: Deleted the variation group successfully.
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
         get:
           description: Read a variation for a product master.
@@ -1352,7 +1340,6 @@ types:
               description: The site context.
               example: SiteGenesis
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
         patch:
           description: Update a variation for a product master.
@@ -1375,7 +1362,6 @@ types:
               examples: 
                 variantsIdRequest: !include Examples/VariationsIdRequest.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
         put:
           description: |-
@@ -1400,7 +1386,6 @@ types:
               examples:
                 variantsIdRequest: !include Examples/VariationsIdRequest.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
         uriParameters:
           masterProductId:
@@ -1437,7 +1422,6 @@ types:
               type: string
               required: false
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
       /{id}:
         delete:
@@ -1451,7 +1435,6 @@ types:
             '204':
               description: Deleted product option succesfully.
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
         get:
           description: Read a local or shared product option of a product.
@@ -1474,7 +1457,6 @@ types:
               required: false
               example: USD
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
         patch:
           description: Updates a local product option with the information provided.
@@ -1497,7 +1479,6 @@ types:
               examples: 
                 productOptionsIdRequest: !include Examples/ProductOptionsIdRequest.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
         put:
           description: Creates a local product option using the information provided or binds a shared product option to the product.
@@ -1527,7 +1508,6 @@ types:
               examples:
                 productOptionsIdRequest: !include Examples/ProductOptionsIdRequest.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
         uriParameters:
           productId:
@@ -1553,7 +1533,6 @@ types:
           '204': 
             description: Deleted product option value successfully.
         securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
           - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
       get:
         description: Read a local product option value of a local product option in a product.
@@ -1571,7 +1550,6 @@ types:
                 examples: 
                   productOptionsValueResult: !include Examples/ProductOptionsValuesResult.raml
         securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
           - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
       patch:
         description: Updates a local product option value with the information provided.
@@ -1594,7 +1572,6 @@ types:
             examples:
               productOptionsValueRequest: !include Examples/ProductOptionsValuesRequest.raml 
         securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
           - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
       put:
         description: Creates a local product option value using the information provided.
@@ -1624,7 +1601,6 @@ types:
             examples:
               productOptionsValueRequest: !include Examples/ProductOptionsValuesRequest.raml 
         securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
           - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
       uriParameters:
         id:
@@ -1665,7 +1641,6 @@ types:
             description: The site context.
             example: SiteGenesis
         securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
           - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
       delete:
         description: Deletes the variation attribute value of a variation attribute bound to a master product.
@@ -1678,7 +1653,6 @@ types:
           '204': 
             description: Deleted variation attribute value successfully.
         securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
           - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
       patch:
         description: Updates the variation attribute value of a variation attribute of a master product.
@@ -1701,7 +1675,6 @@ types:
             examples: 
               variantAttributeValuesRequest: !include Examples/VariationAttributeValuesIdRequest.raml
         securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
           - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
       put:
         description: Action to create a product variation attribute value.
@@ -1731,7 +1704,6 @@ types:
             examples: 
               variantAttributeValuesRequest: !include Examples/VariationAttributeValuesIdRequest.raml
         securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
           - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
       uriParameters:
         productId:
@@ -1769,7 +1741,6 @@ types:
                 examples: 
                   variantAttributesResult: !include Examples/VariationAttributesResult.raml
         securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
           - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
       /{id}:
         get:
@@ -1788,7 +1759,6 @@ types:
                   examples: 
                     variantAttributeIdResult: !include Examples/VariationAttributeResult.raml
           securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
           - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
         delete:
           description: Deletes the variation attribute by ID.
@@ -1801,7 +1771,6 @@ types:
             '204': 
               description: Deleted variation attribute successfully.
           securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
           - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
         patch:
           description: |-
@@ -1828,7 +1797,6 @@ types:
               examples:
                 variantAttributeIdRequest: !include Examples/VariationAttributeRequest.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
         put:
           description: Creates a variation attribute using the information provided.
@@ -1858,7 +1826,6 @@ types:
               examples:
                 variantAttributeIdRequest: !include Examples/VariationAttributeRequest.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
         uriParameters:
           productId:
@@ -1895,7 +1862,6 @@ types:
             examples:
               result: !include Examples/CategorizationAttributeDefinitionResult.raml
     securedBy:
-      - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
       - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
     
 
@@ -2005,6 +1971,5 @@ types:
             examples: 
               productSearchResult: !include Examples/ProductSearchResult.raml
     securedBy:
-      - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
       - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
 
