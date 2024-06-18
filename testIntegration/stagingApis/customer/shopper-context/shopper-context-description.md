@@ -12,11 +12,7 @@ It is highly recommended to use Shopper Context calls with a private client and 
 
 As part of this, when creating a new public client in SLAS for a tenant, if adding Shopper Context scope is attempted, a warning message is displayed to ensure the user is aware of the pitfalls of doing so.
 
-**Note**:
-
-The context is valid for 1 day for guest shoppers and 7 days for registered shoppers. To extend the context set, create a new context. As a best practice, refresh your contexts periodically to ensure that the right personalized experience is rendered for your shoppers.
-
-With B2C Commerce release 24.5, all new implementations of Shopper Context require the `siteId` query parameter to be passed. Existing customers with Shopper Context implementations should start including `siteId` going forward. Starting July 31 2024, `siteId` will be required for all customers, and a bad request response code will be returned for requests without a `siteId`.
+**Note**: The context is valid for 1 day for guest shoppers and 7 days for registered shoppers. To extend the context set, create a new context. As a best practice, refresh your contexts periodically to ensure that the right personalized experience is rendered for your shoppers.
 
 To use the Shopper Context API, you must:
 

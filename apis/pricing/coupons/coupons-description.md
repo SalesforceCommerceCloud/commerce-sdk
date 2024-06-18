@@ -10,8 +10,6 @@ For more information, see [Using Coupons as Qualifiers](https://documentation.b2
 
 The client requesting the coupon's information must have access to the Coupon resource. The API requests pass a bearer token in the header of the request. The client must first authenticate against Account manager to log in.
 
-You must include the relevant scope(s) in the client ID used to generate the token. For details, see [Authorization Scopes Catalog.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html)
-
 ## Use Cases
 
 ### Single-Use Coupon

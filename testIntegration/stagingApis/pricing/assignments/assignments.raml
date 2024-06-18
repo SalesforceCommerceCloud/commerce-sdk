@@ -13,7 +13,7 @@ description: !include assignments-description.md
 
 uses:
   ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.1/commerce-cloud-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.24/commerce-cloud-standards.raml
 
 types:
   Campaign:
@@ -266,8 +266,6 @@ types:
         description: The rank of promotion campaign assignment.
         type: integer
         format: int32
-        minimum: 1
-        maximum: 100
       schedule:
         description: The schedule of the assignment resource.
         type: Schedule
@@ -390,4 +388,5 @@ types:
       application/json:
         type: CommerceCloudStandards.SearchRequest
     securedBy:
+      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
       - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }

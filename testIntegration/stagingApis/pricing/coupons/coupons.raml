@@ -16,7 +16,7 @@ mediaType: application/json
 uses:
   CouponTraits: coupons-traits-library.raml
   ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.1/commerce-cloud-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.24/commerce-cloud-standards.raml
 
 types:
   Coupon:
@@ -277,6 +277,7 @@ types:
         application/json:
           type: CommerceCloudStandards.SearchRequest
       securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
         - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
     '/redemptions':
       is:
@@ -313,6 +314,7 @@ types:
           application/json:
             type: CommerceCloudStandards.SearchRequest
         securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
           - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
     '/actions/redeem':
       is:
@@ -348,6 +350,7 @@ types:
                   type: ApiStandards.ErrorResponse
                   example: !include Examples/post_sites_siteid_coupons_actions_redeem_404.raml
         securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
           - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions.rw ] }
     '/{couponId}':
       is:
@@ -359,6 +362,7 @@ types:
           '204':
             description: API returned successfully.
         securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
           - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions.rw ] }
       get:
         description: |-
@@ -375,6 +379,7 @@ types:
                 type: Coupon
                 example: !include Examples/put_sites_siteid_coupons_couponid.raml
         securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
           - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
       patch:
         description: Updates the coupon with the specified information.
@@ -404,6 +409,7 @@ types:
           application/json:
             type: Coupon
         securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
           - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions.rw ] }
       put:
         description: |-
@@ -435,6 +441,7 @@ types:
           application/json:
             type: Coupon
         securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
           - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions.rw ] }
       uriParameters:
         couponId:
@@ -464,6 +471,7 @@ types:
                   type: CouponCodes
                   example: !include Examples/get_sites_siteid_coupons_couponid_codes.raml
           securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
         post:
           description: Add or delete (modify) multiple codes to and from the supplied coupon.
@@ -490,4 +498,5 @@ types:
             application/json:
               type: CouponMultiCodesRequest
           securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions.rw ] }

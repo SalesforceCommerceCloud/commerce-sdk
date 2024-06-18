@@ -10,8 +10,6 @@ The Shopper Gift Certificates API requires a JSON Web Token acquired via the Sho
 https://{{shortCode}}.api.commercecloud.salesforce.com/customer/shopper-customers/v1/organizations/{{organizationId}}/customers/actions/login
 ```
 
-You must include the relevant scope(s) in the client ID used to generate the SLAS token. For details, see [Authorization Scopes Catalog.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html)
-
 ## Use Cases
 
 ### Retrieve Existing Gift Certificate Details

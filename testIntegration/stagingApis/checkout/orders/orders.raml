@@ -15,7 +15,7 @@ baseUriParameters:
 uses:
   StatusCodes: status-codes.raml
   DataTypes: data-types.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.1/commerce-cloud-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.27/commerce-cloud-standards.raml
   ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
 
 types:
@@ -25,7 +25,7 @@ types:
     type: CommerceCloudStandards.Organization
     get:
       description: |-
-        Returns the details of orders that match the query filters. By default, calling this API with no filter returns the 100 most recently created orders. To return up to 200 orders, use the limit parameter. To return a page of results past the first page, use a resource offset. *Note* : The sum of the offset and limit parameters cannot be greater than 10000.
+        Returns the details of orders that match the query filters. By default, calling this API with no filter returns the 100 most recently created orders. To return up to 200 orders, use the limit parameter. To return a page of results past the first page, use a resource offset.
       displayName: getOrders
       queryParameters:
         sortBy?:
@@ -92,6 +92,7 @@ types:
               maxLimit: 200
               defaultSize: 100
       securedBy:
+        - CommerceCloudStandards.BearerToken: { scopes: [ "sfcc.orders", "sfcc.orders.rw" ] }
         - CommerceCloudStandards.AmOAuth2: { scopes: [ "sfcc.orders", "sfcc.orders.rw" ] }
     post:
       description: !include create-order-description.md
@@ -134,6 +135,7 @@ types:
           - CommerceCloudStandards.SiteSpecific
         displayName: getOrder
         securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [ "sfcc.orders", "sfcc.orders.rw" ] }
           - CommerceCloudStandards.AmOAuth2: { scopes: [ "sfcc.orders", "sfcc.orders.rw" ] }
       patch:
         description: |-
@@ -150,6 +152,7 @@ types:
             examples:
                 DataTypes.OrderUpdateRequest: !include examples/order-request.raml
         securedBy:
+          - CommerceCloudStandards.BearerToken: { scopes: [ "sfcc.orders.rw" ] }
           - CommerceCloudStandards.AmOAuth2: { scopes: [ "sfcc.orders.rw" ] }
           - CommerceCloudStandards.ShopperTokenTsob: { scopes: [ "sfcc.orders.rw" ] }
       /confirmation-status:
@@ -169,6 +172,7 @@ types:
               examples:
                 DataTypes.OrderConfirmationStatusUpdateRequest: !include examples/order-confirmation-status-request.raml
           securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [ "sfcc.orders.rw" ] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [ "sfcc.orders.rw" ] }
       /export-status:
         type: CommerceCloudStandards.Organization
@@ -187,6 +191,7 @@ types:
               examples:
                 DataTypes.OrderExportStatusUpdateRequest: !include examples/order-export-status-request.raml
           securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [ "sfcc.orders.rw" ] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [ "sfcc.orders.rw" ] }
       /external-status:
         type: CommerceCloudStandards.Organization
@@ -205,6 +210,7 @@ types:
               examples:
                 DataTypes.OrderExternalStatusUpdateRequest: !include examples/order-external-status-request.raml
           securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [ "sfcc.orders.rw" ] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [ "sfcc.orders.rw" ] }
       /payment-status:
         type: CommerceCloudStandards.Organization
@@ -223,6 +229,7 @@ types:
               examples:
                 DataTypes.OrderPaymentStatusUpdateRequest: !include examples/order-payment-status-request.raml
           securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [ "sfcc.orders.rw" ] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [ "sfcc.orders.rw" ] }
       /shipping-status:
         type: CommerceCloudStandards.Organization
@@ -241,6 +248,7 @@ types:
               examples:
                 DataTypes.OrderShippingStatusUpdateRequest: !include examples/order-shipping-status-request.raml
           securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [ "sfcc.orders.rw" ] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [ "sfcc.orders.rw" ] }
       /status:
         type: CommerceCloudStandards.Organization
@@ -278,6 +286,7 @@ types:
               examples:
                 DataTypes.OrderStatusUpdateRequest: !include examples/order-status-request.raml
           securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [ "sfcc.orders.rw" ] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [ "sfcc.orders.rw" ] }
       '/payment-instruments/{paymentInstrumentId}':
         type: CommerceCloudStandards.Organization
@@ -304,6 +313,7 @@ types:
               examples:
                 DataTypes.PaymentInstrumentUpdateRequest: !include examples/order-payment-instrument-request.raml
           securedBy:
+            - CommerceCloudStandards.BearerToken: { scopes: [ "sfcc.orders.rw" ] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [ "sfcc.orders.rw" ] }
         /transaction:
           type: CommerceCloudStandards.Organization
@@ -323,6 +333,7 @@ types:
                 examples:
                   DataTypes.PaymentTransactionUpdateRequest: !include examples/order-payment-transaction-request.raml
             securedBy:
+              - CommerceCloudStandards.BearerToken: { scopes: [ "sfcc.orders.rw" ] }
               - CommerceCloudStandards.AmOAuth2: { scopes: [ "sfcc.orders.rw" ] }
       '/shipments/{shipmentId}':
         type: CommerceCloudStandards.Organization
@@ -351,4 +362,5 @@ types:
                 examples:
                   DataTypes.ShippingAddressUpdateRequest: !include examples/order-shipping-address-request.raml
             securedBy:
+              - CommerceCloudStandards.BearerToken: { scopes: [ "sfcc.orders.rw" ] }
               - CommerceCloudStandards.AmOAuth2: { scopes: [ "sfcc.orders.rw" ] }

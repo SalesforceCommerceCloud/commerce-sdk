@@ -6,8 +6,6 @@ Use the Orders API to update order status and order payment status, edit shippin
 
 The client requesting the order information must have access to the Orders resource. The API requests pass a system-to-system bearer token in the header of the request. The `POST /orders` endpoint uses the [ShopperTokenTsob](https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-login?meta=security%3AShopperTokenTsob) security scheme.
 
-You must include the relevant scope(s) in the client ID used to generate the SLAS token. For details, see the  [Authorization Scopes Catalog.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html)
-
 ## Update Order Statuses
 
 An order uses several status properties to define its workflow state. Some of them are used to trigger internal processes, such as inventory allocation. Others have no default function, but are available for use with customizations.

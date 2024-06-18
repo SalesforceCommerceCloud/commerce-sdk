@@ -1,20 +1,21 @@
 #%RAML 1.0 NamedExample
-# title: product-assignment-body-example
+#title: product-assignment-body-example
 value:
   {
-  "query": {
-    "term_query": {
-      "fields": [
-        "product_id"
-      ],
-      "operator": "is",
-      "values": [
-        "NTOSimpleBundle"
-      ]
+    "offset": 0,
+    "limit": 50,
+    "query": {
+        "boolQuery": {
+            "should": [
+                {
+                    "textQuery": {
+                        "searchPhrase": "Jacket",
+                        "fields": [
+                            "productName"
+                        ]
+                    }
+                }
+            ]
+        }
     }
-  },
-  "expand": [
-    "product_categories",
-    "product_images"
-  ]
-}
+  }

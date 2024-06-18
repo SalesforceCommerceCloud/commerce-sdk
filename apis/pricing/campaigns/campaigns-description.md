@@ -22,8 +22,6 @@ Promotion: A monetary discount or bonus item. Promotions can have additional cri
 
 The client requesting the campaign information must have access to the Campaign resource. The API requests pass a bearer token in the header of the request. The client must first authenticate against Account Manager to log in.
 
-You must include the relevant scope(s) in the client ID used to generate the token. For details, see [Authorization Scopes Catalog.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html)
-
 ## Use Cases
 
 ### Flash Sales

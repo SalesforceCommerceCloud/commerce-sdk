@@ -13,7 +13,7 @@ baseUriParameters:
 traits:
 uses:
   ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.1/commerce-cloud-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.0/commerce-cloud-standards.raml
 types:
   ShopperContext:
     description: A shoppers' context represented as key-value string pairs.
@@ -52,49 +52,6 @@ types:
         type: string
         description: The IP Address of the client. If the client IP is not a valid IPv4 address, a Bad Request (400) error is thrown. This property is available from version 24.7.
         required: false
-      geoLocation:
-        type: object
-        description: The geographic location of the client. When you set a location, it is saved as context for subsequent requests. This overrides any context previously saved using `clientIp`. This property is available with B2C Commerce version 24.7.
-        required: false  
-        properties:
-          city:
-            description: The city name associated with this location.
-            type: string
-            required: false
-          country:
-            description: The country name associated with this location.
-            type: string
-            required: false
-          countryCode:
-            description: The ISO country code associated with this location.
-            type: string
-            required: false
-          latitude:
-            description: The latitude coordinate, which is a number between -90.0 and +90.0, associated with this location.
-            type: number
-            format: double
-            required: false
-          longitude:
-            description: The longitude coordinate, which is a number between -180.0 and +180.0, associated with this location.
-            type: number
-            format: double
-            required: false
-          metroCode:
-            description: The metro code associated with this location.
-            type: string
-            required: false
-          postalCode:
-            description: The postal code associated with this location.
-            type: string
-            required: false
-          region:
-            description: The region (subdivision) name for this location. Corresponds with "state" in the USA.
-            type: string
-            required: false
-          regionCode:
-            description: The region (province or state) code for this location.
-            type: string
-            required: false
     example: !include Examples/shopper-context-example.raml
       
 
@@ -106,7 +63,7 @@ types:
       displayName: getShopperContext
       queryParameters:
         siteId: 
-          description: The identifier of the site to which the request is being sent. With B2C Commerce release 24.5, all new implementations of Shopper Context require the `siteId` query parameter to be passed. Existing customers with Shopper Context implementations should start including `siteId` going forward. Starting July 31 2024, `siteId` will be required for all customers, and a bad request response code will be returned for requests without a `siteId`.
+          description: The identifer of the site that a request is being made in the context of. It is strongly recommended to pass in the siteId in the call.
           example:
             SiteGenesis
           type: string
@@ -151,24 +108,12 @@ types:
       displayName: createShopperContext
       queryParameters:
         siteId: 
-          description: The identifier of the site to which the request is being sent. With B2C Commerce release 24.5, all new implementations of Shopper Context require the `siteId` query parameter to be passed. Existing customers with Shopper Context implementations should start including `siteId` going forward. Starting July 31 2024, `siteId` will be required for all customers, and a bad request response code will be returned for requests without a `siteId`.
+          description: The identifer of the site that a request is being made in the context of. It is strongly recommended to pass in the siteId in the call.
           example:
             SiteGenesis
           type: string
           required: false
           minLength: 1
-        evaluateContextWithClientIp: 
-          description: |
-            Determines whether to evaluate the context using the provided `clientIp`. This property is available with B2C Commerce version 24.7.
-            - If `evaluateContextWithClientIp` is set to `true`:
-              - The `clientIp` is saved and used in subsequent requests.
-
-            - If `evaluateContextWithClientIp` is set to `false`:
-              - The `clientIp` is not saved and will not be used in subsequent requests.
-          example:
-            false
-          type: boolean
-          required: false
       body:
         application/json:
           type: ShopperContext
@@ -204,7 +149,7 @@ types:
       displayName: deleteShopperContext
       queryParameters:
         siteId: 
-          description: The identifier of the site to which the request is being sent. With B2C Commerce release 24.5, all new implementations of Shopper Context require the `siteId` query parameter to be passed. Existing customers with Shopper Context implementations should start including `siteId` going forward. Starting July 31 2024, `siteId` will be required for all customers, and a bad request response code will be returned for requests without a `siteId`. 
+          description: The identifer of the site that a request is being made in the context of. It is strongly recommended to pass in the siteId in the call.
           example:
             SiteGenesis
           type: string
@@ -244,24 +189,12 @@ types:
       displayName: updateShopperContext
       queryParameters:
         siteId: 
-          description: The identifier of the site to which the request is being sent. With B2C Commerce release 24.5, all new implementations of Shopper Context require the `siteId` query parameter to be passed. Existing customers with Shopper Context implementations should start including `siteId` going forward. Starting July 31 2024, `siteId` will be required for all customers, and a bad request response code will be returned for requests without a `siteId`.
+          description: The identifer of the site that a request is being made in the context of. It is strongly recommended to pass in the siteId in the call.
           example:
             SiteGenesis
           type: string
           required: false
           minLength: 1
-        evaluateContextWithClientIp:
-          description: |
-            Determines whether to evaluate the context using the provided `clientIp`.  This property is available with B2C Commerce version 24.7.
-            - If `evaluateContextWithClientIp` is set to `true`:
-              - The `clientIP` is saved and used in subsequent requests.
-
-            - If `evaluateContextWithClientIp` is set to `false`:
-              - The `clientIP` is not saved and will not be used in subsequent requests.
-          example:
-            false
-          type: boolean
-          required: false   
       body:
         application/json:
           type: ShopperContext
