@@ -25,6 +25,7 @@ Use the API so that a customer, browsing on a commerce shopping app built using 
 ![b2c-commerce-shopper-products-screenshot-2.png](https://resources.docs.salesforce.com/rel1/doc/en-us/static/misc/b2c-commerce-shopper-products-screenshot-2.png)
 
 ### Retrieve Promotion Information
+
 Promotions provide discounts to shoppers when they meet certain purchase requirements.
 
 Promotion information is described in detail in [Promotion Details](https://developer.salesforce.com/docs/commerce/commerce-api/guide/promotion-details.html), but the following list provides several key points:

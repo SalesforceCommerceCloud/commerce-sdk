@@ -14,7 +14,7 @@ description: !include source-code-groups-description.md
 uses:
   SourceCodeGroupTraits: data-source-code-group-traits-library.raml
   ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
-  CommerceCloudStandards:  exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.24/commerce-cloud-standards.raml  
+  CommerceCloudStandards:  exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.1/commerce-cloud-standards.raml  
 
 types:
   SourceCodeGroup:
@@ -136,7 +136,6 @@ types:
       '204':
         description: API returned successfully.
     securedBy:
-      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.source-codes.rw ] }
       - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.source-codes.rw ] }
   get:
     description: Action to retrieve source code group information.
@@ -152,7 +151,6 @@ types:
             type: SourceCodeGroup
             example: !include Examples/get_source_code_groups_id.raml
     securedBy:
-      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.source-codes, sfcc.source-codes.rw ] }
       - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.source-codes, sfcc.source-codes.rw ] }
   patch:
     description: Updates the source code group with the specified information.
@@ -171,7 +169,6 @@ types:
       application/json:
         type: SourceCodeGroup
     securedBy:
-      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.source-codes.rw ] }
       - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.source-codes.rw ] }
   put:
     description: Creates a source code group using the information provided.
@@ -192,7 +189,6 @@ types:
       application/json:
         type: SourceCodeGroup
     securedBy:
-      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.source-codes.rw ] }
       - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.source-codes.rw ] }
   uriParameters:
     id:
@@ -248,5 +244,4 @@ types:
       application/json:
         type: CommerceCloudStandards.SearchRequest
     securedBy:
-      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.source-codes, sfcc.source-codes.rw ] }
       - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.source-codes, sfcc.source-codes.rw ] }
