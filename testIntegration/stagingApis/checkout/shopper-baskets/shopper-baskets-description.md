@@ -7,9 +7,9 @@ Temporary baskets can perform calculations to generate totals, line items, promo
 
 Use the Shopper Baskets API to create a basket in the B2C Commerce system and populate it with all the data required to ready the basket for checkout.
 
-To create a basket, start with the [Create basket](https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=createBasket) endpoint. The endpoint creates the basket in the B2C Commerce system and returns a JSON representation of the basket with a `basketId` property.
+To create a basket, start with the [Create basket](https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets-v2?meta=createBasket) endpoint. The endpoint creates the basket in the B2C Commerce system and returns a JSON representation of the basket with a `basketId` property.
 
-If you provide the JSON for a prepopulated basket to the [Create basket](https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=createBasket) endpoint, you can create a basket using a single API request.
+If you provide the JSON for a prepopulated basket to the [Create basket](https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets-v2?meta=createBasket) endpoint, you can create a basket using a single API request.
 
 You can also create a basket and gradually populate it with data using subsequent API requests that reference the same `basketId`. The gradual approach allows you to validate the input data as you go.
 
@@ -38,11 +38,19 @@ The client requesting the basket information must have access to the `/baskets` 
 
 For details on how to request a shopper access token from SLAS, see the guest user flows for [public clients](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-public-client.html#guest-user) and [private clients](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-private-client.html#guest-user) in the SLAS guides.
 
+You must include the relevant scope(s) in the client ID used to generate the SLAS token. For details, see the  [Authorization Scopes Catalog.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html)
+
 The following resources require an Account Manager OAuth token with a client ID:
 
 -   `/baskets/{basketId}/taxes`
 -   `/baskets/{basketId}/items/{itemId}/taxes`
 -   `/baskets/{basketId}/price-books`
+
+## Use Cases
+
+### Use Hooks
+
+For details on working with hooks, see [Extensibility with Hooks.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html)
 
 ## Basket Calculation
 
@@ -67,11 +75,28 @@ Unless you’re using [hooks](https://developer.salesforce.com/docs/commerce/com
 
 The B2C Commerce API calculates taxes internally using tax tables. If you want to integrate with a third-party tax provider, or calculate tax on your own, you can use the external taxation feature to add a taxation rate and optional taxation value. When setting a taxation rate, the taxation is calculated for this specific rate. If you pass a value, this value is used as taxation value, as well, without recalculation. To use this feature, set the `taxMode` parameter to `external` when creating the basket.
 
-**Important**: To use external tax calculation, [hooks](https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html) must not be enabled in Business Manager.
-
 When using external taxation, you must set a tax rate either in one request to the `/baskets/{basketId}/taxes` or with separate requests for each line item, using `/baskets/{basketId}/items/{lineItemId}/taxes`.
 
-If the tax mode of a basket is set to `external`, a tax item is required for all line items to avoid oversights, including zero-tax items.
+If the tax mode of a basket is set to `external`,  a tax item is required for all line items even for zero-tax items to avoid oversights.
+
+### External Taxation with Hooks Enabled
+
+To use external tax calculation with [hooks](https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html), use the following API methods in the [Calculate Hook](https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html#calculate-hook): 
+- `dw.order.LineItemCtnr#isExternallyTaxed`: Returns true if the basket was created with `taxMode = external`
+- `dw.order.TaxMgr#applyExternalTax`: Applies externally set tax rates to the given basket. Only use when `dw.order.LineItemCtnr#isExternallyTaxed` returns true.
+
+The following example shows an implementation of external tax calculation with hooks enabled in the [Calculate Hook](https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html#calculate-hook):
+
+    exports.calculate = function (basket) {
+       if ( basket.isExternallyTaxed() )
+       {
+          TaxMgr.applyExternalTaxation( basket ); // apply the external tax calculation based on the tax rates set by the SCAPI external taxation APIs
+       }
+       else
+       {
+          // calculation with tax tables or customization
+       }
+    }
 
 ## Temporary Baskets
 
@@ -80,4 +105,4 @@ A temporary basket is populated with all the data required to ready the basket f
 - The shopper can have up to 10 (default 4) temporary baskets, which can be configured via Basket Preferences (Sites -> Merchant Tools -> Basket Preferences) and specifying the preference **Temporary Baskets per Customer**.
 - Available to all shoppers (guest and registered shoppers), as well as agents.
 
-To create a temporary basket, set the `temporary` parameter to `true` with the [Create basket](https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=createBasket) endpoint.
+To create a temporary basket, set the `temporary` parameter to `true` with the [Create basket](https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets-v2?meta=createBasket) endpoint.

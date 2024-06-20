@@ -15,8 +15,8 @@ description: !include catalogs-description.md
 
 uses:
   CatalogTraits: catalogs-traits-library.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.24/commerce-cloud-standards.raml
-  Search: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.24/Types/search-types.raml 
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.1/commerce-cloud-standards.raml
+  Search: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.1/Types/search-types.raml 
 
 types:
   Catalogs:
@@ -1540,7 +1540,6 @@ types:
         - CatalogTraits.offset-paginated:
             maxLimit: 50
             defaultSize: 25
-
       responses:
         '200':
           description: Catalogs Retrieved Successfully
@@ -1550,7 +1549,6 @@ types:
               examples:
                 catalogs: !include Examples/catalogs.raml
       securedBy:
-        - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
         - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
     /{catalogId}:
       get:
@@ -1568,7 +1566,6 @@ types:
                 examples:
                   catalog: !include Examples/catalog.raml
         securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
           - CommerceCloudStandards.AmOAuth2:  { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
       patch:
         description: Updates the catalog with the specified information.
@@ -1591,7 +1588,6 @@ types:
             examples:
               catalog: !include Examples/catalog-body.raml
         securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
           - CommerceCloudStandards.AmOAuth2:  { scopes: [sfcc.catalogs.rw] }
       uriParameters:
         catalogId:
@@ -1619,7 +1615,6 @@ types:
                   examples: 
                     categories: !include Examples/categories.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
         /{categoryId}:
           delete:
@@ -1633,7 +1628,6 @@ types:
               '204': 
                 description: Category Deleted Successfully
             securedBy:
-              - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
               - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
           get:
             description: |-
@@ -1664,7 +1658,6 @@ types:
                 required: false
                 example: 0
             securedBy:
-              - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
               - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
           patch:
             description: Updates a catalog category using the information provided.
@@ -1688,7 +1681,6 @@ types:
                 examples:
                   category: !include Examples/category-body.raml
             securedBy:
-              - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
               - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
           put:
             description: Creates a catalog category using the information provided.
@@ -1718,7 +1710,6 @@ types:
                 examples:
                   category: !include Examples/category-body.raml
             securedBy:
-              - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
               - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
           uriParameters:
             categoryId:
@@ -1755,21 +1746,21 @@ types:
                   | creationDate | DateTime |
 
                 Expansions that can be applied for the search request:
-                  - productBase - String 
+                  - product_base - String 
                 
-                The productBase expand will enable retrieval of the following basic product information: 
+                The product_base expand will enable retrieval of the following basic product information: 
 
                   | Attribute | Type | Function |
                   |-----------|--------|-----|
                   | none | String | Will not fetch any expanded information.
-                  | productImages| String | Fetch preview image and image groups specified for the given product. |
-                  | productAllImages | String | Fetch preview image, image groups specified for the product, and variant and variation group images. |
-                  | productVariations | String | Fetch variations related information. |
-                  | productAvailability | String | Fetch availability related information. |
-                  | productCategories | String | Fetch category related information. | 
-                  | productPrices | String | Fetch price related information. |
-                  | productOptions | String | Fetch options related information. |
-                  | productAll | String | Fetch all expanded information. This is the default used when no expand value is included in the request.|
+                  | product_images| String | Fetch preview image and image groups specified for the given product. |
+                  | product_all_images | String | Fetch preview image, image groups specified for the product, and variant and variation group images. |
+                  | product_variations | String | Fetch variations related information. |
+                  | product_availability | String | Fetch availability related information. |
+                  | product_categories | String | Fetch category related information. | 
+                  | product_prices | String | Fetch price related information. |
+                  | product_options | String | Fetch options related information. |
+                  | product_all | String | Fetch all expanded information. This is the default used when no expand value is included in the request.|
 
                 Note: productAll includes the following:
                   - brand
@@ -1809,12 +1800,9 @@ types:
               body:
                 application/json:
                   type: CommerceCloudStandards.SearchRequest
-                  
-                  examples:
-                    search-request: !include Examples/product-assignment-body-example.raml
-                  
+                  examples: 
+                    CommerceCloudStandards.SearchRequest: !include Examples/product-assignment-body-example.raml
               securedBy:
-                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
                 - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
           /products/{productId}:
             get:
@@ -1837,7 +1825,6 @@ types:
                       examples:
                         category-prod-assignment: !include Examples/catalogcategoryprdAssignment-example.raml
               securedBy:
-                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
                 - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
             delete:
               description: |-
@@ -1855,7 +1842,6 @@ types:
                   description: Assignment Deleted Successfully
 
               securedBy:
-                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
                 - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
             patch:
               description: |-
@@ -1887,7 +1873,6 @@ types:
                   examples:
                     body-example: !include Examples/catalogcategoryprodAssignment-body.raml
               securedBy:
-                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
                 - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
             put:
               description: |-
@@ -1927,7 +1912,6 @@ types:
                   examples:
                     body-example: !include Examples/catalogcategoryprodAssignment-body.raml
               securedBy:
-                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
                 - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
             uriParameters:
               productId:
@@ -1952,7 +1936,6 @@ types:
                   examples:
                     executionRequest: !include Examples/executionRequest.raml
               securedBy:
-                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
                 - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
             get:
               description: Gets the status of the latest categorization job which could be evaluation or execution. For evaluation, the matched count and a paginated list of product IDs are returned. For execution, the counts of the products which are assigned or unassigned are returned.
@@ -1972,7 +1955,6 @@ types:
                       examples:
                         executionJobStatusResponse: !include Examples/executionJobStatusResponse.raml
               securedBy:
-                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
                 - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
           /excluded-products:
             get:
@@ -1991,7 +1973,6 @@ types:
                       examples:
                         excludedProductResponse: !include Examples/getExcludedProducts.raml
               securedBy:
-                  - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
                   - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
             post:
               description: Adds the product to the excluded product list for a given catalog and category. Once a product is added as an excluded product for the category, then the the categorization process does not categorize that product for that category.
@@ -2014,7 +1995,6 @@ types:
                   examples: 
                     excludedProdRequest: !include Examples/excludedProductsRequest.raml
               securedBy:
-                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
                 - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
             delete:
               description: Deletes products from the excluded products list for a catalog category.
@@ -2032,7 +2012,6 @@ types:
                   examples: 
                     excludedProdReq: !include Examples/excludedProductsRequest.raml
               securedBy:
-                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
                 - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
           /rules:
             get:
@@ -2051,7 +2030,6 @@ types:
                       examples:
                         rulesResponse: !include Examples/getRules.raml
               securedBy:
-                  - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
                   - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
             delete:
               description: Deletes all the rules along with conditions for given catalog and category.
@@ -2064,7 +2042,6 @@ types:
                 204:
                   description: No Content
               securedBy:
-                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
                 - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
             post:
               description: Creates all rules and conditions within the catalog and category. This deletes any existing rules and conditions for that catalog-category and recreates them based on the new request. The LocaleID, PrimaryFlag, and ClassificationFlag can be set on any of the individual rules, but they apply to entire ruleset.  For simplicity, those values can just be provided with one of the rules.  If they are provided with multiple rules, then they must all have the same value for all rules or it could have undesired effects.
@@ -2087,7 +2064,6 @@ types:
                   examples:
                     ruleBody: !include Examples/postRuleRequestBody.raml
               securedBy:
-                - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
                 - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
             
             /{ruleId}:
@@ -2107,7 +2083,6 @@ types:
                         examples:
                           ruleResponse: !include Examples/getRulesByID.raml
                 securedBy:
-                  - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
                   - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
               put:
                 description: Creates or updates a rule.
@@ -2137,7 +2112,6 @@ types:
                     examples:
                       ruleBody: !include Examples/putRuleRequestBody.raml
                 securedBy:
-                  - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
                   - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
               delete:
                 description: Deletes a rule.
@@ -2150,7 +2124,6 @@ types:
                   204:
                     description: No Content
                 securedBy:
-                  - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
                   - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
 
               uriParameters:
@@ -2175,7 +2148,6 @@ types:
                           examples:
                             conditionsResult: !include Examples/getConditions.raml
                   securedBy:
-                  - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
                   - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
                 delete:
                   description: Deletes all the conditions for a given rule, catalog and category.
@@ -2188,7 +2160,6 @@ types:
                     204:
                       description: No Content
                   securedBy:
-                    - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
                     - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
                 /{conditionId}:
                   get:
@@ -2207,7 +2178,6 @@ types:
                             examples:
                               conditionResponse: !include Examples/getConditionByID.raml
                     securedBy:
-                      - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
                       - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
                   put:
                     description: Creates or updates a condition.
@@ -2237,7 +2207,6 @@ types:
                         examples:
                           conditionBody: !include Examples/putConditionRequestBody.raml
                     securedBy:
-                      - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
                       - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
                   delete:
                     description: Deletes a condition.
@@ -2250,7 +2219,6 @@ types:
                       204:
                         description: No Content
                     securedBy:
-                      - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs.rw] }
                       - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs.rw] }
                   uriParameters:
                     conditionId:
@@ -2317,7 +2285,6 @@ types:
               examples:
                     result: !include Examples/catalog-search-body.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
   /catalog-search:
     post:
@@ -2378,7 +2345,6 @@ types:
           examples:
             catalog-search-body: !include Examples/catalog-search-body-query.raml
       securedBy:
-        - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
         - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
   /category-search:
     post:
@@ -2443,5 +2409,4 @@ types:
           examples: 
             body : !include Examples/category_search-body-example.raml
       securedBy:
-        - CommerceCloudStandards.BearerToken: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
         - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }

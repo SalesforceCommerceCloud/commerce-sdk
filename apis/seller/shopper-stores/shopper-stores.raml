@@ -8,7 +8,7 @@ baseUri: https://{shortCode}.api.commercecloud.salesforce.com/store/shopper-stor
 uses:
   StoresTraits :  Traits/ShopperStoresTrait.raml
   ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.0/commerce-cloud-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.1/commerce-cloud-standards.raml
   StoresLib: stores-library.raml
 baseUriParameters:
   shortCode:
@@ -20,7 +20,16 @@ baseUriParameters:
   /store-search:
     type: CommerceCloudStandards.Organization
     get:
-      description: This resource retrieves a list of stores for the given site that are within a configured distance of a geolocation. The distance is interpreted either in miles or kilometers, depending on the distanceUnit input parameter. The location is specified either by directly providing a latitude and longitude coordinate pair, or by providing a country and a postal code. If a postal code is passed, the resource looks in the system's geolocation mappings to find the coordinates for this postal code. If no matching geolocation is found, the resource returns an empty list of stores. If coordinates are passed, the values for country and postal code are ignored.
+      description: |
+        This resource retrieves a list of stores for the given site that are within a configured distance of a geolocation:
+        - The distance is interpreted either in miles or kilometers, depending on the `distanceUnit` input parameter. 
+        - The location is specified by either directly providing a latitude and longitude coordinate pair, or by providing a country and a postal code. If a postal code is passed, the resource looks in the system's geolocation mappings in Business Manager to find the coordinates for this postal code. If no matching geolocation is found, the resource returns an empty list of stores. If coordinates are passed, the values for country and postal code are ignored. 
+        
+          To verify site latitude and longitude information in Business Manager:
+          - Navigate to **Merchant Tools -> Online Marketing -> Stores**. 
+          - Select the applicable site.
+          - In the **Address** tab, verify that valid information is provided in the following fields: **Address**, **City**, **Postal Code**, **State**, and **Country**. For latitude and longitude values, you can manually enter values or provide all field values to auto-populate **Latitude** and **Longitude**. You must provide valid values for all of the previous fields for latitude and longitude to auto-populate **Latitude** and **Longitude** values.
+
       displayName: searchStores
       is: 
         - CommerceCloudStandards.SiteSpecific:

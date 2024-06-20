@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node_version }}
+          node-version: ${{ matrix.node }}
           cache: npm
       - name: Cache node modules
         id: cache-nodemodules
@@ -25,7 +25,7 @@ jobs:
           cache-name: cache-node-modules
         with:
           path: "**/node_modules"
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-node${{ matrix.node }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
       - run: npm install snyk --legacy-peer-deps
       - run: npm run snyk:auth ${{ secrets.SNYK_TOKEN }}
       - run: npm install --legacy-peer-deps
