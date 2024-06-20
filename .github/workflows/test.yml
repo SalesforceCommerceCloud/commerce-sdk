@@ -25,7 +25,7 @@ jobs:
           cache-name: cache-node-modules
         with:
           path: "**/node_modules"
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-node${{ matrix.node }}-build-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
       - run: npm install snyk --legacy-peer-deps
       - run: npm run snyk:auth ${{ secrets.SNYK_TOKEN }}
       - run: npm install --legacy-peer-deps
