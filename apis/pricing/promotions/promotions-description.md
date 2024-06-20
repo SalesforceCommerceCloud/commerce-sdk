@@ -10,6 +10,8 @@ For more information, see [Campaigns and Promotions](https://documentation.b2c.c
 
 The client requesting the promotion information must have access to the Promotion resource. The API requests pass a bearer token in the header of the request. The client must first authenticate against Account Manager to get the bearer token.
 
+You must include the relevant scope(s) in the client ID used to generate the token. For details, see [Authorization Scopes Catalog.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html)
+
 ## Use Cases
 
 **Note**: A promotion can be created, enabled, and assigned exclusivity using the API, but qualifier and discounted criteria must be assigned in Business Manager.

@@ -13,7 +13,7 @@ description: !include campaigns-description.md
 
 uses:
   ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.24/commerce-cloud-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.1/commerce-cloud-standards.raml
   CampaignsTraits: campaigns-traits-library.raml
 
 types:
@@ -135,7 +135,6 @@ types:
       application/json:
         type: CommerceCloudStandards.SearchRequest
     securedBy:
-      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
       - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
   '/{campaignId}':
     uriParameters:
@@ -153,7 +152,6 @@ types:
         '204':
           description: Campaign deleted successfully.
       securedBy:
-        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
         - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions.rw ] }
     get:
       description: Action to get campaign information.
@@ -169,7 +167,6 @@ types:
               examples:
                 campaignGetResponse: !include Examples/get-campaign-example.raml
       securedBy:
-        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
         - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
     patch:
       description: Updates the campaign with the specified information.
@@ -191,7 +188,6 @@ types:
           examples:
             campaignPatchRequest: !include Examples/patch-campaign-request.raml
       securedBy:
-        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
         - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions.rw ] }
     put:
       description: Creates a campaign using the information provided.
@@ -212,5 +208,4 @@ types:
           examples:
             campaignPutRequest: !include Examples/put-campaign-request.raml
       securedBy:
-        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
         - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions.rw ] }

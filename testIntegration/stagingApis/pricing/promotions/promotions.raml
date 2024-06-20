@@ -14,7 +14,7 @@ description: !include promotions-description.md
 uses:
     DataPromotionTraits: promotions-traits-library.raml
     ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
-    CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.24/commerce-cloud-standards.raml
+    CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.1/commerce-cloud-standards.raml
 
 types:
   Campaign:
@@ -393,7 +393,6 @@ types:
         application/json:
           type: CommerceCloudStandards.SearchRequest
       securedBy:
-        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
         - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
     '/{id}':
       is:
@@ -413,7 +412,6 @@ types:
             '204':
               description: Deleted the promotion successfully.
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions.rw ] }
       get:
           description: Action to get promotion information.
@@ -429,7 +427,6 @@ types:
                   examples:
                     promotionGetResponse: !include Examples/get-promotion-response.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
       patch:
           description: Updates the promotion with the specified information.
@@ -453,7 +450,6 @@ types:
               examples: 
                 promotionPatchRequest: !include Examples/patch-promotion-request.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions.rw ] }
       put:
           description: Creates a promotion using the information provided.
@@ -474,5 +470,4 @@ types:
               examples:
                 promotionPutRequest: !include Examples/put-promotion-request.raml
           securedBy:  
-            - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
             - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions.rw ] }
