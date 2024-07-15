@@ -12,9 +12,14 @@ you import the type definitions directly.
 
 ## v4.0.0
 
+### :warning: Planned Shopper Context Changes :warning: 
+
+Starting July 31st 2024, all endpoints in the Shopper context API will require the `siteId` parameter for new customers. This field is marked as optional for backward compatibility and will be changed to mandatory tentatively by January 2025.
+
 ### Enchancements
 
-- Update SLAS helper function `loginGuestUserPrivate` to require `channel_id` [#406](https://github.com/SalesforceCommerceCloud/commerce-sdk/pull/406)
+- Update SLAS helper function `loginGuestUserPrivate` to require `channel_id` as SLAS requires `channel_id` when requesting a guest access token with a `grant_type` of `client_credentials` starting July 31st 2024 [#406](https://github.com/SalesforceCommerceCloud/commerce-sdk/pull/406)
+  - See the [announcement on the developer docs](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas.html#guest-tokens) for more information
 
 ## v3.1.0
 
