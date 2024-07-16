@@ -138,7 +138,7 @@ export async function loginGuestUserPrivate(
     clientSecret: string;
   },
   usid?: string
-): Promise<TokenResponse> {  
+): Promise<TokenResponse> {
   if (!slasClient.clientConfig.parameters.siteId) {
     throw new Error(
       "Required argument channel_id is not provided through clientConfig.parameters.siteId"
@@ -189,6 +189,7 @@ export async function loginGuestUser(
 
   const tokenBody: TokenRequest = {
     client_id: slasClient.clientConfig.parameters.clientId,
+    channel_id: slasClient.clientConfig.parameters.siteId,
     code: authResponse.code,
     code_verifier: codeVerifier,
     grant_type: "authorization_code_pkce",
