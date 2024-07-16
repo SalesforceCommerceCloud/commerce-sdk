@@ -17,6 +17,8 @@ The API client must also have at least one of the following OAuth scopes: `sfcc.
 
 For detailed setup instructions, see the [Authorization for Admin APIs](https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html) guide.
 
+You must include the relevant scope(s) in the client ID used to generate the token. For details, see the [Authorization Scopes Catalog.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html)
+
 ## Use Cases
 
 For detailed usage information, refer to the [CDN Zones Guides.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/cdn-zones.html)

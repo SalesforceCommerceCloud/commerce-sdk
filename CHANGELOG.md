@@ -10,6 +10,33 @@ only use JavaScript, or if you use TypeScript but only import the client classes
 then your usage **will not change**. You will likely only need to make changes if
 you import the type definitions directly.
 
+## v4.0.0
+
+### API Changes
+
+*CDN Zones API*
+
+* Endpoints added
+  | **Endpoint Name** | **Description**                   |
+  | ------------- |-----------------------------------|
+  | getOwaspWafPackage | Get a OWASP ModSecurity Core Rule Set. |
+  | patchOwaspWafPackage | Patch a OWASP ModSecurity Core Rule Set. |
+  | getWafManagedRulesInRuleset | Retrieves all rules in the specified WAFv2 managed ruleset. |
+  | updateWafManagedRuleInRuleset | Updates a WAF managed rule in the specified WAFv2 managed ruleset. |
+  | migrateZoneToWafV2 | Migrates a zone to WAFv2. Only applicable for existing zones using WAFv1. |
+  | upsertOriginHeaderModification | Upsert origin header modification. |
+  | getOriginHeaderModification | Get origin header modification associated with a zone. |
+  | deleteOriginHeaderModification | Delete the origin header modification associated with a zone. |
+
+* **BREAKING**: Removed deprecated endpoints
+  * getFirewallRules
+  * createFirewallRule
+  * getFirewallRule
+  * updateFirewallRule
+  * deleteFirewallRule
+
+  NOTE: As of February 6th, 2024, firewall rules are deprecated and customers can use [eCDN custom rules](https://developer.salesforce.com/docs/commerce/commerce-api/guide/cdn-zones-custom-rules.html) moving forward.
+
 ## v3.1.0
 
 ### API Changes

@@ -18,7 +18,10 @@ uses:
 
 types:
   SourceCodeGroup:
-    description: Document representing a source code group.
+    description: |-
+      Document representing a source code group.
+    type:
+      CommerceCloudStandards.OpenObject
     properties:
       active:
         description: The active flag, a computed value based on start and end time.
@@ -85,17 +88,22 @@ types:
         required: false
         example: 2019-10-20T12:00:00Z
   SourceCodeGroupSearchResult:
-    description: Document representing a source code group search result.
+    description: |-
+      Document representing a source code group search result.
     type: CommerceCloudStandards.PaginatedSearchResult
     properties:
       hits:
         description: The sorted array of search hits. Can be empty.
         type: SourceCodeGroup[]
   SourceCodeRedirectInfo:
-    description: Document representing source code redirect info.
+    description: |-
+      Document representing source code redirect info.
+    type:
+      CommerceCloudStandards.ClosedObject
     properties:
       locationType:
-        description: The type of redirect location, such as product (for a product page), category (a category page), home (for home page), page (for content), or URL (for a URL location).
+        description: |-
+          The type of redirect location, such as product (for a product page), category (a category page), home (for home page), page (for content), or URL (for a URL location).
         type: string
         enum:
           - default
@@ -105,8 +113,15 @@ types:
           - page
           - url
         example: url
+      location?:
+        description: |-
+          The location of redirect, based on the type, this can be a product location, category location, home page, content page, or just a URL.
+        type: string
   SourceCodeSpecification:
-    description: Document representing a source code specification.
+    description: |-
+      Document representing a source code specification.
+    type:
+      CommerceCloudStandards.ClosedObject
     properties:
       expression:
         description: |-
@@ -236,8 +251,7 @@ types:
         body:
           application/json:
             type: SourceCodeGroupSearchResult
-            examples:
-              source-code-group-result: !include Examples/source-code-result-example.raml
+            example: !include Examples/source-code-result-example.raml
       '400':
         description: SearchRequest post body is ill-formed.
     body:
