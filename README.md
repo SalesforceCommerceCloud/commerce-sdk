@@ -8,15 +8,6 @@ Visit the [Commerce Cloud Developer Center](https://developer.salesforce.com/dev
 
 Starting July 31st 2024, all endpoints in the Shopper context API will require the `siteId` parameter for new customers. This field is marked as optional for backward compatibility and will be changed to mandatory tentatively by January 2025.
 
-## :warning: Planned future release will contain breaking changes :warning:
-Due to an issue with the generation of the type definitions, an upcoming release
-of the SDK will change type definitions to include namespaces. As this is a
-breaking change, a new major version will be released (v5.0.0). Only the names of
-the types will change, not their contents or any of the exported code. If you
-only use JavaScript, or if you use TypeScript but only import the client classes,
-then your usage **will not change**. You will likely only need to make changes if
-you import the type definitions directly.
-
 ## Prerequisites
 
 Download and install Node.js and npm [here](https://nodejs.org/en/download/).

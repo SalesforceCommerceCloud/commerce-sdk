@@ -1,15 +1,5 @@
 ## CHANGELOG
 
-### :warning: Planned future release will contain breaking changes :warning
-
-Due to an issue with the generation of the type definitions, an upcoming release
-of the SDK will change type definitions to include namespaces. As this is a
-breaking change, a new major version will be released (v5.0.0). Only the names of
-the types will change, not their contents or any of the exported code. If you
-only use JavaScript, or if you use TypeScript but only import the client classes,
-then your usage **will not change**. You will likely only need to make changes if
-you import the type definitions directly.
-
 ## v4.0.0
 
 ### :warning: Planned Shopper Context Changes :warning: 
