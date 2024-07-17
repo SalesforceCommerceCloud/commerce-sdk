@@ -20,8 +20,6 @@ In practice, we recommend that customers using the SLAS helper functions upgrade
 
 - Update SLAS helper function `loginGuestUserPrivate` to require `channel_id` and `loginGuestUser` to pass in `channel_id` to SLAS through `clientConfig.parameters.siteId` [#406](https://github.com/SalesforceCommerceCloud/commerce-sdk/pull/406)
 
-## v4.0.0
-
 ### API Changes
 
 *CDN Zones API*
