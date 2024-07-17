@@ -102,11 +102,14 @@ types:
   type: CommerceCloudStandards.Organization
   /shopper-context/{usid}:
     get:
-      description: Gets the shopper's context based on the shopperJWT.
+      description: |- 
+        Gets the shopper's context based on the shopperJWT.
+        
+        With B2C Commerce release 24.5, all endpoints in the Shopper context API will require the `siteId` parameter for new customers. This field is marked as optional for backward compatibility and will be changed to mandatory tentatively by January 2025.
       displayName: getShopperContext
       queryParameters:
         siteId: 
-          description: The identifier of the site to which the request is being sent. With B2C Commerce release 24.5, all new implementations of Shopper Context require the `siteId` query parameter to be passed. Existing customers with Shopper Context implementations should start including `siteId` going forward. Starting July 31 2024, `siteId` will be required for all customers, and a bad request response code will be returned for requests without a `siteId`.
+          description: The identifier of the site to which the request is being sent. With B2C Commerce release 24.5, all new implementations of Shopper Context require the `siteId` query parameter to be passed. Existing customers with Shopper Context implementations should start including `siteId` going forward. Starting January 2025, `siteId` will be required for all customers, and a bad request response code will be returned for requests without a `siteId`.
           example:
             SiteGenesis
           type: string
@@ -147,7 +150,10 @@ types:
       securedBy:
         - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-context, sfcc.shopper-context.rw] }    
     put:
-      description: Creates the shopper's context based on shopperJWT.
+      description: |-
+        Creates the shopper's context based on shopperJWT.
+        
+        With B2C Commerce release 24.5, all endpoints in the Shopper context API will require the `siteId` parameter for new customers. This field is marked as optional for backward compatibility and will be changed to mandatory tentatively by January 2025.
       displayName: createShopperContext
       queryParameters:
         siteId: 
@@ -200,7 +206,10 @@ types:
       securedBy:
         - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-context.rw] }  
     delete:
-      description: Gets the shopper's context based on the shopperJWT.
+      description: |-
+        Gets the shopper's context based on the shopperJWT. 
+        
+        With B2C Commerce release 24.5, all endpoints in the Shopper context API will require the `siteId` parameter for new customers. This field is marked as optional for backward compatibility and will be changed to mandatory tentatively by January 2025.
       displayName: deleteShopperContext
       queryParameters:
         siteId: 
@@ -240,7 +249,10 @@ types:
       securedBy:
         - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-context.rw] }    
     patch:
-      description: Updates the shopper's context based on the Shopper JWT. If the shopper context exists, it's updated with the patch body. If a `custom qualifier/assignment qualifer` or an `effectiveDateTime` or a `sourceCode` or a `customerGroupIds` is already present in the existing shopper context, its value is replaced by the corresponding value from the patch body. If a `custom qualifers'` or a `assignment qualifiers'` value is set to `null`, it's deleted from existing shopper context. If `effectiveDateTime` or `sourceCode` value is set to an empty string (""), it's deleted from existing shopper context. If `effectiveDateTime` or `sourceCode` value is set to `null`, it's ignored. If an `effectiveDateTime` or `sourceCode` or `custom/assignment qualifiiers'` value is new, it's added to the existing Shopper context. If `customerGroupIds` is set to empty array `[]` the existing value in shopper context is deleted.
+      description:  |-
+        Updates the shopper's context based on the Shopper JWT. If the shopper context exists, it's updated with the patch body. If a `custom qualifier/assignment qualifer` or an `effectiveDateTime` or a `sourceCode` or a `customerGroupIds` is already present in the existing shopper context, its value is replaced by the corresponding value from the patch body. If a `custom qualifers'` or a `assignment qualifiers'` value is set to `null`, it's deleted from existing shopper context. If `effectiveDateTime` or `sourceCode` value is set to an empty string (""), it's deleted from existing shopper context. If `effectiveDateTime` or `sourceCode` value is set to `null`, it's ignored. If an `effectiveDateTime` or `sourceCode` or `custom/assignment qualifiiers'` value is new, it's added to the existing Shopper context. If `customerGroupIds` is set to empty array `[]` the existing value in shopper context is deleted. 
+        
+        With B2C Commerce release 24.5, all endpoints in the Shopper context API will require the `siteId` parameter for new customers. This field is marked as optional for backward compatibility and will be changed to mandatory tentatively by January 2025.
       displayName: updateShopperContext
       queryParameters:
         siteId: 
