@@ -211,6 +211,7 @@ describe("Guest user flow", () => {
     },
     body: {
       grant_type: "client_credentials",
+      channel_id: "site_id",
     },
   };
 
@@ -242,6 +243,30 @@ describe("Guest user flow", () => {
     expect(spy.getCall(0).args[0]).to.be.deep.equals(expectedOptionsPrivate);
 
     expect(accessToken).to.be.deep.equals(expectedTokenResponse);
+  });
+
+  it("throws an error when channel_id is not passed into private client", async () => {
+    const mockSlasClient = createSlasClient();
+    const mockSlasClientNoSiteID = {
+      ...mockSlasClient,
+      clientConfig: {
+        parameters: {
+          ...mockSlasClient.clientConfig.parameters,
+          siteId: undefined, // siteId in client config is used for channel_id
+        },
+      },
+    };
+
+    try {
+      await slasHelper.loginGuestUserPrivate(mockSlasClientNoSiteID, {
+        clientSecret: credentials.clientSecret,
+      });
+      expect.fail("Expected error not thrown, this line should not be reached");
+    } catch (error) {
+      expect(error.message).to.equal(
+        "Required argument channel_id is not provided through clientConfig.parameters.siteId"
+      );
+    }
   });
 
   it("using a public client uses a code verifier and code challenge to generate token", async () => {
