@@ -17,7 +17,10 @@ uses:
 
 types:
   Campaign:
-    description: Document representing a campaign.
+    description: |-
+      Document representing a campaign.
+    type:
+      CommerceCloudStandards.OpenObject
     properties:
       campaignId:
         description: The ID of the campaign.
@@ -70,7 +73,9 @@ types:
   Promotion:
     description: |-
       Document representing a promotion. Unless otherwise stated, attributes of this document are not supported when using
-       the Open Commerce API to update multiple promotions at once.
+      the Open Commerce API to update multiple promotions at once.
+    type:
+      CommerceCloudStandards.OpenObject   
     properties:
       archived:
         description: |-
@@ -89,7 +94,7 @@ types:
       currencyCode:
         description: |-
           The ISO 4217 mnemonic code of the currency this promotion is restricted to. If not populated, then there is no
-           currency restriction on the promotion.
+          currency restriction on the promotion.
         maxLength: 3
         type: string
         required: false
@@ -145,6 +150,8 @@ types:
           type: Tag
         required: false
   PromotionAbtestGroupAssignment:
+    type:
+      CommerceCloudStandards.ClosedObject
     properties:
       abtestDescription:
         type: string
@@ -159,6 +166,8 @@ types:
       segmentId:
         type: string
   PromotionAssignmentInformation:
+    type:
+      CommerceCloudStandards.ClosedObject
     properties:
       abtestId:
         description: |-
@@ -227,7 +236,10 @@ types:
         items:
           type: PromotionCampaignAssignment
   PromotionCampaignAssignment:
-    description: Document representing a promotion campaign assignment.
+    type:
+      CommerceCloudStandards.ClosedObject
+    description: |-
+      Document representing a promotion campaign assignment.
     properties:
       campaign:
         description: The campaign.
@@ -277,7 +289,10 @@ types:
         items:
           type: string
   Schedule:
-    description: Document representing a time schedule for slots.
+    type:
+      CommerceCloudStandards.ClosedObject
+    description: |-
+      Document representing a time schedule for slots.
     properties:
       endDate:
         description: 'The date to end of validity. ISO8601 date time format: yyyy-MM-dd''T''HH:mm:ssZ.'
@@ -289,7 +304,10 @@ types:
         description: 'The date to start validity. ISO8601 date time format: yyyy-MM-dd''T''HH:mm:ssZ.'
         type: datetime
   Recurrence:
-    description: Document representing a schedule recurrence.
+    type:
+      CommerceCloudStandards.ClosedObject
+    description: |-
+      Document representing a schedule recurrence.
     properties:
       dayOfWeek:
         description: The days of week for recurrence.
@@ -308,7 +326,10 @@ types:
         description: The time of the day for recurrence.
         type: TimeOfDay
   TimeOfDay:
-    description: Document representing a time schedule within a single day.
+    type:
+      CommerceCloudStandards.ClosedObject
+    description: |-
+      Document representing a time schedule within a single day.
     properties:
       timeFrom:
         description: |-
@@ -321,7 +342,10 @@ types:
            are ignored and set to 0.
         type: string
   Tag:
-    description: Document representing a tag.
+    type:
+      CommerceCloudStandards.ClosedObject
+    description: |-
+      Document representing a tag.
     properties:
       tagId:
         description: The ID of the tag.

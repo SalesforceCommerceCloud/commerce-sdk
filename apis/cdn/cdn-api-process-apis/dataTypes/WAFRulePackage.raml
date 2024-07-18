@@ -1,0 +1,27 @@
+#%RAML 1.0 DataType
+
+properties:
+  id:
+    type: string
+    example: a25a9a7e9c00afc1fb2e0245519d725b
+    maxLength: 32
+  name:
+    type: string
+    description: Name of the firewall package
+  description:
+    type: string
+    description: Summary of purpose/function of firewall package
+  detection_mode:
+    type: string
+    description: How the rules within the package are evaluated during the course of a request. When a package uses anomaly detection, each rule is given a score when triggered. If the total score of all triggered rules exceeds the sensitivity defined on the package, the action defined on the package is taken. Traditional detection decides which action to take when it is triggered by the request. If multiple rules are triggered, the action with highest protection is used. For example, a block action beats a challenge.
+  zone_id:
+    type: string
+    description: Zone identifier with which this rule package is associated.
+  sensitivity:
+    type: string
+    enum: ["low", "medium", "high", "off"]
+    description: Sensitivity for traditional (owasp) rule package.
+  action_mode:
+    type: string
+    enum: ["simulate", "challenge", "block"]
+    description: The default action that is taken for rules under traditional(owasp) firewall package.

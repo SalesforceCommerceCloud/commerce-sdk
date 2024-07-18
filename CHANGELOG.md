@@ -2,14 +2,48 @@
 
 ## v4.0.0
 
-### :warning: Planned Shopper Context Changes :warning: 
+### :warning: Planned API Changes :warning: 
 
-Starting July 31st 2024, all endpoints in the Shopper context API will require the `siteId` parameter for new customers. This field is marked as optional for backward compatibility and will be changed to mandatory tentatively by January 2025.
+#### Shopper Context
+
+Starting July 31st 2024, all endpoints in the Shopper context API will require the `siteId` parameter for new customers. This field is marked as optional for backward compatibility and will be changed to mandatory tentatively by January 2025. You can read more about the planned change [here](https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-context?meta=Summary) in the notes section.
+
+#### Shopper Login (SLAS)
+
+SLAS will soon require new tenants to pass `channel_id` as an argument for retrieving guest access tokens. You can read more about the planned change [here](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas.html#guest-tokens).
+
+Please be aware that existing tenants are on a temporary allow list and will see no immediate disruption to service.  We do ask that all users seek to adhere to the `channel_id` requirement before the end of August to enhance your security posture before the holiday peak season.
+
+In practice, we recommend that customers using the SLAS helper functions upgrade to `v4.0.0` of the `commerce-sdk`.
 
 ### Enchancements
 
-- Update SLAS helper function `loginGuestUserPrivate` to require `channel_id` as SLAS requires `channel_id` when requesting a guest access token with a `grant_type` of `client_credentials` starting July 31st 2024 [#406](https://github.com/SalesforceCommerceCloud/commerce-sdk/pull/406)
-  - See the [announcement on the developer docs](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas.html#guest-tokens) for more information
+- Update SLAS helper function `loginGuestUserPrivate` to require `channel_id` and `loginGuestUser` to pass in `channel_id` to SLAS through `clientConfig.parameters.siteId` [#406](https://github.com/SalesforceCommerceCloud/commerce-sdk/pull/406)
+
+### API Changes
+
+*CDN Zones API*
+
+* Endpoints added
+  | **Endpoint Name** | **Description**                   |
+  | ------------- |-----------------------------------|
+  | getOwaspWafPackage | Get a OWASP ModSecurity Core Rule Set. |
+  | patchOwaspWafPackage | Patch a OWASP ModSecurity Core Rule Set. |
+  | getWafManagedRulesInRuleset | Retrieves all rules in the specified WAFv2 managed ruleset. |
+  | updateWafManagedRuleInRuleset | Updates a WAF managed rule in the specified WAFv2 managed ruleset. |
+  | migrateZoneToWafV2 | Migrates a zone to WAFv2. Only applicable for existing zones using WAFv1. |
+  | upsertOriginHeaderModification | Upsert origin header modification. |
+  | getOriginHeaderModification | Get origin header modification associated with a zone. |
+  | deleteOriginHeaderModification | Delete the origin header modification associated with a zone. |
+
+* **BREAKING**: Removed deprecated endpoints
+  * getFirewallRules
+  * createFirewallRule
+  * getFirewallRule
+  * updateFirewallRule
+  * deleteFirewallRule
+
+  NOTE: As of February 6th, 2024, firewall rules are deprecated and customers can use [eCDN custom rules](https://developer.salesforce.com/docs/commerce/commerce-api/guide/cdn-zones-custom-rules.html) moving forward.
 
 ## v3.1.0
 
