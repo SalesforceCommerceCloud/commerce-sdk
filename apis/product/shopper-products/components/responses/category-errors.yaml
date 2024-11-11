@@ -1,0 +1,48 @@
+openapi: 3.0.3
+info:
+  title: Shopper Products API - Category Error Responses
+  description: "Shopper Products API - Category Error Responses"
+  version: 1.0.0
+paths: {}
+components:
+  responses:
+    GetCategoryBadRequestResponse:
+      description: "<Description> GetCategoryBadRequestResponse"
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../../dependencies/commerce-cloud-standards-oas-1.0.0-SNAPSHOT/components/schemas/common.yaml#/components/schemas/ErrorResponse'
+          examples:
+            GetCategoryBadRequestResponseExample:
+              value:
+                title: Bad Request
+                type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/validation
+                detail: Maximum number of categories you can request in one call is 50.
+
+    GetCategoryNotFoundResponse:
+      description: "<Description> GetProductNotFoundResponse"
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../../dependencies/commerce-cloud-standards-oas-1.0.0-SNAPSHOT/components/schemas/common.yaml#/components/schemas/ErrorResponse'
+          examples:
+            GetCategoryNotFoundResponseExample:
+              value:
+                title: Category Not Found
+                type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/product-not-found
+                detail: No category with ID 'electronics-televi' for site 'SiteGenesis' could be found.
+                productId: electronics-televi
+                siteId: SiteGenesis
+
+    GetCategoriesBadRequestResponse:
+      description: "<Description> GetProductsBadRequestResponse"
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../../dependencies/commerce-cloud-standards-oas-1.0.0-SNAPSHOT/components/schemas/common.yaml#/components/schemas/ErrorResponse'
+          examples:
+            GetCategoriesBadRequestResponseExample:
+              value:
+                title: Bad Request
+                type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/validation
+                detail: Maximum number of categories you can request in one call is 50.

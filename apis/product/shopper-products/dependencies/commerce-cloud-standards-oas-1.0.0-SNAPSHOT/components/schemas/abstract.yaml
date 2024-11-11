@@ -1,0 +1,177 @@
+openapi: 3.0.3
+info:
+  title: Abstract Schema Definition
+  description: Abstract definition of a super schemas and a set of metadata property schemas
+  version: 1.0.0
+paths: {}
+components:
+  schemas:
+    ClosedObject:
+      description: This type is intended as an abstract super schema that indicates that no additional properties are supported for this type and its sub types. All types that do not support any additional properties should inherit from this schema. This schema is not allowed to be used directly in any API and should always be extended.
+      type: object
+      additionalProperties: false
+    OpenObject:
+      description: |-
+        This type is intended as an abstract super schema that indicates that additional properties are supported for this type and its sub types (unless one of those subtypes inherits from `ClosedObject`). All types that support any additional properties should inherit from this type. This type is not allowed to be used directly in any API and should always be extended.
+        To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`. The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+      type: object
+      additionalProperties:
+        title: Additional Property Support
+        description: This type supports additional properties passed along with the defined properties of this API. To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`. The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_faxNumber
+        type: string
+    PropertyDefinition:
+      description: A collection of metadata describing the properties of a type. This can include properties that are provided by the system, and properties that are defined by the merchant to extend the base types.
+      allOf:
+        - $ref: '#/components/schemas/ClosedObject'
+        - properties:
+            defaultValue:
+              description: The optional default value of this property.
+              $ref: '#/components/schemas/PropertyValueDefinition'
+            id:
+              pattern: ^[A-Za-z0-9]+$
+              description: The unique identifier for the property.
+              example: color
+              type: string
+            name:
+              description: The short, localized name of the definition, suitable for use in simple identifiers such as labels.
+              example:
+                default: color
+                de: fabre
+              $ref: './iso-standards.yaml#/components/schemas/LocalizedString'
+            description:
+              description: A localized description of the property, describing the property in detail.
+              example:
+                default: The color of the product.
+                de: Die Farbe des Produkts.
+              $ref: './iso-standards.yaml#/components/schemas/LocalizedString'
+            key:
+              default: false
+              description: A flag indicating if this property is part of the primary unique identifier of this type.
+              example: false
+              type: boolean
+            localizable:
+              default: false
+              description: A flag indicating if this property supports localization.
+              example: false
+              type: boolean
+            mandatory:
+              default: false
+              description: A flag indicating if this property must be passed when creating or updating the type.
+              example: false
+              type: boolean
+            max:
+              format: double
+              description: If numeric, the maximum possible value for this property.
+              example: 100
+              type: number
+            minLength:
+              format: int32
+              description: The minimum length of a value required when passing this property.
+              example: 5
+              type: integer
+            min:
+              format: double
+              description: If numeric, the minimum possible value for this property.
+              example: 10
+              type: number
+            multiValueType:
+              default: false
+              description: A flag indicating if the property supports multiple values. Most property valueTypes only support one value. The valueTypes `int`, `double`, `string`,`enum_of_int` and `enum_of_string` may set this property to support multiple values.
+              example: false
+              type: boolean
+            regularExpression:
+              description: A regular expression that defines the valid values for this property. The exact regular expression syntax is determined by the implementation of the API.
+              example: .*[a-zA-Z]{2,}+.*
+              type: string
+            scale:
+              default: 2
+              format: int32
+              description: If the property supports floating point numbers, the number of decimal digits for a numeric value of this property.
+              example: 2
+              type: integer
+            searchable:
+              default: false
+              description: A flag indicating if this property is intended to be indexed for searching in the customer facing storefront.
+              example: true
+              type: boolean
+            siteSpecific:
+              default: false
+              description: A flag indicating if this property supports different values for each storefront.
+              example: false
+              type: boolean
+            system:
+              default: false
+              description: A flag indicating if this property is provided by the system.
+              example: true
+              type: boolean
+            unit:
+              description: If numeric, identifes what unit of measure the value of this property is measured by.
+              example:
+                default: inches
+                de: Zoll
+              $ref: './iso-standards.yaml#/components/schemas/LocalizedString'
+            possibleValues:
+              description: A set of values that are possible for this property.
+              type: array
+              items:
+                $ref: '#/components/schemas/PropertyValueDefinition'
+            type:
+              description: The data type of this property.
+              example: string
+              enum:
+                - string
+                - int
+                - double
+                - text
+                - html
+                - date
+                - image
+                - boolean
+                - money
+                - quantity
+                - datetime
+                - email
+                - password
+                - enum_of_string
+                - enum_of_int
+              type: string
+            visible:
+              default: true
+              description: A flag indicating that this property is visible.
+              example: true
+              type: boolean
+          type: object
+      type: string
+    PropertyValueDefinition:
+      description: Represents an actual or possible value for a property
+      allOf:
+        - $ref: '#/components/schemas/ClosedObject'
+        - properties:
+            description:
+              description: A description of the property value.
+              example:
+                default: Rose Red
+                de: Rosenrot
+              $ref: './iso-standards.yaml#/components/schemas/LocalizedString'
+            displayValue:
+              description: A display name that can be used to present this value in the user interface. For example, if the property is 'color', the value might be '1' but the display might  be 'Red'.
+              example:
+                default: Red
+                de: Rot
+              $ref: './iso-standards.yaml#/components/schemas/LocalizedString'
+            id:
+              description: The unique id of the property value.
+              example: "1"
+              type: string
+            position:
+              format: double
+              description: The position of the property value within the collection of possible property values.
+              example: 0
+              type: number
+            value:
+              description: The value of the property.
+              example: "1"
+              type: string
+          type: object
+      type: string

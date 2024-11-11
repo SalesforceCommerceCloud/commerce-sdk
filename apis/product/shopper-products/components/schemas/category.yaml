@@ -1,0 +1,114 @@
+openapi: 3.0.3
+info:
+  title: Shopper Products API - Category Schemas
+  description: "Shopper Products API - Category Schemas"
+  version: 1.0.0
+paths: {}
+components:
+  schemas:
+    Category:
+      description: Categories allow products to be organized into hierarchical structures. Categories can have relationships to other parent categories. Each category can also provide a context inherited by subcategories. For example, a category may have an attribute value assigned to it, and any product assigned to the category or a subcategory would inherit the attribute value as long as the product is assigned. Once the product is removed from the category those attribute values would no longer be in the context of the product. Linking of categories is also used for Site hierarchical navigation. For example, inside 'Clothing' you may have 'Mens', and inside 'Mens' you may have 'Pants'. Categories are not *Tags.*
+      properties:
+        categories:
+          description: Array of subcategories. Can be empty.
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+        description:
+          description: The localized description of the category.
+          example: Category description for Men's Category
+          type: string
+        id:
+          $ref: '#/components/schemas/CategoryId'
+        image:
+          description: The URL of the category image.
+          type: string
+        name:
+          description: The localized name of the category.
+          example: Men's Category
+          type: string
+        onlineSubCategoriesCount:
+          format: int64
+          description: The total number of online sub-categories. This information will be available from B2C Commerce version 24.5.
+          type: integer
+        pageDescription:
+          description: The localized page description of the category.
+          example: This category ahs all men's clothing
+          type: string
+        pageKeywords:
+          description: The localized page keywords of the category.
+          example: Mens, shirts
+          type: string
+        pageTitle:
+          description: The localized page title of the category.
+          example: Men's Category
+          type: string
+        parentCategoryId:
+          description: The ID of the parent category.
+          example: apparel
+          type: string
+        parentCategoryTree:
+          description: The List of the parent categories.
+          type: array
+          items:
+            $ref: '#/components/schemas/PathRecord'
+        thumbnail:
+          description: The URL of the category thumbnail.
+          example: https://www.exampleimage.com/images/categoryImage.jpg
+          type: string
+      required:
+        - id
+      type: object
+    CategoryId:
+      description: The ID of the category.
+      type: string
+      maxLength: 256
+      example: electronics-digital-cameras
+    CategoryIds:
+      description: The comma separated list of category IDs (max 50).
+      type: string
+      example: electronics-digital-cameras,electronics-televisions
+    CategoryResult:
+      description: Result document containing an array of categories.
+      properties:
+        limit:
+          format: int32
+          description: The number of returned documents.
+          example: 10
+          type: integer
+        data:
+          description: The array of category documents.
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+        total:
+          format: int32
+          description: The total number of documents.
+          example: 5
+          type: integer
+      required:
+        - limit
+        - data
+        - total
+      type: object
+    Levels:
+      description: Specifies how many levels of nested subcategories you want the server to return. The default value is 1. Valid values are 0, 1, or 2.
+      type: integer
+      format: int32
+      minimum: 0
+      enum:
+        - 0
+        - 1
+        - 2
+    PathRecord:
+      description: Document representing most basic info (id and name) of a category or catalog.
+      properties:
+        id:
+          description: The id of the category path.
+          example: mens
+          type: string
+        name:
+          description: The name of the category path.
+          example: mens
+          type: string
+      type: object

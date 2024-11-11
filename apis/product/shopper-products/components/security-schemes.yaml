@@ -1,0 +1,83 @@
+openapi: 3.0.3
+info:
+  title: Security Schemes
+  description: Shopper OAuth 2.0 bearer token Authentication.
+  version: 1.0.0
+paths: {}
+#Usage: Make a copy of the security scheme definition to be used in your API
+#Only adjust the scope section following the described naming conventions.
+#All other field MUST be unchanged - enforced/checked by oas-scapi linter.
+
+components:
+  securitySchemes:
+    ShopperToken:
+      type: oauth2
+      description: |
+        ShopperToken authentication follows the authorization code grant flow, as defined by the OAuth 2.1 standard. Depending on the type of OAuth client (public or private), this authorization flow has further requirements. 
+        For a detailed description of the authorization flow, see the [SLAS overview](https://developer.salesforce.com/docs/commerce/commerce-api/references?meta=shopper-login:Summary).
+        A shopper token allows you to access the Shopper API endpoints of both OCAPI and the B2C Commerce API. These endpoints can be used to build headless storefronts and other applications.
+        The `ShopperToken` security scheme is a parent of other security schemes, such as `ShopperTokenTsob`. A Shopper API endpoint can require a specific child scheme (`ShopperTokenTsob`, for example) that cannot be accessed with a regular shopper token.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/authorize
+          tokenUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
+          scopes:
+            echo:read: Allows read operation on echo resource
+            example: Just an example
+        clientCredentials:
+          tokenUrl: https://{shortCode}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
+          scopes:
+            sfcc.shopper-products: scope granting read-access to product endpoints
+            sfcc.shopper-categories: scope granting read-access to category endpoints
+
+
+    ShopperTokenTaob:
+      type: oauth2
+      description: |
+        `ShopperTokenTaob` (Taob = trusted agent on behalf) is a child of the `ShopperToken` security scheme and extends the functionality of `ShopperToken` for specific use cases. 
+        A token of type `ShopperTokenTaob` allows you to access Shopper API endpoints, including OCAPI and Salesforce Commerce API for headless applications. Besides endpoints that require this specific subtype, all other endpoints secured by the `ShopperToken` parent scheme can be accessed with a `ShopperTokenTaob`.
+        To get a `ShopperTokenTaob` token, a `Taob` session needs to be created first (see [getTrustedAgentAuthorizationToken](https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-login?meta=getTrustedAgentAuthorizationToken)). 
+        Afterwards the `ShopperTokenTaob` token can be gained (see [getTrustedAgentAccessToken](https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-login?meta=getTrustedAgentAccessToken)).
+        For more information regarding the `Taob` flow see also [Trusted Agent Authorization](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-trusted-agent.html).
+      flows:
+        clientCredentials:
+          tokenUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/trusted-agent/token
+          scopes:
+            c.example: custom scopes mus start with c. used for custom APIs [MAX length of scope 49 characters]
+            sfcc.shopper-example: standard salesforce commerce apis scopes must start with "sfcc.". Without suffix ".rw" scopes grants READONLY access. [MAX length of scope 49 characters]
+            sfcc.shopper-example.rw: salesforce commerce apis scopes must start with "sfcc.". The suffix ".rw" scopes grants READ and WRITE access. [MAX length of scope 49 characters]
+
+    ShopperTokenTsob:
+      type: oauth2
+      description: |
+        `ShopperTokenTsob` (Tsob = trusted system on behalf) is a child of the `ShopperToken` security scheme and extends the functionality of `ShopperToken` for specific use cases. 
+        A token of type `ShopperTokenTsob` allows you to access Shopper API endpoints, including OCAPI and Salesforce Commerce API for headless applications. 
+        Besides endpoints that require this specific subtype, all other endpoints secured by the `ShopperToken` parent scheme can be accessed with a `ShopperTokenTsob`.
+        To learn how to get a `ShopperTokenTsob` token, see [getTrustedSystemAccessToken](https://developer.salesforce.com/docs/commerce/commerce-api/references?meta=shopper-login:getTrustedSystemAccessToken).
+      flows:
+        clientCredentials:
+          tokenUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/trusted-system/token
+          scopes:
+            c.example: custom scopes mus start with c. used for custom APIs [MAX length of scope 49 characters]
+            sfcc.shopper-example: standard salesforce commerce apis scopes must start with "sfcc.". Without suffix ".rw" scopes grants READONLY access. [MAX length of scope 49 characters]
+            sfcc.shopper-example.rw: salesforce commerce apis scopes must start with "sfcc.". The suffix ".rw" scopes grants READ and WRITE access. [MAX length of scope 49 characters]
+
+    AmOAuth2:
+      type: oauth2
+      description: AccountManager OAuth 2.0 bearer token Authentication.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://account.demandware.com/dwsso/oauth2/authorize
+          tokenUrl: https://account.demandware.com/dwsso/oauth2/access_token
+          scopes:
+            c.example: custom scopes mus start with c. used for custom APIs [MAX length of scope 49 characters]
+            sfcc.example: standard salesforce commerce apis scopes must start with "sfcc.". Without suffix ".rw" scopes grants READONLY access. [MAX length of scope 49 characters]
+            sfcc.example.rw: salesforce commerce apis scopes must start with "sfcc.". The suffix ".rw" scopes grants READ and WRITE access. [MAX length of scope 49 characters]
+
+        clientCredentials:
+          tokenUrl: https://account.demandware.com/dwsso/oauth2/access_token
+          scopes:
+            c.example: custom scopes mus start with c. used for custom APIs [MAX length of scope 49 characters]
+            sfcc.example: standard salesforce commerce apis scopes must start with "sfcc.". Without suffix ".rw" scopes grants READONLY access. [MAX length of scope 49 characters]
+            sfcc.example.rw: salesforce commerce apis scopes must start with "sfcc.". The suffix ".rw" scopes grants READ and WRITE access. [MAX length of scope 49 characters]
+

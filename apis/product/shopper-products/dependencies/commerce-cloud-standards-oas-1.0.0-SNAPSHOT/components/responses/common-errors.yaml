@@ -1,0 +1,37 @@
+openapi: 3.0.3
+info:
+  title: Common Error Responses
+  description: Collection of standard error responses in Salesforce Commerce APIs
+  version: 1.0.0
+paths: {}
+components:
+  responses:
+    "401unauthorized":
+      description: Your access token is invalid or expired and can’t be used to identify a user.
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/common.yaml#/components/schemas/ErrorResponse'
+          examples:
+            UnauthorizedExample:
+              $ref: '#/components/examples/UnauthorizedExample'
+    "403forbidden":
+      description: Forbidden. Your access token is valid, but you don’t have the required permissions to access the resource.
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/common.yaml#/components/schemas/ErrorResponse'
+          examples:
+            ForbiddenExample:
+              $ref: '#/components/examples/ForbiddenExample'
+  examples:
+    ForbiddenExample:
+      value:
+        type: "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/forbidden"
+        title: Forbidden
+        detail: Your access token is valid, but you don’t have the required permissions to access the resource.
+    UnauthorizedExample:
+      value:
+        type: "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/unauthorized"
+        title: Unauthorized
+        detail: Your access token is invalid or expired and can’t be used to identify a user.

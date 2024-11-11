@@ -1,0 +1,72 @@
+openapi: 3.0.3
+info:
+  title: Common Schemas
+  description: Data Types that don't fit into any specific category like search related types can be entered into this catch-all library.
+  version: 1.0.0
+paths: {}
+components:
+  schemas:
+    SiteId:
+      minLength: 1
+      maxLength: 32
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites
+      example: SiteGenesis
+      type: string
+    OrganizationId:
+      description: An identifier for the organization the request is being made by
+      example: f_ecom_zzxy_prd
+      type: string
+      minLength: 1
+      maxLength: 32
+    ShortCode:
+      type: string
+      description: A region-specific merchant identifier.
+      minLength: 1
+      pattern: '([a-z0-9]+)(-[a-z0-9]+)*'
+      example: 0dnz6oep
+    Select:
+      minLength: 1
+      description: The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names or work with wildcards. You can also specify array operations and filter expressions. The actual selector value must be enclosed within parentheses.
+      example: (name,id,variationAttributes.(**))
+      type: string
+      pattern: '^[(].*[)]$'
+    ErrorResponse:
+      type: object
+      properties:
+        title:
+          description: |
+            A short, human-readable summary of the problem
+            type.  It will not change from occurrence to occurrence of the 
+            problem, except for purposes of localization
+          type: string
+          example: "You do not have enough credit"
+        type:
+          description: |
+            A URI reference [RFC3986] that identifies the
+            problem type.  This specification encourages that, when
+            dereferenced, it provide human-readable documentation for the
+            problem type (e.g., using HTML [W3C.REC-html5-20141028]).  When
+            this member is not present, its value is assumed to be
+            "about:blank". It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          example: "NotEnoughMoney"
+        detail:
+          description: A human-readable explanation specific to this occurrence of the problem.
+          type: string
+          example: Your current balance is 30, but that costs 50
+        instance:
+          description: |
+            A URI reference that identifies the specific
+            occurrence of the problem.  It may or may not yield further
+            information if dereferenced.  It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          example: "/account/12345/msgs/abc"
+      required:
+        - title
+        - type
+        - detail
+

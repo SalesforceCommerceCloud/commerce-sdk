@@ -1,0 +1,77 @@
+openapi: 3.0.3
+info:
+  title: Example API
+  version: 2.0.1
+  description: An example file demonstrating the usage of the commerce cloud standard components.
+servers:
+  - url: https://{shortCode}.api.commercecloud.salesforce.com/standards/example/{version}
+    variables:
+      shortCode:
+        default: 123456gf
+      version:
+        default: v1
+paths:
+  /organizations/{organizationId}/foo:
+    get:
+      security:
+        - ShopperToken: [sfcc.shopper-example.rw]
+      responses:
+        "200":
+          description: an example response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: './components/schemas/iso-standards.yaml#/components/schemas/LocaleCode'
+                  - $ref: './components/schemas/iso-standards.yaml#/components/schemas/Money'
+      description: Example get Method
+      operationId: getFoo
+      parameters:
+        - $ref: './components/parameters.yaml#/components/parameters/siteId'
+        - $ref: './components/parameters.yaml#/components/parameters/limit'
+        - $ref: './components/parameters.yaml#/components/parameters/select'
+        - $ref: './components/parameters.yaml#/components/parameters/offset'
+
+    parameters:
+      - $ref: './components/parameters.yaml#/components/parameters/organizationId'
+  /organizations/{organizationId}/bar:
+    post:
+      description: |-
+        Another example get method
+        ## Scopes
+        This endpoint requires that you have access to the following scopes: shopper-example
+      operationId: postBar
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: './components/schemas/search.yaml#/components/schemas/SearchRequestBase'
+        required: true
+      responses:
+        "200":
+          description: another example response
+          content:
+            application/json:
+              schema:
+                $ref: './components/schemas/search.yaml#/components/schemas/SimpleSearchResultBase'
+        "403":
+          $ref: './components/responses/common-errors.yaml#/components/responses/403forbidden'
+
+      parameters:
+        - $ref: './components/parameters.yaml#/components/parameters/siteId'
+      security:
+        - ShopperToken: [sfcc.shopper-example]
+    parameters:
+      - $ref: './components/parameters.yaml#/components/parameters/organizationId'
+  /organizations/{organizationId}/bar/{id}:
+    get:
+      description: ""
+      parameters: []
+      responses:
+        "200":
+          description: "OK"
+
+components:
+  securitySchemes:
+    ShopperToken:
+      $ref: './components/security-schemes.yaml#/components/securitySchemes/ShopperToken'

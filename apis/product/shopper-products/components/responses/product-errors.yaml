@@ -1,0 +1,55 @@
+openapi: 3.0.3
+info:
+  title: Shopper Products API - Product Error Responses
+  description: "Shopper Products API - Product Error Responses"
+  version: 1.0.0
+paths: {}
+components:
+  responses:
+    GetProductBadRequestResponse:
+      description: "<Description> GetProductBadRequestResponse"
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../../dependencies/commerce-cloud-standards-oas-1.0.0-SNAPSHOT/components/schemas/common.yaml#/components/schemas/ErrorResponse'
+          examples:
+            MalformedSelectorResponseExample:
+              value:
+                title: Malformed Selector
+                type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/malformed-selector
+                detail: The property selector '(brand,imageGroups.(**)' is malformed.
+                selector: (brand,imageGroups.(**)
+
+    GetProductNotFoundResponse:
+      description: "<Description> GetProductNotFoundResponse"
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../../dependencies/commerce-cloud-standards-oas-1.0.0-SNAPSHOT/components/schemas/common.yaml#/components/schemas/ErrorResponse'
+          examples:
+            GetProductNotFoundResponseExample:
+              value:
+                title: Product Not Found
+                type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/product-not-found
+                detail: No product with ID 'pple-ipod-shuffle' for site 'SiteGenesis' could be found.
+                productId: pple-ipod-shuffle
+                siteId: SiteGenesis
+
+    GetProductsBadRequestResponse:
+      description: "<Description> GetProductsBadRequestResponse"
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../../dependencies/commerce-cloud-standards-oas-1.0.0-SNAPSHOT/components/schemas/common.yaml#/components/schemas/ErrorResponse'
+          examples:
+            GetProductsBadRequestResponseExample:
+              value:
+                title: Bad Request
+                type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/validation
+                detail: Maximum number of products you can request in one call is 25.
+            MalformedSelectorResponseExample:
+              value:
+                title: Malformed Selector
+                type: "https://api.commercecloud.salesforce.com/documentation/error/v1/errors/malformed-selector"
+                detail: The property selector '(data.(name, imageGroups.(**))' is malformed.
+                selector: (data.(name, imageGroups.(**))

@@ -1,0 +1,751 @@
+openapi: 3.0.3
+info:
+  title: Shopper Products API - Product Schemas
+  description: "Shopper Products API - Product Schemas"
+  version: 1.0.0
+paths: {}
+components:
+  schemas:
+    AllImages:
+      description: The flag that indicates whether to retrieve the whole image model for the requested product.
+      type: boolean
+    BundledProduct:
+      description: A bundle of products that can be bought together (all or nothing). Each product in the bundle can itself be bought independently, but this is outside of the context of the bundle. A bundle is a purchasing convenience. *Product bundle has a SKU and price.*
+      properties:
+        id:
+          example: "823476"
+          type: string
+        product:
+          description: The product being bundled.
+          $ref: '#/components/schemas/Product'
+        quantity:
+          format: double
+          description: For the product being bundled, the quantity added to the bundle.
+          example: 5
+          type: number
+      required:
+        - id
+        - product
+        - quantity
+      type: object
+    Image:
+      description: Product image
+      properties:
+        alt:
+          description: The localized alternative text of the image.
+          example: Apple iPod Shuffle, large
+          type: string
+        disBaseLink:
+          description: Base URL for the Dynamic Image Service (DIS) address. This is only shown if the image is stored on the server and DIS is enabled.
+          example: https://example.com/images/large/ipod-shuffle-silver.jpg
+          type: string
+        link:
+          minLength: 1
+          description: The URL of the actual image.
+          example: https://example.com/on/demandware.static/-/Sites-electronics-catalog/default/dwc2/images/large/ipod-shuffle.jpg
+          type: string
+        title:
+          description: The localized title of the image.
+          example: Apple iPod Shuffle
+          type: string
+      required:
+        - link
+      type: object
+    ImageGroup:
+      description: Document representing an image group containing a list of images for a particular view type and an optional variation value.
+      properties:
+        images:
+          description: The images of the image group.
+          type: array
+          items:
+            $ref: '#/components/schemas/Image'
+        variationAttributes:
+          description: Returns a list of variation attributes applying to this image group.
+          type: array
+          items:
+            $ref: '#/components/schemas/VariationAttribute'
+        viewType:
+          description: The image view type.
+          example: hi-res
+          type: string
+      required:
+        - images
+        - viewType
+      type: object
+    Inventory:
+      description: Document representing inventory information of the current product for a particular inventory list.
+      properties:
+        ats:
+          format: double
+          description: |-
+            The Available To Sell (ATS) of the product. If it is infinity, the return value is 999999. The value can be overwritten by the
+             OCAPI setting 'product.inventory.ats.max_threshold'.
+          example: 15
+          type: number
+        backorderable:
+          description: A flag indicating whether the product is backorderable.
+          example: true
+          type: boolean
+        id:
+          $ref: '#/components/schemas/InventoryId'
+        inStockDate:
+          description: A flag indicating the date when the product will be in stock.
+          example: "9999-12-31T00:00:00.0Z"
+          type: string
+          format: date-time
+        orderable:
+          description: A flag indicating whether at least one of the products is available to sell.
+          example: true
+          type: boolean
+        preorderable:
+          description: A flag indicating whether the product is preorderable.
+          example: false
+          type: boolean
+        stockLevel:
+          format: double
+          description: |-
+            The stock level of the product. If it is infinity, the return value is 999999. The value can be overwritten by the
+             OCAPI setting 'product.inventory.stock_level.max_threshold'.
+          example: 10
+          type: number
+      required:
+        - id
+      type: object
+    InventoryId:
+      description: The inventory ID.
+      type: string
+      example: "SiteList"
+    InventoryIds:
+      description: The optional inventory list IDs, for which the availability should be shown (comma-separated, max 5 inventoryListIDs).
+      example: "Site1InventoryList,Site2InventoryList,Site3InventoryList,Site4InventoryList,Site5InventoryList"
+      type: string
+    Master:
+      description: The master product is a representation of a group of variant products. This is a non-buyable entity, provides inheritable attributes for its product variants, and is used for navigation. *Doesn't have a SKU.*
+      properties:
+        masterId:
+          description: The ID (SKU) of the master product.
+          allOf:
+            - $ref: '#/components/schemas/ProductId'
+        orderable:
+          description: A flag indicating whether at least one of the variants can be ordered.
+          example: true
+          type: boolean
+        price:
+          format: double
+          description: The minimum sales price of the related variants.
+          example: 15.99
+          type: number
+        priceMax:
+          format: double
+          description: The maximum sales price of the related variants.
+          example: 25.99
+          type: number
+        prices:
+          description: List of sale prices.
+          type: object
+          additionalProperties:
+            format: double
+            type: number
+      required:
+        - masterId
+      type: object
+    Option:
+      description: Product options enable you to sell configurable products that have optional accessories, upgrades, or additional services. Options are always purchased with a product and can't be purchased separately. *Product Option has a SKU and a price associated with it.*
+      properties:
+        description:
+          description: The localized description of the option.
+          example: Get this Option
+          type: string
+        id:
+          description: The ID of the option.
+          example: Warranty
+          allOf:
+            - $ref: '#/components/schemas/ProductId'
+        image:
+          description: The URL to the option image.
+          example: https://www.exampleimage.com/images/optionImage.jpg
+          type: string
+        name:
+          description: The localized name of the option.
+          example: Warranty
+          type: string
+        values:
+          description: The array of option values. This array can be empty.
+          type: array
+          items:
+            $ref: '#/components/schemas/OptionValue'
+      required:
+        - id
+      type: object
+    OptionValue:
+      description: Document representing an option value.
+      properties:
+        default:
+          description: A flag indicating whether this option value is the default one.
+          example: true
+          type: boolean
+        id:
+          description: The ID of the option value.
+          example: 5YR
+          allOf:
+            - $ref: '#/components/schemas/ProductId'
+        name:
+          description: The localized name of the option value.
+          example: 5 Year Warranty
+          type: string
+        price:
+          format: double
+          description: The effective price of the option value.
+          example: 15.99
+          type: number
+      required:
+        - id
+      type: object
+    PerPricebook:
+      description: The flag that indicates whether to retrieve the per PriceBook prices and tiered prices (if available) for requested Products. Available end of June, 2021.
+      type: boolean
+    PriceRange:
+      description: Document representing price ranges for a product which happens to be a master product (per Pricebook)
+      properties:
+        maxPrice:
+          format: double
+          description: Maximum price for the given pricebook (usually for a master Product would be the price for the Variant which has the highest price out of all Variants in that pricebook)
+          example: 10.89
+          type: number
+        minPrice:
+          format: double
+          description: Minimum price for the given pricebook (usually for a master Product would be the price for the Variant which has the least price out of all Variants in that pricebook)
+          example: 10.89
+          type: number
+        pricebook:
+          description: The active pricebook from which the min and the max prices are calculated. The pricebook is based on the site context of the request as defined in ECOM.
+          example: usd-list-pricebook
+          type: string
+      type: object
+    Product:
+      description: Any product that is sold, shown alone, and does not have variations such as different sizes or colors. A product has no reliance on any other product for inheritance. *A product has a SKU and can have a product option, which has a different SKU*.
+      properties:
+        brand:
+          description: The product's brand.
+          example: Apple
+          type: string
+        bundledProducts:
+          description: The array of all bundled products of this product.
+          type: array
+          items:
+            $ref: '#/components/schemas/BundledProduct'
+        currency:
+          $ref: '../../dependencies/commerce-cloud-standards-oas-1.0.0-SNAPSHOT/components/schemas/iso-standards.yaml#/components/schemas/CurrencyCode'
+        ean:
+          description: The European Article Number of the product.
+          example: 8essdf9w3
+          type: string
+        fetchDate:
+          format: int32
+          example: 5
+          type: integer
+        id:
+          $ref: '#/components/schemas/ProductId'
+        imageGroups:
+          description: The array of product image groups.
+          type: array
+          items:
+            $ref: '#/components/schemas/ImageGroup'
+        inventories:
+          description: |-
+            The array of product inventories explicitly requested via the 'inventory_ids' query parameter. This property
+             is only returned in context of the 'availability' expansion.
+          type: array
+          items:
+            $ref: '#/components/schemas/Inventory'
+        inventory:
+          description: |-
+            The site default inventory information. This property is only
+             returned in context of the 'availability' expansion.
+          $ref: '#/components/schemas/Inventory'
+        longDescription:
+          description: The localized product's long description.
+          example: Awesome long description of product
+          type: string
+        manufacturerName:
+          description: The product's manufacturer name.
+          example: Apple
+          type: string
+        manufacturerSku:
+          description: The product's manufacturer SKU.
+          example: 2ND8834
+          type: string
+        master:
+          description: 'The master product information, only for types: master, variation group, and variant.'
+          $ref: '#/components/schemas/Master'
+        minOrderQuantity:
+          format: double
+          description: The minimum order quantity for this product.
+          example: 2
+          type: number
+        name:
+          description: The localized product name.
+          example: Apple IPod Classic
+          type: string
+        options:
+          description: The array of product options, only for type option. This array can be empty.
+          type: array
+          items:
+            $ref: '#/components/schemas/Option'
+        pageDescription:
+          description: The localized product's page description.
+          example: Really good Product
+          type: string
+        pageKeywords:
+          description: The localized product's page description.
+          example: Ipod, Music Player
+          type: string
+        pageTitle:
+          description: The localized product's page title.
+          example: Apple IPod Classic
+          type: string
+        price:
+          format: double
+          description: |-
+            The sales price of the product. In case of complex products, like master or set, this is the minimum price of
+             related child products.
+          example: 59.99
+          type: number
+        pricePerUnit:
+          format: double
+          description: The price per unit if defined for the product
+          example: 19.99
+          type: number
+        pricePerUnitMax:
+          format: double
+          description: The max price per unit typically for a master product's variant.
+          example: 29.99
+          type: number
+        priceMax:
+          format: double
+          description: The maximum sales of related child products in complex products like master or set.
+          example: 69.99
+          type: number
+        priceRanges:
+          description: Array of one or more price range objects representing one or more Pricebooks in context for the site.
+          type: array
+          items:
+            $ref: '#/components/schemas/PriceRange'
+        prices:
+          description: The prices map with pricebook IDs and their values.
+          type: object
+          additionalProperties:
+            format: double
+            type: number
+        primaryCategoryId:
+          description: The ID of the products primary category.
+          example: electronics
+          type: string
+        productLinks:
+          description: The array of source and target product links information.
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductLink'
+        productPromotions:
+          description: |-
+            The array of active customer product promotions for this product. This array can be empty.
+             Coupon promotions are not returned in this array.
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductPromotion'
+        recommendations:
+          description: Returns a list of recommendations.
+          type: array
+          items:
+            $ref: '#/components/schemas/Recommendation'
+        setProducts:
+          description: The array of set products of this product.
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        shortDescription:
+          description: The localized product short description.
+          example: Awesome Product
+          type: string
+        slugUrl:
+          description: The complete link to this product's storefront page.
+          example: https://www.example.com/on/store/Sites-MySite/default/Product-Show?pid=MyProduct
+          type: string
+        stepQuantity:
+          format: double
+          description: |-
+            The steps in which the order amount of the product can be
+             increased.
+          example: 2
+          type: number
+        tieredPrices:
+          description: The document represents list of tiered prices if the product is a variant
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductPriceTable'
+        type:
+          description: 'The product type information. Can be one or more of the following values: item, master, variation_group, variant, bundle, and set.'
+          $ref: '#/components/schemas/ProductType'
+        unit:
+          description: The sales unit of the product.
+          example: lbs
+          type: string
+        upc:
+          description: The Universal Product Code (UPC).
+          example: JSDU876
+          type: string
+        validFrom:
+          description: The time a product is valid from.
+          example: "9999-12-31T00:00:00.0Z"
+          type: string
+          format: date-time
+        validTo:
+          description: The time a product is valid to.
+          example: "9999-12-31T23:59:59.0Z"
+          type: string
+          format: date-time
+        variants:
+          description: The array of actual variants. Only for master, variation group, and variant types. This array can be empty.
+          type: array
+          items:
+            $ref: '#/components/schemas/Variant'
+        variationAttributes:
+          description: |-
+            Sorted array of variation attributes information. Only for master,
+             variation group, and variant types. This array can be empty.
+          type: array
+          items:
+            $ref: '#/components/schemas/VariationAttribute'
+        variationGroups:
+          description: The array of actual variation groups. Only for master, variation group, and variant types. This array can be empty.
+          type: array
+          items:
+            $ref: '#/components/schemas/VariationGroup'
+        variationValues:
+          description: |-
+            The actual variation attribute ID - value pairs. Only for variant and
+             variation group types.
+          type: object
+          additionalProperties:
+            type: string
+      required:
+        - id
+      type: object
+    ProductExpansions:
+      description: The expand parameter. A comma separated list with the allowed values. All expand parameters are used for the request when no expand parameter is provided. The value "none" may be used to turn off all expand options.
+      type: array
+      items:
+        enum:
+          - none
+          - availability
+          - bundled_products
+          - links
+          - promotions
+          - options
+          - images
+          - prices
+          - variations
+          - set_products
+          - recommendations
+    ProductId:
+      description: The ID (SKU) of the product.
+      type: string
+      minLength: 1
+      maxLength: 100
+      example: "apple-ipod-shuffle"
+    ProductIds:
+      description: The IDs of the requested products (comma-separated, max 24 IDs)
+      type: string
+      example: "apple-ipod-shuffle,apple-ipod-nano"
+    ProductLink:
+      description: |-
+        Document representing a link between two products. It contains the ID of the source and target products, the type of
+         product link, and the URLs to retrieve product data.
+      properties:
+        sourceProductId:
+          description: The semantic ID of the product this product link is coming from.
+          example: "824756924"
+          allOf:
+            - $ref: '#/components/schemas/ProductId'
+        sourceProductLink:
+          description: The URL addressing the product this product link is coming from.
+          example: Link
+          type: string
+        targetProductId:
+          description: The semantic ID of the product this product link is pointing to.
+          example: 2TR93459
+          allOf:
+            - $ref: '#/components/schemas/ProductId'
+        targetProductLink:
+          description: The URL addressing the product this product link is pointing to.
+          example: Link
+          type: string
+        type:
+          description: The type of product link.
+          example: up_sell
+          enum:
+            - cross_sell
+            - replacement
+            - up_sell
+            - accessory
+            - newer_version
+            - alt_orderunit
+            - spare_part
+            - other
+          type: string
+      required:
+        - sourceProductId
+        - sourceProductLink
+        - targetProductId
+        - targetProductLink
+        - type
+      type: object
+    ProductPriceTable:
+      description: Tiered Price Level Object
+      properties:
+        price:
+          format: double
+          description: Price for the product for the specified tier for the specified pricebook
+          example: 12.99
+          type: number
+        pricebook:
+          description: The active pricebook for which this price is defined
+          example: usd-list-pricebook
+          type: string
+        quantity:
+          format: double
+          description: Quantity tier for which the price is defined.
+          example: 1
+          type: number
+      type: object
+    ProductPromotion:
+      description: Document representing a product promotion.
+      properties:
+        calloutMsg:
+          description: The localized call-out message of the promotion.
+          example: Fantastic promotion
+          type: string
+        promotionId:
+          description: The unique ID of the promotion.
+          example: summerSale
+          type: string
+        promotionalPrice:
+          format: double
+          description: The promotional price for this product.
+          example: 12.99
+          type: number
+      required:
+        - calloutMsg
+        - promotionId
+        - promotionalPrice
+      type: object
+    ProductResult:
+      description: Result document containing an array of products.
+      properties:
+        limit:
+          format: int32
+          description: The number of returned documents.
+          example: 12
+          type: integer
+        data:
+          description: The array of product documents.
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        total:
+          format: int32
+          description: The total number of documents.
+          example: 12
+          type: integer
+      required:
+        - limit
+        - data
+        - total
+      type: object
+    ProductType:
+      description: Document representing a product type.
+      properties:
+        bundle:
+          description: A flag indicating whether the product is a bundle.
+          example: true
+          type: boolean
+        item:
+          description: A flag indicating whether the product is a standard item.
+          example: false
+          type: boolean
+        master:
+          description: A flag indicating whether the product is a master.
+          example: true
+          type: boolean
+        option:
+          description: A flag indicating whether the product is an option.
+          example: false
+          type: boolean
+        set:
+          description: A flag indicating whether the product is a set.
+          example: true
+          type: boolean
+        variant:
+          description: A flag indicating whether the product is a variant.
+          example: false
+          type: boolean
+        variationGroup:
+          description: A flag indicating whether the product is a variation group.
+          example: false
+          type: boolean
+      type: object
+    Recommendation:
+      description: Document representing a product recommendation.
+      properties:
+        calloutMsg:
+          description: The localized callout message of the recommendation.
+          example: Absolutely recommended
+          type: string
+        image:
+          description: The image of the recommendation.
+          $ref: '#/components/schemas/Image'
+        longDescription:
+          description: The localized long description of the recommendation.
+          example: Really good detailed product description
+          type: string
+        name:
+          description: The localized name of the recommendation.
+          example: Apple Ipod Shuffle
+          type: string
+        recommendationType:
+          description: The recommendation type of the recommendation.
+          $ref: '#/components/schemas/RecommendationType'
+        recommendedItemId:
+          description: The recommended item ID of the recommendation.
+          example: apple-ipod-shuffle
+          type: string
+        shortDescription:
+          description: The localized short description of the recommendation.
+          example: Product description
+          type: string
+      required:
+        - recommendationType
+      type: object
+    RecommendationType:
+      description: Document representing a recommendation type.
+      properties:
+        displayValue:
+          description: The localized display value of the recommendation type.
+          example: UpSell
+          type: string
+        value:
+          format: int32
+          description: The value of the recommendation type.
+          example: 2
+          type: integer
+      required:
+        - displayValue
+        - value
+      type: object
+    Variant:
+      description: A product which is a variation within a master product that describes different colors, sizes, or other variation attributes. *Has a SKU.*
+      properties:
+        orderable:
+          description: A flag indicating whether the variant is orderable.
+          example: true
+          type: boolean
+        price:
+          format: double
+          description: The sales price of the variant.
+          example: 25.99
+          type: number
+        productId:
+          description: The ID (SKU) of the variant.
+          example: 8W4756834
+          allOf:
+            - $ref: '#/components/schemas/ProductId'
+        tieredPrices:
+          description: List of tiered prices if the product is a variant
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductPriceTable'
+        variationValues:
+          description: The actual variation attribute ID - value pairs.
+          type: object
+          additionalProperties:
+            type: string
+      required:
+        - productId
+      type: object
+    VariationAttribute:
+      description: Document representing a variation attribute.
+      properties:
+        id:
+          minLength: 1
+          description: The ID of the variation attribute.
+          example: color
+          type: string
+        name:
+          description: The localized display name of the variation attribute.
+          example: Color
+          type: string
+        values:
+          description: The sorted array of variation values. This array can be empty.
+          type: array
+          items:
+            $ref: '#/components/schemas/VariationAttributeValue'
+      required:
+        - id
+      type: object
+    VariationAttributeValue:
+      description: Document representing a variation attribute value.
+      properties:
+        description:
+          description: The localized description of the variation value.
+          example: Color of the product
+          type: string
+        image:
+          description: The first product image for the configured viewtype and this variation value.
+          $ref: '#/components/schemas/Image'
+        imageSwatch:
+          description: The first product image for the configured viewtype and this variation value (typically the swatch image).
+          $ref: '#/components/schemas/Image'
+        name:
+          description: The localized display name of the variation value.
+          example: Red
+          type: string
+        orderable:
+          description: A flag indicating whether at least one variant with this variation attribute value is available to sell.
+          example: true
+          type: boolean
+        value:
+          minLength: 1
+          description: The actual variation value.
+          example: red
+          type: string
+      required:
+        - value
+      type: object
+    VariationGroup:
+      description: Representation of a group of variant products by an attribute. This is a non-buyable entity, provides inheritable attributes for its product variants, and is used for navigation. *Doesn't have a SKU.*
+      properties:
+        orderable:
+          description: A flag indicating whether the variation group is orderable.
+          example: false
+          type: boolean
+        price:
+          format: double
+          description: The sales price of the variation group.
+          example: 24.99
+          type: number
+        productId:
+          description: The ID (SKU) of the variation group.
+          example: 49345VG
+          allOf:
+            - $ref: '#/components/schemas/ProductId'
+        variationValues:
+          description: The actual variation attribute ID - value pairs.
+          type: object
+          additionalProperties:
+            type: string
+      required:
+        - orderable
+        - price
+        - productId
+        - variationValues
+      type: object
