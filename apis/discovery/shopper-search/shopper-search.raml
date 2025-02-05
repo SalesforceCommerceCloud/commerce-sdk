@@ -87,24 +87,24 @@ description: !include shopper-search-description.md
           type: CommerceCloudStandards.LocaleCode
           required: false
         expand:
-          description: The expand parameter. A comma-separated list with the allowed values (availability, images, prices, represented_products, variations, promotions, custom_properties). The expand parameter `availability, images, prices, represented_products, variations` is used as the default value when no expand parameter is provided. The value `none` can be used to turn off all expand options. The expand values `promotions` and `custom_properties` are optional and are available from version 24.3 and 24.4, respectively.
+          description: A comma-separated list with allowed values - `availability`, `images`, `prices`, `represented_products`, `variations`, `promotions`, `custom_properties`. By default, the expand parameter includes `availability, images, prices, represented_products, variations`. Use none to disable all expand options. **The page_meta_tags expand value is optional and is available B2C Commerce version 25.2.**
           type: array
           items:
-              enum: [none,availability,images,prices,represented_products,variations,promotions,custom_properties]
+              enum: [none,availability,images,prices,represented_products,variations,promotions,custom_properties,page_meta_tags]
           required: false
           example: [prices,represented_products]
         allImages:
-          description: When this flag is passed along with the expand parameter `images` in the request, a property named `imageGroups`, which contains an image model, is returned in the response. If the flag is set to `true`, the whole image model is returned. If it is set to `false`, the returned image model contains only matching images. If no flag is passed in the request, the response does not include the `imageGroups property`. This parameter is available from version 24.3.
+          description: When the `images` expand parameter is used with this flag, the response includes the `imageGroups property`, which contains an image model. If this flag is true, the full image model is returned. If false, only matching images are included. If no flag is passed, the `imageGroups` property is omitted from the response.
           type: boolean
           required: false
           example: false
         perPricebook:
-          description: When this flag is passed as `true` in the request, along with the expand parameter `prices`, then per PriceBook prices and tiered prices (if available) are returned. This parameter is available from version 24.3.
+          description: When this flag is set to `true` and is used with the `prices` expand parameter, the response includes per PriceBook prices and tiered prices (if available).
           type: boolean
           required: false
           example: false
         allVariationProperties:
-          description: The flag that indicates which variation properties are to be included in the result. When the flag is passed as `true` along with the expand parameter `variations` in the request, all variation properties (`variationAttributes`, `variationGroups`, and `variants`) are returned. When it is passed as `false` along with the expand parameter `variations` in the request, only the default property (`variationAttributes`) is returned. This parameter is available from version 24.3.
+          description: The flag that determines which variation properties are included in the result. When set to `true` with the `variations` expand parameter, all variation properties (`variationAttributes`, `variationGroups`, `variants`) are returned. When set to false, only the default property `variationAttributes` is returned.
           type: boolean
           required: false
           example: false

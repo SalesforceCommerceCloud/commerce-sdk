@@ -8,6 +8,8 @@ For more information, see [Products](https://documentation.b2c.commercecloud.sal
 
 The client managing product information must have access to the Products resource. This API requires a bearer token in the header of the request. The client accessing the API must first authenticate against Account Manager to get the bearer token.
 
+You must include the relevant scope(s) in the client ID used to generate the SLAS token. For details, see the  [Authorization Scopes Catalog.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html)
+
 ## Use Cases
 
 ### Add Products

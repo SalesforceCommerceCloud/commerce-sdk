@@ -1,5 +1,8 @@
 ## CHANGELOG
 
+## v4.1.0
+- Support Node 22 [#412](https://github.com/SalesforceCommerceCloud/commerce-sdk/pull/412)
+
 ## v4.0.0
 
 ### :warning: Planned API Changes :warning: 

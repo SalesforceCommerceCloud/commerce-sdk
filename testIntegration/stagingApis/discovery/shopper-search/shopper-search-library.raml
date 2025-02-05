@@ -9,6 +9,20 @@ traits:
    BadRequest: !include /Traits/ProductSearchSelectBadRequest.raml
 types:
   #types for product-search resource
+  PageMetaTag:
+    description: Document representing a Page Meta Tag object.
+    properties:
+      id: 
+        description: The ID of the Page Meta Tag.
+        type: string
+        required: false
+        example: "title"
+      value:
+        description: Locale-specific value of the Page Meta Tag, evaluated by resolving the rule set for the given Business Manager ID.
+        type: string
+        required: false
+        example: "Buy the Long Sleeve Covered Placket Blouse for USD 61.99."
+
   ProductRef:
     description: Document representing a product reference.
     properties:
@@ -292,6 +306,12 @@ types:
       hits:
         description: A sorted array of search hits (`ProductSearchHit` objects). The array can be empty.
         type: ProductSearchHit[]
+      pageMetaTags:
+        description: Page Meta tags associated with the search result.
+        type: array
+        items:
+          PageMetaTag
+        required: false
       query:
         description: The query string that was searched for.
         type: string

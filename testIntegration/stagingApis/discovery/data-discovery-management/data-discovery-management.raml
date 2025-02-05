@@ -1,0 +1,215 @@
+#%RAML 1.0
+version: v2
+title: Data Discovery Management
+
+uses:
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.12/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml
+  DiscoveryStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/discovery-standards/0.0.34/discovery-standards.raml
+  DataSet: data-set.raml
+  SearchResultRule: search-rule.raml
+  ErrorTypes: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/discovery-standards/0.0.34/Errors/discovery-error-types.raml
+  RamlToJaxrs: ramltojaxrs.raml
+
+mediaType: application/json
+protocols: [HTTPS]
+baseUri: https://{shortCode}.api.commercecloud.salesforce.com/discovery/management/{version}
+baseUriParameters:
+  shortCode:
+    description: A region-specific merchant identifier.
+    pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
+    example: 0dnz6oep
+  version: DiscoveryStandards.Version
+
+description: APIs to manage base resources within the Discovery domain.
+
+(RamlToJaxrs.resources):
+  plugins:
+    - name: ramltojaxrs.displayName
+(RamlToJaxrs.responses):
+  plugins:
+    - name: ramltojaxrs.displayName
+(RamlToJaxrs.responseClasses):
+  plugins:
+    - name: ramltojaxrs.displayName
+(RamlToJaxrs.methods):
+  plugins:
+    - name: ramltojaxrs.displayName
+(RamlToJaxrs.types):
+  plugins:
+    - name: ramltojaxrs.chainSetter
+
+/organizations/{organizationId}/data-sets:
+  type: CommerceCloudStandards.Organization
+  is:
+    - DiscoveryStandards.Traceable
+    - DiscoveryStandards.TenantTier
+  post:
+    description: Creates a Data Set resource within the Discovery domain. The resource is created synchronously as is usable for all futher operations once the API returns. The Data Set is created using a non empty collection of Attribute Definition resources.
+    displayName: createDataSet
+    is:
+      - DiscoveryStandards.ResourceCommonErrors
+      - DiscoveryStandards.MetaData
+      - ApiStandards.SyncCreated:
+          responseType: DataSet.DataSetCreationOutput
+          resourcePath: https://0dnz6oep.api.commercecloud.salesforce.com/discovery/management/v2/organizations/org-id/data-sets
+    queryParameters:
+      einsteinChannelId:
+        type: DataSet.EinsteinChannelId
+        required: false            
+    body:
+      type: DataSet.DataSetCreationInput
+  get:
+    description: Retrieves a collection of Data Set resource references based on the inputs.
+    displayName: getDataSets
+    is:
+      - DiscoveryStandards.Filterable
+      - ApiStandards.OffsetPaginated:
+          maxLimit: 50
+          defaultSize: 10
+      - DiscoveryStandards.CommonErrors
+    responses:
+      200:
+        description: Returned if the requested Data Set resources could be retrieved.
+        body:
+          type: DataSet.BulkDataSetRetrievalOutput
+
+  /{dataSetId}:
+    is:
+      - DiscoveryStandards.Traceable
+      - DiscoveryStandards.CommonErrors
+      - DiscoveryStandards.TenantTier
+    uriParameters:
+        dataSetId: DiscoveryStandards.DataSetId
+    get:
+      description: Retrieves the Data Set with the given resource identifier. The returned resource will contain the configuration of the Data Set, as defined during creation, as well as suplemental information such as the number of items currently associated with the Data Set as well as time information on when the resource was created and last updated.
+      displayName: getDataSet
+      responses:
+        200:
+          description: Returned if a Data Set was found for the given inputs.
+          body:
+            type: DataSet.DataSet
+    delete:
+      description: Removes the defined Data Set resource from the domain. This operation is synchronous and once completes, the resource will no longer be maintained within the domain.
+      displayName: deleteDataSet
+      responses:
+        200:
+          description: Returned if the Data Set was removed.
+    patch:
+      description: Updates the Data Set with the given resource identifier. Currently only FeatureDefinitions can be updated. A Feature Definition defines whether a particular feature is enabled or not.
+      displayName: updateDataSet
+      body:
+        type: DataSet.DataSetUpdateInput
+      responses:
+        204:
+          description: Returned if the Data Set was updated with the given input
+
+    /search-result-rules:
+      is:
+      - DiscoveryStandards.Traceable
+      - DiscoveryStandards.CommonErrors
+      - DiscoveryStandards.TenantTier
+      post:
+        description: Creates a Search Result Rule resource within the Discovery domain. A Search Result Rule is a rule to influence search results returned from the service based on allowed conditions. Example a rule to include where consumer of the API can add additional terms along search phrase when search is executed and if a certain phrase is present in the input, boost or bury certain items etc. 
+        displayName: createSearchResultRule
+        is:
+          - DiscoveryStandards.ResourceCommonErrors
+        body:
+          type: SearchResultRule.SearchResultRule
+        responses:
+          201:
+            description: Returned if a Search Result Rule was created.
+            headers:
+              location:
+                description: The location of the created resource.
+                type: string
+                example: https://management.discovery.{region}.svc.commercecloud.salesforce.com/discovery/management/{version}/data-sets/search-result-rules/{searchResultRuleId}
+            body:
+              type: SearchResultRule.SearchResultRuleOutput
+      
+      /{searchResultRuleId}:
+        is:
+          - DiscoveryStandards.CommonErrors
+          - DiscoveryStandards.Traceable
+          - DiscoveryStandards.TenantTier
+        uriParameters:
+          searchResultRuleId: DiscoveryStandards.SearchResultRuleId
+        get:
+            description: Retrieves the Search Result Rule with the given resource identifier.
+            displayName: getSearchResultRule
+            responses:
+              200:
+                description: Returned if a Search Result Rule was found for the given inputs.
+                body:
+                  type: SearchResultRule.SearchResultRule
+        delete:
+          description: Deletes defined Search Result Rule for the given Dataset
+          displayName: deleteSearchResultRule
+          responses:
+            200:
+              description: Returned if the Search Result Rule was removed.
+
+    /search-rules:
+      is:
+      - DiscoveryStandards.Traceable
+      - DiscoveryStandards.CommonErrors
+      - DiscoveryStandards.TenantTier
+      post:
+        description: Creates Search Rule resources within the Discovery domain.
+        displayName: createSearchRules
+        is:
+          - DiscoveryStandards.ResourceCommonErrors
+        body:
+          type: SearchResultRule.SearchResultRuleCreationInput
+        responses:
+          200:
+            description: Returned if a Search Rule resource was created.
+            headers:
+              location:
+                description: The location of the created resource.
+                type: string
+                example: https://management.discovery.{region}.svc.commercecloud.salesforce.com/discovery/management/{version}/data-sets/search-rules/{searchRuleId}
+            body:
+              type: SearchResultRule.SearchResultRuleCreationOutput
+      get:
+        description: Retrieves a collection of Search Result Rule resources based on the inputs.
+        displayName: getSearchResultRules
+        is:
+          - DiscoveryStandards.Filterable
+          - ApiStandards.OffsetPaginated:
+              maxLimit: 50
+              defaultSize: 10
+          - DiscoveryStandards.CommonErrors
+        responses:
+          200:
+            description: Returned if the requested Search Rule resources could be retrieved.
+            body:
+              description: An entity containing a collection of Search Rule resource statuses and references.
+              type: SearchResultRule.BulkSearchResultRuleRetrievalOutput
+      delete:
+          description: Removes all defined Search Rules for the given dataset
+          displayName: deleteSearchRules
+          responses:
+            200:
+              description: Returned if the Search Rules were removed.
+      /{searchRuleId}:
+        is:
+          - DiscoveryStandards.CommonErrors
+        uriParameters:
+          searchRuleId: DiscoveryStandards.SearchResultRuleId
+        post:
+          description: Update the Search Rule with the given resource identifier.
+          displayName: updateSearchRule
+          responses:
+            200:
+              description: Returned if a Search Rule was updated for the given identifier.
+              body:
+                type: SearchResultRule.SearchResultRule
+        get:
+          description: Retrieves the Search Rule with the given resource identifier.
+          displayName: getSearchRule
+          responses:
+            200:
+              description: Returned if a Search Rule was found for the given inputs.
+              body:
+                type: SearchResultRule.SearchResultRule

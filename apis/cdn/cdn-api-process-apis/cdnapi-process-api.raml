@@ -71,6 +71,9 @@ types:
   WAFRulePackage: !include dataTypes/WAFRulePackage.raml
   OriginHeaderModification: !include dataTypes/OriginHeaderModification.raml
   OriginHeaderModificationPutRequest: !include dataTypes/OriginHeaderModificationPutRequest.raml
+  MtlsCertificateRequest: !include dataTypes/MtlsCertificateRequest.raml
+  MtlsCertificateResponse: !include dataTypes/MtlsCertificateResponse.raml
+  DCVDelegationRecord: !include dataTypes/DCVDelegationRecord.raml
 
   ZonesEnvelope:
     type: CollectionResponseEnvelope
@@ -202,7 +205,17 @@ types:
     properties:
       data:
         type: OriginHeaderModification
-
+  MtlsCertificateResponseEnvelope:
+    type: ItemResponseEnvelope
+    properties:
+      data:
+        type: MtlsCertificateResponse
+  MtlsCertificatesResponseEnvelope:
+    type: CollectionResponseEnvelope
+    properties:
+      data:
+        type: MtlsCertificateResponse[]
+  
 traits:
   hasUnauthorizedResponse: !include traits/HasUnauthorizedResponse.raml
   hasForbiddenAccessResponse: !include traits/HasForbiddenAccessResponse.raml
@@ -232,6 +245,61 @@ traits:
               example: !include /examples/zone/storefront-zone-create-response.raml
       securedBy:
         - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.cdn-zones.rw ] }
+  /mtls/code-upload-certificates:
+    get:
+      is: [hasBadRequestResponse, hasInternalServerErrorResponse, hasForbiddenAccessResponse, hasUnauthorizedResponse]
+      displayName: getCodeUploadCertificates
+      description: Returns all the mTLS certificates for the account.
+      responses:
+        '200':
+          description: Successfully retrieved details of the mTLS certificates requested by the
+            caller.
+          body:
+            application/json:
+              type: MtlsCertificatesResponseEnvelope
+              example: !include /examples/mtlsCodeUpload/mtls-codeupload-get-certificates-response.raml
+      securedBy:
+          - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
+    post:
+      is: [hasBadRequestResponse, hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse, hasResourceNotFoundResponse]
+      displayName: createCodeUploadCertificate
+      description: Set up two-factor mTLS certificates for the account and associate the staging zone code upload hostname.
+      body:
+        application/json:
+          type: MtlsCertificateRequest
+          example: !include /examples/mtlsCodeUpload/mtls-codeupload-post-certificate-request.raml
+      responses:
+        '201':
+          description: Returns information about the uploaded mTLS certificate.
+          body:
+            application/json:
+              type: MtlsCertificateResponseEnvelope
+              example: !include /examples/mtlsCodeUpload/mtls-codeupload-get-certificate-response.raml
+      securedBy:
+        - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.cdn-zones.rw ] } 
+  /mtls/code-upload-certificates/{mtlsCertificateId}:
+    get:
+      is: [hasBadRequestResponse, hasInternalServerErrorResponse, hasForbiddenAccessResponse, hasUnauthorizedResponse]
+      displayName: getCodeUploadCertificate
+      description: Returns the mTLS certificate for the given account's mTLS certificate ID.
+      responses:
+        '200':
+          description: Successfully retrieved mTLS certificate information from the mTLS certificate ID requested by the caller.
+          body:
+            application/json:
+              type: MtlsCertificateResponseEnvelope
+              example: !include /examples/mtlsCodeUpload/mtls-codeupload-get-certificate-response.raml
+      securedBy:
+          - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
+    delete:
+        is: [ hasResourceNotFoundResponse ]
+        displayName: deleteCodeUploadCertificate
+        description: Removes an mTLS certificate and associated hostname.
+        responses:
+          204:
+            description: Successfully deleted the mTLS certificate from the account.
+        securedBy:
+          - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.cdn-zones.rw ] }
   /zones/info:
     is: [hasUnauthorizedResponse, hasForbiddenAccessResponse, hasInternalServerErrorResponse]
     get:
@@ -975,7 +1043,7 @@ traits:
     put:
       is: [hasBadRequestResponse]
       displayName: upsertOriginHeaderModification
-      description: Upsert origin header modification.
+      description: Upsert origin header modification. Only the `mrt` type is supported.
       body:
         application/json:
           type: OriginHeaderModificationPutRequest
@@ -998,7 +1066,7 @@ traits:
     get:
       is: [hasBadRequestResponse]
       displayName: getOriginHeaderModification
-      description: Get origin header modification associated with a zone.
+      description: Get origin header modification associated with a zone. Only the `mrt` type is supported.
       responses:
         200:
           description: Successfully returned the origin header modification associated with a zone.
@@ -1010,9 +1078,14 @@ traits:
         - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.cdn-zones, sfcc.cdn-zones.rw ] }
     delete:
       displayName: deleteOriginHeaderModification
-      description: Delete the origin header modification associated with a zone.
+      description: Delete the origin header modification associated with a zone. Only the `mrt` type is supported.
       responses:
         204:
           description: Successfully deleted the origin header modification associated with a zone.
       securedBy:
         - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.cdn-zones.rw ] }
+    uriParameters:
+      type:
+        description: The type of origin header modification. Only the `mrt` type is supported.
+        type: string
+        example: mrt

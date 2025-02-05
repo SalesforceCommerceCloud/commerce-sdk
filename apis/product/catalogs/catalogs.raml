@@ -43,6 +43,8 @@ types:
         example: 10
   Catalog:
     description: Document representing a catalog.
+    type:
+      CommerceCloudStandards.OpenObject
     properties:
       assignedProductCount:
         description: The count of products assigned to the catalog. It is read only.
@@ -125,6 +127,12 @@ types:
         minLength: 1
         type: string
         example: mens
+  CatalogCategorySearchRequest:
+    type: CommerceCloudStandards.SearchRequest
+    example: !include Examples/catalog-search-body.raml
+  CatalogSearchRequest:
+    type: CommerceCloudStandards.SearchRequest
+    example: !include Examples/catalog-search-body-query.raml
   Categories:
     description: Categories allow products to be organized into hierarchical structures. Categories can have relationships to other parent categories. Each category also can provide a context inherited by subcategories. For example, a category may have an attribute value assigned to it, and any product assigned to the category or a subcategory would inherit the attribute value as long as the product is assigned. Once the product is removed from the category those attribute values would no longer be in the context of the product. Linking of categories is also used for Site hierarchical navigation. For example, inside 'Clothing' you may have 'Mens', and inside 'Mens' you may have 'Pants'. Categories are not *Tags*.  
     properties:
@@ -149,6 +157,8 @@ types:
         example: 100
   Category:
     description: Document representing a category.
+    type:
+      CommerceCloudStandards.OpenObject
     properties:
       catalogId:
         description: The ID of the catalog that contains it.
@@ -389,6 +399,9 @@ types:
         example: {
           "default": "Summer Bomber Jacket"
         }
+  CategoryProductAssignmentSearchRequest:
+    type: CommerceCloudStandards.SearchRequest
+    example: !include Examples/product-assignment-body-example.raml
   CategoryProductAssignmentSearchResult:
     description: Document representing a product search result.
     type: CommerceCloudStandards.PaginatedSearchResult
@@ -396,6 +409,9 @@ types:
       hits:
         description: The sorted array of search hits. This array can be empty.
         type: CategoryProductAssignment[]
+  CategorySearchRequest:
+    type: CommerceCloudStandards.SearchRequest
+    example: !include Examples/category_search-body-example.raml
   CategorySearchResult:
     description: Document representing a catalog search result.
     type: CommerceCloudStandards.PaginatedSearchResult
@@ -520,6 +536,8 @@ types:
         example: 120
   PathRecord:
     description: Document representing most basic info (ID and name) of a category or catalog.
+    type:
+      CommerceCloudStandards.OpenObject
     properties:
       id:
         description: The ID of the category path.
@@ -534,6 +552,8 @@ types:
         required: false
   Product:
     description: Any product that is sold, shown alone, and does not have variations such as different sizes or colors. Product that has no reliance on any other product for inheritance. *A product has a SKU and can have a product option, which has a different SKU*.
+    type:
+      CommerceCloudStandards.OpenObject
     properties:
       assignedCategories:
         description: The catalog categories that the product is assigned to.
@@ -991,6 +1011,8 @@ types:
         example: online
   SortingRule:
     description: Document representing a product sorting rule.
+    type:
+      CommerceCloudStandards.OpenObject
     properties:
       creationDate:
         description: The creation date, read only.
@@ -1018,6 +1040,8 @@ types:
         example: SiteGenesis
   SortingRuleStep:
     description: Document representing a product sorting rule step.
+    type:
+      CommerceCloudStandards.OpenObject
     properties:
       attributeId:
         description: The ID for sorting attribute.
@@ -1390,7 +1414,7 @@ types:
         format: int32
         example: 5
       data:
-        description: The list of rules. This can be empty.
+        description: The list of rules. This can be empty. *Note* - If the exclusion attribute is set to true, the rule is designated as an Exclusion rule. Any item matching an Exclusion rule is omitted from the final result set.
         type: Rule[]
         required: false
       total:
@@ -1799,9 +1823,7 @@ types:
                         search_result: !include Examples/category_product_assignment.raml       
               body:
                 application/json:
-                  type: CommerceCloudStandards.SearchRequest
-                  examples: 
-                    CommerceCloudStandards.SearchRequest: !include Examples/product-assignment-body-example.raml
+                  type: CategoryProductAssignmentSearchRequest
               securedBy:
                 - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
           /products/{productId}:
@@ -2061,6 +2083,7 @@ types:
               body:
                 application/json:
                   type: RulesRequest
+                  description: If the exclusion attribute is set to true, the rule is designated as an Exclusion rule. Any item matching an Exclusion rule is omitted from the final result set.
                   examples:
                     ruleBody: !include Examples/postRuleRequestBody.raml
               securedBy:
@@ -2281,9 +2304,7 @@ types:
               example: 0
           body:
             application/json:
-              type: CommerceCloudStandards.SearchRequest
-              examples:
-                    result: !include Examples/catalog-search-body.raml
+              type: CatalogCategorySearchRequest
           securedBy:
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
   /catalog-search:
@@ -2338,12 +2359,9 @@ types:
               type: CatalogSearchResult
               examples:
                 catalog_search_result: !include Examples/catalog-search-result-query.raml 
-        
       body:
         application/json:
-          type: CommerceCloudStandards.SearchRequest
-          examples:
-            catalog-search-body: !include Examples/catalog-search-body-query.raml
+          type: CatalogSearchRequest
       securedBy:
         - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
   /category-search:
@@ -2405,8 +2423,6 @@ types:
           required: false
       body:
         application/json:
-          type: CommerceCloudStandards.SearchRequest
-          examples: 
-            body : !include Examples/category_search-body-example.raml
+          type: CategorySearchRequest
       securedBy:
         - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.catalogs,sfcc.catalogs.rw] }
