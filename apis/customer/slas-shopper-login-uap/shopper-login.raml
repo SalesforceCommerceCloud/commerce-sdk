@@ -591,6 +591,7 @@ types:
         example: "Ar0lAwU_jsuA~ZXX8-JnMbZFxrnDot2OtgLEi1kOT_FxD6Bo0EQDbbrvoym9xHvatNGnNzrObLJeK6e4U9m4pveRMbdwNGa4jwiAlKGvijVn0PW0hqb03_w1gQE00wTo"
       new_password:
         description: The new password to set for the shopper associated with the password action token.
+        required: false
         type: string
         example: "new_password"
       channel_id:
@@ -2044,9 +2045,10 @@ types:
           200:
             description: Success, the response body contains the JWKS keys.
             body:
-                type: JwksSuccessResponse
+              application/json:
+                type: object
                 examples: 
-                  JwksSuccessResponse: !include examples/jwks-get-response.raml
+                  object: !include examples/jwks-get-response.json
           400:
             description: Bad Request
             body:
