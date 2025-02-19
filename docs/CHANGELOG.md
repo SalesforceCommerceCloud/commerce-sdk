@@ -1,5 +1,35 @@
 ## CHANGELOG
 
+## v4.1.0
+
+### Enchancements
+- Support Node 22 [#412](https://github.com/SalesforceCommerceCloud/commerce-sdk/pull/412)
+
+### API Changes
+
+*Shopper Products*
+
+* The `expand` query parameter now includes a new argument, `page_meta_tags`
+
+*Shopper Search*
+
+* The `expand` query parameter now includes a new argument, `page_meta_tags`
+
+*Shopper Context*
+
+* `X-Geolocation` header was added to `Shopper Context`
+
+*CDN Zones API*
+
+* Endpoints added
+  | **Endpoint Name** | **Description**                   |
+  | ------------- |-----------------------------------|
+  | getCodeUploadCertificates | Returns all the mTLS certificates for the account |
+  | createCodeUploadCertificate | Set up two-factor mTLS certificates for the account and associate the staging zone code upload hostname |
+  | getCodeUploadCertificate | Returns the mTLS certificate for the given account's mTLS certificate ID |
+  | deleteCodeUploadCertificate | Successfully deleted the mTLS certificate from the account |
+
+
 ## v4.0.0
 
 ### :warning: Planned API Changes :warning: 

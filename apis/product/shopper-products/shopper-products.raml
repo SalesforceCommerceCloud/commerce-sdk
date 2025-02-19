@@ -205,6 +205,19 @@ types:
         format: double
         required: false
         example: 15.99
+  PageMetaTag:
+    description: Document representing a Page Meta Tag object.
+    properties:
+      id: 
+        description: The ID of the Page Meta Tag.
+        type: string
+        required: false
+        example: "title"
+      value:
+        description: Locale-specific value of the Page Meta Tag, evaluated by resolving the rule set for the given Business Manager ID.
+        type: string
+        required: false
+        example: "Buy the Long Sleeve Covered Placket Blouse for USD 61.99."
   PriceRange:
     description: Document representing price ranges for a product which happens to be a master product (per Pricebook)
     properties:
@@ -326,6 +339,12 @@ types:
         type: string
         required: false
         example: "Ipod, Music Player"
+      pageMetaTags:
+        description: Page Meta tags associated with the given product.
+        type: array
+        items:
+          PageMetaTag
+        required: false
       pageTitle:
         description: The localized product's page title.
         type: string
@@ -878,10 +897,10 @@ types:
             required: false
             example: USD
           expand:
-            description: The expand parameter. A comma separated list with the allowed values (availability, links, promotions, options, images, prices, variations, recommendations). All expand parameters are used for the request when no expand parameter is provided. The value "none" may be used to turn off all expand options.
+            description: The expand parameter. A comma separated list with the allowed values (availability, links, promotions, options, images, prices, variations, recommendations, page_meta_tags). All expand parameters except page_meta_tags are used for the request when no expand parameter is provided. The value "none" may be used to turn off all expand options. **The `page_meta_tags` expand value is optional and available starting from B2C Commerce version 25.2.**
             type: array
             items:
-              enum: [none,availability,links,promotions,options,images,prices,variations,recommendations]
+              enum: [none,availability,links,promotions,options,images,prices,variations,recommendations,page_meta_tags]
             required: false
             example: [prices,promotions]
           locale:
@@ -943,10 +962,10 @@ types:
             required: false
             example: USD
           expand:
-            description: The expand parameter. A comma separated list with the allowed values (availability, bundled_products, links, promotions, options, images, prices, variations, set_products, recommendations). All expand parameters are used for the request when no expand parameter is provided. The value "none" may be used to turn off all expand options.
+            description: The expand parameter. A comma separated list with the allowed values (availability, bundled_products, links, promotions, options, images, prices, variations, set_products, recommendations, page_meta_tags). All expand parameters except page_meta_tags are used for the request when no expand parameter is provided. The value "none" may be used to turn off all expand options. **The `page_meta_tags` expand value is optional and available starting from B2C Commerce version 25.2.**
             type: array
             items:
-              enum: [none,availability,bundled_products,links,promotions,options,images,prices,variations,set_products,recommendations]
+              enum: [none,availability,bundled_products,links,promotions,options,images,prices,variations,set_products,recommendations,page_meta_tags]
             required: false
             example: [prices,promotions]
           locale:
@@ -975,7 +994,7 @@ types:
 
   /categories:
     get:
-      description: When you use the URL template, the server returns multiple categories (a result object of category documents). You can use this template as a convenient way of obtaining multiple categories in a single request, instead of issuing separate requests for each category. You can specify up to 50 multiple IDs. You must enclose the list of IDs in parentheses. If a category identifier contains parenthesis or the separator sign, you must URL encode the character. The server only returns online categories.
+      description: When you use the URL template, the server returns multiple categories (a result object of category documents). You can use this template as a convenient way of obtaining multiple categories in a single request, instead of issuing separate requests for each category. You can specify up to 50 multiple IDs. You must enclose the list of IDs in parentheses. If a category identifier contains parenthesis or the separator sign, you must URL encode the character.
       displayName: getCategories
       is:
         - CommerceCloudStandards.SiteSpecific:
@@ -989,7 +1008,7 @@ types:
           example: "electronics-digital-cameras,electronics-televisions"
         levels:
           minimum: 0
-          description: Specifies how many levels of nested subcategories you want the server to return. The default value is 1. Valid values are 0, 1, or 2.
+          description: Specifies how many levels of nested subcategories you want the server to return. The default value is 1. Valid values are 0, 1, or 2. Only online subcategories are returned.
           type: integer
           required: false
           format: int32
@@ -1015,7 +1034,7 @@ types:
         description: |-
           When you use the URL template below, the server returns a category identified by its ID; by default, the server
           also returns the first level of subcategories, but you can specify another level by setting the levels
-          parameter. The server only returns online categories.
+          parameter.
         displayName: getCategory
         is: 
           - CommerceCloudStandards.SiteSpecific:

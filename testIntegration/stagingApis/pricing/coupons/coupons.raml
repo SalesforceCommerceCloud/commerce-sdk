@@ -48,7 +48,7 @@ types:
         type: boolean
         example: false
       exportedCodeCount:
-        description: The number of coupon codes attached to the coupon that have been issued (request search only).
+        description: The number of coupon codes attached to the coupon that have been issued (read only).
         type: integer
         format: int32
         example:
@@ -60,7 +60,7 @@ types:
         example: 2019-10-30T04:23:59Z
         required: false
       redemptionCount:
-        description: The number of times the coupon has been redeemed (request search only).
+        description: The number of times the coupon has been redeemed (read only). The count is updated once per hour.
         type: integer
         format: int32
         example: 3
@@ -90,7 +90,7 @@ types:
           codePrefix: SG
           numberOfCodes: 500000
       totalCodesCount:
-        description: The total number of coupon codes associated with this coupon.
+        description: The total number of coupon codes associated with this coupon (read only). The count is updated once per hour.
         type: integer
         format: int32
         required: false
@@ -347,6 +347,11 @@ types:
         description: |-
           Redeems a coupon code for an existing coupon within the selected site. 
           The coupon code must be redeemable.
+          ---
+          ***Note: Coupon redemptions are evaluated during checkout. A large number of coupon redemptions negatively impacts order creation performance and scale.***
+          1. Avoid importing unnecessary coupon redemptions.
+          2. Clean up coupon codes and related redemptions when they are no longer required.
+          ---
         displayName: redeemCoupon
         body:
           application/json:

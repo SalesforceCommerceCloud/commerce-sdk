@@ -13,6 +13,8 @@ For more information, see the [Catalogs](https://documentation.b2c.commercecloud
 
 The client managing catalog and category information must have access to the Categories and Catalogs resources. This API requires a bearer token in the header of the request. The client accessing the API must first authenticate against Account Manager to get the bearer token.
 
+You must include the relevant scope(s) in the client ID used to generate the SLAS token. For details, see the  [Authorization Scopes Catalog.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html)
+
 ## Use Cases
 
 Here are some common use cases for the API:

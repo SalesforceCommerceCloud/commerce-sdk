@@ -551,7 +551,9 @@ types:
         type: integer
         format: int32
         example: 10
-
+  ProductSearchRequest:
+    type: CommerceCloudStandards.SearchRequest
+    example: !include Examples/ProductSearchRequest.raml
   ProductSearchResult:
     description: Document representing a product search result.
     type: CommerceCloudStandards.PaginatedSearchResult
@@ -688,6 +690,9 @@ types:
             type: string
         required: false
         example: {"color":"black"}
+  VariantSearchRequest:
+    type: CommerceCloudStandards.SearchRequest
+    example: !include Examples/VariantSearchRequest.raml
   VariantSearchResult:
     description: Document that represents a search on certificates and keys.
     type: CommerceCloudStandards.PaginatedSearchResult
@@ -1020,6 +1025,8 @@ types:
             pageKeywords, brand, ean, upc, manufactureSku,
             manufactureName, searchable, unit, searchable,
             onlineFlag, defaultVariantId.
+
+            Custom Attributes are used to extend a standard Product system object. This endpoint can be used to update custom attribute values for a particular product SKU. If you try to update a non-existent custom attribute, the request won't fail, but no changes are made and the attribute is not created.
           displayName: updateProduct
           is:
             - ProductTraits.ProductNotFound
@@ -1041,7 +1048,7 @@ types:
           securedBy:
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
       put:
-          description: Creates a product using the information provided. If a product with the same unique identifier exists, it is cleaned and overwritten unless the header x-dw-validate-existing=true is passed in with the request.
+          description: Creates a product using the information provided. If a product with the same unique identifier exists, it is cleaned and overwritten.
           displayName: createProduct
           is:
             - ProductTraits.Unauthorized
@@ -1151,9 +1158,7 @@ types:
               example: SiteGenesis
           body:
             application/json:
-              type: CommerceCloudStandards.SearchRequest
-              examples: 
-                variantSearchRequest: !include Examples/VariantSearchRequest.raml
+              type: VariantSearchRequest
           securedBy:
             - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
     /{masterProductId}/variation-groups:
@@ -1956,9 +1961,7 @@ types:
         example: SiteGenesis
     body:
       application/json:
-        type: CommerceCloudStandards.SearchRequest
-        examples:
-          body: !include Examples/ProductSearchRequest.raml
+        type: ProductSearchRequest
     is:
       - ProductTraits.BadRequest
       - ProductTraits.Unauthorized
