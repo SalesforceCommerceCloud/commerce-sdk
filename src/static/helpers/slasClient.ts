@@ -9,7 +9,7 @@ import type { OperationOptions } from "retry";
 import { Response, ClientConfig } from "@commerce-apps/core";
 import type { RequestInit } from "node-fetch";
 
-type LoginRequest = {
+export type LoginRequest = {
   client_id?: string;
   response_type?: string;
   redirect_uri: string;

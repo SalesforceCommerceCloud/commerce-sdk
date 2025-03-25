@@ -17,10 +17,9 @@ import {
   TokenRequest,
   CustomQueryParameters,
   CustomRequestBody,
+  LoginRequest,
 } from "./slasClient";
 import type { RequestRedirect } from "node-fetch";
-import { ShopperLogin } from "../../../renderedTemplates/customer/shopperLogin/shopperLogin";
-import LoginRequest = ShopperLogin.LoginRequest;
 
 /**
  * Converts a string into Base64 encoding
