@@ -434,7 +434,7 @@ export function refreshAccessToken(
   return slasClient.getAccessToken({
     body,
     ...(options?.headers && { headers: options.headers }),
-    ...(restOfParams && { parameters: restOfParams }),
+    ...(Object.keys(restOfParams).length && { parameters: restOfParams }),
   });
 }
 
@@ -456,6 +456,7 @@ export function refreshAccessTokenPrivate(
   parameters: { refreshToken: string } & CustomQueryParameters,
   options?: { headers?: { [key: string]: string } }
 ): Promise<TokenResponse> {
+  const { refreshToken, ...restOfParams } = parameters;
   const authorization = `Basic ${stringToBase64(
     `${slasClient.clientConfig.parameters.clientId}:${credentials.clientSecret}`
   )}`;
@@ -464,10 +465,10 @@ export function refreshAccessTokenPrivate(
       Authorization: authorization,
       ...options?.headers,
     },
-    ...(Object.keys(parameters) && { parameters }),
+    ...(Object.keys(restOfParams).length && { parameters: restOfParams }),
     body: {
       grant_type: "refresh_token",
-      refresh_token: parameters.refreshToken,
+      refresh_token: refreshToken,
     },
   };
   return slasClient.getAccessToken(opts);
@@ -492,10 +493,10 @@ export function logout(
   } & CustomQueryParameters,
   options?: { headers?: { [key: string]: string } }
 ): Promise<TokenResponse> {
-  const { refreshToken, ...restOfParams } = parameters;
+  const { refreshToken, accessToken, ...restOfParams } = parameters;
   return slasClient.logoutCustomer({
     headers: {
-      Authorization: `Bearer ${parameters.accessToken}`,
+      Authorization: `Bearer ${accessToken}`,
       ...options?.headers,
     },
     parameters: {

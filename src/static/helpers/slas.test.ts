@@ -141,6 +141,11 @@ describe("Authorize user", () => {
     usid: "usid",
   };
 
+  const params = {
+    redirectURI: parameters.redirectURI,
+    hint: parameters.hint,
+    usid: parameters.usid,
+  };
   it("hits the authorize endpoint and receives authorization code", async () => {
     const mockSlasClient = createSlasClient();
     const { shortCode, organizationId } = clientConfig.parameters;
@@ -154,7 +159,7 @@ describe("Authorize user", () => {
     const authResponse = await slasHelper.authorize(
       mockSlasClient,
       codeVerifier,
-      parameters
+      params
     );
     expect(authResponse).to.be.deep.equal(expectedAuthResponse);
   });
@@ -172,7 +177,7 @@ describe("Authorize user", () => {
     const authResponse = await slasHelper.authorize(
       mockSlasClient,
       codeVerifier,
-      parameters
+      params
     );
 
     const authURL = new URL(authResponse.url);
@@ -199,7 +204,7 @@ describe("Authorize user", () => {
       .reply(400);
 
     await slasHelper
-      .authorize(mockSlasClient, codeVerifier, parameters)
+      .authorize(mockSlasClient, codeVerifier, params)
       .catch((error) => expect(error.message).to.be.equal("400 Bad Request"));
   });
 });
@@ -299,6 +304,10 @@ describe("Guest user flow", () => {
 });
 
 describe("Registered B2C user flow", () => {
+  const params = {
+    redirectURI: parameters.redirectURI,
+    usid: parameters.usid,
+  };
   it("using a private client uses hits login and token endpoints to generate JWT", async () => {
     const mockSlasClient = createSlasClient();
     const { shortCode, organizationId } = mockSlasClient.clientConfig
@@ -316,7 +325,7 @@ describe("Registered B2C user flow", () => {
     const accessToken = await slasHelper.loginRegisteredUserB2Cprivate(
       mockSlasClient,
       credentials,
-      parameters
+      params
     );
     expect(accessToken).to.be.deep.equals(expectedTokenResponse);
   });
@@ -338,7 +347,7 @@ describe("Registered B2C user flow", () => {
     const accessToken = await slasHelper.loginRegisteredUserB2C(
       mockSlasClient,
       credentials,
-      parameters
+      params
     );
 
     expect(accessToken).to.be.deep.equals(expectedTokenResponse);
@@ -354,7 +363,7 @@ describe("Registered B2C user flow", () => {
       .reply(400);
 
     await slasHelper
-      .loginRegisteredUserB2C(mockSlasClient, credentials, parameters)
+      .loginRegisteredUserB2C(mockSlasClient, credentials, params)
       .catch((error) => expect(error.message).to.be.equal("400 Bad Request"));
   });
 
@@ -368,31 +377,20 @@ describe("Registered B2C user flow", () => {
       .reply(400);
 
     await slasHelper
-      .loginRegisteredUserB2Cprivate(mockSlasClient, credentials, parameters)
+      .loginRegisteredUserB2Cprivate(mockSlasClient, credentials, params)
       .catch((error) => expect(error.message).to.be.equal("400 Bad Request"));
   });
 });
 
 describe("Refresh Token", () => {
-  const expectedBody = {
-    body: {
-      client_id: "client_id",
-      grant_type: "refresh_token",
-      refresh_token: "refresh_token",
-    },
-  };
-
-  const expectedOptions = {
-    headers: {
-      Authorization: "Basic Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQ=",
-    },
-    body: {
-      grant_type: "refresh_token",
-      refresh_token: parameters.refreshToken,
-    },
-  };
-
   it("refreshes the token", async () => {
+    const expectedOpts = {
+      body: {
+        client_id: "client_id",
+        grant_type: "refresh_token",
+        refresh_token: "refresh_token",
+      },
+    };
     const mockSlasClient = createSlasClient();
     const spy = sinon.spy(mockSlasClient, "getAccessToken");
     const { shortCode, organizationId } = clientConfig.parameters;
@@ -402,16 +400,23 @@ describe("Refresh Token", () => {
       .query(true)
       .reply(200, expectedTokenResponse);
 
-    const token = await slasHelper.refreshAccessToken(
-      mockSlasClient,
-      parameters
-    );
-
-    expect(spy.getCall(0).args[0]).to.be.deep.equals(expectedBody);
+    const token = await slasHelper.refreshAccessToken(mockSlasClient, {
+      refreshToken: parameters.refreshToken,
+    });
+    expect(spy.getCall(0).args[0]).to.be.deep.equals(expectedOpts);
     expect(token).to.be.deep.equals(expectedTokenResponse);
   });
 
   it("refreshes the token using client secret", async () => {
+    const expectedOptions = {
+      headers: {
+        Authorization: "Basic Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQ=",
+      },
+      body: {
+        grant_type: "refresh_token",
+        refresh_token: parameters.refreshToken,
+      },
+    };
     const mockSlasClient = createSlasClient();
     const spy = sinon.spy(mockSlasClient, "getAccessToken");
     const { shortCode, organizationId } = clientConfig.parameters;
@@ -424,7 +429,7 @@ describe("Refresh Token", () => {
     const token = await slasHelper.refreshAccessTokenPrivate(
       mockSlasClient,
       credentials,
-      parameters
+      { refreshToken: parameters.refreshToken }
     );
 
     expect(spy.getCall(0).args[0]).to.be.deep.equals(expectedOptions);
@@ -454,7 +459,10 @@ describe("Logout", () => {
       .query(true)
       .reply(200, expectedTokenResponse);
 
-    const token = await slasHelper.logout(mockSlasClient, parameters);
+    const token = await slasHelper.logout(mockSlasClient, {
+      refreshToken: parameters.refreshToken,
+      accessToken: parameters.accessToken,
+    });
     expect(spy.getCall(0).args[0]).to.be.deep.equals(expectedOptions);
     expect(token).to.be.deep.equals(expectedTokenResponse);
   });
