@@ -230,7 +230,7 @@ export async function loginGuestUser(
 
   return slasClient.getAccessToken({
     body: tokenBody,
-    headers: options?.headers,
+    ...(options?.headers && { headers: options.headers }),
     ...(Object.keys(restOfParams).length && { parameters: restOfParams }),
   });
 }
@@ -310,7 +310,7 @@ export async function loginRegisteredUserB2Cprivate(
 
   const optionsToken = {
     headers: {
-      ...(options?.headers || {}),
+      ...options?.headers,
       Authorization: authHeaderIdSecret,
     },
     body: {
@@ -318,8 +318,8 @@ export async function loginRegisteredUserB2Cprivate(
       code_verifier: codeVerifier,
       code: authResponse.code,
       client_id: slasClient.clientConfig.parameters.clientId,
-      redirect_uri: parameters.redirectURI,
-      ...(parameters.usid && { usid: parameters.usid }),
+      redirect_uri: redirectURI,
+      ...(usid && { usid }),
     },
     ...(Object.keys(restOfParams).length && { parameters: restOfParams }),
   };
