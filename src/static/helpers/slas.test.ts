@@ -301,6 +301,45 @@ describe("Guest user flow", () => {
     expect(options.body).to.include.keys("code_verifier");
     expect(accessToken).to.be.deep.equals(expectedTokenResponse);
   });
+
+  it("can pass custom params/header when using a public client flow", async () => {
+    const mockSlasClient = createSlasClient();
+    const spy = sinon.spy(mockSlasClient, "getAccessToken");
+    const { shortCode, organizationId } = mockSlasClient.clientConfig
+      .parameters as CommonParameters;
+
+    nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
+      .get(`/shopper/auth/v1/organizations/${organizationId}/oauth2/authorize`)
+      .query(true)
+      .reply(303, { response_body: "response_body" });
+
+    nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
+      .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/token`)
+      .query(true)
+      .reply(200, expectedTokenResponse);
+
+    const accessToken = await slasHelper.loginGuestUser(
+      mockSlasClient,
+      {
+        redirectURI: parameters.redirectURI,
+        c_cloth: "jeans",
+      },
+      {
+        headers: { c_custom_header: "custom-value" },
+      }
+    );
+
+    const options = spy.getCall(0).args[0];
+
+    // have to match object since code_verifier is randomly generated
+    sinon.assert.match(options, {
+      ...expectedOptionsPublic,
+      parameters: { c_cloth: "jeans" },
+      headers: { c_custom_header: "custom-value" },
+    });
+    expect(options.body).to.include.keys("code_verifier");
+    expect(accessToken).to.be.deep.equals(expectedTokenResponse);
+  });
 });
 
 describe("Registered B2C user flow", () => {
@@ -350,6 +389,90 @@ describe("Registered B2C user flow", () => {
       params
     );
 
+    expect(accessToken).to.be.deep.equals(expectedTokenResponse);
+  });
+
+  it("correctly passes custom headers in public client flow, throw warning for invalid params", async () => {
+    const consoleWarnSpy = sandbox.spy(console, "warn");
+
+    const mockSlasClient = createSlasClient();
+    const { shortCode, organizationId } = mockSlasClient.clientConfig
+      .parameters as CommonParameters;
+
+    const customHeaders = {
+      c_custom_header: "custom-value",
+    };
+
+    nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
+      .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/login`)
+      .query((query) => query.c_color === "red")
+      .matchHeader("c_custom_header", "custom-value")
+      .reply(303, { response_body: "response_body" }, { location: mockURL });
+
+    nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
+      .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/token`)
+      .query((query) => query.c_color === "red")
+      .matchHeader("c_custom_header", "custom-value")
+      .reply(200, expectedTokenResponse);
+
+    const accessToken = await slasHelper.loginRegisteredUserB2C(
+      mockSlasClient,
+      credentials,
+      {
+        ...params,
+        c_color: "red", // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-ignore intentionally passing invalid param
+        invalid_param: "some-value",
+      },
+      { headers: customHeaders }
+    );
+    sinon.assert.calledWithMatch(
+      consoleWarnSpy,
+      sinon.match(/Invalid Parameter: invalid_param/)
+    );
+    expect(accessToken).to.be.deep.equals(expectedTokenResponse);
+  });
+
+  it("correctly passes custom headers in private client flow, throw warning for invalid params", async () => {
+    const consoleWarnSpy = sandbox.spy(console, "warn");
+
+    const mockSlasClient = createSlasClient();
+    const { shortCode, organizationId } = mockSlasClient.clientConfig
+      .parameters as CommonParameters;
+
+    const customHeaders = {
+      c_custom_header: "custom-value",
+    };
+
+    nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
+      .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/login`)
+      .query((query) => query.c_color === "red")
+      .matchHeader("c_custom_header", "custom-value")
+      .reply(303, { response_body: "response_body" });
+
+    nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
+      .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/token`)
+      .query((query) => query.c_color === "red")
+      .matchHeader("c_custom_header", "custom-value")
+      .reply(200, expectedTokenResponse);
+
+    const accessToken = await slasHelper.loginRegisteredUserB2Cprivate(
+      mockSlasClient,
+      credentials,
+      {
+        ...params,
+        c_color: "red",
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-ignore intentionally passing invalid param
+        invalid_param: "some-value",
+      },
+      { headers: customHeaders }
+    );
+
+    sinon.assert.calledWithMatch(
+      consoleWarnSpy,
+      sinon.match(/Invalid Parameter: invalid_param/)
+    );
     expect(accessToken).to.be.deep.equals(expectedTokenResponse);
   });
 

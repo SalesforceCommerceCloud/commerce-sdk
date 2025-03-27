@@ -112,6 +112,7 @@ export async function authorize(
   const opts = {
     ...(options?.headers && { headers: options.headers }),
     parameters: {
+      ...restOfParams,
       client_id: slasClient.clientConfig.parameters.clientId,
       code_challenge: codeChallenge,
       ...(hint && { hint }),
@@ -119,7 +120,6 @@ export async function authorize(
       redirect_uri: redirectURI,
       response_type: "code",
       ...(usid && { usid }),
-      ...restOfParams,
     },
     fetchOptions: {
       // We do not want to redirect to redirectURI so manually control redirect
@@ -204,16 +204,18 @@ export async function loginGuestUser(
   options?: { headers?: { [key: string]: string } }
 ): Promise<TokenResponse> {
   const codeVerifier = createCodeVerifier();
+  const { usid, redirectURI, ...restOfParams } = parameters;
 
   const authResponse = await authorize(
     slasClient,
     codeVerifier,
     {
-      redirectURI: parameters.redirectURI,
+      ...restOfParams,
+      redirectURI: redirectURI,
       hint: "guest",
-      ...(parameters.usid && { usid: parameters.usid }),
+      ...(usid && { usid }),
     },
-    { headers: options?.headers }
+    options?.headers && { headers: options?.headers }
   );
 
   const tokenBody: TokenRequest = {
@@ -229,6 +231,7 @@ export async function loginGuestUser(
   return slasClient.getAccessToken({
     body: tokenBody,
     headers: options?.headers,
+    ...(Object.keys(restOfParams).length && { parameters: restOfParams }),
   });
 }
 
@@ -274,10 +277,10 @@ export async function loginRegisteredUserB2Cprivate(
   const { usid, redirectURI, ...restOfParams } = parameters;
   const optionsLogin = {
     headers: {
+      ...options?.headers,
       Authorization: authHeaderUserPass,
-      ...(options?.headers || {}),
     },
-    ...(parameters && { parameters: { ...restOfParams } }),
+    ...(Object.keys(restOfParams).length && { parameters: restOfParams }),
     body: {
       code_challenge: codeChallenge,
       channel_id: slasClient.clientConfig.parameters.siteId,
@@ -307,8 +310,8 @@ export async function loginRegisteredUserB2Cprivate(
 
   const optionsToken = {
     headers: {
-      Authorization: authHeaderIdSecret,
       ...(options?.headers || {}),
+      Authorization: authHeaderIdSecret,
     },
     body: {
       grant_type: "authorization_code_pkce",
@@ -318,6 +321,7 @@ export async function loginRegisteredUserB2Cprivate(
       redirect_uri: parameters.redirectURI,
       ...(parameters.usid && { usid: parameters.usid }),
     },
+    ...(Object.keys(restOfParams).length && { parameters: restOfParams }),
   };
 
   return slasClient.getAccessToken(optionsToken);
@@ -405,6 +409,7 @@ export async function loginRegisteredUserB2C(
   return slasClient.getAccessToken({
     body: tokenBody,
     ...(options?.headers && { headers: options.headers }),
+    ...(Object.keys(restOfParams).length && { parameters: restOfParams }),
   });
 }
 
@@ -469,6 +474,7 @@ export function refreshAccessTokenPrivate(
       grant_type: "refresh_token",
       refresh_token: refreshToken,
     },
+    ...(Object.keys(restOfParams).length && { parameters: restOfParams }),
   };
   return slasClient.getAccessToken(opts);
 }
@@ -495,14 +501,17 @@ export function logout(
   const { refreshToken, accessToken, ...restOfParams } = parameters;
   return slasClient.logoutCustomer({
     headers: {
-      Authorization: `Bearer ${accessToken}`,
+      // we put this at the top to avoid any overriding on the required query param below
       ...options?.headers,
+      Authorization: `Bearer ${accessToken}`,
     },
     parameters: {
+      // we put this at the top to avoid any overriding on the required query param below
+      // since they are not supposed to be overridden via helpers
+      ...restOfParams,
       refresh_token: refreshToken,
       client_id: slasClient.clientConfig.parameters.clientId,
       channel_id: slasClient.clientConfig.parameters.siteId,
-      ...restOfParams,
     },
   });
 }
