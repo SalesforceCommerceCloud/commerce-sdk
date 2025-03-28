@@ -90,7 +90,7 @@ export const generateCodeChallenge = async (
  * @param parameters.redirectURI - the location the client will be returned to after successful login with 3rd party IDP. Must be registered in SLAS.
  * @param parameters.hint? - optional string to hint at a particular IDP. Guest sessions are created by setting this to 'guest'
  * @param parameters.usid? - optional saved SLAS user id to link the new session to a previous session
- * @param options - an object containing the options for this function.
+ * @param options? - an object containing the options for this function.
  * @param options.headers - optional headers to pass in the ShopperLogin authorizeCustomer method.
  * @returns login url, user id and authorization code if available
  */
@@ -171,8 +171,8 @@ export async function loginGuestUserPrivate(
 
   const opts = {
     headers: {
+      ...(options?.headers || {}),
       Authorization: authorization,
-      ...options?.headers,
     },
     body: {
       grant_type: "client_credentials",
@@ -277,7 +277,7 @@ export async function loginRegisteredUserB2Cprivate(
   const { usid, redirectURI, ...restOfParams } = parameters;
   const optionsLogin = {
     headers: {
-      ...options?.headers,
+      ...(options?.headers || {}),
       Authorization: authHeaderUserPass,
     },
     ...(Object.keys(restOfParams).length && { parameters: restOfParams }),
@@ -367,8 +367,8 @@ export async function loginRegisteredUserB2C(
 
   const opts = {
     headers: {
-      Authorization: authorization,
       ...(options?.headers || {}),
+      Authorization: authorization,
     },
     parameters: {
       organizationId: slasClient.clientConfig.parameters.organizationId,
