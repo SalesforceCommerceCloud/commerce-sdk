@@ -17,7 +17,6 @@ import {
   TokenRequest,
   CustomQueryParameters,
   CustomRequestBody,
-  LoginRequest,
 } from "./slasClient";
 import type { RequestRedirect } from "node-fetch";
 
