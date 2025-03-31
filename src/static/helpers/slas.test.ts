@@ -302,9 +302,10 @@ describe("Guest user flow", () => {
     expect(accessToken).to.be.deep.equals(expectedTokenResponse);
   });
 
-  it("can pass custom params/header when using a public client flow", async () => {
+  it("can pass custom params when using a public client flow", async () => {
     const mockSlasClient = createSlasClient();
-    const spy = sinon.spy(mockSlasClient, "getAccessToken");
+    const getTokenSpy = sinon.spy(mockSlasClient, "getAccessToken");
+    const authorizeSpy = sinon.spy(mockSlasClient, "authorizeCustomer");
     const { shortCode, organizationId } = mockSlasClient.clientConfig
       .parameters as CommonParameters;
 
@@ -317,27 +318,29 @@ describe("Guest user flow", () => {
       .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/token`)
       .query(true)
       .reply(200, expectedTokenResponse);
+    const accessToken = await slasHelper.loginGuestUser(mockSlasClient, {
+      c_cloth: "jeans",
+      redirectURI: parameters.redirectURI,
+    });
 
-    const accessToken = await slasHelper.loginGuestUser(
-      mockSlasClient,
-      {
-        redirectURI: parameters.redirectURI,
-        c_cloth: "jeans",
-      },
-      {
-        headers: { c_custom_header: "custom-value" },
-      }
-    );
-
-    const options = spy.getCall(0).args[0];
+    const getTokenOpts = getTokenSpy.getCall(0).args[0];
+    const authorizeOpt = authorizeSpy.getCall(0).args[0];
 
     // have to match object since code_verifier is randomly generated
-    sinon.assert.match(options, {
-      ...expectedOptionsPublic,
-      parameters: { c_cloth: "jeans" },
-      headers: { c_custom_header: "custom-value" },
+    sinon.assert.match(getTokenOpts, expectedOptionsPublic);
+    sinon.assert.match(authorizeOpt, {
+      parameters: {
+        c_cloth: "jeans",
+        client_id: clientConfig.parameters.clientId,
+        code_challenge: sinon.match(/./),
+        hint: "guest",
+        organizationId: clientConfig.parameters.organizationId,
+        redirect_uri: parameters.redirectURI,
+        response_type: "code",
+      },
+      fetchOptions: { redirect: "manual" },
     });
-    expect(options.body).to.include.keys("code_verifier");
+    expect(getTokenOpts.body).to.include.keys("code_verifier");
     expect(accessToken).to.be.deep.equals(expectedTokenResponse);
   });
 });
@@ -392,87 +395,81 @@ describe("Registered B2C user flow", () => {
     expect(accessToken).to.be.deep.equals(expectedTokenResponse);
   });
 
-  it("correctly passes custom headers in public client flow, throw warning for invalid params", async () => {
-    const consoleWarnSpy = sandbox.spy(console, "warn");
-
+  it("loginRegisteredUserB2C accepts custom body", async () => {
     const mockSlasClient = createSlasClient();
+    const authenticateSpy = sinon.spy(mockSlasClient, "authenticateCustomer");
     const { shortCode, organizationId } = mockSlasClient.clientConfig
       .parameters as CommonParameters;
 
-    const customHeaders = {
-      c_custom_header: "custom-value",
-    };
-
     nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
       .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/login`)
-      .query((query) => query.c_color === "red")
-      .matchHeader("c_custom_header", "custom-value")
       .reply(303, { response_body: "response_body" }, { location: mockURL });
 
     nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
       .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/token`)
-      .query((query) => query.c_color === "red")
-      .matchHeader("c_custom_header", "custom-value")
       .reply(200, expectedTokenResponse);
 
     const accessToken = await slasHelper.loginRegisteredUserB2C(
       mockSlasClient,
       credentials,
-      {
-        ...params,
-        c_color: "red", // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-ignore intentionally passing invalid param
-        invalid_param: "some-value",
+      params,
+      { body: { c_body: "custom-body" } }
+    );
+    const authenticateOpts = authenticateSpy.getCall(0).args[0];
+    sinon.assert.match(authenticateOpts, {
+      headers: {
+        Authorization: sinon.match(/./),
       },
-      { headers: customHeaders }
-    );
-    sinon.assert.calledWithMatch(
-      consoleWarnSpy,
-      sinon.match(/Invalid Parameter: invalid_param/)
-    );
+      parameters: { organizationId: organizationId },
+      body: {
+        c_body: "custom-body",
+        redirect_uri: params.redirectURI,
+        client_id: clientConfig.parameters.clientId,
+        code_challenge: sinon.match(/./),
+        channel_id: clientConfig.parameters.siteId,
+        usid: params.usid,
+      },
+      fetchOptions: { redirect: "manual" },
+    });
     expect(accessToken).to.be.deep.equals(expectedTokenResponse);
   });
 
-  it("correctly passes custom headers in private client flow, throw warning for invalid params", async () => {
-    const consoleWarnSpy = sandbox.spy(console, "warn");
-
+  it("loginRegisteredUserB2Cprivate excepts custom body", async () => {
     const mockSlasClient = createSlasClient();
+    const authenticateSpy = sinon.spy(mockSlasClient, "authenticateCustomer");
+
     const { shortCode, organizationId } = mockSlasClient.clientConfig
       .parameters as CommonParameters;
 
-    const customHeaders = {
-      c_custom_header: "custom-value",
-    };
-
     nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
       .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/login`)
-      .query((query) => query.c_color === "red")
-      .matchHeader("c_custom_header", "custom-value")
       .reply(303, { response_body: "response_body" });
 
     nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
       .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/token`)
-      .query((query) => query.c_color === "red")
-      .matchHeader("c_custom_header", "custom-value")
       .reply(200, expectedTokenResponse);
 
     const accessToken = await slasHelper.loginRegisteredUserB2Cprivate(
       mockSlasClient,
       credentials,
-      {
-        ...params,
-        c_color: "red",
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-ignore intentionally passing invalid param
-        invalid_param: "some-value",
+      params,
+      { body: { c_body: "custom-body" } }
+    );
+    const authenticateOpts = authenticateSpy.getCall(0).args[0];
+    sinon.assert.match(authenticateOpts, {
+      headers: {
+        Authorization: sinon.match(/./),
       },
-      { headers: customHeaders }
-    );
-
-    sinon.assert.calledWithMatch(
-      consoleWarnSpy,
-      sinon.match(/Invalid Parameter: invalid_param/)
-    );
+      body: {
+        c_body: "custom-body",
+        code_challenge: sinon.match(/./),
+        channel_id: clientConfig.parameters.siteId,
+        client_id: clientConfig.parameters.clientId,
+        redirect_uri: params.redirectURI,
+        usid: params.usid,
+      },
+      fetchOptions: { redirect: "manual" },
+    });
     expect(accessToken).to.be.deep.equals(expectedTokenResponse);
   });
 
