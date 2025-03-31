@@ -123,5 +123,11 @@ export type CustomQueryParameters = {
  * types for the value.
  */
 export type CustomRequestBody = {
-  [key in `c_${string}`]: string | number | boolean | string[] | number[];
+  [key in `c_${string}`]:
+    | string
+    | number
+    | boolean
+    | string[]
+    | number[]
+    | { [key: string]: any };
 };
