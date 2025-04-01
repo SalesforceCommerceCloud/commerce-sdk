@@ -176,7 +176,7 @@ export async function loginGuestUserPrivate(
  * A single function to execute the ShopperLogin Public Client Guest Login with proof key for code exchange flow as described in the [API documentation](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-public-client.html).
  *
  * @param slasClient a configured instance of the ShopperLogin SDK client.
- * @param parameters - parameters to pass in the API calls.
+ * @param parameters - parameters to pass in the API calls. Custom parameters can be passed in with the prefix `c_` (e.g. c_myParam), and they be passed on the `authorizeCustomer` endpoint.
  * @param parameters.redirectURI - Per OAuth standard, a valid app route. Must be listed in your SLAS configuration. On server, this will not be actually called
  * @param parameters.usid? - Unique Shopper Identifier to enable personalization.
  * @returns TokenResponse

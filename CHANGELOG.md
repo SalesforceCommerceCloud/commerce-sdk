@@ -4,6 +4,7 @@
 
 ### Enchancements
 - Support Node 22 [#412](https://github.com/SalesforceCommerceCloud/commerce-sdk/pull/412)
+- Allow custom params for 'loginGuestUser' and custom body for 'loginRegisteredUserB2C' function [#186](https://github.com/SalesforceCommerceCloud/commerce-sdk-isomorphic/pull/186)
 
 ### API Changes
 
