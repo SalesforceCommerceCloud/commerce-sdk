@@ -9,7 +9,7 @@ import type { OperationOptions } from "retry";
 import { Response, ClientConfig } from "@commerce-apps/core";
 import type { RequestInit } from "node-fetch";
 
-type LoginRequest = {
+export type LoginRequest = {
   client_id?: string;
   response_type?: string;
   redirect_uri: string;
@@ -109,3 +109,25 @@ export interface ISlasClient {
 
   clientConfig: ClientConfig;
 }
+
+/**
+ * Custom query parameter type with any string prefixed with `c_` as the key and the allowed
+ * types for query parameters for the value.
+ */
+export type CustomQueryParameters = {
+  [key in `c_${string}`]: string | number | boolean | string[] | number[];
+};
+
+/**
+ * Custom body request type with any string prefixed with `c_` as the key and the allowed
+ * types for the value.
+ */
+export type CustomRequestBody = {
+  [key in `c_${string}`]:
+    | string
+    | number
+    | boolean
+    | string[]
+    | number[]
+    | { [key: string]: unknown };
+};

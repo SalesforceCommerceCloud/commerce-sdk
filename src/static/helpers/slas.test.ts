@@ -141,6 +141,11 @@ describe("Authorize user", () => {
     usid: "usid",
   };
 
+  const params = {
+    redirectURI: parameters.redirectURI,
+    hint: parameters.hint,
+    usid: parameters.usid,
+  };
   it("hits the authorize endpoint and receives authorization code", async () => {
     const mockSlasClient = createSlasClient();
     const { shortCode, organizationId } = clientConfig.parameters;
@@ -154,7 +159,7 @@ describe("Authorize user", () => {
     const authResponse = await slasHelper.authorize(
       mockSlasClient,
       codeVerifier,
-      parameters
+      params
     );
     expect(authResponse).to.be.deep.equal(expectedAuthResponse);
   });
@@ -172,7 +177,7 @@ describe("Authorize user", () => {
     const authResponse = await slasHelper.authorize(
       mockSlasClient,
       codeVerifier,
-      parameters
+      params
     );
 
     const authURL = new URL(authResponse.url);
@@ -199,7 +204,7 @@ describe("Authorize user", () => {
       .reply(400);
 
     await slasHelper
-      .authorize(mockSlasClient, codeVerifier, parameters)
+      .authorize(mockSlasClient, codeVerifier, params)
       .catch((error) => expect(error.message).to.be.equal("400 Bad Request"));
   });
 });
@@ -296,9 +301,55 @@ describe("Guest user flow", () => {
     expect(options.body).to.include.keys("code_verifier");
     expect(accessToken).to.be.deep.equals(expectedTokenResponse);
   });
+
+  it("can pass custom params when using a public client flow", async () => {
+    const mockSlasClient = createSlasClient();
+    const getTokenSpy = sinon.spy(mockSlasClient, "getAccessToken");
+    const authorizeSpy = sinon.spy(mockSlasClient, "authorizeCustomer");
+    const { shortCode, organizationId } = mockSlasClient.clientConfig
+      .parameters as CommonParameters;
+
+    nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
+      .get(`/shopper/auth/v1/organizations/${organizationId}/oauth2/authorize`)
+      .query(true)
+      .reply(303, { response_body: "response_body" });
+
+    nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
+      .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/token`)
+      .query(true)
+      .reply(200, expectedTokenResponse);
+    const accessToken = await slasHelper.loginGuestUser(mockSlasClient, {
+      c_cloth: "jeans",
+      redirectURI: parameters.redirectURI,
+    });
+
+    const getTokenOpts = getTokenSpy.getCall(0).args[0];
+    const authorizeOpt = authorizeSpy.getCall(0).args[0];
+
+    // have to match object since code_verifier is randomly generated
+    sinon.assert.match(getTokenOpts, expectedOptionsPublic);
+    sinon.assert.match(authorizeOpt, {
+      parameters: {
+        c_cloth: "jeans",
+        client_id: clientConfig.parameters.clientId,
+        code_challenge: sinon.match(/./),
+        hint: "guest",
+        organizationId: clientConfig.parameters.organizationId,
+        redirect_uri: parameters.redirectURI,
+        response_type: "code",
+      },
+      fetchOptions: { redirect: "manual" },
+    });
+    expect(getTokenOpts.body).to.include.keys("code_verifier");
+    expect(accessToken).to.be.deep.equals(expectedTokenResponse);
+  });
 });
 
 describe("Registered B2C user flow", () => {
+  const params = {
+    redirectURI: parameters.redirectURI,
+    usid: parameters.usid,
+  };
   it("using a private client uses hits login and token endpoints to generate JWT", async () => {
     const mockSlasClient = createSlasClient();
     const { shortCode, organizationId } = mockSlasClient.clientConfig
@@ -316,7 +367,7 @@ describe("Registered B2C user flow", () => {
     const accessToken = await slasHelper.loginRegisteredUserB2Cprivate(
       mockSlasClient,
       credentials,
-      parameters
+      params
     );
     expect(accessToken).to.be.deep.equals(expectedTokenResponse);
   });
@@ -338,9 +389,87 @@ describe("Registered B2C user flow", () => {
     const accessToken = await slasHelper.loginRegisteredUserB2C(
       mockSlasClient,
       credentials,
-      parameters
+      params
     );
 
+    expect(accessToken).to.be.deep.equals(expectedTokenResponse);
+  });
+
+  it("loginRegisteredUserB2C accepts custom body", async () => {
+    const mockSlasClient = createSlasClient();
+    const authenticateSpy = sinon.spy(mockSlasClient, "authenticateCustomer");
+    const { shortCode, organizationId } = mockSlasClient.clientConfig
+      .parameters as CommonParameters;
+
+    nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
+      .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/login`)
+      .reply(303, { response_body: "response_body" }, { location: mockURL });
+
+    nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
+      .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/token`)
+      .reply(200, expectedTokenResponse);
+
+    const accessToken = await slasHelper.loginRegisteredUserB2C(
+      mockSlasClient,
+      credentials,
+      params,
+      { body: { c_body: "custom-body" } }
+    );
+    const authenticateOpts = authenticateSpy.getCall(0).args[0];
+    sinon.assert.match(authenticateOpts, {
+      headers: {
+        Authorization: sinon.match(/./),
+      },
+      parameters: { organizationId: organizationId },
+      body: {
+        c_body: "custom-body",
+        redirect_uri: params.redirectURI,
+        client_id: clientConfig.parameters.clientId,
+        code_challenge: sinon.match(/./),
+        channel_id: clientConfig.parameters.siteId,
+        usid: params.usid,
+      },
+      fetchOptions: { redirect: "manual" },
+    });
+    expect(accessToken).to.be.deep.equals(expectedTokenResponse);
+  });
+
+  it("loginRegisteredUserB2Cprivate excepts custom body", async () => {
+    const mockSlasClient = createSlasClient();
+    const authenticateSpy = sinon.spy(mockSlasClient, "authenticateCustomer");
+
+    const { shortCode, organizationId } = mockSlasClient.clientConfig
+      .parameters as CommonParameters;
+
+    nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
+      .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/login`)
+      .reply(303, { response_body: "response_body" });
+
+    nock(`https://${shortCode}.api.commercecloud.salesforce.com`)
+      .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/token`)
+      .reply(200, expectedTokenResponse);
+
+    const accessToken = await slasHelper.loginRegisteredUserB2Cprivate(
+      mockSlasClient,
+      credentials,
+      params,
+      { body: { c_body: "custom-body" } }
+    );
+    const authenticateOpts = authenticateSpy.getCall(0).args[0];
+    sinon.assert.match(authenticateOpts, {
+      headers: {
+        Authorization: sinon.match(/./),
+      },
+      body: {
+        c_body: "custom-body",
+        code_challenge: sinon.match(/./),
+        channel_id: clientConfig.parameters.siteId,
+        client_id: clientConfig.parameters.clientId,
+        redirect_uri: params.redirectURI,
+        usid: params.usid,
+      },
+      fetchOptions: { redirect: "manual" },
+    });
     expect(accessToken).to.be.deep.equals(expectedTokenResponse);
   });
 
@@ -354,7 +483,7 @@ describe("Registered B2C user flow", () => {
       .reply(400);
 
     await slasHelper
-      .loginRegisteredUserB2C(mockSlasClient, credentials, parameters)
+      .loginRegisteredUserB2C(mockSlasClient, credentials, params)
       .catch((error) => expect(error.message).to.be.equal("400 Bad Request"));
   });
 
@@ -368,31 +497,20 @@ describe("Registered B2C user flow", () => {
       .reply(400);
 
     await slasHelper
-      .loginRegisteredUserB2Cprivate(mockSlasClient, credentials, parameters)
+      .loginRegisteredUserB2Cprivate(mockSlasClient, credentials, params)
       .catch((error) => expect(error.message).to.be.equal("400 Bad Request"));
   });
 });
 
 describe("Refresh Token", () => {
-  const expectedBody = {
-    body: {
-      client_id: "client_id",
-      grant_type: "refresh_token",
-      refresh_token: "refresh_token",
-    },
-  };
-
-  const expectedOptions = {
-    headers: {
-      Authorization: "Basic Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQ=",
-    },
-    body: {
-      grant_type: "refresh_token",
-      refresh_token: parameters.refreshToken,
-    },
-  };
-
   it("refreshes the token", async () => {
+    const expectedOpts = {
+      body: {
+        client_id: "client_id",
+        grant_type: "refresh_token",
+        refresh_token: "refresh_token",
+      },
+    };
     const mockSlasClient = createSlasClient();
     const spy = sinon.spy(mockSlasClient, "getAccessToken");
     const { shortCode, organizationId } = clientConfig.parameters;
@@ -402,16 +520,23 @@ describe("Refresh Token", () => {
       .query(true)
       .reply(200, expectedTokenResponse);
 
-    const token = await slasHelper.refreshAccessToken(
-      mockSlasClient,
-      parameters
-    );
-
-    expect(spy.getCall(0).args[0]).to.be.deep.equals(expectedBody);
+    const token = await slasHelper.refreshAccessToken(mockSlasClient, {
+      refreshToken: parameters.refreshToken,
+    });
+    expect(spy.getCall(0).args[0]).to.be.deep.equals(expectedOpts);
     expect(token).to.be.deep.equals(expectedTokenResponse);
   });
 
   it("refreshes the token using client secret", async () => {
+    const expectedOptions = {
+      headers: {
+        Authorization: "Basic Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQ=",
+      },
+      body: {
+        grant_type: "refresh_token",
+        refresh_token: parameters.refreshToken,
+      },
+    };
     const mockSlasClient = createSlasClient();
     const spy = sinon.spy(mockSlasClient, "getAccessToken");
     const { shortCode, organizationId } = clientConfig.parameters;
@@ -424,7 +549,7 @@ describe("Refresh Token", () => {
     const token = await slasHelper.refreshAccessTokenPrivate(
       mockSlasClient,
       credentials,
-      parameters
+      { refreshToken: parameters.refreshToken }
     );
 
     expect(spy.getCall(0).args[0]).to.be.deep.equals(expectedOptions);
@@ -454,7 +579,10 @@ describe("Logout", () => {
       .query(true)
       .reply(200, expectedTokenResponse);
 
-    const token = await slasHelper.logout(mockSlasClient, parameters);
+    const token = await slasHelper.logout(mockSlasClient, {
+      refreshToken: parameters.refreshToken,
+      accessToken: parameters.accessToken,
+    });
     expect(spy.getCall(0).args[0]).to.be.deep.equals(expectedOptions);
     expect(token).to.be.deep.equals(expectedTokenResponse);
   });

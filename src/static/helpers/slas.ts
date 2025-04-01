@@ -11,7 +11,13 @@
 import { nanoid } from "nanoid";
 import { URL, URLSearchParams } from "url";
 import { ResponseError } from "@commerce-apps/core";
-import { ISlasClient, TokenResponse, TokenRequest } from "./slasClient";
+import {
+  ISlasClient,
+  TokenResponse,
+  TokenRequest,
+  CustomQueryParameters,
+  CustomRequestBody,
+} from "./slasClient";
 import type { RequestRedirect } from "node-fetch";
 
 /**
@@ -83,6 +89,7 @@ export const generateCodeChallenge = async (
  * @param parameters.redirectURI - the location the client will be returned to after successful login with 3rd party IDP. Must be registered in SLAS.
  * @param parameters.hint? - optional string to hint at a particular IDP. Guest sessions are created by setting this to 'guest'
  * @param parameters.usid? - optional saved SLAS user id to link the new session to a previous session
+ * @param options? - an object containing the options for this function.
  * @returns login url, user id and authorization code if available
  */
 export async function authorize(
@@ -92,19 +99,21 @@ export async function authorize(
     redirectURI: string;
     hint?: string;
     usid?: string;
-  }
+  } & CustomQueryParameters
 ): Promise<{ code: string; url: string; usid: string }> {
   const codeChallenge = await generateCodeChallenge(codeVerifier);
+  const { hint, redirectURI, usid, ...restOfParams } = parameters;
 
   const options = {
     parameters: {
+      ...restOfParams,
       client_id: slasClient.clientConfig.parameters.clientId,
       code_challenge: codeChallenge,
-      ...(parameters.hint && { hint: parameters.hint }),
+      ...(hint && { hint }),
       organizationId: slasClient.clientConfig.parameters.organizationId,
-      redirect_uri: parameters.redirectURI,
+      redirect_uri: redirectURI,
       response_type: "code",
-      ...(parameters.usid && { usid: parameters.usid }),
+      ...(usid && { usid }),
     },
     fetchOptions: {
       // We do not want to redirect to redirectURI so manually control redirect
@@ -167,7 +176,7 @@ export async function loginGuestUserPrivate(
  * A single function to execute the ShopperLogin Public Client Guest Login with proof key for code exchange flow as described in the [API documentation](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-public-client.html).
  *
  * @param slasClient a configured instance of the ShopperLogin SDK client.
- * @param parameters - parameters to pass in the API calls.
+ * @param parameters - parameters to pass in the API calls. Custom parameters can be passed in with the prefix `c_` (e.g. c_myParam), and they be passed on the `authorizeCustomer` endpoint.
  * @param parameters.redirectURI - Per OAuth standard, a valid app route. Must be listed in your SLAS configuration. On server, this will not be actually called
  * @param parameters.usid? - Unique Shopper Identifier to enable personalization.
  * @returns TokenResponse
@@ -177,14 +186,16 @@ export async function loginGuestUser(
   parameters: {
     redirectURI: string;
     usid?: string;
-  }
+  } & CustomQueryParameters
 ): Promise<TokenResponse> {
   const codeVerifier = createCodeVerifier();
+  const { usid, redirectURI, ...restOfParams } = parameters;
 
   const authResponse = await authorize(slasClient, codeVerifier, {
-    redirectURI: parameters.redirectURI,
+    ...restOfParams,
+    redirectURI: redirectURI,
     hint: "guest",
-    ...(parameters.usid && { usid: parameters.usid }),
+    ...(usid && { usid }),
   });
 
   const tokenBody: TokenRequest = {
@@ -193,7 +204,7 @@ export async function loginGuestUser(
     code: authResponse.code,
     code_verifier: codeVerifier,
     grant_type: "authorization_code_pkce",
-    redirect_uri: parameters.redirectURI,
+    redirect_uri: redirectURI,
     usid: authResponse.usid,
   };
 
@@ -211,6 +222,8 @@ export async function loginGuestUser(
  * @param parameters - parameters to pass in the API calls.
  * @param parameters.redirectURI - Per OAuth standard, a valid app route. Must be listed in your SLAS configuration. On server, this will not be actually called
  * @param parameters.usid? - optional Unique Shopper Identifier to enable personalization
+ * @param options? - optional parameters to pass in the API calls.
+ * @param options.body? - optional body to pass in the ShopperLogin authenticateCustomer method
  * @returns TokenResponse
  */
 export async function loginRegisteredUserB2Cprivate(
@@ -223,6 +236,9 @@ export async function loginRegisteredUserB2Cprivate(
   parameters: {
     redirectURI: string;
     usid?: string;
+  },
+  options?: {
+    body?: CustomRequestBody;
   }
 ): Promise<TokenResponse> {
   const codeVerifier = createCodeVerifier();
@@ -237,6 +253,7 @@ export async function loginRegisteredUserB2Cprivate(
       Authorization: authHeaderUserPass,
     },
     body: {
+      ...(options?.body || {}),
       code_challenge: codeChallenge,
       channel_id: slasClient.clientConfig.parameters.siteId,
       client_id: slasClient.clientConfig.parameters.clientId,
@@ -289,6 +306,8 @@ export async function loginRegisteredUserB2Cprivate(
  * @param parameters - parameters to pass in the API calls.
  * @param parameters.redirectURI - Per OAuth standard, a valid app route. Must be listed in your SLAS configuration. On server, this will not be actually called. On browser, this will be called, but ignored.
  * @param parameters.usid? - Unique Shopper Identifier to enable personalization.
+ * @param options? - optional parameters to pass in
+ * @param options.body? - optional body to pass in the ShopperLogin authenticateCustomer method
  * @returns TokenResponse
  */
 export async function loginRegisteredUserB2C(
@@ -300,6 +319,9 @@ export async function loginRegisteredUserB2C(
   parameters: {
     redirectURI: string;
     usid?: string;
+  },
+  options?: {
+    body?: CustomRequestBody;
   }
 ): Promise<TokenResponse> {
   const codeVerifier = createCodeVerifier();
@@ -309,7 +331,7 @@ export async function loginRegisteredUserB2C(
     `${credentials.username}:${credentials.password}`
   )}`;
 
-  const options = {
+  const opts = {
     headers: {
       Authorization: authorization,
     },
@@ -317,6 +339,7 @@ export async function loginRegisteredUserB2C(
       organizationId: slasClient.clientConfig.parameters.organizationId,
     },
     body: {
+      ...(options?.body || {}),
       redirect_uri: parameters.redirectURI,
       client_id: slasClient.clientConfig.parameters.clientId,
       code_challenge: codeChallenge,
@@ -329,7 +352,7 @@ export async function loginRegisteredUserB2C(
     },
   };
 
-  const response = await slasClient.authenticateCustomer(options, true);
+  const response = await slasClient.authenticateCustomer(opts, true);
 
   if (response.status !== 303) {
     throw new ResponseError(response);
