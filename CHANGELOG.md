@@ -1,7 +1,11 @@
 ## CHANGELOG
 
+
 ## v4.2.0 - future release
+
+### Enchancements
 - Allow custom params for 'loginGuestUser' and custom body for 'loginRegisteredUserB2C' function [#415](https://github.com/SalesforceCommerceCloud/commerce-sdk/pull/415)
+- Add helper to encode special SCAPI characters [#416](https://github.com/SalesforceCommerceCloud/commerce-sdk/pull/416)
 
 ## v4.1.0
 

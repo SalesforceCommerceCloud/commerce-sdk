@@ -18,6 +18,12 @@ Please be aware that existing tenants are on a temporary allow list and will see
 
 In practice, we recommend that customers using the SLAS helper functions upgrade to `v4.0.0` of the `commerce-sdk`.
 
+## :warning: Planned SDK Changes :warning:
+
+### Encoding path parameters
+
+In the next major version release, the SDK will encode special characters (UTF-8 based on SCAPI guidelines) in path parameters by default. Please see the [Encoding special characters](#encoding-special-characters) section for more details.
+
 ## Prerequisites
 
 Download and install Node.js and npm [here](https://nodejs.org/en/download/).
@@ -318,6 +324,67 @@ const postResponse = await customApiHelper.callCustomEndpoint({
 console.log('get response: ', getResponse)
 console.log('post response: ', postResponse)
 ```
+
+### Encoding special characters
+
+The SDK currently single encodes special characters for query parameters in UTF-8 format based on SCAPI guidelines. However, the SDK does NOT encode path parameters, and will require the developer to encode any path parameters with special characters.
+
+Additionally, SCAPI has special characters that should be double encoded, specifically `%` and `,`:
+- `%` should always be double encoded
+- `,` should be double encoded when used as part of an ID/parameter string, and single encoded when used to differentiate items in a list 
+
+There is a helper function called `encodeSCAPISpecialCharacters` that can be utilized to single encode the SCAPI special characters and no other special characters.
+
+Here's an example where the `getCategory/getCategories` endpoints are called with a `categoryID` with special characters:
+```javascript
+import * as CommerceSdk from "commerce-sdk";
+const { helpers, Product } = CommerceSdk;
+
+const clientConfig = {
+  parameters: {
+    clientId: "<your-client-id>",
+    organizationId: "<your-org-id>",
+    shortCode: "<your-short-code>",
+    siteId: "<your-site-id>",
+  }
+};
+
+const shopperProducts = new Product.ShopperProducts({
+  ...clientConfig,
+  headers: {authorization: `Bearer <insert_access_token>`}
+});
+
+const categoryId = "SpecialCharacter,%$^@&$;()!123Category";
+// "SpecialCharacter%2C%25$^@&$;()!123Category"
+const scapiSpecialEncodedId = helpers.encodeSCAPISpecialCharacters(categoryId);
+
+
+// id is a path parameter for API call:
+// <base-url>/product/shopper-products/v1/organizations/{organizationId}/categories/{id}
+const categoryResult = await shopperProducts.getCategory({
+  parameters: {
+    // Path parameters are NOT encoded by the SDK, so we have to single encode special characters
+    // and the SCAPI special characters will end up double encoded
+    id: encodeURIComponent(scapiSpecialEncodedId),
+  }
+});
+
+console.log("categoryResult: ", categoryResult);
+
+// `ids` are a query parameter and comma delimited to separate category IDs
+const categoriesResult = await shopperProducts.getCategories({
+  parameters: {
+    // No need to use `encodeURIComponent` as query parameters are single encoded by the SDK
+    // So the SCAPI special characters will end up double encoded as well
+    // Commas that separate items in a list will end up single encoded
+    ids: `${scapiSpecialEncodedId},${scapiSpecialEncodedId}`,
+  }
+});
+
+console.log("categoriesResult: ", categoriesResult);
+```
+
+**NOTE: In the next major version release, path parameters will be single encoded by default**
 
 ## Caching
 
