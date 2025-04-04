@@ -1,5 +1,10 @@
 ## CHANGELOG
 
+## v4.2.0
+
+### Enchancements
+- Add helper to encode special SCAPI characters [#416](https://github.com/SalesforceCommerceCloud/commerce-sdk/pull/416)
+
 ## v4.1.0
 
 ### Enchancements
