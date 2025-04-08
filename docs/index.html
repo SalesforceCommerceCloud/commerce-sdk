@@ -83,6 +83,13 @@
 				<p>SLAS will soon require new tenants to pass <code>channel_id</code> as an argument for retrieving guest access tokens. You can read more about the planned change <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas.html#guest-tokens">here</a>.</p>
 				<p>Please be aware that existing tenants are on a temporary allow list and will see no immediate disruption to service.  We do ask that all users seek to adhere to the <code>channel_id</code> requirement before the end of August to enhance your security posture before the holiday peak season.</p>
 				<p>In practice, we recommend that customers using the SLAS helper functions upgrade to <code>v4.0.0</code> of the <code>commerce-sdk</code>.</p>
+				<a href="#warning-planned-sdk-changes-warning" id="warning-planned-sdk-changes-warning" style="color: inherit; text-decoration: none;">
+					<h2>:warning: Planned SDK Changes :warning:</h2>
+				</a>
+				<a href="#encoding-path-parameters" id="encoding-path-parameters" style="color: inherit; text-decoration: none;">
+					<h3>Encoding path parameters</h3>
+				</a>
+				<p>In the next major version release, the SDK will encode special characters (UTF-8 based on SCAPI guidelines) in path parameters by default. Please see the <a href="#encoding-special-characters">Encoding special characters</a> section for more details.</p>
 				<a href="#prerequisites" id="prerequisites" style="color: inherit; text-decoration: none;">
 					<h2>Prerequisites</h2>
 				</a>
@@ -378,6 +385,63 @@ client.authorizeCustomer({
 
 <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&#x27;get response: &#x27;</span>, getResponse)
 <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&#x27;post response: &#x27;</span>, postResponse)</code></pre>
+				<a href="#encoding-special-characters" id="encoding-special-characters" style="color: inherit; text-decoration: none;">
+					<h3>Encoding special characters</h3>
+				</a>
+				<p>The SDK currently single encodes special characters for query parameters in UTF-8 format based on SCAPI guidelines. However, the SDK does NOT encode path parameters, and will require the developer to encode any path parameters with special characters.</p>
+				<p>Additionally, SCAPI has special characters that should be double encoded, specifically <code>%</code> and <code>,</code>:</p>
+				<ul>
+					<li><code>%</code> should always be double encoded</li>
+					<li><code>,</code> should be double encoded when used as part of an ID/parameter string, and single encoded when used to differentiate items in a list </li>
+				</ul>
+				<p>There is a helper function called <code>encodeSCAPISpecialCharacters</code> that can be utilized to single encode the SCAPI special characters and no other special characters.</p>
+				<p>Here&#39;s an example where the <code>getCategory/getCategories</code> endpoints are called with a <code>categoryID</code> with special characters:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> CommerceSdk <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
+<span class="hljs-keyword">const</span> { helpers, Product } = CommerceSdk;
+
+<span class="hljs-keyword">const</span> clientConfig = {
+  <span class="hljs-attr">parameters</span>: {
+    <span class="hljs-attr">clientId</span>: <span class="hljs-string">&quot;&lt;your-client-id&gt;&quot;</span>,
+    <span class="hljs-attr">organizationId</span>: <span class="hljs-string">&quot;&lt;your-org-id&gt;&quot;</span>,
+    <span class="hljs-attr">shortCode</span>: <span class="hljs-string">&quot;&lt;your-short-code&gt;&quot;</span>,
+    <span class="hljs-attr">siteId</span>: <span class="hljs-string">&quot;&lt;your-site-id&gt;&quot;</span>,
+  }
+};
+
+<span class="hljs-keyword">const</span> shopperProducts = <span class="hljs-keyword">new</span> Product.ShopperProducts({
+  ...clientConfig,
+  <span class="hljs-attr">headers</span>: {<span class="hljs-attr">authorization</span>: <span class="hljs-string">`Bearer &lt;insert_access_token&gt;`</span>}
+});
+
+<span class="hljs-keyword">const</span> categoryId = <span class="hljs-string">&quot;SpecialCharacter,%$^@&amp;$;()!123Category&quot;</span>;
+<span class="hljs-comment">// &quot;SpecialCharacter%2C%25$^@&amp;$;()!123Category&quot;</span>
+<span class="hljs-keyword">const</span> scapiSpecialEncodedId = helpers.encodeSCAPISpecialCharacters(categoryId);
+
+
+<span class="hljs-comment">// id is a path parameter for API call:</span>
+<span class="hljs-comment">// &lt;base-url&gt;/product/shopper-products/v1/organizations/{organizationId}/categories/{id}</span>
+<span class="hljs-keyword">const</span> categoryResult = <span class="hljs-keyword">await</span> shopperProducts.getCategory({
+  <span class="hljs-attr">parameters</span>: {
+    <span class="hljs-comment">// Path parameters are NOT encoded by the SDK, so we have to single encode special characters</span>
+    <span class="hljs-comment">// and the SCAPI special characters will end up double encoded</span>
+    <span class="hljs-attr">id</span>: <span class="hljs-built_in">encodeURIComponent</span>(scapiSpecialEncodedId),
+  }
+});
+
+<span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;categoryResult: &quot;</span>, categoryResult);
+
+<span class="hljs-comment">// `ids` are a query parameter and comma delimited to separate category IDs</span>
+<span class="hljs-keyword">const</span> categoriesResult = <span class="hljs-keyword">await</span> shopperProducts.getCategories({
+  <span class="hljs-attr">parameters</span>: {
+    <span class="hljs-comment">// No need to use `encodeURIComponent` as query parameters are single encoded by the SDK</span>
+    <span class="hljs-comment">// So the SCAPI special characters will end up double encoded as well</span>
+    <span class="hljs-comment">// Commas that separate items in a list will end up single encoded</span>
+    <span class="hljs-attr">ids</span>: <span class="hljs-string">`<span class="hljs-subst">${scapiSpecialEncodedId}</span>,<span class="hljs-subst">${scapiSpecialEncodedId}</span>`</span>,
+  }
+});
+
+<span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;categoriesResult: &quot;</span>, categoriesResult);</code></pre>
+				<p><strong>NOTE: In the next major version release, path parameters will be single encoded by default</strong></p>
 				<a href="#caching" id="caching" style="color: inherit; text-decoration: none;">
 					<h2>Caching</h2>
 				</a>
@@ -528,7 +592,7 @@ sdkLogger.setLevel(sdkLogger.levels.INFO);</code></pre>
 				<p>For more information about security considerations related to developing headless commerce applications, see
 					<a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/security-considerations-for-headless-commerce.html">Security Considerations for Headless Commerce</a> on the
 				<a href="https://developer.salesforce.com/developer-centers/commerce-cloud">Commerce Cloud Developer Center</a>.</p>
-				<p>If you discover any potential security issues, please report them to <a href="mailto:&#115;&#101;&#x63;&#117;&#114;&#x69;&#x74;&#121;&#x40;&#x73;&#x61;&#108;&#101;&#x73;&#102;&#x6f;&#114;&#99;&#x65;&#x2e;&#99;&#111;&#x6d;">&#115;&#101;&#x63;&#117;&#114;&#x69;&#x74;&#121;&#x40;&#x73;&#x61;&#108;&#101;&#x73;&#102;&#x6f;&#114;&#99;&#x65;&#x2e;&#99;&#111;&#x6d;</a> as soon as possible.</p>
+				<p>If you discover any potential security issues, please report them to <a href="mailto:&#x73;&#x65;&#99;&#x75;&#x72;&#x69;&#x74;&#x79;&#x40;&#x73;&#97;&#108;&#101;&#x73;&#x66;&#111;&#x72;&#x63;&#101;&#46;&#x63;&#111;&#109;">&#x73;&#x65;&#99;&#x75;&#x72;&#x69;&#x74;&#x79;&#x40;&#x73;&#97;&#108;&#101;&#x73;&#x66;&#111;&#x72;&#x63;&#101;&#46;&#x63;&#111;&#109;</a> as soon as possible.</p>
 				<a href="#additional-documentation" id="additional-documentation" style="color: inherit; text-decoration: none;">
 					<h2>Additional Documentation</h2>
 				</a>
