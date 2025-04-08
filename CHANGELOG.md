@@ -1,7 +1,7 @@
 ## CHANGELOG
 
 
-## v4.2.0 - future release
+## v4.2.0
 
 ### Enchancements
 - Allow custom params for 'loginGuestUser' and custom body for 'loginRegisteredUserB2C' function [#415](https://github.com/SalesforceCommerceCloud/commerce-sdk/pull/415)
