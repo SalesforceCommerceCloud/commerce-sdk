@@ -45,14 +45,8 @@ export const ASSET_OBJECT_MAP = {
 };
 
 export const API_FAMILIES = [
-  "pricing",
-  "customer",
-  "checkout",
-  "search",
-  "product",
-  "cdn",
-  "inventory",
-  "discovery",
+  "customers-oas",
+  "search-oas"
 ];
 
 export const PRODUCTION_API_PATH = `${__dirname}/../../apis`;

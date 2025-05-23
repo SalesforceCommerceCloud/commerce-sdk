@@ -117,14 +117,14 @@ export async function setupApis(
 export async function updateApis(
   apiFamily: string,
   deployment: RegExp,
-  rootPath: string
+  rootPath: string,
+  isOas: boolean
 ): Promise<void> {
   try {
     const apis = await download.search(
-      `category:"CC API Family" = "${apiFamily}"`,
-      deployment
+      `"${apiFamily}"`
     );
-    await download.downloadRestApis(apis, path.join(rootPath, apiFamily));
+    await download.downloadRestApis(apis, path.join(rootPath, apiFamily), isOas);
   } catch (e) {
     console.error(e);
   }

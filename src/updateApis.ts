@@ -23,7 +23,7 @@ fs.writeJSONSync(
 );
 
 API_FAMILIES.map((family) =>
-  updateApis(family, /production/i, PRODUCTION_API_PATH)
+  updateApis(family, /production/i, PRODUCTION_API_PATH, true)
 );
 
 // DOWNLOAD STAGING DATA
@@ -33,4 +33,4 @@ fs.writeJSONSync(
   CUSTOM_METADATA
 );
 
-API_FAMILIES.map((family) => updateApis(family, /staging/i, STAGING_API_PATH));
+API_FAMILIES.map((family) => updateApis(family, /staging/i, STAGING_API_PATH, true));
