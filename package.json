@@ -20,9 +20,11 @@
   "scripts": {
     "backupApis": "rm -rf updateApisTmp && mkdir updateApisTmp && mv apis updateApisTmp/oldApis",
     "build": "npm run clean && npm run renderTemplates && tsc && eslint dist --ext .ts,.js --quiet --fix",
+    "ci": "rm -rf node_modules && yarn install",
     "clean": "rm -rf renderedTemplates dist",
     "depcheck": "depcheck",
     "diffApis": "raml-toolkit diff --dir updateApisTmp/oldApis apis -f console -o updateApisTmp/ramlDiff.txt",
+    "diffApis:Oas": "raml-toolkit diff --dir updateApisTmp/oldApis apis -f console -o updateApisTmp/oasDiff.txt -s oas",
     "doc": "npm run doc:generate && npm run doc:resources",
     "doc:generate": "typedoc --mode modules --out ./docs renderedTemplates/** --tsconfig tsconfig.json --external-modulemap  \".*/renderedTemplates/([\\w\\-_]+)/\"",
     "doc:resources": "cp CHANGELOG.md ./docs",
@@ -34,7 +36,8 @@
     "pretest": "npm run lint && npm run depcheck",
     "test": "nyc mocha \"src/**/*.test.ts\"",
     "test:ci": "npm test -- --reporter=xunit --reporter-options output=./reports/generator.xml",
-    "updateApis": "npm run backupApis && ts-node src/updateApis.ts && git checkout apis/search && npm run diffApis"
+    "updateApis": "npm run backupApis && ts-node src/updateApis.ts && git checkout apis/search && npm run diffApis",
+    "updateApis:Oas": "npm run backupApis && ts-node src/updateApis.ts && git checkout apis/search && npm run diffApis:Oas"
   },
   "mocha": {
     "file": [
@@ -49,7 +52,7 @@
     "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "@commerce-apps/raml-toolkit": "^0.5.10",
+    "@commerce-apps/raml-toolkit": "file:../raml-toolkit",
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
     "@types/chai": "^4.2.21",
     "@types/fs-extra": "^9.0.12",
