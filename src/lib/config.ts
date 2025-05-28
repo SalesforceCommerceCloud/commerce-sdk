@@ -48,7 +48,7 @@ export const API_FAMILIES = [
   "assignments-oas",
   "campaigns-oas",
   "catalogs-oas",
-  // "cdn-api-process-apis", // exchangeDownload returns Error: Cannot read properties of null (reading 'externalLink')
+  "cdn-api-process-apis-oas",
   "coupons-oas",
   // "cors-preferences-oas", // diff failed: duplicate endpoint (DELETE /organizations/{organizationId}/cors)
   "customers-oas",
