@@ -45,8 +45,22 @@ export const ASSET_OBJECT_MAP = {
 };
 
 export const API_FAMILIES = [
+  "assignments-oas",
+  "campaigns-oas",
+  "catalogs-oas",
+  // "cdn-api-process-apis", // exchangeDownload returns Error: Cannot read properties of null (reading 'externalLink')
+  "coupons-oas",
+  // "cors-preferences-oas", // diff failed: duplicate endpoint (DELETE /organizations/{organizationId}/cors)
   "customers-oas",
-  "search-oas"
+  "gift-certificates-oas",
+  // "orders-oas", // Error: failed to load base specs from glob "updateApisTmp/oldApis/**/*.yaml": failed to load "updateApisTmp/oldApis/orders-oas/orders-oas/orders-oas-v1-bundled.yaml": failed to unmarshal data: json error: invalid character 'o' looking for beginning of value, yaml error: error unmarshaling JSON: while decoding JSON: json: cannot unmarshal array into field Schema.items of type openapi3.Schema
+  // "products-oas", // Error: diff failed: duplicate endpoint (GET /organizations/{organizationId}/products/{id}) found in apis/products-oas/products-oas/products-oas-v1-bundled.yaml and apis/products-oas/products-oas-test/products-oas-test-v1-bundled.yaml. You may add the x-since-date extension to specify order
+  "preferences-oas",
+  "promotions-oas",
+  "search-oas",
+  "seo-oas",
+  "slas-admin-oas",
+  "source-code-groups-oas",
 ];
 
 export const PRODUCTION_API_PATH = `${__dirname}/../../apis`;
