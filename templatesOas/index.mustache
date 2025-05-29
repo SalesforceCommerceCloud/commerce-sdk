@@ -1,0 +1,45 @@
+export * from './runtime{{importFileExtension}}';
+{{#apiInfo}}
+{{#apis.0}}
+export * from './apis/index{{importFileExtension}}';
+{{/apis.0}}
+{{/apiInfo}}
+{{#models.0}}
+export * from './models/index{{importFileExtension}}';
+{{/models.0}}
+
+import type * as ApiTypes from './apis/index'
+import type * as ModelTypes from './models/index'
+
+export namespace {{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}Types {
+    // API types
+    {{#apiInfo}}
+    {{#apis}}
+    {{#operations}}
+    {{#operation}}
+    {{#allParams}}
+    {{#isEnum}}
+    {{^stringEnums}}
+    export type {{operationIdCamelCase}}{{enumName}} = ApiTypes.{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}.{{operationIdCamelCase}}{{enumName}}
+    {{/stringEnums}}
+    {{/isEnum}}
+    {{/allParams}}
+    {{/operation}}
+    {{/operations}}
+    {{/apis}}
+    {{/apiInfo}}
+
+    // Model types
+    {{#models}}
+    {{#model}}
+    export type {{classname}} = ModelTypes.{{classname}}
+    {{#hasEnums}}
+    {{#vars}}
+    {{#isEnum}}
+    export type {{classname}}{{enumName}} = ModelTypes.{{classname}}{{enumName}}
+    {{/isEnum}}
+    {{/vars}}
+    {{/hasEnums}}
+    {{/model}}
+    {{/models}}
+}

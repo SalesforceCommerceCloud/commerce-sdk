@@ -1,0 +1,39 @@
+/**
+  * @type {{classname}}: {{{description}}}
+  *
+  * {{#vars}}@property {{baseName}}: {{{description}}}{{#pattern}}  
+  * - **Pattern:** {{.}}{{/pattern}}{{#minLength}}  
+  * - **Min Length:** {{.}}{{/minLength}}{{#maxLength}}  
+  * - **Max Length:** {{.}}{{/maxLength}}{{^-last}}
+  * {{/-last}}
+  * {{/vars}} 
+  */
+export type {{classname}} = {
+    {{#vars}}
+    {{baseName}}{{^required}}?{{/required}}: {{#isEnum}}{{{datatypeWithEnum}}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{datatype}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}};
+    {{/vars}}
+} & { [key: string]: any }
+{{#hasEnums}}
+{{#vars}}
+{{#isEnum}}
+{{#stringEnums}}
+export enum {{classname}}{{enumName}} {
+{{#allowableValues}}
+    {{#enumVars}}
+    {{{name}}} = {{{value}}}{{^-last}},{{/-last}}
+    {{/enumVars}}
+{{/allowableValues}}
+}
+{{/stringEnums}}{{^stringEnums}}
+export const {{classname}}{{enumName}} = {
+{{#allowableValues}}
+    {{#enumVars}}
+    {{{name}}}: {{{value}}}{{^-last}},{{/-last}}
+    {{/enumVars}}
+{{/allowableValues}}
+} as const;
+export type {{classname}}{{enumName}} = typeof {{classname}}{{enumName}}[keyof typeof {{classname}}{{enumName}}];
+{{/stringEnums}}
+{{/isEnum}}
+{{/vars}}
+{{/hasEnums}}
