@@ -7,27 +7,9 @@
 
 import path from "path";
 import fs from 'fs-extra';
-import {generateFromOas} from '@commerce-apps/raml-toolkit';
-import { registerHelpers, registerPartials, setupApis } from "./lib/utils";
-
-type ExchangeConfig = {
-  dependencies?: {
-    version: string;
-    assetId: string;
-    groupId: string;
-  }[];
-  version: string;
-  originalFormatVersion: string;
-  apiVersion: string;
-  descriptorVersion: string;
-  classifier: string;
-  main: string;
-  assetId: string;
-  groupId: string;
-  organizationId: string;
-  name: string;
-  tags: string[];
-};
+import {generateFromOas, download} from '@commerce-apps/raml-toolkit';
+import { registerHelpers, registerPartials } from "./lib/utils";
+import Handlebars from 'handlebars';
 
 type ApiSpecDetail = {
   filepath: string;
@@ -38,8 +20,10 @@ type ApiSpecDetail = {
 };
 
 const API_DIRECTORY = path.resolve(`${__dirname}/../apis`);
+const STATIC_DIRECTORY = path.join(__dirname, './static');
 const TARGET_DIRECTORY = path.resolve(`${__dirname}/../renderedTemplates`);
 const TEMPLATE_DIRECTORY = path.resolve(`${__dirname}/../templatesOas`);
+const INDEX_TEMPLATE_LOCATION = path.resolve(`${__dirname}/../templates/index.ts.hbs`);
 
 registerHelpers();
 registerPartials();
@@ -47,14 +31,19 @@ registerPartials();
 console.log(`Creating SDK for ${API_DIRECTORY}`);
 
 export function resolveApiName(name: string): string {  
-    // Remove all whitespace and replace 'OAS' with an empty string
+    if (name === 'Shopper orders OAS') {
+        return 'ShopperOrders';
+    }
+    if (name === 'CDN API - Process APIs OAS') {
+        return 'CDNZones';
+    }
     return name.replace(/\s+/g, '').replace('OAS', '');
   }
 
 export function getAPIDetailsFromExchange(directory: string): ApiSpecDetail {
     const exchangePath = path.join(directory, 'exchange.json');
     if (fs.existsSync(exchangePath)) {
-      const exchangeConfig = fs.readJSONSync(exchangePath) as ExchangeConfig;
+      const exchangeConfig = fs.readJSONSync(exchangePath) as download.ExchangeConfig;
       return {
         filepath: path.join(directory, exchangeConfig.main),
         filename: exchangeConfig.main,
@@ -84,9 +73,16 @@ export function generateSDKs(apiSpecDetail: ApiSpecDetail): void {
         console.error(`Error generating SDK for ${name}: ${error}`);
       }
     }
+}
+
+export function generateIndex(context: {
+    children: ApiSpecDetail[] | {name: string; apiName: string}[];
+  }): void {
+    const indexTemplate = fs.readFileSync(INDEX_TEMPLATE_LOCATION, 'utf8');
+    const generatedIndex = Handlebars.compile(indexTemplate)(context);
+    fs.writeFileSync(`${TARGET_DIRECTORY}/index.ts`, generatedIndex);
   }
 
-// Helper function to recursively find all directories
 function getAllDirectories(basePath: string, relativePath: string = ''): string[] {
   const fullPath = path.join(basePath, relativePath);
   const directories: string[] = [];
@@ -100,7 +96,6 @@ function getAllDirectories(basePath: string, relativePath: string = ''): string[
       
       if (fs.lstatSync(itemPath).isDirectory()) {
         directories.push(relativeItemPath);
-        // Recursively get subdirectories
         directories.push(...getAllDirectories(basePath, relativeItemPath));
       }
     }
@@ -111,6 +106,10 @@ function getAllDirectories(basePath: string, relativePath: string = ''): string[
   return directories;
 }
 
+export function copyStaticFiles(): void {
+    fs.copySync(STATIC_DIRECTORY, TARGET_DIRECTORY);
+  }
+
 export function main(): void {
   console.log('Starting OAS generation script');
   fs.readdir(API_DIRECTORY, (err: Error, directories: string[]) => {
@@ -120,7 +119,6 @@ export function main(): void {
     }
 
     const apiSpecDetails: ApiSpecDetail[] = [];
-    // Use the new recursive function instead of the simple filter
     const subDirectories: string[] = getAllDirectories(API_DIRECTORY);
     console.log('subDirectories: ', subDirectories);
 
@@ -131,7 +129,6 @@ export function main(): void {
         );
         apiSpecDetails.push(details);
       } catch (error) {
-        // Skip directories that don't have exchange.json files
         console.log(`Skipping directory ${directory}: ${error}`);
       }
     });
@@ -139,6 +136,9 @@ export function main(): void {
     apiSpecDetails.forEach((apiSpecDetail: ApiSpecDetail) => {
       generateSDKs(apiSpecDetail);
     });
+
+    generateIndex({children: apiSpecDetails});
+    copyStaticFiles();
 
     console.log(
       `OAS generation script completed. Files outputted to ${TARGET_DIRECTORY}`
