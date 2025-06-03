@@ -69,13 +69,20 @@ describe("setupApis", () => {
     expect(apis.name.original).to.equal("apis");
     const children = apis.children.map((child) => child.name.original);
     expect(children).to.have.members([
-      "pricing",
-      "customer",
-      "checkout",
-      "product",
-      "cdn",
-      "discovery",
-      "search",
+      "assignments-oas",
+      "campaigns-oas",
+      "catalogs-oas",
+      "cdn-api-process-apis-oas",
+      "coupons-oas",
+      "customers-oas",
+      "gift-certificates-oas",
+      "orders-oas",
+      "preferences-oas",
+      "promotions-oas",
+      "search-oas",
+      "seo-oas",
+      "slas-admin-oas",
+      "source-code-groups-oas",
     ]);
   });
 });

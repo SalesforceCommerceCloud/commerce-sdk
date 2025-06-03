@@ -121,10 +121,12 @@ export async function updateApis(
   isOas: boolean
 ): Promise<void> {
   try {
-    const apis = await download.search(
-      `"${apiFamily}"`
+    const apis = await download.search(`"${apiFamily}"`);
+    await download.downloadRestApis(
+      apis,
+      path.join(rootPath, apiFamily),
+      isOas
     );
-    await download.downloadRestApis(apis, path.join(rootPath, apiFamily), isOas);
   } catch (e) {
     console.error(e);
   }

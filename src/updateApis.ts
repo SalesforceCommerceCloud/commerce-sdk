@@ -33,4 +33,6 @@ fs.writeJSONSync(
   CUSTOM_METADATA
 );
 
-API_FAMILIES.map((family) => updateApis(family, /staging/i, STAGING_API_PATH, true));
+API_FAMILIES.map((family) =>
+  updateApis(family, /staging/i, STAGING_API_PATH, true)
+);
