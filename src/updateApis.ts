@@ -23,16 +23,5 @@ fs.writeJSONSync(
 );
 
 API_FAMILIES.map((family) =>
-  updateApis(family, /production/i, PRODUCTION_API_PATH, true)
-);
-
-// DOWNLOAD STAGING DATA
-fs.ensureDirSync(STAGING_API_PATH);
-fs.writeJSONSync(
-  path.join(STAGING_API_PATH, ".metadata.json"),
-  CUSTOM_METADATA
-);
-
-API_FAMILIES.map((family) =>
-  updateApis(family, /staging/i, STAGING_API_PATH, true)
+  updateApis(family, PRODUCTION_API_PATH, true)
 );

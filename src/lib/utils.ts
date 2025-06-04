@@ -10,6 +10,7 @@ import path from "path";
 import * as helpers from "./templateHelpers";
 import extendHandlebars from "handlebars-helpers";
 import { readJsonSync } from "fs-extra";
+import { forEach } from "lodash";
 
 const PROJECT_ROOT = path.join(__dirname, "../..");
 const TEMPLATE_DIRECTORY = path.join(PROJECT_ROOT, "templates");
@@ -109,19 +110,24 @@ export async function setupApis(
  *  Ive spent hours trying to mock download
  *
  * @param apiFamily - Api family to download
- * @param deployment - What deployment to build for
  * @param rootPath - Root path to download to
  *
  * @returns a promise that we will complete
  */
 export async function updateApis(
   apiFamily: string,
-  deployment: RegExp,
   rootPath: string,
   isOas: boolean
 ): Promise<void> {
   try {
-    const apis = await download.search(`"${apiFamily}"`);
+    const apis = await download.search(
+      `"${apiFamily}" category:Visibility = "External" category:"SDK Type" = "Commerce"`
+    );
+    // console.log(apis);
+    // console.log(apiFamily);
+    // forEach(apis, (api) => {
+    //   console.log(api.categories);
+    // });
     await download.downloadRestApis(
       apis,
       path.join(rootPath, apiFamily),
