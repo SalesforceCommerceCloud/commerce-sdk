@@ -42,6 +42,9 @@ export function resolveApiName(name: string): string {
   if (name === "CDN API - Process APIs OAS") {
     return "CDNZones";
   }
+  if (name === "SLAS Admin-UAP OAS") {
+    return "SlasAdmin";
+  }
   return name.replace(/\s+/g, "").replace("OAS", "");
 }
 
