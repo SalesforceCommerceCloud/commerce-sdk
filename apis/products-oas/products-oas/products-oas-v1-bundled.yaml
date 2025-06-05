@@ -1,0 +1,4582 @@
+openapi: 3.0.3
+info:
+  title: Products
+  version: v1
+  description: |-
+    # API Overview
+
+    The Products API enables you to build merchandising apps that merchandisers use to add products to catalogs, configure products for your storefront, and manage products in their ecommerce channels.
+
+    For more information, see [Products](https://documentation.b2c.commercecloud.salesforce.com/DOC1/topic/com.demandware.dochelp/content/b2c_commerce/topics/products/b2c_products.html) in the Salesforce B2C Commerce Infocenter.
+
+    ## Authentication & Authorization
+
+    The client managing product information must have access to the Products resource. This API requires a bearer token in the header of the request. The client accessing the API must first authenticate against Account Manager to get the bearer token.
+
+    You must include the relevant scope(s) in the client ID used to generate the SLAS token. For details, see the  [Authorization Scopes Catalog.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html)
+
+    ## Use Cases
+
+    ### Add Products
+
+    Use the Products API to add new products to a catalog. You can add or update product details like attributes, variations, variation attributes, and images. You can also use the API to change a product’s catalog assignment.
+
+    If you are adding products from an external product information management (PIM) system, use the Mulesoft Accelerator component created for Commerce Cloud.
+
+    For more detail, see [Variation Groups](https://documentation.b2c.commercecloud.salesforce.com/DOC1/topic/com.demandware.dochelp/content/b2c_commerce/topics/products/b2c_variation_groups.html) in the Salesforce B2C Commerce Infocenter.
+
+    ![b2c-commerce-products-screenshot-1.png](https://resources.docs.salesforce.com/rel1/doc/en-us/static/misc/b2c-commerce-products-screenshot-1.png)
+
+    ### Create & Validate Variation Groups
+
+    Use the API to enable a shopper to switch between different variants on a product page. You can group variation products into variation groups or group master products by one or more attributes. The variants within a variation group are linked. Linked variants allow a shopper to switch between different variants.
+
+    For more detail, see [Variation Groups](https://documentation.b2c.commercecloud.salesforce.com/DOC1/topic/com.demandware.dochelp/content/b2c_commerce/topics/products/b2c_variation_groups.html) in the Salesforce B2C Commerce Infocenter.
+
+    ![b2c-commerce-products-screenshot-2.png](https://resources.docs.salesforce.com/rel1/doc/en-us/static/misc/b2c-commerce-products-screenshot-2.png)
+
+    ### Search for Variants
+
+    Use the Product API to enable merchants to use a set of filtering and sorting criteria to search for variants assigned to a master product, or variation group.
+
+    For more detail, see [Product Variations](https://documentation.b2c.commercecloud.salesforce.com/DOC1/topic/com.demandware.dochelp/content/b2c_commerce/topics/products/b2c_product_variations.html) in the Salesforce B2C Commerce Infocenter.
+
+    ![b2c-commerce-products-screenshot-3.png](https://resources.docs.salesforce.com/rel1/doc/en-us/static/misc/b2c-commerce-products-screenshot-3.png)
+
+    ### Manage Product Options
+
+    Use the API to view and manage product options for a given product so that optional accessories, upgrades, or services can be sold with the product. For example, a product warranty or monogramming.
+
+    For more detail, see [Product Options](https://documentation.b2c.commercecloud.salesforce.com/DOC1/topic/com.demandware.dochelp/content/b2c_commerce/topics/products/b2c_product_options.html) in the Salesforce B2C Commerce Infocenter.
+
+    ![b2c-commerce-products-screenshot-4.png](https://resources.docs.salesforce.com/rel1/doc/en-us/static/misc/b2c-commerce-products-screenshot-4.png)
+servers:
+  - url: https://{shortCode}.api.commercecloud.salesforce.com/product/products/v1
+    variables:
+      shortCode:
+        default: shortCode
+paths:
+  /organizations/{organizationId}/products/{productId}:
+    get:
+      summary: Get product information.
+      description: Retrieve detailed information about a specific product.
+      operationId: getProduct
+      parameters:
+        - $ref: '#/components/parameters/productId'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '200':
+          description: Retrieved product information successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+              examples:
+                DataProductExpand:
+                  $ref: '#/components/examples/DataProductExpandResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products
+            - sfcc.products.rw
+    put:
+      summary: Create or overwrite a product with provided data.
+      description: Create a product using the information provided. If a product with the same unique identifier exists, it is overwritten.
+      operationId: createProduct
+      parameters:
+        - $ref: '#/components/parameters/productId'
+        - $ref: '#/components/parameters/organizationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+            examples:
+              DataProductExpand:
+                $ref: '#/components/examples/DataProductExpandRequestBody'
+        required: true
+      responses:
+        '200':
+          description: Product was updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+              examples:
+                DataProductExpand:
+                  $ref: '#/components/examples/DataProductExpandResult'
+        '201':
+          description: Product was created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+              examples:
+                DataProductExpand:
+                  $ref: '#/components/examples/DataProductExpandResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products.rw
+    delete:
+      summary: Deletes the product by ID.
+      description: Permanently remove a product by ID.
+      operationId: deleteProduct
+      parameters:
+        - $ref: '#/components/parameters/productId'
+        - $ref: '#/components/parameters/organizationId'
+      responses:
+        '204':
+          description: Deleted the product successfully.
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products.rw
+    patch:
+      summary: Partially update fields of an existing product.
+      description: |-
+        Update a product using the information provided.
+        Fields that can be updated:
+        name, pageDescription, longDescription, pageTitle,
+        pageKeywords, brand, ean, upc, manufactureSku,
+        manufactureName, searchable, unit, searchable,
+        onlineFlag, defaultVariantId.
+        Custom attributes are used to extend a standard Product system object. This endpoint can be used to update custom attribute values for a particular product SKU. If you try to update a non-existent custom attribute, the request won't fail, but no changes are made and the attribute is not created.
+      operationId: updateProduct
+      parameters:
+        - $ref: '#/components/parameters/productId'
+        - $ref: '#/components/parameters/organizationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+            examples:
+              DataProductExpand:
+                $ref: '#/components/examples/DataProductExpandRequestBody'
+        required: true
+      responses:
+        '200':
+          description: Updated the product successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+              examples:
+                DataProductExpand:
+                  $ref: '#/components/examples/DataProductExpandResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products.rw
+  /organizations/{organizationId}/products/{productId}/variant-search:
+    post:
+      summary: Search product variations using complex queries and filters.
+      description: "Search product variations for master product or variation group product. The query attribute specifies a complex query that can be used to narrow down the search.\n\nThis is the list of searchable attributes:\n\n  | Attribute | Type |\n  |-----------|--------|\n  | id | String |\n  | productId | String |\n  | name | String |\n  | online |  SiteSpecific Boolean |\n  | inStock | Boolean  |\n  | searchable | SiteSpecific Boolean  |\n  | ats - Available quantity to sell | Double |\n  | variationAttribute.ATTRIBUTE_ID (Ex:variation_attribute.color) | String |\n\nSortable Fields:\n\n  | Attribute | Type |\n  |-----------|--------|\n  | id | String |\n  | productId | String |\n  | name | String |\n  | online |  SiteSpecific Boolean |\n  | inStock | Boolean  |\n  | searchable | SiteSpecific Boolean  |\n  | ats - Available quantity to sell | Double |\n\n  Note: The calculated value of \\\"online\\\" and \\\"searchable\\\" is used in the search/sort. A search/sort by the site-specific attributes require the Site ID query parameter to be set. They are \\\"online\\\", \\\"inStock\\\", \\\"searchable\\\" and \\\"ats\\\". We assume that every field that starts with variationAttribute. is searchable and dot is followed by \\\"ATTRIBUTE_ID\\\".\n\n  The list of expansions to retrieve product information. The expand values available are:\n\n  - _base - Basic product information is retrieved. This expand is included by default.\n\n  - all - All product information, including the following properties are retrieved:\n      - image\n      - price - siteId must be provided to see this property\n      - priceCurrency - siteId must be provided to see this property\n\n  - availability - Information related to the availability of the product variation.  This expand is not included by default.\n      - ats - siteId must be provided to see this property\n      - inStock - siteId must be provided to see this property\n      - online - siteId must be provided to see this property       \n      - searchable       \n\n  - variations - Information related to product variations is retrieved. This expand is included by default.\n\n  - attributes - Information related to product variation attributes is retrieved. This expand is not included by default."
+      operationId: searchProductVariations
+      parameters:
+        - $ref: '#/components/parameters/productId'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VariantSearchRequest'
+            examples:
+              VariantSearchRequestBody:
+                $ref: '#/components/examples/VariantSearchRequestBody'
+        required: true
+      responses:
+        '200':
+          description: Search results returned.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VariantSearchResult'
+              examples:
+                VariantSearchResult:
+                  $ref: '#/components/examples/VariantSearchResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products
+            - sfcc.products.rw
+  /organizations/{organizationId}/products/{masterProductId}/variation-groups:
+    get:
+      summary: List all variation groups of a product.
+      description: List all variation groups of a product.
+      operationId: getVariationGroupsForMasterProduct
+      parameters:
+        - $ref: '#/components/parameters/masterProductId'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 25
+            maximum: 50
+          description: Maximum records to retrieve per request, not to exceed 50. Defaults to 25.
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+            default: 0
+            maximum: 0
+          description: Used to retrieve the results based on a particular resource offset.
+      responses:
+        '200':
+          description: Get VariationGroups for a product was successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VariationGroups'
+              examples:
+                VariationGroupsResult:
+                  $ref: '#/components/examples/VariationGroupsResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products
+            - sfcc.products.rw
+  /organizations/{organizationId}/products/{masterProductId}/variation-groups/{id}:
+    get:
+      summary: Get a specific variation group.
+      description: Read a variation group for a product.
+      operationId: getVariationGroupForMasterProduct
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/masterProductId'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '200':
+          description: Get VariationGroup by Id for a product was successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VariationGroup'
+              examples:
+                VariationGroupsIdResult:
+                  $ref: '#/components/examples/VariationGroupsIdResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products
+            - sfcc.products.rw
+    put:
+      summary: Assign or create a variation group for a product.
+      description: |-
+        Assign a variation group for a product. If the variation group product does not initially exist,
+          one is created using the body passed in.
+      operationId: assignVariationGroupToMasterProduct
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/masterProductId'
+        - $ref: '#/components/parameters/organizationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VariationGroup'
+            examples:
+              VariationGroupsIdRequestBody:
+                $ref: '#/components/examples/VariationGroupsIdRequestBody'
+        required: true
+      responses:
+        '200':
+          description: Successfully assigned a variation group for given product.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VariationGroup'
+              examples:
+                VariationGroupsIdResult:
+                  $ref: '#/components/examples/VariationGroupsIdResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products.rw
+    delete:
+      summary: Unassign a variation group (product not deleted).
+      description: |-
+        Unassign a variation group product from a product. The variation group product is not
+          deleted: it remains as a typical product after unassign.
+      operationId: unassignVariationGroupFromMasterProduct
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/masterProductId'
+        - $ref: '#/components/parameters/organizationId'
+      responses:
+        '204':
+          description: Deleted the variation group successfully.
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products.rw
+    patch:
+      summary: Update an existing variation group.
+      description: Update a variation group for a product master.
+      operationId: updateVariationGroupForMasterProduct
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/masterProductId'
+        - $ref: '#/components/parameters/organizationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VariationGroup'
+            examples:
+              VariationGroupsIdRequestBody:
+                $ref: '#/components/examples/VariationGroupsIdRequestBody'
+        required: true
+      responses:
+        '200':
+          description: Update was successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VariationGroup'
+              examples:
+                VariationGroupsIdResult:
+                  $ref: '#/components/examples/VariationGroupsIdResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products.rw
+  /organizations/{organizationId}/products/{masterProductId}/variations:
+    get:
+      summary: List all variations of a master product.
+      description: List all variations of a master product.
+      operationId: getVariationsForMasterProduct
+      parameters:
+        - $ref: '#/components/parameters/masterProductId'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 25
+            maximum: 50
+          description: Maximum records to retrieve per request, not to exceed 50. Defaults to 25.
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+            default: 0
+            maximum: 0
+          description: Used to retrieve the results based on a particular resource offset.
+      responses:
+        '200':
+          description: Get variation by ID successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Variants'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/VariantsResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products
+            - sfcc.products.rw
+  /organizations/{organizationId}/products/{masterProductId}/variations/{id}:
+    get:
+      summary: Get details of a specific variation.
+      description: Get details of a specific variation.
+      operationId: getVariationForMasterProduct
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/masterProductId'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '200':
+          description: Get variation by ID successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Variant'
+              examples:
+                VariationsIdResult:
+                  $ref: '#/components/examples/VariationsIdResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products
+            - sfcc.products.rw
+    put:
+      summary: Assign a variation to a master product (creates if not exists).
+      description: |-
+        Assign a variation for a product master. If the variation product does not initially exist,
+        one is created using the body that is passed.
+      operationId: assignVariationForMasterProduct
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/masterProductId'
+        - $ref: '#/components/parameters/organizationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Variant'
+            examples:
+              VariationsIdRequestBody:
+                $ref: '#/components/examples/VariationsIdRequestBody'
+        required: true
+      responses:
+        '200':
+          description: Updated the variation product successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Variant'
+              examples:
+                VariationsIdResult:
+                  $ref: '#/components/examples/VariationsIdResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products.rw
+    delete:
+      summary: Unassign a variation from a product (does not delete it).
+      description: |-
+        Unassign a variation product from a product. The variation product is not deleted: it remains as a
+          typical product after unassign.
+      operationId: unassignVariationFromMasterProduct
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/masterProductId'
+        - $ref: '#/components/parameters/organizationId'
+      responses:
+        '204':
+          description: Deleted the variation group successfully.
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products.rw
+    patch:
+      summary: Update a specific product variation.
+      description: Update a variation for a product.
+      operationId: updateVariationForMasterProduct
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/masterProductId'
+        - $ref: '#/components/parameters/organizationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Variant'
+            examples:
+              VariationsIdRequestBody:
+                $ref: '#/components/examples/VariationsIdRequestBody'
+        required: true
+      responses:
+        '200':
+          description: Variation updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Variant'
+              examples:
+                VariationsIdResult:
+                  $ref: '#/components/examples/VariationsIdResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products.rw
+  /organizations/{organizationId}/products/{productId}/product-options:
+    get:
+      summary: Retrieve product options for a product.
+      description: Read local and shared product options for a specified product.
+      operationId: getProductOptions
+      parameters:
+        - $ref: '#/components/parameters/productId'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/currency'
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 25
+            maximum: 50
+          description: Maximum records to retrieve per request, not to exceed 50. Defaults to 25.
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+            default: 0
+            maximum: 0
+          description: Used to retrieve the results based on a particular resource offset.
+      responses:
+        '200':
+          description: Retrieved product options successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductOptions'
+              examples:
+                ProductOptionsResult:
+                  $ref: '#/components/examples/ProductOptionsResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products
+            - sfcc.products.rw
+  /organizations/{organizationId}/products/{productId}/product-options/{id}:
+    get:
+      summary: Retrieve a specific product option.
+      description: Read a local or shared product option for a specified product.
+      operationId: getProductOption
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/productId'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/currency'
+      responses:
+        '200':
+          description: Retrieved product options successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductOption'
+              examples:
+                ProductOptionsIdResult:
+                  $ref: '#/components/examples/ProductOptionsIdResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products
+            - sfcc.products.rw
+    put:
+      summary: Create or bind a product option.
+      description: Creates a local product option using the information provided or binds a shared product option to the product.
+      operationId: createProductOption
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/productId'
+        - $ref: '#/components/parameters/organizationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductOption'
+            examples:
+              ProductOptionsIdRequestBody:
+                $ref: '#/components/examples/ProductOptionsIdRequestBody'
+        required: true
+      responses:
+        '200':
+          description: Updated product option successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductOption'
+              examples:
+                ProductOptionsIdResult:
+                  $ref: '#/components/examples/ProductOptionsIdResult'
+        '201':
+          description: Created or binded product option successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductOption'
+              examples:
+                ProductOptionsIdResult:
+                  $ref: '#/components/examples/ProductOptionsIdResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products.rw
+    delete:
+      summary: Delete or unbind a product option.
+      description: Delete a local product option or unbind a shared product option from the product.
+      operationId: deleteProductOption
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/productId'
+        - $ref: '#/components/parameters/organizationId'
+      responses:
+        '204':
+          description: Deleted product option successfully.
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products.rw
+    patch:
+      summary: Update a product option.
+      description: Update a local product option with the information provided.
+      operationId: updateProductOption
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/productId'
+        - $ref: '#/components/parameters/organizationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductOption'
+            examples:
+              ProductOptionsIdRequestBody:
+                $ref: '#/components/examples/ProductOptionsIdRequestBody'
+        required: true
+      responses:
+        '200':
+          description: Updated product option successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductOption'
+              examples:
+                ProductOptionsIdResult:
+                  $ref: '#/components/examples/ProductOptionsIdResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products.rw
+  /organizations/{organizationId}/products/{productId}/product-options/{optionId}/values/{id}:
+    get:
+      summary: Retrieve a product option value.
+      description: Read a local product option value for a specified product.
+      operationId: getProductOptionValue
+      parameters:
+        - $ref: '#/components/parameters/productId'
+        - $ref: '#/components/parameters/optionId'
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/organizationId'
+      responses:
+        '200':
+          description: Successfully retrieved product option value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductOptionValue'
+              examples:
+                ProductOptionsValuesResult:
+                  $ref: '#/components/examples/ProductOptionsValuesResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products
+            - sfcc.products.rw
+    put:
+      summary: Create a product option value.
+      description: Create a local product option value using the information provided.
+      operationId: createProductOptionValue
+      parameters:
+        - $ref: '#/components/parameters/productId'
+        - $ref: '#/components/parameters/optionId'
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/organizationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductOptionValue'
+            examples:
+              ProductOptionsValuesRequestBody:
+                $ref: '#/components/examples/ProductOptionsValuesRequestBody'
+        required: true
+      responses:
+        '200':
+          description: Updated product option value successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductOptionValue'
+              examples:
+                ProductOptionsValuesResult:
+                  $ref: '#/components/examples/ProductOptionsValuesResult'
+        '201':
+          description: Created product option value successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductOptionValue'
+              examples:
+                ProductOptionsValuesResult:
+                  $ref: '#/components/examples/ProductOptionsValuesResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products.rw
+    delete:
+      summary: Delete a product option value.
+      description: Delete a local product option value by ID.
+      operationId: deleteProductOptionValue
+      parameters:
+        - $ref: '#/components/parameters/productId'
+        - $ref: '#/components/parameters/optionId'
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/organizationId'
+      responses:
+        '204':
+          description: Deleted product option value successfully.
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products.rw
+    patch:
+      summary: Update a product option value.
+      description: Update a local product option value using the information provided.
+      operationId: updateProductOptionValue
+      parameters:
+        - $ref: '#/components/parameters/productId'
+        - $ref: '#/components/parameters/optionId'
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/organizationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductOptionValue'
+            examples:
+              ProductOptionsValuesRequestBody:
+                $ref: '#/components/examples/ProductOptionsValuesRequestBody'
+        required: true
+      responses:
+        '200':
+          description: Product option value updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductOptionValue'
+              examples:
+                ProductOptionsValuesResult:
+                  $ref: '#/components/examples/ProductOptionsValuesResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products.rw
+  /organizations/{organizationId}/products/{productId}/variation-attributes/{attributeId}/values/{id}:
+    get:
+      summary: Retrieve a variation attribute value.
+      description: Get product variation attribute information.
+      operationId: getVariationAttributeValue
+      parameters:
+        - $ref: '#/components/parameters/productId'
+        - $ref: '#/components/parameters/attributeId'
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/siteId'
+        - $ref: '#/components/parameters/organizationId'
+      responses:
+        '200':
+          description: Retrieved variation attribute value successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VariationAttributeValue'
+              examples:
+                VariationAttributeValuesIdResult:
+                  $ref: '#/components/examples/VariationAttributeValuesIdResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products
+            - sfcc.products.rw
+    put:
+      summary: Create a variation attribute value.
+      description: Create a product variation attribute value.
+      operationId: createVariationAttributeValue
+      parameters:
+        - $ref: '#/components/parameters/productId'
+        - $ref: '#/components/parameters/attributeId'
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/organizationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VariationAttributeValue'
+            examples:
+              VariationAttributeValuesIdRequestBody:
+                $ref: '#/components/examples/VariationAttributeValuesIdRequestBody'
+        required: true
+      responses:
+        '200':
+          description: Created product variation attribute value successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VariationAttributeValue'
+              examples:
+                VariationAttributeValuesIdResult:
+                  $ref: '#/components/examples/VariationAttributeValuesIdResult'
+        '201':
+          description: Created product variation attribute value successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VariationAttributeValue'
+              examples:
+                VariationAttributeValuesIdResult:
+                  $ref: '#/components/examples/VariationAttributeValuesIdResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products.rw
+    delete:
+      summary: Delete a variation attribute value.
+      description: Delete the variation attribute value of a variation attribute bound to a product.
+      operationId: deleteVariationAttributeValue
+      parameters:
+        - $ref: '#/components/parameters/productId'
+        - $ref: '#/components/parameters/attributeId'
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/organizationId'
+      responses:
+        '204':
+          description: Deleted variation attribute value successfully.
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products.rw
+    patch:
+      summary: Update a variation attribute value.
+      description: Update the variation attribute value of a variation attribute of a product.
+      operationId: updateVariationAttributeValue
+      parameters:
+        - $ref: '#/components/parameters/productId'
+        - $ref: '#/components/parameters/attributeId'
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/organizationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VariationAttributeValue'
+            examples:
+              VariationAttributeValuesIdRequestBody:
+                $ref: '#/components/examples/VariationAttributeValuesIdRequestBody'
+        required: true
+      responses:
+        '200':
+          description: Updated variation attribute value successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VariationAttributeValue'
+              examples:
+                VariationAttributeValuesIdResult:
+                  $ref: '#/components/examples/VariationAttributeValuesIdResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products.rw
+  /organizations/{organizationId}/products/{productId}/variation-attributes:
+    get:
+      summary: Retrieve variation attributes of a product.
+      description: Read variation attributes of a product of type variant, variation master, or variation group.
+      operationId: getVariationAttributes
+      parameters:
+        - $ref: '#/components/parameters/productId'
+        - $ref: '#/components/parameters/organizationId'
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 25
+            maximum: 50
+          description: Maximum records to retrieve per request, not to exceed 50. Defaults to 25.
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+            default: 0
+            maximum: 0
+          description: Used to retrieve the results based on a particular resource offset.
+      responses:
+        '200':
+          description: Retrieved the list of VariationAttributes for the product ID successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VariationAttributes'
+              examples:
+                VariationAttributesResult:
+                  $ref: '#/components/examples/VariationAttributesResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products
+            - sfcc.products.rw
+  /organizations/{organizationId}/products/{productId}/variation-attributes/{id}:
+    get:
+      summary: Retrieve a specific variation attribute.
+      description: Get variation attribute information only for master product.
+      operationId: getVariationAttribute
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/productId'
+        - $ref: '#/components/parameters/organizationId'
+      responses:
+        '200':
+          description: Retrieved the VariationAttribute for the product ID successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VariationAttribute'
+              examples:
+                VariationAttributeResult:
+                  $ref: '#/components/examples/VariationAttributeResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products
+            - sfcc.products.rw
+    put:
+      summary: Create a variation attribute.
+      description: Create a variation attribute using the information provided.
+      operationId: createVariationAttribute
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/productId'
+        - $ref: '#/components/parameters/organizationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VariationAttribute'
+            examples:
+              VariationAttributeRequestBody:
+                $ref: '#/components/examples/VariationAttributeRequestBody'
+        required: true
+      responses:
+        '200':
+          description: Created variation attribute successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VariationAttribute'
+              examples:
+                VariationAttributeResult:
+                  $ref: '#/components/examples/VariationAttributeResult'
+        '201':
+          description: Created variation attribute successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VariationAttribute'
+              examples:
+                VariationAttributeResult:
+                  $ref: '#/components/examples/VariationAttributeResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products.rw
+    delete:
+      summary: Remove a variation attribute.
+      description: Delete the variation attribute by ID.
+      operationId: deleteVariationAttribute
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/productId'
+        - $ref: '#/components/parameters/organizationId'
+      responses:
+        '204':
+          description: Deleted variation attribute successfully.
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products.rw
+    patch:
+      summary: Update a variation attribute.
+      description: |-
+        Update the variation attribute with the specified information.
+          name
+          slicing
+      operationId: updateVariationAttribute
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/productId'
+        - $ref: '#/components/parameters/organizationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VariationAttribute'
+            examples:
+              VariationAttributeRequestBody:
+                $ref: '#/components/examples/VariationAttributeRequestBody'
+        required: true
+      responses:
+        '200':
+          description: Updated variation attribute successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VariationAttribute'
+              examples:
+                VariationAttributeResult:
+                  $ref: '#/components/examples/VariationAttributeResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+        '404':
+          description: |
+            Resource requested not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct404:
+                  $ref: '#/components/examples/getProduct404'
+      security:
+        - AmOAuth2:
+            - sfcc.products.rw
+  /organizations/{organizationId}/categorization-attribute-definitions:
+    get:
+      summary: Get allowed attributes, values, and operators for creating rule-based categorization conditions.
+      description: |
+        Get the list of allowed attributes, values, and operators for creating rule-based categorization conditions.
+      operationId: getCategorizationAttributeDefinitions
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/locale'
+      responses:
+        '200':
+          description: Categorization attribute definitions retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategorizationAttributeDefinitionsResult'
+              examples:
+                CategorizationAttributeDefinitionResult:
+                  $ref: '#/components/examples/CategorizationAttributeDefinitionResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+      security:
+        - AmOAuth2:
+            - sfcc.products
+            - sfcc.products.rw
+  /organizations/{organizationId}/product-search:
+    post:
+      summary: Search products.
+      description: "Search for products. The query attribute specifies a complex query that can be used to narrow down the search. Attributes are grouped into different buckets.\n\nThe following is a list of searchable attributes with their corresponding buckets:\n\nMain: \n\n  | Attribute | Type |\n  |-----------|--------|\n  | id | String |\n  | name | String |\n  | online |  SiteSpecific Boolean |\n  | searchable |  SiteSpecific Boolean |\n  | validFrom | SiteSpecfic DateTime  |\n  | validTo | SiteSpecfic DateTime  |\n  | type | ProductType |\n  | creationDate | DateTime |\n  | lastModified | DateTime |\n\nCatalog:\n\n  | Attribute | Type |\n  |-----------|--------|\n  | catalogId | String |\n\n  Category:\n\n  | Attribute | Type |\n  |-----------|--------|\n  | categoryId | String |\n\n  Special:\n\n  type - {\\\"item\\\", \\\"set, \\\"bundle\\\", \\\"master\\\", \\\"partOfProductSet\\\", \\\"bundled\\\", \\\"variant\\\", \\\"variationGroup\\\", \\\"option\\\", \\\"retailSet\\\", \\\"partOfRetailSet\\\"}\n\n  The sortable properties are:\n\n  | Attribute | Type |\n  |-----------|--------|\n  | id | String |\n  | name | String |\n  | creationDate |  DateTime |\n\nNote that catalogId is the ID of the catalog to which products are assigned \n\nOnly attributes in the same bucket can be joined using a disjunction (OR). For instance, when joining id and catalogId, only a conjunction is allowed (AND), whereas id and searchable can be joined using a disjunction because they are in the same bucket. If an attribute is used in a disjunction (OR) that violates this rule, an exception is thrown. The product search retrieves additional properties of the product when expansions are used.\n\nThe available expand attribute values are:\n\n- ‘all' retrieves all product properties. This is the default when no expand value is included in the request.\n\n- 'none' retrieves no expansion properties.\n\n- ‘availability' retrieves the following properties:\n    - ats\n    - inStock\n    - online\n\n- ‘categories' retrieves the assignedCategories property.           \n\n- ‘images' retrieves the image property.   \n\n- ‘allImages' when used with images retrieves the following properties:\n    - image\n    - imageGroups\n\n- 'prices' retrieves the following properties:\n    - price\n    - priceCurrency\n\n- ‘sets' retrieves the following properties:\n    - setProducts\n    - productSets\n\n- ‘bundles' retrieves the following properties:\n    - productBundles\n    - bundledProduct"
+      operationId: searchProducts
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductSearchRequest'
+            examples:
+              ProductSearchRequestBody:
+                $ref: '#/components/examples/ProductSearchRequestBody'
+        required: true
+      responses:
+        '200':
+          description: Product search completed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductSearchResult'
+              examples:
+                ProductSearchResult:
+                  $ref: '#/components/examples/ProductSearchResult'
+        '400':
+          description: |
+            Bad Request. Thrown when a specified expand parameter value is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct400:
+                  $ref: '#/components/examples/getProduct400'
+        '401':
+          description: |
+            Unauthorized. Your Client ID is invalid, or you are not allowed to access
+            the content provided by the requested URL.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getProduct401:
+                  $ref: '#/components/examples/getProduct401'
+      security:
+        - AmOAuth2:
+            - sfcc.products
+            - sfcc.products.rw
+components:
+  securitySchemes:
+    AmOAuth2:
+      type: oauth2
+      description: AccountManager OAuth 2.0 bearer token Authentication.
+      flows:
+        clientCredentials:
+          tokenUrl: https://account.demandware.com/dwsso/oauth2/access_token
+          scopes:
+            sfcc.products: Product scope READONLY
+            sfcc.products.rw: Product scope
+        authorizationCode:
+          authorizationUrl: https://account.demandware.com/dwsso/oauth2/authorize
+          tokenUrl: https://account.demandware.com/dwsso/oauth2/access_token
+          scopes:
+            sfcc.products: Product scope READONLY
+            sfcc.products.rw: Product scope
+  schemas:
+    ProductId:
+      minLength: 1
+      maxLength: 100
+      type: string
+      description: The id (SKU) of the product.
+      example: apple-ipod-classic
+    OrganizationId:
+      description: An identifier for the organization the request is being made by
+      example: f_ecom_zzxy_prd
+      type: string
+      minLength: 1
+      maxLength: 32
+    SiteId:
+      minLength: 1
+      maxLength: 32
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites
+      example: RefArch
+      type: string
+    CatalogId:
+      maxLength: 256
+      minLength: 1
+      type: string
+      description: The ID of the catalog.
+      example: apparel-catalog
+    CategoryId:
+      maxLength: 256
+      minLength: 1
+      type: string
+      description: The ID of the category.
+      example: mens
+    CatalogCategoryId:
+      required:
+        - catalogId
+        - categoryId
+      type: object
+      properties:
+        catalogId:
+          $ref: '#/components/schemas/CatalogId'
+        categoryId:
+          $ref: '#/components/schemas/CategoryId'
+      description: Document representing a catalog category ID.
+    Product:
+      required:
+        - id
+      type: object
+      properties:
+        assignedCategories:
+          items:
+            $ref: '#/components/schemas/CatalogCategoryId'
+          type: array
+          description: The catalog categories that the product is assigned to. It is read only.
+        ats:
+          type: number
+          description: The Available To Sell (ATS) inventory value of the product. This is a calculated value.
+          format: double
+          example: 15
+        brand:
+          type: string
+          description: The brand of the product.
+          example: Apple
+        bundledProducts:
+          items:
+            $ref: '#/components/schemas/Product'
+          type: array
+          description: The array of bundled products which the product includes. It is read only.
+        classificationCategory:
+          $ref: '#/components/schemas/CatalogCategoryId'
+        creationDate:
+          type: string
+          description: Returns the value of attribute 'creationDate'. It is read only.
+          format: date-time
+          example: 253402214400
+        defaultVariantId:
+          type: string
+          description: The ID of the product's default variant. It is read only.
+          example: apple-ipod-classic-8gb-black
+        ean:
+          type: string
+          description: The European Article Number of the product.
+          example: ksdf69w4
+        id:
+          $ref: '#/components/schemas/ProductId'
+        image:
+          $ref: '#/components/schemas/MediaFile'
+        imageGroups:
+          items:
+            $ref: '#/components/schemas/ImageGroup'
+          type: array
+          description: The array of product image groups. It is read only.
+        inStock:
+          type: boolean
+          description: The flag that indicates if the product is in stock, or not. This is a calculated value.
+          example: true
+        lastModified:
+          type: string
+          description: Returns the value of attribute 'lastModified'. It is read only.
+          format: date-time
+          example: 253402214400
+        localizedTaxClassId:
+          type: object
+          additionalProperties: false
+          description: The localized tax class identifier of the product.
+          example:
+            en_US: exempt
+        longDescription:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/MarkupText'
+          description: The localized long description of the product.
+        manufacturerName:
+          type: string
+          description: The name of the product's manufacturer.
+          example: Apple
+        manufacturerSku:
+          type: string
+          description: The SKU of the product's manufacturer.
+          example: HSD68J
+        master:
+          $ref: '#/components/schemas/Master'
+        name:
+          type: object
+          additionalProperties: false
+          description: The localized name of the product.
+          example:
+            en_US: Apple Ipod Classic
+        online:
+          type: boolean
+          description: The flag that indicates if the product is online, or not. This is a calculated value.
+          example: true
+        onlineFlag:
+          type: object
+          additionalProperties: false
+          description: The site-specific online status of the product.
+          example:
+            Site1: true
+        owningCatalogId:
+          type: string
+          description: The ID of the catalog that owns the product.
+          example: apple-master-catalog
+        owningCatalogName:
+          type: object
+          additionalProperties: false
+          description: The localized name of the catalog that owns the product. It is read only.
+          example:
+            en_US: Apple Master Catalog
+        pageDescription:
+          type: object
+          additionalProperties: false
+          description: The localized page description of the product.
+          example:
+            en_US: Page Description
+        pageKeywords:
+          type: object
+          additionalProperties: false
+          description: The localized page keywords of the product.
+          example:
+            en_US: Keywords
+        pageTitle:
+          type: object
+          additionalProperties: false
+          description: The localized page title of the product.
+          example:
+            en_US: Page Title
+        price:
+          type: number
+          description: The price of the product.
+          format: double
+          example: 219.99
+        priceCurrency:
+          type: string
+          description: The currency code for a product's price.
+          example: USD
+        pricePerUnit:
+          type: number
+          description: The price per unit of the product. This is a read only field.
+          format: double
+          example: 1
+        primaryCategories:
+          items:
+            $ref: '#/components/schemas/CatalogCategoryId'
+          type: array
+          description: The primary catalog categories that the product is assigned to. It is read only.
+        primaryCategoryId:
+          type: string
+          description: The ID of the products primary category. This is a read only field. It is read only.
+          example: electronics-media-players
+        productBundles:
+          items:
+            $ref: '#/components/schemas/Product'
+          type: array
+          description: The array of product bundles which the product belongs to. It is read only.
+        productOptions:
+          items:
+            $ref: '#/components/schemas/ProductOption'
+          type: array
+          description: The array of product options. This is applicable for products of type "option". It is read only.
+        productSets:
+          items:
+            $ref: '#/components/schemas/Product'
+          type: array
+          description: The array of product sets which the product belongs to. It is read only.
+        searchable:
+          type: object
+          additionalProperties: false
+          description: The site-specific searchable status of the product.
+          example:
+            Site1: true
+        setProducts:
+          items:
+            $ref: '#/components/schemas/Product'
+          type: array
+          description: The array of set products which the product includes. It is read only.
+        shortDescription:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/MarkupText'
+          description: The localized short description of the product.
+        taxClassId:
+          type: string
+          description: The tax class identifier of the product.
+          example: standard
+        type:
+          $ref: '#/components/schemas/ProductType'
+        unit:
+          type: string
+          description: The sales unit of the product.
+          example: single
+        unitMeasure:
+          type: string
+          description: The unitMeasure of the product.
+          example: each
+        unitQuantity:
+          type: number
+          description: The unitQuantity of the product.
+          format: double
+          example: 15
+        upc:
+          type: string
+          description: The Universal Product Code (UPC) of the product.
+          example: 66JSD88JASD
+        validFrom:
+          type: object
+          additionalProperties: false
+          description: The valid/online from date of the product.
+          example:
+            default@SiteGenesis: '2000-05-11T00:00:00.000Z'
+        validTo:
+          type: object
+          additionalProperties: false
+          description: The valid/online to date of the product.
+          example:
+            default@SiteGenesis: '2050-05-11T00:00:00.000Z'
+        variants:
+          items:
+            $ref: '#/components/schemas/Variant'
+          type: array
+          description: The array of variants of the product. This is applicable for product types "master" and "variationGroup" only. It is read only.
+        variationAttributes:
+          items:
+            $ref: '#/components/schemas/VariationAttribute'
+          type: array
+          description: |-
+            The sorted array of variation attributes assigned to the product. This is applicable for product types "master",
+             "variationGroup" and "variant" only. It is read only.
+        variationGroups:
+          items:
+            $ref: '#/components/schemas/VariationGroup'
+          type: array
+          description: The array of variation groups in the product. This is applicable for product type "master" only. It is read only.
+        variationValues:
+          type: object
+          additionalProperties: false
+          description: |-
+            The variation values selected for the product in variation attribute id and value pairs. This is applicable for product types "Variant" and
+             "VariationGroup" only. It is read only.
+          example:
+            color: red
+            size: 8gb
+      description: Any product that is sold, shown alone, and does not have variations such as different sizes or colors. Product that has no reliance on any other product for inheritance. *A product has a SKU and can have a product option, which has a different SKU*.
+    MediaFile:
+      required:
+        - path
+      type: object
+      properties:
+        absUrl:
+          type: string
+          description: The absolute URL with request protocol.
+          example: https://www.example-image.com/images/apple-ipod-classic.jpg
+        alt:
+          type: object
+          additionalProperties: false
+          description: The alternative image text.
+          example:
+            en_US: iPod
+        disBaseUrl:
+          type: string
+          description: The Dynamic Image Service (DIS) base URL for product images only.
+          example: https://www.dis-base-url/images/apple-ipod-clasic.jpg
+        path:
+          type: string
+          description: The raw media file path.
+          example: /images/apple-ipod-classic.jpg
+        title:
+          type: object
+          additionalProperties: false
+          description: The image title.
+          example:
+            en_US: iPod
+      description: Document representing media file.
+    VariationAttributeValue:
+      required:
+        - value
+      type: object
+      properties:
+        description:
+          type: object
+          additionalProperties: false
+          description: The localized description of the variation value.
+          example:
+            en_US: Red
+        image:
+          $ref: '#/components/schemas/MediaFile'
+        imageSwatch:
+          $ref: '#/components/schemas/MediaFile'
+        name:
+          type: object
+          additionalProperties: false
+          description: The localized display name of the variation value.
+          example:
+            color: Red
+        orderable:
+          type: boolean
+          description: A flag indicating whether at least one variant with this variation attribute value is available to sell.
+          example: true
+        position:
+          type: number
+          description: The position of the value among all values of a variation attribute.
+          format: double
+          example: 2
+        value:
+          minLength: 1
+          type: string
+          description: The actual variation value.
+          example: red
+      description: Document representing a variation attribute value.
+    VariationAttribute:
+      required:
+        - attributeDefinitionId
+      type: object
+      properties:
+        attributeDefinitionId:
+          type: string
+          description: The id of the requested attribute definition.
+          example: color
+        attributeDefinitionName:
+          type: object
+          additionalProperties: false
+          description: The localized display name of the variation attribute definition.
+          example:
+            en_US: Color
+        defaultValue:
+          type: string
+          description: Default variation attribute value.
+          example: black
+        id:
+          minLength: 1
+          type: string
+          description: The ID of the variation attribute.
+          example: color
+        name:
+          type: object
+          additionalProperties: false
+          description: The localized display name of the variation attribute.
+          example:
+            en_US: Color
+        shared:
+          type: boolean
+          description: Returns the value of attribute 'shared' if attribute is local or shared.
+          example: false
+        slicing:
+          type: boolean
+          description: Returns the value of attribute 'slicing'.
+          example: true
+        values:
+          items:
+            $ref: '#/components/schemas/VariationAttributeValue'
+          type: array
+          description: The sorted array of variation values. This array can be empty.
+        variationAttributeType:
+          type: string
+          description: Variation attribute type.
+          example: string
+          enum:
+            - string
+            - int
+            - unknown
+      description: Document representing a variation attribute.
+    ImageGroup:
+      required:
+        - images
+        - viewType
+      type: object
+      properties:
+        images:
+          items:
+            $ref: '#/components/schemas/MediaFile'
+          type: array
+          description: The images of the image group.
+        variationAttributes:
+          items:
+            $ref: '#/components/schemas/VariationAttribute'
+          type: array
+          description: Returns a list of variation attributes applying to this image group.
+        viewType:
+          type: string
+          description: The image view type.
+          example: hi-res
+      description: Document representing an image group containing a list of images for a particular view type and an optional variation value.
+    MarkupText:
+      required:
+        - markup
+        - source
+      type: object
+      properties:
+        markup:
+          type: string
+          description: The rendered HTML.
+          example: ''
+        source:
+          type: string
+          description: The raw markup text.
+          example: ''
+      description: Document representing markup text.
+    Master:
+      required:
+        - masterId
+      type: object
+      properties:
+        masterId:
+          $ref: '#/components/schemas/ProductId'
+        orderable:
+          type: boolean
+          description: A flag indicating whether at least one of the variants is orderable.
+          example: true
+        price:
+          type: number
+          description: The minimum sales price of the related variants.
+          format: double
+          example: 199.99
+        priceMax:
+          type: number
+          description: The maximum sales of related variants.
+          format: double
+          example: 219.99
+        prices:
+          type: object
+          additionalProperties:
+            type: number
+            format: double
+          description: prices
+      description: Representation of a group of variant products by an attribute. This is a non-buyable entity, provides inheritable attributes for it's product variants, and is used for navigation. *Does'nt have a SKU.*
+    ISOCurrency:
+      pattern: ^[A-Z][A-Z][A-Z]$
+      description: A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard.
+      example: USD
+      type: string
+    NoValue:
+      default: N/A
+      description: A specialized value indicating the lack of definition of a currency, for example, if the value of the monetary value of the currency is an undefined number.
+      example: N/A
+      enum:
+        - N/A
+      type: string
+    CurrencyCode:
+      description: A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard, or the string `N/A` indicating that a currency is not applicable.
+      example: USD
+      oneOf:
+        - $ref: '#/components/schemas/ISOCurrency'
+        - $ref: '#/components/schemas/NoValue'
+    Money:
+      description: A combination of a Currency and an amount of that Currency.
+      type: object
+      properties:
+        currencyMnemonic:
+          $ref: '#/components/schemas/CurrencyCode'
+        value:
+          format: double
+          description: The amount of money for the given currency.
+          example: 1234.56
+          type: number
+    ProductOptionValue:
+      required:
+        - id
+        - value
+      type: object
+      properties:
+        defaultProductOptionValue:
+          type: boolean
+          description: Flag indicating if the product option value is the default value for the product option.
+          example: true
+        id:
+          minLength: 1
+          type: string
+          description: The ID of the product option value.
+          example: 5-year
+        optionPrices:
+          items:
+            $ref: '#/components/schemas/Money'
+          type: array
+          description: The list of prices in the product option value.
+        skuExtension:
+          type: string
+          description: The SKU extension of the product option value.
+          example: extension
+        value:
+          type: object
+          additionalProperties: false
+          description: The localized value of the product option.
+          example:
+            en_US: 5 Year Warranty
+      description: Document representing a product option Value
+    ProductOption:
+      required:
+        - id
+      type: object
+      properties:
+        customName:
+          type: object
+          additionalProperties: false
+          description: The localized custom name of the product option.
+          example:
+            en_US: Warranty
+        defaultProductOptionValue:
+          type: string
+          description: The default product option value.
+          example: 5-years
+        description:
+          type: object
+          additionalProperties: false
+          description: The localized description of the product option.
+          example:
+            en_US: Option Description
+        id:
+          minLength: 1
+          type: string
+          description: The object attribute definition ID which is also the identifier for the product option.
+          example: warranty
+        image:
+          $ref: '#/components/schemas/MediaFile'
+        name:
+          type: string
+          description: The name of the object attribute definition.
+          example: Warranty
+        selectedOptionValue:
+          type: string
+          description: The selected option value of the product option.
+          example: 2-years
+        shared:
+          type: boolean
+          description: The flag that indicates if the product option is shared or local.
+          example: false
+        sortingMode:
+          type: string
+          description: The sorting mode for the product option values.
+          example: byoptionprice
+          enum:
+            - byexplicitorder
+            - byoptionprice
+        values:
+          items:
+            $ref: '#/components/schemas/ProductOptionValue'
+          type: array
+          description: The sorted array of values of the product option.
+      description: Product options enable you to sell configurable products that have optional accessories, upgrades, or additional services. Options are always purchased with a product and can't be purchased separately.
+    ProductType:
+      required:
+        - master
+      type: object
+      properties:
+        bundle:
+          type: boolean
+          description: A flag indicating whether the product is a bundle.
+          example: false
+        bundled:
+          type: boolean
+          description: A flag indicating whether the product is bundled.
+          example: false
+        item:
+          type: boolean
+          description: A flag indicating whether the product is a standard item.
+          example: false
+        master:
+          type: boolean
+          description: A flag indicating whether the product is a master.
+          example: true
+        option:
+          type: boolean
+          description: A flag indicating whether the product is an option.
+          example: false
+        partOfProductSet:
+          type: boolean
+          description: A flag indicating whether the product is part of product set.
+          example: false
+        partOfRetailSet:
+          type: boolean
+          description: A flag indicating whether the product is part of retail set.
+          example: false
+        retailSet:
+          type: boolean
+          description: A flag indicating whether the product is a retail set.
+          example: false
+        set:
+          type: boolean
+          description: A flag indicating whether the product is a set.
+          example: false
+        variant:
+          type: boolean
+          description: A flag indicating whether the product is a variant.
+          example: false
+        variationGroup:
+          type: boolean
+          description: A flag indicating whether the product is a variation group.
+          example: false
+      description: Document representing a product type.
+    Variant:
+      required:
+        - productId
+      type: object
+      properties:
+        ats:
+          type: number
+          description: The Available To Sell (ATS) inventory value of the product. This is a calculated value.
+          format: double
+          example: 10
+        defaultProductVariation:
+          type: boolean
+          description: A flag indicating whether the variant is a default variant.
+          example: true
+        image:
+          $ref: '#/components/schemas/MediaFile'
+        inStock:
+          type: boolean
+          description: True if the product is in stock, false if not.
+          example: true
+        online:
+          type: boolean
+          description: |-
+            If the product is currently online.
+             True if online, false if not.
+          example: true
+        orderable:
+          type: boolean
+          description: A flag indicating whether the variant is orderable.
+          example: true
+        price:
+          type: number
+          description: The sales price of the variant.
+          format: double
+          example: 29.99
+        priceCurrency:
+          type: string
+          description: Currency code for the price of the product.
+          example: USD
+        productId:
+          $ref: '#/components/schemas/ProductId'
+        searchable:
+          type: object
+          additionalProperties: false
+          description: A flag indicating whether the variant is searchable.
+          example:
+            Site1: true
+        variationAttributes:
+          items:
+            $ref: '#/components/schemas/VariationAttribute'
+          type: array
+          description: Variation attributes.
+        variationValues:
+          type: object
+          additionalProperties: false
+          description: The actual variation attribute ID - value pairs.
+          example:
+            color: black
+      description: A product which is a variation within a master product that describes different colors, sizes, or other variation attributes. *Has a SKU*
+    VariationGroup:
+      required:
+        - productId
+      type: object
+      properties:
+        orderable:
+          type: boolean
+          description: A flag indicating whether the variation group is orderable.
+          example: true
+        price:
+          type: number
+          description: The sales price of the variation group.
+          format: double
+          example: 229.99
+        productId:
+          maxLength: 100
+          minLength: 1
+          type: string
+          description: The ID (SKU) of the variation group.
+          example: apple-ipod-classic-black
+        variationValues:
+          type: object
+          additionalProperties: false
+          description: The actual variation attribute ID - value pairs.
+          example:
+            color: red
+      description: Representation of a group of variant products by an attribute. This is a non-buyable entity,  provides inheritable attributes for it's product variants, and is used for navigation. *Doesn't have a SKU.*
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        title:
+          description: "A short, human-readable summary of the problem\ntype.  It will not change from occurrence to occurrence of the \nproblem, except for purposes of localization\n"
+          type: string
+          maxLength: 256
+          example: You do not have enough credit
+        type:
+          description: |
+            A URI reference [RFC3986] that identifies the
+            problem type.  This specification encourages that, when
+            dereferenced, it provide human-readable documentation for the
+            problem type (e.g., using HTML [W3C.REC-html5-20141028]).  When
+            this member is not present, its value is assumed to be
+            "about:blank". It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: NotEnoughMoney
+        detail:
+          description: A human-readable explanation specific to this occurrence of the problem.
+          type: string
+          example: Your current balance is 30, but that costs 50
+        instance:
+          description: |
+            A URI reference that identifies the specific
+            occurrence of the problem.  It may or may not yield further
+            information if dereferenced.  It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: /account/12345/msgs/abc
+      required:
+        - title
+        - type
+        - detail
+    Limit:
+      default: 10
+      minimum: 1
+      format: int32
+      description: Maximum records to retrieve per request, not to exceed the maximum defined. A limit must be at least 1 so at least one record is returned (if any match the criteria).
+      type: integer
+      example: 10
+    Query:
+      minProperties: 1
+      maxProperties: 1
+      description: |-
+        A set of objects that define criteria used to select records. A query can contain one of the following:
+        * `MatchAllQuery`
+         - Matches all documents.
+        * `TermQuery`
+         - Matches one or more documents against one or more document fields.
+        * `TextQuery`
+         - Matches text against one or more fields.
+        * `BoolQuery`
+         - Allows construction of a logical expression of multiple queries.
+        * `FilteredQuery`
+         - Allows a filter to be applied to a query.
+        * `NestedQuery`
+         - Allows you to query on nested documents.
+         - _Only supported by some Commerce APIs. For more details, see the endpoint descriptions in the API documentation._
+      example:
+        filteredQuery:
+          query:
+            textQuery:
+              fields:
+                - couponId
+              searchPhrase: disabled
+          filter:
+            termFilter:
+              field: enabled
+              operator: is
+              values:
+                - false
+      type: object
+      properties:
+        boolQuery:
+          $ref: '#/components/schemas/BoolQuery'
+        filteredQuery:
+          $ref: '#/components/schemas/FilteredQuery'
+        matchAllQuery:
+          $ref: '#/components/schemas/MatchAllQuery'
+        nestedQuery:
+          $ref: '#/components/schemas/NestedQuery'
+        termQuery:
+          $ref: '#/components/schemas/TermQuery'
+        textQuery:
+          $ref: '#/components/schemas/TextQuery'
+    BoolQuery:
+      description: "A boolean query allows construction of full logical expression trees that are composed of other queries (usually term queries and text queries). A boolean query has three sets of clauses:\n  \n  - `must`, which combines as an `AND` operator.\n  - `should`, which combines as an `OR` operator.\n  - `must_not`, which combines as a `NOT` operator.\n  \nIf `must`, `mustNot`, or `should` appear in the same boolean query, they are combined logically using the `AND` operator. For example:\n\n    (must-1 AND must-1 AND ...)\n      AND (should-1 OR should-2 OR ...)\n      AND NOT (must_not-1 OR must_not-2 OR ...)\n"
+      type: object
+      example:
+        value:
+          must:
+            - textQuery:
+                fields:
+                  - couponId
+                searchPhrase: DEAL
+            - textQuery:
+                fields:
+                  - description
+                searchPhrase: Big bargain deal
+          mustNot:
+            - termQuery:
+                fields:
+                  - enabled
+                operator: is
+                values:
+                  - false
+      properties:
+        must:
+          description: List of queries to be evaluated as an `AND` operator.
+          type: array
+          items:
+            $ref: '#/components/schemas/Query'
+        mustNot:
+          description: List of queries to be evaluated as a `NOT` operator.
+          type: array
+          items:
+            $ref: '#/components/schemas/Query'
+        should:
+          description: List of queries to be evaluated as an `OR` operator.
+          type: array
+          items:
+            $ref: '#/components/schemas/Query'
+    Filter:
+      minProperties: 1
+      maxProperties: 1
+      description: |-
+        Contains a set of objects that define criteria used to select records. A filter can contain one of the following:
+          * `TermFilter`
+           - Matches records where a field (or fields) exactly matches some simple value (including `null`).
+          * `RangeFilter`
+           - Matches records where a field value lies within a specified range.
+          * `Range2Filter`
+           - Matches records in a specified range across fields.
+          * `QueryFilter`
+           - Matches records based on a query.
+          * `BoolFilter`
+           - Provides filtering of records using a set of filters combined using a logical operator.
+      example: null
+      type: object
+      properties:
+        boolFilter:
+          $ref: '#/components/schemas/BoolFilter'
+        queryFilter:
+          $ref: '#/components/schemas/QueryFilter'
+        range2Filter:
+          $ref: '#/components/schemas/Range2Filter'
+        rangeFilter:
+          $ref: '#/components/schemas/RangeFilter'
+        termFilter:
+          $ref: '#/components/schemas/TermFilter'
+    BoolFilter:
+      description: Allows you to combine other filters into (possibly recursive) logical expression trees. A boolean filter is composed of a logical operator (`AND`, `OR`, `NOT`) and a list of filters that the operator relates to. Multiple filters can be negated with a single `NOT` operator, even when the filters are combined with the `AND` operator.
+      example:
+        value:
+          operator: and
+          filters:
+            - termFilter:
+                field: id
+                operator: is
+                values:
+                  - myId
+            - termFilter:
+                field: couponId
+                operator: is
+                values:
+                  - couponOne
+      type: object
+      properties:
+        filters:
+          description: A list of filters that are logically combined by an operator.
+          type: array
+          items:
+            $ref: '#/components/schemas/Filter'
+        operator:
+          description: The logical operator that is used to combine the filters.
+          enum:
+            - and
+            - or
+            - not
+          type: string
+          example: and
+      required:
+        - operator
+    QueryFilter:
+      description: Wraps any query and allows it to be used as a filter.
+      type: object
+      properties:
+        query:
+          $ref: '#/components/schemas/Query'
+      required:
+        - query
+    Field:
+      description: Name of the field. Might be a custom field name prefixed with c_.
+      maxLength: 260
+      type: string
+      example: couponId
+    Range2Filter:
+      description: |-
+        Allows you to restrict a search result to hits where a range defined by specified attributes has a certain relationship to a specified range.
+
+        The first range (R1) is defined by a pair of attributes (`fromField` and `toField`) that specify the extent of a range, such as attributes `validFrom` and `validTo`.
+
+        The second range (R2) is defined by `fromValue` and `toValue`.
+
+        The filter mode specifies the method used to compare the two ranges:
+
+        * `overlap`: R1 overlaps fully or partially with R2.
+        * `containing`: R1 contains R2.
+        * `contained`: R1 is contained in R2.
+
+        The range filter supports several value types, and relies on the natural sorting of the value type for range interpretation. Value ranges can be open-ended, but only at one end of the range. You can configure whether the lower bounds and upper bounds are inclusive or exclusive.
+
+        A range 2 filter is useful for general restrictions that can be shared between searches (like a static date range) because the filter result is cached in memory. Range filters are not appropriate if the range is expected to be different for every query (for example, if the user controls the date range down to the hour via a UI control). Range filters are inclusive by default.
+      example:
+        fromField: validFrom
+        toField: validTo
+        filterMode: overlap
+        fromValue: '2007-01-01T00:00:00.000Z'
+        toValue: '2017-01-01T00:00:00.000Z'
+      type: object
+      properties:
+        filterMode:
+          default: overlap
+          example: overlap
+          description: 'Compare mode: overlap, containing, or contained.'
+          enum:
+            - overlap
+            - containing
+            - contained
+          type: string
+        fromField:
+          description: The field name of the field that starts the first range.
+          example: validFrom
+          allOf:
+            - $ref: '#/components/schemas/Field'
+        fromInclusive:
+          default: true
+          example: true
+          description: A flag indicating if the lower bound of the second range is inclusive. To make the lower bound exclusive, set to `false`.
+          type: boolean
+        fromValue:
+          description: The lower bound of the second range. If not specified, the range is open-ended with respect to the lower bound. You can't leave both the lower and upper bounds open-ended.
+          example: '2007-01-01T00:00:00.000Z'
+        toField:
+          description: The field name of the field that ends the first range.
+          example: validTo
+          allOf:
+            - $ref: '#/components/schemas/Field'
+        toInclusive:
+          default: true
+          example: true
+          description: A flag indicating if the upper bound of the second range is inclusive. To make the lower bound exclusive, set to `false`.
+          type: boolean
+        toValue:
+          description: The upper bound of the second range. If not specified, the range is open-ended with respect to the upper bound. You can't leave both the upper and lower bounds open-ended.
+          example: '2017-01-01T00:00:00.000Z'
+      required:
+        - fromField
+        - toField
+    RangeFilter:
+      description: |-
+        Allows you to restrict a search result to hits that have values for a given attribute that fall within a given value range. The range filter supports several value types and relies on the natural sorting of the value type for range interpretation. Value ranges can be open-ended, but only at one end of the range. You can configure whether the lower bounds and upper bounds are inclusive or exclusive.
+
+        A range filter is useful for general restrictions that can be shared between searches (like a static date range) because the filter result is cached in memory. Range filters are not appropriate if the range is expected to be different for every query (for example, if the user controls the date range down to the hour via a UI control). Range filters are inclusive by default.
+      type: object
+      properties:
+        field:
+          example: validFrom
+          description: The search field.
+          allOf:
+            - $ref: '#/components/schemas/Field'
+        from:
+          description: The lower bound of the filter range. If not specified, the range is open-ended with respect to the lower bound. You can't leave both the lower and upper bounds open-ended.
+          example: '2007-01-01T00:00:00.000Z'
+        fromInclusive:
+          default: true
+          example: true
+          description: A flag indicating if the lower bound of the range is inclusive. To make the lower bound exclusive, set to `false`.
+          type: boolean
+        to:
+          description: The upper bound of the filter range. If not specified, the range is open-ended with respect to the upper bound. You can't leave both the upper and lower bounds open-ended.
+          example: '2017-01-01T00:00:00.000Z'
+        toInclusive:
+          default: true
+          example: true
+          description: A flag indicating if the upper bound of the range is inclusive. To make the upper bound exclusive, set to `false`.
+          type: boolean
+      required:
+        - field
+    TermFilter:
+      description: Allows you to restrict a search result to hits that match exactly one of the values configured for the filter. A term filter is useful for general restrictions that can be shared between searches. Use term filters whenever the criteria you filter on is a shared property of multiple searches (for example, like filtering by an order status). Use term filters for fields that have a discrete and small set of values only.
+      example:
+        field: id
+        operator: is
+        values:
+          - myId
+      type: object
+      properties:
+        field:
+          description: The filter field.
+          allOf:
+            - $ref: '#/components/schemas/Field'
+        operator:
+          description: The operator used to compare the field's values with the given values.
+          example: is
+          enum:
+            - is
+            - one_of
+            - is_null
+            - is_not_null
+            - less
+            - greater
+            - not_in
+            - neq
+          type: string
+        values:
+          description: The filter values.
+          type: array
+          items:
+            type: string
+            example: myId
+      required:
+        - field
+        - operator
+    FilteredQuery:
+      description: Allows to filter the result of a possibly complex query using a possibly complex filter.
+      example:
+        query:
+          textQuery:
+            fields:
+              - couponId
+            searchPhrase: disabled
+        filter:
+          termFilter:
+            field: enabled
+            operator: is
+            values:
+              - false
+      type: object
+      properties:
+        filter:
+          $ref: '#/components/schemas/Filter'
+        query:
+          $ref: '#/components/schemas/Query'
+      required:
+        - filter
+        - query
+    MatchAllQuery:
+      description: Matches all documents (namespace and document type). This query comes in handy if you just want to filter a search result or really do not have any constraints.
+      type: object
+    NestedQuery:
+      description: "Allows you to query nested documents that are part of a larger document. Say, for example, that you have a main product with variations in one big document, and you want to constrain a search to main products that have variations that match multiple constraints. \n\nA `NestedQuery` is only supported by some Commerce APIs. For more details, see the endpoint descriptions in the API documentation.\n"
+      example:
+        path: order.shippingAddresses
+        query:
+          boolQuery:
+            must:
+              - boolQuery:
+                  must:
+                    - termQuery:
+                        fields:
+                          - order.shippingAddresses.firstName
+                        operator: is
+                        values:
+                          - John
+              - boolQuery:
+                  must:
+                    - termQuery:
+                        fields:
+                          - order.shippingAddresses.lastName
+                        operator: is
+                        values:
+                          - Doe
+        scoreMode: avg
+      type: object
+      properties:
+        path:
+          description: The path to the nested document.
+          type: string
+          example: order.shippingAddresses
+          maxLength: 2048
+        query:
+          $ref: '#/components/schemas/Query'
+        scoreMode:
+          description: Indicates how scores for matching child objects affect the root parent document’s relevance score.
+          enum:
+            - avg
+            - total
+            - max
+            - none
+          type: string
+          example: avg
+      required:
+        - path
+        - query
+    TermQuery:
+      description: |-
+        A term query matches one or more values against one or more document fields. A document is considered a hit if one of the values matches exactly with at least one of the given fields. The operator `is` can only take one value, while `one_of` can take multiple values. If multiple fields are specified, they are combined using a logical `OR` operator.
+
+        **Limitations:**
+
+        * The `greater` and `less` operators are not supported under certain conditions. Both operators are permitted unless the API documentation states otherwise.
+        * A subset of Commerce APIs handle queries with multiple fields differently. If the query has multiple fields, the query is internally handled as a logical `OR` of `DisjointMaxQueries` (with the dismax matching a value against all fields). The dismax makes sure that a document carrying a single term in multiple fields does not get higher scores than a document matching multiple terms in multiple fields.
+      type: object
+      properties:
+        fields:
+          minItems: 1
+          description: The document fields that the values are matched against, combined with the operator.
+          type: array
+          items:
+            $ref: '#/components/schemas/Field'
+        operator:
+          description: Returns the operator to use for the term query.
+          enum:
+            - is
+            - one_of
+            - is_null
+            - is_not_null
+            - less
+            - greater
+            - not_in
+            - neq
+          type: string
+          example: is
+        values:
+          description: The values that the fields are compared against, combined with the operator.
+          type: array
+          items:
+            type: string
+            example: myCouponId
+      required:
+        - fields
+        - operator
+    TextQuery:
+      description: A text query is used to match some text (for example, a search phrase possibly consisting of multiple terms) against one or more fields. When multiple fields are provided, the phrase conceptually forms a logical `OR` over the fields. In this case, the terms of the phrase basically have to match within the text, that would result in concatenating all given fields.
+      example:
+        fields:
+          - couponId
+        searchPhrase: limit
+      type: object
+      properties:
+        fields:
+          minItems: 1
+          description: The document fields that the search phrase matches against.
+          type: array
+          items:
+            $ref: '#/components/schemas/Field'
+        searchPhrase:
+          description: A search phrase, which can include multiple terms separated by spaces.
+          type: string
+          example: campaign summer
+      required:
+        - fields
+        - searchPhrase
+    String256:
+      type: string
+      maxLength: 256
+      description: "The String256 schema is a foundational schema designed for fields or attributes that are stored in a database field with a maximum capacity of 256 bytes. \nThis schema accommodates various character sets, with the following considerations:\n  - ASCII Characters: Each ASCII character occupies 1 byte, allowing up to 256 characters.\n  - Latin Characters: Many Latin characters require 2 bytes each, allowing up to 128 characters.\n  - Asian Characters: Many Asian characters require 3 bytes each, allowing approximately 85 characters."
+      example: Max Mustermann
+    Sort:
+      description: Document representing a sort request. Each API has a different default sort configuration that can be modified in the request.
+      example:
+        field: couponId
+        sortOrder: desc
+      type: object
+      properties:
+        field:
+          description: The name of the field to sort on.
+          allOf:
+            - $ref: '#/components/schemas/String256'
+        sortOrder:
+          default: asc
+          description: The sort order to be applied when sorting. When omitted, the default sort order (asc) is used.
+          example: asc
+          enum:
+            - asc
+            - desc
+          type: string
+      required:
+        - field
+    Offset:
+      default: 0
+      minimum: 0
+      format: int64
+      description: The zero-based index of the first hit/data to include in the result.
+      type: integer
+      example: 0
+    SearchRequest:
+      description: Document representing a search request for retrieving items within the Data API. The query is a potentially complex set of expressions. The fields and expands that each query supports are defined within the search resource.
+      type: object
+      properties:
+        limit:
+          description: Maximum records to retrieve per request, not to exceed 200.
+          example: 10
+          maximum: 200
+          allOf:
+            - $ref: '#/components/schemas/Limit'
+        query:
+          $ref: '#/components/schemas/Query'
+        sorts:
+          description: The list of sort clauses configured for the search request. Sort clauses are optional. See the description of the search endpoint for details on the default sorting behavior that is used when explicit sorts are not passed.
+          type: array
+          items:
+            $ref: '#/components/schemas/Sort'
+        offset:
+          $ref: '#/components/schemas/Offset'
+      required:
+        - query
+    VariantSearchRequest:
+      required:
+        - query
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/SearchRequest'
+      description: Document representing a search request for retrieving items within the Data API. The query is a potentially complex set of expressions. The fields and expands that each query supports are defined within the search resource.
+      example:
+        limit: 4
+        query:
+          textQuery:
+            fields:
+              - id
+              - description
+            searchPhrase: campaign
+        offset: 2
+    Total:
+      default: 0
+      minimum: 0
+      format: int64
+      description: The total number of hits that match the search's criteria. This can be greater than the number of results returned as search results are pagenated.
+      type: integer
+      example: 10
+    ResultBase:
+      description: "Schema defining generic list result. Each response schema of a resource requiring a list response should extend this schema. \nAdditionally it needs to be defined what data is returned."
+      type: object
+      required:
+        - limit
+        - total
+      properties:
+        limit:
+          maximum: 200
+          allOf:
+            - $ref: '#/components/schemas/Limit'
+        total:
+          $ref: '#/components/schemas/Total'
+    PaginatedResultBase:
+      description: "Schema defining generic pageable result. Each response schema of a resource requiring pagination should extend this schema. \nIf you use this extend this schema directly, it needs to be defined what data is returned. Allowed names for the data field is `data`."
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ResultBase'
+      properties:
+        offset:
+          $ref: '#/components/schemas/Offset'
+      required:
+        - limit
+        - offset
+        - total
+    PaginatedSearchResult:
+      description: Document representing a generic search result. Each search resource should extend this to define what is returned in the `hits`.
+      properties:
+        query:
+          $ref: '#/components/schemas/Query'
+        sorts:
+          description: The sorting that was applied to the result.
+          type: array
+          items:
+            $ref: '#/components/schemas/Sort'
+        hits:
+          description: The sorted array of search hits. Can be empty.
+          type: array
+          items:
+            type: object
+      allOf:
+        - $ref: '#/components/schemas/PaginatedResultBase'
+      type: object
+      required:
+        - query
+      example:
+        limit: 1
+        hits:
+          - couponId: coupon1
+            creationDate: '2019-10-20T12:00:00Z'
+            description: This coupon is used to give 10% off stuff.
+            enabled: false
+            exportedCodeCount: 0
+            lastModified: '2019-10-30T04:23:59Z'
+            redemptionCount: 3
+            redemptionLimits:
+              limitPerCode: 1
+              limitPerCustomer: 1
+              limitPerTimeFrame:
+                limit: 2
+                redemptionTimeFrame: 24
+            singleCode: MyCode
+            systemCodesConfig:
+              codePrefix: SG
+              numberOfCodes: 500000
+            totalCodesCount: 50
+            type: single_code
+        query:
+          textQuery:
+            fields:
+              - id
+              - description
+            searchPhrase: stuff
+        sorts:
+          - field: couponId
+            sortOrder: desc
+        offset: 2
+        total: 8
+    VariantSearchResult:
+      required:
+        - limit
+        - offset
+        - total
+        - hits
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PaginatedSearchResult'
+      properties:
+        hits:
+          items:
+            $ref: '#/components/schemas/Variant'
+          type: array
+          description: An array of search hits (`Variant` objects).
+      description: Document that represents a search on certificates and keys.
+    VariationGroups:
+      required:
+        - data
+        - limit
+        - offset
+        - total
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PaginatedResultBase'
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/VariationGroup'
+          type: array
+          description: The array of variation group objects.
+      description: Document representing an unfiltered list of variation groups.
+    Variants:
+      required:
+        - data
+        - limit
+        - offset
+        - total
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PaginatedResultBase'
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/Variant'
+          type: array
+          description: An array of variants.
+      description: Document representing an unfiltered list of variants.
+    ProductOptions:
+      required:
+        - data
+        - limit
+        - offset
+        - total
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PaginatedResultBase'
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/ProductOption'
+          type: array
+          description: The array of product option objects.
+      description: Document representing an unfiltered list of product options.
+    VariationAttributes:
+      required:
+        - data
+        - limit
+        - offset
+        - total
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PaginatedResultBase'
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/VariationAttribute'
+          type: array
+          description: The array of variation attribute objects.
+      description: Document representing an unfiltered list of variation attributes.
+    LanguageCountry:
+      pattern: ^[a-z][a-z]-[A-Z][A-Z]$
+      description: A concatenated version of the standard Language and Country codes, combined with a hyphen '`-`'.
+      example: en-US
+      type: string
+    LanguageCode:
+      pattern: ^[a-z][a-z]$
+      description: A two letter lowercase language code conforming to the [ISO 639-1](https://www.iso.org/iso-639-language-codes.html) standard. Additionally, this may be used to submit requests with the header parameter `Accept-Language`, following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766).
+      example: en
+      type: string
+    DefaultFallback:
+      default: default
+      description: A specialized value indicating the system default values for locales.
+      example: default
+      enum:
+        - default
+      type: string
+    LocaleCode:
+      description: A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified.
+      oneOf:
+        - $ref: '#/components/schemas/LanguageCountry'
+        - $ref: '#/components/schemas/LanguageCode'
+        - $ref: '#/components/schemas/DefaultFallback'
+    String4000:
+      type: string
+      maxLength: 4000
+      description: "The String4000 schema is a foundational schema designed for fields or attributes that are stored in a database field with a maximum capacity of 4000 bytes. \nThis schema accommodates various character sets, with the following considerations:\n  - ASCII Characters: Each ASCII character occupies 1 byte, allowing up to 4000 characters.\n  - Latin Characters: Many Latin characters require 2 bytes each, allowing up to 2000 characters.\n  - Asian Characters: Many Asian characters require 3 bytes each, allowing approximately 1333 characters."
+      example: This is a detailed description of an Excellent Product. It includes all the features, specifications, and benefits of the product. The Excellent Product is designed to provide exceptional performance and reliability. It is made from high-quality materials and has been rigorously tested to ensure it meets the highest standards. Whether you are using it for personal or professional purposes, the Excellent Product is the perfect choice. With its advanced technology and user-friendly design, it offers unparalleled convenience and efficiency. Order your Excellent Product today and experience the difference it can make.
+    CategorizationAttributeDefinition:
+      required:
+        - allowedOperators
+        - attributeType
+        - id
+        - valueType
+      type: object
+      properties:
+        id:
+          description: The ID of the supported attribute.
+          allOf:
+            - $ref: '#/components/schemas/String256'
+          example: producttype
+        attributeName:
+          description: The display name of the supported attribute.
+          allOf:
+            - $ref: '#/components/schemas/String4000'
+          example: Product Type
+        attributeType:
+          type: string
+          description: |
+            The type of the attribute (custom/system/categorization). "system" indicates the System Attribute of the Product in ECOM, "custom" indicates the Custom Attribute of the Product in ECOM defined by merchant and "categorization" indicates the attribute used for categorization purposes ONLY and is not a defined attribute on the Product Object.
+          example: categorization
+          enum:
+            - custom
+            - system
+            - categorization
+        valueType:
+          type: string
+          description: The value type of the attribute.
+          enum:
+            - string
+            - int
+            - double
+            - text
+            - html
+            - date
+            - datetime
+            - image
+            - boolean
+            - money
+            - quantity
+            - email
+            - password
+            - set-of-string
+            - set-of-int
+            - set-of-double
+            - enum-of-string
+            - enum-of-int
+          example: string
+        allowedOperators:
+          items:
+            type: string
+            enum:
+              - starts_with
+              - contains
+              - equals
+              - not_equals
+              - greater_than
+              - less_than
+              - is_one_of
+              - not_one_of
+              - is_defined
+              - is_not_defined
+            example: equals
+          type: array
+          description: The list of allowed operators for this attribute based on its value type.
+          example:
+            - equals
+            - notEquals
+        allowedValues:
+          items:
+            allOf:
+              - $ref: '#/components/schemas/String4000'
+            example: 1
+          type: array
+          description: The list of allowed values for this attribute IF its attributeType is an ENUM.
+          example:
+            - 1
+            - 2
+        allowedDisplayValues:
+          items:
+            allOf:
+              - $ref: '#/components/schemas/String4000'
+            example: One
+          type: array
+          description: |
+            The list of allowed Localized Display values for this attribute IF its attributeType is an ENUM based on the locale query param requested. If no locale query param value is provided "default" locale is assumed.
+          example:
+            - One
+            - Two
+      description: The categorization attribute definition.
+    CategorizationAttributeDefinitionsResult:
+      description: The list of categorization attributes supported for rule based categorization.
+      required:
+        - data
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ResultBase'
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategorizationAttributeDefinition'
+          description: The list of the categorization attribute definitions. This can be empty.
+    ProductSearchRequest:
+      required:
+        - query
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/SearchRequest'
+      description: Document representing a search request for retrieving items within the Data API. The query is a potentially complex set of expressions. The fields and expands that each query supports are defined within the search resource.
+      example:
+        limit: 4
+        query:
+          textQuery:
+            fields:
+              - id
+              - description
+            searchPhrase: campaign
+        offset: 2
+    ProductSearchResult:
+      required:
+        - limit
+        - offset
+        - total
+        - hits
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PaginatedSearchResult'
+      description: Document representing a product search result.
+      properties:
+        hits:
+          description: A sorted array of search hits (`Product` objects). The array can be empty.
+          items:
+            $ref: '#/components/schemas/Product'
+  parameters:
+    productId:
+      name: productId
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/ProductId'
+    organizationId:
+      description: An identifier for the organization the request is being made by
+      name: organizationId
+      in: path
+      required: true
+      example: f_ecom_zzxy_prd
+      schema:
+        $ref: '#/components/schemas/OrganizationId'
+    siteId:
+      description: The site context.
+      name: siteId
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/SiteId'
+    masterProductId:
+      name: masterProductId
+      in: path
+      description: The ID of the master product that contains the variation group.
+      required: true
+      schema:
+        minLength: 1
+        maxLength: 100
+        type: string
+        example: sony-ps3-bundle
+    id:
+      name: id
+      in: path
+      description: The ID of the variation attribute to create.
+      required: true
+      schema:
+        minLength: 1
+        allOf:
+          - $ref: '#/components/schemas/String256'
+    currency:
+      description: A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard, or the string `N/A` indicating that a currency is not applicable.
+      name: currency
+      in: query
+      examples:
+        CurrencyCode:
+          value: USD
+      schema:
+        $ref: '#/components/schemas/CurrencyCode'
+    optionId:
+      name: optionId
+      in: path
+      description: The ID of the local product option.
+      required: true
+      schema:
+        minLength: 1
+        allOf:
+          - $ref: '#/components/schemas/String256'
+        example: sony-ps3-bundle
+    attributeId:
+      name: attributeId
+      in: path
+      description: The variation attribute ID.
+      required: true
+      schema:
+        minLength: 1
+        allOf:
+          - $ref: '#/components/schemas/String256'
+    locale:
+      description: A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified.
+      name: locale
+      in: query
+      examples:
+        LanguageCountry:
+          value: en-US
+        CountryCode:
+          value: US
+      schema:
+        $ref: '#/components/schemas/LocaleCode'
+  examples:
+    DataProductExpandResult:
+      value:
+        assignedCategories:
+          - catalogId: apparel-catalog
+            categoryId: mens-accessories
+          - catalogId: storefront-catalog-en
+            categoryId: top-seller
+          - catalogId: storefront-catalog-en
+            categoryId: electronics-gaming
+        brand: Apple
+        classificationCategory:
+          catalogId: storefront-catalog-en
+          categoryId: top-seller
+        creationDate: '2019-02-21T22:10:02.000Z'
+        id: apple-ipod-classic
+        image:
+          absUrl: https://example.com/images/large/ipod-classic-silver.jpg
+          alt:
+            default: Apple iPod Classic, , large
+          path: large/ipod-classic-silver.jpg
+          title:
+            default: 'Apple iPod Classic, '
+        imageGroups:
+          - images:
+              - absUrl: https://example.com/images/large/ipod-classic-silver.jpg
+                alt:
+                  default: Apple iPod Classic, , large
+                path: large/ipod-classic-silver.jpg
+                title:
+                  default: 'Apple iPod Classic, '
+            viewType: large
+          - images:
+              - absUrl: https://example.com/images/medium/ipod-classic-silver.jpg
+                alt:
+                  default: Apple iPod Classic, , medium
+                path: medium/ipod-classic-silver.jpg
+                title:
+                  default: 'Apple iPod Classic, '
+            viewType: medium
+          - images:
+              - absUrl: https://example.com/images/small/ipod-classic-silver.jpg
+                alt:
+                  default: Apple iPod Classic, , small
+                path: small/ipod-classic-silver.jpg
+                title:
+                  default: 'Apple iPod Classic, '
+            viewType: small
+        lastModified: '2019-08-28T18:49:09.000Z'
+        localizedTaxClassId:
+          de: exempt
+          default: standard
+          en-US: exempt
+        longDescription:
+          default:
+            markup: Supports MP3, MP3 VBR, AAC, Protected AAC, Audible 2, 3 and 4, Apple Lossless and AIFF audio formats; also supports JPEG, BMP, GIF, TIFF, PSD (Mac only) and PNG image formats and H.264 (high-definition), MPEG-4 and MPEG-4 video formats
+            source: Supports MP3, MP3 VBR, AAC, Protected AAC, Audible 2, 3 and 4, Apple Lossless and AIFF audio formats; also supports JPEG, BMP, GIF, TIFF, PSD (Mac only) and PNG image formats and H.264 (high-definition), MPEG-4 and MPEG-4 video formats
+        name:
+          default: Apple iPod Classic
+        onlineFlag:
+          default: true
+        owningCatalogId: electronics-catalog
+        owningCatalogName:
+          default: Electronics Master Catalog
+        pageDescription:
+          default: This iPod delivers everything you love about iPod with added features all wrapped in a tiny 4.9 oz. package. With 120GB of storage and up to 36 hours music playback, iPod classic lets you enjoy up to 30,000 songs or 150 hours of video — or a combination — wherever you go.
+        pageKeywords:
+          default: Apple, iPod, iPod Classic, MP3, Music Player
+        pageTitle:
+          default: Apple iPod Nano
+        primaryCategories:
+          - catalogId: apparel-catalog
+            categoryId: mens-accessories
+          - catalogId: storefront-catalog-en
+            categoryId: top-seller
+        primaryCategoryId: top-seller
+        searchable:
+          default: true
+        shortDescription:
+          default:
+            markup: This iPod delivers everything you love about iPod with added features all wrapped in a tiny 4.9 oz. package. With 120GB of storage and up to 36 hours music playback, iPod classic lets you enjoy up to 30,000 songs or 150 hours of video — or a combination — wherever you go.
+            source: This iPod delivers everything you love about iPod with added features all wrapped in a tiny 4.9 oz. package. With 120GB of storage and up to 36 hours music playback, iPod classic lets you enjoy up to 30,000 songs or 150 hours of video — or a combination — wherever you go.
+        taxClassId: standard
+        type:
+          master: true
+        validFrom:
+          default: '1998-05-03T00:00:00.000Z'
+          default@SiteGenesis: '1998-05-11T00:00:00.000Z'
+        validTo:
+          default: '2028-07-03T00:00:00.000Z'
+          default@SiteGenesis: '2028-05-30T00:03:00.000Z'
+        variants:
+          - productId: apple-ipod-classic-silver-120g
+            variationValues:
+              color: Silver
+              memorySize: 120 GB
+          - productId: apple-ipod-classic-black-120g
+            variationValues:
+              color: Black
+              memorySize: 120 GB
+        variationAttributes:
+          - attributeDefinitionId: color
+            attributeDefinitionName:
+              default: Color
+            id: color
+            name:
+              default: Color
+            shared: true
+            slicing: false
+            values:
+              - name:
+                  default: Silver
+                position: 1
+                value: Silver
+              - name:
+                  default: Black
+                position: 2
+                value: Black
+              - name:
+                  default: Purple
+                position: 3
+                value: Purple
+              - name:
+                  default: Blue
+                position: 4
+                value: Blue
+              - name:
+                  default: Green
+                position: 5
+                value: Green
+              - name:
+                  default: Yellow
+                position: 6
+                value: Yellow
+              - name:
+                  default: Orange
+                position: 7
+                value: Orange
+              - name:
+                  default: Red
+                position: 8
+                value: Red
+              - name:
+                  default: Fuscia
+                position: 9
+                value: Fuscia
+            variationAttributeType: string
+          - attributeDefinitionId: memorySize
+            attributeDefinitionName:
+              default: Memory Size
+            id: memorySize
+            name:
+              default: Memory Size
+            shared: true
+            slicing: false
+            values:
+              - name:
+                  default: 1 GB
+                position: 1
+                value: 1 GB
+              - name:
+                  default: 2 GB
+                position: 2
+                value: 2 GB
+              - name:
+                  default: 8 GB
+                position: 3
+                value: 8 GB
+              - name:
+                  default: 16 GB
+                position: 4
+                value: 16 GB
+              - name:
+                  default: 32 GB
+                position: 5
+                value: 32 GB
+              - name:
+                  default: 120 GB
+                position: 6
+                value: 120 GB
+            variationAttributeType: string
+    getProduct400:
+      value:
+        title: Unqueryable Field
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/unqueryable-field
+        detail: The field 'link' can't be queried.
+        field: link
+    getProduct401:
+      value:
+        title: Invalid Access Token
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/invalid-access-token
+        detail: The request is unauthorized, the access token is invalid.
+        accessToken: hbGciOiJIUzI1NiIsInR5cCI6Ikp
+    getProduct404:
+      value:
+        title: Product Not Found
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/product-not-found
+        detail: No product with ID '1585183329877' could be found.
+        productId: '1585183329877'
+    DataProductExpandRequestBody:
+      value:
+        assignedCategories:
+          - catalogId: apparel-catalog
+            categoryId: mens-accessories
+          - catalogId: storefront-catalog-en
+            categoryId: top-seller
+          - catalogId: storefront-catalog-en
+            categoryId: electronics-gaming
+        brand: Apple
+        classificationCategory:
+          catalogId: storefront-catalog-en
+          categoryId: top-seller
+        creationDate: '2019-02-21T22:10:02.000Z'
+        id: apple-ipod-classic
+        image:
+          absUrl: https://example.com/images/large/ipod-classic-silver.jpg
+          alt:
+            default: Apple iPod Classic, , large
+          path: large/ipod-classic-silver.jpg
+          title:
+            default: 'Apple iPod Classic, '
+        imageGroups:
+          - images:
+              - absUrl: https://example.com/images/large/ipod-classic-silver.jpg
+                alt:
+                  default: Apple iPod Classic, , large
+                path: large/ipod-classic-silver.jpg
+                title:
+                  default: 'Apple iPod Classic, '
+            viewType: large
+          - images:
+              - absUrl: https://example.com/images/medium/ipod-classic-silver.jpg
+                alt:
+                  default: Apple iPod Classic, , medium
+                path: medium/ipod-classic-silver.jpg
+                title:
+                  default: 'Apple iPod Classic, '
+            viewType: medium
+          - images:
+              - absUrl: https://example.com/images/small/ipod-classic-silver.jpg
+                alt:
+                  default: Apple iPod Classic, , small
+                path: small/ipod-classic-silver.jpg
+                title:
+                  default: 'Apple iPod Classic, '
+            viewType: small
+        lastModified: '2019-08-28T18:49:09.000Z'
+        localizedTaxClassId:
+          de: exempt
+          default: standard
+          en-US: exempt
+        longDescription:
+          default:
+            markup: Supports MP3, MP3 VBR, AAC, Protected AAC, Audible 2, 3 and 4, Apple Lossless and AIFF audio formats; also supports JPEG, BMP, GIF, TIFF, PSD (Mac only) and PNG image formats and H.264 (high-definition), MPEG-4 and MPEG-4 video formats
+            source: Supports MP3, MP3 VBR, AAC, Protected AAC, Audible 2, 3 and 4, Apple Lossless and AIFF audio formats; also supports JPEG, BMP, GIF, TIFF, PSD (Mac only) and PNG image formats and H.264 (high-definition), MPEG-4 and MPEG-4 video formats
+        name:
+          default: Apple iPod Classic
+        onlineFlag:
+          default: true
+        owningCatalogId: electronics-catalog
+        owningCatalogName:
+          default: Electronics Master Catalog
+        pageDescription:
+          default: This iPod delivers everything you love about iPod with added features all wrapped in a tiny 4.9 oz. package. With 120GB of storage and up to 36 hours music playback, iPod classic lets you enjoy up to 30,000 songs or 150 hours of video — or a combination — wherever you go.
+        pageKeywords:
+          default: Apple, iPod, iPod Classic, MP3, Music Player
+        pageTitle:
+          default: Apple iPod Nano
+        primaryCategories:
+          - catalogId: apparel-catalog
+            categoryId: mens-accessories
+          - catalogId: storefront-catalog-en
+            categoryId: top-seller
+        primaryCategoryId: top-seller
+        searchable:
+          default: true
+        shortDescription:
+          default:
+            markup: This iPod delivers everything you love about iPod with added features all wrapped in a tiny 4.9 oz. package. With 120GB of storage and up to 36 hours music playback, iPod classic lets you enjoy up to 30,000 songs or 150 hours of video — or a combination — wherever you go.
+            source: This iPod delivers everything you love about iPod with added features all wrapped in a tiny 4.9 oz. package. With 120GB of storage and up to 36 hours music playback, iPod classic lets you enjoy up to 30,000 songs or 150 hours of video — or a combination — wherever you go.
+        taxClassId: standard
+        type:
+          master: true
+        validFrom:
+          default: '1998-05-03T00:00:00.000Z'
+          default@SiteGenesis: '1998-05-11T00:00:00.000Z'
+        validTo:
+          default: '2028-07-03T00:00:00.000Z'
+          default@SiteGenesis: '2028-05-30T00:03:00.000Z'
+        variants:
+          - productId: apple-ipod-classic-silver-120g
+            variationValues:
+              color: Silver
+              memorySize: 120 GB
+          - productId: apple-ipod-classic-black-120g
+            variationValues:
+              color: Black
+              memorySize: 120 GB
+        variationAttributes:
+          - attributeDefinitionId: color
+            attributeDefinitionName:
+              default: Color
+            id: color
+            name:
+              default: Color
+            shared: true
+            slicing: false
+            values:
+              - name:
+                  default: Silver
+                position: 1
+                value: Silver
+              - name:
+                  default: Black
+                position: 2
+                value: Black
+              - name:
+                  default: Purple
+                position: 3
+                value: Purple
+              - name:
+                  default: Blue
+                position: 4
+                value: Blue
+              - name:
+                  default: Green
+                position: 5
+                value: Green
+              - name:
+                  default: Yellow
+                position: 6
+                value: Yellow
+              - name:
+                  default: Orange
+                position: 7
+                value: Orange
+              - name:
+                  default: Red
+                position: 8
+                value: Red
+              - name:
+                  default: Fuscia
+                position: 9
+                value: Fuscia
+            variationAttributeType: string
+          - attributeDefinitionId: memorySize
+            attributeDefinitionName:
+              default: Memory Size
+            id: memorySize
+            name:
+              default: Memory Size
+            shared: true
+            slicing: false
+            values:
+              - name:
+                  default: 1 GB
+                position: 1
+                value: 1 GB
+              - name:
+                  default: 2 GB
+                position: 2
+                value: 2 GB
+              - name:
+                  default: 8 GB
+                position: 3
+                value: 8 GB
+              - name:
+                  default: 16 GB
+                position: 4
+                value: 16 GB
+              - name:
+                  default: 32 GB
+                position: 5
+                value: 32 GB
+              - name:
+                  default: 120 GB
+                position: 6
+                value: 120 GB
+            variationAttributeType: string
+    VariantSearchRequestBody:
+      value:
+        query:
+          textQuery:
+            fields:
+              - id
+            searchPhrase: ipod
+        expand:
+          - variations
+    VariantSearchResult:
+      value:
+        limit: 2
+        hits:
+          - defaultProductVariation: false
+            productId: apple-ipod-classic-silver-120g
+            variationValues:
+              color: Silver
+              memorySize: 120 GB
+          - defaultProductVariation: false
+            productId: apple-ipod-classic-black-120g
+            variationValues:
+              color: Black
+              memorySize: 120 GB
+        query:
+          textQuery:
+            fields:
+              - id
+            searchPhrase: ipod
+        offset: 0
+        total: 2
+    VariationGroupsResult:
+      value:
+        limit: 1
+        data:
+          - productId: apple-ipod-classic-1
+            variationValues:
+              color: Silver
+              memorySize: 120 GB
+        offset: 0
+        total: 1
+    VariationGroupsIdResult:
+      value:
+        productId: apple-ipod-classic-1
+        variationValues:
+          color: Silver
+          memorySize: 120 GB
+    VariationGroupsIdRequestBody:
+      value:
+        orderable: true
+        price: 500
+        productId: apple-ipod-classic-1
+        variationValues:
+          color: Silver
+          memorySize: 120 GB
+    VariantsResult:
+      value:
+        limit: 4
+        data:
+          - productId: apple-ipod-classic-silver-120g
+            variationValues:
+              color: Silver
+              memorySize: 120 GB
+          - productId: apple-ipod-classic-black-120g
+            variationValues:
+              color: Black
+              memorySize: 120 GB
+          - productId: apple-ipod-classic-2
+          - productId: apple-ipod-classic-blue-32g
+            variationValues:
+              color: Blue
+              memorySize: 32 GB
+        offset: 0
+        total: 4
+    VariationsIdResult:
+      value:
+        defaultProductVariation: false
+        productId: apple-ipod-classic-blue-32g
+        variationValues:
+          color: Blue
+          memorySize: 32 GB
+    VariationsIdRequestBody:
+      value:
+        orderable: true
+        price: 500
+        productId: apple-ipod-classic-blue-32g
+        variationValues:
+          color: Blue
+          memorySize: 32 GB
+    ProductOptionsResult:
+      value:
+        limit: 1
+        data:
+          - id: digitalCameraWarranty
+            values:
+              - id: '001'
+                optionPrices:
+                  - currencyMnemonic: USD
+                    value: 9.99
+                value:
+                  default: 1 Year Warranty
+              - id: '003'
+                optionPrices:
+                  - currencyMnemonic: USD
+                    value: 29.99
+                value:
+                  default: 5 Year Warranty
+              - id: '000'
+                optionPrices:
+                  - currencyMnemonic: USD
+                    value: 39.99
+                value:
+                  default: None
+              - id: '002'
+                optionPrices:
+                  - currencyMnemonic: USD
+                    value: 49.99
+                value:
+                  default: 3 Year Warranty
+        offset: 0
+        total: 1
+    ProductOptionsIdResult:
+      value:
+        customName:
+          default: My Option
+        description:
+          default: Description for my option.
+        id: my-option
+        image:
+          absUrl: https://example.com/on/demandware.static/-/Sites-XMaster/default/aaaaaaaabbbbbbbbbabababba/option.jpg
+          disBaseUrl: https://example.com/dw/image/v2/zzzz_s01/on/demandware.static/-/Sites-XMaster/default/aaaaaaaabbbbbbbbbabababba/option.jpg
+          path: option.jpg
+        name: option
+        shared: false
+        sortingMode: byoptionprice
+    ProductOptionsIdRequestBody:
+      value:
+        id: my-option
+        customName:
+          default: My Option
+        description:
+          default: Description for my option.
+        image:
+          path: option.jpg
+    ProductOptionsValuesResult:
+      value:
+        defaultProductOptionValue: false
+        id: value1
+        optionPrices:
+          - currencyMnemonic: USD
+            value: 100
+        skuExtension: s10
+        value:
+          default: value 1
+          en-US: value 1(en-US)
+          en: value 1(en)
+    ProductOptionsValuesRequestBody:
+      value:
+        id: my-option
+        value:
+          default: value 1
+          en: value 1(en)
+          en-US: value 1(en-US)
+        optionPrices:
+          - currencyMnemonic: USD
+            value: 100
+        skuExtension: s10
+    VariationAttributeValuesIdResult:
+      value:
+        description:
+          default: desc of 8 (default)
+          en-US: desc of 8 (en-US)
+          en: desc of 8 (en)
+        position: 1
+        value: '8'
+    VariationAttributeValuesIdRequestBody:
+      value:
+        value: '8'
+        description:
+          default: desc of 8 (default)
+          en: desc of 8 (en)
+          en-US: desc of 8 (en-US)
+    VariationAttributesResult:
+      value:
+        limit: 3
+        data:
+          - attributeDefinitionId: color
+            attributeDefinitionName:
+              default: Color
+            id: color
+            name:
+              default: Color
+            shared: true
+            slicing: false
+            values:
+              - name:
+                  default: Silver
+                position: 1
+                value: Silver
+              - name:
+                  default: Black
+                position: 2
+                value: Black
+              - name:
+                  default: Purple
+                position: 3
+                value: Purple
+              - name:
+                  default: Blue
+                position: 4
+                value: Blue
+              - name:
+                  default: Green
+                position: 5
+                value: Green
+              - name:
+                  default: Yellow
+                position: 6
+                value: Yellow
+              - name:
+                  default: Orange
+                position: 7
+                value: Orange
+              - name:
+                  default: Red
+                position: 8
+                value: Red
+              - name:
+                  default: Fuscia
+                position: 9
+                value: Fuscia
+            variationAttributeType: string
+          - attributeDefinitionId: memorySize
+            attributeDefinitionName:
+              default: Memory Size
+            id: memorySize
+            name:
+              default: Memory Size
+            shared: true
+            slicing: false
+            values:
+              - name:
+                  default: 1 GB
+                position: 1
+                value: 1 GB
+              - name:
+                  default: 2 GB
+                position: 2
+                value: 2 GB
+              - name:
+                  default: 8 GB
+                position: 3
+                value: 8 GB
+              - name:
+                  default: 16 GB
+                position: 4
+                value: 16 GB
+              - name:
+                  default: 32 GB
+                position: 5
+                value: 32 GB
+              - name:
+                  default: 120 GB
+                position: 6
+                value: 120 GB
+            variationAttributeType: string
+          - attributeDefinitionId: size
+            attributeDefinitionName:
+              default: Size
+            id: screenSize
+            name:
+              default: Size
+            shared: false
+            slicing: false
+            values:
+              - description:
+                  default: desc of 8 (default)
+                  en-US: desc of 8 (en-US)
+                  en: desc of 8 (en)
+                position: 1
+                value: '8'
+            variationAttributeType: string
+        offset: 0
+        total: 3
+    VariationAttributeResult:
+      value:
+        attributeDefinitionId: size
+        attributeDefinitionName:
+          default: Size
+        id: screenSize
+        name:
+          default: Size
+        shared: false
+        slicing: false
+        variationAttributeType: string
+    VariationAttributeRequestBody:
+      value:
+        attributeDefinitionId: size
+        attributeDefinitionName:
+          default: Screen Size
+    CategorizationAttributeDefinitionResult:
+      value:
+        limit: 1
+        data:
+          - id: ProductType
+            attributeName: Categorization Product Type
+            allowedOperators:
+              - equals
+              - not_equals
+            allowedValues:
+              - Item
+              - Master
+              - BundledProduct
+              - ProductSet
+              - SetProduct
+              - VariationGroup
+              - VariationProduct
+            allowedDisplayValues:
+              - Item
+              - Master
+              - BundledProduct
+              - ProductSet
+              - SetProduct
+              - VariationGroup
+              - VariationProduct
+            attributeType: categorization
+            valueType: enum-of-string
+          - id: CategoryId
+            attributeName: Categorization Category Id
+            allowedOperators:
+              - equals
+            attributeType: categorization
+            valueType: string
+          - id: OwningCatalogId
+            attributeName: Categorization Owning Catalog Id
+            allowedOperators:
+              - equals
+            attributeType: categorization
+            valueType: string
+          - id: brand
+            attributeName: Brand
+            allowedOperators:
+              - equals
+              - not_equals
+              - contains
+              - starts_with
+              - is_defined
+              - is_not_defined
+              - is_one_of
+              - not_one_of
+            attributeType: system
+            valueType: string
+          - id: RelevanceAttribute1
+            attributeName: RelevanceAttribute1
+            allowedOperators:
+              - equals
+              - not_equals
+              - contains
+              - starts_with
+              - is_defined
+              - is_not_defined
+              - is_one_of
+              - not_one_of
+            attributeType: custom
+            valueType: string
+        total: 5
+    ProductSearchRequestBody:
+      value:
+        query:
+          textQuery:
+            fields:
+              - id
+            searchPhrase: apple-ipod-classic
+    ProductSearchResult:
+      value:
+        limit: 2
+        hits:
+          - brand: Apple
+            creationDate: '2019-02-21T22:10:02.000Z'
+            id: apple-ipod-classic
+            lastModified: '2019-09-17T19:13:39.000Z'
+            longDescription:
+              default:
+                markup: Supports MP3, MP3 VBR, AAC, Protected AAC, Audible 2, 3 and 4, Apple Lossless and AIFF audio formats; also supports JPEG, BMP, GIF, TIFF, PSD (Mac only) and PNG image formats and H.264 (high-definition), MPEG-4 and MPEG-4 video formats
+                source: Supports MP3, MP3 VBR, AAC, Protected AAC, Audible 2, 3 and 4, Apple Lossless and AIFF audio formats; also supports JPEG, BMP, GIF, TIFF, PSD (Mac only) and PNG image formats and H.264 (high-definition), MPEG-4 and MPEG-4 video formats
+            name:
+              default: Apple iPod Classic
+            onlineFlag:
+              default: true
+            owningCatalogId: electronics-catalog
+            owningCatalogName:
+              default: Electronics Master Catalog
+            pageDescription:
+              default: This iPod delivers everything you love about iPod with added features all wrapped in a tiny 4.9 oz. package. With 120GB of storage and up to 36 hours music playback, iPod classic lets you enjoy up to 30,000 songs or 150 hours of video — or a combination — wherever you go.
+            pageKeywords:
+              default: Apple, iPod, iPod Classic, MP3, Music Player
+            pageTitle:
+              default: Apple iPod Nano
+            searchable:
+              default: true
+            shortDescription:
+              default:
+                markup: This iPod delivers everything you love about iPod with added features all wrapped in a tiny 4.9 oz. package. With 120GB of storage and up to 36 hours music playback, iPod classic lets you enjoy up to 30,000 songs or 150 hours of video — or a combination — wherever you go.
+                source: This iPod delivers everything you love about iPod with added features all wrapped in a tiny 4.9 oz. package. With 120GB of storage and up to 36 hours music playback, iPod classic lets you enjoy up to 30,000 songs or 150 hours of video — or a combination — wherever you go.
+            type:
+              master: true
+          - brand: Apple
+            creationDate: '2019-09-04T16:07:43.000Z'
+            id: apple-ipod-classic-1
+            lastModified: '2019-09-04T16:19:03.000Z'
+            longDescription:
+              default:
+                markup: Supports MP3, MP3 VBR, AAC, Protected AAC, Audible 2, 3 and 4, Apple Lossless and AIFF audio formats; also supports JPEG, BMP, GIF, TIFF, PSD (Mac only) and PNG image formats and H.264 (high-definition), MPEG-4 and MPEG-4 video formats
+                source: Supports MP3, MP3 VBR, AAC, Protected AAC, Audible 2, 3 and 4, Apple Lossless and AIFF audio formats; also supports JPEG, BMP, GIF, TIFF, PSD (Mac only) and PNG image formats and H.264 (high-definition), MPEG-4 and MPEG-4 video formats
+            name:
+              default: Apple iPod Classic
+            onlineFlag:
+              default: false
+            owningCatalogId: electronics-catalog
+            owningCatalogName:
+              default: Electronics Master Catalog
+            pageDescription:
+              default: This iPod delivers everything you love about iPod with added features all wrapped in a tiny 4.9 oz. package. With 120GB of storage and up to 36 hours music playback, iPod classic lets you enjoy up to 30,000 songs or 150 hours of video — or a combination — wherever you go.
+            pageKeywords:
+              default: Apple, iPod, iPod Classic, MP3, Music Player
+            pageTitle:
+              default: Apple iPod Nano
+            searchable:
+              default: false
+            shortDescription:
+              default:
+                markup: This iPod delivers everything you love about iPod with added features all wrapped in a tiny 4.9 oz. package. With 120GB of storage and up to 36 hours music playback, iPod classic lets you enjoy up to 30,000 songs or 150 hours of video — or a combination — wherever you go.
+                source: This iPod delivers everything you love about iPod with added features all wrapped in a tiny 4.9 oz. package. With 120GB of storage and up to 36 hours music playback, iPod classic lets you enjoy up to 30,000 songs or 150 hours of video — or a combination — wherever you go.
+            type:
+              variationGroup: true
+              master: false
+        query:
+          textQuery:
+            fields:
+              - id
+            searchPhrase: apple-ipod-classic
+        offset: 0
+        total: 2
