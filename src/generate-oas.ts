@@ -82,7 +82,7 @@ export function generateSDKs(apiSpecDetail: ApiSpecDetail): void {
         inputSpec: `${filepath}`,
         outputDir: `${outputDir}`,
         templateDir: `${TEMPLATE_DIRECTORY}`,
-        skipValidateSpec: true,
+        flags: `--reserved-words-mappings delete=delete`
       });
     } catch (error) {
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
