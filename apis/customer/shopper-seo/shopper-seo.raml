@@ -1,0 +1,50 @@
+#%RAML 1.0
+title: Shopper SEO
+baseUri: https://{shortCode}.api.commercecloud.salesforce.com/site/shopper-seo/{version}
+description: !include shopper-seo-description.md
+mediaType:
+  - application/json
+version: v1
+protocols: [HTTPS]
+uses:
+  ShopperSeoTrait: Traits/ShopperSeoTrait.raml
+  ShopperSeoLib: shopper-seo-library.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.1/commerce-cloud-standards.raml
+baseUriParameters:
+  shortCode:
+    description: A region-specific merchant identifier.
+    example: fd4gt8
+    pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
+
+/organizations/{organizationId}:
+  type: CommerceCloudStandards.Organization
+  /url-mapping:
+    type: CommerceCloudStandards.Organization
+    get:
+      description: Gets URL mapping information for a URL that a shopper clicked or typed in. The mapping information is based on URL rules and redirects set up in Business Manager. For more information about prerequisites and sample usage, see [URL Resolution](/docs/commerce/commerce-api/guide/url-resolution.html). You can customize the behavior of this endpoint by using hooks. See the hooks for getUrlMapping in the [Hook List](https://developer.salesforce.com/docs/commerce/commerce-api/guide/hook_list.html).
+      displayName: getUrlMapping
+      is:
+        - CommerceCloudStandards.SiteSpecific:
+        - ShopperSeoTrait.LocaleSpecific:
+        - ShopperSeoLib.BadRequest
+        - ShopperSeoLib.Unauthorized
+        - ShopperSeoLib.NotFound
+      responses:
+        '200': 
+          description: Returns URL mapping information for a URL that a shopper clicked or typed in.
+          body:
+            type: ShopperSeoLib.UrlMapping
+            examples:
+                Url Mapping: !include Example/seo-url-mapping-response-example.raml
+      queryParameters:
+        urlSegment:
+          description: The part of the requested URL that comes after the domain name. For example, the urlSegment for "www.abc.com/blue/new-arrivals/tops" is "blue/new-arrivals/tops". There's no limit on the length of the urlSegment. However, for this endpoint, the maximum allowed length of the URL (after URL encoding) is 2047 characters. Make this field URL-encoded so that it properly handles special values such as whitespace. If a urlSegment includes a query string, a 404 error code is returned.
+          minLength: 1
+          type: string
+          example: blue/new-arrivals/tops
+      securedBy:
+        - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-seo] }
+
+
+

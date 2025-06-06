@@ -1,0 +1,23 @@
+#%RAML 1.0 DataType
+properties:
+  hsts:
+    type: Hsts
+    description: Security header for a zone.
+    required: false
+  securityLevel:
+    description: Security profile for your zone, which will automatically adjust each of the security settings.
+    type: string
+    enum: [off, essentially_off, low, medium, high, under_attack]
+    required: false
+  tls13Enabled:
+    description: Enable Crypto TLS 1.3 feature for this zone.
+    type: boolean
+    required: false
+  wafEnabled:
+    description: Enable WAF (OWASP) protection for this zone. Not applicable for zones using WAFv2.
+    type: boolean
+    required: false
+  alwaysUseHttps:
+    description: Redirect all http requests to https.
+    example: true
+    type: boolean

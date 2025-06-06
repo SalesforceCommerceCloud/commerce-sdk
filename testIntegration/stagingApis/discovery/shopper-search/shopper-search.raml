@@ -2,8 +2,8 @@
 version: v1
 title: Shopper Search
 uses:
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.13/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.1/commerce-cloud-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
   SearchTypeLibrary: shopper-search-library.raml
     
 mediaType: application/json
@@ -15,7 +15,7 @@ baseUriParameters:
     example: 0dnz6oep
     pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
 
-description: Provides clients 
+description: !include shopper-search-description.md
 
 /organizations/{organizationId}:
   /product-search:
@@ -26,13 +26,8 @@ description: Provides clients
         the product search hit. The search result contains only products that are online and assigned to site catalog.
       displayName: productSearch
       is:
-          - ApiStandards.RateLimited:
-              responseStatus: 200
-          - ApiStandards.RateLimited:  
-              responseStatus: 400
-          - ApiStandards.RateLimited:
-              responseStatus: 401
           - SearchTypeLibrary.Unauthorized
+          - SearchTypeLibrary.BadRequest
           - ApiStandards.OffsetPaginated:
               maxLimit: 200
               defaultSize: 25
@@ -53,6 +48,11 @@ description: Provides clients
       securedBy:
         - CommerceCloudStandards.ShopperToken: { scopes: [sfcc.shopper-product-search] }
       queryParameters:
+        select:
+            description: The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names, or work with wildcards.You can also sepcify Array Operations and filter expressions.The actual selector value must be enclosed within parentheses. 
+            type: CommerceCloudStandards.Select
+            required: false
+            example: (hits.(**))
         siteId:
           type: CommerceCloudStandards.SiteId
         q:
@@ -71,7 +71,7 @@ description: Provides clients
                         cgid: Allows refinement per single category ID. Multiple category ids are not supported.
                         price: Allows refinement per single price range. Multiple price ranges are not supported.
                         pmid: Allows refinement per promotion ID.
-                        htypes: Allow refinement by including only the provided hit types. Accepted types are 'product', 'master', 'set', 'bundle', 'slicing_group' (deprecated), 'variation_group'.
+                        htype: Allow refinement by including only the provided hit types. Accepted types are 'product', 'master', 'set', 'bundle', 'slicing_group' (deprecated), 'variation_group'.
                         orderable_only: Unavailable products are excluded from the search results if true is set. Multiple refinement values are not supported.                               
           type: string[]
           required: false
@@ -86,7 +86,28 @@ description: Provides clients
         locale:
           type: CommerceCloudStandards.LocaleCode
           required: false
-
+        expand:
+          description: A comma-separated list with allowed values - `availability`, `images`, `prices`, `represented_products`, `variations`, `promotions`, `custom_properties`. By default, the expand parameter includes `availability, images, prices, represented_products, variations`. Use none to disable all expand options. **The page_meta_tags expand value is optional and is available B2C Commerce version 25.2.**
+          type: array
+          items:
+              enum: [none,availability,images,prices,represented_products,variations,promotions,custom_properties,page_meta_tags]
+          required: false
+          example: [prices,represented_products]
+        allImages:
+          description: When the `images` expand parameter is used with this flag, the response includes the `imageGroups property`, which contains an image model. If this flag is true, the full image model is returned. If false, only matching images are included. If no flag is passed, the `imageGroups` property is omitted from the response.
+          type: boolean
+          required: false
+          example: false
+        perPricebook:
+          description: When this flag is set to `true` and is used with the `prices` expand parameter, the response includes per PriceBook prices and tiered prices (if available).
+          type: boolean
+          required: false
+          example: false
+        allVariationProperties:
+          description: The flag that determines which variation properties are included in the result. When set to `true` with the `variations` expand parameter, all variation properties (`variationAttributes`, `variationGroups`, `variants`) are returned. When set to false, only the default property `variationAttributes` is returned.
+          type: boolean
+          required: false
+          example: false
   /search-suggestions:
     type: CommerceCloudStandards.Organization
     get:
@@ -94,12 +115,6 @@ description: Provides clients
         Returns suggested products, suggested categories, and suggested brands for the given search phrase.
       displayName: getSearchSuggestions
       is:
-          - ApiStandards.RateLimited:
-              responseStatus: 200
-          - ApiStandards.RateLimited:  
-              responseStatus: 400
-          - ApiStandards.RateLimited:
-              responseStatus: 401
           - SearchTypeLibrary.Unauthorized
       responses:
         '200':

@@ -1,33 +1,39 @@
 # commerce-sdk
 
-[![CircleCI][circleci-image]][circleci-url]
-
 The Salesforce Commerce SDK allows easy interaction with the Salesforce B2C Commerce platform APIs on the Node.js runtime.  For a more lightweight SDK, which works in a browser and Node.js for the shopper experience, see [our Isomorphic SDK](https://github.com/SalesforceCommerceCloud/commerce-sdk-isomorphic)
 
-Visit the [Commerce Cloud Developer Center](https://developer.commercecloud.com/) to learn more about Salesforce Commerce. The developer center has API documentation, getting started guides, community forums, and more.
+Visit the [Commerce Cloud Developer Center](https://developer.salesforce.com/developer-centers/commerce-cloud) to learn more about Salesforce Commerce. The developer center has API documentation, getting started guides, community forums, and more.
 ​
-## :warning: Planned future release will contain breaking changes :warning:
-Due to an issue with the generation of the type definitions, an upcoming release
-of the SDK will change type definitions to include namespaces. As this is a
-breaking change, a new major version will be released (v3.0.0). Only the names of
-the types will change, not their contents or any of the exported code. If you
-only use JavaScript, or if you use TypeScript but only import the client classes,
-then your usage **will not change**. You will likely only need to make changes if
-you import the type definitions directly.
+## :warning: Planned API Changes :warning:
+
+### Shopper Context
+
+Starting July 31st 2024, all endpoints in the Shopper context API will require the `siteId` parameter for new customers. This field is marked as optional for backward compatibility and will be changed to mandatory tentatively by January 2025. You can read more about the planned change [here](https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-context?meta=Summary) in the notes section.
+
+### Shopper Login (SLAS)
+
+SLAS will soon require new tenants to pass `channel_id` as an argument for retrieving guest access tokens. You can read more about the planned change [here](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas.html#guest-tokens).
+
+Please be aware that existing tenants are on a temporary allow list and will see no immediate disruption to service.  We do ask that all users seek to adhere to the `channel_id` requirement before the end of August to enhance your security posture before the holiday peak season.
+
+In practice, we recommend that customers using the SLAS helper functions upgrade to `v4.0.0` of the `commerce-sdk`.
+
+## :warning: Planned SDK Changes :warning:
+
+### Encoding path parameters
+
+In the next major version release, the SDK will encode special characters (UTF-8 based on SCAPI guidelines) in path parameters by default. Please see the [Encoding special characters](#encoding-special-characters) section for more details.
 
 ## Prerequisites
 
 Download and install Node.js and npm [here](https://nodejs.org/en/download/).
 ​
-
-> **Note:** Only Node.js version 12 and 14 LTS are supported. Other versions can cause unexpected results. To use a different version of Node.js for other projects, you can manage multiple versions of Node.js with [nvm](https://github.com/nvm-sh/nvm).
-> ​
+> **Note:** Only Node.js versions 16, 18, and 20 are supported. Other versions can cause unexpected results. To use a different version of Node.js for other projects, you can manage multiple versions of Node.js with [nvm](https://github.com/nvm-sh/nvm). ​
 
 ## Installation
 
 Use npm to install the Commerce SDK.
 ​
-
 ```
 npm install commerce-sdk
 ```
@@ -53,67 +59,90 @@ To use an SDK client, instantiate an object of that client and configure these p
  * Sample TypeScript code that shows how Commerce SDK can access Salesforce Commerce
  * APIs.
  * 
- * To learn more about the parameters please refer to https://developer.commercecloud.com/s/article/CommerceAPI-Get-Started
+ * For more information, see [Get started with Salesforce Commerce B2C APIs](https://developer.salesforce.com/docs/commerce/commerce-api/guide/get-started.html).
  */
-​
+
 // Import the SDK in TypeScript
 // tsc requires the --esModuleInterop flag for this
-import * as CommerceSdk from "commerce-sdk";
-// For Javascript, use:
-// import CommerceSdk from "commerce-sdk";
-const { ClientConfig, helpers, Search } = CommerceSdk;
+import { Search, Customer, helpers, slasHelpers } from "commerce-sdk";
 // Older Node.js versions can instead use:
-// const { ClientConfig, helpers, Search } = require("commerce-sdk");
+// const { ClientConfig, helpers, slasHelpers Search } = require("commerce-sdk");
 
-// Create a configuration to use when creating API clients
+// demo client credentials, if you have access to your own please replace them below.
+// do not store client secret as plaintext. Store it in a secure location.
+const CLIENT_ID = "da422690-7800-41d1-8ee4-3ce983961078";
+const CLIENT_SECRET = "D*HHUrgO2%qADp2JTIUi";
+const ORG_ID = "f_ecom_zzte_053";
+const SHORT_CODE = "kv7kzm78";
+const SITE_ID = "RefArch";
+
+// client configuration parameters
 const config = {
-    headers: {},
-    parameters: {
-      clientId: '<your-client-id>',
-      organizationId: '<your-org-id>',
-      shortCode: '<your-short-code>',
-      siteId: '<your-site-id>'
-    }
+  headers: {},
+  parameters: {
+    clientId: CLIENT_ID,
+    organizationId: ORG_ID,
+    shortCode: SHORT_CODE,
+    siteId: SITE_ID,
+  },
+};
+
+/**
+ * Get the shopper or guest JWT/access token, along with a refresh token, using client credentials
+ *
+ * @returns guest user authorization token
+ */
+async function getGuestUserAuthToken(): Promise<Customer.ShopperLogin.TokenResponse> {
+  const base64data = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString("base64");
+  const headers = { Authorization: `Basic ${base64data}` };
+  const loginClient = new Customer.ShopperLogin(config);
+
+  return await loginClient.getAccessToken({
+    headers,
+    body: { grant_type: "client_credentials" },
+  });
 }
 
-// Get a JWT to use with Shopper API clients, a guest token in this case
-helpers.getShopperToken(config, { type: "guest" }).then(async (token) => {
+// Alternatively you may use the SLAS helper functions to generate JWT/access token
+const guestTokenResponse = await slasHelpers.loginGuestUser(
+    new Customer.ShopperLogin(config), 
+    { redirectURI: 'http://localhost:3000/callback' }
+  )
+  .then((guestTokenResponse) => {
+    console.log("Guest Token Response: ", guestTokenResponse);
+    return guestTokenResponse;
+  })
+  .catch(error => console.log("Error fetching token for guest login: ", error));
 
-    try {
-        // Add the token to the client configuration
-        config.headers["authorization"] = token.getBearerHeader();
+// Get a JWT to use with Shopper API clients
+getGuestUserAuthToken().then(async (token) => {
+  // Add the token to the client configuration
+  config.headers["authorization"] = `Bearer ${token.access_token}`;
 
-        // Create a new ShopperSearch API client
-        const searchClient = new Search.ShopperSearch(config);
+  const searchClient = new Search.ShopperSearch(config);
 
-        // Search for dresses
-        const searchResults = await searchClient.productSearch({
-            parameters: {
-                q: "dress",
-                limit: 5
-            }
-        });
+  // Search for dresses
+  const searchResults = await searchClient.productSearch({
+    parameters: { q: "dress", limit: 5 }
+  });
 
-        if (searchResults.total) {
-            const firstResult = searchResults.hits[0];
-            console.log(`${firstResult.productId} ${firstResult.productName}`);
-        } else {
-            console.log("No results for search");
-        }
+  if (searchResults.total) {
+    const firstResult = searchResults.hits[0];
+    console.log(`${firstResult.productId} ${firstResult.productName}`);
+  } else {
+    console.log("No results for search");
+  }
 
-        return searchResults;
-
-    } catch (e) {
-        // Print the status code and status text
-        console.error(e);
-        // Print the body of the error
-        console.error(await e.response.text());
-    }
+  return searchResults;
 }).catch(async (e) => {
-    console.error(e);
-    console.error(await e.response.text());
+  console.error(e);
+  console.error(await e.response.text());
 });
 ```
+
+### SLAS helpers
+
+The SDK includes helper functions to help developers easily onboard SLAS onto their applications to assist with authentication. A brief example is shown in the sample code above. The SLAS helpers offer both public and private client functions, the main difference being the private client functions require a `client_secret`. Code examples on how to use the different functions can be found the in the [examples](https://github.com/SalesforceCommerceCloud/commerce-sdk/tree/main/examples) folder (examples 05 and 06). More information about SLAS and public/private client flows can be found [here](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas.html).
 
 ### Error Handling
 
@@ -146,22 +175,220 @@ SDK methods return an appropriate object by default when the API call returns a 
 When using an IDE such as VSCode, the autocomplete feature lets you view the available method and class definitions, including parameters.
 ​
 
-![Autocomplete](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/images/Autocomplete.jpg?raw=true 'Autocomplete')
+![Autocomplete](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/main/images/Autocomplete.jpg?raw=true 'Autocomplete')
 
 To view the details of a method or a variable, hover over methods and variables.
 ​
 
-![Method Details](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/images/MethodDetails.jpg?raw=true 'Method Details')
+![Method Details](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/main/images/MethodDetails.jpg?raw=true 'Method Details')
 
-![Parameter Details](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/images/ParameterDetails.jpg?raw=true 'Parameter Details')
+![Parameter Details](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/main/images/ParameterDetails.jpg?raw=true 'Parameter Details')
 
 Autocomplete also shows the available properties of the data returned by SDK methods.
 
-![Result Autocomplete](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/images/ResultAutocomplete.jpg?raw=true 'Result Autocomplete')
+![Result Autocomplete](https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/main/images/ResultAutocomplete.jpg?raw=true 'Result Autocomplete')
+
+### Fetch Options
+
+Fetch options are able to be passed on to modify the behavior of the fetch call. There are two ways to pass on fetch options:
+
+1. Through the client config
+
+```javascript
+const config = {
+    parameters: {
+        clientId: CLIENT_ID,
+        organizationId: ORG_ID,
+        shortCode: SHORT_CODE,
+        siteId: SITE_ID,
+    },
+    fetchOptions: {
+        redirect: "error",
+    }
+}
+```
+
+2. Through the SDK function call
+
+```javascript
+const client = new ShopperLogin(config);
+
+client.authorizeCustomer({
+  headers: { ... },
+  body: { ... },
+  fetchOptions: {
+    redirect: "manual"
+  }
+});
+```
+
+If both the client config and the function call define the same fetch option with different values, the fetch option value for the function call will take priority. In the examples above, both pass in the `redirect` fetch option with different values, however, `redirect: "manual"` will take precedence because it was passed on the function call level. 
+
+### Custom Query Parameters
+
+With the introduction of [hooks for Commerce APIs](https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html), customers can pass custom query parameters through the SDK to be used in their custom hook. Custom query parameters must begin with `c_`:
+
+```javascript
+const searchResults = await searchClient.productSearch({
+  parameters: { 
+    q: "dress", 
+    limit: 5,
+    c_paramkey: '<param-value>'
+  }
+});
+```
+
+Invalid query parameters that are not a part of the API and do not follow the `c_` custom query parameter convention will be filtered from the request and a warning will be displayed.
+
+### Custom APIs
+
+The SDK supports calling [custom APIs](https://developer.salesforce.com/docs/commerce/commerce-api/guide/custom-apis.html) with a helper function, `customApiHelper.callCustomEndpoint()`.
+
+Example usage:
+
+```javascript
+import * as CommerceSdk from "commerce-sdk";
+const { helpers } = CommerceSdk;
+
+// client configuration parameters
+const clientConfigExample = {
+  parameters: {
+    clientId: '<your-client-id>',
+    organizationId: '<your-org-id>',
+    shortCode: '<your-short-code>',
+    siteId: '<your-site-id>',
+  },
+  // If not provided, it'll use the default production URI:
+  // 'https://{shortCode}.api.commercecloud.salesforce.com/custom/{apiName}/{apiVersion}'
+  // path parameters should be wrapped in curly braces like the default production URI
+  baseUri: '<your-base-uri>'
+};
+
+const access_token = '<INSERT_ACCESS_TOKEN_HERE>'
+
+// Required params: apiName, endpointPath, shortCode, organizaitonId
+// Required path params can be passed into:
+// options.customApiPathParameters or clientConfig.parameters
+// customApiPathParameters will take priority for duplicate values
+const customApiArgs = { 
+  apiName: 'loyalty-info',
+  apiVersion: 'v1', // defaults to v1 if not provided
+  endpointPath: 'customers'
+}
+
+const getResponse = await helpers.callCustomEndpoint({ 
+  options: {
+    // http operation is defaulted to 'GET' if not provided
+    method: 'GET',
+    parameters: {
+      queryParameter: 'queryParameter1',
+    },
+    headers: {
+      // Content-Type is defaulted to application/json if not provided
+      'Content-type': 'application/json',
+      authorization: `Bearer ${access_token}`
+    },
+    customApiPathParameters: customApiArgs,
+  }, 
+  clientConfig: clientConfigExample,
+  // Flag to retrieve raw response or data from helper function
+  rawResponse: false
+})
+
+const postResponse = await customApiHelper.callCustomEndpoint({ 
+  options: {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${access_token}`
+    },
+    customApiPathParameters: {
+      apiVersion: 'v1',
+      endpointPath: 'greeting',
+      apiName: 'e2e-tests',
+    },
+    // When this flag is set to true, the request body will be automatically 
+    // formatted in the expected format set by the 'Content-type' headers
+    // 'application/json' or 'application/x-www-form-urlencoded'
+    enableTransformBody: true,
+
+    // object can be passed since we have enableTransformBody set to true
+    body: { data: 'data' }
+    // if enableTransformBody is not set to true,
+    // we have to ensure the request body is correctly formatted
+    // body: JSON.stringify({ data: 'data' })
+  }, 
+  clientConfig: clientConfigExample, 
+  rawResponse: false
+})
+
+console.log('get response: ', getResponse)
+console.log('post response: ', postResponse)
+```
+
+### Encoding special characters
+
+The SDK currently single encodes special characters for query parameters in UTF-8 format based on SCAPI guidelines. However, the SDK does NOT encode path parameters, and will require the developer to encode any path parameters with special characters.
+
+Additionally, SCAPI has special characters that should be double encoded, specifically `%` and `,`:
+- `%` should always be double encoded
+- `,` should be double encoded when used as part of an ID/parameter string, and single encoded when used to differentiate items in a list 
+
+There is a helper function called `encodeSCAPISpecialCharacters` that can be utilized to single encode the SCAPI special characters and no other special characters.
+
+Here's an example where the `getCategory/getCategories` endpoints are called with a `categoryID` with special characters:
+```javascript
+import * as CommerceSdk from "commerce-sdk";
+const { helpers, Product } = CommerceSdk;
+
+const clientConfig = {
+  parameters: {
+    clientId: "<your-client-id>",
+    organizationId: "<your-org-id>",
+    shortCode: "<your-short-code>",
+    siteId: "<your-site-id>",
+  }
+};
+
+const shopperProducts = new Product.ShopperProducts({
+  ...clientConfig,
+  headers: {authorization: `Bearer <insert_access_token>`}
+});
+
+const categoryId = "SpecialCharacter,%$^@&$;()!123Category";
+// "SpecialCharacter%2C%25$^@&$;()!123Category"
+const scapiSpecialEncodedId = helpers.encodeSCAPISpecialCharacters(categoryId);
+
+
+// id is a path parameter for API call:
+// <base-url>/product/shopper-products/v1/organizations/{organizationId}/categories/{id}
+const categoryResult = await shopperProducts.getCategory({
+  parameters: {
+    // Path parameters are NOT encoded by the SDK, so we have to single encode special characters
+    // and the SCAPI special characters will end up double encoded
+    id: encodeURIComponent(scapiSpecialEncodedId),
+  }
+});
+
+console.log("categoryResult: ", categoryResult);
+
+// `ids` are a query parameter and comma delimited to separate category IDs
+const categoriesResult = await shopperProducts.getCategories({
+  parameters: {
+    // No need to use `encodeURIComponent` as query parameters are single encoded by the SDK
+    // So the SCAPI special characters will end up double encoded as well
+    // Commas that separate items in a list will end up single encoded
+    ids: `${scapiSpecialEncodedId},${scapiSpecialEncodedId}`,
+  }
+});
+
+console.log("categoriesResult: ", categoriesResult);
+```
+
+**NOTE: In the next major version release, path parameters will be single encoded by default**
 
 ## Caching
 
-The SDK currently supports two types of caches - In-memory and Redis. Both the implementations respect [standard cache headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control). To use another type of cache, write your own implementation of the [CacheManager](https://github.com/SalesforceCommerceCloud/commerce-sdk-core/tree/master/src/base/cacheManager.ts). See the [default cache manager](https://github.com/SalesforceCommerceCloud/commerce-sdk-core/tree/master/src/base/cacheManagerKeyv.ts) to design your implementation.
+The SDK currently supports two types of caches - In-memory and Redis. Both the implementations respect [standard cache headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control). To use another type of cache, write your own implementation of the [CacheManager](https://github.com/SalesforceCommerceCloud/commerce-sdk-core/tree/main/src/base/cacheManager.ts). See the [default cache manager](https://github.com/SalesforceCommerceCloud/commerce-sdk-core/tree/main/src/base/cacheManagerKeyv.ts) to design your implementation.
 
 ### Cache storage adapter
 
@@ -330,8 +557,8 @@ This library doesn't store or refresh authentication tokens. Storing and refresh
  This library limits its runtime dependencies to reduce the total cost of ownership as much as possible. However, we recommend that you have security stakeholders review all third-party products (3PP) and their dependencies.
 
 For more information about security considerations related to developing headless commerce applications, see 
-[Security Considerations for Headless Commerce](https://developer.commercecloud.com/s/article/HeadlessSecurity) on the 
-[Commerce Cloud Developer Center](https://developer.commercecloud.com).
+[Security Considerations for Headless Commerce](https://developer.salesforce.com/docs/commerce/commerce-api/guide/security-considerations-for-headless-commerce.html) on the 
+[Commerce Cloud Developer Center](https://developer.salesforce.com/developer-centers/commerce-cloud).
 
 If you discover any potential security issues, please report them to security@salesforce.com as soon as possible.
 
@@ -345,7 +572,3 @@ If you discover any potential security issues, please report them to security@sa
 ## License Information
 
 The Commerce SDK is licensed under BSD-3-Clause license. See the [license](./LICENSE.txt) for details.
-
-<!-- Markdown link & img dfn's -->
-[circleci-image]: https://circleci.com/gh/SalesforceCommerceCloud/commerce-sdk.svg?style=svg&circle-token=c68cee5cb20ee75f00cbda1b0eec5b5484c58b2a
-[circleci-url]: https://circleci.com/gh/SalesforceCommerceCloud/commerce-sdk

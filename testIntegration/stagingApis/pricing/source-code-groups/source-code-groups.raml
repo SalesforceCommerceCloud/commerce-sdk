@@ -9,16 +9,19 @@ baseUriParameters:
     description: A region-specific merchant identifier.
     example: 0dnz6oep
     pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
-description: APIs to support the creation, update, deletions and search of source code groups.
+description: !include source-code-groups-description.md
 
 uses:
   SourceCodeGroupTraits: data-source-code-group-traits-library.raml
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.13/api-standards.raml
-  CommerceCloudStandards:  exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml  
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
+  CommerceCloudStandards:  exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.1/commerce-cloud-standards.raml  
 
 types:
   SourceCodeGroup:
-    description: Document representing a source code group.
+    description: |-
+      Document representing a source code group.
+    type:
+      CommerceCloudStandards.OpenObject
     properties:
       active:
         description: The active flag, a computed value based on start and end time.
@@ -85,17 +88,22 @@ types:
         required: false
         example: 2019-10-20T12:00:00Z
   SourceCodeGroupSearchResult:
-    description: Document representing a source code group search result.
+    description: |-
+      Document representing a source code group search result.
     type: CommerceCloudStandards.PaginatedSearchResult
     properties:
       hits:
         description: The sorted array of search hits. Can be empty.
         type: SourceCodeGroup[]
   SourceCodeRedirectInfo:
-    description: Document representing source code redirect info.
+    description: |-
+      Document representing source code redirect info.
+    type:
+      CommerceCloudStandards.ClosedObject
     properties:
       locationType:
-        description: The type of redirect location, such as product (for a product page), category (a category page), home (for home page), page (for content), or URL (for a URL location).
+        description: |-
+          The type of redirect location, such as product (for a product page), category (a category page), home (for home page), page (for content), or URL (for a URL location).
         type: string
         enum:
           - default
@@ -105,8 +113,15 @@ types:
           - page
           - url
         example: url
+      location?:
+        description: |-
+          The location of redirect, based on the type, this can be a product location, category location, home page, content page, or just a URL.
+        type: string
   SourceCodeSpecification:
-    description: Document representing a source code specification.
+    description: |-
+      Document representing a source code specification.
+    type:
+      CommerceCloudStandards.ClosedObject
     properties:
       expression:
         description: |-
@@ -132,24 +147,17 @@ types:
     displayName: deleteSourceCodeGroup
     is:
      - CommerceCloudStandards.SiteSpecific
-     - ApiStandards.RateLimited:
-          responseStatus: 204
     responses:
       '204':
         description: API returned successfully.
     securedBy:
-      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.source-codes.rw ] }
-      - CommerceCloudStandards.AmOAuth2
+      - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.source-codes.rw ] }
   get:
     description: Action to retrieve source code group information.
     displayName: getSourceCodeGroup
     is:
       - SourceCodeGroupTraits.SourceCodeGroupNotFound
       - CommerceCloudStandards.SiteSpecific
-      - ApiStandards.RateLimited:
-            responseStatus: 200
-      - ApiStandards.RateLimited:      
-            responseStatus: 404
     responses:
       '200':
         description: API returned successfully.
@@ -158,18 +166,13 @@ types:
             type: SourceCodeGroup
             example: !include Examples/get_source_code_groups_id.raml
     securedBy:
-      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.source-codes, sfcc.source-codes.rw ] }
-      - CommerceCloudStandards.AmOAuth2
+      - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.source-codes, sfcc.source-codes.rw ] }
   patch:
     description: Updates the source code group with the specified information.
     displayName: updateSourceCodeGroup
     is:
       - SourceCodeGroupTraits.SourceCodeGroupNotFound
       - CommerceCloudStandards.SiteSpecific
-      - ApiStandards.RateLimited:
-            responseStatus: 200
-      - ApiStandards.RateLimited:      
-            responseStatus: 404
     responses:
       '200':
         description: API returned successfully.
@@ -181,8 +184,7 @@ types:
       application/json:
         type: SourceCodeGroup
     securedBy:
-      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.source-codes.rw ] }
-      - CommerceCloudStandards.AmOAuth2
+      - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.source-codes.rw ] }
   put:
     description: Creates a source code group using the information provided.
     displayName: createSourceCodeGroup
@@ -190,10 +192,6 @@ types:
       - SourceCodeGroupTraits.SourceCodeGroupInvalid
       - SourceCodeGroupTraits.IdConflict
       - CommerceCloudStandards.SiteSpecific
-      - ApiStandards.RateLimited:
-            responseStatus: 200
-      - ApiStandards.RateLimited:      
-            responseStatus: 400
     responses:
       '200':
         description: API returned successfully.
@@ -206,8 +204,7 @@ types:
       application/json:
         type: SourceCodeGroup
     securedBy:
-      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.source-codes.rw ] }
-      - CommerceCloudStandards.AmOAuth2
+      - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.source-codes.rw ] }
   uriParameters:
     id:
       description: The ID of the source code group to create.
@@ -234,7 +231,7 @@ types:
         | active | Boolean |
         
       The sourceCode and active fields can only be used in Queries as conjunctions (using AND). If the field is used in a disjunction
-      (OR) an exception will be thrown.
+      (OR) an exception will be thrown. 
       
       The output of the query can also be sorted, with the following sortable attributes:
         
@@ -248,23 +245,17 @@ types:
     is:
       - SourceCodeGroupTraits.InvalidQuery
       - CommerceCloudStandards.SiteSpecific
-      - ApiStandards.RateLimited:
-            responseStatus: 200
-      - ApiStandards.RateLimited:      
-            responseStatus: 400
     responses:
       '200':
         description: The API executed successfully.
         body:
           application/json:
             type: SourceCodeGroupSearchResult
-            examples:
-              source-code-group-result: !include Examples/source-code-result-example.raml
+            example: !include Examples/source-code-result-example.raml
       '400':
         description: SearchRequest post body is ill-formed.
     body:
       application/json:
         type: CommerceCloudStandards.SearchRequest
     securedBy:
-      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.source-codes, sfcc.source-codes.rw ] }
-      - CommerceCloudStandards.AmOAuth2
+      - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.source-codes, sfcc.source-codes.rw ] }

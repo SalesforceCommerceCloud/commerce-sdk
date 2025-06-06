@@ -67,28 +67,36 @@
 				<a href="#commerce-sdk" id="commerce-sdk" style="color: inherit; text-decoration: none;">
 					<h1>commerce-sdk</h1>
 				</a>
-				<p><a href="https://circleci.com/gh/SalesforceCommerceCloud/commerce-sdk"><img src="https://circleci.com/gh/SalesforceCommerceCloud/commerce-sdk.svg?style=svg&circle-token=c68cee5cb20ee75f00cbda1b0eec5b5484c58b2a" alt="CircleCI"></a></p>
 				<p>The Salesforce Commerce SDK allows easy interaction with the Salesforce B2C Commerce platform APIs on the Node.js runtime.  For a more lightweight SDK, which works in a browser and Node.js for the shopper experience, see <a href="https://github.com/SalesforceCommerceCloud/commerce-sdk-isomorphic">our Isomorphic SDK</a></p>
-				<p>Visit the <a href="https://developer.commercecloud.com/">Commerce Cloud Developer Center</a> to learn more about Salesforce Commerce. The developer center has API documentation, getting started guides, community forums, and more.
+				<p>Visit the <a href="https://developer.salesforce.com/developer-centers/commerce-cloud">Commerce Cloud Developer Center</a> to learn more about Salesforce Commerce. The developer center has API documentation, getting started guides, community forums, and more.
 				​</p>
-				<a href="#warning-planned-future-release-will-contain-breaking-changes-warning" id="warning-planned-future-release-will-contain-breaking-changes-warning" style="color: inherit; text-decoration: none;">
-					<h2>:warning: Planned future release will contain breaking changes :warning:</h2>
+				<a href="#warning-planned-api-changes-warning" id="warning-planned-api-changes-warning" style="color: inherit; text-decoration: none;">
+					<h2>:warning: Planned API Changes :warning:</h2>
 				</a>
-				<p>Due to an issue with the generation of the type definitions, an upcoming release
-					of the SDK will change type definitions to include namespaces. As this is a
-					breaking change, a new major version will be released (v3.0.0). Only the names of
-					the types will change, not their contents or any of the exported code. If you
-					only use JavaScript, or if you use TypeScript but only import the client classes,
-					then your usage <strong>will not change</strong>. You will likely only need to make changes if
-				you import the type definitions directly.</p>
+				<a href="#shopper-context" id="shopper-context" style="color: inherit; text-decoration: none;">
+					<h3>Shopper Context</h3>
+				</a>
+				<p>Starting July 31st 2024, all endpoints in the Shopper context API will require the <code>siteId</code> parameter for new customers. This field is marked as optional for backward compatibility and will be changed to mandatory tentatively by January 2025. You can read more about the planned change <a href="https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-context?meta=Summary">here</a> in the notes section.</p>
+				<a href="#shopper-login-slas" id="shopper-login-slas" style="color: inherit; text-decoration: none;">
+					<h3>Shopper Login (SLAS)</h3>
+				</a>
+				<p>SLAS will soon require new tenants to pass <code>channel_id</code> as an argument for retrieving guest access tokens. You can read more about the planned change <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas.html#guest-tokens">here</a>.</p>
+				<p>Please be aware that existing tenants are on a temporary allow list and will see no immediate disruption to service.  We do ask that all users seek to adhere to the <code>channel_id</code> requirement before the end of August to enhance your security posture before the holiday peak season.</p>
+				<p>In practice, we recommend that customers using the SLAS helper functions upgrade to <code>v4.0.0</code> of the <code>commerce-sdk</code>.</p>
+				<a href="#warning-planned-sdk-changes-warning" id="warning-planned-sdk-changes-warning" style="color: inherit; text-decoration: none;">
+					<h2>:warning: Planned SDK Changes :warning:</h2>
+				</a>
+				<a href="#encoding-path-parameters" id="encoding-path-parameters" style="color: inherit; text-decoration: none;">
+					<h3>Encoding path parameters</h3>
+				</a>
+				<p>In the next major version release, the SDK will encode special characters (UTF-8 based on SCAPI guidelines) in path parameters by default. Please see the <a href="#encoding-special-characters">Encoding special characters</a> section for more details.</p>
 				<a href="#prerequisites" id="prerequisites" style="color: inherit; text-decoration: none;">
 					<h2>Prerequisites</h2>
 				</a>
 				<p>Download and install Node.js and npm <a href="https://nodejs.org/en/download/">here</a>.
 				​</p>
 				<blockquote>
-					<p><strong>Note:</strong> Only Node.js version 12 and 14 LTS are supported. Other versions can cause unexpected results. To use a different version of Node.js for other projects, you can manage multiple versions of Node.js with <a href="https://github.com/nvm-sh/nvm">nvm</a>.
-					​</p>
+					<p><strong>Note:</strong> Only Node.js versions 16, 18, and 20 are supported. Other versions can cause unexpected results. To use a different version of Node.js for other projects, you can manage multiple versions of Node.js with <a href="https://github.com/nvm-sh/nvm">nvm</a>. ​</p>
 				</blockquote>
 				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
 					<h2>Installation</h2>
@@ -138,66 +146,89 @@
  * Sample TypeScript code that shows how Commerce SDK can access Salesforce Commerce
  * APIs.
  * 
- * To learn more about the parameters please refer to https://developer.commercecloud.com/s/article/CommerceAPI-Get-Started
+ * For more information, see [Get started with Salesforce Commerce B2C APIs](https://developer.salesforce.com/docs/commerce/commerce-api/guide/get-started.html).
  */</span>
-​
+
 <span class="hljs-comment">// Import the SDK in TypeScript</span>
 <span class="hljs-comment">// tsc requires the --esModuleInterop flag for this</span>
-<span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> CommerceSdk <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
-<span class="hljs-comment">// For Javascript, use:</span>
-<span class="hljs-comment">// import CommerceSdk from &quot;commerce-sdk&quot;;</span>
-<span class="hljs-keyword">const</span> { ClientConfig, helpers, Search } = CommerceSdk;
+<span class="hljs-keyword">import</span> { Search, Customer, helpers, slasHelpers } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
 <span class="hljs-comment">// Older Node.js versions can instead use:</span>
-<span class="hljs-comment">// const { ClientConfig, helpers, Search } = require(&quot;commerce-sdk&quot;);</span>
+<span class="hljs-comment">// const { ClientConfig, helpers, slasHelpers Search } = require(&quot;commerce-sdk&quot;);</span>
 
-<span class="hljs-comment">// Create a configuration to use when creating API clients</span>
+<span class="hljs-comment">// demo client credentials, if you have access to your own please replace them below.</span>
+<span class="hljs-comment">// do not store client secret as plaintext. Store it in a secure location.</span>
+<span class="hljs-keyword">const</span> CLIENT_ID = <span class="hljs-string">&quot;da422690-7800-41d1-8ee4-3ce983961078&quot;</span>;
+<span class="hljs-keyword">const</span> CLIENT_SECRET = <span class="hljs-string">&quot;D*HHUrgO2%qADp2JTIUi&quot;</span>;
+<span class="hljs-keyword">const</span> ORG_ID = <span class="hljs-string">&quot;f_ecom_zzte_053&quot;</span>;
+<span class="hljs-keyword">const</span> SHORT_CODE = <span class="hljs-string">&quot;kv7kzm78&quot;</span>;
+<span class="hljs-keyword">const</span> SITE_ID = <span class="hljs-string">&quot;RefArch&quot;</span>;
+
+<span class="hljs-comment">// client configuration parameters</span>
 <span class="hljs-keyword">const</span> config = {
-    <span class="hljs-attr">headers</span>: {},
-    <span class="hljs-attr">parameters</span>: {
-      <span class="hljs-attr">clientId</span>: <span class="hljs-string">&#x27;&lt;your-client-id&gt;&#x27;</span>,
-      <span class="hljs-attr">organizationId</span>: <span class="hljs-string">&#x27;&lt;your-org-id&gt;&#x27;</span>,
-      <span class="hljs-attr">shortCode</span>: <span class="hljs-string">&#x27;&lt;your-short-code&gt;&#x27;</span>,
-      <span class="hljs-attr">siteId</span>: <span class="hljs-string">&#x27;&lt;your-site-id&gt;&#x27;</span>
-    }
+  <span class="hljs-attr">headers</span>: {},
+  <span class="hljs-attr">parameters</span>: {
+    <span class="hljs-attr">clientId</span>: CLIENT_ID,
+    <span class="hljs-attr">organizationId</span>: ORG_ID,
+    <span class="hljs-attr">shortCode</span>: SHORT_CODE,
+    <span class="hljs-attr">siteId</span>: SITE_ID,
+  },
+};
+
+<span class="hljs-comment">/**
+ * Get the shopper or guest JWT/access token, along with a refresh token, using client credentials
+ *
+ * <span class="hljs-doctag">@returns </span>guest user authorization token
+ */</span>
+<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getGuestUserAuthToken</span>(<span class="hljs-params"></span>): <span class="hljs-title">Promise</span>&lt;<span class="hljs-title">Customer</span>.<span class="hljs-title">ShopperLogin</span>.<span class="hljs-title">TokenResponse</span>&gt; </span>{
+  <span class="hljs-keyword">const</span> base64data = Buffer.from(<span class="hljs-string">`<span class="hljs-subst">${CLIENT_ID}</span>:<span class="hljs-subst">${CLIENT_SECRET}</span>`</span>).toString(<span class="hljs-string">&quot;base64&quot;</span>);
+  <span class="hljs-keyword">const</span> headers = { <span class="hljs-attr">Authorization</span>: <span class="hljs-string">`Basic <span class="hljs-subst">${base64data}</span>`</span> };
+  <span class="hljs-keyword">const</span> loginClient = <span class="hljs-keyword">new</span> Customer.ShopperLogin(config);
+
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">await</span> loginClient.getAccessToken({
+    headers,
+    <span class="hljs-attr">body</span>: { <span class="hljs-attr">grant_type</span>: <span class="hljs-string">&quot;client_credentials&quot;</span> },
+  });
 }
 
-<span class="hljs-comment">// Get a JWT to use with Shopper API clients, a guest token in this case</span>
-helpers.getShopperToken(config, { <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;guest&quot;</span> }).then(<span class="hljs-keyword">async</span> (token) =&gt; {
+<span class="hljs-comment">// Alternatively you may use the SLAS helper functions to generate JWT/access token</span>
+<span class="hljs-keyword">const</span> guestTokenResponse = <span class="hljs-keyword">await</span> slasHelpers.loginGuestUser(
+    <span class="hljs-keyword">new</span> Customer.ShopperLogin(config), 
+    { <span class="hljs-attr">redirectURI</span>: <span class="hljs-string">&#x27;http://localhost:3000/callback&#x27;</span> }
+  )
+  .then(<span class="hljs-function">(<span class="hljs-params">guestTokenResponse</span>) =&gt;</span> {
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;Guest Token Response: &quot;</span>, guestTokenResponse);
+    <span class="hljs-keyword">return</span> guestTokenResponse;
+  })
+  .catch(<span class="hljs-function"><span class="hljs-params">error</span> =&gt;</span> <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;Error fetching token for guest login: &quot;</span>, error));
 
-    <span class="hljs-keyword">try</span> {
-        <span class="hljs-comment">// Add the token to the client configuration</span>
-        config.headers[<span class="hljs-string">&quot;authorization&quot;</span>] = token.getBearerHeader();
+<span class="hljs-comment">// Get a JWT to use with Shopper API clients</span>
+getGuestUserAuthToken().then(<span class="hljs-keyword">async</span> (token) =&gt; {
+  <span class="hljs-comment">// Add the token to the client configuration</span>
+  config.headers[<span class="hljs-string">&quot;authorization&quot;</span>] = <span class="hljs-string">`Bearer <span class="hljs-subst">${token.access_token}</span>`</span>;
 
-        <span class="hljs-comment">// Create a new ShopperSearch API client</span>
-        <span class="hljs-keyword">const</span> searchClient = <span class="hljs-keyword">new</span> Search.ShopperSearch(config);
+  <span class="hljs-keyword">const</span> searchClient = <span class="hljs-keyword">new</span> Search.ShopperSearch(config);
 
-        <span class="hljs-comment">// Search for dresses</span>
-        <span class="hljs-keyword">const</span> searchResults = <span class="hljs-keyword">await</span> searchClient.productSearch({
-            <span class="hljs-attr">parameters</span>: {
-                <span class="hljs-attr">q</span>: <span class="hljs-string">&quot;dress&quot;</span>,
-                <span class="hljs-attr">limit</span>: <span class="hljs-number">5</span>
-            }
-        });
+  <span class="hljs-comment">// Search for dresses</span>
+  <span class="hljs-keyword">const</span> searchResults = <span class="hljs-keyword">await</span> searchClient.productSearch({
+    <span class="hljs-attr">parameters</span>: { <span class="hljs-attr">q</span>: <span class="hljs-string">&quot;dress&quot;</span>, <span class="hljs-attr">limit</span>: <span class="hljs-number">5</span> }
+  });
 
-        <span class="hljs-keyword">if</span> (searchResults.total) {
-            <span class="hljs-keyword">const</span> firstResult = searchResults.hits[<span class="hljs-number">0</span>];
-            <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`<span class="hljs-subst">${firstResult.productId}</span> <span class="hljs-subst">${firstResult.productName}</span>`</span>);
-        } <span class="hljs-keyword">else</span> {
-            <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;No results for search&quot;</span>);
-        }
+  <span class="hljs-keyword">if</span> (searchResults.total) {
+    <span class="hljs-keyword">const</span> firstResult = searchResults.hits[<span class="hljs-number">0</span>];
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`<span class="hljs-subst">${firstResult.productId}</span> <span class="hljs-subst">${firstResult.productName}</span>`</span>);
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;No results for search&quot;</span>);
+  }
 
-        <span class="hljs-keyword">return</span> searchResults;
-
-    } <span class="hljs-keyword">catch</span> (e) {
-        <span class="hljs-comment">// Print the status code and status text</span>
-        <span class="hljs-built_in">console</span>.error(e);
-        <span class="hljs-comment">// Print the body of the error</span>
-        <span class="hljs-built_in">console</span>.error(<span class="hljs-keyword">await</span> e.response.text());
-    }
+  <span class="hljs-keyword">return</span> searchResults;
 }).catch(<span class="hljs-keyword">async</span> (e) =&gt; {
-    <span class="hljs-built_in">console</span>.error(e);
-    <span class="hljs-built_in">console</span>.error(<span class="hljs-keyword">await</span> e.response.text());
+  <span class="hljs-built_in">console</span>.error(e);
+  <span class="hljs-built_in">console</span>.error(<span class="hljs-keyword">await</span> e.response.text());
 });</code></pre>
+				<a href="#slas-helpers" id="slas-helpers" style="color: inherit; text-decoration: none;">
+					<h3>SLAS helpers</h3>
+				</a>
+				<p>The SDK includes helper functions to help developers easily onboard SLAS onto their applications to assist with authentication. A brief example is shown in the sample code above. The SLAS helpers offer both public and private client functions, the main difference being the private client functions require a <code>client_secret</code>. Code examples on how to use the different functions can be found the in the <a href="https://github.com/SalesforceCommerceCloud/commerce-sdk/tree/main/examples">examples</a> folder (examples 05 and 06). More information about SLAS and public/private client flows can be found <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas.html">here</a>.</p>
 				<a href="#error-handling" id="error-handling" style="color: inherit; text-decoration: none;">
 					<h3>Error Handling</h3>
 				</a>
@@ -223,17 +254,198 @@ helpers.getShopperToken(config, { <span class="hljs-attr">type</span>: <span cla
 				</a>
 				<p>When using an IDE such as VSCode, the autocomplete feature lets you view the available method and class definitions, including parameters.
 				​</p>
-				<p><img src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/images/Autocomplete.jpg?raw=true" alt="Autocomplete" title="Autocomplete"></p>
+				<p><img src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/main/images/Autocomplete.jpg?raw=true" alt="Autocomplete" title="Autocomplete"></p>
 				<p>To view the details of a method or a variable, hover over methods and variables.
 				​</p>
-				<p><img src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/images/MethodDetails.jpg?raw=true" alt="Method Details" title="Method Details"></p>
-				<p><img src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/images/ParameterDetails.jpg?raw=true" alt="Parameter Details" title="Parameter Details"></p>
+				<p><img src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/main/images/MethodDetails.jpg?raw=true" alt="Method Details" title="Method Details"></p>
+				<p><img src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/main/images/ParameterDetails.jpg?raw=true" alt="Parameter Details" title="Parameter Details"></p>
 				<p>Autocomplete also shows the available properties of the data returned by SDK methods.</p>
-				<p><img src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/master/images/ResultAutocomplete.jpg?raw=true" alt="Result Autocomplete" title="Result Autocomplete"></p>
+				<p><img src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/main/images/ResultAutocomplete.jpg?raw=true" alt="Result Autocomplete" title="Result Autocomplete"></p>
+				<a href="#fetch-options" id="fetch-options" style="color: inherit; text-decoration: none;">
+					<h3>Fetch Options</h3>
+				</a>
+				<p>Fetch options are able to be passed on to modify the behavior of the fetch call. There are two ways to pass on fetch options:</p>
+				<ol>
+					<li>Through the client config</li>
+				</ol>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> config = {
+    <span class="hljs-attr">parameters</span>: {
+        <span class="hljs-attr">clientId</span>: CLIENT_ID,
+        <span class="hljs-attr">organizationId</span>: ORG_ID,
+        <span class="hljs-attr">shortCode</span>: SHORT_CODE,
+        <span class="hljs-attr">siteId</span>: SITE_ID,
+    },
+    <span class="hljs-attr">fetchOptions</span>: {
+        <span class="hljs-attr">redirect</span>: <span class="hljs-string">&quot;error&quot;</span>,
+    }
+}</code></pre>
+				<ol start="2">
+					<li>Through the SDK function call</li>
+				</ol>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> client = <span class="hljs-keyword">new</span> ShopperLogin(config);
+
+client.authorizeCustomer({
+  <span class="hljs-attr">headers</span>: { ... },
+  <span class="hljs-attr">body</span>: { ... },
+  <span class="hljs-attr">fetchOptions</span>: {
+    <span class="hljs-attr">redirect</span>: <span class="hljs-string">&quot;manual&quot;</span>
+  }
+});</code></pre>
+				<p>If both the client config and the function call define the same fetch option with different values, the fetch option value for the function call will take priority. In the examples above, both pass in the <code>redirect</code> fetch option with different values, however, <code>redirect: &quot;manual&quot;</code> will take precedence because it was passed on the function call level. </p>
+				<a href="#custom-query-parameters" id="custom-query-parameters" style="color: inherit; text-decoration: none;">
+					<h3>Custom Query Parameters</h3>
+				</a>
+				<p>With the introduction of <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html">hooks for Commerce APIs</a>, customers can pass custom query parameters through the SDK to be used in their custom hook. Custom query parameters must begin with <code>c_</code>:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> searchResults = <span class="hljs-keyword">await</span> searchClient.productSearch({
+  <span class="hljs-attr">parameters</span>: { 
+    <span class="hljs-attr">q</span>: <span class="hljs-string">&quot;dress&quot;</span>, 
+    <span class="hljs-attr">limit</span>: <span class="hljs-number">5</span>,
+    <span class="hljs-attr">c_paramkey</span>: <span class="hljs-string">&#x27;&lt;param-value&gt;&#x27;</span>
+  }
+});</code></pre>
+				<p>Invalid query parameters that are not a part of the API and do not follow the <code>c_</code> custom query parameter convention will be filtered from the request and a warning will be displayed.</p>
+				<a href="#custom-apis" id="custom-apis" style="color: inherit; text-decoration: none;">
+					<h3>Custom APIs</h3>
+				</a>
+				<p>The SDK supports calling <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/custom-apis.html">custom APIs</a> with a helper function, <code>customApiHelper.callCustomEndpoint()</code>.</p>
+				<p>Example usage:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> CommerceSdk <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
+<span class="hljs-keyword">const</span> { helpers } = CommerceSdk;
+
+<span class="hljs-comment">// client configuration parameters</span>
+<span class="hljs-keyword">const</span> clientConfigExample = {
+  <span class="hljs-attr">parameters</span>: {
+    <span class="hljs-attr">clientId</span>: <span class="hljs-string">&#x27;&lt;your-client-id&gt;&#x27;</span>,
+    <span class="hljs-attr">organizationId</span>: <span class="hljs-string">&#x27;&lt;your-org-id&gt;&#x27;</span>,
+    <span class="hljs-attr">shortCode</span>: <span class="hljs-string">&#x27;&lt;your-short-code&gt;&#x27;</span>,
+    <span class="hljs-attr">siteId</span>: <span class="hljs-string">&#x27;&lt;your-site-id&gt;&#x27;</span>,
+  },
+  <span class="hljs-comment">// If not provided, it&#x27;ll use the default production URI:</span>
+  <span class="hljs-comment">// &#x27;https://{shortCode}.api.commercecloud.salesforce.com/custom/{apiName}/{apiVersion}&#x27;</span>
+  <span class="hljs-comment">// path parameters should be wrapped in curly braces like the default production URI</span>
+  <span class="hljs-attr">baseUri</span>: <span class="hljs-string">&#x27;&lt;your-base-uri&gt;&#x27;</span>
+};
+
+<span class="hljs-keyword">const</span> access_token = <span class="hljs-string">&#x27;&lt;INSERT_ACCESS_TOKEN_HERE&gt;&#x27;</span>
+
+<span class="hljs-comment">// Required params: apiName, endpointPath, shortCode, organizaitonId</span>
+<span class="hljs-comment">// Required path params can be passed into:</span>
+<span class="hljs-comment">// options.customApiPathParameters or clientConfig.parameters</span>
+<span class="hljs-comment">// customApiPathParameters will take priority for duplicate values</span>
+<span class="hljs-keyword">const</span> customApiArgs = { 
+  <span class="hljs-attr">apiName</span>: <span class="hljs-string">&#x27;loyalty-info&#x27;</span>,
+  <span class="hljs-attr">apiVersion</span>: <span class="hljs-string">&#x27;v1&#x27;</span>, <span class="hljs-comment">// defaults to v1 if not provided</span>
+  <span class="hljs-attr">endpointPath</span>: <span class="hljs-string">&#x27;customers&#x27;</span>
+}
+
+<span class="hljs-keyword">const</span> getResponse = <span class="hljs-keyword">await</span> helpers.callCustomEndpoint({ 
+  <span class="hljs-attr">options</span>: {
+    <span class="hljs-comment">// http operation is defaulted to &#x27;GET&#x27; if not provided</span>
+    <span class="hljs-attr">method</span>: <span class="hljs-string">&#x27;GET&#x27;</span>,
+    <span class="hljs-attr">parameters</span>: {
+      <span class="hljs-attr">queryParameter</span>: <span class="hljs-string">&#x27;queryParameter1&#x27;</span>,
+    },
+    <span class="hljs-attr">headers</span>: {
+      <span class="hljs-comment">// Content-Type is defaulted to application/json if not provided</span>
+      <span class="hljs-string">&#x27;Content-type&#x27;</span>: <span class="hljs-string">&#x27;application/json&#x27;</span>,
+      <span class="hljs-attr">authorization</span>: <span class="hljs-string">`Bearer <span class="hljs-subst">${access_token}</span>`</span>
+    },
+    <span class="hljs-attr">customApiPathParameters</span>: customApiArgs,
+  }, 
+  <span class="hljs-attr">clientConfig</span>: clientConfigExample,
+  <span class="hljs-comment">// Flag to retrieve raw response or data from helper function</span>
+  <span class="hljs-attr">rawResponse</span>: <span class="hljs-literal">false</span>
+})
+
+<span class="hljs-keyword">const</span> postResponse = <span class="hljs-keyword">await</span> customApiHelper.callCustomEndpoint({ 
+  <span class="hljs-attr">options</span>: {
+    <span class="hljs-attr">method</span>: <span class="hljs-string">&#x27;POST&#x27;</span>,
+    <span class="hljs-attr">headers</span>: {
+      <span class="hljs-attr">authorization</span>: <span class="hljs-string">`Bearer <span class="hljs-subst">${access_token}</span>`</span>
+    },
+    <span class="hljs-attr">customApiPathParameters</span>: {
+      <span class="hljs-attr">apiVersion</span>: <span class="hljs-string">&#x27;v1&#x27;</span>,
+      <span class="hljs-attr">endpointPath</span>: <span class="hljs-string">&#x27;greeting&#x27;</span>,
+      <span class="hljs-attr">apiName</span>: <span class="hljs-string">&#x27;e2e-tests&#x27;</span>,
+    },
+    <span class="hljs-comment">// When this flag is set to true, the request body will be automatically </span>
+    <span class="hljs-comment">// formatted in the expected format set by the &#x27;Content-type&#x27; headers</span>
+    <span class="hljs-comment">// &#x27;application/json&#x27; or &#x27;application/x-www-form-urlencoded&#x27;</span>
+    <span class="hljs-attr">enableTransformBody</span>: <span class="hljs-literal">true</span>,
+
+    <span class="hljs-comment">// object can be passed since we have enableTransformBody set to true</span>
+    <span class="hljs-attr">body</span>: { <span class="hljs-attr">data</span>: <span class="hljs-string">&#x27;data&#x27;</span> }
+    <span class="hljs-comment">// if enableTransformBody is not set to true,</span>
+    <span class="hljs-comment">// we have to ensure the request body is correctly formatted</span>
+    <span class="hljs-comment">// body: JSON.stringify({ data: &#x27;data&#x27; })</span>
+  }, 
+  <span class="hljs-attr">clientConfig</span>: clientConfigExample, 
+  <span class="hljs-attr">rawResponse</span>: <span class="hljs-literal">false</span>
+})
+
+<span class="hljs-built_in">console</span>.log(<span class="hljs-string">&#x27;get response: &#x27;</span>, getResponse)
+<span class="hljs-built_in">console</span>.log(<span class="hljs-string">&#x27;post response: &#x27;</span>, postResponse)</code></pre>
+				<a href="#encoding-special-characters" id="encoding-special-characters" style="color: inherit; text-decoration: none;">
+					<h3>Encoding special characters</h3>
+				</a>
+				<p>The SDK currently single encodes special characters for query parameters in UTF-8 format based on SCAPI guidelines. However, the SDK does NOT encode path parameters, and will require the developer to encode any path parameters with special characters.</p>
+				<p>Additionally, SCAPI has special characters that should be double encoded, specifically <code>%</code> and <code>,</code>:</p>
+				<ul>
+					<li><code>%</code> should always be double encoded</li>
+					<li><code>,</code> should be double encoded when used as part of an ID/parameter string, and single encoded when used to differentiate items in a list </li>
+				</ul>
+				<p>There is a helper function called <code>encodeSCAPISpecialCharacters</code> that can be utilized to single encode the SCAPI special characters and no other special characters.</p>
+				<p>Here&#39;s an example where the <code>getCategory/getCategories</code> endpoints are called with a <code>categoryID</code> with special characters:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> CommerceSdk <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
+<span class="hljs-keyword">const</span> { helpers, Product } = CommerceSdk;
+
+<span class="hljs-keyword">const</span> clientConfig = {
+  <span class="hljs-attr">parameters</span>: {
+    <span class="hljs-attr">clientId</span>: <span class="hljs-string">&quot;&lt;your-client-id&gt;&quot;</span>,
+    <span class="hljs-attr">organizationId</span>: <span class="hljs-string">&quot;&lt;your-org-id&gt;&quot;</span>,
+    <span class="hljs-attr">shortCode</span>: <span class="hljs-string">&quot;&lt;your-short-code&gt;&quot;</span>,
+    <span class="hljs-attr">siteId</span>: <span class="hljs-string">&quot;&lt;your-site-id&gt;&quot;</span>,
+  }
+};
+
+<span class="hljs-keyword">const</span> shopperProducts = <span class="hljs-keyword">new</span> Product.ShopperProducts({
+  ...clientConfig,
+  <span class="hljs-attr">headers</span>: {<span class="hljs-attr">authorization</span>: <span class="hljs-string">`Bearer &lt;insert_access_token&gt;`</span>}
+});
+
+<span class="hljs-keyword">const</span> categoryId = <span class="hljs-string">&quot;SpecialCharacter,%$^@&amp;$;()!123Category&quot;</span>;
+<span class="hljs-comment">// &quot;SpecialCharacter%2C%25$^@&amp;$;()!123Category&quot;</span>
+<span class="hljs-keyword">const</span> scapiSpecialEncodedId = helpers.encodeSCAPISpecialCharacters(categoryId);
+
+
+<span class="hljs-comment">// id is a path parameter for API call:</span>
+<span class="hljs-comment">// &lt;base-url&gt;/product/shopper-products/v1/organizations/{organizationId}/categories/{id}</span>
+<span class="hljs-keyword">const</span> categoryResult = <span class="hljs-keyword">await</span> shopperProducts.getCategory({
+  <span class="hljs-attr">parameters</span>: {
+    <span class="hljs-comment">// Path parameters are NOT encoded by the SDK, so we have to single encode special characters</span>
+    <span class="hljs-comment">// and the SCAPI special characters will end up double encoded</span>
+    <span class="hljs-attr">id</span>: <span class="hljs-built_in">encodeURIComponent</span>(scapiSpecialEncodedId),
+  }
+});
+
+<span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;categoryResult: &quot;</span>, categoryResult);
+
+<span class="hljs-comment">// `ids` are a query parameter and comma delimited to separate category IDs</span>
+<span class="hljs-keyword">const</span> categoriesResult = <span class="hljs-keyword">await</span> shopperProducts.getCategories({
+  <span class="hljs-attr">parameters</span>: {
+    <span class="hljs-comment">// No need to use `encodeURIComponent` as query parameters are single encoded by the SDK</span>
+    <span class="hljs-comment">// So the SCAPI special characters will end up double encoded as well</span>
+    <span class="hljs-comment">// Commas that separate items in a list will end up single encoded</span>
+    <span class="hljs-attr">ids</span>: <span class="hljs-string">`<span class="hljs-subst">${scapiSpecialEncodedId}</span>,<span class="hljs-subst">${scapiSpecialEncodedId}</span>`</span>,
+  }
+});
+
+<span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;categoriesResult: &quot;</span>, categoriesResult);</code></pre>
+				<p><strong>NOTE: In the next major version release, path parameters will be single encoded by default</strong></p>
 				<a href="#caching" id="caching" style="color: inherit; text-decoration: none;">
 					<h2>Caching</h2>
 				</a>
-				<p>The SDK currently supports two types of caches - In-memory and Redis. Both the implementations respect <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control">standard cache headers</a>. To use another type of cache, write your own implementation of the <a href="https://github.com/SalesforceCommerceCloud/commerce-sdk-core/tree/master/src/base/cacheManager.ts">CacheManager</a>. See the <a href="https://github.com/SalesforceCommerceCloud/commerce-sdk-core/tree/master/src/base/cacheManagerKeyv.ts">default cache manager</a> to design your implementation.</p>
+				<p>The SDK currently supports two types of caches - In-memory and Redis. Both the implementations respect <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control">standard cache headers</a>. To use another type of cache, write your own implementation of the <a href="https://github.com/SalesforceCommerceCloud/commerce-sdk-core/tree/main/src/base/cacheManager.ts">CacheManager</a>. See the <a href="https://github.com/SalesforceCommerceCloud/commerce-sdk-core/tree/main/src/base/cacheManagerKeyv.ts">default cache manager</a> to design your implementation.</p>
 				<a href="#cache-storage-adapter" id="cache-storage-adapter" style="color: inherit; text-decoration: none;">
 					<h3>Cache storage adapter</h3>
 				</a>
@@ -378,9 +590,9 @@ sdkLogger.setLevel(sdkLogger.levels.INFO);</code></pre>
 				<p>This library doesn&#39;t store or refresh authentication tokens. Storing and refreshing authentication tokens is the responsibility of the SDK consumer.</p>
 				<p> This library limits its runtime dependencies to reduce the total cost of ownership as much as possible. However, we recommend that you have security stakeholders review all third-party products (3PP) and their dependencies.</p>
 				<p>For more information about security considerations related to developing headless commerce applications, see
-					<a href="https://developer.commercecloud.com/s/article/HeadlessSecurity">Security Considerations for Headless Commerce</a> on the
-				<a href="https://developer.commercecloud.com">Commerce Cloud Developer Center</a>.</p>
-				<p>If you discover any potential security issues, please report them to <a href="mailto:&#x73;&#x65;&#x63;&#117;&#114;&#x69;&#116;&#x79;&#x40;&#x73;&#97;&#108;&#x65;&#x73;&#x66;&#x6f;&#x72;&#x63;&#101;&#x2e;&#99;&#111;&#109;">&#x73;&#x65;&#x63;&#117;&#114;&#x69;&#116;&#x79;&#x40;&#x73;&#97;&#108;&#x65;&#x73;&#x66;&#x6f;&#x72;&#x63;&#101;&#x2e;&#99;&#111;&#109;</a> as soon as possible.</p>
+					<a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/security-considerations-for-headless-commerce.html">Security Considerations for Headless Commerce</a> on the
+				<a href="https://developer.salesforce.com/developer-centers/commerce-cloud">Commerce Cloud Developer Center</a>.</p>
+				<p>If you discover any potential security issues, please report them to <a href="mailto:&#x73;&#x65;&#99;&#x75;&#x72;&#x69;&#x74;&#x79;&#x40;&#x73;&#97;&#108;&#101;&#x73;&#x66;&#111;&#x72;&#x63;&#101;&#46;&#x63;&#111;&#109;">&#x73;&#x65;&#99;&#x75;&#x72;&#x69;&#x74;&#x79;&#x40;&#x73;&#97;&#108;&#101;&#x73;&#x66;&#111;&#x72;&#x63;&#101;&#46;&#x63;&#111;&#109;</a> as soon as possible.</p>
 				<a href="#additional-documentation" id="additional-documentation" style="color: inherit; text-decoration: none;">
 					<h2>Additional Documentation</h2>
 				</a>
@@ -392,7 +604,6 @@ sdkLogger.setLevel(sdkLogger.levels.INFO);</code></pre>
 					<h2>License Information</h2>
 				</a>
 				<p>The Commerce SDK is licensed under BSD-3-Clause license. See the <a href="./LICENSE.txt">license</a> for details.</p>
-				<!-- Markdown link & img dfn's -->
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -400,9 +611,6 @@ sdkLogger.setLevel(sdkLogger.levels.INFO);</code></pre>
 				<ul>
 					<li class="globals  ">
 						<a href="globals.html"><em>Globals</em></a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/_helpers_.html">&quot;helpers&quot;</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="modules/_index_.html">&quot;index&quot;</a>
@@ -420,6 +628,12 @@ sdkLogger.setLevel(sdkLogger.levels.INFO);</code></pre>
 						<a href="modules/discovery.html">discovery</a>
 					</li>
 					<li class=" tsd-kind-module">
+						<a href="modules/experience.html">experience</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/helpers.html">helpers</a>
+					</li>
+					<li class=" tsd-kind-module">
 						<a href="modules/pricing.html">pricing</a>
 					</li>
 					<li class=" tsd-kind-module">
@@ -427,6 +641,9 @@ sdkLogger.setLevel(sdkLogger.levels.INFO);</code></pre>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="modules/search.html">search</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/seller.html">seller</a>
 					</li>
 				</ul>
 			</nav>
@@ -442,9 +659,13 @@ sdkLogger.setLevel(sdkLogger.levels.INFO);</code></pre>
 		<h2>Legend</h2>
 		<div class="tsd-legend-group">
 			<ul class="tsd-legend">
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
 				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
 				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
 				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>

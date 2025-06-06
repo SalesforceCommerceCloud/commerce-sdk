@@ -1,0 +1,148 @@
+#%RAML 1.0 Library
+
+traits:
+  BadRequest: !include Traits/BadRequest.raml
+  Unauthorized: !include Traits/Unauthorized.raml
+
+uses:
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.1/commerce-cloud-standards.raml
+
+types:
+  DistanceUnit:
+    description: The unit the distance attribute is measured in (either in miles or kilometers).
+    enum:
+      - km
+      - mi
+    type: string
+  Latitude:
+    description: The latitude of the store.
+    maximum: 90
+    minimum: -90
+    type: number
+    format: double
+  Longitude:
+    description: The longitude of the store.
+    maximum: 180
+    minimum: -180
+    type: number
+    format: double
+  Distance:
+    description: The distance to the given geolocation where the stores will be searched, using the unit given in the attribute 'DistanceUnit' (miles or kilometers).
+    type: number
+    maximum: 20012
+    minimum: 0
+    format: double
+  PostalCode:
+    description: The postal code of the store.
+    maxLength: 10
+    minLength: 3
+    type: string
+
+  Store:
+    description: Document representing a store.
+    properties:
+      address1:
+        description: The primary address of the store.
+        minLength: 1
+        type: string
+        required: false
+      address2:
+        description: The secondary address of the store.
+        type: string
+        required: false
+      city:
+        description: The city of the store.
+        type: string
+        required: false
+      countryCode:
+        type: CommerceCloudStandards.CountryCode
+        required: false
+      distance:
+        type: Distance
+        required: false
+      distanceUnit:
+        type: DistanceUnit
+        required: false
+      email:
+        description: The email address of the store.
+        type: string
+        required: false
+      fax:
+        description: The fax number of the store.
+        type: string
+        required: false
+      id:
+        description: The id of the store.
+        maxLength: 256
+        minLength: 1
+        type: string
+      image:
+        description: The store image.
+        type: string
+        required: false
+      inventoryId:
+        description: The inventory list id associated with this store.
+        maxLength: 256
+        type: string
+        required: false
+      latitude:
+        type: Latitude
+        required: false
+      longitude:
+        type: Longitude
+        required: false
+      name:
+        description: The store name.
+        type: string
+        required: false
+      phone:
+        description: The phone number of the store.
+        type: string
+        required: false
+      posEnabled:
+        description: Whether this store uses Store Point-of-Sale.
+        type: boolean
+        required: false
+      postalCode:
+        description: The postal code of the store.
+        type: PostalCode
+        required: false
+      stateCode:
+        description: The state code of the store.
+        type: string
+        required: false
+      storeEvents:
+        description: The store events.
+        type: string
+        required: false
+      storeHours:
+        description: The opening hours of the store.
+        type: string
+        required: false
+      storeLocatorEnabled:
+        description: Whether this store should show up in store locator results.
+        type: boolean
+        required: false
+  StoreResult:
+    description: Result object containing an array of stores.
+    properties:
+      limit:
+        description: The number of search results in the current page.
+        type: ApiStandards.Limit
+        format: int32
+      data:
+        description: The list of stores in the search result.
+        type: array
+        items:
+          type: Store
+      offset:
+        description: The zero-based index of the first search result to include in the document.
+        minimum: 0
+        type: ApiStandards.Offset
+        format: int64
+        required: false
+      total:
+        description: The total number of search results.
+        type: ApiStandards.Total
+        format: int64

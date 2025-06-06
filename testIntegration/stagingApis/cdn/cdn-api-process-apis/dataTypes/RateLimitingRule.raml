@@ -1,0 +1,50 @@
+#%RAML 1.0 DataType
+description: A rate limiting rule.
+type: object
+properties:
+  ruleId:
+    description: The ID of the rate limiting rule.
+    type: string
+    example: 2c0fc9fa937b11eaa1b71c4d701ab86e
+  description:
+    description: The description of the rate limiting rule.
+    type: string
+    example: Rate limit /path1.
+  expression:
+    description: The expression that defines when to evaluate the rate limiting rule.
+    type: string
+    example: (http.request.uri.path matches \"^/path1/.*\")
+  characteristics:
+    description: Set of parameters defining how to group requests when tracking the request rate.
+    type: string[]
+    example: ["cf.unique_visitor_id"]
+  action:
+    description: The action applied by the rate limiting rule. Valid actions are "block", "managed_challenge", "js_challenge", "legacy_captcha", and "log".
+    type: string
+    example: block
+  period:
+    description: The period of time to consider when evaluating the request rate (in seconds). Valid values are 10, 60, 120, 300, and 600.
+    type: integer
+    example: 60
+  requestsPerPeriod:
+    description: The limit for the number of requests in the specified period of time.
+    type: integer
+    example: 50
+  mitigationTimeout:
+    description: Once the rate is reached, the rate limiting rule applies the rule action to further requests for the period of time defined in this field (in seconds). Only applicable for "block" and "log" actions. Valid values are 60, 120, 300, 600, 3600, and 86400.
+    type: integer
+    example: 600
+    required: false
+  countingExpression:
+    description: The expression that defines what kind of requests we want to rate limit.
+    type: string
+    example: (http.request.uri.path matches \"^/path1/.*\" and http.response.code eq 400)
+    required: false
+  lastUpdated:
+    description: Date when the rate limiting rule was last updated.
+    type: datetime
+    example: 2022-01-01T05:20:00Z
+  enabled:
+    description: Whether or not the rate limiting rule is enabled.
+    type: boolean
+    example: true

@@ -1,14 +1,28 @@
 #%RAML 1.0 Library
   
 uses:
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.13/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.1/commerce-cloud-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
 
 traits:
    Unauthorized: !include Traits/Unauthorized.raml
-   
+   BadRequest: !include /Traits/ProductSearchSelectBadRequest.raml
 types:
   #types for product-search resource
+  PageMetaTag:
+    description: Document representing a Page Meta Tag object.
+    properties:
+      id: 
+        description: The ID of the Page Meta Tag.
+        type: string
+        required: false
+        example: "title"
+      value:
+        description: Locale-specific value of the Page Meta Tag, evaluated by resolving the rule set for the given Business Manager ID.
+        type: string
+        required: false
+        example: "Buy the Long Sleeve Covered Placket Blouse for USD 61.99."
+
   ProductRef:
     description: Document representing a product reference.
     properties:
@@ -91,6 +105,51 @@ types:
         items:
           type: VariationAttribute
         required: false
+      
+      imageGroups:
+        description: The array of product image groups.
+        type: array
+        items:
+          type: ImageGroup
+        required: false
+
+      priceRanges:
+        description: Array of one or more price range objects representing one or more Pricebooks in context for the site.
+        type: array
+        items:
+          type: PriceRange
+        required: false
+
+      productPromotions:
+        description: |-
+          The array of active customer product promotions for this product. This array can be empty.
+           Coupon promotions are not returned in this array.
+        type: array
+        items:
+          type: ProductPromotion
+        required: false
+
+      tieredPrices:
+        description: The document represents list of tiered prices if the product is a variant
+        type: array
+        items:
+          type: ProductPriceTable
+        required: false
+
+      variants:
+        description: The array of actual variants. Only for master, variation group, and variant types. This array can be empty.
+        type: array
+        items:
+          type: Variant
+        required: false
+
+      variationGroups:
+        description: The array of actual variation groups. Only for master, variation group, and variant types. This array can be empty.
+        type: array
+        items:
+          type: VariationGroup
+        required: false
+
 
   ProductSearchRefinement:
     description: Document representing a product search refinement attribute.
@@ -245,10 +304,14 @@ types:
         type: ApiStandards.Limit
         format: int32
       hits:
-        description: The sorted array of search hits. This array can be empty.
+        description: A sorted array of search hits (`ProductSearchHit` objects). The array can be empty.
+        type: ProductSearchHit[]
+      pageMetaTags:
+        description: Page Meta tags associated with the search result.
         type: array
         items:
-          type: ProductSearchHit
+          PageMetaTag
+        required: false
       query:
         description: The query string that was searched for.
         type: string
@@ -362,10 +425,6 @@ types:
     properties:
       currency:
         type: CommerceCloudStandards.CurrencyCode
-      image:
-        description: The first image of the product hit for the configured viewtype.
-        type: Image
-        required: false
       price:
         description: |-
           The sales price of the product. In the case of complex products like a master or a set, this is the minimum price of
@@ -444,3 +503,148 @@ types:
       searchPhrase:
         description: The query phrase (q) for which suggestions where made.
         type: string
+
+  ImageGroup:
+    description: Document representing an image group containing a list of images for a particular view type and an optional variation value.
+    properties:
+      images:
+        description: The images of the image group.
+        type: array
+        items:
+          type: Image
+      variationAttributes:
+        description: Returns a list of variation attributes applying to this image group.
+        type: array
+        items:
+          type: VariationAttribute
+        required: false
+      viewType:
+        description: The image view type.
+        type: string
+        example: "hi-res"
+
+  PriceRange:
+      description: Document representing price ranges for a product which happens to be a master product (per Pricebook)
+      properties:
+        maxPrice:
+          description: Maximum price for the given pricebook (usually for a master Product would be the price for the Variant which has the highest price out of all Variants in that pricebook)
+          type: number
+          format: double
+          required: false
+          example: 10.89
+        minPrice:
+          description: Minimum price for the given pricebook (usually for a master Product would be the price for the Variant which has the least price out of all Variants in that pricebook)
+          type: number
+          format: double
+          required: false
+          example: 10.89
+        pricebook:
+          description: The active pricebook from which the min and the max prices are calculated. The pricebook is based on the site context of the request as defined in ECOM.
+          type: string
+          required: false
+          example: usd-list-pricebook
+
+  ProductPriceTable:
+    description: Tiered Price Level Object  
+    properties:
+      price:
+        description: Price for the product for the specified tier for the specified pricebook
+        type: number
+        format: double
+        required: false
+        example: 12.99
+      pricebook:
+        description: The active pricebook for which this price is defined
+        type: string
+        required: false
+        example: usd-list-pricebook
+      quantity:
+        description: Quantity tier for which the price is defined.
+        type: number
+        format: double
+        required: false
+        example: 1.00
+
+  ProductPromotion:
+    description: Document representing a product promotion.
+    properties:
+      calloutMsg:
+        description: The localized call-out message of the promotion.
+        type: string
+        example: "Fantastic promotion"
+      promotionId:
+        description: The unique ID of the promotion.
+        type: string
+        example: "summerSale"
+      promotionalPrice:
+        description: The promotional price for this product.
+        type: number
+        format: double
+        example: 12.99
+
+  Variant:
+    description: A product which is a variation within a master product that describes different colors, sizes, or other variation attributes. *Has a SKU.*
+    properties:
+      orderable:
+        description: A flag indicating whether the variant is orderable.
+        type: boolean
+        required: false
+        example: true
+      price:
+        description: The sales price of the variant.
+        type: number
+        format: double
+        required: false
+        example: 25.99
+      productId:
+        description: The ID (SKU) of the variant.
+        maxLength: 100
+        minLength: 1
+        type: string
+        example: "8W4756834"
+      tieredPrices:
+        description: List of tiered prices if the product is a variant
+        type: array
+        items: 
+          type: ProductPriceTable
+        required: false
+      variationValues:
+        description: The actual variation attribute ID - value pairs.
+        type: object
+        properties:
+          //:
+            type: string
+        required: false
+      productPromotions:
+        description: |-
+          The array of active customer product promotions for this product. This array can be empty.
+           Coupon promotions are not returned in this array.
+        type: array
+        items:
+          type: ProductPromotion
+        required: false
+
+  VariationGroup:
+    description: Representation of a group of variant products by an attribute. This can't be purchased by a shopper. It provides inheritable attributes for its product variants and is used for navigation. A VariationGroup doesn't have a SKU.
+    properties:
+      orderable:
+        description: A flag indicating whether the variation group is orderable.
+        type: boolean
+        example: false
+      price:
+        description: The sales price of the variation group.
+        type: number
+        format: double
+        example: 24.99
+      productId:
+        description: The ID (SKU) of the variation group.
+        maxLength: 100
+        minLength: 1
+        type: string
+        example: "49345VG"
+      variationValues:
+        description: The actual variation attribute ID - value pairs.
+        type: object
+        properties:
+          //:
+            type: string

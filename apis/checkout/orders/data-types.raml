@@ -3,12 +3,13 @@
 usage: This library provides all order relevant data types
 
 uses:
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.15/commerce-cloud-standards.raml 
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.1/commerce-cloud-standards.raml 
 
 types:
   OrderUpdateRequest:
     description: |-
-      Request body to update custom properties.
+      Request body to create an order and set custom attributes on the order. 
+      Please note that the custom attribute definition have to be configured both on the Basket and Order object in the platform.
     type:
       CommerceCloudStandards.OpenObject
     properties:
@@ -131,7 +132,14 @@ types:
       status:
         description:  |-
           The new status.
-        type: OrderStatus
+        type: string
+        enum:
+          - created
+          - new
+          - completed
+          - cancelled
+          - failed
+          - failed_with_reopen
         example:
           new
   ShippingAddressUpdateRequest:
@@ -160,7 +168,7 @@ types:
     properties:
       adjustedMerchandizeTotalTax?:
         description: |-
-          The total tax on products in the order, including price adjustments, but not including service charges such as shipping.
+         The total tax on products in the order, including price adjustments, but not including service charges such as shipping.
         type: number
         format: double
         example:
@@ -236,6 +244,11 @@ types:
           - onlinereservation
           - customerservicecenter
           - instagramcommerce
+          - tiktok
+          - snapchat
+          - google
+          - whatsapp
+          - youtube
         example:
           storefront
       confirmationStatus?:
@@ -1318,7 +1331,6 @@ types:
       quantity?:
         description: |-
           The ordered quantity of the products represented by this item.
-        maximum: 999
         minimum: 0
         type: number
         format: double
@@ -1568,7 +1580,7 @@ types:
           0.30
       taxTotal?: 
         description: |-
-          The total tax on the shipment, including item-level price adjustments and service charges such as shipping. If the Discount Taxation preference is set to Tax Products and Shipping Only Based on Adjusted Price, this amount also includes prorated order-level price adjustments.
+          The total tax on the shipment, including item-level price adjustments and service charges such as shipping. If the Discount Taxation preference is set to Tax Products and Shipping Only Based on Adjusted Price, this amount also includes prorated order-level price adjustments. This field will be checked against the summed up taxTotal and an InvalidTaxTotalException will be thrown if the values do not match.
         type: number
         format: double
         example:
@@ -1870,3 +1882,446 @@ types:
         format: int32
         example:
           2019
+  CreateOrderRequest:
+    description: |-
+      Document representing the order create request.
+    type: 
+      CommerceCloudStandards.OpenObject
+    properties:
+      billingAddress:
+        description: |-
+          The billing address. The name from the billing address is used as the customer's name (for guest customer) and is therefore required.
+        type:
+          Address
+      businessType?:
+        description: |-
+          The business type.
+        type: string
+        enum:
+          - b2c
+          - b2b
+        example:
+          b2c
+      channelType?:
+        description: |-
+          The sales channel.
+        type: string
+        enum:
+          - storefront
+          - callcenter
+          - marketplace
+          - dss
+          - store
+          - pinterest
+          - twitter
+          - facebookads
+          - subscriptions
+          - onlinereservation
+          - customerservicecenter
+          - instagramcommerce
+          - tiktok
+          - snapchat
+          - google
+          - whatsapp
+          - youtube
+        example:
+          instagramcommerce
+      currency:
+        description: |-
+          The ISO 4217 mnemonic code of the currency. The passed currency have to be configured as a valid and active currency on the site.
+        type: string
+        pattern: '[A-Z]{3}'
+        example:
+          USD
+      customerLocale?:
+        description: |-
+          The locale of the customer who created the order.
+        maxLength: 256
+        type: string
+        example:
+          en_US
+      orderNo?:
+        description: |-
+          The order number. This has to be unique in the site. Will be generated if no orderNo is passed in payload.
+        minLength: 1
+        maxLength: 50
+        type: string
+        example:
+          ORDER_000000001
+      orderPriceAdjustments?:
+        description: |-
+          The order-level price adjustments.
+        type: array
+        maxItems: 20
+        items:
+          type: 
+            CreateOrderPriceAdjustment
+      orderTotal:
+        description: |-
+          The total price, including products, shipping and tax. If this value does not match the calculated value (sum of all grossPrices minus PriceAdjustments) an InvalidOrderTotalException will be thrown.
+        type: number
+        format: double
+        example:
+          39.27
+      paymentInstruments:
+        description: |-
+          The payment instruments list.
+        type: array
+        maxItems: 20
+        items:
+          type: CreateOrderPaymentInstrument
+      paymentStatus?:
+        description: |-
+          The payment status from the order.
+        type: string
+        enum:
+          - paid
+          - not_paid
+        example:
+          paid
+      productItems:
+        description: |-
+          The product items.
+        type: array
+        minItems: 1
+        maxItems: 200
+        items:
+          type:
+            CreateOrderProductItems
+      shipments:
+        description: |-
+          The shipments.
+        type: array
+        minItems: 1
+        maxItems: 10
+        items:
+          type:
+            CreateOrderShipment
+      taxTotal:
+        description: |-
+          The total tax amount.
+        type: number
+        format: double
+  CreateOrderPriceAdjustment:
+    type: 
+      CommerceCloudStandards.OpenObject
+    description: !include order-create-price-adjustments.md
+    properties:
+      amount?:
+        description: |-
+          Amount to be reduced from the applied line item's price. If the taxation policy is net, it doesn't  include tax. If the taxation policy is gross, it includes tax.
+        type: number
+        format: double
+        example:
+          6.00
+      basePrice?:
+        description: |-
+          The adjustment amount. If the taxation policy is net, it doesn't include tax. 
+          If the taxation policy is gross, it includes tax.
+        type: number
+        format: double
+        example:
+          -6.00
+      grossPrice:
+        description: |-
+          The adjustment amount, including tax.
+        type: number
+        format: double
+        example:
+          -6.00
+      itemText?:
+        description: |-
+          The text describing the price adjustment.
+        example:
+          6 Dollar off.
+      netPrice:
+        description: |-
+          The adjustment amount, not including tax.
+        type: number
+        format: double
+        example:
+          -5.00
+      reasonCode?:
+        description: The reason code why this price adjustment was made.
+        type: string
+        example:
+          Special Offer.
+      tax:
+        description: The tax on the adjustment amount.
+        type: number
+        format: double
+        example:
+          1.00
+      taxBasis?:
+        description: The amount used to calculate the tax for this adjustment.
+        type: number
+        format: double
+        example:
+          -5
+  CreateOrderPaymentInstrument:
+    description: |-
+      Document representing a payment instrument.
+    type:
+      CommerceCloudStandards.OpenObject
+    properties:
+      paymentMethodId:
+        description: The payment method ID.
+        maxLength: 256
+        type: string
+        example: 
+          PAYPAL
+      paymentTransaction?:
+        description: The payment transaction.
+        type:
+          CreateOrderPaymentTransaction
+  CreateOrderProductItems:
+    description: |-
+      Document representing a product item for an order.
+    type:
+      CommerceCloudStandards.OpenObject
+    properties:
+      basePrice:
+        description: |-
+          The base price of the line item, which is the unit price not including adjustments. 
+          If the taxation policy is net, it doesn't include tax. 
+          If the taxation policy is gross, it includes tax.
+        type: number
+        format: double
+        example:
+          34.32
+      brand?:
+        description: |-
+          The brand of the line item.
+        maxLength: 256
+        type: string
+        example:
+          brand0001
+      grossPrice:
+        description: |-
+          The gross price of the line item before applying any adjustments.
+        type: number
+        format: double
+        example:
+          34.32
+      itemText?:
+        description: |-
+          The text describing the item.
+        type: string
+        example:
+          Green Umbrella
+      netPrice:
+        description: |-
+          The net price of the line item before applying any adjustments.
+        type: number
+        format: double
+        example:
+          30.32
+      optionItems?:
+            description: |-
+              The array of option items. This array can be empty.
+            type: array
+            maxItems: 10
+            items:
+              type: 
+                CreateOrderOptionItem
+      priceAdjustments?:
+        description: |-
+          The price adjustments on product line item.
+        type: array
+        maxItems: 20
+        items:
+          type: 
+            CreateOrderPriceAdjustment
+      productId:
+        description: The ID of the product.
+        minLength: 1
+        maxLength: 100
+        type: string      
+        example:
+          green_umbrella-00001
+      productName?:
+        description: The name of the product.
+        maxLength: 256
+        type: string
+        example:
+          green umbrella
+      quantity:
+        description: The ordered quantity of the products represented by this item.
+        minimum: 0
+        type: number
+        format: double
+        example:
+          3.0
+      shipmentId:
+        description: The ID of the shipment this item belong to. Shipment 'me' is reserved for the system and is not valid to pass. 
+        minLength: 1
+        maxLength: 256
+        type: string
+        example:
+          shipment00001
+      tax:
+        description: |-
+          The tax on the line item before applying any adjustments.
+        type: number
+        format: double
+        example:
+          4.00
+      taxBasis?:
+        description: |-
+          The amount used to calculate the tax for this item.
+        type: number
+        format: double
+        example:
+          30.32
+      taxRate?:
+        description: |-
+          The tax rate applicable to this product line item.
+          For a 10% tax rate, the value is 0.1.
+          Just for displaying purpose. No calculation or sanity checks are applied.
+        type: number
+        format: double     
+  CreateOrderShipment:
+    description: |-
+      Document representing a shipment for an order.
+    type:
+      CommerceCloudStandards.ClosedObject
+    properties:
+      shipmentId:
+        description: |-
+          The order-specific ID of the shipment. The field shipmentId from line items reference to this value.
+          The first shipment always become the standard shipment and is named 'me' therefore. The Id 'me' is reserved for the standard shipment and it is not allowed to be used by the API caller.
+        minLength: 1
+        maxLength: 256
+        type: string
+        example:
+          shipment00001
+      shippingMethod:
+        description:  |-
+          The shipping method. This is no reference to any shipments configured in the platform.
+        type: string
+        example:
+          EXPRESS
+      shippingAddress:
+        description:  |-
+          The shipping address.
+        type:
+          Address
+      shippingTotal:
+        description: |-
+          The total price of all shipping charges in the shipment.
+          If the taxation policy is net, it doesn't include tax.
+          If the taxation policy is gross, it includes tax.
+        type: number
+        format: double
+        example:
+          4.95
+      taxTotal:
+        description: |-
+          The total tax on the shipment.
+        type: number
+        format: double
+        example:
+          0.75
+  CreateOrderOptionItem:
+    description: |-
+      An option item represents an optional purchase related to a product item, and is always associated with that parent product item. For example, a refrigerator item can have a set of option items representing different warranties on the refrigerator. A shopper can only purchase one of the warranty option items together with the parent refrigerator item.
+    type:
+      CommerceCloudStandards.OpenObject
+    properties:
+      basePrice:
+        description: |-
+          The base price of the line item, which is the unit price not including adjustments. If the taxation policy is net, it doesn't include tax. If the taxation policy is gross, it includes tax.
+        type: number
+        format: double
+        example:
+          49.99
+      grossPrice:
+        description: |-
+          The gross price of the line item before applying any adjustments.
+        type: number
+        format: double
+        example:
+          99.99
+      itemText?:
+        description: |-
+          The text describing the item.
+        type: string
+        maxLength: 256
+        example:
+          Extended Warranty - None
+      netPrice:
+        description: |-
+          The net price of the line item before applying any adjustments.
+        type: number
+        format: double
+        example:
+          49.99
+      tax:
+        description: |-
+          The tax on the line item before applying any adjustments.
+        type: number
+        format: double
+        example:
+          0.19
+      taxBasis?:
+        description: |-
+          The amount used to calculate the tax for this item.
+        type: number
+        format: double
+        example:
+          50.00
+      optionId: 
+        description: |-
+          The ID of the option.
+        type: string
+        minLength: 1
+        maxLength: 256
+        example:
+          consoleWarranty
+      optionValueId: 
+        description: |-
+          The ID of the option value.
+        type: string
+        minLength: 1
+        maxLength: 256
+        example:
+          "000"
+      priceAdjustments?:
+        description: |-
+          The price adjustments.
+        type: array
+        maxItems: 20
+        items:
+          type: CreateOrderPriceAdjustment
+      productId: 
+        description: |-
+          The ID of the product.
+        type: string
+        minLength: 1
+        maxLength: 100
+        example:
+          "000"
+  CreateOrderPaymentTransaction:
+    description: |-
+      Document representing an order payment transaction.
+    type:
+      CommerceCloudStandards.OpenObject
+    properties:
+      amount:
+        description: |-
+          The payment transaction amount.
+        type: number
+        format: double
+        example:
+          130.88
+      authorizationStatus?:
+        description: |-
+          The authorization status of the payment transaction.
+        type: Status
+      transactionId:
+        description: |-
+          The payment service specific transaction ID.
+        type: string
+        maxLength: 256
+        example:
+          3226f0a3bc4b4f244d70dd1c2b

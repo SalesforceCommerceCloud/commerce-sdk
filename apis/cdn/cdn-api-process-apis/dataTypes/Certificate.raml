@@ -9,27 +9,95 @@ properties:
   hosts:
     description: List of hosts the certificate applies to.
     type: string[]
+    required: false
   expiresOn:
-    description: Date of exiration for the certificate. 
+    description: Date of expiration for the certificate.
     type: datetime
+    required: false
   uploadedOn:
     description: Date the certificate was uploaded.
     type: datetime
+    required: false
+  issuer:
+    description: The certificate authority that issued the certificate.
+    type: string
+    required: false
+  signature:
+    description: The type of hash used for the certificate.
+    type: string
+    required: false
   status:
     description: Current status of the certificate. 
     type: string
-    enum: [ACTIVE, EXPIRED, DELETED]
-
-examples:
-  example1:
-    certificateId: 3822ff90-ea29-44df-9e55-21300bb9419b
-    status: EXPIRED
-    hosts: [example.com, www.example.com]
-    expiresOn: 2021-01-01T05:20:00Z
-    uploadedOn: 2016-01-01T05:20:00Z
-  example2:
-    certificateId: 730a1be4-22d7-11eb-adc1-0242ac120002
-    status: ACTIVE
-    hosts: [radtimes.com, superradtimes.com, bestdayever.com]
-    expiresOn: 2021-01-01T05:20:00Z
-    uploadedOn: 2015-01-01T05:20:00Z
+    enum: [ACTIVE, EXPIRED, DELETED, PENDING, INITIALIZING, PENDING_VALIDATION, PENDING_ISSUANCE, PENDING_DEPLOYMENT, PENDING_DELETION]
+  minTlsVersion:
+    type: string
+    description: Minimum TLS Version only allows HTTPS connections from visitors that support the selected TLS protocol version or newer.
+    required: false
+  certificateType:
+    description: Indicates certificate is custom cert uploaded by customer or automatic renewal certificate by eCDN.
+    enum: [custom, automatic, custom_legacy]
+    type: string
+  certificateAuthority:
+    description: Indicates certificate issuer for automatic renewal certificate by eCDN.
+    type: string
+    enum: [google, lets_encrypt, digicert]
+    required: false
+  certificateValidation:
+    description: Indicates certificate validation type for automatic renewal certificate by eCDN.
+    type: string
+    enum: [http, txt]
+    required: false
+  certificateVerificationTXTName:
+    description: eCDN automatic renewal certificate verification txt name.
+    type: string
+    required: false
+  certificateVerificationTXTValue:
+    description: eCDN automatic renewal certificate verification txt value.
+    type: string
+    required: false
+  certificateVerificationStatus:
+    description: Current status of certificate verification.
+    type: string
+    enum: [ACTIVE, EXPIRED, PENDING, INITIALIZING, PENDING_VALIDATION, PENDING_ISSUANCE, PENDING_DEPLOYMENT]
+    required: false
+  wildcardCertificateVerificationTXTName:
+    description: eCDN automatic renewal certificate verification txt name.
+    type: string
+    required: false
+  wildcardCertificateVerificationTXTValue:
+    description: eCDN automatic renewal certificate verification txt value.
+    type: string
+    required: false
+  wildcardCertificateVerificationStatus:
+    description: Current status of certificate verification.
+    type: string
+    enum: [ACTIVE, EXPIRED, PENDING, INITIALIZING, PENDING_VALIDATION, PENDING_ISSUANCE, PENDING_DEPLOYMENT]
+    required: false
+  customHostnameVerificationTXTName:
+    description: Custom Hostname verification txt name.
+    type: string
+    required: false
+  customHostnameVerificationTXTValue:
+    description: Custom Hostname verification txt value.
+    type: string
+    required: false
+  customHostnameId:
+    description: Custom hostname associated with the zone
+    type: string
+    required: false
+  customHostname:
+    description: Custom hostname associated with the zone
+    type: string
+    required: false
+  customHostnameStatus:
+    description: Current status of custom hostname validation.
+    type: string
+    enum: [ACTIVE, EXPIRED, DELETED, PENDING, INITIALIZING, PENDING_VALIDATION, PENDING_ISSUANCE, PENDING_DEPLOYMENT, PENDING_DELETION, MOVED]
+    required: false
+  dcvDelegationRecords:
+    description: eCDN automatic renewal certificate DCV delegation records
+    type: array
+    items:
+      type: DCVDelegationRecord
+    required: false

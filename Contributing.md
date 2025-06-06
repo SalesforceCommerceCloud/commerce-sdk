@@ -4,7 +4,7 @@ To contribute to commerce-sdk, follow the guidelines below. This helps us addres
 
 ## Issues
 
-First, check the [open issues](https://github.com/SalesforceCommerceCloud/commerce-sdk/issues) and [Commerce Cloud Developer Center](https://developer.commercecloud.com/) for any open issues related to the issue that you are experiencing. If not already raised please file a new issue [here](https://github.com/SalesforceCommerceCloud/commerce-sdk/issues/new) with all the necessary details. If you require an urgent resolution to your issue please ask your AM/CSM to file a support ticket with Salesforce Commerce.
+First, check the [open issues](https://github.com/SalesforceCommerceCloud/commerce-sdk/issues) and [Commerce Cloud Developer Center](https://developer.salesforce.com/developer-centers/commerce-cloud) for any open issues related to the issue that you are experiencing. If not already raised please file a new issue [here](https://github.com/SalesforceCommerceCloud/commerce-sdk/issues/new) with all the necessary details. If you require an urgent resolution to your issue please ask your AM/CSM to file a support ticket with Salesforce Commerce.
 
 
 ## Submit a Pull Request

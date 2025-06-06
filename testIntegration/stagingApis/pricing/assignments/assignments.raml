@@ -9,15 +9,18 @@ baseUriParameters:
     description: A region-specific merchant identifier.
     example: 0dnz6oep
     pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
-description: Management API for assignments.
+description: !include assignments-description.md
 
 uses:
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.13/api-standards.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.1/commerce-cloud-standards.raml
 
 types:
   Campaign:
-    description: Document representing a campaign.
+    description: |-
+      Document representing a campaign.
+    type:
+      CommerceCloudStandards.OpenObject
     properties:
       campaignId:
         description: The ID of the campaign.
@@ -70,7 +73,9 @@ types:
   Promotion:
     description: |-
       Document representing a promotion. Unless otherwise stated, attributes of this document are not supported when using
-       the Open Commerce API to update multiple promotions at once.
+      the Open Commerce API to update multiple promotions at once.
+    type:
+      CommerceCloudStandards.OpenObject   
     properties:
       archived:
         description: |-
@@ -89,7 +94,7 @@ types:
       currencyCode:
         description: |-
           The ISO 4217 mnemonic code of the currency this promotion is restricted to. If not populated, then there is no
-           currency restriction on the promotion.
+          currency restriction on the promotion.
         maxLength: 3
         type: string
         required: false
@@ -145,6 +150,8 @@ types:
           type: Tag
         required: false
   PromotionAbtestGroupAssignment:
+    type:
+      CommerceCloudStandards.ClosedObject
     properties:
       abtestDescription:
         type: string
@@ -159,6 +166,8 @@ types:
       segmentId:
         type: string
   PromotionAssignmentInformation:
+    type:
+      CommerceCloudStandards.ClosedObject
     properties:
       abtestId:
         description: |-
@@ -227,7 +236,10 @@ types:
         items:
           type: PromotionCampaignAssignment
   PromotionCampaignAssignment:
-    description: Document representing a promotion campaign assignment.
+    type:
+      CommerceCloudStandards.ClosedObject
+    description: |-
+      Document representing a promotion campaign assignment.
     properties:
       campaign:
         description: The campaign.
@@ -266,6 +278,8 @@ types:
         description: The rank of promotion campaign assignment.
         type: integer
         format: int32
+        minimum: 1
+        maximum: 100
       schedule:
         description: The schedule of the assignment resource.
         type: Schedule
@@ -275,7 +289,10 @@ types:
         items:
           type: string
   Schedule:
-    description: Document representing a time schedule for slots.
+    type:
+      CommerceCloudStandards.ClosedObject
+    description: |-
+      Document representing a time schedule for slots.
     properties:
       endDate:
         description: 'The date to end of validity. ISO8601 date time format: yyyy-MM-dd''T''HH:mm:ssZ.'
@@ -287,7 +304,10 @@ types:
         description: 'The date to start validity. ISO8601 date time format: yyyy-MM-dd''T''HH:mm:ssZ.'
         type: datetime
   Recurrence:
-    description: Document representing a schedule recurrence.
+    type:
+      CommerceCloudStandards.ClosedObject
+    description: |-
+      Document representing a schedule recurrence.
     properties:
       dayOfWeek:
         description: The days of week for recurrence.
@@ -306,7 +326,10 @@ types:
         description: The time of the day for recurrence.
         type: TimeOfDay
   TimeOfDay:
-    description: Document representing a time schedule within a single day.
+    type:
+      CommerceCloudStandards.ClosedObject
+    description: |-
+      Document representing a time schedule within a single day.
     properties:
       timeFrom:
         description: |-
@@ -319,7 +342,10 @@ types:
            are ignored and set to 0.
         type: string
   Tag:
-    description: Document representing a tag.
+    type:
+      CommerceCloudStandards.ClosedObject
+    description: |-
+      Document representing a tag.
     properties:
       tagId:
         description: The ID of the tag.
@@ -378,8 +404,6 @@ types:
     displayName: assignmentsSearch
     is:
      - CommerceCloudStandards.SiteSpecific
-     - ApiStandards.RateLimited:
-          responseStatus: 200
     responses:
       '200':
         description: API Executed Successfully.
@@ -390,5 +414,4 @@ types:
       application/json:
         type: CommerceCloudStandards.SearchRequest
     securedBy:
-      - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
-      - CommerceCloudStandards.AmOAuth2
+      - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }

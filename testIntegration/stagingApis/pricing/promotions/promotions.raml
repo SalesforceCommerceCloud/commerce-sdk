@@ -9,16 +9,19 @@ baseUriParameters:
     description: A region-specific merchant identifier.
     example: 0dnz6oep
     pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
-description: Management API to create and modify Promotions.
+description: !include promotions-description.md
 
 uses:
     DataPromotionTraits: promotions-traits-library.raml
-    ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.13/api-standards.raml
-    CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml
+    ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
+    CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.1/commerce-cloud-standards.raml
 
 types:
   Campaign:
-    description: Document representing a campaign.
+    description: |-
+      Document representing a campaign.
+    type:
+      CommerceCloudStandards.OpenObject
     properties:
       campaignId:
         description: The ID of the campaign.
@@ -71,7 +74,9 @@ types:
   Promotion:
     description: |-
       Document representing a promotion. Unless otherwise stated, attributes of this document are not supported when using
-       the Open Commerce API to update multiple promotions at once.
+      the Open Commerce API to update multiple promotions at once.
+    type:
+      CommerceCloudStandards.OpenObject
     properties:
       archived:
         description: |-
@@ -150,6 +155,8 @@ types:
         required: false
       siteId?: CommerceCloudStandards.SiteId
   PromotionAbtestGroupAssignment:
+    type:
+      CommerceCloudStandards.ClosedObject
     properties:
       abtestDescription:
         type: string
@@ -164,11 +171,13 @@ types:
       segmentId:
         type: string
   PromotionAssignmentInformation:
+    type:
+      CommerceCloudStandards.ClosedObject
     properties:
       abtestId:
         description: |-
           If there is only one assignment, and that assignment is an A/B test segment, the ID of the A/B test the segment
-           belongs to. Otherwise, empty.
+          belongs to. Otherwise, empty.
         type: string
         required: false
       abtestSegmentId:
@@ -239,7 +248,10 @@ types:
           type: PromotionCampaignAssignment
         required: false
   PromotionCampaignAssignment:
-    description: Document representing a promotion campaign assignment.
+    description: |-
+      Document representing a promotion campaign assignment.
+    type:
+      CommerceCloudStandards.ClosedObject
     properties:
       campaign:
         description: The campaign.
@@ -293,14 +305,18 @@ types:
           type: string
         required: false
   PromotionSearchResult:
-    description: Document representing a promotion search result.
+    description: |-
+      Document representing a promotion search result.
     type: CommerceCloudStandards.PaginatedSearchResult
     properties:
       hits:
         description: The sorted array of promotion search hits. Can be empty.
         type: Promotion[]
   Recurrence:
-    description: Document representing a schedule recurrence.
+    description: |-
+      Document representing a schedule recurrence.
+    type:
+      CommerceCloudStandards.ClosedObject
     properties:
       dayOfWeek:
         description: The days of week for recurrence.
@@ -319,7 +335,10 @@ types:
         description: The time of the day for recurrence.
         type: TimeOfDay
   Schedule:
-    description: Document representing a time schedule for slots.
+    description: |-
+      Document representing a time schedule for slots.
+    type:
+      CommerceCloudStandards.ClosedObject
     properties:
       endDate:
         description: 'The date to end of validity. ISO8601 date time format: yyyy-MM-dd''T''HH:mm:ssZ.'
@@ -334,13 +353,19 @@ types:
         type: datetime
         required: false
   Tag:
-    description: Document representing a tag
+    description: |-
+      Document representing a tag
+    type:
+      CommerceCloudStandards.ClosedObject
     properties:
       tagId:
         description: The ID of the tag.
         type: string
   TimeOfDay:
-    description: Document representing a time schedule within a single day.
+    description: |-
+      Document representing a time schedule within a single day.
+    type:
+      CommerceCloudStandards.ClosedObject
     properties:
       timeFrom:
         description: |-
@@ -381,11 +406,6 @@ types:
           | promotionClass | String |
 
       displayName: promotionsSearch
-      is:
-        - ApiStandards.RateLimited:
-            responseStatus: 200
-        - ApiStandards.RateLimited:    
-            responseStatus: 400
       responses:
         '200':
           description: Search promotions successfully.
@@ -398,8 +418,7 @@ types:
         application/json:
           type: CommerceCloudStandards.SearchRequest
       securedBy:
-        - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
-        - CommerceCloudStandards.AmOAuth2
+        - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
     '/{id}':
       is:
         - CommerceCloudStandards.SiteSpecific
@@ -414,24 +433,16 @@ types:
       delete:
           description: Deletes the promotion by ID.
           displayName: deletePromotion  
-          is:
-            - ApiStandards.RateLimited:
-                responseStatus: 204
           responses:
             '204':
               description: Deleted the promotion successfully.
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions.rw ] }
       get:
           description: Action to get promotion information.
           displayName: getPromotion
           is:
             - DataPromotionTraits.PromotionNotFound:
-            - ApiStandards.RateLimited:
-                responseStatus: 200
-            - ApiStandards.RateLimited:    
-                responseStatus: 404
           responses:
             '200':
               description: Retrieved promotion information successfully.
@@ -439,19 +450,14 @@ types:
                 application/json:
                   type: Promotion
                   examples:
-                    promotionGetResponse: !include Examples/get-promotion-response.raml
+                    !include Examples/get-promotion-response.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions, sfcc.promotions.rw ] }
       patch:
           description: Updates the promotion with the specified information.
           displayName: updatePromotion
           is:
             - DataPromotionTraits.PromotionNotFound:
-            - ApiStandards.RateLimited:
-                responseStatus: 200
-            - ApiStandards.RateLimited:    
-                responseStatus: 404
           responses:
             '200':
               description: |-
@@ -462,24 +468,19 @@ types:
                 application/json:
                   type: Promotion
                   examples: 
-                    promotionPatchResponse: !include Examples/patch-promotion-response.raml
+                    !include Examples/patch-promotion-response.raml
           body:
             application/json:
               type: Promotion
               examples: 
-                promotionPatchRequest: !include Examples/patch-promotion-request.raml
+                !include Examples/patch-promotion-request.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions.rw ] }
       put:
           description: Creates a promotion using the information provided.
           displayName: createPromotion
           is:
             - DataPromotionTraits.PromotionIdConflict:
-            - ApiStandards.RateLimited:
-                responseStatus: 200
-            - ApiStandards.RateLimited:    
-                responseStatus: 400
           responses:
             '200':
               description: Creates a promotion using the information provided.
@@ -487,12 +488,11 @@ types:
                 application/json:
                   type: Promotion
                   examples:
-                    promotionPutResponse: !include Examples/put-promotion-response.raml
+                    !include Examples/put-promotion-response.raml
           body:
             application/json:
               type: Promotion
               examples:
-                promotionPutRequest: !include Examples/put-promotion-request.raml
+                !include Examples/put-promotion-request.raml
           securedBy:  
-            - CommerceCloudStandards.BearerToken: { scopes: [ sfcc.promotions.rw ] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [ sfcc.promotions.rw ] }

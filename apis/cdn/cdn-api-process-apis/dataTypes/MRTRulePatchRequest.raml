@@ -1,0 +1,19 @@
+#%RAML 1.0 DataType
+description: PATCH request for updating an MRT rule. You may use the PATCH request to update the rule's expression and description as well as disable/enable the rule.
+type: object
+properties:
+  enabled:
+    description: Whether or not the rule is enabled.
+    type: boolean
+    example: true
+    required: false
+  expression: 
+    description: The expression that determines the MRT rule's routing behavior. 
+    type: string
+    example: (http.host eq \"dev-customer.salesforce.com\" and not ( http.request.uri.path matches \"^/path1/.*\" or http.request.uri.path matches \"^.*/path2/.*/products/.*\"))
+    required: false
+  description:
+    description: The description of the rule. Optional.
+    type: string
+    example: Phased rollout rule for dev-customer.salesforce.com
+    required: false

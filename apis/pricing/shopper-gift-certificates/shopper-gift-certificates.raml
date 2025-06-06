@@ -9,16 +9,19 @@ baseUriParameters:
     description: A region-specific merchant identifier.
     example: 0dnz6oep
     pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
-description: APIs to return Gift Certificate details.
+description: !include shopper-gift-certificates-description.md
 mediaType: 
   - application/json
 uses: 
   GiftCertificateTraits: gift-certificate-traits-library.raml
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.13/api-standards.raml
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.16/commerce-cloud-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.1/commerce-cloud-standards.raml
 types:
   GiftCertificate:
-    description: Document representing a gift certificate.
+    description: |-
+      Document representing a gift certificate.
+    type:
+      CommerceCloudStandards.OpenObject
     examples:
       gift-certificate: !include Examples/gift-certificate-example.raml
     properties:
@@ -63,7 +66,10 @@ types:
           - partially_redeemed
           - redeemed
   GiftCertificateRequest:
-    description: Document representing a gift certificate request data.
+    description: |-
+      Document representing a gift certificate request data.
+    type:
+      CommerceCloudStandards.ClosedObject
     properties:
       giftCertificateCode:
         description: The gift certificate code.
@@ -77,10 +83,6 @@ types:
     displayName: getGiftCertificate
     is:
       - GiftCertificateTraits.NotFound
-      - ApiStandards.RateLimited:
-            responseStatus: 200
-      - ApiStandards.RateLimited:      
-            responseStatus: 404
     responses:
       '200':
         description: Gift certificate retrieved sucessfully.

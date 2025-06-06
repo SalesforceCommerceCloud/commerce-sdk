@@ -10,12 +10,12 @@ baseUriParameters:
     example: 0dnz6oep
     pattern: ^([a-z0-9]+)(-[a-z0-9]+)*$
 
-description: Use the Data Products API to interact with the API in the context of a Business Manager to get products.
+description: !include products-description.md
 
 uses:
   ProductTraits: data-products-library.raml
-  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.8/api-standards.raml   
-  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/1.0.15/commerce-cloud-standards.raml
+  ApiStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/api-standards/1.1.15/api-standards.raml   
+  CommerceCloudStandards: exchange_modules/893f605e-10e2-423a-bdb4-f952f56eb6d8/commerce-cloud-standards/2.0.1/commerce-cloud-standards.raml
 
 types:
   CatalogCategoryId:
@@ -59,7 +59,7 @@ types:
         type: string
         example: ""
   Master:
-    description: Representation of a group of variant products by an attribute. This is a non-buyable entity, provides inheritable attributes for it's product variants, and is used for navigation. *Doesn't have a SKU.*
+    description: Representation of a group of variant products by an attribute. This is a non-buyable entity, provides inheritable attributes for it's product variants, and is used for navigation. *Does'nt have a SKU.*
     properties:
       masterId:
         maxLength: 100
@@ -142,7 +142,7 @@ types:
     description: Any product that is sold, shown alone, and does not have variations such as different sizes or colors. Product that has no reliance on any other product for inheritance. *A product has a SKU and can have a product option, which has a different SKU*.
     properties:
       assignedCategories:
-        description: The catalog categories that the product is assigned to.
+        description: The catalog categories that the product is assigned to. It is read only.
         type: CatalogCategoryId[]
         required: false
       ats:
@@ -157,7 +157,7 @@ types:
         required: false
         example: "Apple"
       bundledProducts:
-        description: The array of bundled products which the product includes.
+        description: The array of bundled products which the product includes. It is read only.
         type: Product[]
         required: false
       classificationCategory:
@@ -165,12 +165,12 @@ types:
         type: CatalogCategoryId
         required: false
       creationDate:
-        description: Returns the value of attribute 'creationDate'.
+        description: Returns the value of attribute 'creationDate'. It is read only.
         type: datetime
         required: false
         example: 9999-12-31T00:00:00.0Z
       defaultVariantId:
-        description: The ID of the product's default variant.
+        description: The ID of the product's default variant. It is read only.
         type: string
         required: false
         example: "apple-ipod-classic-8gb-black"
@@ -186,11 +186,11 @@ types:
         type: string
         example: "apple-ipod-classic"
       image:
-        description: The image(s) assigned to the product.
+        description: The image(s) assigned to the product. It is read only.
         type: MediaFile
         required: false
       imageGroups:
-        description: The array of product image groups.
+        description: The array of product image groups. It is read only.
         type: ImageGroup[]
         required: false
       inStock:
@@ -199,7 +199,7 @@ types:
         required: false
         example: true
       lastModified:
-        description: Returns the value of attribute 'lastModified'.
+        description: Returns the value of attribute 'lastModified'. It is read only.
         type: datetime
         required: false
         example: 9999-12-31T00:00:00.0Z
@@ -259,7 +259,7 @@ types:
         required: false
         example: "apple-master-catalog"
       owningCatalogName:
-        description: The localized name of the catalog that owns the product.
+        description: The localized name of the catalog that owns the product. It is read only.
         type: object
         properties:
           //:
@@ -308,24 +308,24 @@ types:
         required: false
         example: 1
       primaryCategories:
-        description: The primary catalog categories that the product is assigned to.
+        description: The primary catalog categories that the product is assigned to. It is read only.
         type: CatalogCategoryId[]
         required: false
       primaryCategoryId:
-        description: The ID of the products primary category. This is a read only field.
+        description: The ID of the products primary category. This is a read only field. It is read only.
         type: string
         required: false
         example: "electronics-media-players"
       productBundles:
-        description: The array of product bundles which the product belongs to.
+        description: The array of product bundles which the product belongs to. It is read only.
         type: Product[]
         required: false
       productOptions:
-        description: The array of product options. This is applicable for products of type "option".
+        description: The array of product options. This is applicable for products of type "option". It is read only.
         type: ProductOption[]
         required: false
       productSets:
-        description: The array of product sets which the product belongs to.
+        description: The array of product sets which the product belongs to. It is read only.
         type: Product[]
         required: false
       searchable:
@@ -337,7 +337,7 @@ types:
         required: false
         example: {"Site1":true}
       setProducts:
-        description: The array of set products which the product includes.
+        description: The array of set products which the product includes. It is read only.
         type: Product[]
         required: false
       shortDescription:
@@ -353,7 +353,7 @@ types:
         required: false
         example: "standard"
       type:
-        description: The type of the product. It can have one or more of the values "item", "master", "variationGroup", "variant", "bundle", and "set".
+        description: The type of the product. It can have one or more of the values "item", "master", "variationGroup", "variant", "bundle", and "set". It is read only.
         type: ProductType
         required: false
       unit:
@@ -394,23 +394,23 @@ types:
         required: false
         example: {"default@SiteGenesis":"2050-05-11T00:00:00.000Z"}
       variants:
-        description: The array of variants of the product. This is applicable for product types "master" and "variationGroup" only.
+        description: The array of variants of the product. This is applicable for product types "master" and "variationGroup" only. It is read only.
         type: Variant[]
         required: false
       variationAttributes:
         description: |-
           The sorted array of variation attributes assigned to the product. This is applicable for product types "master",
-           "variationGroup" and "variant" only.
+           "variationGroup" and "variant" only. It is read only.
         type: VariationAttribute[]
         required: false
       variationGroups:
-        description: The array of variation groups in the product. This is applicable for product type "master" only.
+        description: The array of variation groups in the product. This is applicable for product type "master" only. It is read only.
         type: VariationGroup[]
         required: false
       variationValues:
         description: |-
           The variation values selected for the product in variation attribute id and value pairs. This is applicable for product types "Variant" and
-           "VariationGroup" only.
+           "VariationGroup" only. It is read only.
         type: object
         properties:
           //:
@@ -551,13 +551,15 @@ types:
         type: integer
         format: int32
         example: 10
-
+  ProductSearchRequest:
+    type: CommerceCloudStandards.SearchRequest
+    example: !include Examples/ProductSearchRequest.raml
   ProductSearchResult:
     description: Document representing a product search result.
     type: CommerceCloudStandards.PaginatedSearchResult
     properties:
       hits:
-        description: The sorted array of search hits. Can be empty.
+        description: A sorted array of search hits (`Product` objects). The array can be empty.
         type: Product[]
   ProductType:
     description: Document representing a product type.
@@ -688,12 +690,15 @@ types:
             type: string
         required: false
         example: {"color":"black"}
+  VariantSearchRequest:
+    type: CommerceCloudStandards.SearchRequest
+    example: !include Examples/VariantSearchRequest.raml
   VariantSearchResult:
     description: Document that represents a search on certificates and keys.
     type: CommerceCloudStandards.PaginatedSearchResult
     properties:
       hits:
-        description: The hits from the search.
+        description: An array of search hits (`Variant` objects).
         type: Variant[]
   Variants:
     description: Document representing an unfiltered list of variants.
@@ -981,27 +986,17 @@ types:
           description: Deletes the product by ID.
           displayName: deleteProduct
           is:
-            - ApiStandards.RateLimited3:
-                responseStatus: 204
-                responseStatus2: 401
-                responseStatus3: 404
             - ProductTraits.ProductNotFound
             - ProductTraits.Unauthorized
           responses:
             '204':
               description: Deleted the product successfully.
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
       get:
           description: Action to get product information.
           displayName: getProduct
           is:
-            - ApiStandards.RateLimited4:
-                responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 404
             - ProductTraits.ProductNotFound
             - ProductTraits.Unauthorized
             - ProductTraits.BadRequest
@@ -1020,8 +1015,7 @@ types:
               required: false
               example: SiteGenesis
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
       patch:
           description: |-
             Update a product using the information provided.
@@ -1031,13 +1025,10 @@ types:
             pageKeywords, brand, ean, upc, manufactureSku,
             manufactureName, searchable, unit, searchable,
             onlineFlag, defaultVariantId.
+
+            Custom Attributes are used to extend a standard Product system object. This endpoint can be used to update custom attribute values for a particular product SKU. If you try to update a non-existent custom attribute, the request won't fail, but no changes are made and the attribute is not created.
           displayName: updateProduct
           is:
-            - ApiStandards.RateLimited4:
-                responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 404
             - ProductTraits.ProductNotFound
             - ProductTraits.Unauthorized
             - ProductTraits.BadRequest
@@ -1055,18 +1046,11 @@ types:
               examples:
                 productRequest: !include Examples/Data-Product-Expand.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
       put:
-          description: Creates a product using the information provided. If a product with the same unique identifier exists, it is cleaned and overwritten unless the header x-dw-validate-existing=true is passed in with the request.
+          description: Creates a product using the information provided. If a product with the same unique identifier exists, it is cleaned and overwritten.
           displayName: createProduct
           is:
-            - ApiStandards.RateLimited5:
-                responseStatus: 201
-                responseStatus2: 200
-                responseStatus3: 400
-                responseStatus4: 401
-                responseStatus5: 404
             - ProductTraits.Unauthorized
             - ProductTraits.BadRequest
             - ProductTraits.ProductNotFound
@@ -1091,8 +1075,7 @@ types:
               examples:
                 productRequest: !include Examples/Data-Product-Expand.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
       uriParameters:
           productId:
             description: The product ID.
@@ -1156,11 +1139,6 @@ types:
 
           displayName: searchProductVariations
           is:
-            - ApiStandards.RateLimited4:
-                responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 404
             - ProductTraits.Unauthorized
             - ProductTraits.BadRequest
             - ProductTraits.ProductNotFound
@@ -1180,22 +1158,14 @@ types:
               example: SiteGenesis
           body:
             application/json:
-              type: CommerceCloudStandards.SearchRequest
-              examples: 
-                variantSearchRequest: !include Examples/VariantSearchRequest.raml
+              type: VariantSearchRequest
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
     /{masterProductId}/variation-groups:
       get:
         description: Reads variation groups for a product master.
         displayName: getVariationGroupsForMasterProduct
         is:
-          - ApiStandards.RateLimited4:
-              responseStatus: 200
-              responseStatus2: 400
-              responseStatus3: 401
-              responseStatus4: 404
           - ProductTraits.Unauthorized
           - ProductTraits.BadRequest
           - ProductTraits.ProductNotFound
@@ -1217,8 +1187,7 @@ types:
             description: The site context.
             example: SiteGenesis
         securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
-          - CommerceCloudStandards.AmOAuth2
+          - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
       /{id}:
         delete:
           description: |-
@@ -1226,27 +1195,17 @@ types:
               deleted: it remains as a normal product after unsassign.
           displayName: unassignVariationGroupFromMasterProduct
           is:
-            - ApiStandards.RateLimited3:
-                responseStatus: 204
-                responseStatus2: 401
-                responseStatus3: 404
             - ProductTraits.ProductNotFound
             - ProductTraits.Unauthorized
           responses:
             '204':
               description: Deleted the variation group successfully.
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
         get:
           description: Read a variation group for a product master.
           displayName: getVariationGroupForMasterProduct
           is:
-            - ApiStandards.RateLimited4:
-                responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 404
             - ProductTraits.Unauthorized
             - ProductTraits.BadRequest
             - ProductTraits.ProductNotFound
@@ -1265,17 +1224,11 @@ types:
               required: false
               example: SiteGenesis
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
         patch:
           description: Update a variation group for a product master.
           displayName: updateVariationGroupForMasterProduct
           is:
-            - ApiStandards.RateLimited4:
-                responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 404
             - ProductTraits.Unauthorized
             - ProductTraits.BadRequest
             - ProductTraits.ProductNotFound
@@ -1293,19 +1246,13 @@ types:
               examples: 
                 variantGroupsIdRequest: !include Examples/VariationGroupsIdRequest.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
         put:
           description: |-
             Assign a variation group for a product master. If the variation group product does not initially exist,
               one is created using the body passed in.
           displayName: assignVariationGroupToMasterProduct
           is:
-            - ApiStandards.RateLimited4:
-                responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 404
             - ProductTraits.Unauthorized
             - ProductTraits.BadRequest
             - ProductTraits.ProductNotFound
@@ -1323,8 +1270,7 @@ types:
               examples: 
                 variantGroupsIdRequest: !include Examples/VariationGroupsIdRequest.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
         uriParameters:
           masterProductId:
             description: The ID of the master product that contains the variation group.
@@ -1341,11 +1287,6 @@ types:
           description: Reads variation for a product master.
           displayName: getVariationsForMasterProduct
           is:
-            - ApiStandards.RateLimited4:
-                responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 404
             - ProductTraits.Unauthorized
             - ProductTraits.BadRequest
             - ProductTraits.ProductNotFound
@@ -1367,8 +1308,7 @@ types:
               required: false
               example: SiteGenesis
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
       /{id}:
         delete:
           description: |-
@@ -1376,27 +1316,17 @@ types:
               normal product after unsassign.
           displayName: unassignVariationFromMasterProduct
           is:
-            - ApiStandards.RateLimited3:
-                responseStatus: 204
-                responseStatus2: 401
-                responseStatus3: 404
             - ProductTraits.ProductNotFound
             - ProductTraits.Unauthorized
           responses:
             '204':
               description: Deleted the variation group successfully.
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
         get:
           description: Read a variation for a product master.
           displayName: getVariationForMasterProduct
           is:
-            - ApiStandards.RateLimited4:
-                responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 404
             - ProductTraits.Unauthorized
             - ProductTraits.BadRequest
             - ProductTraits.ProductNotFound
@@ -1415,17 +1345,11 @@ types:
               description: The site context.
               example: SiteGenesis
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
         patch:
           description: Update a variation for a product master.
           displayName: updateVariationForMasterProduct
           is:
-            - ApiStandards.RateLimited4:
-                responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 404
             - ProductTraits.Unauthorized
             - ProductTraits.BadRequest
             - ProductTraits.ProductNotFound
@@ -1443,19 +1367,13 @@ types:
               examples: 
                 variantsIdRequest: !include Examples/VariationsIdRequest.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
         put:
           description: |-
             Assign a variation for a product master.  If the variation product does not initially exist,
               one is created using the body passed in.
           displayName: assignVariationForMasterProduct
           is:
-            - ApiStandards.RateLimited4:
-                responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 404
             - ProductTraits.Unauthorized
             - ProductTraits.BadRequest
             - ProductTraits.ProductNotFound
@@ -1473,8 +1391,7 @@ types:
               examples:
                 variantsIdRequest: !include Examples/VariationsIdRequest.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
         uriParameters:
           masterProductId:
             description: The ID of the master product that contains the variation group.
@@ -1491,11 +1408,6 @@ types:
           description: Read local and shared product options of a product.
           displayName: getProductOptions
           is:
-            - ApiStandards.RateLimited4:
-                responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 404
             - ProductTraits.Unauthorized
             - ProductTraits.BadRequest
             - ProductTraits.ProductNotFound
@@ -1515,18 +1427,12 @@ types:
               type: string
               required: false
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
       /{id}:
         delete:
           description: Deletes a local product option or unbinds a shared product option from the product.
           displayName: deleteProductOption
           is:
-            - ApiStandards.RateLimited4:
-                responseStatus: 204
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 404
             - ProductTraits.Unauthorized
             - ProductTraits.BadRequest
             - ProductTraits.ProductNotFound
@@ -1534,17 +1440,11 @@ types:
             '204':
               description: Deleted product option succesfully.
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
         get:
           description: Read a local or shared product option of a product.
           displayName: getProductOption
           is:
-            - ApiStandards.RateLimited4:
-                responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 404
             - ProductTraits.Unauthorized
             - ProductTraits.BadRequest
             - ProductTraits.ProductNotFound
@@ -1562,17 +1462,11 @@ types:
               required: false
               example: USD
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
         patch:
           description: Updates a local product option with the information provided.
           displayName: updateProductOption
           is:
-            - ApiStandards.RateLimited4:
-                responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 404
             - ProductTraits.Unauthorized
             - ProductTraits.BadRequest
             - ProductTraits.ProductNotFound
@@ -1590,18 +1484,11 @@ types:
               examples: 
                 productOptionsIdRequest: !include Examples/ProductOptionsIdRequest.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
         put:
           description: Creates a local product option using the information provided or binds a shared product option to the product.
           displayName: createProductOption
           is:
-            - ApiStandards.RateLimited5:
-                responseStatus: 201
-                responseStatus2: 200
-                responseStatus3: 400
-                responseStatus4: 401
-                responseStatus5: 404
             - ProductTraits.Unauthorized
             - ProductTraits.BadRequest
             - ProductTraits.ProductNotFound
@@ -1626,8 +1513,7 @@ types:
               examples:
                 productOptionsIdRequest: !include Examples/ProductOptionsIdRequest.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
         uriParameters:
           productId:
             description: The ID of the product.
@@ -1645,11 +1531,6 @@ types:
         description: Deletes a local product option value by ID.
         displayName: deleteProductOptionValue
         is:
-          - ApiStandards.RateLimited4:
-              responseStatus: 204
-              responseStatus2: 400
-              responseStatus3: 401
-              responseStatus4: 404
           - ProductTraits.ProductNotFound
           - ProductTraits.Unauthorized
           - ProductTraits.BadRequest
@@ -1657,17 +1538,11 @@ types:
           '204': 
             description: Deleted product option value successfully.
         securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
-          - CommerceCloudStandards.AmOAuth2
+          - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
       get:
         description: Read a local product option value of a local product option in a product.
         displayName: getProductOptionValue
         is:
-          - ApiStandards.RateLimited4:
-              responseStatus: 200
-              responseStatus2: 400
-              responseStatus3: 401
-              responseStatus4: 404
           - ProductTraits.ProductNotFound
           - ProductTraits.Unauthorized
           - ProductTraits.BadRequest
@@ -1680,17 +1555,11 @@ types:
                 examples: 
                   productOptionsValueResult: !include Examples/ProductOptionsValuesResult.raml
         securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
-          - CommerceCloudStandards.AmOAuth2
+          - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
       patch:
         description: Updates a local product option value with the information provided.
         displayName: updateProductOptionValue
         is:
-          - ApiStandards.RateLimited4:
-              responseStatus: 200
-              responseStatus2: 400
-              responseStatus3: 401
-              responseStatus4: 404
           - ProductTraits.ProductNotFound
           - ProductTraits.Unauthorized
           - ProductTraits.BadRequest
@@ -1708,18 +1577,11 @@ types:
             examples:
               productOptionsValueRequest: !include Examples/ProductOptionsValuesRequest.raml 
         securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
-          - CommerceCloudStandards.AmOAuth2
+          - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
       put:
         description: Creates a local product option value using the information provided.
         displayName: createProductOptionValue
         is:
-          - ApiStandards.RateLimited5:
-              responseStatus: 201
-              responseStatus2: 200
-              responseStatus3: 400
-              responseStatus4: 401
-              responseStatus5: 404
           - ProductTraits.ProductNotFound
           - ProductTraits.Unauthorized
           - ProductTraits.BadRequest
@@ -1744,8 +1606,7 @@ types:
             examples:
               productOptionsValueRequest: !include Examples/ProductOptionsValuesRequest.raml 
         securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
-          - CommerceCloudStandards.AmOAuth2
+          - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
       uriParameters:
         id:
           description: The ID of the local product option value.
@@ -1767,11 +1628,6 @@ types:
         description: Action to get product variation attribute value information.
         displayName: getVariationAttributeValue
         is:
-          - ApiStandards.RateLimited4:
-              responseStatus: 200
-              responseStatus2: 400
-              responseStatus3: 401
-              responseStatus4: 404
           - ProductTraits.ProductNotFound
           - ProductTraits.Unauthorized
           - ProductTraits.BadRequest
@@ -1790,17 +1646,11 @@ types:
             description: The site context.
             example: SiteGenesis
         securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
-          - CommerceCloudStandards.AmOAuth2
+          - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
       delete:
         description: Deletes the variation attribute value of a variation attribute bound to a master product.
         displayName: deleteVariationAttributeValue
         is:
-          - ApiStandards.RateLimited4:
-              responseStatus: 204
-              responseStatus2: 400
-              responseStatus3: 401
-              responseStatus4: 404
           - ProductTraits.ProductNotFound
           - ProductTraits.Unauthorized
           - ProductTraits.BadRequest
@@ -1808,17 +1658,11 @@ types:
           '204': 
             description: Deleted variation attribute value successfully.
         securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
-          - CommerceCloudStandards.AmOAuth2
+          - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
       patch:
         description: Updates the variation attribute value of a variation attribute of a master product.
         displayName: updateVariationAttributeValue
         is:
-          - ApiStandards.RateLimited4:
-              responseStatus: 200
-              responseStatus2: 400
-              responseStatus3: 401
-              responseStatus4: 404
           - ProductTraits.ProductNotFound
           - ProductTraits.Unauthorized
           - ProductTraits.BadRequest
@@ -1836,18 +1680,11 @@ types:
             examples: 
               variantAttributeValuesRequest: !include Examples/VariationAttributeValuesIdRequest.raml
         securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
-          - CommerceCloudStandards.AmOAuth2
+          - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
       put:
         description: Action to create a product variation attribute value.
         displayName: createVariationAttributeValue
         is:
-          - ApiStandards.RateLimited5:
-              responseStatus: 201
-              responseStatus2: 200
-              responseStatus3: 400
-              responseStatus4: 401
-              responseStatus5: 404
           - ProductTraits.ProductNotFound
           - ProductTraits.Unauthorized
           - ProductTraits.BadRequest
@@ -1872,8 +1709,7 @@ types:
             examples: 
               variantAttributeValuesRequest: !include Examples/VariationAttributeValuesIdRequest.raml
         securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
-          - CommerceCloudStandards.AmOAuth2
+          - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
       uriParameters:
         productId:
           description: The ID of the product.
@@ -1895,11 +1731,6 @@ types:
         description: Reads variation attributes of a product of type variant, variation master, or variation group.
         displayName: getVariationAttributes
         is:
-          - ApiStandards.RateLimited4:
-              responseStatus: 200
-              responseStatus2: 400
-              responseStatus3: 401
-              responseStatus4: 404
           - ProductTraits.ProductNotFound
           - ProductTraits.Unauthorized
           - ProductTraits.BadRequest
@@ -1915,18 +1746,12 @@ types:
                 examples: 
                   variantAttributesResult: !include Examples/VariationAttributesResult.raml
         securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
-          - CommerceCloudStandards.AmOAuth2
+          - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
       /{id}:
         get:
           description: Action to get variation attribute information only for master product.
           displayName: getVariationAttribute
           is:
-            - ApiStandards.RateLimited4:
-                responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 404
             - ProductTraits.ProductNotFound
             - ProductTraits.Unauthorized
             - ProductTraits.BadRequest
@@ -1939,17 +1764,11 @@ types:
                   examples: 
                     variantAttributeIdResult: !include Examples/VariationAttributeResult.raml
           securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
-          - CommerceCloudStandards.AmOAuth2
+          - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
         delete:
           description: Deletes the variation attribute by ID.
           displayName: deleteVariationAttribute
           is:
-            - ApiStandards.RateLimited4:
-                responseStatus: 204
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 404
             - ProductTraits.ProductNotFound
             - ProductTraits.Unauthorized
             - ProductTraits.BadRequest
@@ -1957,8 +1776,7 @@ types:
             '204': 
               description: Deleted variation attribute successfully.
           securedBy:
-          - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
-          - CommerceCloudStandards.AmOAuth2
+          - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
         patch:
           description: |-
             Updates the variation attribute with the specified information.
@@ -1967,11 +1785,6 @@ types:
               
           displayName: updateVariationAttribute
           is:
-            - ApiStandards.RateLimited4:
-                responseStatus: 200
-                responseStatus2: 400
-                responseStatus3: 401
-                responseStatus4: 404
             - ProductTraits.ProductNotFound
             - ProductTraits.Unauthorized
             - ProductTraits.BadRequest
@@ -1989,18 +1802,11 @@ types:
               examples:
                 variantAttributeIdRequest: !include Examples/VariationAttributeRequest.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
         put:
           description: Creates a variation attribute using the information provided.
           displayName: createVariationAttribute
           is:
-            - ApiStandards.RateLimited5:
-                responseStatus: 201
-                responseStatus2: 200
-                responseStatus3: 400
-                responseStatus4: 401
-                responseStatus5: 404
             - ProductTraits.ProductNotFound
             - ProductTraits.Unauthorized
             - ProductTraits.BadRequest
@@ -2025,8 +1831,7 @@ types:
               examples:
                 variantAttributeIdRequest: !include Examples/VariationAttributeRequest.raml
           securedBy:
-            - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products.rw] }
-            - CommerceCloudStandards.AmOAuth2
+            - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products.rw] }
         uriParameters:
           productId:
             description: The ID of the product.
@@ -2042,13 +1847,9 @@ types:
 /organizations/{organizationId}/categorization-attribute-definitions:
   get:
     description: |
-                Gets the list of allowed attributes, values, and operators for creating rule-based categorization conditions. This endpoint is in closed beta, available to select few customers. Note: Please get in touch with your Account Team if you'd like to participate in the beta program.
+                Gets the list of allowed attributes, values, and operators for creating rule-based categorization conditions.
     displayName: getCategorizationAttributeDefinitions
     is:
-      - ApiStandards.RateLimited3:
-          responseStatus: 200
-          responseStatus2: 400
-          responseStatus3: 401
       - ProductTraits.BadRequest
       - ProductTraits.Unauthorized
     queryParameters:
@@ -2066,8 +1867,7 @@ types:
             examples:
               result: !include Examples/CategorizationAttributeDefinitionResult.raml
     securedBy:
-      - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
-      - CommerceCloudStandards.AmOAuth2
+      - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
     
 
     
@@ -2091,6 +1891,7 @@ types:
         | validTo | SiteSpecfic DateTime  |
         | type | ProductType |
         | creationDate | DateTime |
+        | lastModified | DateTime |
 
       Catalog:
 
@@ -2122,7 +1923,9 @@ types:
 
       The available expand attribute values are:
 
-      - ‘all' retrieves all the product properties.
+      - ‘all' retrieves all the product properties. This is the default used when no expand value is included in the request.
+
+      - 'none' retrieves no expansion properties.
 
       - ‘availability' retrieves the following properties:
           - ats
@@ -2158,14 +1961,8 @@ types:
         example: SiteGenesis
     body:
       application/json:
-        type: CommerceCloudStandards.SearchRequest
-        examples:
-          searchRequest: !include Examples/ProductSearchRequest.raml
+        type: ProductSearchRequest
     is:
-      - ApiStandards.RateLimited3:
-          responseStatus: 200
-          responseStatus2: 400
-          responseStatus3: 401
       - ProductTraits.BadRequest
       - ProductTraits.Unauthorized
     responses:
@@ -2177,6 +1974,5 @@ types:
             examples: 
               productSearchResult: !include Examples/ProductSearchResult.raml
     securedBy:
-      - CommerceCloudStandards.BearerToken: { scopes: [sfcc.products,sfcc.products.rw] }
-      - CommerceCloudStandards.AmOAuth2
+      - CommerceCloudStandards.AmOAuth2: { scopes: [sfcc.products,sfcc.products.rw] }
 
