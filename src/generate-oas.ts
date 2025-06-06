@@ -26,7 +26,11 @@ const INDEX_TEMPLATE_LOCATION = path.resolve(
   `${__dirname}/../templates/index.ts.hbs`
 );
 
-console.log(`Creating SDK for ${API_DIRECTORY}`);
+function kebabToCamelCase(str: string): string {
+  return str.replace(/-([a-z])/g, (match, letter: string) =>
+    letter.toUpperCase()
+  );
+}
 
 /**
  * Helper function. Also contains explicit workaround for some API names.
@@ -53,10 +57,24 @@ export function getAPIDetailsFromExchange(directory: string): ApiSpecDetail {
     const exchangeConfig = fs.readJSONSync(
       exchangePath
     ) as download.ExchangeConfig;
+
+    // Special handling for shopper-baskets-v2
+    if (exchangeConfig.assetId === "shopper-baskets-oas" && exchangeConfig.apiVersion === "v2") {
+      return {
+        filepath: path.join(directory, exchangeConfig.main),
+        filename: exchangeConfig.main,
+        directoryName: "ShopperBasketsV2",
+        name: "Shopper Baskets V2 OAS",
+        apiName: "ShopperBasketsV2",
+      };
+    }
+
     return {
       filepath: path.join(directory, exchangeConfig.main),
       filename: exchangeConfig.main,
-      directoryName: exchangeConfig.assetId.replace("-oas", ""),
+      directoryName: kebabToCamelCase(
+        exchangeConfig.assetId.replace("-oas", ""),
+      ),
       name: exchangeConfig.name,
       apiName: resolveApiName(exchangeConfig.name),
     };
@@ -127,7 +145,8 @@ function getAllDirectories(basePath: string, relativePath = ""): string[] {
  * Copies the static files to the target directory
  */
 export function copyStaticFiles(): void {
-  fs.copySync(STATIC_DIRECTORY, TARGET_DIRECTORY);
+  const skipTestFiles = (src: string): boolean => !/\.test\.[a-z]+$/.test(src);
+  fs.copySync(STATIC_DIRECTORY, TARGET_DIRECTORY, {filter: skipTestFiles});
 }
 
 /**
