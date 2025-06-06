@@ -8,7 +8,7 @@
 import nock from "nock";
 import { expect } from "chai";
 import sinon from "sinon";
-import { ShopperProducts } from "../../renderedTemplates/product/shopperProducts/shopperProducts";
+import { ShopperProducts } from "../../renderedTemplates";
 
 const SITE_ID = "SITE_ID";
 const CLIENT_ID = "CLIENT_ID";
@@ -21,7 +21,7 @@ describe("Parameters", () => {
   afterEach(() => nock.cleanAll());
 
   it("allow custom query params", async () => {
-    const productClient = new ShopperProducts({
+    const productClient = new ShopperProducts.ShopperProducts({
       parameters: {
         clientId: CLIENT_ID,
         organizationId: ORGANIZATION_ID,
@@ -32,7 +32,7 @@ describe("Parameters", () => {
 
     const options = {
       parameters: {
-        ids: "ids",
+        ids: ["ids"],
         c_validCustomParam: "custom_param",
       },
     };
@@ -53,7 +53,7 @@ describe("Parameters", () => {
   });
 
   it("warns user when invalid param is passed", async () => {
-    const productClient = new ShopperProducts({
+    const productClient = new ShopperProducts.ShopperProducts({
       parameters: {
         clientId: CLIENT_ID,
         organizationId: ORGANIZATION_ID,
@@ -64,7 +64,7 @@ describe("Parameters", () => {
 
     const options = {
       parameters: {
-        ids: "ids",
+        ids: ["ids"],
         invalidQueryParam: "invalid_param",
       },
     };
@@ -83,7 +83,8 @@ describe("Parameters", () => {
     const response = await productClient.getProducts(options);
 
     expect(response).to.be.deep.equal(MOCK_RESPONSE);
-    expect(warnSpy.calledWith("Invalid Parameter: invalidQueryParam")).to.be
-      .true;
+    expect(
+      warnSpy.calledWith("Invalid Parameter for getProducts: invalidQueryParam")
+    ).to.be.true;
   });
 });

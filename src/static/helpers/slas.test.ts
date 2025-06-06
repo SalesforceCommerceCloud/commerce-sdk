@@ -7,8 +7,8 @@
 
 import nock from "nock";
 import { expect } from "chai";
-import { ShopperLogin } from "../../../renderedTemplates/customer/shopperLogin/shopperLogin";
-import { ISlasClient } from "./slasClient";
+import { ShopperLogin } from "../../../renderedTemplates";
+import { ISlasClient, TokenResponse } from "./slasClient";
 import * as slasHelper from "./slas";
 import sinon from "sinon";
 import { URL } from "url";
@@ -34,13 +34,13 @@ const credentials = {
   clientSecret: "client_secret",
 };
 
-const expectedTokenResponse: ShopperLogin.TokenResponse = {
+const expectedTokenResponse: TokenResponse = {
   access_token: "access_token",
   id_token: "id_token",
   refresh_token: "refresh_token",
   expires_in: 0,
   refresh_token_expires_in: 0,
-  token_type: "token_type",
+  token_type: "Bearer",
   usid: "usid",
   customer_id: "customer_id",
   enc_user_id: "enc_user_id",
@@ -54,9 +54,8 @@ const parameters = {
   refreshToken: "refresh_token",
   usid: "usid",
 };
-
 const createSlasClient = (): ISlasClient => {
-  return new ShopperLogin(clientConfig);
+  return new ShopperLogin.ShopperLogin(clientConfig) as ISlasClient;
 };
 
 const sandbox = sinon.createSandbox();
@@ -148,6 +147,7 @@ describe("Authorize user", () => {
   };
   it("hits the authorize endpoint and receives authorization code", async () => {
     const mockSlasClient = createSlasClient();
+    const authorizeSpy = sinon.spy(mockSlasClient, "authorizeCustomer");
     const { shortCode, organizationId } = clientConfig.parameters;
 
     // slasClient is copied and tries to make an actual API call
