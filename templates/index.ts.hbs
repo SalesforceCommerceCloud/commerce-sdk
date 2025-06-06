@@ -1,10 +1,10 @@
 {{#each children}}
-import * as {{apiName}} from "./{{directoryName}}";
+export { {{apiName}} } from "./{{directoryName}}";
+import type * as {{apiName}}Types from "./{{directoryName}}";
+export type { {{apiName}}Types };
 {{/each}}
-export {
-{{#each children}}
-    {{apiName}}{{#unless @last}},{{/unless}}
-{{/each}}
-}
+
+import * as helpers from "./helpers";
+export { helpers };
 
 export { ClientConfig, CommonParameters, sdkLogger } from "@commerce-apps/core"
