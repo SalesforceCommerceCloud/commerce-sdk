@@ -21,6 +21,4 @@ fs.writeJSONSync(
   CUSTOM_METADATA
 );
 
-API_FAMILIES.map((family) =>
-  updateApis(family, PRODUCTION_API_PATH, true)
-);
+API_FAMILIES.map((family) => updateApis(family, PRODUCTION_API_PATH, true));

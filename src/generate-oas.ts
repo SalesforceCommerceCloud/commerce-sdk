@@ -59,7 +59,10 @@ export function getAPIDetailsFromExchange(directory: string): ApiSpecDetail {
     ) as download.ExchangeConfig;
 
     // Special handling for shopper-baskets-v2
-    if (exchangeConfig.assetId === "shopper-baskets-oas" && exchangeConfig.apiVersion === "v2") {
+    if (
+      exchangeConfig.assetId === "shopper-baskets-oas" &&
+      exchangeConfig.apiVersion === "v2"
+    ) {
       return {
         filepath: path.join(directory, exchangeConfig.main),
         filename: exchangeConfig.main,
@@ -73,7 +76,7 @@ export function getAPIDetailsFromExchange(directory: string): ApiSpecDetail {
       filepath: path.join(directory, exchangeConfig.main),
       filename: exchangeConfig.main,
       directoryName: kebabToCamelCase(
-        exchangeConfig.assetId.replace("-oas", ""),
+        exchangeConfig.assetId.replace("-oas", "")
       ),
       name: exchangeConfig.name,
       apiName: resolveApiName(exchangeConfig.name),
@@ -96,7 +99,7 @@ export function generateSDKs(apiSpecDetail: ApiSpecDetail): void {
         inputSpec: `${filepath}`,
         outputDir: `${outputDir}`,
         templateDir: `${TEMPLATE_DIRECTORY}`,
-        flags: `--reserved-words-mappings delete=delete`
+        flags: `--reserved-words-mappings delete=delete`,
       });
     } catch (error) {
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -146,7 +149,7 @@ function getAllDirectories(basePath: string, relativePath = ""): string[] {
  */
 export function copyStaticFiles(): void {
   const skipTestFiles = (src: string): boolean => !/\.test\.[a-z]+$/.test(src);
-  fs.copySync(STATIC_DIRECTORY, TARGET_DIRECTORY, {filter: skipTestFiles});
+  fs.copySync(STATIC_DIRECTORY, TARGET_DIRECTORY, { filter: skipTestFiles });
 }
 
 /**

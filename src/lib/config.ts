@@ -63,7 +63,7 @@ export const API_FAMILIES = [
   "source-code-groups-oas",
   "shopper-baskets-oas",
   "shopper-context-oas",
-  'shopper-experience-oas',
+  "shopper-experience-oas",
   "shopper-login-oas",
   "shopper-stores-oas",
 ];
