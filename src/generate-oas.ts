@@ -8,7 +8,6 @@
 import path from "path";
 import fs from "fs-extra";
 import { generateFromOas, download } from "@commerce-apps/raml-toolkit";
-import { registerHelpers, registerPartials } from "./lib/utils";
 import Handlebars from "handlebars";
 
 type ApiSpecDetail = {
@@ -26,9 +25,6 @@ const TEMPLATE_DIRECTORY = path.resolve(`${__dirname}/../templatesOas`);
 const INDEX_TEMPLATE_LOCATION = path.resolve(
   `${__dirname}/../templates/index.ts.hbs`
 );
-
-registerHelpers();
-registerPartials();
 
 console.log(`Creating SDK for ${API_DIRECTORY}`);
 
