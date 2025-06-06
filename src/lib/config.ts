@@ -61,6 +61,11 @@ export const API_FAMILIES = [
   "seo-oas",
   "slas-admin-oas",
   "source-code-groups-oas",
+  "shopper-baskets-oas",
+  "shopper-context-oas",
+  'shopper-experience-oas',
+  "shopper-login-oas",
+  "shopper-stores-oas",
 ];
 
 export const PRODUCTION_API_PATH = `${__dirname}/../../apis`;
