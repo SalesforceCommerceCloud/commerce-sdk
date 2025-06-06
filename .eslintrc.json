@@ -18,6 +18,25 @@
     "plugin:prettier/recommended"
   ],
   "rules": {
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": ["variable"],
+        "format": ["camelCase", "UPPER_CASE"]
+      },
+      {
+        "selector": ["function"],
+        "format": ["camelCase"]
+      },
+      {
+        "selector": "interface",
+        "format": ["PascalCase"],
+        "custom": {
+          "regex": "^I[A-Z]",
+          "match": true
+        }
+      }
+    ],
     "header/header": [
       2,
       "block",
@@ -25,7 +44,7 @@
         "",
         {
           "pattern": "^ \\* Copyright \\(c\\) \\d{4}, salesforce.com, inc\\.$",
-          "template": " * Copyright (c) 2021, salesforce.com, inc."
+          "template": " * Copyright (c) 2025, salesforce.com, inc."
         },
         " * All rights reserved.",
         " * SPDX-License-Identifier: BSD-3-Clause",
@@ -69,7 +88,32 @@
         "@typescript-eslint/ban-ts-ignore": "warn",
         "@typescript-eslint/camelcase": "warn",
         "@typescript-eslint/no-explicit-any": "off",
-        "@typescript-eslint/no-var-requires": "warn"
+        "@typescript-eslint/no-var-requires": "warn",
+        "@typescript-eslint/naming-convention": [
+          "warn",
+          {
+            "selector": ["variable", "function"],
+            "format": ["camelCase"]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "examples/**"
+      ],
+      "rules": {
+        "@typescript-eslint/naming-convention": [
+          "warn",
+          {
+            "selector": ["variable"],
+            "format": ["camelCase", "UPPER_CASE"]
+          },
+          {
+            "selector": ["function"],
+            "format": ["camelCase"]
+          }
+        ]
       }
     }
   ],
