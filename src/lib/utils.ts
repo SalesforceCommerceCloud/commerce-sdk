@@ -29,11 +29,6 @@ export async function updateApis(
     const apis = await download.search(
       `"${apiFamily}" category:Visibility = "External" category:"SDK Type" = "Commerce"`
     );
-    // console.log(apis);
-    // console.log(apiFamily);
-    // forEach(apis, (api) => {
-    //   console.log(api.categories);
-    // });
     await download.downloadRestApis(
       apis,
       path.join(rootPath, apiFamily),

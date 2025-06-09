@@ -8,7 +8,7 @@
 import { callCustomEndpoint } from "./customApi";
 import { encodeSCAPISpecialCharacters } from "./fetchHelpers";
 export const helpers = {
-    callCustomEndpoint,
-    encodeSCAPISpecialCharacters
-}
+  callCustomEndpoint,
+  encodeSCAPISpecialCharacters,
+};
 export * as slasHelpers from "./slas";
