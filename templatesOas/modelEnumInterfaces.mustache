@@ -1,4 +1,3 @@
-{{! *** Default Implementation from Open API generator }}
 {{#stringEnums}}
 /**
  * {{#lambda.indented_star_1}}{{{unescapedDescription}}}{{/lambda.indented_star_1}}
@@ -20,17 +19,13 @@ export enum {{classname}} {
 /**
  * {{#lambda.indented_star_1}}{{{unescapedDescription}}}{{/lambda.indented_star_1}}
  */
-export const {{classname}} = {
+export type {{classname}} =
 {{#allowableValues}}
 {{#enumVars}}
     {{#enumDescription}}
-    /**
-    * {{enumDescription}}
-    */
+    // {{enumDescription}}
     {{/enumDescription}}
-    {{{name}}}: {{{value}}}{{^-last}},{{/-last}}
+    {{{value}}}{{^-last}}|{{/-last}}{{#-last}};{{/-last}}
 {{/enumVars}}
 {{/allowableValues}}
-} as const;
-export type {{classname}} = typeof {{classname}}[keyof typeof {{classname}}];
 {{/stringEnums}}

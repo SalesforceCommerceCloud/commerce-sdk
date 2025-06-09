@@ -45,6 +45,9 @@ export function resolveApiName(name: string): string {
   if (name === "SLAS Admin-UAP OAS") {
     return "SlasAdmin";
   }
+  if (name === "Shopper Seo OAS") {
+    return "ShopperSEO";
+  }
   return name.replace(/\s+/g, "").replace("OAS", "");
 }
 

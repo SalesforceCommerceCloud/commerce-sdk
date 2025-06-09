@@ -5,9 +5,6 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-// tsdoc doesn't support dot notation for @param
-/* eslint-disable tsdoc/syntax */
-
 import { nanoid } from "nanoid";
 import { URL, URLSearchParams } from "url";
 import { ResponseError } from "@commerce-apps/core";

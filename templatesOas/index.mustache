@@ -2,16 +2,17 @@ export * from './runtime{{importFileExtension}}';
 {{#apiInfo}}
 {{#apis.0}}
 export * from './apis/index{{importFileExtension}}';
+// export { {{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}} } from './apis/index{{importFileExtension}}'
 {{/apis.0}}
 {{/apiInfo}}
 {{#models.0}}
 export * from './models/index{{importFileExtension}}';
 {{/models.0}}
 
-import type * as ApiTypes from './apis/index'
-import type * as ModelTypes from './models/index'
+import type * as {{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}ApiTypes from './apis/index'
+import type * as {{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}ModelTypes from './models/index'
 
-export namespace {{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}Types {
+export namespace {{#apiInfo}}{{#apis.0}}{{#vendorExtensions}}{{#x-sdk-classname}}{{classname}}{{/x-sdk-classname}}{{^x-sdk-classname}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/x-sdk-classname}}{{/vendorExtensions}}{{^vendorExtensions}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/vendorExtensions}}{{/apis.0}}{{/apiInfo}}Types {
     // API types
     {{#apiInfo}}
     {{#apis}}
@@ -20,7 +21,7 @@ export namespace {{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.
     {{#allParams}}
     {{#isEnum}}
     {{^stringEnums}}
-    export type {{operationIdCamelCase}}{{enumName}} = ApiTypes.{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}.{{operationIdCamelCase}}{{enumName}}
+    export type {{operationIdCamelCase}}{{enumName}} = {{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}ApiTypes.{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}.{{operationIdCamelCase}}{{enumName}}
     {{/stringEnums}}
     {{/isEnum}}
     {{/allParams}}
@@ -32,11 +33,11 @@ export namespace {{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.
     // Model types
     {{#models}}
     {{#model}}
-    export type {{classname}} = ModelTypes.{{classname}}
+    export type {{classname}} = {{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}ModelTypes.{{classname}}
     {{#hasEnums}}
     {{#vars}}
     {{#isEnum}}
-    export type {{classname}}{{enumName}} = ModelTypes.{{classname}}{{enumName}}
+    export type {{classname}}{{enumName}} = {{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}ModelTypes.{{classname}}{{enumName}}
     {{/isEnum}}
     {{/vars}}
     {{/hasEnums}}
