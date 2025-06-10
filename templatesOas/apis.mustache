@@ -63,6 +63,16 @@ export type {{operationIdCamelCase}}{{enumName}} = typeof {{operationIdCamelCase
 * For instructions on how to retrieve access token for admin APIs: <a>https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html</a> <br /> <br />
 * Example with admin auth
 * 
+* For API family, here is the list:
+* Cdn: CdnZones
+* Checkout: Orders, ShopperBaskets, ShopperOrders
+* Customer: Customers, ShopperContexts, ShopperCustomers, ShopperLogin, ShopperSeo, SlasAdmin
+* Experience: ShopperExperience
+* Pricing: Assignments, Campaigns, Coupons, GiftCertificates, Promotions, ShopperGiftCertificates, ShopperPromotions, SourceCodeGroups
+* Product: Catalogs, Products, ShopperProducts
+* Search: ShopperSearch
+* Seller: ShopperStores
+*
 * ```typescript
 * import { {{#vendorExtensions}}{{x-api-family}}{{/vendorExtensions}}, ClientConfig } from "commerce-sdk";
 * // or
@@ -80,7 +90,7 @@ export type {{operationIdCamelCase}}{{enumName}} = typeof {{operationIdCamelCase
 * token = { access_token: 'INSERT_ACCESS_TOKEN_HERE' };
 * 
 * clientConfig.headers['authorization'] = `Bearer ${token.access_token}`;
-* const ordersClient = new {{#vendorExtensions}}{{x-api-family}}{{/vendorExtensions}}.{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}(clientConfig);
+* const {{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}Client = new {{#vendorExtensions}}{{x-api-family}}{{/vendorExtensions}}.{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}(clientConfig);
 * ```
 *
 * <span style="font-size:.7em; display:block; text-align: right">
