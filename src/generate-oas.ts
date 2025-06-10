@@ -48,6 +48,15 @@ export function resolveApiName(name: string): string {
   if (name === "Shopper Seo OAS") {
     return "ShopperSEO";
   }
+  if (name === "Shopper Context OAS") {
+    return "ShopperContexts";
+  }
+  if (name === "Catalogs OAS") {
+    return "CatalogsAPI";
+  }
+  if (name === "Cors Preferences OAS") {
+    return "CORSPreferences";
+  }
   return name.replace(/\s+/g, "").replace("OAS", "");
 }
 
@@ -93,8 +102,7 @@ export function getAPIDetailsFromExchange(directory: string): ApiSpecDetail {
  */
 export function generateSDKs(apiSpecDetail: ApiSpecDetail): void {
   const { filepath, name, directoryName } = apiSpecDetail;
-  const fileIsOASspec = filepath.includes("oas");
-  if (fs.statSync(filepath).isFile() && fileIsOASspec) {
+  if (fs.statSync(filepath).isFile()) {
     try {
       console.log(`Generating SDK for ${name}`);
       const outputDir = `${TARGET_DIRECTORY}/${directoryName}`;
