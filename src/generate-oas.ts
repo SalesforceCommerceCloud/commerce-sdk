@@ -130,7 +130,7 @@ export function generateIndex(context: {
   fs.writeFileSync(`${TARGET_DIRECTORY}/index.ts`, generatedIndex);
 }
 
-function getAllDirectories(basePath: string, relativePath = ""): string[] {
+function getAllDirectoriesWithExchangeFiles(basePath: string, relativePath = ""): string[] {
   const fullPath = path.join(basePath, relativePath);
   const directories: string[] = [];
 
@@ -144,8 +144,10 @@ function getAllDirectories(basePath: string, relativePath = ""): string[] {
         : item;
 
       if (fs.lstatSync(itemPath).isDirectory()) {
-        directories.push(relativeItemPath);
-        directories.push(...getAllDirectories(basePath, relativeItemPath));
+        if (fs.existsSync(path.join(itemPath, "exchange.json"))) {
+          directories.push(relativeItemPath);
+        }
+        directories.push(...getAllDirectoriesWithExchangeFiles(basePath, relativeItemPath));
       }
     }
   } catch (error) {
@@ -175,8 +177,7 @@ export function main(): void {
     }
 
     const apiSpecDetails: ApiSpecDetail[] = [];
-    const subDirectories: string[] = getAllDirectories(API_DIRECTORY);
-    console.log("subDirectories: ", subDirectories);
+    const subDirectories: string[] = getAllDirectoriesWithExchangeFiles(API_DIRECTORY);
 
     subDirectories.forEach((directory: string) => {
       try {
