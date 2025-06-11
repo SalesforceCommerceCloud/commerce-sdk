@@ -25,6 +25,9 @@ const TEMPLATE_DIRECTORY = path.resolve(`${__dirname}/../templatesOas`);
 const INDEX_TEMPLATE_LOCATION = path.resolve(
   `${__dirname}/../templates/index.ts.hbs`
 );
+const VERSION_TEMPLATE_LOCATION = path.resolve(
+  `${__dirname}/../templates/version.ts.hbs`
+);
 
 function kebabToCamelCase(str: string): string {
   return str.replace(/-([a-z])/g, (match, letter: string) =>
@@ -130,6 +133,19 @@ export function generateIndex(context: {
   fs.writeFileSync(`${TARGET_DIRECTORY}/index.ts`, generatedIndex);
 }
 
+/**
+ * Generates the version file
+ */
+export function generateVersionFile(): void {
+  const version = process.env.PACKAGE_VERSION || 'unknown';
+  const versionTemplate = fs.readFileSync(VERSION_TEMPLATE_LOCATION, 'utf8');
+  const generatedVersion = Handlebars.compile(versionTemplate)({
+    metadata: {sdkVersion: version},
+  });
+  fs.writeFileSync(`${TARGET_DIRECTORY}/version.ts`, generatedVersion);
+}
+
+
 function getAllDirectoriesWithExchangeFiles(basePath: string, relativePath = ""): string[] {
   const fullPath = path.join(basePath, relativePath);
   const directories: string[] = [];
@@ -195,6 +211,7 @@ export function main(): void {
     });
 
     generateIndex({ children: apiSpecDetails });
+    generateVersionFile();
     copyStaticFiles();
 
     console.log(

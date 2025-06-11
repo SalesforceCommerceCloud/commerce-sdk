@@ -32,7 +32,7 @@
     "lint:dev": "sort-package-json && eslint . --ext .ts --fix",
     "prepack": "npm run build",
     "prepare": "snyk protect",
-    "renderTemplates": "ts-node src/generate-oas.ts",
+    "renderTemplates": "PACKAGE_VERSION=$(node -p \"require('./package.json').version\") ts-node src/generate-oas.ts",
     "snyk:auth": "snyk auth",
     "pretest": "npm run lint",
     "test": "nyc mocha \"src/**/*.test.ts\"",
