@@ -7,8 +7,8 @@
 
 import nock from "nock";
 import { expect } from "chai";
-import { ShopperLogin } from "../../../renderedTemplates";
-import { ISlasClient, TokenResponse } from "./slasClient";
+import { ShopperLogin, ShopperLoginTypes } from "../../../renderedTemplates";
+import { ISlasClient } from "./slasClient";
 import * as slasHelper from "./slas";
 import sinon from "sinon";
 import { URL } from "url";
@@ -34,7 +34,7 @@ const credentials = {
   clientSecret: "client_secret",
 };
 
-const expectedTokenResponse: TokenResponse = {
+const expectedTokenResponse: ShopperLoginTypes.TokenResponse = {
   access_token: "access_token",
   id_token: "id_token",
   refresh_token: "refresh_token",

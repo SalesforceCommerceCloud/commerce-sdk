@@ -137,16 +137,18 @@ export function generateIndex(context: {
  * Generates the version file
  */
 export function generateVersionFile(): void {
-  const version = process.env.PACKAGE_VERSION || 'unknown';
-  const versionTemplate = fs.readFileSync(VERSION_TEMPLATE_LOCATION, 'utf8');
+  const version = process.env.PACKAGE_VERSION || "unknown";
+  const versionTemplate = fs.readFileSync(VERSION_TEMPLATE_LOCATION, "utf8");
   const generatedVersion = Handlebars.compile(versionTemplate)({
-    metadata: {sdkVersion: version},
+    metadata: { sdkVersion: version },
   });
   fs.writeFileSync(`${TARGET_DIRECTORY}/version.ts`, generatedVersion);
 }
 
-
-function getAllDirectoriesWithExchangeFiles(basePath: string, relativePath = ""): string[] {
+function getAllDirectoriesWithExchangeFiles(
+  basePath: string,
+  relativePath = ""
+): string[] {
   const fullPath = path.join(basePath, relativePath);
   const directories: string[] = [];
 
@@ -163,7 +165,9 @@ function getAllDirectoriesWithExchangeFiles(basePath: string, relativePath = "")
         if (fs.existsSync(path.join(itemPath, "exchange.json"))) {
           directories.push(relativeItemPath);
         }
-        directories.push(...getAllDirectoriesWithExchangeFiles(basePath, relativeItemPath));
+        directories.push(
+          ...getAllDirectoriesWithExchangeFiles(basePath, relativeItemPath)
+        );
       }
     }
   } catch (error) {
@@ -193,7 +197,8 @@ export function main(): void {
     }
 
     const apiSpecDetails: ApiSpecDetail[] = [];
-    const subDirectories: string[] = getAllDirectoriesWithExchangeFiles(API_DIRECTORY);
+    const subDirectories: string[] =
+      getAllDirectoriesWithExchangeFiles(API_DIRECTORY);
 
     subDirectories.forEach((directory: string) => {
       try {
