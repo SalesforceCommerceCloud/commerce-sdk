@@ -27,7 +27,9 @@ export async function updateApis(
 ): Promise<void> {
   try {
     const apis = await download.search(
-      `"${apiFamily}" category:Visibility = "External" category:"SDK Type" = "Commerce"`
+      `"${apiFamily}" category:Visibility = "External" category:"SDK Type" = "Commerce"`,
+      undefined,
+      true
     );
     await download.downloadRestApis(
       apis,

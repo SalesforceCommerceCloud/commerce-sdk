@@ -20,7 +20,7 @@
   "scripts": {
     "backupApis": "rm -rf updateApisTmp && mkdir updateApisTmp && mv apis updateApisTmp/oldApis",
     "build": "npm run clean && npm run renderTemplates && npm run compile",
-    "ci": "rm -rf node_modules && yarn install",
+    "ci": "rm -rf node_modules && npm install --legacy-peer-deps",
     "clean": "rm -rf renderedTemplates dist",
     "compile": "tsc && eslint dist --ext .ts,.js --quiet --fix",
     "depcheck": "depcheck",
@@ -49,6 +49,7 @@
   },
   "dependencies": {
     "@commerce-apps/core": "^1.7.0",
+    "@openapitools/openapi-generator-cli": "^2.20.2",
     "nanoid": "^3.3.4",
     "retry": "^0.13.1",
     "tslib": "^2.4.1"
@@ -79,13 +80,18 @@
     "nyc": "^15.1.0",
     "prettier": "^2.5.1",
     "sinon": "^9.2.4",
-    "snyk": "^1.836.0",
+    "snyk": "^1.996.0",
     "sort-package-json": "^1.53.1",
     "ts-node": "^10.9.2",
     "typedoc": "^0.17.8",
     "typedoc-plugin-external-module-map": "1.2.1",
     "typedoc-plugin-nojekyll": "^1.0.1",
     "typescript": "^4.4.4"
+  },
+  "overrides": {
+    "typedoc-plugin-nojekyll": {
+      "typedoc": "$typedoc"
+    }
   },
   "publishConfig": {
     "access": "public"
