@@ -55,7 +55,7 @@ export function resolveApiName(name: string): string {
     return "ShopperContexts";
   }
   if (name === "Catalogs OAS") {
-    return "CatalogsAPI";
+    return "CatalogsV1";
   }
   if (name === "Cors Preferences OAS") {
     return "CORSPreferences";

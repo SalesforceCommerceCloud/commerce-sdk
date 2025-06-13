@@ -34,7 +34,7 @@
     "prepare": "snyk protect",
     "renderTemplates": "PACKAGE_VERSION=$(node -p \"require('./package.json').version\") ts-node src/generate-oas.ts",
     "snyk:auth": "snyk auth",
-    "pretest": "npm run lint",
+    "pretest": "npm run lint && npm run depcheck",
     "test": "nyc mocha \"src/**/*.test.ts\"",
     "test:ci": "npm test -- --reporter=xunit --reporter-options output=./reports/generator.xml",
     "updateApis": "npm run backupApis && ts-node src/updateApis.ts && npm run diffApis"
@@ -49,7 +49,6 @@
   },
   "dependencies": {
     "@commerce-apps/core": "^1.7.0",
-    "@openapitools/openapi-generator-cli": "^2.20.2",
     "nanoid": "^3.3.4",
     "retry": "^0.13.1",
     "tslib": "^2.4.1"
@@ -59,7 +58,6 @@
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@types/chai": "^4.3.0",
     "@types/fs-extra": "^9.0.13",
-    "@types/handlebars-helpers": "^0.5.3",
     "@types/mocha": "^8.2.3",
     "@types/node-fetch": "^2.5.12",
     "@types/retry": "^0.12.1",
@@ -74,7 +72,7 @@
     "eslint-plugin-jsdoc": "^50.7.1",
     "eslint-plugin-prettier": "^4.2.1",
     "fs-extra": "^9.1.0",
-    "handlebars-helpers": "^0.10.0",
+    "handlebars": "4.7.7",
     "mocha": "^8.4.0",
     "nock": "^13.2.2",
     "nyc": "^15.1.0",
@@ -88,14 +86,14 @@
     "typedoc-plugin-nojekyll": "^1.0.1",
     "typescript": "^4.4.4"
   },
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "2a6031f5f57c4ba5df8bfb5c4ca42b2631befe58",
   "overrides": {
     "typedoc-plugin-nojekyll": {
       "typedoc": "$typedoc"
     }
   },
-  "publishConfig": {
-    "access": "public"
-  },
-  "gitHead": "2a6031f5f57c4ba5df8bfb5c4ca42b2631befe58",
   "snyk": true
 }
