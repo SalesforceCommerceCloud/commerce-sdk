@@ -38,7 +38,6 @@ export const API_FAMILIES = [
 ];
 
 export const PRODUCTION_API_PATH = `${__dirname}/../../apis`;
-export const STAGING_API_PATH = `${__dirname}/../../testIntegration/stagingApis`;
 
 export const CUSTOM_METADATA = {
   shopperAuthClient: "Customer.ShopperCustomers",
