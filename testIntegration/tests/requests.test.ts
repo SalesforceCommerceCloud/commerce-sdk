@@ -6,8 +6,7 @@
  */
 import { expect } from "chai";
 import { ClientConfig } from "commerce-sdk";
-import { ShopperLogin } from "commerce-sdk/dist/customer/customer";
-import { Products } from "commerce-sdk/dist/product/product";
+import { ShopperLogin, Products } from "commerce-sdk/dist";
 import nock from "nock";
 
 const config: ClientConfig = {
@@ -42,19 +41,19 @@ describe("Requests with body", () => {
       .matchHeader("Content-Type", "application/x-www-form-urlencoded")
       .reply(200);
 
-    const client = new ShopperLogin(config);
+    const client = new ShopperLogin.ShopperLogin(config);
     await client.revokeToken({ body });
     expect(nock.isDone()).to.be.true;
   });
 
   it("sends correct media type for JSON endpoints", async () => {
-    const body = { query: "pants" };
+    const body = { query: { term: "pants" } };
     nock("https://short_code.api.commercecloud.salesforce.com")
       .filteringRequestBody((body) => {
         // Putting the assertion here isn't ideal, but it's the only place I can find that nock
         // exposes the raw contents of the request body. (The body provided to `.post` has already
         // been parsed to an object, so we can't use that to detect the type.)
-        expect(body).to.equal('{"query":"pants"}');
+        expect(body).to.equal('{"query":{"term":"pants"}}');
         return body;
       })
       .post(
@@ -65,8 +64,8 @@ describe("Requests with body", () => {
       .matchHeader("Content-Type", "application/json")
       .reply(200);
 
-    const client = new Products(config);
-    await client.searchProducts({ body });
+    const client = new Products.Products(config);
+    await client.searchProducts({ body: { query: { term: "pants" } } });
     expect(nock.isDone()).to.be.true;
   });
 });

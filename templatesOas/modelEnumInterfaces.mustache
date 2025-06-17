@@ -1,0 +1,31 @@
+{{#stringEnums}}
+/**
+ * {{#lambda.indented_star_1}}{{{unescapedDescription}}}{{/lambda.indented_star_1}}
+ * @enum {string}
+ */
+export enum {{classname}} {
+{{#allowableValues}}
+{{#enumVars}}
+    {{#enumDescription}}
+    /**
+    * {{enumDescription}}
+    */
+    {{/enumDescription}}
+    {{{name}}} = {{{value}}}{{^-last}},{{/-last}}
+{{/enumVars}}
+{{/allowableValues}}
+}
+{{/stringEnums}}{{^stringEnums}}
+/**
+ * {{#lambda.indented_star_1}}{{{unescapedDescription}}}{{/lambda.indented_star_1}}
+ */
+export type {{classname}} =
+{{#allowableValues}}
+{{#enumVars}}
+    {{#enumDescription}}
+    // {{enumDescription}}
+    {{/enumDescription}}
+    {{{value}}}{{^-last}}|{{/-last}}{{#-last}};{{/-last}}
+{{/enumVars}}
+{{/allowableValues}}
+{{/stringEnums}}

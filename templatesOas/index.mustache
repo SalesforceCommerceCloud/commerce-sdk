@@ -1,0 +1,45 @@
+export * from './runtime{{importFileExtension}}';
+{{#apiInfo}}
+{{#apis.0}}
+export * from './apis/index{{importFileExtension}}';
+{{/apis.0}}
+{{/apiInfo}}
+{{#models.0}}
+export * from './models/index{{importFileExtension}}';
+{{/models.0}}
+
+import type * as {{#apiInfo}}{{#apis.0}}{{#vendorExtensions}}{{#x-sdk-classname}}{{{ . }}}{{/x-sdk-classname}}{{^x-sdk-classname}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/x-sdk-classname}}{{/vendorExtensions}}{{^vendorExtensions}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/vendorExtensions}}{{/apis.0}}{{/apiInfo}}ApiTypes from './apis/index'
+import type * as {{#apiInfo}}{{#apis.0}}{{#vendorExtensions}}{{#x-sdk-classname}}{{{ . }}}{{/x-sdk-classname}}{{^x-sdk-classname}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/x-sdk-classname}}{{/vendorExtensions}}{{^vendorExtensions}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/vendorExtensions}}{{/apis.0}}{{/apiInfo}}ModelTypes from './models/index'
+
+export namespace {{#apiInfo}}{{#apis.0}}{{#vendorExtensions}}{{#x-sdk-classname}}{{{ . }}}{{/x-sdk-classname}}{{^x-sdk-classname}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/x-sdk-classname}}{{/vendorExtensions}}{{^vendorExtensions}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/vendorExtensions}}{{/apis.0}}{{/apiInfo}}Types {
+    // API types
+    {{#apiInfo}}
+    {{#apis}}
+    {{#operations}}
+    {{#operation}}
+    {{#allParams}}
+    {{#isEnum}}
+    {{^stringEnums}}
+    export type {{operationIdCamelCase}}{{enumName}} = {{#apiInfo}}{{#apis.0}}{{#vendorExtensions}}{{#x-sdk-classname}}{{{ . }}}{{/x-sdk-classname}}{{^x-sdk-classname}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/x-sdk-classname}}{{/vendorExtensions}}{{^vendorExtensions}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/vendorExtensions}}{{/apis.0}}{{/apiInfo}}ApiTypes.{{#apiInfo}}{{#apis.0}}{{#vendorExtensions}}{{#x-sdk-classname}}{{{ . }}}{{/x-sdk-classname}}{{^x-sdk-classname}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/x-sdk-classname}}{{/vendorExtensions}}{{^vendorExtensions}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/vendorExtensions}}{{/apis.0}}{{/apiInfo}}.{{operationIdCamelCase}}{{enumName}}
+    {{/stringEnums}}
+    {{/isEnum}}
+    {{/allParams}}
+    {{/operation}}
+    {{/operations}}
+    {{/apis}}
+    {{/apiInfo}}
+
+    // Model types
+    {{#models}}
+    {{#model}}
+    export type {{classname}} = {{#apiInfo}}{{#apis.0}}{{#vendorExtensions}}{{#x-sdk-classname}}{{{ . }}}{{/x-sdk-classname}}{{^x-sdk-classname}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/x-sdk-classname}}{{/vendorExtensions}}{{^vendorExtensions}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/vendorExtensions}}{{/apis.0}}{{/apiInfo}}ModelTypes.{{classname}}
+    {{#hasEnums}}
+    {{#vars}}
+    {{#isEnum}}
+    export type {{classname}}{{enumName}} = {{#apiInfo}}{{#apis.0}}{{#vendorExtensions}}{{#x-sdk-classname}}{{{ . }}}{{/x-sdk-classname}}{{^x-sdk-classname}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/x-sdk-classname}}{{/vendorExtensions}}{{^vendorExtensions}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/vendorExtensions}}{{/apis.0}}{{/apiInfo}}ModelTypes.{{classname}}{{enumName}}
+    {{/isEnum}}
+    {{/vars}}
+    {{/hasEnums}}
+    {{/model}}
+    {{/models}}
+}

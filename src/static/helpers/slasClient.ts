@@ -11,12 +11,12 @@ import type { RequestInit } from "node-fetch";
 
 export type LoginRequest = {
   client_id?: string;
-  response_type?: string;
+  response_type?: "code";
   redirect_uri: string;
   state?: string;
   scope?: string;
   usid?: string;
-  channel_id: string;
+  channel_id?: string;
   code_challenge?: string;
 } & { [key: string]: any };
 
@@ -63,8 +63,8 @@ export interface ISlasClient {
       parameters?: {
         organizationId?: string;
         redirect_uri: string;
-        response_type: string;
-        client_id: string;
+        response_type: "code";
+        client_id?: string;
         scope?: string;
         state?: string;
         usid?: string;
@@ -96,7 +96,7 @@ export interface ISlasClient {
     options?: {
       parameters?: {
         organizationId?: string;
-        client_id: string;
+        client_id?: string;
         refresh_token: string;
         channel_id?: string;
       } & { [key in `c_${string}`]: any };

@@ -5,9 +5,6 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-// tsdoc doesn't support dot notation for @param
-/* eslint-disable tsdoc/syntax */
-
 import { nanoid } from "nanoid";
 import { URL, URLSearchParams } from "url";
 import { ResponseError } from "@commerce-apps/core";
@@ -107,12 +104,12 @@ export async function authorize(
   const options = {
     parameters: {
       ...restOfParams,
-      client_id: slasClient.clientConfig.parameters.clientId,
+      client_id: slasClient.clientConfig.parameters?.clientId,
       code_challenge: codeChallenge,
       ...(hint && { hint }),
-      organizationId: slasClient.clientConfig.parameters.organizationId,
+      organizationId: slasClient.clientConfig.parameters?.organizationId,
       redirect_uri: redirectURI,
-      response_type: "code",
+      response_type: "code" as const,
       ...(usid && { usid }),
     },
     fetchOptions: {
@@ -148,14 +145,14 @@ export async function loginGuestUserPrivate(
   },
   usid?: string
 ): Promise<TokenResponse> {
-  if (!slasClient.clientConfig.parameters.siteId) {
+  if (!slasClient.clientConfig.parameters?.siteId) {
     throw new Error(
       "Required argument channel_id is not provided through clientConfig.parameters.siteId"
     );
   }
 
   const authorization = `Basic ${stringToBase64(
-    `${slasClient.clientConfig.parameters.clientId}:${credentials.clientSecret}`
+    `${slasClient.clientConfig.parameters?.clientId}:${credentials.clientSecret}`
   )}`;
 
   const options = {
@@ -199,8 +196,8 @@ export async function loginGuestUser(
   });
 
   const tokenBody: TokenRequest = {
-    client_id: slasClient.clientConfig.parameters.clientId,
-    channel_id: slasClient.clientConfig.parameters.siteId,
+    client_id: slasClient.clientConfig.parameters?.clientId,
+    channel_id: slasClient.clientConfig.parameters?.siteId,
     code: authResponse.code,
     code_verifier: codeVerifier,
     grant_type: "authorization_code_pkce",
@@ -255,8 +252,8 @@ export async function loginRegisteredUserB2Cprivate(
     body: {
       ...(options?.body || {}),
       code_challenge: codeChallenge,
-      channel_id: slasClient.clientConfig.parameters.siteId,
-      client_id: slasClient.clientConfig.parameters.clientId,
+      channel_id: slasClient.clientConfig.parameters?.siteId,
+      client_id: slasClient.clientConfig.parameters?.clientId,
       redirect_uri: parameters.redirectURI,
       ...(parameters.usid && { usid: parameters.usid }),
     },
@@ -276,7 +273,7 @@ export async function loginRegisteredUserB2Cprivate(
   const authResponse = getCodeAndUsidFromUrl(redirectUrl);
 
   const authHeaderIdSecret = `Basic ${stringToBase64(
-    `${slasClient.clientConfig.parameters.clientId}:${credentials.clientSecret}`
+    `${slasClient.clientConfig.parameters?.clientId}:${credentials.clientSecret}`
   )}`;
 
   const optionsToken = {
@@ -287,7 +284,7 @@ export async function loginRegisteredUserB2Cprivate(
       grant_type: "authorization_code_pkce",
       code_verifier: codeVerifier,
       code: authResponse.code,
-      client_id: slasClient.clientConfig.parameters.clientId,
+      client_id: slasClient.clientConfig.parameters?.clientId,
       redirect_uri: parameters.redirectURI,
       ...(parameters.usid && { usid: parameters.usid }),
     },
@@ -336,14 +333,14 @@ export async function loginRegisteredUserB2C(
       Authorization: authorization,
     },
     parameters: {
-      organizationId: slasClient.clientConfig.parameters.organizationId,
+      organizationId: slasClient.clientConfig.parameters?.organizationId,
     },
     body: {
       ...(options?.body || {}),
       redirect_uri: parameters.redirectURI,
-      client_id: slasClient.clientConfig.parameters.clientId,
+      client_id: slasClient.clientConfig.parameters?.clientId,
       code_challenge: codeChallenge,
-      channel_id: slasClient.clientConfig.parameters.siteId,
+      channel_id: slasClient.clientConfig.parameters?.siteId,
       ...(parameters.usid && { usid: parameters.usid }),
     },
     fetchOptions: {
@@ -365,7 +362,7 @@ export async function loginRegisteredUserB2C(
     grant_type: "authorization_code_pkce",
     code_verifier: codeVerifier,
     code: authResponse.code,
-    client_id: slasClient.clientConfig.parameters.clientId,
+    client_id: slasClient.clientConfig.parameters?.clientId,
     redirect_uri: parameters.redirectURI,
     usid: authResponse.usid,
   };
@@ -388,7 +385,7 @@ export function refreshAccessToken(
   const body = {
     grant_type: "refresh_token",
     refresh_token: parameters.refreshToken,
-    client_id: slasClient.clientConfig.parameters.clientId,
+    client_id: slasClient.clientConfig.parameters?.clientId,
   };
 
   return slasClient.getAccessToken({ body });
@@ -410,7 +407,7 @@ export function refreshAccessTokenPrivate(
   parameters: { refreshToken: string }
 ): Promise<TokenResponse> {
   const authorization = `Basic ${stringToBase64(
-    `${slasClient.clientConfig.parameters.clientId}:${credentials.clientSecret}`
+    `${slasClient.clientConfig.parameters?.clientId}:${credentials.clientSecret}`
   )}`;
   const options = {
     headers: {
@@ -446,8 +443,8 @@ export function logout(
     },
     parameters: {
       refresh_token: parameters.refreshToken,
-      client_id: slasClient.clientConfig.parameters.clientId,
-      channel_id: slasClient.clientConfig.parameters.siteId,
+      client_id: slasClient.clientConfig.parameters?.clientId,
+      channel_id: slasClient.clientConfig.parameters?.siteId,
     },
   });
 }

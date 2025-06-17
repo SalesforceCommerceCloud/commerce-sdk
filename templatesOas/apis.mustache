@@ -1,0 +1,398 @@
+import {
+  BaseClient,
+  ClientConfig,
+  Response,
+  StaticClient,
+  getHeaders,
+  mergeHeaders
+} from "@commerce-apps/core";
+import type { CommonParameters } from "@commerce-apps/core";
+import type { OperationOptions } from "retry";
+import type { RequestInit } from "node-fetch";
+import { defaultBaseUri } from "../runtime";
+import { USER_AGENT_HEADER, USER_AGENT_VALUE } from "../../version";
+import type {
+    CompositeParameters,
+    RequireParametersUnlessAllAreOptional
+} from "../../types";
+
+import type {
+    {{#imports}}
+    {{className}},
+    {{/imports}}
+} from '../models/index{{importFileExtension}}';
+
+export namespace {{#vendorExtensions}}{{#x-sdk-classname}}{{{ . }}}{{/x-sdk-classname}}{{^x-sdk-classname}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/x-sdk-classname}}{{/vendorExtensions}}{{^vendorExtensions}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/vendorExtensions}} {
+
+{{#hasEnums}}
+{{#operations}}
+{{#operation}}
+{{#allParams}}
+{{#isEnum}}
+{{#stringEnums}}
+export enum {{operationIdCamelCase}}{{enumName}} {
+{{#allowableValues}}
+    {{#enumVars}}
+    {{{name}}} = {{{value}}}{{^-last}},{{/-last}}
+    {{/enumVars}}
+{{/allowableValues}}
+}
+{{/stringEnums}}
+{{^stringEnums}}
+
+export const {{operationIdCamelCase}}{{enumName}} = {
+{{#allowableValues}}
+    {{#enumVars}}
+    {{{name}}}: {{{value}}}{{^-last}},{{/-last}}
+    {{/enumVars}}
+{{/allowableValues}}
+} as const;
+export type {{operationIdCamelCase}}{{enumName}} = typeof {{operationIdCamelCase}}{{enumName}}[keyof typeof {{operationIdCamelCase}}{{enumName}}];
+{{/stringEnums}}
+{{/isEnum}}
+{{/allParams}}
+{{/operation}}
+{{/operations}}
+{{/hasEnums}}
+
+/**
+* [{{appName}}](https://developer.salesforce.com/docs/commerce/commerce-api/references?meta={{#lambda.kebabcase}}{{appName}}{{/lambda.kebabcase}}:Summary)
+* ==================================
+*
+* *{{{unescapedAppDescription}}}* <br />
+*
+* For instructions on how to retrieve access token for admin APIs: <a>https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html</a> <br /> <br />
+* Example with admin auth
+* 
+* For API family, here is the list:
+* Cdn: CdnZones
+* Checkout: Orders, ShopperBaskets, ShopperOrders
+* Customer: Customers, ShopperContexts, ShopperCustomers, ShopperLogin, ShopperSeo, SlasAdmin
+* Experience: ShopperExperience
+* Pricing: Assignments, Campaigns, Coupons, GiftCertificates, Promotions, ShopperGiftCertificates, ShopperPromotions, SourceCodeGroups
+* Product: Catalogs, Products, ShopperProducts
+* Search: ShopperSearch
+* Seller: ShopperStores
+*
+* ```typescript
+* import { {{#vendorExtensions}}{{x-api-family}}{{/vendorExtensions}}, ClientConfig } from "commerce-sdk";
+* // or
+* const { {{#vendorExtensions}}{{x-api-family}}{{/vendorExtensions}}, ClientConfig } = require("commerce-sdk");
+* 
+* const clientConfig: ClientConfig = {
+*   parameters: {
+*     clientId: "XXXXXX",
+*     organizationId: "XXXX",
+*     shortCode: "XXX",
+*     siteId: "XX"
+*   }
+* };
+* 
+* token = { access_token: 'INSERT_ACCESS_TOKEN_HERE' };
+* 
+* clientConfig.headers['authorization'] = `Bearer ${token.access_token}`;
+* const {{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}Client = new {{#vendorExtensions}}{{x-api-family}}{{/vendorExtensions}}.{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}(clientConfig);
+* ```
+*
+* <span style="font-size:.7em; display:block; text-align: right">
+* API Version: 1.4.4<br />
+* Last Updated: <br />  
+* </span>
+*
+*/
+export class {{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}} extends BaseClient {
+
+    constructor(config: ClientConfig) {
+        super(config);
+
+        if (!!!config.baseUri) {
+            this.clientConfig.baseUri = defaultBaseUri;
+        }
+
+    }
+
+{{#operations}}
+{{#operation}}
+
+    /**
+    * {{{unescapedNotes}}}
+    *
+    * If you would like to get a raw Response object use the other {{nickname}} function.
+    *
+    * @param options - An object containing the options for this method.
+    * @param options.parameters - An object containing the parameters for this method.
+    {{#allParams}}
+    {{^isBodyParam}}
+    {{^isHeaderParam}}
+    {{^isFormParam}}
+    * @param options.parameters.{{{paramName}}} - {{{unescapedDescription}}}
+    {{/isFormParam}}
+    {{/isHeaderParam}}
+    {{/isBodyParam}}
+    {{/allParams}}
+    * @param options.retrySettings - Retry options for the `node-retry` package
+    * @param options.fetchOptions - Fetch options for the `make-fetch-happen` package
+    * @param options.headers - An object literal of key value pairs of the headers to be sent with this request.
+    {{#hasBodyParam}}
+    * @param options.body - The data to send as the request body.
+    {{/hasBodyParam}}
+    {{^hasBodyParam}}
+    {{#hasFormParams}}
+    * @param options.body - The data to send as the request body.
+    {{#formParams}}
+    {{#isFormParam}}
+    * @param options.body.{{{paramName}}} - {{{unescapedDescription}}}
+    {{/isFormParam}}
+    {{/formParams}}
+    {{/hasFormParams}}
+    {{/hasBodyParam}}
+    *
+    * @returns A promise of type {{{returnType}}}{{^returnType}}void{{/returnType}}.
+    */
+    {{nickname}}(
+        options{{^hasBodyParam}}?{{/hasBodyParam}}: RequireParametersUnlessAllAreOptional<{
+            parameters?: CompositeParameters<{
+            {{#allParams}}
+            {{^isBodyParam}}
+            {{^isHeaderParam}}
+            {{^isFormParam}}
+                {{paramName}}{{^required}}?{{/required}}: {{#isEnum}}{{{datatypeWithEnum}}}{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{dataType}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}};
+            {{/isFormParam}}
+            {{/isHeaderParam}}
+            {{/isBodyParam}}
+            {{/allParams}}
+            } & { [key in `c_${string}`]: any }, CommonParameters>,
+            retrySettings?: OperationOptions,
+            fetchOptions?: RequestInit,
+            headers?: { [key: string]: string },
+            {{#hasBodyParam}}
+            {{#bodyParam}}
+            body: {{{dataType}}}
+            {{/bodyParam}}
+            {{/hasBodyParam}}
+            {{^hasBodyParam}}
+            {{#hasFormParams}}
+            body: {
+            {{#formParams}}
+            {{#isFormParam}}
+                {{paramName}}{{^required}}?{{/required}}: {{#isEnum}}{{{dataType}}}{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{dataType}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}};
+            {{/isFormParam}}
+            {{/formParams}}
+            }
+            {{/hasFormParams}}
+            {{/hasBodyParam}}
+        }>
+    ): Promise<{{{returnType}}}{{^returnType}}void{{/returnType}}>;
+
+    /**
+    * {{{unescapedNotes}}}
+    *
+    * @param options - An object containing the options for this method.
+    * @param options.parameters - An object containing the parameters for this method.
+    {{#allParams}}
+    {{^isBodyParam}}
+    {{^isHeaderParam}}
+    {{^isFormParam}}
+    * @param options.parameters.{{{paramName}}} - {{{unescapedDescription}}}
+    {{/isFormParam}}
+    {{/isHeaderParam}}
+    {{/isBodyParam}}
+    {{/allParams}}
+    * @param options.retrySettings - Retry options for the `node-retry` package
+    * @param options.fetchOptions - Fetch options for the `make-fetch-happen` package
+    * @param options.headers - An object literal of key value pairs of the headers to be sent with this request.
+    {{#hasBodyParam}}
+    * @param options.body - The data to send as the request body.
+    {{/hasBodyParam}}
+    {{^hasBodyParam}}
+    {{#hasFormParams}}
+    * @param options.body - The data to send as the request body.
+    {{#formParams}}
+    {{#isFormParam}}
+    * @param options.body.{{{paramName}}} - {{{unescapedDescription}}}
+    {{/isFormParam}}
+    {{/formParams}}
+    {{/hasFormParams}}
+    {{/hasBodyParam}}
+    * @param rawResponse - Set to true to return entire Response object instead of DTO.
+    * 
+    * @returns A promise of type Response if rawResponse is true, a promise of type {{{returnType}}}{{^returnType}}void{{/returnType}} otherwise.
+    */
+    {{nickname}}<T extends boolean>(
+        options{{^hasBodyParam}}?{{/hasBodyParam}}: RequireParametersUnlessAllAreOptional<{
+            parameters?: CompositeParameters<{
+            {{#allParams}}
+                {{^isBodyParam}}
+                {{^isHeaderParam}}
+                {{^isFormParam}}
+                {{paramName}}{{^required}}?{{/required}}: {{#isEnum}}{{{datatypeWithEnum}}}{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{dataType}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}};
+                {{/isFormParam}}
+                {{/isHeaderParam}}
+                {{/isBodyParam}}
+            {{/allParams}}
+            } & { [key in `c_${string}`]: any }, CommonParameters>,
+            retrySettings?: OperationOptions,
+            fetchOptions?: RequestInit,
+            headers?: { [key: string]: string },
+            {{#hasBodyParam}}
+            {{#bodyParam}}
+            body: {{{dataType}}}
+            {{/bodyParam}}
+            {{/hasBodyParam}}
+            {{^hasBodyParam}}
+            {{#hasFormParams}}
+            body: {
+            {{#formParams}}
+            {{#isFormParam}}
+                {{paramName}}{{^required}}?{{/required}}: {{#isEnum}}{{{dataType}}}{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{dataType}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}};
+            {{/isFormParam}}
+            {{/formParams}}
+            }
+            {{/hasFormParams}}
+            {{/hasBodyParam}}
+        }>,
+        rawResponse?: T
+    ): Promise<T extends true ? Response : {{{returnType}}}{{^returnType}}void{{/returnType}}>;
+
+    /**
+    * {{{unescapedNotes}}}
+    *
+    * @param options - An object containing the options for this method.
+    * @param options.parameters - An object containing the parameters for this method.
+    {{#allParams}}
+    {{^isBodyParam}}
+    {{^isHeaderParam}}
+    {{^isFormParam}}
+    * @param options.parameters.{{{paramName}}} - {{{unescapedDescription}}}
+    {{/isFormParam}}
+    {{/isHeaderParam}}
+    {{/isBodyParam}}
+    {{/allParams}}
+    * @param options.retrySettings - Retry options for the `node-retry` package
+    * @param options.fetchOptions - Fetch options for the `make-fetch-happen` package
+    * @param options.headers - An object literal of key value pairs of the headers to be sent with this request.
+    {{#hasBodyParam}}
+    * @param options.body - The data to send as the request body.
+    {{/hasBodyParam}}
+    {{^hasBodyParam}}
+    {{#hasFormParams}}
+    * @param options.body - The data to send as the request body.
+    {{#formParams}}
+    {{#isFormParam}}
+    * @param options.body.{{{paramName}}} - {{{unescapedDescription}}}
+    {{/isFormParam}}
+    {{/formParams}}
+    {{/hasFormParams}}
+    {{/hasBodyParam}}
+    * @param rawResponse - Set to true to return entire Response object instead of DTO.
+    * 
+    * @returns A promise of type Response if rawResponse is true, a promise of type {{{returnType}}}{{^returnType}}void{{/returnType}} otherwise.
+    */
+    async {{nickname}}(
+        options{{^hasBodyParam}}?{{/hasBodyParam}}: RequireParametersUnlessAllAreOptional<{
+            parameters?: CompositeParameters<{
+            {{#allParams}}
+                {{^isBodyParam}}
+                {{^isHeaderParam}}
+                {{^isFormParam}}
+                {{paramName}}{{^required}}?{{/required}}: {{#isEnum}}{{{datatypeWithEnum}}}{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{dataType}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}};
+                {{/isFormParam}}
+                {{/isHeaderParam}}
+                {{/isBodyParam}}
+            {{/allParams}}
+            } & { [key in `c_${string}`]: any }, CommonParameters>,
+            retrySettings?: OperationOptions,
+            fetchOptions?: RequestInit,
+            headers?: { [key: string]: string },
+            {{#hasBodyParam}}
+            {{#bodyParam}}
+            body: {{{dataType}}}
+            {{/bodyParam}}
+            {{/hasBodyParam}}
+            {{^hasBodyParam}}
+            {{#hasFormParams}}
+            body: {
+            {{#formParams}}
+            {{#isFormParam}}
+                {{paramName}}{{^required}}?{{/required}}: {{#isEnum}}{{{dataType}}}{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{dataType}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}};
+            {{/isFormParam}}
+            {{/formParams}}
+            }
+            {{/hasFormParams}}
+            {{/hasBodyParam}}
+        }>,
+        rawResponse?: boolean
+    ): Promise<Response | {{{returnType}}}{{^returnType}}void{{/returnType}}> {
+        const optionParams = options?.parameters || ({} as Partial<NonNullable<NonNullable<typeof options>["parameters"]>>);
+        const configParams = this.clientConfig.parameters as CommonParameters;
+        
+        const pathParams = {};
+
+        {{#pathParams}}
+        if (optionParams["{{paramName}}"] !== undefined) {
+            pathParams["{{paramName}}"] = optionParams["{{paramName}}"];
+        } else if (configParams["{{paramName}}"] !== undefined) {
+            pathParams["{{paramName}}"] = configParams["{{paramName}}"];
+        }
+        {{#required}}
+        else {
+            throw new Error('Missing required path parameter: {{paramName}}');
+        }
+        {{/required}}
+        {{/pathParams}}
+
+        const queryParams: Partial<{ [key in `c_${string}`]: any }> = {};
+
+        {{#queryParams}}
+        if (optionParams["{{paramName}}"] !== undefined) {
+            queryParams["{{paramName}}"] = optionParams["{{paramName}}"];
+        } else if (configParams["{{paramName}}"] !== undefined) {
+            queryParams["{{paramName}}"] = configParams["{{paramName}}"];
+        }
+        {{#required}}
+        else {
+            throw new Error('Missing required query parameter: {{paramName}}');
+        }
+        {{/required}}
+        {{/queryParams}}
+
+        Object.keys(optionParams).forEach((key) => {
+            if(key.startsWith('c_') && optionParams[key] !== undefined) {
+                queryParams[key] = optionParams[key]
+            } else if(!queryParams.hasOwnProperty(key) && !pathParams.hasOwnProperty(key)) {
+                console.warn(`Invalid Parameter for {{{nickname}}}: ${key}`)
+            }
+        })
+
+        const headers = mergeHeaders(getHeaders(options), {
+            {{#hasConsumes}}
+            {{#consumes}}
+            "Content-Type": "{{mediaType}}",
+            {{/consumes}}
+            {{/hasConsumes}}
+            [USER_AGENT_HEADER]: USER_AGENT_VALUE
+        });
+
+        return StaticClient.{{#lambda.lowercase}}{{httpMethod}}{{/lambda.lowercase}}({
+            client: this,
+            rawResponse: rawResponse,
+            path: "{{path}}",
+            pathParameters: pathParams,
+            queryParameters: queryParams,
+            retrySettings: (options || {}).retrySettings,
+            headers: headers,
+            {{#hasBodyParam}}
+            body: (options || {}).body,
+            {{/hasBodyParam}}
+            {{^hasBodyParam}}
+            {{#hasFormParams}}
+            body: (options || {}).body,
+            {{/hasFormParams}}
+            {{/hasBodyParam}}
+            ...(options{{^hasBodyParam}}?{{/hasBodyParam}}.fetchOptions && { fetchOptions: options.fetchOptions })
+        });
+    }
+{{/operation}}
+{{/operations}}
+}
+}

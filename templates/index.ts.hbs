@@ -1,17 +1,10 @@
 {{#each children}}
-import * as {{name.upperCamelCase}} from "./{{name.lowerCamelCase}}/{{name.lowerCamelCase}}";
+export { {{apiName}} } from "./{{directoryName}}";
+import type * as {{apiName}}Types from "./{{directoryName}}";
+export type { {{apiName}}Types };
 {{/each}}
-export {
-{{#each children}}
-    {{name.upperCamelCase}}{{#unless @last}},{{/unless}}
-{{/each}}
-}
 
-import { slasHelpers, helpers } from "./helpers"
-
-export {
-    slasHelpers,
-    helpers
-}
+import * as helpers from "./helpers";
+export { helpers };
 
 export { ClientConfig, CommonParameters, sdkLogger } from "@commerce-apps/core"
