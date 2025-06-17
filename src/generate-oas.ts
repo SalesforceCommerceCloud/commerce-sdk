@@ -79,7 +79,10 @@ export function getAPIDetailsFromExchange(directory: string): ApiSpecDetail {
       exchangeConfig.apiVersion === "v2"
     ) {
       return {
-        filepath: path.join(directory, exchangeConfig.main),
+        filepath: path.join(
+          directory,
+          exchangeConfig.main.replace('-public.yaml', '-internal.yaml')
+        ),
         filename: exchangeConfig.main,
         directoryName: "ShopperBasketsV2",
         name: "Shopper Baskets V2 OAS",
@@ -88,7 +91,10 @@ export function getAPIDetailsFromExchange(directory: string): ApiSpecDetail {
     }
 
     return {
-      filepath: path.join(directory, exchangeConfig.main),
+      filepath: path.join(
+        directory,
+        exchangeConfig.main.replace('-public.yaml', '-internal.yaml')
+      ),
       filename: exchangeConfig.main,
       directoryName: kebabToCamelCase(
         exchangeConfig.assetId.replace("-oas", "")
