@@ -83,12 +83,19 @@ export function getAPIDetailsFromExchange(directory: string): ApiSpecDetail {
     return {
       filepath: path.join(
         directory,
-        exchangeConfig.main.replace('-public.yaml', '-internal.yaml')
+        exchangeConfig.main.replace("-public.yaml", "-internal.yaml")
       ),
       filename: exchangeConfig.main,
       directoryName: kebabToCamelCase(
-        appendVersionIfV2(exchangeConfig.assetId.replace("-oas", ""), exchangeConfig.apiVersion)),
-      name: exchangeConfig.apiVersion === "v2" ? exchangeConfig.name + " V2" : exchangeConfig.name,
+        appendVersionIfV2(
+          exchangeConfig.assetId.replace("-oas", ""),
+          exchangeConfig.apiVersion
+        )
+      ),
+      name:
+        exchangeConfig.apiVersion === "v2"
+          ? exchangeConfig.name + " V2"
+          : exchangeConfig.name,
       apiName: resolveApiName(exchangeConfig.name, exchangeConfig.apiVersion),
     };
   }
