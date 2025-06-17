@@ -1,0 +1,540 @@
+openapi: 3.0.3
+info:
+  title: Shopper Context
+  version: v1
+  description: "# API Overview\n\nWith the Shopper Context API, you can set any context information as a key/value pair and use it to retrieve personalized promotions, payment methods, and shipping methods. The context information that is set is evaluated against the customer group definitions to determine a customer group (shopper segment), and is then used to activate the experiences that are associated with a particular segment, such as promotions.\n\nYou can also get personalized API responses triggered by shopper context from the [Open Commerce API](https://documentation.b2c.commercecloud.salesforce.com/DOC1/topic/com.demandware.dochelp/OCAPI/current/usage/OpenCommerceAPI.html) (OCAPI). Support for both the B2C Commerce API and OCAPI allows shopper context to be used in hybrid deployments.\n\n**Warning** \nAccess tokens with a scope that includes the Shopper Context API are powerful. They can activate specific promotions and can be used to see how a storefront would be displayed in the future. Don't share them with untrusted clients like web browsers or client apps.\n\nMake Shopper Context calls with a private client and only set shopper context through a secure backend channel. To avoid misuse, do not make direct calls through a browser or similar client in which data can be viewed. \n\nAs part of this, when creating a SLAS public client for a tenant, if you attempt to add the Shopper Context API scope, a warning message is displayed to ensure you are aware of the pitfalls of doing so.\n\n**Note**:\n\nShopper context is valid for 1 day for guest shoppers and 7 days for registered shoppers. To extend the context set, create a new context. As a best practice, refresh your contexts periodically to ensure that the right personalized experience is rendered for your shoppers.\n\nWith B2C Commerce release 24.5, all new implementations of Shopper Context require the `siteId` query parameter to be passed. Existing customers with Shopper Context implementations should start including `siteId` going forward. Starting July 31 2024, `siteId` is required for all customers, and a bad request response code is returned for requests without a `siteId`.\n\n## Authentication & Authorization\n\nThe Shopper Context API requires a shopper access token from the Shopper Login and API Access Service (SLAS).\n\nFor details on how to request a shopper access token from SLAS, see the guest user flows for [public clients](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-public-client.html) and [private clients](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-private-client.html) in the SLAS guides. \n\nAdd `sfcc.shopper-context.rw` to the scopes configuration for the SLAS API client.\n\nFor more information, see [Authorization for Shopper APIs](https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-shopper-apis.html) in the Get Started guides.\n\n**Warning**: As with all APIs, never store access tokens in the browser because this creates a security vulnerability.\n\n## Use Cases\n\nFor detailed usage information, see the [Shopper Context guides](https://developer.salesforce.com/docs/commerce/commerce-api/guide/shopper-context-api.html)."
+servers:
+  - url: https://{shortCode}.api.commercecloud.salesforce.com/shopper/shopper-context/v1
+    variables:
+      shortCode:
+        default: shortCode
+paths:
+  /organizations/{organizationId}/shopper-context/{usid}:
+    get:
+      summary: |-
+        Get the shopper's context based on the shopperJWT.
+
+        With B2C Commerce release 24.5, all endpoints in the Shopper context API require the `siteId` parameter for new customers. This field is marked as optional for backward compatibility and will be changed to mandatory tentatively by January 2025.
+      operationId: getShopperContext
+      parameters:
+        - $ref: '#/components/parameters/usid'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '200':
+          description: Shopper Context retrieved successfully.
+          headers:
+            X-Geolocation:
+              description: The response header returns the geolocation based on the `clientIp` or `geoLocation` attribute set in the shopper context. If both are set, `geoLocation` takes precedence.
+              required: false
+              schema:
+                type: string
+                example: 'CountryCode: US; Country: United States; MetroCode: 0; Latitude: 37.751; Longitude: -97.822'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopperContext'
+              examples:
+                ShopperContextExample:
+                  $ref: '#/components/examples/ShopperContextExample'
+        '400':
+          description: The usid in the incoming request does not match the usid in the token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getShopperContext400:
+                  $ref: '#/components/examples/BadRequestUSIDNotMatching'
+        '401':
+          description: Your shopper JWT is invalid and cannot be used to identify the API client.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getShopperContext401:
+                  $ref: '#/components/examples/Unauthorized'
+        '403':
+          description: Your shopper JWT is valid, but you do not have permission to access the resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getShopperContext403:
+                  $ref: '#/components/examples/Forbidden'
+        '404':
+          description: Shopper Context for ORGANIZATION_ID - f_ecom_bhbv_prd and USID - 7e1f65fb-185c-4788-8cec-05fef8dac77d not found in repository.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getShopperContext404:
+                  $ref: '#/components/examples/NotFound'
+      security:
+        - ShopperToken:
+            - sfcc.shopper-context
+            - sfcc.shopper-context.rw
+    put:
+      summary: |-
+        Create the shopper's context based on the shopperJWT. If a shopper context already exists, the entire existing context is replaced.
+
+        With B2C Commerce release 24.5, all endpoints in the Shopper context API will require the `siteId` parameter for new customers. This field is marked as optional for backward compatibility and will be changed to mandatory tentatively by January 2025.
+      operationId: createShopperContext
+      parameters:
+        - $ref: '#/components/parameters/usid'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+        - $ref: '#/components/parameters/evaluateContextWithClientIp'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShopperContext'
+            examples:
+              ShopperContextExample:
+                $ref: '#/components/examples/ShopperContextExample'
+        required: true
+      responses:
+        '200':
+          description: The shopper's context was created successfully.
+          headers:
+            X-Geolocation:
+              description: The response header returns the geolocation based on the `clientIp` or `geoLocation` attribute set in the shopper context. If both are set, `geoLocation` takes precedence.
+              required: false
+              schema:
+                type: string
+        '201':
+          description: The shopper's context was created successfully.
+          headers:
+            X-Geolocation:
+              description: The response header returns the geolocation based on the `clientIp` or `geoLocation` attribute set in the shopper context. If both are set, `geoLocation` takes precedence.
+              required: false
+              schema:
+                type: string
+        '400':
+          description: The usid in the incoming request does not match the usid in the token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getShopperContext400:
+                  $ref: '#/components/examples/BadRequestUSIDNotMatching'
+        '401':
+          description: Your shopper JWT is invalid and cannot be used to identify the API client.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getShopperContext401:
+                  $ref: '#/components/examples/Unauthorized'
+        '403':
+          description: Your shopper JWT is valid, but you do not have permission to access the resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Forbidden:
+                  $ref: '#/components/examples/Forbidden'
+      security:
+        - ShopperToken:
+            - sfcc.shopper-context.rw
+    delete:
+      description: |-
+        Get a shopper's context based on the shopperJWT.
+
+        With B2C Commerce release 24.5, all endpoints in the Shopper context API require the `siteId` parameter for new customers. This field is marked as optional for backward compatibility and will be changed to mandatory tentatively by January 2025.
+      operationId: deleteShopperContext
+      parameters:
+        - $ref: '#/components/parameters/usid'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '204':
+          description: The shopper's context was deleted successfully.
+        '400':
+          description: The usid in the incoming request does not match the usid in the token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getShopperContext400:
+                  $ref: '#/components/examples/BadRequestUSIDNotMatching'
+        '401':
+          description: Your shopper JWT is invalid and cannot be used to identify the API client.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getShopperContext401:
+                  $ref: '#/components/examples/Unauthorized'
+        '403':
+          description: Your shopper JWT is valid, but you do not have permission to access the resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Forbidden:
+                  $ref: '#/components/examples/Forbidden'
+        '404':
+          description: Shopper Context for ORGANIZATION_ID - f_ecom_bhbv_prd and USID - 7e1f65fb-185c-4788-8cec-05fef8dac77d not found in repository.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getShopperContext404:
+                  $ref: '#/components/examples/NotFound'
+      security:
+        - ShopperToken:
+            - sfcc.shopper-context.rw
+    patch:
+      summary: Update an existing shopper's context based on the Shopper JWT.
+      description: "If the shopper context exists, it's updated with the patch body.\n- If a new attribute that does not exist in the existing shopper context is present, it is added to the context.\n-If an attribute is already present in the existing shopper context, its value is replaced by the corresponding value from the new shopper context in the request body as follows:\n  - `custom qualifiers` or `assignment qualifiers`:\n\n  If the individual qualifier key exists, it is overwritten with the new value.\n\n  If the value of the key is set to null, it is deleted from the existing shopper context.\n\n  If an empty `custom qualifiers` or `assignment qualifiers` object `{}` is passed, the entire qualifier object is deleted.\n  - `effectiveDateTime` or `sourceCode` or `clientIp`:\n\n  If the new value is set to an empty string (\"\"), it is deleted from the existing shopper context.\n\n  If the new value is set to null, it is ignored.\n\n  If the new value is not empty or null, it overwrites the existing value.\n\n  - `customerGroupIds`:\n\n  If a list of `customerGroupIds` exists, it is replaced by the new list of customer group IDs from the request.\n\n  If `customerGroupIds` is set to an empty array [], the existing list in the shopper context is deleted.\n\n  - `geoLocation`:  \n\n  If it exists, the entire `geoLocation` object is replaced with the new value.\n\n  If the new value is set to null, it is ignored.\n\n  If an empty `geoLocation` object `{}` is passed, it is deleted. \n\nWith B2C Commerce release 24.5, all endpoints in the Shopper context API require the `siteId` parameter for new customers. This field is marked as optional for backward compatibility and will be changed to mandatory tentatively by January 2025."
+      operationId: updateShopperContext
+      parameters:
+        - $ref: '#/components/parameters/usid'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+        - $ref: '#/components/parameters/evaluateContextWithClientIp'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShopperContext'
+            examples:
+              ShopperContextUpdateRequestBody:
+                $ref: '#/components/examples/ShopperContextUpdateRequestBody'
+        required: true
+      responses:
+        '200':
+          description: The shopper context was updated successfully.
+          headers:
+            X-Geolocation:
+              required: false
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopperContext'
+              examples:
+                ShopperContextUpdateResponseExample:
+                  $ref: '#/components/examples/ShopperContextUpdateResponseExample'
+        '400':
+          description: The usid in the incoming request does not match the usid in the token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                updateShopperContext400:
+                  $ref: '#/components/examples/BadRequestUSIDNotMatching'
+        '401':
+          description: Your shopper JWT is invalid and cannot be used to identify the API client.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                updateShopperContext401:
+                  $ref: '#/components/examples/Unauthorized'
+        '403':
+          description: Your shopper JWT is valid, but you do not have permission to access the resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                updateShopperContext403:
+                  $ref: '#/components/examples/Forbidden'
+      security:
+        - ShopperToken:
+            - sfcc.shopper-context.rw
+components:
+  securitySchemes:
+    ShopperToken:
+      type: oauth2
+      description: "ShopperToken authentication follows the authorization code grant flow, as defined by the OAuth 2.1 standard. Depending on the type of OAuth client (public or private), this authorization flow has further requirements. \nFor a detailed description of the authorization flow, see the [SLAS overview](https://developer.salesforce.com/docs/commerce/commerce-api/references?meta=shopper-login:Summary).\nA shopper token allows you to access the Shopper API endpoints of both OCAPI and the B2C Commerce API. These endpoints can be used to build headless storefronts and other applications.\nThe `ShopperToken` security scheme is a parent of other security schemes, such as `ShopperTokenTsob`. A Shopper API endpoint can require a specific child scheme (`ShopperTokenTsob`, for example) that cannot be accessed with a regular shopper token.\n"
+      flows:
+        clientCredentials:
+          tokenUrl: https://{shortCode}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
+          scopes:
+            sfcc.shopper-context: Shopper Context READONLY
+            sfcc.shopper-context.rw: Shopper Context
+        authorizationCode:
+          authorizationUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/authorize
+          tokenUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
+          scopes:
+            sfcc.shopper-context: Shopper Context READONLY
+            sfcc.shopper-context.rw: Shopper Context
+  parameters:
+    usid:
+      name: usid
+      in: path
+      description: The Shopper's unique identifier. It is a required parameter and is part of the response from the Guest or Registered User Shopper Login (SLAS) API call.
+      required: true
+      schema:
+        type: string
+    organizationId:
+      description: An identifier for the organization the request is being made by
+      name: organizationId
+      in: path
+      required: true
+      example: f_ecom_zzxy_prd
+      schema:
+        $ref: '#/components/schemas/OrganizationId'
+    siteId:
+      description: The site context.
+      name: siteId
+      example: RefArch
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/SiteId'
+    evaluateContextWithClientIp:
+      name: evaluateContextWithClientIp
+      in: query
+      description: |
+        Determines whether to evaluate the context using the provided `clientIp`.  This property is available with B2C Commerce version 24.7.
+        - If `evaluateContextWithClientIp` is set to `true`:
+          - The `clientIP` is saved and used in subsequent requests.
+
+        - If `evaluateContextWithClientIp` is set to `false`:
+          - The `clientIP` is not saved and will not be used in subsequent requests.
+      required: false
+      schema:
+        type: boolean
+  schemas:
+    OrganizationId:
+      description: An identifier for the organization the request is being made by
+      example: f_ecom_zzxy_prd
+      type: string
+      minLength: 1
+      maxLength: 32
+    SiteId:
+      minLength: 1
+      maxLength: 32
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites
+      example: RefArch
+      type: string
+    ShopperContext:
+      type: object
+      properties:
+        effectiveDateTime:
+          description: Qualifier to set the effective date time for the context to apply. For example, "Shop the Future" use cases. If not provided, the current dateTime will be assumed.
+          type: string
+          example: '2020-12-20T00:00:00Z'
+          format: date-time
+          nullable: true
+        sourceCode:
+          description: Qualifier to set the source code for the context to apply. Set the source code to evaluate source code group that triggers the promotion (campaign assignment) and Price books (assigned to Source code group).
+          type: string
+          example: wii1-98
+          nullable: true
+        customerGroupIds:
+          items:
+            maxLength: 256
+            type: string
+            example: BigSpenders
+          type: array
+          description: Qualifier to set the Customer Group Ids for the context to apply. Set the Customer Group Ids to evaluate customer groups that trigger the promotions (campaign assignment) assigned to the customer groups.
+        customQualifiers:
+          type: object
+          additionalProperties: false
+          description: Map of custom qualifiers for the shopper context. Set this object to trigger pricing and promotion experiences using a dynamic session-based customer group. Object size is limited to 20 key-value pairs (properties).
+          example:
+            deviceType: mobile
+            ipAddress: 189.0.0.0
+            operatingSystem: Android
+        assignmentQualifiers:
+          type: object
+          example:
+            store: boston
+          additionalProperties: false
+          description: Map of assignment qualifiers for the shopper context. Set this object when using the assignment framework to activate experiences based on assignment qualifiers. Currently, only pricing and promotion experiences are supported. Object size is limited to 20 key-value pairs (properties).
+        clientIp:
+          type: string
+          example: 12.12.12.1
+          description: "The IP Address of the client. If the client IP is not a valid IPv4 address, a Bad Request (400) error is thrown. This property is available with B2C Commerce version 24.7.\n\nWhen `clientIp` is set, the geolocation based on the `clientIp` is returned in the `X-Geolocation` header in the response. Note: Use/retrieve this header in a case insensitive manner.\n\nHowever, if the `geoLocation` attribute is also set in the context, it takes precedence over the `clientIp`, and the `X-Geolocation` header returns the geolocation based on the `geoLocation` attribute.\n\nThe query parameter `evaluateContextWithClientIp` determines whether to evaluate the context using the provided `clientIp`.\n  - If `evaluateContextWithClientIp` is set to `true`:\n    - The `clientIp` is saved and used in subsequent requests. \n    \n    Note: If `geoLocation` is also saved in the context, it takes precedence over the `clientIp`.\n  - If `evaluateContextWithClientIp` is set to `false`:\n    - The `clientIp` is not saved and is not used in subsequent requests."
+        geoLocation:
+          type: object
+          properties:
+            city:
+              type: string
+              description: The city name associated with this location.
+              example: Boston
+            country:
+              type: string
+              description: The country name associated with this location.
+              example: United States of America
+            countryCode:
+              type: string
+              description: The ISO country code associated with this location.
+              example: US
+            latitude:
+              example: 10.11
+              type: number
+              description: The latitude coordinate, which is a number between -90.0 and +90.0, associated with this location.
+              format: double
+            longitude:
+              type: number
+              example: 198.34
+              description: The longitude coordinate, which is a number between -180.0 and +180.0, associated with this location.
+              format: double
+            metroCode:
+              type: string
+              description: The metro code associated with this location.
+            postalCode:
+              type: string
+              description: The postal code associated with this location.
+              example: '01730'
+            region:
+              type: string
+              description: The region (subdivision) name for this location. Corresponds with "state" in the USA.
+              example: NA
+            regionCode:
+              type: string
+              example: '12345'
+              description: The region (province or state) code for this location.
+          description: The geographic location of the client. When you set a geolocation, it is saved as context for subsequent requests. This overrides any geolocation context previously saved using `clientIp`. This property is available with B2C Commerce version 24.7.
+      description: A shoppers' context represented as key-value string pairs.
+      example:
+        effectiveDateTime: '2020-12-20T00:00:00Z'
+        sourceCode: wii1-98
+        customQualifiers:
+          deviceType: mobile
+          ipAddress: 189.0.0.0
+          operatingSystem: Android
+        assignmentQualifiers:
+          store: boston
+        customerGroupIds:
+          - BigSpenders
+          - MobileUsers
+        clientIp: 12.12.12.1
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        title:
+          description: "A short, human-readable summary of the problem\ntype.  It will not change from occurrence to occurrence of the \nproblem, except for purposes of localization\n"
+          type: string
+          maxLength: 256
+          example: You do not have enough credit
+        type:
+          description: |
+            A URI reference [RFC3986] that identifies the
+            problem type.  This specification encourages that, when
+            dereferenced, it provide human-readable documentation for the
+            problem type (e.g., using HTML [W3C.REC-html5-20141028]).  When
+            this member is not present, its value is assumed to be
+            "about:blank". It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: NotEnoughMoney
+        detail:
+          description: A human-readable explanation specific to this occurrence of the problem.
+          type: string
+          example: Your current balance is 30, but that costs 50
+        instance:
+          description: |
+            A URI reference that identifies the specific
+            occurrence of the problem.  It may or may not yield further
+            information if dereferenced.  It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: /account/12345/msgs/abc
+      required:
+        - title
+        - type
+        - detail
+  examples:
+    ShopperContextExample:
+      value:
+        effectiveDateTime: '2020-12-20T00:00:00Z'
+        sourceCode: wii1-98
+        customQualifiers:
+          deviceType: mobile
+          ipAddress: 189.0.0.0
+          operatingSystem: Android
+        assignmentQualifiers:
+          store: boston
+        customerGroupIds:
+          - BigSpenders
+          - MobileUsers
+        clientIp: 12.12.12.1
+    BadRequestUSIDNotMatching:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/usid-not-matching-with-token
+        detail: Usid in incoming request does not match Usid in token.
+        title: Usid not matching with token
+    Unauthorized:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/unauthorized
+        title: Unauthorized
+        detail: Your shopper JWT is invalid and could not be used to identify the API client.
+    Forbidden:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/forbidden
+        title: Forbidden
+        detail: Your shopper JWT is valid, but you have no permissions to access the resource.
+    NotFound:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/shopper-context-no-found
+        detail: 'Shopper Context for ORGANIZATION_ID: f_ecom_bhbv_prd and USID: 7e1f65fb-185c-4788-8cec-05fef8dac77d not found in Repository.'
+        title: Shopper Context Not Found
+    ShopperContextUpdateRequestBody:
+      value:
+        effectiveDateTime: null
+        customQualifiers:
+          deviceType: iPad
+          operatingSystem: null
+          storeId: SLC1
+        assignmentQualifiers:
+          store: london
+        clientIp: 12.12.12.1
+        geoLocation:
+          countryCode: US
+          country: United States of America
+          city: Boston
+          postalCode: '01730'
+          metroCode: M234
+          region: NA
+          regionCode: '12345'
+          latitude: 10.11
+          longitude: 198.34
+    ShopperContextUpdateResponseExample:
+      value:
+        sourceCode: wii1-98
+        customQualifiers:
+          deviceType: iPad
+          ipAddress: 189.0.0.0
+          storeId: SLC1
+        assignmentQualifiers:
+          store: london
+        customerGroupIds:
+          - BigSpenders
+          - MobileUsers
+        clientIp: 12.12.12.1
+        geoLocation:
+          countryCode: US
+          country: United States of America
+          city: Boston
+          postalCode: '01730'
+          metroCode: M234
+          region: NA
+          regionCode: '12345'
+          latitude: 10.11
+          longitude: 198.34
