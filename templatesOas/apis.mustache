@@ -13,6 +13,7 @@ import { defaultBaseUri } from "../runtime";
 import { USER_AGENT_HEADER, USER_AGENT_VALUE } from "../../version";
 import type {
     CompositeParameters,
+    QueryParameters,
     RequireParametersUnlessAllAreOptional
 } from "../../types";
 
@@ -161,7 +162,7 @@ export class {{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.came
             {{/isHeaderParam}}
             {{/isBodyParam}}
             {{/allParams}}
-            } & { [key in `c_${string}`]: any }, CommonParameters>,
+            } & QueryParameters, CommonParameters>,
             retrySettings?: OperationOptions,
             fetchOptions?: RequestInit,
             headers?: { [key: string]: string },
@@ -230,7 +231,7 @@ export class {{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.came
                 {{/isHeaderParam}}
                 {{/isBodyParam}}
             {{/allParams}}
-            } & { [key in `c_${string}`]: any }, CommonParameters>,
+            } & QueryParameters, CommonParameters>,
             retrySettings?: OperationOptions,
             fetchOptions?: RequestInit,
             headers?: { [key: string]: string },
@@ -300,7 +301,7 @@ export class {{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.came
                 {{/isHeaderParam}}
                 {{/isBodyParam}}
             {{/allParams}}
-            } & { [key in `c_${string}`]: any }, CommonParameters>,
+            } & QueryParameters, CommonParameters>,
             retrySettings?: OperationOptions,
             fetchOptions?: RequestInit,
             headers?: { [key: string]: string },
@@ -341,7 +342,7 @@ export class {{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.came
         {{/required}}
         {{/pathParams}}
 
-        const queryParams: Partial<{ [key in `c_${string}`]: any }> = {};
+        const queryParams: QueryParameters = {};
 
         {{#queryParams}}
         if (optionParams["{{paramName}}"] !== undefined) {
@@ -357,10 +358,12 @@ export class {{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.came
         {{/queryParams}}
 
         Object.keys(optionParams).forEach((key) => {
-            if(key.startsWith('c_') && optionParams[key] !== undefined) {
-                queryParams[key] = optionParams[key]
-            } else if(!queryParams.hasOwnProperty(key) && !pathParams.hasOwnProperty(key)) {
-                console.warn(`Invalid Parameter for {{{nickname}}}: ${key}`)
+            const paramValue = optionParams[key as keyof typeof optionParams];
+            if(paramValue !== undefined && (key.startsWith('c_') || !((key in queryParams) || (key in pathParams)))) {
+                if(!key.startsWith('c_')) {
+                    console.warn(`Found unknown parameter for {{{nickname}}}: ${key}, adding as query parameter anyway`);
+                }
+                queryParams[key as keyof typeof queryParams] = paramValue;
             }
         })
 

@@ -52,7 +52,7 @@ describe("Parameters", () => {
     expect(response).to.be.deep.equal(MOCK_RESPONSE);
   });
 
-  it("warns user when invalid param is passed", async () => {
+  it("warns user when an unknown param is passed", async () => {
     const productClient = new ShopperProducts.ShopperProducts({
       parameters: {
         clientId: CLIENT_ID,
@@ -65,10 +65,11 @@ describe("Parameters", () => {
     const options = {
       parameters: {
         ids: ["ids"],
-        invalidQueryParam: "invalid_param",
+        unknownParam1: "param1",
+        unknownParam2: "param2",
       },
     };
-
+    nock.cleanAll();
     nock(`https://${SHORT_CODE}.api.commercecloud.salesforce.com`)
       .get(
         `/product/shopper-products/v1/organizations/${ORGANIZATION_ID}/products`
@@ -76,6 +77,8 @@ describe("Parameters", () => {
       .query({
         siteId: SITE_ID,
         ids: "ids",
+        unknownParam1: "param1",
+        unknownParam2: "param2",
       })
       .reply(200, MOCK_RESPONSE);
 
@@ -84,7 +87,14 @@ describe("Parameters", () => {
 
     expect(response).to.be.deep.equal(MOCK_RESPONSE);
     expect(
-      warnSpy.calledWith("Invalid Parameter for getProducts: invalidQueryParam")
+      warnSpy.calledWith(
+        "Found unknown parameter for getProducts: unknownParam1, adding as query parameter anyway"
+      )
+    ).to.be.true;
+    expect(
+      warnSpy.calledWith(
+        "Found unknown parameter for getProducts: unknownParam2, adding as query parameter anyway"
+      )
     ).to.be.true;
   });
 });
