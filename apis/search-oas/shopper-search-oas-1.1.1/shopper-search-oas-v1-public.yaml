@@ -1,0 +1,1448 @@
+openapi: 3.0.3
+info:
+  title: Shopper Search
+  version: v1
+  description: "# API Overview\n\nUse the Shopper Search API for search functionality that lets shoppers search for products using keywords and refinement. The search results can be products or suggestions based on the endpoint you choose in the API.\n\nCaching is provided for the Shopper Search API. For details, see [Server-Side Web-Tier Caching.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/server-side-web-tier-caching.html)\n\n## Authentication & Authorization\n\nThe client requesting the API must have access to the product search and search suggestion resources. \n\nThe Shopper Search API requires a JWT acquired via the Shopper Customers endpoint:\n\n```\nhttps://{shortCode}.api.commercecloud.salesforce.com/customer/shopper-customers/v1/organizations/{organizationId}/customers/actions/login\n```\n\n## Use Cases\n\n### Provide Search Suggestions\n\nUse the Shopper Search API to provide search suggestions as a shopper searches.\n\nFor example, a developer who is building a shopping app using the Salesforce Commerce API would like to provide product, brand, and category suggestions. When a shopper types in a search phrase that exceeds a definable minimum length and the GET Search Suggestion endpoint is requested, the platform delivers a set of suggestions with products (name, ID), brands (name), and categories (name, ID). Shoppers can reach their desired search results more quickly using the suggested completion and correction.\n\n### Provide Search Results\n\nUse the Shopper Search API to gather product results for a shoppers search query.\n\nFor example, a developer who is building a shopping app using the Salesforce Commerce API would like to implement a product search functionality. When a shopper enters a search phrase and the GET Product Search endpoint is requested, the platform performs a keyword search and a sorted search result is returned. The sorted search result can be refined according to given values (for example, a price range).\nThe product search result contains a definable number of product search hits. A product search hit describes a matching product with its ID and name. Furthermore, the search hit contains product images, prices, represented products, and variations. In addition to the search hits, the search results also deliver refinement and sorting options.\n\n### Retrieve Promotion Information\n\nNote: This only applies if `promotions` expand is provided in the query parameter.\n\nPromotions provide discounts to shoppers when they meet certain purchase requirements.\n\nPromotion information is described in detail in [Promotion Details](https://developer.salesforce.com/docs/commerce/commerce-api/guide/promotion-details.html), but the following list provides several key points:\n\n- Pricing discounts for basket and shipping promotions are NEVER returned by the 'getProduct' or 'getProducts' endpoint.\n- Promotional pricing is ONLY returned for products that are included with non-conditional promotions.\n- Callout messages are ALWAYS returned by the 'getProduct' and 'getProducts' endpoints.\n\nBy default, 'getProduct' and 'getProducts' return promotion information for a queried product. Promotion information includes both pricing and callout message information. However, the specific pricing and callout information that is fetched is determined by:\n\n- Promotion Type\n- Product Type\n- Product Purchase Requirements\n\nSome promotions can be displayed on a Product Data Page (PDP) or Product Listing page (PLP), while other promotions are displayed in the context of a basket, such as an order level promotion: \"add the product to your basket to view price information\". It is important to understand what is included in the response when designing a PDP or PLP on top of SCAPI to ensure your design aligns with implementable features.\n\nNote: When you search for a variant product, the Product Search API returns the master or main product as the primary search hit. When promotion data (productPromotion) is returned, it does not contain pricing information because the returned product is the main product. To retrieve pricing information, pass the query string `allVariationProperties=true` with the `promotions` expand parameter, which returns pricing data for variant products if the promotion is unconditional. The `allVariationProperties` flag specifies the variation properties to be included in the result.\n\n#### Shopper Personalization\nThe SCAPI response can be personalized using the Shopper Context API or hooks. By setting specific values in the Shopper Context API, you can modify the response of the 'getProduct' or 'getProducts' endpoint based on the shopper's context. For instance, you can offer a 5% discount or free shipping to shoppers using mobile devices.\n\n#### JWA Caching\nThe response is cached in JWA, which means promotion data contained in the response is also cached based on the TTL (Time to Live) specified in the Business Manager [Feature Switches](https://help.salesforce.com/s/articleView?id=cc.b2c_feature_switches.htm&type=5) configuration.\nWhen the shopper context value is updated, a check is conducted to see if the updated shopper context affects the retrieval of product-promotion data. If it does, then the response is fetched from the source and cached in the JWA.\n\nFor details, see [Server-Side Web-Tier Caching.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/server-side-web-tier-caching.html)\n\n\n### Use Hooks\n\nFor details working with hooks, see [Extensibility with Hooks.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html)\n\n## Best Practices\n\nThese best practices refer to features that are generally available with B2C Commerce 24.3.\n\nFor better performance, when you call the GET Product Search endpoint, we recommend that you:\n\n- Use the `select` query parameter to filter the response of a specified field or set of fields, and remove default outputs that you don't need. For example, filter the response to return only the relevant product names, ids, variants, and product IDs of the variants.\n- Limit API requests to the GET Product Search endpoint instead of calling both the GET Product Search and GET Products endpoints to show information on a product listing page (PLP). Use these features to provide the additional product information needed to render product tiles:\n    - **Allowable value:** `promotions` value in the `expand` query parameter\n    - **Query parameters:** `perPricebook`, `allImages`, and `allVariationProperties`\n    - **Responses:** `productPromotions`, `imageGroups`, `priceRanges`, `tieredPrices`, `variants`, and `variationGroups`\n- Pass in only the `expand` values and query parameters that you consider necessary to meet your PLP requirements. Requesting large amounts of information can increase the latency, especially if there's a lot of data to be returned (for example, many imageGroups and variants)."
+servers:
+  - url: https://{shortCode}.api.commercecloud.salesforce.com/search/shopper-search/v1
+    variables:
+      shortCode:
+        default: shortCode
+paths:
+  /organizations/{organizationId}/product-search:
+    get:
+      summary: "Provides keyword and refinement-based search for products, returning only product ID, link, and name. Results \nare limited to products that are online and part of the site catalog."
+      description: "Provide keyword and refinement search functionality for products. Only returns the product ID, link, and name in\nthe product search hit. The search result only contains products that are online and assigned to the site \ncatalog."
+      operationId: productSearch
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/select'
+        - $ref: '#/components/parameters/siteId'
+        - $ref: '#/components/parameters/qProductSearch'
+        - $ref: '#/components/parameters/refine'
+        - $ref: '#/components/parameters/sort'
+        - $ref: '#/components/parameters/currency'
+        - $ref: '#/components/parameters/locale'
+        - $ref: '#/components/parameters/expand'
+        - $ref: '#/components/parameters/allImages'
+        - $ref: '#/components/parameters/perPricebook'
+        - $ref: '#/components/parameters/allVariationProperties'
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 25
+            maximum: 200
+          description: Maximum records to retrieve per request, not to exceed 200. Defaults to 25.
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+            default: 0
+            minimum: 0
+          description: Used to retrieve the results based on a particular resource offset.
+      responses:
+        '200':
+          description: Product search successfully returned results.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductSearchResult'
+              examples:
+                ProductSearchResultExample:
+                  $ref: '#/components/examples/ProductSearchResultExample'
+        '400':
+          description: Bad Request.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                MalformedSelectorGetProductsSearchForSelect:
+                  $ref: '#/components/examples/MalformedSelectorGetProductsSearchForSelect'
+      security:
+        - ShopperToken:
+            - sfcc.shopper-product-search
+  /organizations/{organizationId}/search-suggestions:
+    get:
+      summary: "Provides keyword-based search suggestions for products, categories, and brands. Returns suggested items for each \nbased on the search phrase."
+      description: "Provide keyword search functionality for products, categories, and brands suggestions. Returns suggested \nproducts, suggested categories, and suggested brands for the given search phrase."
+      operationId: getSearchSuggestions
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+        - $ref: '#/components/parameters/qSearchSuggestion'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/currency'
+        - $ref: '#/components/parameters/locale'
+      responses:
+        '200':
+          description: Search suggestions successfully returned.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuggestionResult'
+              examples:
+                SearchSuggestionResultExample:
+                  $ref: '#/components/examples/SearchSuggestionResultExample'
+        '400':
+          description: Thrown when a query parameter or its value is unknown, or when a maximum or minimum constraint is violated.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                StringConstraintViolation:
+                  $ref: '#/components/examples/StringConstraintViolation'
+      security:
+        - ShopperToken:
+            - sfcc.shopper-product-search
+components:
+  securitySchemes:
+    ShopperToken:
+      type: oauth2
+      description: "ShopperToken authentication follows the authorization code grant flow, as defined by the OAuth 2.1 standard. Depending on the type of OAuth client (public or private), this authorization flow has further requirements. \nFor a detailed description of the authorization flow, see the [SLAS overview](https://developer.salesforce.com/docs/commerce/commerce-api/references?meta=shopper-login:Summary).\nA shopper token allows you to access the Shopper API endpoints of both Open Commerce API and the B2C Commerce API. These endpoints can be used to build headless storefronts and other applications.\nThe `ShopperToken` security scheme is a parent of other security schemes, such as `ShopperTokenTsob`. A Shopper API endpoint can require a specific child scheme (`ShopperTokenTsob`, for example) that cannot be accessed with a regular shopper token.\n"
+      flows:
+        clientCredentials:
+          tokenUrl: https://{shortCode}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
+          scopes:
+            sfcc.shopper-product-search: Allows read operations on shopper search.
+        authorizationCode:
+          authorizationUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/authorize
+          tokenUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
+          scopes:
+            sfcc.shopper-product-search: Allows read operations on shopper search.
+  schemas:
+    OrganizationId:
+      description: An identifier for the organization the request is being made by
+      example: f_ecom_zzxy_prd
+      type: string
+      minLength: 1
+      maxLength: 32
+    Select:
+      minLength: 1
+      description: The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names or work with wildcards. You can also specify array operations and filter expressions. The actual selector value must be enclosed within parentheses.
+      example: (name,id,variationAttributes.(**))
+      type: string
+      pattern: ^[(].*[)]$
+    SiteId:
+      minLength: 1
+      maxLength: 32
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites
+      example: RefArch
+      type: string
+    String256:
+      type: string
+      maxLength: 256
+      description: "The String256 schema is a foundational schema designed for fields or attributes that are stored in a database field with a maximum capacity of 256 bytes. \nThis schema accommodates various character sets, with the following considerations:\n  - ASCII Characters: Each ASCII character occupies 1 byte, allowing up to 256 characters.\n  - Latin Characters: Many Latin characters require 2 bytes each, allowing up to 128 characters.\n  - Asian Characters: Many Asian characters require 3 bytes each, allowing approximately 85 characters."
+      example: Max Mustermann
+    ISOCurrency:
+      pattern: ^[A-Z][A-Z][A-Z]$
+      description: A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard.
+      example: USD
+      type: string
+    NoValue:
+      default: N/A
+      description: A specialized value indicating the lack of definition of a currency, for example, if the value of the monetary value of the currency is an undefined number.
+      example: N/A
+      enum:
+        - N/A
+      type: string
+    CurrencyCode:
+      description: A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard, or the string `N/A` indicating that a currency is not applicable.
+      example: USD
+      oneOf:
+        - $ref: '#/components/schemas/ISOCurrency'
+        - $ref: '#/components/schemas/NoValue'
+    LanguageCountry:
+      pattern: ^[a-z][a-z]-[A-Z][A-Z]$
+      description: A concatenated version of the standard Language and Country codes, combined with a hyphen '`-`'.
+      example: en-US
+      type: string
+    LanguageCode:
+      pattern: ^[a-z][a-z]$
+      description: A two letter lowercase language code conforming to the [ISO 639-1](https://www.iso.org/iso-639-language-codes.html) standard. Additionally, this may be used to submit requests with the header parameter `Accept-Language`, following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766).
+      example: en
+      type: string
+    DefaultFallback:
+      default: default
+      description: A specialized value indicating the system default values for locales.
+      example: default
+      enum:
+        - default
+      type: string
+    LocaleCode:
+      description: A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified.
+      oneOf:
+        - $ref: '#/components/schemas/LanguageCountry'
+        - $ref: '#/components/schemas/LanguageCode'
+        - $ref: '#/components/schemas/DefaultFallback'
+    Limit:
+      default: 10
+      minimum: 1
+      format: int32
+      description: Maximum records to retrieve per request, not to exceed the maximum defined. A limit must be at least 1 so at least one record is returned (if any match the criteria).
+      type: integer
+      example: 10
+    Total:
+      default: 0
+      minimum: 0
+      format: int64
+      description: The total number of hits that match the search's criteria. This can be greater than the number of results returned as search results are pagenated.
+      type: integer
+      example: 10
+    ResultBase:
+      description: "Schema defining generic list result. Each response schema of a resource requiring a list response should extend this schema. \nAdditionally it needs to be defined what data is returned."
+      type: object
+      required:
+        - limit
+        - total
+      properties:
+        limit:
+          maximum: 200
+          allOf:
+            - $ref: '#/components/schemas/Limit'
+        total:
+          $ref: '#/components/schemas/Total'
+    Offset:
+      default: 0
+      minimum: 0
+      format: int64
+      description: The zero-based index of the first hit/data to include in the result.
+      type: integer
+      example: 0
+    PaginatedResultBase:
+      description: "Schema defining generic pageable result. Each response schema of a resource requiring pagination should extend this schema. \nIf you use this extend this schema directly, it needs to be defined what data is returned. Allowed names for the data field is `data`."
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ResultBase'
+      properties:
+        offset:
+          $ref: '#/components/schemas/Offset'
+      required:
+        - limit
+        - offset
+        - total
+    String4000:
+      type: string
+      maxLength: 4000
+      description: "The String4000 schema is a foundational schema designed for fields or attributes that are stored in a database field with a maximum capacity of 4000 bytes. \nThis schema accommodates various character sets, with the following considerations:\n  - ASCII Characters: Each ASCII character occupies 1 byte, allowing up to 4000 characters.\n  - Latin Characters: Many Latin characters require 2 bytes each, allowing up to 2000 characters.\n  - Asian Characters: Many Asian characters require 3 bytes each, allowing approximately 1333 characters."
+      example: This is a detailed description of an Excellent Product. It includes all the features, specifications, and benefits of the product. The Excellent Product is designed to provide exceptional performance and reliability. It is made from high-quality materials and has been rigorously tested to ensure it meets the highest standards. Whether you are using it for personal or professional purposes, the Excellent Product is the perfect choice. With its advanced technology and user-friendly design, it offers unparalleled convenience and efficiency. Order your Excellent Product today and experience the difference it can make.
+    Image:
+      properties:
+        alt:
+          allOf:
+            - $ref: '#/components/schemas/String4000'
+          example: The White Dress Shirt
+        disBaseLink:
+          allOf:
+            - $ref: '#/components/schemas/String4000'
+          example: https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZEU_006/on/demandware.static/-/Sites-apparel-catalog/default/dw9368b001/images/large/70284588_100_0.jpg
+        link:
+          minLength: 1
+          allOf:
+            - $ref: '#/components/schemas/String4000'
+          example: https://zzeu-006.sandbox.us01.dx.commercecloud.salesforce.com/on/demandware.static/-/Sites-apparel-catalog/default/dw9368b001/images/large/70284588_100_0.jpg
+        title:
+          allOf:
+            - $ref: '#/components/schemas/String4000'
+          example: The White Dress Shirt
+      required:
+        - link
+      type: object
+    ProductType:
+      description: Document representing a product type.
+      properties:
+        bundle:
+          description: A flag indicating whether the product is a bundle.
+          type: boolean
+          example: true
+        item:
+          description: A flag indicating whether the product is a standard item.
+          type: boolean
+          example: true
+        master:
+          description: A flag indicating whether the product is a master.
+          type: boolean
+          example: true
+        option:
+          description: A flag indicating whether the product is an option.
+          type: boolean
+          example: true
+        set:
+          description: A flag indicating whether the product is a set.
+          type: boolean
+          example: true
+        variant:
+          description: A flag indicating whether the product is a variant.
+          type: boolean
+          example: true
+        variationGroup:
+          description: A flag indicating whether the product is a variation group.
+          type: boolean
+          example: true
+      type: object
+    ProductRef:
+      description: Document representing a product reference.
+      properties:
+        id:
+          description: The ID of the product reference.
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: '74974310'
+      required:
+        - id
+      type: object
+    VariationAttributeValue:
+      description: Document representing a variation attribute value.
+      properties:
+        description:
+          description: The localized description of the variation value.
+          allOf:
+            - $ref: '#/components/schemas/String4000'
+          example: Size 15R
+        image:
+          description: The first product image for the configured viewtype and this variation value.
+          allOf:
+            - $ref: '#/components/schemas/Image'
+        imageSwatch:
+          description: The first product image for the configured viewtype and this variation value. Typically the swatch image.
+          allOf:
+            - $ref: '#/components/schemas/Image'
+        name:
+          description: The localized display name of the variation value.
+          allOf:
+            - $ref: '#/components/schemas/String4000'
+          example: 15R
+        orderable:
+          description: A flag indicating whether at least one variant with this variation attribute value is available to sell.
+          type: boolean
+          example: true
+        value:
+          minLength: 1
+          description: The actual variation value.
+          allOf:
+            - $ref: '#/components/schemas/String4000'
+          example: 15R
+      required:
+        - value
+      type: object
+    VariationAttribute:
+      description: Document representing a variation attribute.
+      properties:
+        id:
+          minLength: 1
+          description: The ID of the variation attribute.
+          allOf:
+            - $ref: '#/components/schemas/String256'
+          example: size
+        name:
+          description: The localized display name of the variation attribute.
+          allOf:
+            - $ref: '#/components/schemas/String4000'
+          example: size
+        values:
+          description: The sorted array of variation values. This array can be empty.
+          type: array
+          items:
+            $ref: '#/components/schemas/VariationAttributeValue'
+      required:
+        - id
+      type: object
+    ImageGroup:
+      description: Document representing an image group containing a list of images for a particular view type and an optional variation value.
+      properties:
+        images:
+          description: The images of the image group.
+          type: array
+          minLength: 1
+          items:
+            $ref: '#/components/schemas/Image'
+        variationAttributes:
+          description: Returns a list of variation attributes applying to this image group.
+          type: array
+          items:
+            $ref: '#/components/schemas/VariationAttribute'
+        viewType:
+          description: The image view type.
+          example: hi-res
+          type: string
+          minLength: 1
+          allOf:
+            - $ref: '#/components/schemas/String256'
+      required:
+        - images
+        - viewType
+      type: object
+    PriceRange:
+      description: Document representing price ranges for a product which happens to be a master product (per Pricebook)
+      properties:
+        maxPrice:
+          format: double
+          description: Maximum price for the given pricebook (usually for a master Product would be the price for the Variant which has the highest price out of all Variants in that pricebook)
+          example: 10.89
+          type: number
+        minPrice:
+          format: double
+          description: Minimum price for the given pricebook (usually for a master Product would be the price for the Variant which has the least price out of all Variants in that pricebook)
+          example: 10.89
+          type: number
+        pricebook:
+          description: The active pricebook from which the min and the max prices are calculated. The pricebook is based on the site context of the request as defined in ECOM.
+          example: usd-list-pricebook
+          allOf:
+            - $ref: '#/components/schemas/String256'
+      type: object
+    ProductPromotion:
+      description: Document representing a product promotion.
+      properties:
+        calloutMsg:
+          description: The localized call-out message of the promotion.
+          example: Fantastic promotion
+          minLength: 1
+          allOf:
+            - $ref: '#/components/schemas/String4000'
+        promotionId:
+          description: The unique ID of the promotion.
+          example: summerSale
+          type: string
+          minLength: 1
+          maxLength: 260
+        promotionalPrice:
+          format: double
+          description: The promotional price for this product.
+          example: 12.99
+          type: number
+          minLength: 1
+      required:
+        - calloutMsg
+        - promotionId
+        - promotionalPrice
+      type: object
+    ProductPriceTable:
+      description: Tiered Price Level Object
+      properties:
+        price:
+          format: double
+          description: Price for the product for the specified tier for the specified pricebook
+          example: 12.99
+          type: number
+        pricebook:
+          description: The active pricebook for which this price is defined
+          example: usd-list-pricebook
+          allOf:
+            - $ref: '#/components/schemas/String256'
+        quantity:
+          format: double
+          description: Quantity tier for which the price is defined.
+          example: 1
+          type: number
+      type: object
+    Variant:
+      description: A product which is a variation within a master product that describes different colors, sizes, or other variation attributes. *Has a SKU.*
+      properties:
+        orderable:
+          description: A flag indicating whether the variant is orderable.
+          example: true
+          type: boolean
+        price:
+          format: double
+          description: The sales price of the variant.
+          example: 25.99
+          type: number
+        productId:
+          minLength: 1
+          maxLength: 100
+          description: The ID (SKU) of the variant.
+          example: 8W4756834
+          type: string
+        tieredPrices:
+          description: List of tiered prices if the product is a variant
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductPriceTable'
+        variationValues:
+          description: The actual variation attribute ID - value pairs.
+          type: object
+          additionalProperties:
+            allOf:
+              - $ref: '#/components/schemas/String4000'
+            example: Beige
+        productPromotions:
+          description: |-
+            The array of active customer product promotions for this product. This array can be empty.
+             Coupon promotions are not returned in this array.
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductPromotion'
+      required:
+        - productId
+      type: object
+    VariationGroup:
+      description: Representation of a group of variant products by an attribute. This can't be purchased by a shopper. It provides inheritable attributes for its product variants and is used for navigation. A VariationGroup doesn't have a SKU.
+      properties:
+        orderable:
+          description: A flag indicating whether the variation group is orderable.
+          example: false
+          type: boolean
+          minLength: 1
+        price:
+          format: double
+          description: The sales price of the variation group.
+          example: 24.99
+          type: number
+          minLength: 1
+        productId:
+          minLength: 1
+          maxLength: 100
+          description: The ID (SKU) of the variation group.
+          example: 49345VG
+          type: string
+        variationValues:
+          description: The actual variation attribute ID - value pairs.
+          type: object
+          minLength: 1
+          additionalProperties:
+            allOf:
+              - $ref: '#/components/schemas/String4000'
+            example: Beige
+      required:
+        - orderable
+        - price
+        - productId
+        - variationValues
+      type: object
+    ProductSearchHit:
+      description: Document representing a product search hit.
+      properties:
+        currency:
+          $ref: '#/components/schemas/CurrencyCode'
+        hitType:
+          description: The type information for the search hit.
+          allOf:
+            - $ref: '#/components/schemas/String256'
+          example: product
+        image:
+          description: The first image of the product hit for the configured viewtype.
+          allOf:
+            - $ref: '#/components/schemas/Image'
+        orderable:
+          description: A flag indicating whether the product is orderable.
+          type: boolean
+          example: true
+        price:
+          format: double
+          description: |-
+            The sales price of the product. In complex products, like master or set, this is the minimum price of
+             related child products.
+          type: number
+          example: 135
+        priceMax:
+          format: double
+          description: The maximum sales of related child products in complex products like master or set.
+          type: number
+          example: 150
+        productId:
+          description: The ID (SKU) of the product.
+          type: string
+          minLength: 1
+          example: '74974310'
+          maxLength: 100
+        productName:
+          description: The localized name of the product.
+          example: Modern Dress Shirt
+          allOf:
+            - $ref: '#/components/schemas/String4000'
+        productType:
+          description: The type information for the product.
+          allOf:
+            - $ref: '#/components/schemas/ProductType'
+        representedProduct:
+          description: The first represented product.
+          allOf:
+            - $ref: '#/components/schemas/ProductRef'
+        representedProducts:
+          description: All the represented products.
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductRef'
+        variationAttributes:
+          description: The array of represented variation attributes, for the master product only. This array can be empty.
+          type: array
+          items:
+            $ref: '#/components/schemas/VariationAttribute'
+        imageGroups:
+          description: The array of product image groups.
+          type: array
+          items:
+            $ref: '#/components/schemas/ImageGroup'
+        priceRanges:
+          description: Array of one or more price range objects representing one or more Pricebooks in context for the site.
+          type: array
+          items:
+            $ref: '#/components/schemas/PriceRange'
+        productPromotions:
+          description: |-
+            The array of active customer product promotions for this product. This array can be empty.
+             Coupon promotions are not returned in this array.
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductPromotion'
+        tieredPrices:
+          description: The document represents list of tiered prices if the product is a variant
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductPriceTable'
+        variants:
+          description: The array of actual variants. Only for master, variation group, and variant types. This array can be empty.
+          type: array
+          items:
+            $ref: '#/components/schemas/Variant'
+        variationGroups:
+          description: The array of actual variation groups. Only for master, variation group, and variant types. This array can be empty.
+          type: array
+          items:
+            $ref: '#/components/schemas/VariationGroup'
+      required:
+        - productId
+      type: object
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+    PageMetaTag:
+      description: Document representing a Page Meta Tag object.
+      properties:
+        id:
+          description: The ID of the Page Meta Tag.
+          example: title
+          allOf:
+            - $ref: '#/components/schemas/String256'
+        value:
+          description: Locale-specific value of the Page Meta Tag, evaluated by resolving the rule set for the given Business Manager ID.
+          example: Buy the Long Sleeve Covered Placket Blouse for USD 61.99.
+          type: string
+      type: object
+    ProductSearchRefinementValue:
+      description: Document representing a product search refinement value.
+      properties:
+        description:
+          description: The localized description of the refinement value.
+          allOf:
+            - $ref: '#/components/schemas/String4000'
+          example: The Beige objects
+        hitCount:
+          format: int32
+          description: The number of search hits when selecting the refinement value. Can be 0.
+          type: integer
+          minLength: 1
+          example: 3
+        label:
+          description: The localized label of the refinement value.
+          minLength: 1
+          allOf:
+            - $ref: '#/components/schemas/String4000'
+          example: Beige
+        presentationId:
+          description: |-
+            The optional presentation ID associated with the refinement value.
+             The presentation ID can be used, for example, to associate an ID with
+             an HTML widget.
+          allOf:
+            - $ref: '#/components/schemas/String256'
+          example: beige
+        value:
+          description: "The refinement value. In the case of an attribute refinement, this is the bucket, the attribute value, or a \nvalue range. In the case of a category refinement, this is the category ID. In the case of a price \nrefinement, this is the price range. Ranges are enclosed by parentheses and delimited by \"..\"; for example, \n\"(100..999)\" and \"(Aa..Fa)\" are valid ranges."
+          type: string
+          minLength: 1
+          allOf:
+            - $ref: '#/components/schemas/String4000'
+          example: Beige
+        values:
+          description: The array of hierarchical refinement values. This array can be empty.
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductSearchRefinementValue'
+      required:
+        - hitCount
+        - label
+        - value
+      type: object
+    ProductSearchRefinement:
+      description: Document representing a product search refinement attribute.
+      properties:
+        attributeId:
+          description: |-
+            The ID of the search refinement attribute. In the case of an attribute refinement, this is the attribute ID.
+             Custom attributes are marked by the prefix "c_" (for example, "c_refinementColor"). In the case of a
+             category refinement, the ID must be "cgid". In the case of a price refinement, the ID must be "price".
+          example: refinementColor
+          minLength: 1
+          allOf:
+            - $ref: '#/components/schemas/String256'
+        label:
+          description: The localized label of the refinement.
+          example: Color
+          allOf:
+            - $ref: '#/components/schemas/String256'
+        values:
+          description: The sorted array of refinement values. This array can be empty.
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductSearchRefinementValue'
+      required:
+        - attributeId
+      type: object
+    SuggestedPhrase:
+      description: Document representing a suggested search phrase.
+      properties:
+        exactMatch:
+          description: Returns whether this suggested phrase exactly matches the user input search phrase.
+          type: boolean
+          minLength: 1
+          example: true
+        phrase:
+          description: Returns the suggested search phrase.
+          type: string
+          minLength: 1
+          maxLength: 50
+          example: sony
+      required:
+        - exactMatch
+        - phrase
+      type: object
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+    SuggestedTerm:
+      description: Document representing a suggested term.
+      properties:
+        completed:
+          description: Returns whether this term value is a completion match.
+          type: boolean
+          minLength: 1
+          example: true
+        corrected:
+          description: Returns whether this term value is a correction match.
+          type: boolean
+          minLength: 1
+          example: false
+        exactMatch:
+          description: Returns whether this term value is a exact match.
+          type: boolean
+          minLength: 1
+          example: false
+        value:
+          description: Returns the term value.
+          type: string
+          minLength: 1
+          maxLength: 50
+          example: sony
+      required:
+        - completed
+        - corrected
+        - exactMatch
+        - value
+      type: object
+    SuggestedTerms:
+      description: Document representing a list of suggested terms for each term of a search phrase.
+      properties:
+        originalTerm:
+          description: Returns the original term that the suggested terms relates to.
+          type: string
+          minLength: 1
+          maxLength: 50
+          example: son
+        terms:
+          description: Returns the suggested terms.
+          type: array
+          items:
+            $ref: '#/components/schemas/SuggestedTerm'
+      required:
+        - originalTerm
+      type: object
+    Suggestion:
+      description: Document representing a suggestion.
+      properties:
+        suggestedPhrases:
+          description: A list of suggested phrases. This list can be empty.
+          type: array
+          items:
+            $ref: '#/components/schemas/SuggestedPhrase'
+        suggestedTerms:
+          description: A list of suggested terms. This list can be empty.
+          type: array
+          minLength: 1
+          items:
+            $ref: '#/components/schemas/SuggestedTerms'
+      required:
+        - suggestedTerms
+      type: object
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+    ProductSearchSortingOption:
+      description: Document representing a product search sorting option.
+      properties:
+        id:
+          description: The ID of the sorting option.
+          minLength: 1
+          allOf:
+            - $ref: '#/components/schemas/String256'
+          example: best-matches
+        label:
+          description: The localized label of the sorting option.
+          minLength: 1
+          allOf:
+            - $ref: '#/components/schemas/String4000'
+          example: Best Matches
+      required:
+        - id
+        - label
+      type: object
+    ProductSearchResult:
+      description: Document representing a product search result.
+      allOf:
+        - $ref: '#/components/schemas/PaginatedResultBase'
+      properties:
+        hits:
+          description: A sorted array of search hits (`ProductSearchHit` objects). The array can be empty.
+          type: array
+          minLength: 1
+          items:
+            $ref: '#/components/schemas/ProductSearchHit'
+        pageMetaTags:
+          description: Page Meta tags associated with the search result.
+          type: array
+          items:
+            $ref: '#/components/schemas/PageMetaTag'
+        query:
+          description: The query string that was searched for.
+          type: string
+          maxLength: 50
+          example: dresses
+        refinements:
+          description: The sorted array of search refinements. This array can be empty.
+          type: array
+          minLength: 1
+          items:
+            $ref: '#/components/schemas/ProductSearchRefinement'
+        searchPhraseSuggestions:
+          description: The suggestion given by the system for the submitted search phrase.
+          minLength: 1
+          allOf:
+            - $ref: '#/components/schemas/Suggestion'
+        selectedRefinements:
+          description: A map of selected refinement attribute ID or value pairs. The sorting order is the same as in request URL.
+          type: object
+          additionalProperties:
+            allOf:
+              - $ref: '#/components/schemas/String4000'
+            example: Beige
+        selectedSortingOption:
+          description: The ID of the applied sorting option.
+          allOf:
+            - $ref: '#/components/schemas/String4000'
+          example: best-matches
+        sortingOptions:
+          description: The sorted array of search sorting options. This array can be empty.
+          type: array
+          minLength: 1
+          items:
+            $ref: '#/components/schemas/ProductSearchSortingOption'
+      required:
+        - limit
+        - hits
+        - query
+        - refinements
+        - searchPhraseSuggestions
+        - sortingOptions
+        - offset
+        - total
+      type: object
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        title:
+          description: "A short, human-readable summary of the problem\ntype.  It will not change from occurrence to occurrence of the \nproblem, except for purposes of localization\n"
+          type: string
+          maxLength: 256
+          example: You do not have enough credit
+        type:
+          description: |
+            A URI reference [RFC3986] that identifies the
+            problem type.  This specification encourages that, when
+            dereferenced, it provide human-readable documentation for the
+            problem type (e.g., using HTML [W3C.REC-html5-20141028]).  When
+            this member is not present, its value is assumed to be
+            "about:blank". It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: NotEnoughMoney
+        detail:
+          description: A human-readable explanation specific to this occurrence of the problem.
+          type: string
+          example: Your current balance is 30, but that costs 50
+        instance:
+          description: |
+            A URI reference that identifies the specific
+            occurrence of the problem.  It may or may not yield further
+            information if dereferenced.  It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: /account/12345/msgs/abc
+      required:
+        - title
+        - type
+        - detail
+    BrandSuggestions:
+      description: The suggested brand names are listed in suggested phrases. If this list is empty, no brand suggestion for a given search phrase was found.
+      allOf:
+        - $ref: '#/components/schemas/Suggestion'
+    SuggestedCategory:
+      properties:
+        id:
+          description: The ID of the category.
+          type: string
+          minLength: 1
+          maxLength: 260
+          example: womens-clothing-dresses
+        name:
+          description: The localized name of the category.
+          minLength: 1
+          allOf:
+            - $ref: '#/components/schemas/String4000'
+          example: Dresses
+        parentCategoryName:
+          description: The name of the parent category.
+          minLength: 1
+          allOf:
+            - $ref: '#/components/schemas/String4000'
+          example: Clothing
+      required:
+        - id
+        - name
+        - parentCategoryName
+      type: object
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+    CategorySuggestions:
+      allOf:
+        - $ref: '#/components/schemas/Suggestion'
+      properties:
+        categories:
+          description: The sorted list of suggested categories. This list can be empty.
+          type: array
+          items:
+            $ref: '#/components/schemas/SuggestedCategory'
+      type: object
+    SuggestedProduct:
+      description: Document representing a product search hit.
+      properties:
+        currency:
+          $ref: '#/components/schemas/CurrencyCode'
+        price:
+          format: double
+          description: |-
+            The sales price of the product. In the case of complex products like a master or a set, this is the minimum price of
+             related child products.
+          type: number
+          minLength: 1
+          example: 300
+        productId:
+          description: The ID (SKU) of the product.
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: sony-ps3-bundle
+        productName:
+          description: The localized name of the product.
+          minLength: 1
+          allOf:
+            - $ref: '#/components/schemas/String4000'
+          example: Playstation 3 Bundle
+      required:
+        - currency
+        - price
+        - productId
+        - productName
+      type: object
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+    ProductSuggestions:
+      allOf:
+        - $ref: '#/components/schemas/Suggestion'
+      properties:
+        products:
+          description: The sorted list of suggested products. This list can be empty.
+          type: array
+          items:
+            $ref: '#/components/schemas/SuggestedProduct'
+      type: object
+    CustomSuggestions:
+      description: The custom suggestions are listed in suggested phrases. If this list is empty, no custom suggestion for the given search phrase was found.
+      allOf:
+        - $ref: '#/components/schemas/Suggestion'
+      properties:
+        customSuggestion:
+          type: string
+          example: Try searching for budget shoes.
+      type: object
+    SuggestionResult:
+      description: Document representing a search suggestion result.
+      properties:
+        brandSuggestions:
+          description: Returns the suggested brands.
+          allOf:
+            - $ref: '#/components/schemas/BrandSuggestions'
+        categorySuggestions:
+          description: Returns the suggested categories.
+          allOf:
+            - $ref: '#/components/schemas/CategorySuggestions'
+        productSuggestions:
+          description: Returns the suggested products.
+          allOf:
+            - $ref: '#/components/schemas/ProductSuggestions'
+        customSuggestion:
+          description: Returns custom suggestions.
+          allOf:
+            - $ref: '#/components/schemas/CustomSuggestions'
+        searchPhrase:
+          description: The query phrase (q) for which suggestions where made.
+          type: string
+          example: dresses
+          minLength: 3
+          maxLength: 50
+      required:
+        - searchPhrase
+      type: object
+  parameters:
+    organizationId:
+      description: An identifier for the organization the request is being made by
+      name: organizationId
+      in: path
+      required: true
+      example: f_ecom_zzxy_prd
+      schema:
+        $ref: '#/components/schemas/OrganizationId'
+    select:
+      description: The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names or work with wildcards. You can also specify array operations and filter expressions. The actual selector value must be enclosed within parentheses.
+      name: select
+      in: query
+      examples:
+        select:
+          value: (**)
+      schema:
+        $ref: '#/components/schemas/Select'
+    siteId:
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites.
+      name: siteId
+      in: query
+      required: true
+      examples:
+        SiteId:
+          value: RefArch
+      schema:
+        $ref: '#/components/schemas/SiteId'
+    qProductSearch:
+      name: q
+      in: query
+      description: The query phrase to search for. For example to search for a product "shirt", type q=shirt.
+      required: false
+      schema:
+        maxLength: 50
+        minLength: 1
+        type: string
+        example: shirt
+    refine:
+      name: refine
+      in: query
+      description: "Parameter that represents a refinement attribute or values pair. Refinement attribute ID and            \nvalues are separated by '='. Multiple values are supported by a subset of refinement attributes and            \ncan be provided by separating them using a pipe (URL            \nencoded = \\\"|\\\") i.e. refine=c_refinementColor=red|green|blue. Value ranges can be specified like this: refine=price=(100..500) . \nMultiple refine parameters can be provided by using the refine as the key i.e refine=price=(0..10)&refine=c_refinementColor=green. \nThe refinements can be a collection of custom defined attributes IDs and the system defined attributes IDs but the search can \nonly accept a total of 9 refinements at a time.            \nThe following system refinement attribute ids are supported:\ncgid: Allows refinement per single category ID. Multiple category ids are not supported.            \nprice: Allows refinement per single price range. Multiple price ranges are not supported.            \npmid: Allows refinement per promotion ID.            \nhtype: Allow refinement by including only the provided hit types. Accepted types are 'product', 'master', 'set', 'bundle', 'slicing_group' (deprecated), 'variation_group'.\norderable_only: Unavailable products are excluded from the search results if true is set. Multiple refinement values are not supported.\nilids: Allows refinement per inventory list IDs. Important Note:This API parameter is not GA and is currently a pilot/beta service as defined by the customer's main services agreement and provided as-is. If you are not part of the pilot/beta program, the API will throw an exception. Contact your customer success representative for more information.\n\n**Note:** To refine a search using multiple promotion filters—for example, to find products in both the spring and summer campaigns—see [Refining by Multiple Promotions](https://developer.salesforce.com/docs/commerce/b2c-commerce/guide/b2c-promotions-for-developers.html#refining-by-multiple-promotions)."
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: string
+        maxLength: 4000
+        example: refine=price=(0..10)&refine=c_refinementColor=green
+    sort:
+      name: sort
+      in: query
+      description: The ID of the sorting option to sort the search hits.
+      required: false
+      schema:
+        example: brand
+        allOf:
+          - $ref: '#/components/schemas/String256'
+    currency:
+      description: A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard, or the string `N/A` indicating that a currency is not applicable.
+      name: currency
+      in: query
+      examples:
+        CurrencyCode:
+          value: USD
+      schema:
+        $ref: '#/components/schemas/CurrencyCode'
+    locale:
+      description: A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified.
+      name: locale
+      in: query
+      examples:
+        LanguageCountry:
+          value: en-US
+        CountryCode:
+          value: US
+      schema:
+        $ref: '#/components/schemas/LocaleCode'
+    expand:
+      name: expand
+      in: query
+      description: "A comma-separated list with allowed values - `availability`, `images`, `prices`, `represented_products`, `variations`, `promotions`, `custom_properties`. \nBy default, the expand parameter includes `availability, images, prices, represented_products, variations`. \nUse none to disable all expand options. \n**The page_meta_tags expand value is optional and is available B2C Commerce version 25.2.**\""
+      required: false
+      schema:
+        items:
+          type: string
+          example: prices
+          enum:
+            - none
+            - availability
+            - images
+            - prices
+            - represented_products
+            - variations
+            - promotions
+            - custom_properties
+            - page_meta_tags
+        type: array
+    allImages:
+      name: allImages
+      in: query
+      description: "When the `images` expand parameter is used with this flag, the response includes the `imageGroups property`, which contains an image model. \nIf this flag is true, the full image model is returned. If false, only matching images are included. \nIf no flag is passed, the `imageGroups` property is omitted from the response."
+      required: false
+      schema:
+        type: boolean
+        example: true
+    perPricebook:
+      name: perPricebook
+      in: query
+      description: When this flag is set to `true` and is used with the `prices` expand parameter, the response includes per PriceBook prices and tiered prices (if available).
+      required: false
+      schema:
+        type: boolean
+        example: true
+    allVariationProperties:
+      name: allVariationProperties
+      in: query
+      description: The flag that determines which variation properties are included in the result. When set to `true` with the `variations` expand parameter, all variation properties (`variationAttributes`, `variationGroups`, `variants`) are returned. When set to false, only the default property `variationAttributes` is returned.
+      required: false
+      schema:
+        type: boolean
+        example: false
+    qSearchSuggestion:
+      name: q
+      in: query
+      description: The search phrase (q) for which suggestions are evaluated. Search suggestions are determined when the search phrase input is at least three (default) characters long. The value is configurable in the Business Manager.
+      required: true
+      schema:
+        maxLength: 50
+        minLength: 3
+        type: string
+        example: sho
+    limit:
+      description: Maximum records to retrieve per request, not to exceed the maximum defined. A limit must be at least 1 so at least one record is returned (if any match the criteria).
+      name: limit
+      in: query
+      examples:
+        limit:
+          value: 25
+      schema:
+        $ref: '#/components/schemas/Limit'
+  examples:
+    ProductSearchResultExample:
+      value:
+        limit: 3
+        hits:
+          - currency: USD
+            hitType: master
+            image:
+              alt: Modern Dress Shirt, , large
+              disBaseLink: https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZEU_006/on/demandware.static/-/Sites-apparel-catalog/default/dw7671b929/images/large/B0174501_GY9_0.jpg
+              link: https://zzeu-006.sandbox.us01.dx.commercecloud.salesforce.com/on/demandware.static/-/Sites-apparel-catalog/default/dw7671b929/images/large/B0174501_GY9_0.jpg
+              title: 'Modern Dress Shirt, '
+            orderable: true
+            price: 135
+            productId: '74974310'
+            productName: Modern Dress Shirt
+            productType:
+              master: true
+            representedProduct:
+              id: 74974310-1
+            representedProducts:
+              - id: 74974310-1
+              - id: 74974310-2
+              - id: 74974310-3
+              - id: 74974310-4
+            variationAttributes:
+              - id: color
+                name: color
+                values:
+                  - name: Blue
+                    orderable: true
+                    value: '002'
+              - id: size
+                name: size
+                values:
+                  - name: 15R
+                    orderable: true
+                    value: 15R
+                  - name: 15L
+                    orderable: true
+                    value: 15L
+                  - name: 16L
+                    orderable: true
+                    value: 16L
+          - currency: USD
+            hitType: master
+            image:
+              alt: The White Dress Shirt, , large
+              disBaseLink: https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZEU_006/on/demandware.static/-/Sites-apparel-catalog/default/dw9368b001/images/large/70284588_100_0.jpg
+              link: https://zzeu-006.sandbox.us01.dx.commercecloud.salesforce.com/on/demandware.static/-/Sites-apparel-catalog/default/dw9368b001/images/large/70284588_100_0.jpg
+              title: 'The White Dress Shirt, '
+            orderable: true
+            price: 135
+            productId: '78916783'
+            productName: The White Dress Shirt
+            productType:
+              master: true
+            representedProduct:
+              id: 78916783-1
+            representedProducts:
+              - id: 78916783-1
+              - id: 78916783-2
+              - id: 78916783-3
+              - id: 78916783-4
+            variationAttributes:
+              - id: color
+                name: Color
+                values:
+                  - name: White
+                    orderable: true
+                    value: white
+              - id: size
+                name: size
+                values:
+                  - name: 15L
+                    orderable: true
+                    value: 15L
+                  - name: 15R
+                    orderable: true
+                    value: 15R
+          - currency: USD
+            hitType: master
+            image:
+              alt: Striped Shirt, , large
+              disBaseLink: https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZEU_006/on/demandware.static/-/Sites-apparel-catalog/default/dw83b22281/images/large/PG.10213135.JJ9VSA5.PZ.jpg
+              link: https://zzeu-006.sandbox.us01.dx.commercecloud.salesforce.com/on/demandware.static/-/Sites-apparel-catalog/default/dw83b22281/images/large/PG.10213135.JJ9VSA5.PZ.jpg
+              title: 'Striped Shirt, '
+            orderable: true
+            price: 40.99
+            productId: '25518484'
+            productName: Striped Shirt
+            productType:
+              master: true
+            representedProduct:
+              id: '701642854760'
+            representedProducts:
+              - id: '701642854760'
+              - id: '701642854784'
+              - id: '701642854791'
+              - id: '701642854777'
+            variationAttributes:
+              - id: color
+                name: Color
+                values:
+                  - name: Royal Multi
+                    orderable: true
+                    value: JJ9VSA5
+              - id: size
+                name: Size
+                values:
+                  - name: S
+                    orderable: true
+                    value: 9SM
+                  - name: M
+                    orderable: true
+                    value: 9MD
+                  - name: L
+                    orderable: true
+                    value: 9LG
+                  - name: XL
+                    orderable: true
+                    value: 9XL
+        pageMetaTags:
+          - id: robots
+            value: index,follow
+          - id: title
+            value: Find amazing products in Storefront Catalog - EN' today
+        query: shirt
+        refinements:
+          - attributeId: cgid
+            label: Category
+            values:
+              - hitCount: 4
+                label: New Arrivals
+                value: newarrivals
+          - attributeId: c_refinementColor
+            label: Color
+            values:
+              - hitCount: 0
+                label: Beige
+                presentationId: beige
+                value: Beige
+              - hitCount: 0
+                label: Yellow
+                presentationId: yellow
+                value: Yellow
+              - hitCount: 7
+                label: Miscellaneous
+                presentationId: miscellaneous
+                value: Miscellaneous
+          - attributeId: price
+            label: Price
+            values:
+              - hitCount: 14
+                label: $20 - $49.99
+                value: (20..50)
+              - hitCount: 26
+                label: $50 - $99.99
+                value: (50..100)
+              - hitCount: 6
+                label: $100 - $499.99
+                value: (100..500)
+          - attributeId: c_isNew
+            label: New Arrival
+            values:
+              - hitCount: 1
+                label: 'true'
+                value: 'true'
+          - attributeId: brand
+            label: brand
+            values:
+              - hitCount: 1
+                label: Lacy-S
+                value: Lacy-S
+        searchPhraseSuggestions:
+          suggestedPhrases:
+            - exactMatch: true
+              phrase: shirt
+          suggestedTerms:
+            - originalTerm: shirt
+              terms:
+                - completed: false
+                  corrected: false
+                  exactMatch: true
+                  value: shirt
+        sortingOptions:
+          - id: best-matches
+            label: Best Matches
+          - id: price-low-to-high
+            label: Price Low To High
+        offset: 0
+        total: 46
+    MalformedSelectorGetProductsSearchForSelect:
+      value:
+        title: Malformed Selector
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/malformed-selector
+        detail: The property selector '(hits.(currency, hitType,image.(**))' is malformed.
+        selector: (hits.(currency, hitType,image.(**))
+    SearchSuggestionResultExample:
+      value:
+        brandSuggestions:
+          suggestedPhrases:
+            - exactMatch: false
+              phrase: Sony
+          suggestedTerms:
+            - originalTerm: son
+              terms:
+                - completed: true
+                  corrected: false
+                  exactMatch: false
+                  value: sony
+        categorySuggestions:
+          suggestedTerms:
+            - originalTerm: son
+        productSuggestions:
+          products:
+            - currency: EUR
+              price: 300
+              productId: sony-ps3-bundle
+              productName: Playstation 3 Bundle
+            - currency: EUR
+              price: 310
+              productId: sony-alpha350-wlen
+              productName: Sony Alpha 350 Digital SLR Camera w/18-70mm Lens
+            - currency: EUR
+              price: 10
+              productId: sony-alpha900-body
+              productName: Sony Alpha 900 Digital SLR Camera (body only)
+            - currency: EUR
+              price: 50
+              productId: sony-warhawk-ps3
+              productName: Warhawk (for Sony PS3)
+            - currency: EUR
+              price: 280
+              productId: sony-psp-console
+              productName: Sony PSP® Game Console
+          suggestedPhrases:
+            - exactMatch: false
+              phrase: sony
+          suggestedTerms:
+            - originalTerm: son
+              terms:
+                - completed: true
+                  corrected: false
+                  exactMatch: false
+                  value: sony
+                - completed: true
+                  corrected: false
+                  exactMatch: false
+                  value: sonyalpha
+        searchPhrase: son
+    StringConstraintViolation:
+      value:
+        title: String Constraint Violation
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/string-constraint-violation
+        detail: The string length constraint was violated by 'q'. The expected length is '(3..50)'.
+        expected: (3..50)
+        parameter: q

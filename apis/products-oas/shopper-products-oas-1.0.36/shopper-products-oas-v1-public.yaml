@@ -1,0 +1,1742 @@
+openapi: 3.0.3
+info:
+  title: Shopper Products
+  version: v1
+  description: |-
+    # API Overview
+
+    The Shopper Products API enables you to access product details for products that are online, merchandised to a particular site catalog, and ready to be sold. You can use these product details to merchandise the product on other ecommerce channels. To set up category navigation paths on other commerce apps or storefronts, you can use the Categories API.
+
+    Caching is provided for the Shopper Products API. For details, see [Server-Side Web-Tier Caching.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/server-side-web-tier-caching.html)
+
+    ## Authentication & Authorization
+
+    The client requesting the product information must have access to the Products resource. The Shopper Products API requires a shopper access token from the Shopper Login and API Access Service (SLAS).
+
+    For details on how to request a shopper access token from SLAS, see the guest user flows for [public clients](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-public-client.html#guest-user) and [private clients](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-private-client.html#guest-user) in the SLAS guides.
+
+    ## Use Cases
+
+    ### Populate Product Listing Pages
+
+    Use the Shopper Product API so that a customer, browsing on a commerce shopping app built using Commerce Cloud APIs, can see a list of products. For example, hydrate a list of products (max 24). The API returns product details including images, prices, promotions, and product availability.
+
+    ![b2c-commerce-shopper-products-screenshot-1.png](https://resources.docs.salesforce.com/rel1/doc/en-us/static/misc/b2c-commerce-shopper-products-screenshot-1.png)
+
+    ### Get Variation Product Details on an Ecommerce Channel
+
+    Use the API so that a customer, browsing on a commerce shopping app built using Commerce Cloud APIs, can switch between different variation products. The API returns product details including images, prices, promotions, and available to sell inventory.
+
+    ![b2c-commerce-shopper-products-screenshot-2.png](https://resources.docs.salesforce.com/rel1/doc/en-us/static/misc/b2c-commerce-shopper-products-screenshot-2.png)
+
+    ### Retrieve Promotion Information
+
+    Promotions provide discounts to shoppers when they meet certain purchase requirements.
+
+    Promotion information is described in detail in [Promotion Details](https://developer.salesforce.com/docs/commerce/commerce-api/guide/promotion-details.html), but the following list provides several key points:
+
+    - Pricing discounts for basket and shipping promotions are NEVER returned by the 'getProduct' or 'getProducts' endpoint.
+    - Promotional pricing is ONLY returned for products that are included with non-conditional promotions.
+    - Callout messages are ALWAYS returned by the 'getProduct' and 'getProducts' endpoints.
+
+    By default, 'getProduct' and 'getProducts' return promotion information for a queried product. Promotion information includes both pricing and callout message information. However, the specific pricing and callout information that is fetched is determined by:
+
+    - Promotion Type
+    - Product Type
+    - Product Purchase Requirements
+
+    Some promotions can be displayed on a Product Data Page (PDP) or Product Listing page (PLP), while other promotions are displayed in the context of a basket, such as an order level promotion: "add the product to your basket to view price information". It is important to understand what is included in the response when designing a PDP or PLP on top of SCAPI to ensure your design aligns with implementable features.
+
+    #### Shopper Personalization
+
+    The SCAPI response can be personalized using the Shopper Context API or hooks. By setting specific values in the Shopper Context API, you can modify the response of the 'getProduct' or 'getProducts' endpoint based on the shopper's context. For instance, you can offer a 5% discount or free shipping to shoppers using mobile devices.
+
+    #### JWA Caching
+
+    The response is cached in JWA, which means promotion data contained in the response is also cached based on the TTL (Time to Live) specified in the Business Manager [Feature Switches](https://help.salesforce.com/s/articleView?id=cc.b2c_feature_switches.htm&type=5) configuration.
+    When the shopper context value is updated, a check is conducted to see if the updated shopper context affects the retrieval of product-promotion data. If it does, then the response is fetched from the source and cached in the JWA.
+
+    For details, see [Server-Side Web-Tier Caching.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/server-side-web-tier-caching.html)
+
+    ### Use Hooks
+
+    For details working with hooks, see [Extensibility with Hooks.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html)
+
+    ### Test Description Changes
+
+    uoweefhewihpfhweipfiphwefhipwehfiewpifhewifiphehipeipwhfhipewfhiihpefipew
+
+    ## Resources
+
+    ### Product
+
+    A full representation of a product or service that is to merchandise. A ready to merchandise product is one that is online, categorized, and published to a channel. The information associated with a product includes, the product name, description, custom and system attributes, variations, price, availability, and images.
+
+    ### Category
+
+    Categories and subcategories are the structure by which products are organized and grouped in a catalog and on a storefront. Categories can have relationships to other categories. Further, each category can provide context that is inherited by subcategories. For example, a category can have an assigned attribute. A product assigned to that category or any subcategory inherits the categories’s attribute value. Once the product is removed from the category, the attribute value is no longer inherited by the product. You can also use category linking for site hierarchical navigation. For example, inside the Clothing category you may have Men’s, and inside the Men’s category you may have Pants.
+
+    Categories are not tags.
+
+    ## Endpoints
+
+    ### GET /products
+
+    Returns product details for up to 24 products in one API request. You can use this API for use cases that require populating or hydrating multiple products at a time, such as populating the Product Listing Pages.
+
+    The response data includes availability, promotions, images, and prices, along with the basic product information for the products requested.
+
+    ### GET /products/{id}
+
+    Returns product details about a single product. Use this API for use cases that require populating or hydrating one product at a time, such as the Product Detail Pages.
+
+    The response data includes availability, promotions, options, images, prices, variations, bundled_products, set_products, recommendations, and the basic product information for the product requested.
+
+    ### GET /categories
+
+    Returns category details including the parent child relationships for one or more categories. The limit on depth for the parent-child relationship is 2.
+servers:
+  - url: https://{shortCode}.api.commercecloud.salesforce.com/product/shopper-products/v1
+    variables:
+      shortCode:
+        default: shortCode
+paths:
+  /organizations/{organizationId}/products:
+    parameters:
+      - $ref: '#/components/parameters/organizationId'
+    get:
+      description: Allows access to multiple product details with a single request. Only products that are online and assigned to a site catalog are returned. The maximum number of product IDs that you can request is 24. In addition to product details, the availability, product options, images, price, promotions, and variations for the valid products are included, as applicable.
+      operationId: getProducts
+      summary: Returns product details for multiple products.
+      security:
+        - ShopperToken:
+            - sfcc.shopper-products
+      parameters:
+        - $ref: '#/components/parameters/ids'
+        - $ref: '#/components/parameters/inventoryIds'
+        - $ref: '#/components/parameters/expand_multiId'
+        - $ref: '#/components/parameters/allImages'
+        - $ref: '#/components/parameters/perPricebook'
+        - $ref: '#/components/parameters/siteId'
+        - $ref: '#/components/parameters/select'
+        - $ref: '#/components/parameters/locale'
+        - $ref: '#/components/parameters/currency'
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResult'
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                GetProductsBadRequestResponseExample:
+                  $ref: '#/components/examples/GetProductsBadRequestResponseExample'
+                MalformedSelectorResponseExample:
+                  $ref: '#/components/examples/MalformedSelectorResponseExample'
+        '401':
+          $ref: '#/components/responses/401unauthorized'
+  /organizations/{organizationId}/products/{id}:
+    parameters:
+      - $ref: '#/components/parameters/organizationId'
+      - $ref: '#/components/parameters/id'
+    get:
+      description: Allows access to product details for a single product ID. Only products that are online and assigned to a site catalog are returned. In addition to product details, the availability, images, price, bundled_products, set_products, recommedations, product options, variations, and promotions for the products are included, as applicable.
+      operationId: getProduct
+      summary: Returns product details for a single product.
+      security:
+        - ShopperToken:
+            - sfcc.shopper-products
+      parameters:
+        - $ref: '#/components/parameters/inventoryIds'
+        - $ref: '#/components/parameters/expand_singleId'
+        - $ref: '#/components/parameters/allImages'
+        - $ref: '#/components/parameters/perPricebook'
+        - $ref: '#/components/parameters/select'
+        - $ref: '#/components/parameters/currency'
+        - $ref: '#/components/parameters/locale'
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+              examples:
+                GetProductResponseExample:
+                  $ref: '#/components/examples/GetProductResponseExample'
+        '400':
+          description: Bad Request.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                MalformedSelectorResponseExample:
+                  $ref: '#/components/examples/MalformedSelectorResponseExample'
+        '401':
+          $ref: '#/components/responses/401unauthorized'
+        '404':
+          description: Product Not Found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                GetProductNotFoundResponseExample:
+                  $ref: '#/components/examples/GetProductNotFoundResponseExample'
+  /organizations/{organizationId}/categories:
+    parameters:
+      - $ref: '#/components/parameters/organizationId'
+    get:
+      description: When you use the URL template, the server returns multiple categories (a result object of category documents). You can use this template to obtain up to 50 categories in a single request. You must enclose the list of IDs in parentheses. If a category identifier contains parenthesis or the separator sign, you must URL encode the character.
+      operationId: getCategories
+      summary: Returns category and subcategory details for one or more categories.
+      security:
+        - ShopperToken:
+            - sfcc.shopper-categories
+      parameters:
+        - $ref: '#/components/parameters/parameters-ids'
+        - $ref: '#/components/parameters/levels'
+        - $ref: '#/components/parameters/locale'
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResult'
+              examples:
+                GetCategoriesResponseExample:
+                  $ref: '#/components/examples/GetCategoriesResponseExample'
+        '400':
+          description: Bad Request.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                GetCategoriesBadRequestResponseExample:
+                  $ref: '#/components/examples/GetCategoriesBadRequestResponseExample'
+        '401':
+          $ref: '#/components/responses/401unauthorized'
+  /organizations/{organizationId}/categories/{id}:
+    parameters:
+      - $ref: '#/components/parameters/parameters-id'
+      - $ref: '#/components/parameters/organizationId'
+    get:
+      description: "When you use the URL template, the server returns a category identified by the ID. By default, the server\nalso returns the first level of subcategories, but you can specify an additional level using the levels\nparameter.\n\nThis endpoint fetches both online and offline categories. For offline categories, only the top-level \ncategory is returned, not offline subcategories.\n\nUsing a large value for levels can cause performance issues when there is a large and deep category tree."
+      operationId: getCategory
+      summary: Returns category and subcategory details for a single category.
+      security:
+        - ShopperToken:
+            - sfcc.shopper-categories
+      parameters:
+        - $ref: '#/components/parameters/levels'
+        - $ref: '#/components/parameters/locale'
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+              examples:
+                GetCategoryResponseExample:
+                  $ref: '#/components/examples/GetCategoryResponseExample'
+        '400':
+          description: Bad Request.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                GetCategoryBadRequestResponseExample:
+                  $ref: '#/components/examples/GetCategoryBadRequestResponseExample'
+        '401':
+          $ref: '#/components/responses/401unauthorized'
+        '404':
+          description: No online or offline category was found with the specified ID.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                GetCategoryNotFoundResponseExample:
+                  $ref: '#/components/examples/GetCategoryNotFoundResponseExample'
+components:
+  securitySchemes:
+    ShopperToken:
+      type: oauth2
+      description: "ShopperToken authentication follows the authorization code grant flow, as defined by the OAuth 2.1 standard. Depending on the type of OAuth client (public or private), this authorization flow has further requirements. \nFor a detailed description of the authorization flow, see the [SLAS overview](https://developer.salesforce.com/docs/commerce/commerce-api/references?meta=shopper-login:Summary).\nA shopper token allows you to access the Shopper API endpoints of both OCAPI and the B2C Commerce API. These endpoints can be used to build headless storefronts and other applications.\nThe `ShopperToken` security scheme is a parent of other security schemes, such as `ShopperTokenTsob`. A Shopper API endpoint can require a specific child scheme (`ShopperTokenTsob`, for example) that cannot be accessed with a regular shopper token.\n"
+      flows:
+        clientCredentials:
+          tokenUrl: https://{shortCode}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
+          scopes:
+            sfcc.shopper-products: scope granting read-access to product endpoints
+            sfcc.shopper-categories: scope granting read-access to category endpoints
+        authorizationCode:
+          authorizationUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/authorize
+          tokenUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
+          scopes:
+            sfcc.shopper-products: scope granting read-access to product endpoints
+            sfcc.shopper-categories: scope granting read-access to category endpoints
+  schemas:
+    OrganizationId:
+      description: An identifier for the organization the request is being made by
+      example: f_ecom_zzxy_prd
+      type: string
+      minLength: 1
+      maxLength: 32
+    ProductId:
+      minLength: 1
+      maxLength: 100
+      type: string
+      description: The id (SKU) of the product.
+      example: apple-ipod-classic
+    InventoryId:
+      description: The inventory ID.
+      type: string
+      minLength: 1
+      maxLength: 256
+      example: Site1InventoryList
+    SiteId:
+      minLength: 1
+      maxLength: 32
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites
+      example: RefArch
+      type: string
+    Select:
+      minLength: 1
+      description: The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names or work with wildcards. You can also specify array operations and filter expressions. The actual selector value must be enclosed within parentheses.
+      example: (name,id,variationAttributes.(**))
+      type: string
+      pattern: ^[(].*[)]$
+    LanguageCountry:
+      pattern: ^[a-z][a-z]-[A-Z][A-Z]$
+      description: A concatenated version of the standard Language and Country codes, combined with a hyphen '`-`'.
+      example: en-US
+      type: string
+    LanguageCode:
+      pattern: ^[a-z][a-z]$
+      description: A two letter lowercase language code conforming to the [ISO 639-1](https://www.iso.org/iso-639-language-codes.html) standard. Additionally, this may be used to submit requests with the header parameter `Accept-Language`, following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766).
+      example: en
+      type: string
+    DefaultFallback:
+      default: default
+      description: A specialized value indicating the system default values for locales.
+      example: default
+      enum:
+        - default
+      type: string
+    LocaleCode:
+      description: A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified.
+      oneOf:
+        - $ref: '#/components/schemas/LanguageCountry'
+        - $ref: '#/components/schemas/LanguageCode'
+        - $ref: '#/components/schemas/DefaultFallback'
+    ISOCurrency:
+      pattern: ^[A-Z][A-Z][A-Z]$
+      description: A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard.
+      example: USD
+      type: string
+    NoValue:
+      default: N/A
+      description: A specialized value indicating the lack of definition of a currency, for example, if the value of the monetary value of the currency is an undefined number.
+      example: N/A
+      enum:
+        - N/A
+      type: string
+    CurrencyCode:
+      description: A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard, or the string `N/A` indicating that a currency is not applicable.
+      example: USD
+      oneOf:
+        - $ref: '#/components/schemas/ISOCurrency'
+        - $ref: '#/components/schemas/NoValue'
+    Product:
+      description: Any product that is sold, shown alone, and does not have variations such as different sizes or colors. A product has no reliance on any other product for inheritance. *A product has a SKU and can have a product option, which has a different SKU*.
+      properties:
+        brand:
+          description: The product's brand.
+          example: Apple
+          type: string
+        bundledProducts:
+          description: The array of all bundled products of this product.
+          type: array
+          items:
+            $ref: '#/components/schemas/BundledProduct'
+        currency:
+          $ref: '#/components/schemas/CurrencyCode'
+        ean:
+          description: The European Article Number of the product.
+          example: 8essdf9w3
+          type: string
+        fetchDate:
+          format: int32
+          example: 5
+          type: integer
+        id:
+          $ref: '#/components/schemas/ProductId'
+        imageGroups:
+          description: The array of product image groups.
+          type: array
+          items:
+            $ref: '#/components/schemas/ImageGroup'
+        inventories:
+          description: |-
+            The array of product inventories explicitly requested via the 'inventory_ids' query parameter. This property
+             is only returned in context of the 'availability' expansion.
+          type: array
+          items:
+            $ref: '#/components/schemas/Inventory'
+        inventory:
+          description: |-
+            The site default inventory information. This property is only
+             returned in context of the 'availability' expansion.
+          allOf:
+            - $ref: '#/components/schemas/Inventory'
+        longDescription:
+          description: The localized product's long description.
+          example: Awesome long description of product
+          type: string
+        manufacturerName:
+          description: The product's manufacturer name.
+          example: Apple
+          type: string
+        manufacturerSku:
+          description: The product's manufacturer SKU.
+          example: 2ND8834
+          type: string
+        master:
+          description: 'The master product information, only for types: master, variation group, and variant.'
+          allOf:
+            - $ref: '#/components/schemas/Master'
+        minOrderQuantity:
+          format: double
+          description: The minimum order quantity for this product.
+          example: 2
+          type: number
+        name:
+          description: The localized product name.
+          example: Apple IPod Classic
+          type: string
+        options:
+          description: The array of product options, only for type option. This array can be empty.
+          type: array
+          items:
+            $ref: '#/components/schemas/Option'
+        pageDescription:
+          description: The localized product's page description.
+          example: Really good Product
+          type: string
+        pageKeywords:
+          description: The localized product's page description.
+          example: Ipod, Music Player
+          type: string
+        pageTitle:
+          description: The localized product's page title.
+          example: Apple IPod Classic
+          type: string
+        pageMetaTags:
+          description: Page Meta tags associated with the given product.
+          type: array
+          items:
+            $ref: '#/components/schemas/PageMetaTag'
+        price:
+          format: double
+          description: |-
+            The sales price of the product. In case of complex products, like master or set, this is the minimum price of
+             related child products.
+          example: 59.99
+          type: number
+        pricePerUnit:
+          format: double
+          description: The price per unit if defined for the product
+          example: 19.99
+          type: number
+        pricePerUnitMax:
+          format: double
+          description: The max price per unit typically for a master product's variant.
+          example: 29.99
+          type: number
+        priceMax:
+          format: double
+          description: The maximum sales of related child products in complex products like master or set.
+          example: 69.99
+          type: number
+        priceRanges:
+          description: Array of one or more price range objects representing one or more Pricebooks in context for the site.
+          type: array
+          items:
+            $ref: '#/components/schemas/PriceRange'
+        prices:
+          description: The prices map with pricebook IDs and their values.
+          type: object
+          additionalProperties:
+            format: double
+            type: number
+        primaryCategoryId:
+          description: The ID of the products primary category.
+          example: electronics
+          type: string
+        productLinks:
+          description: The array of source and target product links information.
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductLink'
+        productPromotions:
+          description: |-
+            An array of active customer product promotions for this product, sorted by promotion priority
+            using SORT_BY_EXCLUSIVITY ordering (exclusivity → rank → promotion class → discount type →
+            best discount → ID). This array can be empty. Coupon promotions are not returned in this array.
+            See [PromotionPlan.SORT_BY_EXCLUSIVITY](https://salesforcecommercecloud.github.io/b2c-dev-doc/docs/current/scriptapi/html/index.html?target=class_dw_campaign_PromotionPlan.html) for more details.
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductPromotion'
+        recommendations:
+          description: Returns a list of recommendations.
+          type: array
+          items:
+            $ref: '#/components/schemas/Recommendation'
+        setProducts:
+          description: The array of set products of this product.
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        shortDescription:
+          description: The localized product short description.
+          example: Awesome Product
+          type: string
+        slugUrl:
+          description: The complete link to this product's storefront page.
+          example: https://www.example.com/on/store/Sites-MySite/default/Product-Show?pid=MyProduct
+          type: string
+        stepQuantity:
+          format: double
+          description: |-
+            The steps in which the order amount of the product can be
+             increased.
+          example: 2
+          type: number
+        tieredPrices:
+          description: The document represents list of tiered prices if the product is a variant
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductPriceTable'
+        type:
+          description: 'The product type information. Can be one or more of the following values: item, master, variation_group, variant, bundle, and set.'
+          allOf:
+            - $ref: '#/components/schemas/ProductType'
+        unit:
+          description: The sales unit of the product.
+          example: lbs
+          type: string
+        upc:
+          description: The Universal Product Code (UPC).
+          example: JSDU876
+          type: string
+        validFrom:
+          description: The time a product is valid from.
+          example: '9999-12-31T00:00:00.0Z'
+          type: string
+          format: date-time
+        validTo:
+          description: The time a product is valid to.
+          example: '9999-12-31T23:59:59.0Z'
+          type: string
+          format: date-time
+        variants:
+          description: The array of actual variants. Only for master, variation group, and variant types. This array can be empty.
+          type: array
+          items:
+            $ref: '#/components/schemas/Variant'
+        variationAttributes:
+          description: |-
+            Sorted array of variation attributes information. Only for master,
+             variation group, and variant types. This array can be empty.
+          type: array
+          items:
+            $ref: '#/components/schemas/VariationAttribute'
+        variationGroups:
+          description: The array of actual variation groups. Only for master, variation group, and variant types. This array can be empty.
+          type: array
+          items:
+            $ref: '#/components/schemas/VariationGroup'
+        variationValues:
+          description: |-
+            The actual variation attribute ID - value pairs. Only for variant and
+             variation group types.
+          type: object
+          additionalProperties:
+            type: string
+      required:
+        - id
+      type: object
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+    BundledProduct:
+      description: A bundle of products that can be bought together (all or nothing). Each product in the bundle can itself be bought independently, but this is outside of the context of the bundle. A bundle is a purchasing convenience. *Product bundle has a SKU and price.*
+      properties:
+        id:
+          example: '823476'
+          type: string
+        product:
+          description: The product being bundled.
+          allOf:
+            - $ref: '#/components/schemas/Product'
+        quantity:
+          format: double
+          description: For the product being bundled, the quantity added to the bundle.
+          example: 5
+          type: number
+      required:
+        - id
+        - product
+        - quantity
+      type: object
+    Image:
+      description: Product image
+      properties:
+        alt:
+          description: The localized alternative text of the image.
+          example: Apple iPod Shuffle, large
+          type: string
+        disBaseLink:
+          description: Base URL for the Dynamic Image Service (DIS) address. This is only shown if the image is stored on the server and DIS is enabled.
+          example: https://example.com/images/large/ipod-shuffle-silver.jpg
+          type: string
+        link:
+          minLength: 1
+          description: The URL of the actual image.
+          example: https://example.com/on/demandware.static/-/Sites-electronics-catalog/default/dwc2/images/large/ipod-shuffle.jpg
+          type: string
+        title:
+          description: The localized title of the image.
+          example: Apple iPod Shuffle
+          type: string
+      required:
+        - link
+      type: object
+    VariationAttributeValue:
+      description: Document representing a variation attribute value.
+      properties:
+        description:
+          description: The localized description of the variation value.
+          example: Color of the product
+          type: string
+        image:
+          description: The first product image for the configured viewtype and this variation value.
+          allOf:
+            - $ref: '#/components/schemas/Image'
+        imageSwatch:
+          description: The first product image for the configured viewtype and this variation value (typically the swatch image).
+          allOf:
+            - $ref: '#/components/schemas/Image'
+        name:
+          description: The localized display name of the variation value.
+          example: Red
+          type: string
+        orderable:
+          description: A flag indicating whether at least one variant with this variation attribute value is available to sell.
+          example: true
+          type: boolean
+        value:
+          minLength: 1
+          description: The actual variation value.
+          example: red
+          type: string
+      required:
+        - value
+      type: object
+    VariationAttribute:
+      description: Document representing a variation attribute.
+      properties:
+        id:
+          minLength: 1
+          description: The ID of the variation attribute.
+          example: color
+          type: string
+        name:
+          description: The localized display name of the variation attribute.
+          example: Color
+          type: string
+        values:
+          description: The sorted array of variation values. This array can be empty.
+          type: array
+          items:
+            $ref: '#/components/schemas/VariationAttributeValue'
+      required:
+        - id
+      type: object
+    ImageGroup:
+      description: Document representing an image group containing a list of images for a particular view type and an optional variation value.
+      properties:
+        images:
+          description: The images of the image group.
+          type: array
+          items:
+            $ref: '#/components/schemas/Image'
+        variationAttributes:
+          description: Returns a list of variation attributes applying to this image group.
+          type: array
+          items:
+            $ref: '#/components/schemas/VariationAttribute'
+        viewType:
+          description: The image view type.
+          example: hi-res
+          type: string
+      required:
+        - images
+        - viewType
+      type: object
+    Inventory:
+      description: Document representing inventory information of the current product for a particular inventory list.
+      properties:
+        ats:
+          format: double
+          description: |-
+            The Available To Sell (ATS) of the product. If it is infinity, the return value is 999999. The value can be overwritten by the
+             OCAPI setting 'product.inventory.ats.max_threshold'.
+          example: 15
+          type: number
+        backorderable:
+          description: A flag indicating whether the product is backorderable.
+          example: true
+          type: boolean
+        id:
+          $ref: '#/components/schemas/InventoryId'
+        inStockDate:
+          description: A flag indicating the date when the product will be in stock.
+          example: '9999-12-31T00:00:00.0Z'
+          type: string
+          format: date-time
+        orderable:
+          description: A flag indicating whether at least one of the products is available to sell.
+          example: true
+          type: boolean
+        preorderable:
+          description: A flag indicating whether the product is preorderable.
+          example: false
+          type: boolean
+        stockLevel:
+          format: double
+          description: |-
+            The stock level of the product. If it is infinity, the return value is 999999. The value can be overwritten by the
+             OCAPI setting 'product.inventory.stock_level.max_threshold'.
+          example: 10
+          type: number
+      required:
+        - id
+      type: object
+    Price:
+      type: number
+      description: Document representing a price for a product
+      format: double
+      example: 12.99
+    Master:
+      description: The master product is a representation of a group of variant products. This is a non-buyable entity, provides inheritable attributes for its product variants, and is used for navigation. *Doesn't have a SKU.*
+      properties:
+        masterId:
+          description: The ID (SKU) of the master product.
+          allOf:
+            - $ref: '#/components/schemas/ProductId'
+        orderable:
+          description: A flag indicating whether at least one of the variants can be ordered.
+          example: true
+          type: boolean
+        price:
+          description: The minimum sales price of the related variants.
+          allOf:
+            - $ref: '#/components/schemas/Price'
+        priceMax:
+          description: The maximum sales price of the related variants.
+          allOf:
+            - $ref: '#/components/schemas/Price'
+        prices:
+          description: List of sale prices.
+          type: object
+          additionalProperties:
+            format: double
+            type: number
+      required:
+        - masterId
+      type: object
+    OptionValue:
+      description: Document representing an option value.
+      properties:
+        default:
+          description: A flag indicating whether this option value is the default one.
+          example: true
+          type: boolean
+        id:
+          description: The ID of the option value.
+          example: 5YR
+          allOf:
+            - $ref: '#/components/schemas/ProductId'
+        name:
+          description: The localized name of the option value.
+          example: 5 Year Warranty
+          type: string
+        price:
+          description: The effective price of the option value.
+          allOf:
+            - $ref: '#/components/schemas/Price'
+      required:
+        - id
+      type: object
+    Option:
+      description: Product options enable you to sell configurable products that have optional accessories, upgrades, or additional services. Options are always purchased with a product and can't be purchased separately. *Product Option has a SKU and a price associated with it.*
+      properties:
+        description:
+          description: The localized description of the option.
+          example: Get this Option
+          type: string
+        id:
+          description: The ID of the option.
+          example: Warranty
+          allOf:
+            - $ref: '#/components/schemas/ProductId'
+        image:
+          description: The URL to the option image.
+          example: https://www.exampleimage.com/images/optionImage.jpg
+          type: string
+        name:
+          description: The localized name of the option.
+          example: Warranty
+          type: string
+        values:
+          description: The array of option values. This array can be empty.
+          type: array
+          items:
+            $ref: '#/components/schemas/OptionValue'
+      required:
+        - id
+      type: object
+    PageMetaTag:
+      description: Document representing a Page Meta Tag object.
+      properties:
+        id:
+          description: The ID of the Page Meta Tag.
+          type: string
+          example: title
+        value:
+          description: Locale-specific value of the Page Meta Tag, evaluated by resolving the rule set for the given Business Manager ID.
+          type: string
+          example: Buy the Long Sleeve Covered Placket Blouse for USD 61.99.
+    PriceRange:
+      description: Document representing price ranges for a product which happens to be a master product (per Pricebook)
+      properties:
+        maxPrice:
+          description: Maximum price for the given pricebook (usually for a master Product would be the price for the Variant which has the highest price out of all Variants in that pricebook)
+          allOf:
+            - $ref: '#/components/schemas/Price'
+        minPrice:
+          description: Minimum price for the given pricebook (usually for a master Product would be the price for the Variant which has the least price out of all Variants in that pricebook)
+          allOf:
+            - $ref: '#/components/schemas/Price'
+        pricebook:
+          description: The active pricebook from which the min and the max prices are calculated. The pricebook is based on the site context of the request as defined in ECOM.
+          example: usd-list-pricebook
+          type: string
+      type: object
+    ProductLink:
+      description: |-
+        Document representing a link between two products. It contains the ID of the source and target products, the type of
+         product link, and the URLs to retrieve product data.
+      properties:
+        sourceProductId:
+          description: The semantic ID of the product this product link is coming from.
+          example: '824756924'
+          allOf:
+            - $ref: '#/components/schemas/ProductId'
+        sourceProductLink:
+          description: The URL addressing the product this product link is coming from.
+          example: Link
+          type: string
+        targetProductId:
+          description: The semantic ID of the product this product link is pointing to.
+          example: 2TR93459
+          allOf:
+            - $ref: '#/components/schemas/ProductId'
+        targetProductLink:
+          description: The URL addressing the product this product link is pointing to.
+          example: Link
+          type: string
+        type:
+          description: The type of product link.
+          example: up_sell
+          enum:
+            - cross_sell
+            - replacement
+            - up_sell
+            - accessory
+            - newer_version
+            - alt_orderunit
+            - spare_part
+            - other
+          type: string
+      required:
+        - sourceProductId
+        - sourceProductLink
+        - targetProductId
+        - targetProductLink
+        - type
+      type: object
+    ProductPromotion:
+      description: Document representing a product promotion.
+      properties:
+        calloutMsg:
+          description: The localized call-out message of the promotion.
+          example: Fantastic promotion
+          type: string
+        promotionId:
+          description: The unique ID of the promotion.
+          example: summerSale
+          type: string
+        promotionalPrice:
+          description: The promotional price for this product.
+          allOf:
+            - $ref: '#/components/schemas/Price'
+      required:
+        - calloutMsg
+        - promotionId
+        - promotionalPrice
+      type: object
+    RecommendationType:
+      description: Document representing a recommendation type.
+      properties:
+        displayValue:
+          description: The localized display value of the recommendation type.
+          example: UpSell
+          type: string
+        value:
+          format: int32
+          description: The value of the recommendation type.
+          example: 2
+          type: integer
+      required:
+        - displayValue
+        - value
+      type: object
+    Recommendation:
+      description: Document representing a product recommendation.
+      properties:
+        calloutMsg:
+          description: The localized callout message of the recommendation.
+          example: Absolutely recommended
+          type: string
+        image:
+          $ref: '#/components/schemas/Image'
+        longDescription:
+          description: The localized long description of the recommendation.
+          example: Really good detailed product description
+          type: string
+        name:
+          description: The localized name of the recommendation.
+          example: Apple Ipod Shuffle
+          type: string
+        recommendationType:
+          $ref: '#/components/schemas/RecommendationType'
+        recommendedItemId:
+          description: The recommended item ID of the recommendation.
+          example: apple-ipod-shuffle
+          type: string
+        shortDescription:
+          description: The localized short description of the recommendation.
+          example: Product description
+          type: string
+      required:
+        - recommendationType
+      type: object
+    ProductPriceTable:
+      description: Tiered Price Level Object
+      properties:
+        price:
+          description: Price for the product for the specified tier for the specified pricebook
+          allOf:
+            - $ref: '#/components/schemas/Price'
+        pricebook:
+          description: The active pricebook for which this price is defined
+          example: usd-list-pricebook
+          type: string
+        quantity:
+          format: double
+          description: Quantity tier for which the price is defined.
+          example: 1
+          type: number
+      type: object
+    ProductType:
+      description: Document representing a product type.
+      properties:
+        bundle:
+          description: A flag indicating whether the product is a bundle.
+          example: true
+          type: boolean
+        item:
+          description: A flag indicating whether the product is a standard item.
+          example: false
+          type: boolean
+        master:
+          description: A flag indicating whether the product is a master.
+          example: true
+          type: boolean
+        option:
+          description: A flag indicating whether the product is an option.
+          example: false
+          type: boolean
+        set:
+          description: A flag indicating whether the product is a set.
+          example: true
+          type: boolean
+        variant:
+          description: A flag indicating whether the product is a variant.
+          example: false
+          type: boolean
+        variationGroup:
+          description: A flag indicating whether the product is a variation group.
+          example: false
+          type: boolean
+      type: object
+    Variant:
+      description: A product which is a variation within a master product that describes different colors, sizes, or other variation attributes. *Has a SKU.*
+      properties:
+        orderable:
+          description: A flag indicating whether the variant is orderable.
+          example: true
+          type: boolean
+        price:
+          description: The sales price of the variant.
+          allOf:
+            - $ref: '#/components/schemas/Price'
+        productId:
+          description: The ID (SKU) of the variant.
+          example: 8W4756834
+          allOf:
+            - $ref: '#/components/schemas/ProductId'
+        tieredPrices:
+          description: List of tiered prices if the product is a variant
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductPriceTable'
+        variationValues:
+          description: The actual variation attribute ID - value pairs.
+          type: object
+          additionalProperties:
+            type: string
+      required:
+        - productId
+      type: object
+    VariationGroup:
+      description: Representation of a group of variant products by an attribute. This is a non-buyable entity, provides inheritable attributes for its product variants, and is used for navigation. *Doesn't have a SKU.*
+      properties:
+        orderable:
+          description: A flag indicating whether the variation group is orderable.
+          example: false
+          type: boolean
+        price:
+          description: The sales price of the variation group.
+          allOf:
+            - $ref: '#/components/schemas/Price'
+        productId:
+          description: The ID (SKU) of the variation group.
+          example: 49345VG
+          allOf:
+            - $ref: '#/components/schemas/ProductId'
+        variationValues:
+          description: The actual variation attribute ID - value pairs.
+          type: object
+          additionalProperties:
+            type: string
+      required:
+        - orderable
+        - price
+        - productId
+        - variationValues
+      type: object
+    ProductResult:
+      description: Result document containing an array of products.
+      properties:
+        limit:
+          format: int32
+          description: The number of returned documents.
+          example: 12
+          type: integer
+        data:
+          description: The array of product documents.
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        total:
+          format: int32
+          description: The total number of documents.
+          example: 12
+          type: integer
+      required:
+        - limit
+        - data
+        - total
+      type: object
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        title:
+          description: "A short, human-readable summary of the problem\ntype.  It will not change from occurrence to occurrence of the \nproblem, except for purposes of localization\n"
+          type: string
+          maxLength: 256
+          example: You do not have enough credit
+        type:
+          description: |
+            A URI reference [RFC3986] that identifies the
+            problem type.  This specification encourages that, when
+            dereferenced, it provide human-readable documentation for the
+            problem type (e.g., using HTML [W3C.REC-html5-20141028]).  When
+            this member is not present, its value is assumed to be
+            "about:blank". It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: NotEnoughMoney
+        detail:
+          description: A human-readable explanation specific to this occurrence of the problem.
+          type: string
+          example: Your current balance is 30, but that costs 50
+        instance:
+          description: |
+            A URI reference that identifies the specific
+            occurrence of the problem.  It may or may not yield further
+            information if dereferenced.  It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: /account/12345/msgs/abc
+      required:
+        - title
+        - type
+        - detail
+    CategoryId:
+      maxLength: 256
+      minLength: 1
+      type: string
+      description: The ID of the category.
+      example: mens
+    Limit:
+      default: 10
+      minimum: 1
+      format: int32
+      description: Maximum records to retrieve per request, not to exceed the maximum defined. A limit must be at least 1 so at least one record is returned (if any match the criteria).
+      type: integer
+      example: 10
+    Total:
+      default: 0
+      minimum: 0
+      format: int64
+      description: The total number of hits that match the search's criteria. This can be greater than the number of results returned as search results are pagenated.
+      type: integer
+      example: 10
+    ResultBase:
+      description: "Schema defining generic list result. Each response schema of a resource requiring a list response should extend this schema. \nAdditionally it needs to be defined what data is returned."
+      type: object
+      required:
+        - limit
+        - total
+      properties:
+        limit:
+          maximum: 200
+          allOf:
+            - $ref: '#/components/schemas/Limit'
+        total:
+          $ref: '#/components/schemas/Total'
+    Category:
+      description: Categories allow products to be organized into hierarchical structures. Categories can have relationships to other parent categories. Each category can also provide a context inherited by subcategories. For example, a category may have an attribute value assigned to it, and any product assigned to the category or a subcategory would inherit the attribute value as long as the product is assigned. Once the product is removed from the category those attribute values would no longer be in the context of the product. Linking of categories is also used for Site hierarchical navigation. For example, inside 'Clothing' you may have 'Mens', and inside 'Mens' you may have 'Pants'. Categories are not *Tags.*
+      properties:
+        categories:
+          description: Array of subcategories. Can be empty.
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+        description:
+          description: The localized description of the category.
+          example: Category description for Men's Category
+          type: string
+        id:
+          $ref: '#/components/schemas/CategoryId'
+        image:
+          description: The URL of the category image.
+          type: string
+          example: https://example.com/images/large/mens-category.jpg
+        name:
+          description: The localized name of the category.
+          example: Mens
+          type: string
+        onlineSubCategoriesCount:
+          format: int64
+          description: The total number of online sub-categories. This information will be available from B2C Commerce version 24.5.
+          type: integer
+          example: 20
+        pageDescription:
+          description: The localized page description of the category.
+          example: This category ahs all men's clothing
+          type: string
+        pageKeywords:
+          description: The localized page keywords of the category.
+          example: Mens, shirts
+          type: string
+        pageTitle:
+          description: The localized page title of the category.
+          example: Men's Category
+          type: string
+        parentCategoryId:
+          description: The ID of the parent category.
+          example: apparel
+          type: string
+        parentCategoryTree:
+          description: The List of the parent categories.
+          type: array
+          items:
+            $ref: '#/components/schemas/PathRecord'
+        thumbnail:
+          description: The URL of the category thumbnail.
+          example: https://www.exampleimage.com/images/categoryImage.jpg
+          type: string
+      required:
+        - id
+      type: object
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+    PathRecord:
+      description: Document representing most basic info (id and name) of a category or catalog.
+      properties:
+        id:
+          description: The id of the category path.
+          example: mens
+          type: string
+        name:
+          description: The name of the category path.
+          example: mens
+          type: string
+      type: object
+    CategoryResult:
+      description: Result document containing an array of categories.
+      allOf:
+        - $ref: '#/components/schemas/ResultBase'
+      properties:
+        data:
+          description: The array of category documents.
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+      required:
+        - data
+      type: object
+  parameters:
+    organizationId:
+      description: An identifier for the organization the request is being made by
+      name: organizationId
+      in: path
+      required: true
+      example: f_ecom_zzxy_prd
+      schema:
+        $ref: '#/components/schemas/OrganizationId'
+    ids:
+      name: ids
+      description: The IDs of the requested products (comma-separated, max 24 IDs).
+      in: query
+      required: true
+      schema:
+        type: array
+        items:
+          allOf:
+            - $ref: '#/components/schemas/ProductId'
+            - maxItems: 100
+        example: apple-ipod-shuffle,apple-ipod-nano
+    inventoryIds:
+      description: The optional inventory list IDs, for which the availability should be shown (comma-separated, max 5 inventoryListIDs).
+      name: inventoryIds
+      in: query
+      schema:
+        type: array
+        items:
+          allOf:
+            - $ref: '#/components/schemas/InventoryId'
+            - maxItems: 5
+        example: Site1InventoryList,Site2InventoryList,Site3InventoryList,Site4InventoryList,Site5InventoryList
+    expand_multiId:
+      name: expand
+      description: "All expand parameters except page_meta_tags are used for the request when no expand parameter is provided. \nThe value \"none\" may be used to turn off all expand options. \nThe page_meta_tags expand value is optional and available starting from B2C Commerce version 25.2."
+      in: query
+      schema:
+        type: array
+        example:
+          - prices
+          - promotions
+        items:
+          enum:
+            - none
+            - availability
+            - links
+            - promotions
+            - options
+            - images
+            - prices
+            - variations
+            - recommendations
+            - page_meta_tags
+          example: promotions
+    allImages:
+      name: allImages
+      description: The flag that indicates whether to retrieve the whole image model for the requested product.
+      in: query
+      schema:
+        type: boolean
+        example: true
+    perPricebook:
+      name: perPricebook
+      description: The flag that indicates whether to retrieve the per PriceBook prices and tiered prices (if available) for requested Products. Available end of June, 2021.
+      in: query
+      schema:
+        type: boolean
+        example: true
+    siteId:
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites.
+      name: siteId
+      in: query
+      required: true
+      examples:
+        SiteId:
+          value: RefArch
+      schema:
+        $ref: '#/components/schemas/SiteId'
+    select:
+      description: The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names or work with wildcards. You can also specify array operations and filter expressions. The actual selector value must be enclosed within parentheses.
+      name: select
+      in: query
+      examples:
+        select:
+          value: (**)
+      schema:
+        $ref: '#/components/schemas/Select'
+    locale:
+      description: A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified.
+      name: locale
+      in: query
+      examples:
+        LanguageCountry:
+          value: en-US
+        CountryCode:
+          value: US
+      schema:
+        $ref: '#/components/schemas/LocaleCode'
+    currency:
+      description: A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard, or the string `N/A` indicating that a currency is not applicable.
+      name: currency
+      in: query
+      examples:
+        CurrencyCode:
+          value: USD
+      schema:
+        $ref: '#/components/schemas/CurrencyCode'
+    id:
+      name: id
+      description: The ID of the requested product.
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/ProductId'
+    expand_singleId:
+      name: expand
+      description: "All expand parameters except page_meta_tags are used for the request when no expand parameter is provided. \nThe value \"none\" may be used to turn off all expand options. \nThe page_meta_tags expand value is optional and available starting from B2C Commerce version 25.2."
+      in: query
+      schema:
+        type: array
+        example:
+          - prices
+          - promotions
+        items:
+          enum:
+            - none
+            - availability
+            - bundled_products
+            - links
+            - promotions
+            - options
+            - images
+            - prices
+            - variations
+            - set_products
+            - recommendations
+            - page_meta_tags
+          example: links
+    parameters-ids:
+      name: ids
+      description: The comma separated list of category IDs (max 50).
+      in: query
+      required: true
+      schema:
+        type: array
+        items:
+          allOf:
+            - $ref: '#/components/schemas/CategoryId'
+            - maxItems: 50
+        example: electronics-digital-cameras,electronics-televisions
+    levels:
+      name: levels
+      description: Specifies how many levels of nested subcategories you want the server to return. The default value is 1. Valid values are 0, 1, or 2. Only online subcategories are returned.
+      in: query
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+        enum:
+          - 0
+          - 1
+          - 2
+        example: 1
+    parameters-id:
+      name: id
+      in: path
+      description: The ID of the requested category.
+      required: true
+      schema:
+        $ref: '#/components/schemas/CategoryId'
+  examples:
+    GetProductsBadRequestResponseExample:
+      value:
+        title: Bad Request
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/validation
+        detail: Maximum number of products you can request in one call is 25.
+    MalformedSelectorResponseExample:
+      value:
+        title: Malformed Selector
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/malformed-selector
+        detail: The property selector '(data.(name, imageGroups.(**))' is malformed.
+        selector: (data.(name, imageGroups.(**))
+    UnauthorizedExample:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/unauthorized
+        title: Unauthorized
+        detail: Your access token is invalid or expired and can’t be used to identify a user.
+    GetProductResponseExample:
+      value:
+        brand: Apple
+        currency: USD
+        id: apple-ipod-shuffle
+        imageGroups:
+          - images:
+              - alt: Apple iPod Shuffle, , large
+                link: https://example.com/on/demandware.static/-/Sites-electronics-catalog/default/dwc2cc65b0/images/large/ipod-shuffle-silver.jpg
+                title: 'Apple iPod Shuffle, '
+            viewType: large
+          - images:
+              - alt: Apple iPod Shuffle, , medium
+                link: https://example.com/on/demandware.static/-/Sites-electronics-catalog/default/dw5f36aab1/images/medium/ipod-shuffle-silver.jpg
+                title: 'Apple iPod Shuffle, '
+            viewType: medium
+          - images:
+              - alt: Apple iPod Shuffle, , small
+                link: https://example.com/on/demandware.static/-/Sites-electronics-catalog/default/dw2b078e02/images/small/ipod-shuffle-silver.jpg
+                title: 'Apple iPod Shuffle, '
+            viewType: small
+        inventory:
+          ats: 0
+          backorderable: false
+          id: SiteGenesisList
+          orderable: true
+          preorderable: false
+          stockLevel: 999999
+        longDescription: Supports AAC, protected AAC, MP3, MP3 VBR, Audible, WAV and AIFF for immediate playback of multiple formats.
+        master:
+          masterId: apple-ipod-shuffle
+          orderable: false
+          price: 45.99
+        minOrderQuantity: 1
+        name: Apple iPod Shuffle
+        pageDescription: With the same size circular control pad as the previous model on a much more compact case with a built-in clip, the updated shuffle is ready to rock and easily tags along when you're on the go.
+        pageKeywords: Apple, iPod, Shuffle, MP3, Music Player
+        pageMetaTags:
+          - id: description
+            value: The updated Shuffle features the same-sized circular control pad in a more compact, clip-on case, making it perfect for on-the-go use.
+          - id: robots
+            value: index, follow
+          - id: title
+            value: Buy the Apple iPod Shuffle for USD 45.99-69.00.
+        pageTitle: Apple iPod Shuffle
+        price: 45.99
+        priceMax: 69
+        primaryCategoryId: electronics-digital-media-players
+        shortDescription: With the same size circular control pad as the previous model on a much more compact case with a built-in clip, the updated shuffle is ready to rock and easily tags along when you're on the go.
+        stepQuantity: 1
+        type:
+          master: true
+        variants:
+          - orderable: true
+            price: 45.99
+            productId: apple-ipod-shuffle-silver-1g
+            variationValues:
+              color: Silver
+              memorySize: 1 GB
+          - orderable: true
+            price: 49
+            productId: apple-ipod-shuffle-blue-1g
+            variationValues:
+              color: Blue
+              memorySize: 1 GB
+          - orderable: true
+            price: 49
+            productId: apple-ipod-shuffle-green-1g
+            variationValues:
+              color: Green
+              memorySize: 1 GB
+          - orderable: true
+            price: 49
+            productId: apple-ipod-shuffle-red-1g
+            variationValues:
+              color: Red
+              memorySize: 1 GB
+          - orderable: true
+            price: 49
+            productId: apple-ipod-shuffle-fuscia-1g
+            variationValues:
+              color: Fuscia
+              memorySize: 1 GB
+          - orderable: true
+            price: 60
+            productId: apple-ipod-shuffle-silver-2g
+            variationValues:
+              color: Silver
+              memorySize: 2 GB
+          - orderable: true
+            price: 69
+            productId: apple-ipod-shuffle-green-2g
+            variationValues:
+              color: Green
+              memorySize: 2 GB
+          - orderable: true
+            price: 60
+            productId: apple-ipod-shuffle-red-2g
+            variationValues:
+              color: Red
+              memorySize: 2 GB
+          - orderable: true
+            price: 69
+            productId: apple-ipod-shuffle-fuscia-2g
+            variationValues:
+              color: Fuscia
+              memorySize: 2 GB
+        variationAttributes:
+          - id: color
+            name: Color
+            values:
+              - name: Silver
+                orderable: false
+                value: Silver
+              - name: Blue
+                orderable: false
+                value: Blue
+              - name: Green
+                orderable: false
+                value: Green
+              - name: Red
+                orderable: false
+                value: Red
+              - name: Fuscia
+                orderable: false
+                value: Fuscia
+          - id: memorySize
+            name: Memory Size
+            values:
+              - name: 1 GB
+                orderable: true
+                value: 1 GB
+              - name: 2 GB
+                orderable: true
+                value: 2 GB
+    GetProductNotFoundResponseExample:
+      value:
+        title: Product Not Found
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/product-not-found
+        detail: No product with ID 'pple-ipod-shuffle' for site 'SiteGenesis' could be found.
+        productId: pple-ipod-shuffle
+        siteId: SiteGenesis
+    GetCategoriesResponseExample:
+      value:
+        limit: 2
+        data:
+          - id: electronics-digital-cameras
+            image: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/default/dw3535377d/images/slot/sub_banners/cat-banner-electronics-camera.jpg
+            name: Digital Cameras
+            onlineSubCategoriesCount: 0
+            pageDescription: Shop the latest digital cameras from all the top brands, makes and models at Salesforce Commerce Cloud.
+            pageKeywords: cameras, digital camerasm point and shoot, slr
+            pageTitle: Digital Cameras
+            parentCategoryId: electronics
+            parent_category_tree:
+              - id: electronics
+                name: electronics
+          - categories:
+              - id: electronics-televisions-flat-screen
+                image: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/default/dwc3940e75/images/slot/sub_banners/cat-banner-electronics-tv.jpg
+                name: Flat Screen
+                pageDescription: Shop all Flat Screen Televisions including the latest in LCD and Plasma technology from all the latest brands, makes and models at Salesforce Commerce Cloud.
+                pageKeywords: flat screen, flat screen television, LCD, plasma, HDTV
+                pageTitle: LCD & Plasma High Definition Flat Screen Televisions
+                parentCategoryId: electronics-televisions
+                parent_category_tree:
+                  - id: electronics
+                    name: electronics
+              - id: electronics-televisions-projection
+                image: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/default/dwc3940e75/images/slot/sub_banners/cat-banner-electronics-tv.jpg
+                name: Projection
+                onlineSubCategoriesCount: 0
+                pageDescription: Shop all Projection Televisions from all the latest brands, makes and models at Salesforce Commerce Cloud.
+                pageKeywords: projection, projection televisions, HDTV
+                pageTitle: Projection High Definition Televisions
+                parentCategoryId: electronics-televisions
+                parent_category_tree:
+                  - id: electronics
+                    name: electronics
+            id: electronics-televisions
+            image: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/default/dwc3940e75/images/slot/sub_banners/cat-banner-electronics-tv.jpg
+            name: Televisions
+            onlineSubCategoriesCount: 2
+            pageDescription: Shop the latest Televisions including LCD, Plasma, Flat Screens, Projection including all the top brands, makes and models at Salesforce Commerce Cloud.
+            pageKeywords: televisions, tvs, LCD, plasma, flat screen, high definition, HDTV, projection
+            pageTitle: Televisions Including LCD, Plasma & More in High Definition
+            parentCategoryId: electronics
+            parent_category_tree:
+              - id: electronics
+                name: electronics
+        total: 2
+    GetCategoriesBadRequestResponseExample:
+      value:
+        title: Bad Request
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/validation
+        detail: Maximum number of categories you can request in one call is 50.
+    GetCategoryResponseExample:
+      value:
+        categories:
+          - id: electronics-televisions
+            image: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/default/dwc3940e75/images/slot/sub_banners/cat-banner-electronics-tv.jpg
+            name: Televisions
+            onlineSubCategoriesCount: 2
+            pageDescription: Shop the latest Televisions including LCD, Plasma, Flat Screens, Projection including all the top brands, makes and models at Salesforce Commerce Cloud.
+            pageKeywords: televisions, tvs, LCD, plasma, flat screen, high definition, HDTV, projection
+            pageTitle: Televisions Including LCD, Plasma & More in High Definition
+            parentCategoryId: electronics
+            parent_category_tree:
+              - id: electronics
+                name: electronics
+            c_enableCompare: true
+            c_showInMenu: true
+            c_slotBannerImage: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/default/dw1d6f6411/images/slot/landing/cat-landing-tv.jpg
+          - id: electronics-digital-cameras
+            image: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/default/dw3535377d/images/slot/sub_banners/cat-banner-electronics-camera.jpg
+            name: Digital Cameras
+            onlineSubCategoriesCount: 0
+            pageDescription: Shop the latest digital cameras from all the top brands, makes and models at Salesforce Commerce Cloud.
+            pageKeywords: cameras, digital camerasm point and shoot, slr
+            pageTitle: Digital Cameras
+            parentCategoryId: electronics
+            parent_category_tree:
+              - id: electronics
+                name: electronics
+            c_enableCompare: true
+            c_showInMenu: true
+            c_slotBannerImage: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/default/dw1a543dc7/images/slot/landing/cat-landing-camera.jpg
+          - id: electronics-digital-media-players
+            image: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/default/dw7e9353db/images/slot/sub_banners/cat-banner-electronics-mp3.jpg
+            name: iPod & MP3 Players
+            onlineSubCategoriesCount: 0
+            pageDescription: Shop Digital Media Players including iPods, Creative Zen, Sony & the latest from all the top brands, makes and models at Salesforce Commerce Cloud.
+            pageKeywords: mp3, iPods, mp3 players
+            pageTitle: iPod & MP3 Digital Media Players
+            parentCategoryId: electronics
+            parent_category_tree:
+              - id: electronics
+                name: electronics
+            c_enableCompare: true
+            c_showInMenu: true
+            c_slotBannerImage: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/default/dw9f3d289a/images/slot/landing/cat-landing-mp3.jpg
+          - id: electronics-gps-units
+            image: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/default/dw6ea864f2/images/slot/sub_banners/cat-banner-electronics-gps.jpg
+            name: GPS Navigation
+            onlineSubCategoriesCount: 0
+            pageDescription: Shop the latest in GPS units from Garmin and Tom Tom along with other brands, makes and models at Salesforce Commerce Cloud.
+            pageKeywords: gps, gps units, garmin, tom tom
+            pageTitle: GPS Units
+            parentCategoryId: electronics
+            parent_category_tree:
+              - id: electronics
+                name: electronics
+            c_enableCompare: true
+            c_showInMenu: true
+            c_slotBannerImage: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/default/dwad4e06f8/images/slot/landing/cat-landing-gps.jpg
+          - id: electronics-gaming
+            image: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/default/dw9da58d91/images/slot/sub_banners/cat-banner-electronics.jpg
+            name: Gaming
+            onlineSubCategoriesCount: 2
+            pageDescription: Shop games and game consoles from Xbox, Xbox360, Playstation 2, Playstation 3, Game Cube, Wii, Playstation Portable and Nintento DS at Salesforce Commerce Cloud.
+            pageKeywords: gaming, xbox, xbox360, ps3, ps2, playstaion 3, psp, game cube, wii, nintendo, nintendo ds
+            pageTitle: Gaming
+            parentCategoryId: electronics
+            parent_category_tree:
+              - id: electronics
+                name: electronics
+            c_enableCompare: true
+            c_showInMenu: true
+            c_slotBannerImage: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/en_US/v1551233475301/images/slot/landing/cat-landing-gaming.jpg
+        id: electronics
+        name: Electronics
+        onlineSubCategoriesCount: 5
+        pageDescription: Shop Electronics including the latest in televisions, digital cameras, camcorders, mp3, ipod, mobil phones, GPS & gaming at Salesforce Commerce Cloud
+        pageKeywords: televisions, digital cameras, camcorders, mp3, ipod, mobil phones, GPS, gaming
+        pageTitle: Shop Electronics Including Televisions, Digital Cameras, iPods & More
+        parentCategoryId: root
+        parent_category_tree:
+          - id: root
+            name: root
+        c_enableCompare: true
+        c_headerMenuOrientation: Vertical
+        c_showInMenu: true
+    GetCategoryBadRequestResponseExample:
+      value:
+        title: Bad Request
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/validation
+        detail: Maximum number of categories you can request in one call is 50.
+    GetCategoryNotFoundResponseExample:
+      value:
+        title: Category Not Found
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/product-not-found
+        detail: No category with ID 'electronics-televi' for site 'SiteGenesis' could be found.
+        productId: electronics-televi
+        siteId: SiteGenesis
+  responses:
+    401unauthorized:
+      description: Your access token is invalid or expired and can’t be used to identify a user.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            UnauthorizedExample:
+              $ref: '#/components/examples/UnauthorizedExample'

@@ -1,0 +1,265 @@
+openapi: 3.0.3
+info:
+  title: Cors Preferences
+  version: v1
+  description: |-
+    # API Overview
+
+    The CORS Preferences API allows you to manage your Cross-Origin Resource Sharing (CORS) preferences.
+
+    By specifying which domains are permitted to access a site, you can define exceptions to the same-site policy that browsers would otherwise enforce.
+
+    ## Authentication & Authorization
+
+    The CORS Preferences API requires an Account Manager token from the [Admin APIs.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html)
+
+    You must include the relevant scope(s) in the client ID used to generate the SLAS token. For details, see [Authorization Scopes Catalog.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html)
+
+    ## Use Cases
+
+    ### Manage CORS configuration
+
+    You can use the preferences/cors endpoint to retrieve, set, or delete your configuration for CORS origins.
+
+    ## Usage Notes
+
+    1. This configuration is made per client ID and site.
+    2. All known domain names and aliases are added to the list automatically and do not need to be configured for CORS explicitly.
+    3. If a configuration is absent, CORS will not be active. To enable cors for a client without specifying custom origins, configure the client and site with an empty origin list. The known domain names and aliases will still apply.
+servers:
+  - url: https://{shortCode}.api.commercecloud.salesforce.com/configuration/cors/v1
+    variables:
+      shortCode:
+        default: shortCode
+paths:
+  /organizations/{organizationId}/cors:
+    get:
+      summary: Return all CORS preferences for the given site.
+      operationId: getCorsPreferences
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '200':
+          description: CORS preferences for the given site returned successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CorsPreferences'
+              examples:
+                getCorsResultWithMappingsExample:
+                  $ref: '#/components/examples/getCorsResultWithMappingsExample'
+                getCorsResultWithoutMappingsExample:
+                  $ref: '#/components/examples/getCorsResultWithoutMappingsExample'
+      security:
+        - AmOAuth2:
+            - sfcc.cors-preferences
+            - sfcc.cors-preferences.rw
+    put:
+      summary: Create or replace all CORS preferences for the given site.
+      operationId: updateCorsPreferences
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CorsPreferences'
+            examples:
+              CorsPutBodyExample:
+                $ref: '#/components/examples/CorsPutBodyExample'
+        required: true
+      responses:
+        '200':
+          description: CORS preferences for the given site created or replaced successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CorsPreferences'
+              examples:
+                updateCorsResultWithMappingsExample:
+                  $ref: '#/components/examples/updateCorsResultWithMappingsExample'
+                updateCorsResultWithoutMappingsExample:
+                  $ref: '#/components/examples/updateCorsResultWithoutMappingsExample'
+        '400':
+          description: |-
+            Possible reasons:
+            - The clientId is missing.
+            - The domain names in the origins list are invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                CorsBadRequestMissingClientIdExample:
+                  $ref: '#/components/examples/CorsBadRequestMissingClientIdExample'
+                CorsBadRequestInvalidDomainNamesExample:
+                  $ref: '#/components/examples/CorsBadRequestInvalidDomainNamesExample'
+      security:
+        - AmOAuth2:
+            - sfcc.cors-preferences.rw
+    delete:
+      summary: Delete all CORS preferences for the given site.
+      operationId: deleteCorsPreferences
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '204':
+          description: CORS preferences for the given site deleted successfully.
+      security:
+        - AmOAuth2:
+            - sfcc.cors-preferences.rw
+components:
+  securitySchemes:
+    AmOAuth2:
+      type: oauth2
+      description: AccountManager OAuth 2.0 bearer token Authentication.
+      flows:
+        clientCredentials:
+          tokenUrl: https://account.demandware.com/dwsso/oauth2/access_token
+          scopes:
+            sfcc.cors-preferences: CORS preferences READONLY scope
+            sfcc.cors-preferences.rw: CORS preferences scope
+        authorizationCode:
+          authorizationUrl: https://account.demandware.com/dwsso/oauth2/authorize
+          tokenUrl: https://account.demandware.com/dwsso/oauth2/access_token
+          scopes:
+            sfcc.cors-preferences: CORS preferences READONLY scope
+            sfcc.cors-preferences.rw: CORS preferences scope
+  schemas:
+    OrganizationId:
+      description: An identifier for the organization the request is being made by
+      example: f_ecom_zzxy_prd
+      type: string
+      minLength: 1
+      maxLength: 32
+    SiteId:
+      minLength: 1
+      maxLength: 32
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites
+      example: RefArch
+      type: string
+    CorsClientPreferences:
+      description: Document representing all CORS preferences of a specific client
+      properties:
+        clientId:
+          description: Client ID
+          type: string
+        origins:
+          description: List containing domain names
+          type: array
+          items:
+            type: string
+      required:
+        - clientId
+        - origins
+      type: object
+    CorsPreferences:
+      description: Document representing all CORS preferences for a given site
+      properties:
+        corsClientPreferences:
+          description: List of client-specific CORS preferences
+          type: array
+          items:
+            $ref: '#/components/schemas/CorsClientPreferences'
+      type: object
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        title:
+          description: "A short, human-readable summary of the problem\ntype.  It will not change from occurrence to occurrence of the \nproblem, except for purposes of localization\n"
+          type: string
+          maxLength: 256
+          example: You do not have enough credit
+        type:
+          description: |
+            A URI reference [RFC3986] that identifies the
+            problem type.  This specification encourages that, when
+            dereferenced, it provide human-readable documentation for the
+            problem type (e.g., using HTML [W3C.REC-html5-20141028]).  When
+            this member is not present, its value is assumed to be
+            "about:blank". It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: NotEnoughMoney
+        detail:
+          description: A human-readable explanation specific to this occurrence of the problem.
+          type: string
+          example: Your current balance is 30, but that costs 50
+        instance:
+          description: |
+            A URI reference that identifies the specific
+            occurrence of the problem.  It may or may not yield further
+            information if dereferenced.  It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: /account/12345/msgs/abc
+      required:
+        - title
+        - type
+        - detail
+  parameters:
+    organizationId:
+      description: An identifier for the organization the request is being made by
+      name: organizationId
+      in: path
+      required: true
+      example: f_ecom_zzxy_prd
+      schema:
+        $ref: '#/components/schemas/OrganizationId'
+    siteId:
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites.
+      name: siteId
+      in: query
+      required: true
+      examples:
+        SiteId:
+          value: RefArch
+      schema:
+        $ref: '#/components/schemas/SiteId'
+  examples:
+    getCorsResultWithMappingsExample:
+      value:
+        corsClientPreferences:
+          - clientId: 12345678-90ab-cdef-fedc-ba0987654321
+            origins:
+              - http://foo.com
+              - https://foo.bar.com
+    getCorsResultWithoutMappingsExample:
+      value: {}
+    CorsPutBodyExample:
+      value:
+        corsClientPreferences:
+          - clientId: 12345678-90ab-cdef-fedc-ba0987654321
+            origins:
+              - http://foo.com
+              - https://foo.bar.com
+    updateCorsResultWithMappingsExample:
+      value:
+        corsClientPreferences:
+          - clientId: 12345678-90ab-cdef-fedc-ba0987654321
+            origins:
+              - http://foo.com
+              - https://foo.bar.com
+    updateCorsResultWithoutMappingsExample:
+      value: {}
+    CorsBadRequestMissingClientIdExample:
+      value:
+        title: Bad Request
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/bad-request
+        detail: 'Submitted content was invalid: Client ID must not be null or empty'
+        parameter: 'Submitted content was invalid: Client ID must not be null or empty'
+    CorsBadRequestInvalidDomainNamesExample:
+      value:
+        title: Bad Request
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/bad-request
+        detail: 'Submitted content was invalid: Origins must contain valid domain names, prefixed with http:// or https://'
+        parameter: 'Submitted content was invalid: Origins must contain valid domain names, prefixed with http:// or https://'
+x-sdk-classname: CORSPreferences

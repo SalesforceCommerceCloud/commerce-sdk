@@ -35,12 +35,19 @@ function kebabToCamelCase(str: string): string {
   );
 }
 
+function appendVersionIfV2(name: string, version: string): string {
+  if (version === "V1" || version === "v1") {
+    return name;
+  }
+  return name + version;
+}
+
 /**
  * Helper function. Also contains explicit workaround for some API names.
  */
-export function resolveApiName(name: string): string {
-  if (name === "Shopper orders OAS") {
-    return "ShopperOrders";
+export function resolveApiName(name: string, version: string): string {
+  if (name === "Shopper Baskets OAS") {
+    return version === "v2" ? "ShopperBasketsV2" : "ShopperBasketsV1";
   }
   if (name === "CDN API - Process APIs OAS") {
     return "CDNZones";
@@ -73,28 +80,23 @@ export function getAPIDetailsFromExchange(directory: string): ApiSpecDetail {
       exchangePath
     ) as download.ExchangeConfig;
 
-    // Special handling for shopper-baskets-v2
-    if (
-      exchangeConfig.assetId === "shopper-baskets-oas" &&
-      exchangeConfig.apiVersion === "v2"
-    ) {
-      return {
-        filepath: path.join(directory, exchangeConfig.main),
-        filename: exchangeConfig.main,
-        directoryName: "ShopperBasketsV2",
-        name: "Shopper Baskets V2 OAS",
-        apiName: "ShopperBasketsV2",
-      };
-    }
-
     return {
-      filepath: path.join(directory, exchangeConfig.main),
+      filepath: path.join(
+        directory,
+        exchangeConfig.main.replace("-public.yaml", "-internal.yaml")
+      ),
       filename: exchangeConfig.main,
       directoryName: kebabToCamelCase(
-        exchangeConfig.assetId.replace("-oas", "")
+        appendVersionIfV2(
+          exchangeConfig.assetId.replace("-oas", ""),
+          exchangeConfig.apiVersion
+        )
       ),
-      name: exchangeConfig.name,
-      apiName: resolveApiName(exchangeConfig.name),
+      name:
+        exchangeConfig.apiVersion === "v2"
+          ? exchangeConfig.name + " V2"
+          : exchangeConfig.name,
+      apiName: resolveApiName(exchangeConfig.name, exchangeConfig.apiVersion),
     };
   }
   throw new Error(`Exchange file does not exist for ${directory}`);

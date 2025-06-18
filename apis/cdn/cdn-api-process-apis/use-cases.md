@@ -1,1 +1,0 @@
-This content has moved to the [CDN Zones guide](https://developer.salesforce.com/docs/commerce/commerce-api/guide/cdn-zones.html).

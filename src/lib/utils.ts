@@ -28,7 +28,7 @@ export async function updateApis(
   try {
     const apis = await download.search(
       `"${apiFamily}" category:Visibility = "External" category:"SDK Type" = "Commerce"`,
-      undefined,
+      undefined, // passing undefined here is intentional. this argument corresponds to the deployment parameter, which has been deprecated
       true
     );
     await download.downloadRestApis(
