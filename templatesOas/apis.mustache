@@ -28,14 +28,28 @@ export namespace {{#vendorExtensions}}{{#x-sdk-classname}}{{{ . }}}{{/x-sdk-clas
 {{#hasEnums}}
 {{#operations}}
 {{#operation}}
+{{#vendorExtensions}}
+{{^x-scapi-internal}}
 {{> apis.enum}}
+{{/x-scapi-internal}}
+{{/vendorExtensions}}
+{{^vendorExtensions}}
+{{> apis.enum}}
+{{/vendorExtensions}}
 {{/operation}}
 {{/operations}}
 {{/hasEnums}}
 
 {{#operations}}
 {{#operation}}
+{{#vendorExtensions}}
+{{^x-scapi-internal}}
 {{> apis.parameters}}
+{{/x-scapi-internal}}
+{{/vendorExtensions}}
+{{^vendorExtensions}}
+{{> apis.parameters}}
+{{/vendorExtensions}}
 {{/operation}}
 {{/operations}}
 
@@ -97,7 +111,14 @@ export class {{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.came
 
 {{#operations}}
 {{#operation}}
+{{#vendorExtensions}}
+{{^x-scapi-internal}}
 {{> apis.endpoint}}
+{{/x-scapi-internal}}
+{{/vendorExtensions}}
+{{^vendorExtensions}}
+{{> apis.endpoint}}
+{{/vendorExtensions}}
 {{/operation}}
 {{/operations}}
 }
