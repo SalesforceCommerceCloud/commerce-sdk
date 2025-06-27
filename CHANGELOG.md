@@ -1,5 +1,9 @@
 ## CHANGELOG
 
+## v5.0.0
+- Refactor SLAS helpers
+
+- TODO: update SLAS helper TSdoc comments in isomorphic SDK
 
 ## v4.2.0
 
