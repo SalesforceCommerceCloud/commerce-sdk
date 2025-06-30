@@ -12,15 +12,13 @@ export enum {{operationIdCamelCase}}{{enumName}} {
 }
 {{/stringEnums}}
 {{^stringEnums}}
-
-export const {{operationIdCamelCase}}{{enumName}} = {
+export type {{operationIdCamelCase}}{{enumName}} =
 {{#allowableValues}}
     {{#enumVars}}
-    {{{name}}}: {{{value}}}{{^-last}},{{/-last}}
+    {{{value}}}{{^-last}} |{{/-last}}{{#-last}};{{/-last}}
     {{/enumVars}}
 {{/allowableValues}}
-} as const;
-export type {{operationIdCamelCase}}{{enumName}} = typeof {{operationIdCamelCase}}{{enumName}}[keyof typeof {{operationIdCamelCase}}{{enumName}}];
+
 {{/stringEnums}}
 {{/isEnum}}
 {{/allParams}}

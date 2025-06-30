@@ -79,29 +79,29 @@ export const generateCodeChallenge = async (
 
 /**
  * Wrapper for the authorization endpoint. For federated login (3rd party IDP non-guest), the caller should redirect the user to the url in the url field of the returned object. The url will be the login page for the 3rd party IDP and the user will be sent to the redirectURI on success. Guest sessions return the code and usid directly with no need to redirect.
- *
- * @param slasClient - a configured instance of the ShopperLogin SDK client
- * @param codeVerifier - random string created by client app to use as a secret in the request
- * @param parameters - Request parameters used by the `authorizeCustomer` endpoint.
- * @param parameters.redirectURI - the location the client will be returned to after successful login with 3rd party IDP. Must be registered in SLAS.
- * @param parameters.hint? - optional string to hint at a particular IDP. Guest sessions are created by setting this to 'guest'
- * @param parameters.usid? - optional saved SLAS user id to link the new session to a previous session
- * @param options? - an object containing the options for this function.
+ * @param options - an object containing the options for this method
+ * @param options.slasClient - a configured instance of the ShopperLogin SDK client
+ * @param options.codeVerifier - random string created by client app to use as a secret in the request
+ * @param options.parameters - Request parameters used by the `authorizeCustomer` endpoint.
+ * @param options.parameters.redirectURI - the location the client will be returned to after successful login with 3rd party IDP. Must be registered in SLAS.
+ * @param options.parameters.hint? - optional string to hint at a particular IDP. Guest sessions are created by setting this to 'guest'
+ * @param options.parameters.usid? - optional saved SLAS user id to link the new session to a previous session
  * @returns login url, user id and authorization code if available
  */
-export async function authorize(
-  slasClient: ISlasClient,
-  codeVerifier: string,
+export async function authorize(options: {
+  slasClient: ISlasClient;
+  codeVerifier: string;
   parameters: {
     redirectURI: string;
     hint?: string;
     usid?: string;
-  } & CustomQueryParameters
-): Promise<{ code: string; url: string; usid: string }> {
+  } & CustomQueryParameters;
+}): Promise<{ code: string; url: string; usid: string }> {
+  const { slasClient, codeVerifier, parameters } = options;
   const codeChallenge = await generateCodeChallenge(codeVerifier);
   const { hint, redirectURI, usid, ...restOfParams } = parameters;
 
-  const options = {
+  const opts = {
     parameters: {
       ...restOfParams,
       client_id: slasClient.clientConfig.parameters?.clientId,
@@ -118,7 +118,7 @@ export async function authorize(
     },
   };
 
-  const response = await slasClient.authorizeCustomer(options, true);
+  const response = await slasClient.authorizeCustomer(opts, true);
 
   if (response.status !== 303) {
     throw new ResponseError(response);
@@ -131,20 +131,21 @@ export async function authorize(
 
 /**
  * A single function to execute the ShopperLogin Private Client Guest Login as described in the [API documentation](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-private-client.html).
- *
- * @param slasClient - a configured instance of the ShopperLogin SDK client
- * @param credentials - client secret used for authentication
- * @param credentials.clientSecret - secret associated with client ID
- * @param usid? - optional Unique Shopper Identifier to enable personalization
+ * @param options - an object containing the options for this method
+ * @param options.slasClient - a configured instance of the ShopperLogin SDK client
+ * @param options.credentials - client secret used for authentication
+ * @param options.credentials.clientSecret - secret associated with client ID
+ * @param options.usid? - optional Unique Shopper Identifier to enable personalization
  * @returns TokenResponse
  */
-export async function loginGuestUserPrivate(
-  slasClient: ISlasClient,
+export async function loginGuestUserPrivate(options: {
+  slasClient: ISlasClient;
   credentials: {
     clientSecret: string;
-  },
-  usid?: string
-): Promise<TokenResponse> {
+  };
+  usid?: string;
+}): Promise<TokenResponse> {
+  const { slasClient, credentials, usid } = options;
   if (!slasClient.clientConfig.parameters?.siteId) {
     throw new Error(
       "Required argument channel_id is not provided through clientConfig.parameters.siteId"
@@ -155,7 +156,7 @@ export async function loginGuestUserPrivate(
     `${slasClient.clientConfig.parameters?.clientId}:${credentials.clientSecret}`
   )}`;
 
-  const options = {
+  const opts = {
     headers: {
       Authorization: authorization,
     },
@@ -166,33 +167,38 @@ export async function loginGuestUserPrivate(
     },
   };
 
-  return slasClient.getAccessToken(options);
+  return slasClient.getAccessToken(opts);
 }
 
 /**
  * A single function to execute the ShopperLogin Public Client Guest Login with proof key for code exchange flow as described in the [API documentation](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-public-client.html).
- *
- * @param slasClient a configured instance of the ShopperLogin SDK client.
- * @param parameters - parameters to pass in the API calls. Custom parameters can be passed in with the prefix `c_` (e.g. c_myParam), and they be passed on the `authorizeCustomer` endpoint.
- * @param parameters.redirectURI - Per OAuth standard, a valid app route. Must be listed in your SLAS configuration. On server, this will not be actually called
- * @param parameters.usid? - Unique Shopper Identifier to enable personalization.
+ * @param options - an object containing the options for this method
+ * @param options.slasClient - a configured instance of the ShopperLogin SDK client
+ * @param options.parameters - parameters to pass in the API calls. Custom parameters can be passed in with the prefix `c_` (e.g. c_myParam), and they be passed on the `authorizeCustomer` endpoint.
+ * @param options.parameters.redirectURI - Per OAuth standard, a valid app route. Must be listed in your SLAS configuration. On server, this will not be actually called
+ * @param options.parameters.usid? - Unique Shopper Identifier to enable personalization.
  * @returns TokenResponse
  */
-export async function loginGuestUser(
-  slasClient: ISlasClient,
+export async function loginGuestUser(options: {
+  slasClient: ISlasClient;
   parameters: {
     redirectURI: string;
     usid?: string;
-  } & CustomQueryParameters
-): Promise<TokenResponse> {
+  } & CustomQueryParameters;
+}): Promise<TokenResponse> {
+  const { slasClient, parameters } = options;
   const codeVerifier = createCodeVerifier();
   const { usid, redirectURI, ...restOfParams } = parameters;
 
-  const authResponse = await authorize(slasClient, codeVerifier, {
-    ...restOfParams,
-    redirectURI: redirectURI,
-    hint: "guest",
-    ...(usid && { usid }),
+  const authResponse = await authorize({
+    slasClient,
+    codeVerifier,
+    parameters: {
+      ...restOfParams,
+      redirectURI: redirectURI,
+      hint: "guest",
+      ...(usid && { usid }),
+    },
   });
 
   const tokenBody: TokenRequest = {
@@ -210,34 +216,32 @@ export async function loginGuestUser(
 
 /**
  * A single function to execute the ShopperLogin Private Client Registered User B2C Login as described in the [API documentation](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-private-client.html).
- *
- * @param slasClient - a configured instance of the ShopperLogin SDK client.
- * @param credentials - the shopper username and password for login and client secret for additional authentication
- * @param credentials.username - the id of the user to login with
- * @param credentials.password - the password of the user to login with
- * @param credentials.clientSecret - secret associated with client ID
- * @param parameters - parameters to pass in the API calls.
- * @param parameters.redirectURI - Per OAuth standard, a valid app route. Must be listed in your SLAS configuration. On server, this will not be actually called
- * @param parameters.usid? - optional Unique Shopper Identifier to enable personalization
- * @param options? - optional parameters to pass in the API calls.
+ * @param options - an object containing the options for this method
+ * @param options.slasClient - a configured instance of the ShopperLogin SDK client
+ * @param options.credentials - the shopper username and password for login and client secret for additional authentication
+ * @param options.credentials.username - the id of the user to login with
+ * @param options.credentials.password - the password of the user to login with
+ * @param options.credentials.clientSecret - secret associated with client ID
+ * @param options.parameters - parameters to pass in the API calls.
+ * @param options.parameters.redirectURI - Per OAuth standard, a valid app route. Must be listed in your SLAS configuration. On server, this will not be actually called
+ * @param options.parameters.usid? - optional Unique Shopper Identifier to enable personalization
  * @param options.body? - optional body to pass in the ShopperLogin authenticateCustomer method
  * @returns TokenResponse
  */
-export async function loginRegisteredUserB2Cprivate(
-  slasClient: ISlasClient,
+export async function loginRegisteredUserB2Cprivate(options: {
+  slasClient: ISlasClient;
   credentials: {
     username: string;
     password: string;
     clientSecret: string;
-  },
+  };
   parameters: {
     redirectURI: string;
     usid?: string;
-  },
-  options?: {
-    body?: CustomRequestBody;
-  }
-): Promise<TokenResponse> {
+  };
+  body?: CustomRequestBody;
+}): Promise<TokenResponse> {
+  const { slasClient, credentials, parameters, body } = options;
   const codeVerifier = createCodeVerifier();
   const codeChallenge = await generateCodeChallenge(codeVerifier);
 
@@ -250,7 +254,7 @@ export async function loginRegisteredUserB2Cprivate(
       Authorization: authHeaderUserPass,
     },
     body: {
-      ...(options?.body || {}),
+      ...(body || {}),
       code_challenge: codeChallenge,
       channel_id: slasClient.clientConfig.parameters?.siteId,
       client_id: slasClient.clientConfig.parameters?.clientId,
@@ -295,32 +299,30 @@ export async function loginRegisteredUserB2Cprivate(
 
 /**
  * A single function to execute the ShopperLogin Private Client Registered User B2C Login with proof key for code exchange flow as described in the [API documentation](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-public-client.html).
- *
- * @param slasClient - a configured instance of the ShopperLogin SDK client.
- * @param credentials - the id and password to login with.
- * @param credentials.username - the id of the user to login with.
- * @param credentials.password - the password of the user to login with.
- * @param parameters - parameters to pass in the API calls.
- * @param parameters.redirectURI - Per OAuth standard, a valid app route. Must be listed in your SLAS configuration. On server, this will not be actually called. On browser, this will be called, but ignored.
- * @param parameters.usid? - Unique Shopper Identifier to enable personalization.
- * @param options? - optional parameters to pass in
+ * @param options - an object containing the options for this method
+ * @param options.slasClient - a configured instance of the ShopperLogin SDK client
+ * @param options.credentials - the id and password to login with.
+ * @param options.credentials.username - the id of the user to login with.
+ * @param options.credentials.password - the password of the user to login with.
+ * @param options.parameters - parameters to pass in the API calls.
+ * @param options.parameters.redirectURI - Per OAuth standard, a valid app route. Must be listed in your SLAS configuration. On server, this will not be actually called. On browser, this will be called, but ignored.
+ * @param options.parameters.usid? - Unique Shopper Identifier to enable personalization.
  * @param options.body? - optional body to pass in the ShopperLogin authenticateCustomer method
  * @returns TokenResponse
  */
-export async function loginRegisteredUserB2C(
-  slasClient: ISlasClient,
+export async function loginRegisteredUserB2C(options: {
+  slasClient: ISlasClient;
   credentials: {
     username: string;
     password: string;
-  },
+  };
   parameters: {
     redirectURI: string;
     usid?: string;
-  },
-  options?: {
-    body?: CustomRequestBody;
-  }
-): Promise<TokenResponse> {
+  };
+  body?: CustomRequestBody;
+}): Promise<TokenResponse> {
+  const { slasClient, credentials, parameters, body } = options;
   const codeVerifier = createCodeVerifier();
   const codeChallenge = await generateCodeChallenge(codeVerifier);
 
@@ -336,7 +338,7 @@ export async function loginRegisteredUserB2C(
       organizationId: slasClient.clientConfig.parameters?.organizationId,
     },
     body: {
-      ...(options?.body || {}),
+      ...(body || {}),
       redirect_uri: parameters.redirectURI,
       client_id: slasClient.clientConfig.parameters?.clientId,
       code_challenge: codeChallenge,
@@ -372,16 +374,17 @@ export async function loginRegisteredUserB2C(
 
 /**
  * Exchange a refresh token for a new access token.
- *
- * @param slasClient - a configured instance of the ShopperLogin SDK client.
- * @param parameters - parameters to pass in the API calls.
- * @param parameters.refreshToken - a valid refresh token to exchange for a new access token (and refresh token).
+ * @param options - an object containing the options for this method
+ * @param options.slasClient - a configured instance of the ShopperLogin SDK client
+ * @param options.parameters - parameters to pass in the API calls.
+ * @param options.parameters.refreshToken - a valid refresh token to exchange for a new access token (and refresh token).
  * @returns TokenResponse
  */
-export function refreshAccessToken(
-  slasClient: ISlasClient,
-  parameters: { refreshToken: string }
-): Promise<TokenResponse> {
+export function refreshAccessToken(options: {
+  slasClient: ISlasClient;
+  parameters: { refreshToken: string };
+}): Promise<TokenResponse> {
+  const { slasClient, parameters } = options;
   const body = {
     grant_type: "refresh_token",
     refresh_token: parameters.refreshToken,
@@ -393,23 +396,24 @@ export function refreshAccessToken(
 
 /**
  * Exchange a refresh token for a new access token.
- *
- * @param slasClient - a configured instance of the ShopperLogin SDK client.
- * @param credentials - client secret used for authentication
- * @param credentials.clientSecret - secret associated with client ID
- * @param parameters - parameters to pass in the API calls.
- * @param parameters.refreshToken - a valid refresh token to exchange for a new access token (and refresh token).
+ * @param options - an object containing the options for this method
+ * @param options.slasClient - a configured instance of the ShopperLogin SDK client
+ * @param options.credentials - client secret used for authentication
+ * @param options.credentials.clientSecret - secret associated with client ID
+ * @param options.parameters - parameters to pass in the API calls.
+ * @param options.parameters.refreshToken - a valid refresh token to exchange for a new access token (and refresh token).
  * @returns TokenResponse
  */
-export function refreshAccessTokenPrivate(
-  slasClient: ISlasClient,
-  credentials: { clientSecret: string },
-  parameters: { refreshToken: string }
-): Promise<TokenResponse> {
+export function refreshAccessTokenPrivate(options: {
+  slasClient: ISlasClient;
+  credentials: { clientSecret: string };
+  parameters: { refreshToken: string };
+}): Promise<TokenResponse> {
+  const { slasClient, credentials, parameters } = options;
   const authorization = `Basic ${stringToBase64(
     `${slasClient.clientConfig.parameters?.clientId}:${credentials.clientSecret}`
   )}`;
-  const options = {
+  const tokenOptions = {
     headers: {
       Authorization: authorization,
     },
@@ -418,25 +422,26 @@ export function refreshAccessTokenPrivate(
       refresh_token: parameters.refreshToken,
     },
   };
-  return slasClient.getAccessToken(options);
+  return slasClient.getAccessToken(tokenOptions);
 }
 
 /**
  * Logout a shopper. The shoppers access token and refresh token will be revoked and if the shopper authenticated with ECOM the OCAPI JWT will also be revoked.
- *
- * @param slasClient - a configured instance of the ShopperLogin SDK client.
- * @param parameters - parameters to pass in the API calls.
- * @param parameters.accessToken - a valid access token to exchange for a new access token (and refresh token).
- * @param parameters.refreshToken - a valid refresh token to exchange for a new access token (and refresh token).
+ * @param options - an object containing the options for this method
+ * @param options.slasClient - a configured instance of the ShopperLogin SDK client
+ * @param options.parameters - parameters to pass in the API calls.
+ * @param options.parameters.accessToken - a valid access token to exchange for a new access token (and refresh token).
+ * @param options.parameters.refreshToken - a valid refresh token to exchange for a new access token (and refresh token).
  * @returns TokenResponse
  */
-export function logout(
-  slasClient: ISlasClient,
+export function logout(options: {
+  slasClient: ISlasClient;
   parameters: {
     accessToken: string;
     refreshToken: string;
-  }
-): Promise<TokenResponse> {
+  };
+}): Promise<TokenResponse> {
+  const { slasClient, parameters } = options;
   return slasClient.logoutCustomer({
     headers: {
       Authorization: `Bearer ${parameters.accessToken}`,
