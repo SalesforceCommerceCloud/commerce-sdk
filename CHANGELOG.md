@@ -1,9 +1,10 @@
 ## CHANGELOG
 
 ## v5.0.0
-- Refactor SLAS helpers
-
-- TODO: update SLAS helper TSdoc comments in isomorphic SDK
+- Enum types have been added for certain operations and types
+- Certain operations have had types updated for query parameters
+- SLAS helpers have been refactored to accept a single `options` object argument, where the properties are the old arguments
+- Path parameter special characters are encoded by default
 
 ## v4.2.0
 
