@@ -23,8 +23,6 @@ import type {
     {{/imports}}
 } from '../models/index{{importFileExtension}}';
 
-export namespace {{#vendorExtensions}}{{#x-sdk-classname}}{{{ . }}}{{/x-sdk-classname}}{{^x-sdk-classname}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/x-sdk-classname}}{{/vendorExtensions}}{{^vendorExtensions}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/vendorExtensions}} {
-
 {{#hasEnums}}
 {{#operations}}
 {{#operation}}
@@ -98,7 +96,7 @@ export namespace {{#vendorExtensions}}{{#x-sdk-classname}}{{{ . }}}{{/x-sdk-clas
 * </span>
 *
 */
-export class {{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}} extends BaseClient {
+export class {{#vendorExtensions}}{{#x-sdk-classname}}{{{ . }}}{{/x-sdk-classname}}{{^x-sdk-classname}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/x-sdk-classname}}{{/vendorExtensions}}{{^vendorExtensions}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/vendorExtensions}} extends BaseClient {
 
     constructor(config: ClientConfig) {
         super(config);
@@ -121,5 +119,4 @@ export class {{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.came
 {{/vendorExtensions}}
 {{/operation}}
 {{/operations}}
-}
 }
