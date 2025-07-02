@@ -55,7 +55,7 @@ const parameters = {
   usid: "usid",
 };
 const createSlasClient = (): ISlasClient => {
-  return new ShopperLogin.ShopperLogin(clientConfig) as ISlasClient;
+  return new ShopperLogin(clientConfig) as ISlasClient;
 };
 
 const sandbox = sinon.createSandbox();

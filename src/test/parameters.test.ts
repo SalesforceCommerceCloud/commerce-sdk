@@ -21,7 +21,7 @@ describe("Parameters", () => {
   afterEach(() => nock.cleanAll());
 
   it("allow custom query params", async () => {
-    const productClient = new ShopperProducts.ShopperProducts({
+    const productClient = new ShopperProducts({
       parameters: {
         clientId: CLIENT_ID,
         organizationId: ORGANIZATION_ID,
@@ -53,7 +53,7 @@ describe("Parameters", () => {
   });
 
   it("warns user when an unknown param is passed", async () => {
-    const productClient = new ShopperProducts.ShopperProducts({
+    const productClient = new ShopperProducts({
       parameters: {
         clientId: CLIENT_ID,
         organizationId: ORGANIZATION_ID,
