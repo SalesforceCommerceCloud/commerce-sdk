@@ -5,6 +5,7 @@
 - Certain operations have had types updated for query parameters
 - SLAS helpers have been refactored to accept a single `options` object argument, where the properties are the old arguments
 - Path parameter special characters are encoded by default
+- API family layer and API namespace has been removed. To import API classes, please refer to the [README](https://github.com/SalesforceCommerceCloud/commerce-sdk?tab=readme-ov-file#sample-code)
 
 ## v4.2.0
 

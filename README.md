@@ -64,9 +64,13 @@ To use an SDK client, instantiate an object of that client and configure these p
 
 // Import the SDK in TypeScript
 // tsc requires the --esModuleInterop flag for this
-import { Search, Customer, helpers, slasHelpers } from "commerce-sdk";
+// Starting in v5, API classes will no longer be namespaced under API family
+import { ShopperSearch, ShopperLogin, helpers, slasHelpers } from "commerce-sdk";
 // Older Node.js versions can instead use:
 // const { ClientConfig, helpers, slasHelpers Search } = require("commerce-sdk");
+
+// Types for each individual API can be imported as <api_name>Types starting in v5
+import type { ShopperLoginTypes } from "commerce-sdk"
 
 // demo client credentials, if you have access to your own please replace them below.
 // do not store client secret as plaintext. Store it in a secure location.
@@ -92,10 +96,10 @@ const config = {
  *
  * @returns guest user authorization token
  */
-async function getGuestUserAuthToken(): Promise<Customer.ShopperLogin.TokenResponse> {
+async function getGuestUserAuthToken(): Promise<ShopperLoginTypes.TokenResponse> {
   const base64data = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString("base64");
   const headers = { Authorization: `Basic ${base64data}` };
-  const loginClient = new Customer.ShopperLogin(config);
+  const loginClient = new ShopperLogin(config);
 
   return await loginClient.getAccessToken({
     headers,
@@ -119,7 +123,7 @@ getGuestUserAuthToken().then(async (token) => {
   // Add the token to the client configuration
   config.headers["authorization"] = `Bearer ${token.access_token}`;
 
-  const searchClient = new Search.ShopperSearch(config);
+  const searchClient = new ShopperSearch(config);
 
   // Search for dresses
   const searchResults = await searchClient.productSearch({
