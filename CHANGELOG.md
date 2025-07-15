@@ -10,7 +10,7 @@
 - SLAS helpers have been refactored to accept a single `options` object argument, where the properties are the old arguments
 - Path parameter special characters are encoded by default
 - API family layer and API namespace has been removed. To import API classes, please refer to the [README](https://github.com/SalesforceCommerceCloud/commerce-sdk?tab=readme-ov-file#sample-code)
-- Docs Site has been upgraded [TypeDoc upgraded from 0.17.8 to 0.28.7 for TypeScript 5.1.6 compatibility]
+- Docs Site has been upgraded [TypeScript downgraded to 4.4.4 for TypeDoc 0.17.8 compatibility]
 
 
 ## v4.2.0
