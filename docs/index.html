@@ -1,682 +1,178 @@
-<!doctype html>
-<html class="default no-js">
-<head>
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>commerce-sdk</title>
-	<meta name="description" content="Documentation for commerce-sdk">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="assets/css/main.css">
-</head>
-<body>
-<header>
-	<div class="tsd-page-toolbar">
-		<div class="container">
-			<div class="table-wrap">
-				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
-					<div class="field">
-						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
-						<input id="tsd-search-field" type="text" />
-					</div>
-					<ul class="results">
-						<li class="state loading">Preparing search index...</li>
-						<li class="state failure">The search index is not available</li>
-					</ul>
-					<a href="index.html" class="title">commerce-sdk</a>
-				</div>
-				<div class="table-cell" id="tsd-widgets">
-					<div id="tsd-filter">
-						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
-						<div class="tsd-filter-group">
-							<div class="tsd-select" id="tsd-filter-visibility">
-								<span class="tsd-select-label">All</span>
-								<ul class="tsd-select-list">
-									<li data-value="public">Public</li>
-									<li data-value="protected">Public/Protected</li>
-									<li data-value="private" class="selected">All</li>
-								</ul>
-							</div>
-							<input type="checkbox" id="tsd-filter-inherited" checked />
-							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
-							<input type="checkbox" id="tsd-filter-externals" checked />
-							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
-							<input type="checkbox" id="tsd-filter-only-exported" />
-							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
-						</div>
-					</div>
-					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="tsd-page-title">
-		<div class="container">
-			<ul class="tsd-breadcrumb">
-				<li>
-					<a href="globals.html">Globals</a>
-				</li>
-			</ul>
-			<h1>commerce-sdk</h1>
-		</div>
-	</div>
-</header>
-<div class="container container-main">
-	<div class="row">
-		<div class="col-8 col-content">
-			<div class="tsd-panel tsd-typography">
-				<a href="#commerce-sdk" id="commerce-sdk" style="color: inherit; text-decoration: none;">
-					<h1>commerce-sdk</h1>
-				</a>
-				<p>The Salesforce Commerce SDK allows easy interaction with the Salesforce B2C Commerce platform APIs on the Node.js runtime.  For a more lightweight SDK, which works in a browser and Node.js for the shopper experience, see <a href="https://github.com/SalesforceCommerceCloud/commerce-sdk-isomorphic">our Isomorphic SDK</a></p>
-				<p>Visit the <a href="https://developer.salesforce.com/developer-centers/commerce-cloud">Commerce Cloud Developer Center</a> to learn more about Salesforce Commerce. The developer center has API documentation, getting started guides, community forums, and more.
-				​</p>
-				<a href="#warning-planned-api-changes-warning" id="warning-planned-api-changes-warning" style="color: inherit; text-decoration: none;">
-					<h2>:warning: Planned API Changes :warning:</h2>
-				</a>
-				<a href="#shopper-context" id="shopper-context" style="color: inherit; text-decoration: none;">
-					<h3>Shopper Context</h3>
-				</a>
-				<p>Starting July 31st 2024, all endpoints in the Shopper context API will require the <code>siteId</code> parameter for new customers. This field is marked as optional for backward compatibility and will be changed to mandatory tentatively by January 2025. You can read more about the planned change <a href="https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-context?meta=Summary">here</a> in the notes section.</p>
-				<a href="#shopper-login-slas" id="shopper-login-slas" style="color: inherit; text-decoration: none;">
-					<h3>Shopper Login (SLAS)</h3>
-				</a>
-				<p>SLAS will soon require new tenants to pass <code>channel_id</code> as an argument for retrieving guest access tokens. You can read more about the planned change <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas.html#guest-tokens">here</a>.</p>
-				<p>Please be aware that existing tenants are on a temporary allow list and will see no immediate disruption to service.  We do ask that all users seek to adhere to the <code>channel_id</code> requirement before the end of August to enhance your security posture before the holiday peak season.</p>
-				<p>In practice, we recommend that customers using the SLAS helper functions upgrade to <code>v4.0.0</code> of the <code>commerce-sdk</code>.</p>
-				<a href="#warning-planned-sdk-changes-warning" id="warning-planned-sdk-changes-warning" style="color: inherit; text-decoration: none;">
-					<h2>:warning: Planned SDK Changes :warning:</h2>
-				</a>
-				<a href="#encoding-path-parameters" id="encoding-path-parameters" style="color: inherit; text-decoration: none;">
-					<h3>Encoding path parameters</h3>
-				</a>
-				<p>In the next major version release, the SDK will encode special characters (UTF-8 based on SCAPI guidelines) in path parameters by default. Please see the <a href="#encoding-special-characters">Encoding special characters</a> section for more details.</p>
-				<a href="#prerequisites" id="prerequisites" style="color: inherit; text-decoration: none;">
-					<h2>Prerequisites</h2>
-				</a>
-				<p>Download and install Node.js and npm <a href="https://nodejs.org/en/download/">here</a>.
-				​</p>
-				<blockquote>
-					<p><strong>Note:</strong> Only Node.js versions 16, 18, and 20 are supported. Other versions can cause unexpected results. To use a different version of Node.js for other projects, you can manage multiple versions of Node.js with <a href="https://github.com/nvm-sh/nvm">nvm</a>. ​</p>
-				</blockquote>
-				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
-					<h2>Installation</h2>
-				</a>
-				<p>Use npm to install the Commerce SDK.
-				​</p>
-				<pre><code>npm <span class="hljs-keyword">install</span> commerce-sdk</code></pre>
-				<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
-					<h2>Usage</h2>
-				</a>
-				<p>To use an SDK client, instantiate an object of that client and configure these parameters.</p>
-				<blockquote>
-					<p><strong>Note:</strong> These are optional parameters.</p>
-				</blockquote>
-				<table>
-					<thead>
-						<tr>
-							<th>Parameter</th>
-							<th align="left">Description</th>
-						</tr>
-					</thead>
-					<tbody><tr>
-							<td>baseUri</td>
-							<td align="left">URL of the service with which the SDK interacts. If the baseUri isn&#39;t provided, the default baseUri for the relevant RAML file is used.</td>
-						</tr>
-						<tr>
-							<td>clientId</td>
-							<td align="left">ID of the client account created with Salesforce Commerce.</td>
-						</tr>
-						<tr>
-							<td>organizationId</td>
-							<td align="left">The unique identifier for your Salesforce identity.</td>
-						</tr>
-						<tr>
-							<td>shortCode</td>
-							<td align="left">Region specific merchant ID.</td>
-						</tr>
-						<tr>
-							<td>siteId</td>
-							<td align="left">A unique site ID (for example, RefArch or SiteGenesis).</td>
-						</tr>
-				</tbody></table>
-				<a href="#sample-code" id="sample-code" style="color: inherit; text-decoration: none;">
-					<h3>Sample Code</h3>
-				</a>
-				<pre><code class="language-javascript"><span class="hljs-comment">/**
- * Sample TypeScript code that shows how Commerce SDK can access Salesforce Commerce
- * APIs.
- * 
- * For more information, see [Get started with Salesforce Commerce B2C APIs](https://developer.salesforce.com/docs/commerce/commerce-api/guide/get-started.html).
- */</span>
+<!DOCTYPE html><html class="default" lang="en" data-base="./"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>commerce-sdk</title><meta name="description" content="Documentation for commerce-sdk"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script defer src="assets/main.js"></script><script async src="assets/icons.js" id="tsd-icons-script"></script><script async src="assets/search.js" id="tsd-search-script"></script><script async src="assets/navigation.js" id="tsd-nav-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><a href="index.html" class="title">commerce-sdk</a><div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/><ul role="listbox" id="tsd-search-results"></ul><div id="tsd-search-status" aria-live="polite" aria-atomic="true"><div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-menu"></use></svg></a></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><h1>commerce-sdk</h1></div><div class="tsd-panel tsd-typography"><h1 id="commerce-sdk" class="tsd-anchor-link">commerce-sdk<a href="#commerce-sdk" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1><p>The Salesforce Commerce SDK allows easy interaction with the Salesforce B2C Commerce platform APIs on the Node.js runtime.  For a more lightweight SDK, which works in a browser and Node.js for the shopper experience, see <a href="https://github.com/SalesforceCommerceCloud/commerce-sdk-isomorphic">our Isomorphic SDK</a></p>
+<p>Visit the <a href="https://developer.salesforce.com/developer-centers/commerce-cloud">Commerce Cloud Developer Center</a> to learn more about Salesforce Commerce. The developer center has API documentation, getting started guides, community forums, and more.
+​</p>
+<h2 id="documentation" class="tsd-anchor-link">Documentation<a href="#documentation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>An auto-generated <a href="https://salesforcecommercecloud.github.io/commerce-sdk/">documentation site</a> provides comprehensive reference for all available endpoints and types across API classes. Following the v5.0.0 release, the underlying SDK file structure has been reorganized, introducing additional layers of imports/exports that may affect navigation.</p>
+<h3 id="navigating-the-documentation" class="tsd-anchor-link">Navigating the Documentation<a href="#navigating-the-documentation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p><strong>For API Classes:</strong></p>
+<ol>
+<li><strong>Accessing API Classes:</strong> Click on the API class name (e.g., <code>shopperProducts</code>) on the right hand side</li>
+<li><strong>Viewing Endpoints:</strong> Scroll to the <code>Classes</code> section and click the corresponding API class link (e.g., <code>ShopperProducts</code>) to see available endpoints and their parameters</li>
+<li><strong>Type Definitions:</strong> Scroll to the <code>Type aliases</code> section for available types</li>
+</ol>
+<p><strong>Utility Classes:</strong> Utility classes and methods such as <code>clientConfig</code> and <code>helpers</code> maintain the same structure as previous versions.</p>
+<p><strong>NOTES:</strong></p>
+<ol>
+<li>
+<p><strong>Type Access</strong>: API class types are accessible through the <code>&lt;api_class&gt;Types</code> namespace (e.g., <code>ShopperProductsTypes</code>). Individual types can be accessed as <code>ShopperProductsTypes.Product</code>.</p>
+</li>
+<li>
+<p><strong>Type References</strong>: The <code>References</code> section under API classes in the generated documentation may show duplicate entries. This occurs because types are exported both at their original definition and under the API class namespace. Both references point to the same underlying type definition.</p>
+</li>
+</ol>
+<h2 id="warning-planned-api-changes-warning" class="tsd-anchor-link">:warning: Planned API Changes :warning:<a href="#warning-planned-api-changes-warning" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><h3 id="shopper-context" class="tsd-anchor-link">Shopper Context<a href="#shopper-context" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Starting July 31st 2024, all endpoints in the Shopper context API will require the <code>siteId</code> parameter for new customers. This field is marked as optional for backward compatibility and will be changed to mandatory tentatively by January 2025. You can read more about the planned change <a href="https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-context?meta=Summary">here</a> in the notes section.</p>
+<h3 id="shopper-login-slas" class="tsd-anchor-link">Shopper Login (SLAS)<a href="#shopper-login-slas" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>SLAS will soon require new tenants to pass <code>channel_id</code> as an argument for retrieving guest access tokens. You can read more about the planned change <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas.html#guest-tokens">here</a>.</p>
+<p>Please be aware that existing tenants are on a temporary allow list and will see no immediate disruption to service.  We do ask that all users seek to adhere to the <code>channel_id</code> requirement before the end of August to enhance your security posture before the holiday peak season.</p>
+<p>In practice, we recommend that customers using the SLAS helper functions upgrade to <code>v4.0.0</code> of the <code>commerce-sdk</code>.</p>
+<h2 id="warning-planned-sdk-changes-warning" class="tsd-anchor-link">:warning: Planned SDK Changes :warning:<a href="#warning-planned-sdk-changes-warning" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><h3 id="encoding-path-parameters" class="tsd-anchor-link">Encoding path parameters<a href="#encoding-path-parameters" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>In the next major version release, the SDK will encode special characters (UTF-8 based on SCAPI guidelines) in path parameters by default. Please see the <a href="#encoding-special-characters">Encoding special characters</a> section for more details.</p>
+<h2 id="prerequisites" class="tsd-anchor-link">Prerequisites<a href="#prerequisites" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Download and install Node.js and npm <a href="https://nodejs.org/en/download/">here</a>.
+​</p>
+<blockquote>
+<p><strong>Note:</strong> Only Node.js versions 16, 18, and 20 are supported. Other versions can cause unexpected results. To use a different version of Node.js for other projects, you can manage multiple versions of Node.js with <a href="https://github.com/nvm-sh/nvm">nvm</a>. ​</p>
+</blockquote>
+<h2 id="installation" class="tsd-anchor-link">Installation<a href="#installation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Use npm to install the Commerce SDK.
+​</p>
+<pre><code><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-0">install</span><span class="hl-1"> </span><span class="hl-0">commerce</span><span class="hl-1">-</span><span class="hl-0">sdk</span>
+</code><button>Copy</button></pre>
 
-<span class="hljs-comment">// Import the SDK in TypeScript</span>
-<span class="hljs-comment">// tsc requires the --esModuleInterop flag for this</span>
-<span class="hljs-keyword">import</span> { Search, Customer, helpers, slasHelpers } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
-<span class="hljs-comment">// Older Node.js versions can instead use:</span>
-<span class="hljs-comment">// const { ClientConfig, helpers, slasHelpers Search } = require(&quot;commerce-sdk&quot;);</span>
+<h2 id="usage" class="tsd-anchor-link">Usage<a href="#usage" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>To use an SDK client, instantiate an object of that client and configure these parameters.</p>
+<blockquote>
+<p><strong>Note:</strong> These are optional parameters.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>baseUri</td>
+<td style="text-align:left">URL of the service with which the SDK interacts. If the baseUri isn't provided, the default baseUri for the relevant RAML file is used.</td>
+</tr>
+<tr>
+<td>clientId</td>
+<td style="text-align:left">ID of the client account created with Salesforce Commerce.</td>
+</tr>
+<tr>
+<td>organizationId</td>
+<td style="text-align:left">The unique identifier for your Salesforce identity.</td>
+</tr>
+<tr>
+<td>shortCode</td>
+<td style="text-align:left">Region specific merchant ID.</td>
+</tr>
+<tr>
+<td>siteId</td>
+<td style="text-align:left">A unique site ID (for example, RefArch or SiteGenesis).</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sample-code" class="tsd-anchor-link">Sample Code<a href="#sample-code" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><pre><code class="javascript"><span class="hl-2">/**</span><br/><span class="hl-2"> * Sample TypeScript code that shows how Commerce SDK can access Salesforce Commerce</span><br/><span class="hl-2"> * APIs.</span><br/><span class="hl-2"> * </span><br/><span class="hl-2"> * For more information, see [Get started with Salesforce Commerce B2C APIs](https://developer.salesforce.com/docs/commerce/commerce-api/guide/get-started.html).</span><br/><span class="hl-2"> */</span><br/><br/><span class="hl-2">// Import the SDK in TypeScript</span><br/><span class="hl-2">// tsc requires the --esModuleInterop flag for this</span><br/><span class="hl-2">// Starting in v5, API classes will no longer be namespaced under API family</span><br/><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-0">ShopperSearch</span><span class="hl-1">, </span><span class="hl-0">ShopperLogin</span><span class="hl-1">, </span><span class="hl-0">helpers</span><span class="hl-1">, </span><span class="hl-0">slasHelpers</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-4">&quot;commerce-sdk&quot;</span><span class="hl-1">;</span><br/><span class="hl-2">// Older Node.js versions can instead use:</span><br/><span class="hl-2">// const { ClientConfig, helpers, slasHelpers Search } = require(&quot;commerce-sdk&quot;);</span><br/><br/><span class="hl-2">// Types for each individual API can be imported as &lt;api_name&gt;Types starting in v5</span><br/><span class="hl-3">import</span><span class="hl-1"> </span><span class="hl-3">type</span><span class="hl-1"> { </span><span class="hl-0">ShopperLoginTypes</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-4">&quot;commerce-sdk&quot;</span><br/><br/><span class="hl-2">// demo client credentials, if you have access to your own please replace them below.</span><br/><span class="hl-2">// do not store client secret as plaintext. Store it in a secure location.</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">CLIENT_ID</span><span class="hl-1"> = </span><span class="hl-4">&quot;da422690-7800-41d1-8ee4-3ce983961078&quot;</span><span class="hl-1">;</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">CLIENT_SECRET</span><span class="hl-1"> = </span><span class="hl-4">&quot;D*HHUrgO2%qADp2JTIUi&quot;</span><span class="hl-1">;</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">ORG_ID</span><span class="hl-1"> = </span><span class="hl-4">&quot;f_ecom_zzte_053&quot;</span><span class="hl-1">;</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">SHORT_CODE</span><span class="hl-1"> = </span><span class="hl-4">&quot;kv7kzm78&quot;</span><span class="hl-1">;</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">SITE_ID</span><span class="hl-1"> = </span><span class="hl-4">&quot;RefArch&quot;</span><span class="hl-1">;</span><br/><br/><span class="hl-2">// client configuration parameters</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">config</span><span class="hl-1"> = {</span><br/><span class="hl-1">  </span><span class="hl-0">headers:</span><span class="hl-1"> {},</span><br/><span class="hl-1">  </span><span class="hl-0">parameters:</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-0">clientId:</span><span class="hl-1"> </span><span class="hl-6">CLIENT_ID</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">organizationId:</span><span class="hl-1"> </span><span class="hl-6">ORG_ID</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">shortCode:</span><span class="hl-1"> </span><span class="hl-6">SHORT_CODE</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">siteId:</span><span class="hl-1"> </span><span class="hl-6">SITE_ID</span><span class="hl-1">,</span><br/><span class="hl-1">  },</span><br/><span class="hl-1">};</span><br/><br/><span class="hl-2">/**</span><br/><span class="hl-2"> * Get the shopper or guest JWT/access token, along with a refresh token, using client credentials</span><br/><span class="hl-2"> *</span><br/><span class="hl-2"> * </span><span class="hl-5">@returns</span><span class="hl-2"> guest user authorization token</span><br/><span class="hl-2"> */</span><br/><span class="hl-5">async</span><span class="hl-1"> </span><span class="hl-5">function</span><span class="hl-1"> </span><span class="hl-7">getGuestUserAuthToken</span><span class="hl-1">(): </span><span class="hl-8">Promise</span><span class="hl-1">&lt;</span><span class="hl-8">ShopperLoginTypes</span><span class="hl-1">.</span><span class="hl-8">TokenResponse</span><span class="hl-1">&gt; {</span><br/><span class="hl-1">  </span><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">base64data</span><span class="hl-1"> = </span><span class="hl-0">Buffer</span><span class="hl-1">.</span><span class="hl-7">from</span><span class="hl-1">(</span><span class="hl-4">`</span><span class="hl-5">${</span><span class="hl-6">CLIENT_ID</span><span class="hl-5">}</span><span class="hl-4">:</span><span class="hl-5">${</span><span class="hl-6">CLIENT_SECRET</span><span class="hl-5">}</span><span class="hl-4">`</span><span class="hl-1">).</span><span class="hl-7">toString</span><span class="hl-1">(</span><span class="hl-4">&quot;base64&quot;</span><span class="hl-1">);</span><br/><span class="hl-1">  </span><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">headers</span><span class="hl-1"> = { </span><span class="hl-0">Authorization:</span><span class="hl-1"> </span><span class="hl-4">`Basic </span><span class="hl-5">${</span><span class="hl-0">base64data</span><span class="hl-5">}</span><span class="hl-4">`</span><span class="hl-1"> };</span><br/><span class="hl-1">  </span><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">loginClient</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-7">ShopperLogin</span><span class="hl-1">(</span><span class="hl-0">config</span><span class="hl-1">);</span><br/><br/><span class="hl-1">  </span><span class="hl-3">return</span><span class="hl-1"> </span><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">loginClient</span><span class="hl-1">.</span><span class="hl-7">getAccessToken</span><span class="hl-1">({</span><br/><span class="hl-1">    </span><span class="hl-0">headers</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">body:</span><span class="hl-1"> { </span><span class="hl-0">grant_type:</span><span class="hl-1"> </span><span class="hl-4">&quot;client_credentials&quot;</span><span class="hl-1"> },</span><br/><span class="hl-1">  });</span><br/><span class="hl-1">}</span><br/><br/><span class="hl-2">// Alternatively you may use the SLAS helper functions to generate JWT/access token</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">guestTokenResponse</span><span class="hl-1"> = </span><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">slasHelpers</span><span class="hl-1">.</span><span class="hl-7">loginGuestUser</span><span class="hl-1">(</span><br/><span class="hl-1">    </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">Customer</span><span class="hl-1">.</span><span class="hl-7">ShopperLogin</span><span class="hl-1">(</span><span class="hl-0">config</span><span class="hl-1">), </span><br/><span class="hl-1">    { </span><span class="hl-0">redirectURI:</span><span class="hl-1"> </span><span class="hl-4">&#39;http://localhost:3000/callback&#39;</span><span class="hl-1"> }</span><br/><span class="hl-1">  )</span><br/><span class="hl-1">  .</span><span class="hl-7">then</span><span class="hl-1">((</span><span class="hl-0">guestTokenResponse</span><span class="hl-1">) </span><span class="hl-5">=&gt;</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-7">log</span><span class="hl-1">(</span><span class="hl-4">&quot;Guest Token Response: &quot;</span><span class="hl-1">, </span><span class="hl-0">guestTokenResponse</span><span class="hl-1">);</span><br/><span class="hl-1">    </span><span class="hl-3">return</span><span class="hl-1"> </span><span class="hl-0">guestTokenResponse</span><span class="hl-1">;</span><br/><span class="hl-1">  })</span><br/><span class="hl-1">  .</span><span class="hl-7">catch</span><span class="hl-1">(</span><span class="hl-0">error</span><span class="hl-1"> </span><span class="hl-5">=&gt;</span><span class="hl-1"> </span><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-7">log</span><span class="hl-1">(</span><span class="hl-4">&quot;Error fetching token for guest login: &quot;</span><span class="hl-1">, </span><span class="hl-0">error</span><span class="hl-1">));</span><br/><br/><span class="hl-2">// Get a JWT to use with Shopper API clients</span><br/><span class="hl-7">getGuestUserAuthToken</span><span class="hl-1">().</span><span class="hl-7">then</span><span class="hl-1">(</span><span class="hl-5">async</span><span class="hl-1"> (</span><span class="hl-0">token</span><span class="hl-1">) </span><span class="hl-5">=&gt;</span><span class="hl-1"> {</span><br/><span class="hl-1">  </span><span class="hl-2">// Add the token to the client configuration</span><br/><span class="hl-1">  </span><span class="hl-0">config</span><span class="hl-1">.</span><span class="hl-0">headers</span><span class="hl-1">[</span><span class="hl-4">&quot;authorization&quot;</span><span class="hl-1">] = </span><span class="hl-4">`Bearer </span><span class="hl-5">${</span><span class="hl-0">token</span><span class="hl-9">.</span><span class="hl-0">access_token</span><span class="hl-5">}</span><span class="hl-4">`</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">searchClient</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-7">ShopperSearch</span><span class="hl-1">(</span><span class="hl-0">config</span><span class="hl-1">);</span><br/><br/><span class="hl-1">  </span><span class="hl-2">// Search for dresses</span><br/><span class="hl-1">  </span><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">searchResults</span><span class="hl-1"> = </span><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">searchClient</span><span class="hl-1">.</span><span class="hl-7">productSearch</span><span class="hl-1">({</span><br/><span class="hl-1">    </span><span class="hl-0">parameters:</span><span class="hl-1"> { </span><span class="hl-0">q:</span><span class="hl-1"> </span><span class="hl-4">&quot;dress&quot;</span><span class="hl-1">, </span><span class="hl-0">limit:</span><span class="hl-1"> </span><span class="hl-10">5</span><span class="hl-1"> }</span><br/><span class="hl-1">  });</span><br/><br/><span class="hl-1">  </span><span class="hl-3">if</span><span class="hl-1"> (</span><span class="hl-0">searchResults</span><span class="hl-1">.</span><span class="hl-0">total</span><span class="hl-1">) {</span><br/><span class="hl-1">    </span><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">firstResult</span><span class="hl-1"> = </span><span class="hl-0">searchResults</span><span class="hl-1">.</span><span class="hl-0">hits</span><span class="hl-1">[</span><span class="hl-10">0</span><span class="hl-1">];</span><br/><span class="hl-1">    </span><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-7">log</span><span class="hl-1">(</span><span class="hl-4">`</span><span class="hl-5">${</span><span class="hl-0">firstResult</span><span class="hl-9">.</span><span class="hl-0">productId</span><span class="hl-5">}</span><span class="hl-4"> </span><span class="hl-5">${</span><span class="hl-0">firstResult</span><span class="hl-9">.</span><span class="hl-0">productName</span><span class="hl-5">}</span><span class="hl-4">`</span><span class="hl-1">);</span><br/><span class="hl-1">  } </span><span class="hl-3">else</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-7">log</span><span class="hl-1">(</span><span class="hl-4">&quot;No results for search&quot;</span><span class="hl-1">);</span><br/><span class="hl-1">  }</span><br/><br/><span class="hl-1">  </span><span class="hl-3">return</span><span class="hl-1"> </span><span class="hl-0">searchResults</span><span class="hl-1">;</span><br/><span class="hl-1">}).</span><span class="hl-7">catch</span><span class="hl-1">(</span><span class="hl-5">async</span><span class="hl-1"> (</span><span class="hl-0">e</span><span class="hl-1">) </span><span class="hl-5">=&gt;</span><span class="hl-1"> {</span><br/><span class="hl-1">  </span><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-7">error</span><span class="hl-1">(</span><span class="hl-0">e</span><span class="hl-1">);</span><br/><span class="hl-1">  </span><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-7">error</span><span class="hl-1">(</span><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">e</span><span class="hl-1">.</span><span class="hl-0">response</span><span class="hl-1">.</span><span class="hl-7">text</span><span class="hl-1">());</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
 
-<span class="hljs-comment">// demo client credentials, if you have access to your own please replace them below.</span>
-<span class="hljs-comment">// do not store client secret as plaintext. Store it in a secure location.</span>
-<span class="hljs-keyword">const</span> CLIENT_ID = <span class="hljs-string">&quot;da422690-7800-41d1-8ee4-3ce983961078&quot;</span>;
-<span class="hljs-keyword">const</span> CLIENT_SECRET = <span class="hljs-string">&quot;D*HHUrgO2%qADp2JTIUi&quot;</span>;
-<span class="hljs-keyword">const</span> ORG_ID = <span class="hljs-string">&quot;f_ecom_zzte_053&quot;</span>;
-<span class="hljs-keyword">const</span> SHORT_CODE = <span class="hljs-string">&quot;kv7kzm78&quot;</span>;
-<span class="hljs-keyword">const</span> SITE_ID = <span class="hljs-string">&quot;RefArch&quot;</span>;
+<h3 id="slas-helpers" class="tsd-anchor-link">SLAS helpers<a href="#slas-helpers" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>The SDK includes helper functions to help developers easily onboard SLAS onto their applications to assist with authentication. A brief example is shown in the sample code above. The SLAS helpers offer both public and private client functions, the main difference being the private client functions require a <code>client_secret</code>. Code examples on how to use the different functions can be found the in the <a href="https://github.com/SalesforceCommerceCloud/commerce-sdk/tree/main/examples">examples</a> folder (examples 05 and 06). More information about SLAS and public/private client flows can be found <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas.html">here</a>.</p>
+<h3 id="error-handling" class="tsd-anchor-link">Error Handling<a href="#error-handling" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>SDK methods return an appropriate object by default when the API call returns a successful response. The object is built from the body of the response. If the API response is not successful, an Error is thrown. The error message is set to the status code plus the status text. The Error object includes a custom 'response' attribute with the entire Response object for inspection.</p>
+<pre><code class="typescript"><span class="hl-1">  </span><span class="hl-3">try</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">productClient</span><span class="hl-1">.</span><span class="hl-7">getProduct</span><span class="hl-1">({</span><br/><span class="hl-1">      </span><span class="hl-0">parameters:</span><span class="hl-1"> {</span><br/><span class="hl-1">        </span><span class="hl-0">id:</span><span class="hl-1"> </span><span class="hl-4">&quot;non-existant-id&quot;</span><br/><span class="hl-1">      }</span><br/><span class="hl-1">    });</span><br/><span class="hl-1">  } </span><span class="hl-3">catch</span><span class="hl-1"> (</span><span class="hl-0">e</span><span class="hl-1">) {</span><br/><span class="hl-1">    </span><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-7">error</span><span class="hl-1">(</span><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">e</span><span class="hl-1">.</span><span class="hl-0">response</span><span class="hl-1">.</span><span class="hl-7">text</span><span class="hl-1">());</span><br/><span class="hl-1">  }</span>
+</code><button type="button">Copy</button></pre>
 
-<span class="hljs-comment">// client configuration parameters</span>
-<span class="hljs-keyword">const</span> config = {
-  <span class="hljs-attr">headers</span>: {},
-  <span class="hljs-attr">parameters</span>: {
-    <span class="hljs-attr">clientId</span>: CLIENT_ID,
-    <span class="hljs-attr">organizationId</span>: ORG_ID,
-    <span class="hljs-attr">shortCode</span>: SHORT_CODE,
-    <span class="hljs-attr">siteId</span>: SITE_ID,
-  },
-};
+<pre><code class="json"><span class="hl-1">{</span><br/><span class="hl-1">  </span><span class="hl-11">&quot;title&quot;</span><span class="hl-1">: </span><span class="hl-4">&quot;Product Not Found&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-11">&quot;type&quot;</span><span class="hl-1">: </span><span class="hl-4">&quot;https://api.commercecloud.salesforce.com/documentation/error/v1/errors/product-not-found&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-11">&quot;detail&quot;</span><span class="hl-1">: </span><span class="hl-4">&quot;No product with ID &#39;non-existant-id&#39; for site &#39;RefArch&#39; could be found.&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-11">&quot;productId&quot;</span><span class="hl-1">: </span><span class="hl-4">&quot;non-existant-id&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-11">&quot;siteId&quot;</span><span class="hl-1">: </span><span class="hl-4">&quot;RefArch&quot;</span><br/><span class="hl-1">}</span>
+</code><button type="button">Copy</button></pre>
 
-<span class="hljs-comment">/**
- * Get the shopper or guest JWT/access token, along with a refresh token, using client credentials
- *
- * <span class="hljs-doctag">@returns </span>guest user authorization token
- */</span>
-<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getGuestUserAuthToken</span>(<span class="hljs-params"></span>): <span class="hljs-title">Promise</span>&lt;<span class="hljs-title">Customer</span>.<span class="hljs-title">ShopperLogin</span>.<span class="hljs-title">TokenResponse</span>&gt; </span>{
-  <span class="hljs-keyword">const</span> base64data = Buffer.from(<span class="hljs-string">`<span class="hljs-subst">${CLIENT_ID}</span>:<span class="hljs-subst">${CLIENT_SECRET}</span>`</span>).toString(<span class="hljs-string">&quot;base64&quot;</span>);
-  <span class="hljs-keyword">const</span> headers = { <span class="hljs-attr">Authorization</span>: <span class="hljs-string">`Basic <span class="hljs-subst">${base64data}</span>`</span> };
-  <span class="hljs-keyword">const</span> loginClient = <span class="hljs-keyword">new</span> Customer.ShopperLogin(config);
+<h3 id="autocompletion" class="tsd-anchor-link">Autocompletion<a href="#autocompletion" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>When using an IDE such as VSCode, the autocomplete feature lets you view the available method and class definitions, including parameters.
+​</p>
+<p><img src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/main/images/Autocomplete.jpg?raw=true" alt="Autocomplete" title="Autocomplete"></p>
+<p>To view the details of a method or a variable, hover over methods and variables.
+​</p>
+<p><img src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/main/images/MethodDetails.jpg?raw=true" alt="Method Details" title="Method Details"></p>
+<p><img src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/main/images/ParameterDetails.jpg?raw=true" alt="Parameter Details" title="Parameter Details"></p>
+<p>Autocomplete also shows the available properties of the data returned by SDK methods.</p>
+<p><img src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/main/images/ResultAutocomplete.jpg?raw=true" alt="Result Autocomplete" title="Result Autocomplete"></p>
+<h3 id="fetch-options" class="tsd-anchor-link">Fetch Options<a href="#fetch-options" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Fetch options are able to be passed on to modify the behavior of the fetch call. There are two ways to pass on fetch options:</p>
+<ol>
+<li>Through the client config</li>
+</ol>
+<pre><code class="javascript"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">config</span><span class="hl-1"> = {</span><br/><span class="hl-1">    </span><span class="hl-0">parameters:</span><span class="hl-1"> {</span><br/><span class="hl-1">        </span><span class="hl-0">clientId:</span><span class="hl-1"> </span><span class="hl-6">CLIENT_ID</span><span class="hl-1">,</span><br/><span class="hl-1">        </span><span class="hl-0">organizationId:</span><span class="hl-1"> </span><span class="hl-6">ORG_ID</span><span class="hl-1">,</span><br/><span class="hl-1">        </span><span class="hl-0">shortCode:</span><span class="hl-1"> </span><span class="hl-6">SHORT_CODE</span><span class="hl-1">,</span><br/><span class="hl-1">        </span><span class="hl-0">siteId:</span><span class="hl-1"> </span><span class="hl-6">SITE_ID</span><span class="hl-1">,</span><br/><span class="hl-1">    },</span><br/><span class="hl-1">    </span><span class="hl-0">fetchOptions:</span><span class="hl-1"> {</span><br/><span class="hl-1">        </span><span class="hl-0">redirect:</span><span class="hl-1"> </span><span class="hl-4">&quot;error&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">    }</span><br/><span class="hl-1">}</span>
+</code><button type="button">Copy</button></pre>
 
-  <span class="hljs-keyword">return</span> <span class="hljs-keyword">await</span> loginClient.getAccessToken({
-    headers,
-    <span class="hljs-attr">body</span>: { <span class="hljs-attr">grant_type</span>: <span class="hljs-string">&quot;client_credentials&quot;</span> },
-  });
-}
+<ol start="2">
+<li>Through the SDK function call</li>
+</ol>
+<pre><code class="javascript"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">client</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-7">ShopperLogin</span><span class="hl-1">(</span><span class="hl-0">config</span><span class="hl-1">);</span><br/><br/><span class="hl-0">client</span><span class="hl-1">.</span><span class="hl-7">authorizeCustomer</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-0">headers:</span><span class="hl-1"> { ... },</span><br/><span class="hl-1">  </span><span class="hl-0">body:</span><span class="hl-1"> { ... },</span><br/><span class="hl-1">  </span><span class="hl-0">fetchOptions:</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-0">redirect:</span><span class="hl-1"> </span><span class="hl-4">&quot;manual&quot;</span><br/><span class="hl-1">  }</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
 
-<span class="hljs-comment">// Alternatively you may use the SLAS helper functions to generate JWT/access token</span>
-<span class="hljs-keyword">const</span> guestTokenResponse = <span class="hljs-keyword">await</span> slasHelpers.loginGuestUser(
-    <span class="hljs-keyword">new</span> Customer.ShopperLogin(config), 
-    { <span class="hljs-attr">redirectURI</span>: <span class="hljs-string">&#x27;http://localhost:3000/callback&#x27;</span> }
-  )
-  .then(<span class="hljs-function">(<span class="hljs-params">guestTokenResponse</span>) =&gt;</span> {
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;Guest Token Response: &quot;</span>, guestTokenResponse);
-    <span class="hljs-keyword">return</span> guestTokenResponse;
-  })
-  .catch(<span class="hljs-function"><span class="hljs-params">error</span> =&gt;</span> <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;Error fetching token for guest login: &quot;</span>, error));
+<p>If both the client config and the function call define the same fetch option with different values, the fetch option value for the function call will take priority. In the examples above, both pass in the <code>redirect</code> fetch option with different values, however, <code>redirect: &quot;manual&quot;</code> will take precedence because it was passed on the function call level.</p>
+<h3 id="custom-query-parameters" class="tsd-anchor-link">Custom Query Parameters<a href="#custom-query-parameters" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>With the introduction of <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html">hooks for Commerce APIs</a>, customers can pass custom query parameters through the SDK to be used in their custom hook. Custom query parameters must begin with <code>c_</code>:</p>
+<pre><code class="javascript"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">searchResults</span><span class="hl-1"> = </span><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">searchClient</span><span class="hl-1">.</span><span class="hl-7">productSearch</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-0">parameters:</span><span class="hl-1"> { </span><br/><span class="hl-1">    </span><span class="hl-0">q:</span><span class="hl-1"> </span><span class="hl-4">&quot;dress&quot;</span><span class="hl-1">, </span><br/><span class="hl-1">    </span><span class="hl-0">limit:</span><span class="hl-1"> </span><span class="hl-10">5</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">c_paramkey:</span><span class="hl-1"> </span><span class="hl-4">&#39;&lt;param-value&gt;&#39;</span><br/><span class="hl-1">  }</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
 
-<span class="hljs-comment">// Get a JWT to use with Shopper API clients</span>
-getGuestUserAuthToken().then(<span class="hljs-keyword">async</span> (token) =&gt; {
-  <span class="hljs-comment">// Add the token to the client configuration</span>
-  config.headers[<span class="hljs-string">&quot;authorization&quot;</span>] = <span class="hljs-string">`Bearer <span class="hljs-subst">${token.access_token}</span>`</span>;
+<p>Invalid query parameters that are not a part of the API and do not follow the <code>c_</code> custom query parameter convention will be filtered from the request and a warning will be displayed.</p>
+<h3 id="custom-apis" class="tsd-anchor-link">Custom APIs<a href="#custom-apis" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>The SDK supports calling <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/custom-apis.html">custom APIs</a> with a helper function, <code>customApiHelper.callCustomEndpoint()</code>.</p>
+<p>Example usage:</p>
+<pre><code class="javascript"><span class="hl-3">import</span><span class="hl-1"> </span><span class="hl-5">*</span><span class="hl-1"> </span><span class="hl-3">as</span><span class="hl-1"> </span><span class="hl-0">CommerceSdk</span><span class="hl-1"> </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-4">&quot;commerce-sdk&quot;</span><span class="hl-1">;</span><br/><span class="hl-5">const</span><span class="hl-1"> { </span><span class="hl-6">helpers</span><span class="hl-1"> } = </span><span class="hl-0">CommerceSdk</span><span class="hl-1">;</span><br/><br/><span class="hl-2">// client configuration parameters</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">clientConfigExample</span><span class="hl-1"> = {</span><br/><span class="hl-1">  </span><span class="hl-0">parameters:</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-0">clientId:</span><span class="hl-1"> </span><span class="hl-4">&#39;&lt;your-client-id&gt;&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">organizationId:</span><span class="hl-1"> </span><span class="hl-4">&#39;&lt;your-org-id&gt;&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">shortCode:</span><span class="hl-1"> </span><span class="hl-4">&#39;&lt;your-short-code&gt;&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">siteId:</span><span class="hl-1"> </span><span class="hl-4">&#39;&lt;your-site-id&gt;&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">  },</span><br/><span class="hl-1">  </span><span class="hl-2">// If not provided, it&#39;ll use the default production URI:</span><br/><span class="hl-1">  </span><span class="hl-2">// &#39;https://{shortCode}.api.commercecloud.salesforce.com/custom/{apiName}/{apiVersion}&#39;</span><br/><span class="hl-1">  </span><span class="hl-2">// path parameters should be wrapped in curly braces like the default production URI</span><br/><span class="hl-1">  </span><span class="hl-0">baseUri:</span><span class="hl-1"> </span><span class="hl-4">&#39;&lt;your-base-uri&gt;&#39;</span><br/><span class="hl-1">};</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">access_token</span><span class="hl-1"> = </span><span class="hl-4">&#39;&lt;INSERT_ACCESS_TOKEN_HERE&gt;&#39;</span><br/><br/><span class="hl-2">// Required params: apiName, endpointPath, shortCode, organizaitonId</span><br/><span class="hl-2">// Required path params can be passed into:</span><br/><span class="hl-2">// options.customApiPathParameters or clientConfig.parameters</span><br/><span class="hl-2">// customApiPathParameters will take priority for duplicate values</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">customApiArgs</span><span class="hl-1"> = { </span><br/><span class="hl-1">  </span><span class="hl-0">apiName:</span><span class="hl-1"> </span><span class="hl-4">&#39;loyalty-info&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-0">apiVersion:</span><span class="hl-1"> </span><span class="hl-4">&#39;v1&#39;</span><span class="hl-1">, </span><span class="hl-2">// defaults to v1 if not provided</span><br/><span class="hl-1">  </span><span class="hl-0">endpointPath:</span><span class="hl-1"> </span><span class="hl-4">&#39;customers&#39;</span><br/><span class="hl-1">}</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">getResponse</span><span class="hl-1"> = </span><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">helpers</span><span class="hl-1">.</span><span class="hl-7">callCustomEndpoint</span><span class="hl-1">({ </span><br/><span class="hl-1">  </span><span class="hl-0">options:</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-2">// http operation is defaulted to &#39;GET&#39; if not provided</span><br/><span class="hl-1">    </span><span class="hl-0">method:</span><span class="hl-1"> </span><span class="hl-4">&#39;GET&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">parameters:</span><span class="hl-1"> {</span><br/><span class="hl-1">      </span><span class="hl-0">queryParameter:</span><span class="hl-1"> </span><span class="hl-4">&#39;queryParameter1&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">    },</span><br/><span class="hl-1">    </span><span class="hl-0">headers:</span><span class="hl-1"> {</span><br/><span class="hl-1">      </span><span class="hl-2">// Content-Type is defaulted to application/json if not provided</span><br/><span class="hl-1">      </span><span class="hl-4">&#39;Content-type&#39;</span><span class="hl-0">:</span><span class="hl-1"> </span><span class="hl-4">&#39;application/json&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">      </span><span class="hl-0">authorization:</span><span class="hl-1"> </span><span class="hl-4">`Bearer </span><span class="hl-5">${</span><span class="hl-0">access_token</span><span class="hl-5">}</span><span class="hl-4">`</span><br/><span class="hl-1">    },</span><br/><span class="hl-1">    </span><span class="hl-0">customApiPathParameters:</span><span class="hl-1"> </span><span class="hl-0">customApiArgs</span><span class="hl-1">,</span><br/><span class="hl-1">  }, </span><br/><span class="hl-1">  </span><span class="hl-0">clientConfig:</span><span class="hl-1"> </span><span class="hl-0">clientConfigExample</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-2">// Flag to retrieve raw response or data from helper function</span><br/><span class="hl-1">  </span><span class="hl-0">rawResponse:</span><span class="hl-1"> </span><span class="hl-5">false</span><br/><span class="hl-1">})</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">postResponse</span><span class="hl-1"> = </span><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">customApiHelper</span><span class="hl-1">.</span><span class="hl-7">callCustomEndpoint</span><span class="hl-1">({ </span><br/><span class="hl-1">  </span><span class="hl-0">options:</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-0">method:</span><span class="hl-1"> </span><span class="hl-4">&#39;POST&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">headers:</span><span class="hl-1"> {</span><br/><span class="hl-1">      </span><span class="hl-0">authorization:</span><span class="hl-1"> </span><span class="hl-4">`Bearer </span><span class="hl-5">${</span><span class="hl-0">access_token</span><span class="hl-5">}</span><span class="hl-4">`</span><br/><span class="hl-1">    },</span><br/><span class="hl-1">    </span><span class="hl-0">customApiPathParameters:</span><span class="hl-1"> {</span><br/><span class="hl-1">      </span><span class="hl-0">apiVersion:</span><span class="hl-1"> </span><span class="hl-4">&#39;v1&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">      </span><span class="hl-0">endpointPath:</span><span class="hl-1"> </span><span class="hl-4">&#39;greeting&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">      </span><span class="hl-0">apiName:</span><span class="hl-1"> </span><span class="hl-4">&#39;e2e-tests&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">    },</span><br/><span class="hl-1">    </span><span class="hl-2">// When this flag is set to true, the request body will be automatically </span><br/><span class="hl-1">    </span><span class="hl-2">// formatted in the expected format set by the &#39;Content-type&#39; headers</span><br/><span class="hl-1">    </span><span class="hl-2">// &#39;application/json&#39; or &#39;application/x-www-form-urlencoded&#39;</span><br/><span class="hl-1">    </span><span class="hl-0">enableTransformBody:</span><span class="hl-1"> </span><span class="hl-5">true</span><span class="hl-1">,</span><br/><br/><span class="hl-1">    </span><span class="hl-2">// object can be passed since we have enableTransformBody set to true</span><br/><span class="hl-1">    </span><span class="hl-0">body:</span><span class="hl-1"> { </span><span class="hl-0">data:</span><span class="hl-1"> </span><span class="hl-4">&#39;data&#39;</span><span class="hl-1"> }</span><br/><span class="hl-1">    </span><span class="hl-2">// if enableTransformBody is not set to true,</span><br/><span class="hl-1">    </span><span class="hl-2">// we have to ensure the request body is correctly formatted</span><br/><span class="hl-1">    </span><span class="hl-2">// body: JSON.stringify({ data: &#39;data&#39; })</span><br/><span class="hl-1">  }, </span><br/><span class="hl-1">  </span><span class="hl-0">clientConfig:</span><span class="hl-1"> </span><span class="hl-0">clientConfigExample</span><span class="hl-1">, </span><br/><span class="hl-1">  </span><span class="hl-0">rawResponse:</span><span class="hl-1"> </span><span class="hl-5">false</span><br/><span class="hl-1">})</span><br/><br/><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-7">log</span><span class="hl-1">(</span><span class="hl-4">&#39;get response: &#39;</span><span class="hl-1">, </span><span class="hl-0">getResponse</span><span class="hl-1">)</span><br/><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-7">log</span><span class="hl-1">(</span><span class="hl-4">&#39;post response: &#39;</span><span class="hl-1">, </span><span class="hl-0">postResponse</span><span class="hl-1">)</span>
+</code><button type="button">Copy</button></pre>
 
-  <span class="hljs-keyword">const</span> searchClient = <span class="hljs-keyword">new</span> Search.ShopperSearch(config);
+<h3 id="encoding-special-characters" class="tsd-anchor-link">Encoding special characters<a href="#encoding-special-characters" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>The SDK currently single encodes special characters for query parameters in UTF-8 format based on SCAPI guidelines. However, the SDK does NOT encode path parameters, and will require the developer to encode any path parameters with special characters.</p>
+<p>Additionally, SCAPI has special characters that should be double encoded, specifically <code>%</code> and <code>,</code>:</p>
+<ul>
+<li><code>%</code> should always be double encoded</li>
+<li><code>,</code> should be double encoded when used as part of an ID/parameter string, and single encoded when used to differentiate items in a list</li>
+</ul>
+<p>There is a helper function called <code>encodeSCAPISpecialCharacters</code> that can be utilized to single encode the SCAPI special characters and no other special characters.</p>
+<p>Here's an example where the <code>getCategory/getCategories</code> endpoints are called with a <code>categoryID</code> with special characters:</p>
+<pre><code class="javascript"><span class="hl-3">import</span><span class="hl-1"> </span><span class="hl-5">*</span><span class="hl-1"> </span><span class="hl-3">as</span><span class="hl-1"> </span><span class="hl-0">CommerceSdk</span><span class="hl-1"> </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-4">&quot;commerce-sdk&quot;</span><span class="hl-1">;</span><br/><span class="hl-5">const</span><span class="hl-1"> { </span><span class="hl-6">helpers</span><span class="hl-1">, </span><span class="hl-6">Product</span><span class="hl-1"> } = </span><span class="hl-0">CommerceSdk</span><span class="hl-1">;</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">clientConfig</span><span class="hl-1"> = {</span><br/><span class="hl-1">  </span><span class="hl-0">parameters:</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-0">clientId:</span><span class="hl-1"> </span><span class="hl-4">&quot;&lt;your-client-id&gt;&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">organizationId:</span><span class="hl-1"> </span><span class="hl-4">&quot;&lt;your-org-id&gt;&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">shortCode:</span><span class="hl-1"> </span><span class="hl-4">&quot;&lt;your-short-code&gt;&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">siteId:</span><span class="hl-1"> </span><span class="hl-4">&quot;&lt;your-site-id&gt;&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  }</span><br/><span class="hl-1">};</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">shopperProducts</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">Product</span><span class="hl-1">.</span><span class="hl-7">ShopperProducts</span><span class="hl-1">({</span><br/><span class="hl-1">  ...</span><span class="hl-0">clientConfig</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-0">headers:</span><span class="hl-1"> {</span><span class="hl-0">authorization:</span><span class="hl-1"> </span><span class="hl-4">`Bearer &lt;insert_access_token&gt;`</span><span class="hl-1">}</span><br/><span class="hl-1">});</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">categoryId</span><span class="hl-1"> = </span><span class="hl-4">&quot;SpecialCharacter,%$^@&amp;$;()!123Category&quot;</span><span class="hl-1">;</span><br/><span class="hl-2">// &quot;SpecialCharacter%2C%25$^@&amp;$;()!123Category&quot;</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">scapiSpecialEncodedId</span><span class="hl-1"> = </span><span class="hl-0">helpers</span><span class="hl-1">.</span><span class="hl-7">encodeSCAPISpecialCharacters</span><span class="hl-1">(</span><span class="hl-0">categoryId</span><span class="hl-1">);</span><br/><br/><br/><span class="hl-2">// id is a path parameter for API call:</span><br/><span class="hl-2">// &lt;base-url&gt;/product/shopper-products/v1/organizations/{organizationId}/categories/{id}</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">categoryResult</span><span class="hl-1"> = </span><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">shopperProducts</span><span class="hl-1">.</span><span class="hl-7">getCategory</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-0">parameters:</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-2">// Path parameters are NOT encoded by the SDK, so we have to single encode special characters</span><br/><span class="hl-1">    </span><span class="hl-2">// and the SCAPI special characters will end up double encoded</span><br/><span class="hl-1">    </span><span class="hl-0">id:</span><span class="hl-1"> </span><span class="hl-7">encodeURIComponent</span><span class="hl-1">(</span><span class="hl-0">scapiSpecialEncodedId</span><span class="hl-1">),</span><br/><span class="hl-1">  }</span><br/><span class="hl-1">});</span><br/><br/><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-7">log</span><span class="hl-1">(</span><span class="hl-4">&quot;categoryResult: &quot;</span><span class="hl-1">, </span><span class="hl-0">categoryResult</span><span class="hl-1">);</span><br/><br/><span class="hl-2">// `ids` are a query parameter and comma delimited to separate category IDs</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">categoriesResult</span><span class="hl-1"> = </span><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">shopperProducts</span><span class="hl-1">.</span><span class="hl-7">getCategories</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-0">parameters:</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-2">// No need to use `encodeURIComponent` as query parameters are single encoded by the SDK</span><br/><span class="hl-1">    </span><span class="hl-2">// So the SCAPI special characters will end up double encoded as well</span><br/><span class="hl-1">    </span><span class="hl-2">// Commas that separate items in a list will end up single encoded</span><br/><span class="hl-1">    </span><span class="hl-0">ids:</span><span class="hl-1"> </span><span class="hl-4">`</span><span class="hl-5">${</span><span class="hl-0">scapiSpecialEncodedId</span><span class="hl-5">}</span><span class="hl-4">,</span><span class="hl-5">${</span><span class="hl-0">scapiSpecialEncodedId</span><span class="hl-5">}</span><span class="hl-4">`</span><span class="hl-1">,</span><br/><span class="hl-1">  }</span><br/><span class="hl-1">});</span><br/><br/><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-7">log</span><span class="hl-1">(</span><span class="hl-4">&quot;categoriesResult: &quot;</span><span class="hl-1">, </span><span class="hl-0">categoriesResult</span><span class="hl-1">);</span>
+</code><button type="button">Copy</button></pre>
 
-  <span class="hljs-comment">// Search for dresses</span>
-  <span class="hljs-keyword">const</span> searchResults = <span class="hljs-keyword">await</span> searchClient.productSearch({
-    <span class="hljs-attr">parameters</span>: { <span class="hljs-attr">q</span>: <span class="hljs-string">&quot;dress&quot;</span>, <span class="hljs-attr">limit</span>: <span class="hljs-number">5</span> }
-  });
+<p><strong>NOTE: In the next major version release, path parameters will be single encoded by default</strong></p>
+<h2 id="caching" class="tsd-anchor-link">Caching<a href="#caching" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>The SDK currently supports two types of caches - In-memory and Redis. Both the implementations respect <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control">standard cache headers</a>. To use another type of cache, write your own implementation of the <a href="https://github.com/SalesforceCommerceCloud/commerce-sdk-core/tree/main/src/base/cacheManager.ts">CacheManager</a>. See the <a href="https://github.com/SalesforceCommerceCloud/commerce-sdk-core/tree/main/src/base/cacheManagerKeyv.ts">default cache manager</a> to design your implementation.</p>
+<h3 id="cache-storage-adapter" class="tsd-anchor-link">Cache storage adapter<a href="#cache-storage-adapter" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>The default cache storage is limited to 10,000 distinct entities before applying a simple <a href="https://en.m.wikipedia.org/wiki/Cache_replacement_policies#Least_Recently_Used_.28LRU.29">least recently used</a> policy for cache replacement. The limit can be changed by creating a <a href="https://www.npmjs.com/package/quick-lru">quick-lru</a> storage adapter.</p>
+<pre><code class="javascript"><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-0">CacheManagerKeyv</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-4">&#39;@commerce-apps/core&#39;</span><span class="hl-1">;</span><br/><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-0">QuickLRU</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-4">&#39;quick-lru&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">cacheManagerKeyv</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-7">CacheManagerKeyv</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-0">keyvStore:</span><span class="hl-1"> </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-7">QuickLRU</span><span class="hl-1">({ </span><span class="hl-0">maxSize:</span><span class="hl-1"> </span><span class="hl-10">50000</span><span class="hl-1"> }),</span><br/><span class="hl-1">});</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">config</span><span class="hl-1"> = {</span><br/><span class="hl-1">  </span><span class="hl-0">cacheManager:</span><span class="hl-1"> </span><span class="hl-0">cacheManagerKeyv</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-0">parameters:</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-0">clientId:</span><span class="hl-1"> </span><span class="hl-4">&#39;&lt;your-client-id&gt;&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">organizationId:</span><span class="hl-1"> </span><span class="hl-4">&#39;&lt;your-org-id&gt;&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">shortCode:</span><span class="hl-1"> </span><span class="hl-4">&#39;&lt;your-short-code&gt;&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">siteId:</span><span class="hl-1"> </span><span class="hl-4">&#39;&lt;your-site-id&gt;&#39;</span><br/><span class="hl-1">  },</span><br/><span class="hl-1">};</span>
+</code><button type="button">Copy</button></pre>
 
-  <span class="hljs-keyword">if</span> (searchResults.total) {
-    <span class="hljs-keyword">const</span> firstResult = searchResults.hits[<span class="hljs-number">0</span>];
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`<span class="hljs-subst">${firstResult.productId}</span> <span class="hljs-subst">${firstResult.productName}</span>`</span>);
-  } <span class="hljs-keyword">else</span> {
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;No results for search&quot;</span>);
-  }
+<p>See these <a href="https://www.npmjs.com/package/keyv#third-party-storage-adapters">directions</a> to create a cache storage adapter.</p>
+<h3 id="in-memory-cache" class="tsd-anchor-link">In-memory cache<a href="#in-memory-cache" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>In-memory caching of responses is enabled by default. To disable caching for a client, set cacheManager to 'null'.</p>
+<pre><code class="javascript"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">config</span><span class="hl-1"> = {</span><br/><span class="hl-1">  </span><span class="hl-0">cacheManager:</span><span class="hl-1"> </span><span class="hl-5">null</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-0">parameters:</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-0">clientId:</span><span class="hl-1"> </span><span class="hl-4">&#39;&lt;your-client-id&gt;&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">organizationId:</span><span class="hl-1"> </span><span class="hl-4">&#39;&lt;your-org-id&gt;&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">shortCode:</span><span class="hl-1"> </span><span class="hl-4">&#39;&lt;your-short-code&gt;&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">siteId:</span><span class="hl-1"> </span><span class="hl-4">&#39;&lt;your-site-id&gt;&#39;</span><br/><span class="hl-1">  },</span><br/><span class="hl-1">};</span>
+</code><button type="button">Copy</button></pre>
 
-  <span class="hljs-keyword">return</span> searchResults;
-}).catch(<span class="hljs-keyword">async</span> (e) =&gt; {
-  <span class="hljs-built_in">console</span>.error(e);
-  <span class="hljs-built_in">console</span>.error(<span class="hljs-keyword">await</span> e.response.text());
-});</code></pre>
-				<a href="#slas-helpers" id="slas-helpers" style="color: inherit; text-decoration: none;">
-					<h3>SLAS helpers</h3>
-				</a>
-				<p>The SDK includes helper functions to help developers easily onboard SLAS onto their applications to assist with authentication. A brief example is shown in the sample code above. The SLAS helpers offer both public and private client functions, the main difference being the private client functions require a <code>client_secret</code>. Code examples on how to use the different functions can be found the in the <a href="https://github.com/SalesforceCommerceCloud/commerce-sdk/tree/main/examples">examples</a> folder (examples 05 and 06). More information about SLAS and public/private client flows can be found <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas.html">here</a>.</p>
-				<a href="#error-handling" id="error-handling" style="color: inherit; text-decoration: none;">
-					<h3>Error Handling</h3>
-				</a>
-				<p>SDK methods return an appropriate object by default when the API call returns a successful response. The object is built from the body of the response. If the API response is not successful, an Error is thrown. The error message is set to the status code plus the status text. The Error object includes a custom &#39;response&#39; attribute with the entire Response object for inspection.</p>
-				<pre><code class="language-typescript">  <span class="hljs-keyword">try</span> {
-    <span class="hljs-keyword">await</span> productClient.getProduct({
-      <span class="hljs-attr">parameters</span>: {
-        <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;non-existant-id&quot;</span>
-      }
-    });
-  } <span class="hljs-keyword">catch</span> (e) {
-    <span class="hljs-built_in">console</span>.error(<span class="hljs-keyword">await</span> e.response.text());
-  }</code></pre>
-				<pre><code class="language-json">{
-  <span class="hljs-attr">&quot;title&quot;</span>: <span class="hljs-string">&quot;Product Not Found&quot;</span>,
-  <span class="hljs-attr">&quot;type&quot;</span>: <span class="hljs-string">&quot;https://api.commercecloud.salesforce.com/documentation/error/v1/errors/product-not-found&quot;</span>,
-  <span class="hljs-attr">&quot;detail&quot;</span>: <span class="hljs-string">&quot;No product with ID &#x27;non-existant-id&#x27; for site &#x27;RefArch&#x27; could be found.&quot;</span>,
-  <span class="hljs-attr">&quot;productId&quot;</span>: <span class="hljs-string">&quot;non-existant-id&quot;</span>,
-  <span class="hljs-attr">&quot;siteId&quot;</span>: <span class="hljs-string">&quot;RefArch&quot;</span>
-}</code></pre>
-				<a href="#autocompletion" id="autocompletion" style="color: inherit; text-decoration: none;">
-					<h3>Autocompletion</h3>
-				</a>
-				<p>When using an IDE such as VSCode, the autocomplete feature lets you view the available method and class definitions, including parameters.
-				​</p>
-				<p><img src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/main/images/Autocomplete.jpg?raw=true" alt="Autocomplete" title="Autocomplete"></p>
-				<p>To view the details of a method or a variable, hover over methods and variables.
-				​</p>
-				<p><img src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/main/images/MethodDetails.jpg?raw=true" alt="Method Details" title="Method Details"></p>
-				<p><img src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/main/images/ParameterDetails.jpg?raw=true" alt="Parameter Details" title="Parameter Details"></p>
-				<p>Autocomplete also shows the available properties of the data returned by SDK methods.</p>
-				<p><img src="https://github.com/SalesforceCommerceCloud/commerce-sdk/raw/main/images/ResultAutocomplete.jpg?raw=true" alt="Result Autocomplete" title="Result Autocomplete"></p>
-				<a href="#fetch-options" id="fetch-options" style="color: inherit; text-decoration: none;">
-					<h3>Fetch Options</h3>
-				</a>
-				<p>Fetch options are able to be passed on to modify the behavior of the fetch call. There are two ways to pass on fetch options:</p>
-				<ol>
-					<li>Through the client config</li>
-				</ol>
-				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> config = {
-    <span class="hljs-attr">parameters</span>: {
-        <span class="hljs-attr">clientId</span>: CLIENT_ID,
-        <span class="hljs-attr">organizationId</span>: ORG_ID,
-        <span class="hljs-attr">shortCode</span>: SHORT_CODE,
-        <span class="hljs-attr">siteId</span>: SITE_ID,
-    },
-    <span class="hljs-attr">fetchOptions</span>: {
-        <span class="hljs-attr">redirect</span>: <span class="hljs-string">&quot;error&quot;</span>,
-    }
-}</code></pre>
-				<ol start="2">
-					<li>Through the SDK function call</li>
-				</ol>
-				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> client = <span class="hljs-keyword">new</span> ShopperLogin(config);
+<h3 id="redis-cache" class="tsd-anchor-link">Redis cache<a href="#redis-cache" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>To use a Redis cache, instantiate a CacheManagerRedis object with a Redis URL and add it to your client config object.</p>
+<pre><code class="javascript"><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-0">CacheManagerRedis</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-4">&#39;@commerce-apps/core&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">cacheManager</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-7">CacheManagerRedis</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-0">connection:</span><span class="hl-1"> </span><span class="hl-4">&#39;redis://localhost:6379&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">});</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">config</span><span class="hl-1"> = {</span><br/><span class="hl-1">  </span><span class="hl-0">cacheManager:</span><span class="hl-1"> </span><span class="hl-0">cacheManager</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-0">parameters:</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-0">clientId:</span><span class="hl-1"> </span><span class="hl-4">&#39;&lt;your-client-id&gt;&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">organizationId:</span><span class="hl-1"> </span><span class="hl-4">&#39;&lt;your-org-id&gt;&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">shortCode:</span><span class="hl-1"> </span><span class="hl-4">&#39;&lt;your-short-code&gt;&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">siteId:</span><span class="hl-1"> </span><span class="hl-4">&#39;&lt;your-site-id&gt;&#39;</span><br/><span class="hl-1">  },</span><br/><span class="hl-1">};</span>
+</code><button type="button">Copy</button></pre>
 
-client.authorizeCustomer({
-  <span class="hljs-attr">headers</span>: { ... },
-  <span class="hljs-attr">body</span>: { ... },
-  <span class="hljs-attr">fetchOptions</span>: {
-    <span class="hljs-attr">redirect</span>: <span class="hljs-string">&quot;manual&quot;</span>
-  }
-});</code></pre>
-				<p>If both the client config and the function call define the same fetch option with different values, the fetch option value for the function call will take priority. In the examples above, both pass in the <code>redirect</code> fetch option with different values, however, <code>redirect: &quot;manual&quot;</code> will take precedence because it was passed on the function call level. </p>
-				<a href="#custom-query-parameters" id="custom-query-parameters" style="color: inherit; text-decoration: none;">
-					<h3>Custom Query Parameters</h3>
-				</a>
-				<p>With the introduction of <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html">hooks for Commerce APIs</a>, customers can pass custom query parameters through the SDK to be used in their custom hook. Custom query parameters must begin with <code>c_</code>:</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> searchResults = <span class="hljs-keyword">await</span> searchClient.productSearch({
-  <span class="hljs-attr">parameters</span>: { 
-    <span class="hljs-attr">q</span>: <span class="hljs-string">&quot;dress&quot;</span>, 
-    <span class="hljs-attr">limit</span>: <span class="hljs-number">5</span>,
-    <span class="hljs-attr">c_paramkey</span>: <span class="hljs-string">&#x27;&lt;param-value&gt;&#x27;</span>
-  }
-});</code></pre>
-				<p>Invalid query parameters that are not a part of the API and do not follow the <code>c_</code> custom query parameter convention will be filtered from the request and a warning will be displayed.</p>
-				<a href="#custom-apis" id="custom-apis" style="color: inherit; text-decoration: none;">
-					<h3>Custom APIs</h3>
-				</a>
-				<p>The SDK supports calling <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/custom-apis.html">custom APIs</a> with a helper function, <code>customApiHelper.callCustomEndpoint()</code>.</p>
-				<p>Example usage:</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> CommerceSdk <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
-<span class="hljs-keyword">const</span> { helpers } = CommerceSdk;
+<h4 id="memory-management" class="tsd-anchor-link">Memory management<a href="#memory-management" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h4><p>Redis can be configured to apply an eviction policy when the specified memory limit is reached. See <a href="https://redis.io/topics/lru-cache/">this article</a> to set up Redis as an LRU cache and to learn more about supported eviction policies.</p>
+<h2 id="retry-policies" class="tsd-anchor-link">Retry Policies<a href="#retry-policies" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Use the node-retry package to facilitate request retries. The following retry type definition is taken from the node-retry package.</p>
+<pre><code class="typescript"><span class="hl-5">type</span><span class="hl-1"> </span><span class="hl-8">RetrySettings</span><span class="hl-1"> = {</span><br/><span class="hl-1">  </span><span class="hl-2">/**</span><br/><span class="hl-2">   * Whether to retry forever.</span><br/><span class="hl-2">   * </span><span class="hl-5">@default</span><span class="hl-2"> </span><span class="hl-0">false</span><br/><span class="hl-2">   */</span><br/><span class="hl-1">  </span><span class="hl-0">forever</span><span class="hl-1">?: </span><span class="hl-8">boolean</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">/**</span><br/><span class="hl-2">   * Whether to [unref](https://nodejs.org/api/timers.html#timers_unref) the setTimeout&#39;s.</span><br/><span class="hl-2">   * </span><span class="hl-5">@default</span><span class="hl-2"> </span><span class="hl-0">false</span><br/><span class="hl-2">   */</span><br/><span class="hl-1">  </span><span class="hl-0">unref</span><span class="hl-1">?: </span><span class="hl-8">boolean</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">/**</span><br/><span class="hl-2">   * The maximum time (in milliseconds) that the retried operation is allowed to run.</span><br/><span class="hl-2">   * </span><span class="hl-5">@default</span><span class="hl-2"> </span><span class="hl-0">Infinity</span><br/><span class="hl-2">   */</span><br/><span class="hl-1">  </span><span class="hl-0">maxRetryTime</span><span class="hl-1">?: </span><span class="hl-8">number</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">/**</span><br/><span class="hl-2">   * The maximum amount of times to retry the operation.</span><br/><span class="hl-2">   * </span><span class="hl-5">@default</span><span class="hl-2"> </span><span class="hl-0">10</span><br/><span class="hl-2">   */</span><br/><span class="hl-1">  </span><span class="hl-0">retries</span><span class="hl-1">?: </span><span class="hl-8">number</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">/**</span><br/><span class="hl-2">   * The exponential factor to use.</span><br/><span class="hl-2">   * </span><span class="hl-5">@default</span><span class="hl-2"> </span><span class="hl-0">2</span><br/><span class="hl-2">   */</span><br/><span class="hl-1">  </span><span class="hl-0">factor</span><span class="hl-1">?: </span><span class="hl-8">number</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">/**</span><br/><span class="hl-2">   * The number of milliseconds before starting the first retry.</span><br/><span class="hl-2">   * </span><span class="hl-5">@default</span><span class="hl-2"> </span><span class="hl-0">1000</span><br/><span class="hl-2">   */</span><br/><span class="hl-1">  </span><span class="hl-0">minTimeout</span><span class="hl-1">?: </span><span class="hl-8">number</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">/**</span><br/><span class="hl-2">   * The maximum number of milliseconds between two retries.</span><br/><span class="hl-2">   * </span><span class="hl-5">@default</span><span class="hl-2"> </span><span class="hl-0">Infinity</span><br/><span class="hl-2">   */</span><br/><span class="hl-1">  </span><span class="hl-0">maxTimeout</span><span class="hl-1">?: </span><span class="hl-8">number</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">/**</span><br/><span class="hl-2">   * Randomizes the timeouts by multiplying a factor between 1-2.</span><br/><span class="hl-2">   * </span><span class="hl-5">@default</span><span class="hl-2"> </span><span class="hl-0">false</span><br/><span class="hl-2">   */</span><br/><span class="hl-1">  </span><span class="hl-0">randomize</span><span class="hl-1">?: </span><span class="hl-8">boolean</span><span class="hl-1">;</span><br/><span class="hl-1">};</span>
+</code><button type="button">Copy</button></pre>
 
-<span class="hljs-comment">// client configuration parameters</span>
-<span class="hljs-keyword">const</span> clientConfigExample = {
-  <span class="hljs-attr">parameters</span>: {
-    <span class="hljs-attr">clientId</span>: <span class="hljs-string">&#x27;&lt;your-client-id&gt;&#x27;</span>,
-    <span class="hljs-attr">organizationId</span>: <span class="hljs-string">&#x27;&lt;your-org-id&gt;&#x27;</span>,
-    <span class="hljs-attr">shortCode</span>: <span class="hljs-string">&#x27;&lt;your-short-code&gt;&#x27;</span>,
-    <span class="hljs-attr">siteId</span>: <span class="hljs-string">&#x27;&lt;your-site-id&gt;&#x27;</span>,
-  },
-  <span class="hljs-comment">// If not provided, it&#x27;ll use the default production URI:</span>
-  <span class="hljs-comment">// &#x27;https://{shortCode}.api.commercecloud.salesforce.com/custom/{apiName}/{apiVersion}&#x27;</span>
-  <span class="hljs-comment">// path parameters should be wrapped in curly braces like the default production URI</span>
-  <span class="hljs-attr">baseUri</span>: <span class="hljs-string">&#x27;&lt;your-base-uri&gt;&#x27;</span>
-};
+<p>All options can be set per client or per request.</p>
+<p>Example:</p>
+<pre><code class="javascript"><br/><span class="hl-1">    </span><span class="hl-0">productClient</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-7">Product</span><span class="hl-1">({</span><br/><span class="hl-1">      </span><span class="hl-0">retrySettings:</span><span class="hl-1"> {</span><br/><br/><span class="hl-1">        </span><span class="hl-2">// This means 3 total calls are made</span><br/><span class="hl-1">        </span><span class="hl-0">retries:</span><span class="hl-1"> </span><span class="hl-10">2</span><span class="hl-1">,</span><br/><br/><span class="hl-1">        </span><span class="hl-2">// Max wait between retries</span><br/><span class="hl-1">        </span><span class="hl-0">maxTimeout:</span><span class="hl-1"> </span><span class="hl-10">200</span><span class="hl-1">,</span><br/><br/><span class="hl-1">        </span><span class="hl-2">// Min wait between retries</span><br/><span class="hl-1">        </span><span class="hl-0">minTimeout:</span><span class="hl-1"> </span><span class="hl-10">100</span><br/><span class="hl-1">      }</span><br/><span class="hl-1">    }</span><br/>
+</code><button type="button">Copy</button></pre>
 
-<span class="hljs-keyword">const</span> access_token = <span class="hljs-string">&#x27;&lt;INSERT_ACCESS_TOKEN_HERE&gt;&#x27;</span>
+<h2 id="logging" class="tsd-anchor-link">Logging<a href="#logging" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Default log level of the SDK is WARN (warning). SDK uses <a href="https://www.npmjs.com/package/loglevel">loglevel</a> npm package. All the log levels supported by <a href="https://www.npmjs.com/package/loglevel">loglevel</a> package are supported in SDK.</p>
+<p>To change the loglevel, set the desired level on the SDK logger.</p>
+<pre><code class="javascript"><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-0">sdkLogger</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-4">&#39;commerce-sdk&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-0">sdkLogger</span><span class="hl-1">.</span><span class="hl-7">setLevel</span><span class="hl-1">(</span><span class="hl-0">sdkLogger</span><span class="hl-1">.</span><span class="hl-0">levels</span><span class="hl-1">.</span><span class="hl-6">INFO</span><span class="hl-1">);</span>
+</code><button type="button">Copy</button></pre>
 
-<span class="hljs-comment">// Required params: apiName, endpointPath, shortCode, organizaitonId</span>
-<span class="hljs-comment">// Required path params can be passed into:</span>
-<span class="hljs-comment">// options.customApiPathParameters or clientConfig.parameters</span>
-<span class="hljs-comment">// customApiPathParameters will take priority for duplicate values</span>
-<span class="hljs-keyword">const</span> customApiArgs = { 
-  <span class="hljs-attr">apiName</span>: <span class="hljs-string">&#x27;loyalty-info&#x27;</span>,
-  <span class="hljs-attr">apiVersion</span>: <span class="hljs-string">&#x27;v1&#x27;</span>, <span class="hljs-comment">// defaults to v1 if not provided</span>
-  <span class="hljs-attr">endpointPath</span>: <span class="hljs-string">&#x27;customers&#x27;</span>
-}
-
-<span class="hljs-keyword">const</span> getResponse = <span class="hljs-keyword">await</span> helpers.callCustomEndpoint({ 
-  <span class="hljs-attr">options</span>: {
-    <span class="hljs-comment">// http operation is defaulted to &#x27;GET&#x27; if not provided</span>
-    <span class="hljs-attr">method</span>: <span class="hljs-string">&#x27;GET&#x27;</span>,
-    <span class="hljs-attr">parameters</span>: {
-      <span class="hljs-attr">queryParameter</span>: <span class="hljs-string">&#x27;queryParameter1&#x27;</span>,
-    },
-    <span class="hljs-attr">headers</span>: {
-      <span class="hljs-comment">// Content-Type is defaulted to application/json if not provided</span>
-      <span class="hljs-string">&#x27;Content-type&#x27;</span>: <span class="hljs-string">&#x27;application/json&#x27;</span>,
-      <span class="hljs-attr">authorization</span>: <span class="hljs-string">`Bearer <span class="hljs-subst">${access_token}</span>`</span>
-    },
-    <span class="hljs-attr">customApiPathParameters</span>: customApiArgs,
-  }, 
-  <span class="hljs-attr">clientConfig</span>: clientConfigExample,
-  <span class="hljs-comment">// Flag to retrieve raw response or data from helper function</span>
-  <span class="hljs-attr">rawResponse</span>: <span class="hljs-literal">false</span>
-})
-
-<span class="hljs-keyword">const</span> postResponse = <span class="hljs-keyword">await</span> customApiHelper.callCustomEndpoint({ 
-  <span class="hljs-attr">options</span>: {
-    <span class="hljs-attr">method</span>: <span class="hljs-string">&#x27;POST&#x27;</span>,
-    <span class="hljs-attr">headers</span>: {
-      <span class="hljs-attr">authorization</span>: <span class="hljs-string">`Bearer <span class="hljs-subst">${access_token}</span>`</span>
-    },
-    <span class="hljs-attr">customApiPathParameters</span>: {
-      <span class="hljs-attr">apiVersion</span>: <span class="hljs-string">&#x27;v1&#x27;</span>,
-      <span class="hljs-attr">endpointPath</span>: <span class="hljs-string">&#x27;greeting&#x27;</span>,
-      <span class="hljs-attr">apiName</span>: <span class="hljs-string">&#x27;e2e-tests&#x27;</span>,
-    },
-    <span class="hljs-comment">// When this flag is set to true, the request body will be automatically </span>
-    <span class="hljs-comment">// formatted in the expected format set by the &#x27;Content-type&#x27; headers</span>
-    <span class="hljs-comment">// &#x27;application/json&#x27; or &#x27;application/x-www-form-urlencoded&#x27;</span>
-    <span class="hljs-attr">enableTransformBody</span>: <span class="hljs-literal">true</span>,
-
-    <span class="hljs-comment">// object can be passed since we have enableTransformBody set to true</span>
-    <span class="hljs-attr">body</span>: { <span class="hljs-attr">data</span>: <span class="hljs-string">&#x27;data&#x27;</span> }
-    <span class="hljs-comment">// if enableTransformBody is not set to true,</span>
-    <span class="hljs-comment">// we have to ensure the request body is correctly formatted</span>
-    <span class="hljs-comment">// body: JSON.stringify({ data: &#x27;data&#x27; })</span>
-  }, 
-  <span class="hljs-attr">clientConfig</span>: clientConfigExample, 
-  <span class="hljs-attr">rawResponse</span>: <span class="hljs-literal">false</span>
-})
-
-<span class="hljs-built_in">console</span>.log(<span class="hljs-string">&#x27;get response: &#x27;</span>, getResponse)
-<span class="hljs-built_in">console</span>.log(<span class="hljs-string">&#x27;post response: &#x27;</span>, postResponse)</code></pre>
-				<a href="#encoding-special-characters" id="encoding-special-characters" style="color: inherit; text-decoration: none;">
-					<h3>Encoding special characters</h3>
-				</a>
-				<p>The SDK currently single encodes special characters for query parameters in UTF-8 format based on SCAPI guidelines. However, the SDK does NOT encode path parameters, and will require the developer to encode any path parameters with special characters.</p>
-				<p>Additionally, SCAPI has special characters that should be double encoded, specifically <code>%</code> and <code>,</code>:</p>
-				<ul>
-					<li><code>%</code> should always be double encoded</li>
-					<li><code>,</code> should be double encoded when used as part of an ID/parameter string, and single encoded when used to differentiate items in a list </li>
-				</ul>
-				<p>There is a helper function called <code>encodeSCAPISpecialCharacters</code> that can be utilized to single encode the SCAPI special characters and no other special characters.</p>
-				<p>Here&#39;s an example where the <code>getCategory/getCategories</code> endpoints are called with a <code>categoryID</code> with special characters:</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> CommerceSdk <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
-<span class="hljs-keyword">const</span> { helpers, Product } = CommerceSdk;
-
-<span class="hljs-keyword">const</span> clientConfig = {
-  <span class="hljs-attr">parameters</span>: {
-    <span class="hljs-attr">clientId</span>: <span class="hljs-string">&quot;&lt;your-client-id&gt;&quot;</span>,
-    <span class="hljs-attr">organizationId</span>: <span class="hljs-string">&quot;&lt;your-org-id&gt;&quot;</span>,
-    <span class="hljs-attr">shortCode</span>: <span class="hljs-string">&quot;&lt;your-short-code&gt;&quot;</span>,
-    <span class="hljs-attr">siteId</span>: <span class="hljs-string">&quot;&lt;your-site-id&gt;&quot;</span>,
-  }
-};
-
-<span class="hljs-keyword">const</span> shopperProducts = <span class="hljs-keyword">new</span> Product.ShopperProducts({
-  ...clientConfig,
-  <span class="hljs-attr">headers</span>: {<span class="hljs-attr">authorization</span>: <span class="hljs-string">`Bearer &lt;insert_access_token&gt;`</span>}
-});
-
-<span class="hljs-keyword">const</span> categoryId = <span class="hljs-string">&quot;SpecialCharacter,%$^@&amp;$;()!123Category&quot;</span>;
-<span class="hljs-comment">// &quot;SpecialCharacter%2C%25$^@&amp;$;()!123Category&quot;</span>
-<span class="hljs-keyword">const</span> scapiSpecialEncodedId = helpers.encodeSCAPISpecialCharacters(categoryId);
-
-
-<span class="hljs-comment">// id is a path parameter for API call:</span>
-<span class="hljs-comment">// &lt;base-url&gt;/product/shopper-products/v1/organizations/{organizationId}/categories/{id}</span>
-<span class="hljs-keyword">const</span> categoryResult = <span class="hljs-keyword">await</span> shopperProducts.getCategory({
-  <span class="hljs-attr">parameters</span>: {
-    <span class="hljs-comment">// Path parameters are NOT encoded by the SDK, so we have to single encode special characters</span>
-    <span class="hljs-comment">// and the SCAPI special characters will end up double encoded</span>
-    <span class="hljs-attr">id</span>: <span class="hljs-built_in">encodeURIComponent</span>(scapiSpecialEncodedId),
-  }
-});
-
-<span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;categoryResult: &quot;</span>, categoryResult);
-
-<span class="hljs-comment">// `ids` are a query parameter and comma delimited to separate category IDs</span>
-<span class="hljs-keyword">const</span> categoriesResult = <span class="hljs-keyword">await</span> shopperProducts.getCategories({
-  <span class="hljs-attr">parameters</span>: {
-    <span class="hljs-comment">// No need to use `encodeURIComponent` as query parameters are single encoded by the SDK</span>
-    <span class="hljs-comment">// So the SCAPI special characters will end up double encoded as well</span>
-    <span class="hljs-comment">// Commas that separate items in a list will end up single encoded</span>
-    <span class="hljs-attr">ids</span>: <span class="hljs-string">`<span class="hljs-subst">${scapiSpecialEncodedId}</span>,<span class="hljs-subst">${scapiSpecialEncodedId}</span>`</span>,
-  }
-});
-
-<span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;categoriesResult: &quot;</span>, categoriesResult);</code></pre>
-				<p><strong>NOTE: In the next major version release, path parameters will be single encoded by default</strong></p>
-				<a href="#caching" id="caching" style="color: inherit; text-decoration: none;">
-					<h2>Caching</h2>
-				</a>
-				<p>The SDK currently supports two types of caches - In-memory and Redis. Both the implementations respect <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control">standard cache headers</a>. To use another type of cache, write your own implementation of the <a href="https://github.com/SalesforceCommerceCloud/commerce-sdk-core/tree/main/src/base/cacheManager.ts">CacheManager</a>. See the <a href="https://github.com/SalesforceCommerceCloud/commerce-sdk-core/tree/main/src/base/cacheManagerKeyv.ts">default cache manager</a> to design your implementation.</p>
-				<a href="#cache-storage-adapter" id="cache-storage-adapter" style="color: inherit; text-decoration: none;">
-					<h3>Cache storage adapter</h3>
-				</a>
-				<p>The default cache storage is limited to 10,000 distinct entities before applying a simple <a href="https://en.m.wikipedia.org/wiki/Cache_replacement_policies#Least_Recently_Used_.28LRU.29">least recently used</a> policy for cache replacement. The limit can be changed by creating a <a href="https://www.npmjs.com/package/quick-lru">quick-lru</a> storage adapter.</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { CacheManagerKeyv } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@commerce-apps/core&#x27;</span>;
-<span class="hljs-keyword">import</span> { QuickLRU } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;quick-lru&#x27;</span>;
-
-<span class="hljs-keyword">const</span> cacheManagerKeyv = <span class="hljs-keyword">new</span> CacheManagerKeyv({
-  <span class="hljs-attr">keyvStore</span>: <span class="hljs-keyword">new</span> QuickLRU({ <span class="hljs-attr">maxSize</span>: <span class="hljs-number">50000</span> }),
-});
-<span class="hljs-keyword">const</span> config = {
-  <span class="hljs-attr">cacheManager</span>: cacheManagerKeyv,
-  <span class="hljs-attr">parameters</span>: {
-    <span class="hljs-attr">clientId</span>: <span class="hljs-string">&#x27;&lt;your-client-id&gt;&#x27;</span>,
-    <span class="hljs-attr">organizationId</span>: <span class="hljs-string">&#x27;&lt;your-org-id&gt;&#x27;</span>,
-    <span class="hljs-attr">shortCode</span>: <span class="hljs-string">&#x27;&lt;your-short-code&gt;&#x27;</span>,
-    <span class="hljs-attr">siteId</span>: <span class="hljs-string">&#x27;&lt;your-site-id&gt;&#x27;</span>
-  },
-};</code></pre>
-				<p>See these <a href="https://www.npmjs.com/package/keyv#third-party-storage-adapters">directions</a> to create a cache storage adapter.</p>
-				<a href="#in-memory-cache" id="in-memory-cache" style="color: inherit; text-decoration: none;">
-					<h3>In-memory cache</h3>
-				</a>
-				<p>In-memory caching of responses is enabled by default. To disable caching for a client, set cacheManager to &#39;null&#39;.</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> config = {
-  <span class="hljs-attr">cacheManager</span>: <span class="hljs-literal">null</span>,
-  <span class="hljs-attr">parameters</span>: {
-    <span class="hljs-attr">clientId</span>: <span class="hljs-string">&#x27;&lt;your-client-id&gt;&#x27;</span>,
-    <span class="hljs-attr">organizationId</span>: <span class="hljs-string">&#x27;&lt;your-org-id&gt;&#x27;</span>,
-    <span class="hljs-attr">shortCode</span>: <span class="hljs-string">&#x27;&lt;your-short-code&gt;&#x27;</span>,
-    <span class="hljs-attr">siteId</span>: <span class="hljs-string">&#x27;&lt;your-site-id&gt;&#x27;</span>
-  },
-};</code></pre>
-				<a href="#redis-cache" id="redis-cache" style="color: inherit; text-decoration: none;">
-					<h3>Redis cache</h3>
-				</a>
-				<p>To use a Redis cache, instantiate a CacheManagerRedis object with a Redis URL and add it to your client config object.</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { CacheManagerRedis } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@commerce-apps/core&#x27;</span>;
-
-<span class="hljs-keyword">const</span> cacheManager = <span class="hljs-keyword">new</span> CacheManagerRedis({
-  <span class="hljs-attr">connection</span>: <span class="hljs-string">&#x27;redis://localhost:6379&#x27;</span>,
-});
-<span class="hljs-keyword">const</span> config = {
-  <span class="hljs-attr">cacheManager</span>: cacheManager,
-  <span class="hljs-attr">parameters</span>: {
-    <span class="hljs-attr">clientId</span>: <span class="hljs-string">&#x27;&lt;your-client-id&gt;&#x27;</span>,
-    <span class="hljs-attr">organizationId</span>: <span class="hljs-string">&#x27;&lt;your-org-id&gt;&#x27;</span>,
-    <span class="hljs-attr">shortCode</span>: <span class="hljs-string">&#x27;&lt;your-short-code&gt;&#x27;</span>,
-    <span class="hljs-attr">siteId</span>: <span class="hljs-string">&#x27;&lt;your-site-id&gt;&#x27;</span>
-  },
-};</code></pre>
-				<a href="#memory-management" id="memory-management" style="color: inherit; text-decoration: none;">
-					<h4>Memory management</h4>
-				</a>
-				<p>Redis can be configured to apply an eviction policy when the specified memory limit is reached. See <a href="https://redis.io/topics/lru-cache/">this article</a> to set up Redis as an LRU cache and to learn more about supported eviction policies.</p>
-				<a href="#retry-policies" id="retry-policies" style="color: inherit; text-decoration: none;">
-					<h2>Retry Policies</h2>
-				</a>
-				<p>Use the node-retry package to facilitate request retries. The following retry type definition is taken from the node-retry package.</p>
-				<pre><code class="language-typescript"><span class="hljs-keyword">type</span> RetrySettings = {
-  <span class="hljs-comment">/**
-   * Whether to retry forever.
-   * <span class="hljs-doctag">@default <span class="hljs-variable">false</span></span>
-   */</span>
-  forever?: <span class="hljs-built_in">boolean</span>;
-  <span class="hljs-comment">/**
-   * Whether to [unref](https://nodejs.org/api/timers.html#timers_unref) the setTimeout&#x27;s.
-   * <span class="hljs-doctag">@default <span class="hljs-variable">false</span></span>
-   */</span>
-  unref?: <span class="hljs-built_in">boolean</span>;
-  <span class="hljs-comment">/**
-   * The maximum time (in milliseconds) that the retried operation is allowed to run.
-   * <span class="hljs-doctag">@default <span class="hljs-variable">Infinity</span></span>
-   */</span>
-  maxRetryTime?: <span class="hljs-built_in">number</span>;
-  <span class="hljs-comment">/**
-   * The maximum amount of times to retry the operation.
-   * <span class="hljs-doctag">@default </span>10
-   */</span>
-  retries?: <span class="hljs-built_in">number</span>;
-  <span class="hljs-comment">/**
-   * The exponential factor to use.
-   * <span class="hljs-doctag">@default </span>2
-   */</span>
-  factor?: <span class="hljs-built_in">number</span>;
-  <span class="hljs-comment">/**
-   * The number of milliseconds before starting the first retry.
-   * <span class="hljs-doctag">@default </span>1000
-   */</span>
-  minTimeout?: <span class="hljs-built_in">number</span>;
-  <span class="hljs-comment">/**
-   * The maximum number of milliseconds between two retries.
-   * <span class="hljs-doctag">@default <span class="hljs-variable">Infinity</span></span>
-   */</span>
-  maxTimeout?: <span class="hljs-built_in">number</span>;
-  <span class="hljs-comment">/**
-   * Randomizes the timeouts by multiplying a factor between 1-2.
-   * <span class="hljs-doctag">@default <span class="hljs-variable">false</span></span>
-   */</span>
-  randomize?: <span class="hljs-built_in">boolean</span>;
-};</code></pre>
-				<p>All options can be set per client or per request.</p>
-				<p>Example:</p>
-				<pre><code class="language-javascript">
-    productClient = <span class="hljs-keyword">new</span> Product({
-      <span class="hljs-attr">retrySettings</span>: {
-
-        <span class="hljs-comment">// This means 3 total calls are made</span>
-        <span class="hljs-attr">retries</span>: <span class="hljs-number">2</span>,
-
-        <span class="hljs-comment">// Max wait between retries</span>
-        <span class="hljs-attr">maxTimeout</span>: <span class="hljs-number">200</span>,
-
-        <span class="hljs-comment">// Min wait between retries</span>
-        <span class="hljs-attr">minTimeout</span>: <span class="hljs-number">100</span>
-      }
-    }
-</code></pre>
-				<a href="#logging" id="logging" style="color: inherit; text-decoration: none;">
-					<h2>Logging</h2>
-				</a>
-				<p>Default log level of the SDK is WARN (warning). SDK uses <a href="https://www.npmjs.com/package/loglevel">loglevel</a> npm package. All the log levels supported by <a href="https://www.npmjs.com/package/loglevel">loglevel</a> package are supported in SDK.</p>
-				<p>To change the loglevel, set the desired level on the SDK logger.</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { sdkLogger } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;commerce-sdk&#x27;</span>;
-
-sdkLogger.setLevel(sdkLogger.levels.INFO);</code></pre>
-				<p>INFO level logging enables:</p>
-				<ul>
-					<li>brief request and response logging</li>
-				</ul>
-				<p>DEBUG level logging enables logging of:</p>
-				<ul>
-					<li>fetch options</li>
-					<li>curl command of the request</li>
-					<li>response (response body is not included)</li>
-					<li>cache operations</li>
-				</ul>
-				<p><strong>Note:</strong> Debug level logging may expose sensitive data in the logs</p>
-				<a href="#security" id="security" style="color: inherit; text-decoration: none;">
-					<h2>Security</h2>
-				</a>
-				<p>This library doesn&#39;t store or refresh authentication tokens. Storing and refreshing authentication tokens is the responsibility of the SDK consumer.</p>
-				<p> This library limits its runtime dependencies to reduce the total cost of ownership as much as possible. However, we recommend that you have security stakeholders review all third-party products (3PP) and their dependencies.</p>
-				<p>For more information about security considerations related to developing headless commerce applications, see
-					<a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/security-considerations-for-headless-commerce.html">Security Considerations for Headless Commerce</a> on the
-				<a href="https://developer.salesforce.com/developer-centers/commerce-cloud">Commerce Cloud Developer Center</a>.</p>
-				<p>If you discover any potential security issues, please report them to <a href="mailto:&#x73;&#x65;&#99;&#x75;&#x72;&#x69;&#x74;&#x79;&#x40;&#x73;&#97;&#108;&#101;&#x73;&#x66;&#111;&#x72;&#x63;&#101;&#46;&#x63;&#111;&#109;">&#x73;&#x65;&#99;&#x75;&#x72;&#x69;&#x74;&#x79;&#x40;&#x73;&#97;&#108;&#101;&#x73;&#x66;&#111;&#x72;&#x63;&#101;&#46;&#x63;&#111;&#109;</a> as soon as possible.</p>
-				<a href="#additional-documentation" id="additional-documentation" style="color: inherit; text-decoration: none;">
-					<h2>Additional Documentation</h2>
-				</a>
-				<ul>
-					<li><a href="./examples">Examples</a></li>
-					<li><a href="./CHANGELOG.md">Changelog</a></li>
-				</ul>
-				<a href="#license-information" id="license-information" style="color: inherit; text-decoration: none;">
-					<h2>License Information</h2>
-				</a>
-				<p>The Commerce SDK is licensed under BSD-3-Clause license. See the <a href="./LICENSE.txt">license</a> for details.</p>
-			</div>
-		</div>
-		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
-			<nav class="tsd-navigation primary">
-				<ul>
-					<li class="globals  ">
-						<a href="globals.html"><em>Globals</em></a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/_index_.html">&quot;index&quot;</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/cdn.html">cdn</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/checkout.html">checkout</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/customer.html">customer</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/discovery.html">discovery</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/experience.html">experience</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/helpers.html">helpers</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/pricing.html">pricing</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/product.html">product</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/search.html">search</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/seller.html">seller</a>
-					</li>
-				</ul>
-			</nav>
-			<nav class="tsd-navigation secondary menu-sticky">
-				<ul class="before-current">
-				</ul>
-			</nav>
-		</div>
-	</div>
-</div>
-<footer class="with-border-bottom">
-	<div class="container">
-		<h2>Legend</h2>
-		<div class="tsd-legend-group">
-			<ul class="tsd-legend">
-				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
-				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
-				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
-				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
-			</ul>
-		</div>
-	</div>
-</footer>
-<div class="container tsd-generator">
-	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
-</div>
-<div class="overlay"></div>
-<script src="assets/js/main.js"></script>
-</body>
-</html>
+<p>INFO level logging enables:</p>
+<ul>
+<li>brief request and response logging</li>
+</ul>
+<p>DEBUG level logging enables logging of:</p>
+<ul>
+<li>fetch options</li>
+<li>curl command of the request</li>
+<li>response (response body is not included)</li>
+<li>cache operations</li>
+</ul>
+<p><strong>Note:</strong> Debug level logging may expose sensitive data in the logs</p>
+<h2 id="security" class="tsd-anchor-link">Security<a href="#security" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>This library doesn't store or refresh authentication tokens. Storing and refreshing authentication tokens is the responsibility of the SDK consumer.</p>
+<p>This library limits its runtime dependencies to reduce the total cost of ownership as much as possible. However, we recommend that you have security stakeholders review all third-party products (3PP) and their dependencies.</p>
+<p>For more information about security considerations related to developing headless commerce applications, see
+<a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/security-considerations-for-headless-commerce.html">Security Considerations for Headless Commerce</a> on the
+<a href="https://developer.salesforce.com/developer-centers/commerce-cloud">Commerce Cloud Developer Center</a>.</p>
+<p>If you discover any potential security issues, please report them to <a href="mailto:security@salesforce.com">security@salesforce.com</a> as soon as possible.</p>
+<h2 id="additional-documentation" class="tsd-anchor-link">Additional Documentation<a href="#additional-documentation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
+<li><a href="media/examples">Examples</a></li>
+<li><a href="media/CHANGELOG.md">Changelog</a></li>
+</ul>
+<h2 id="license-information" class="tsd-anchor-link">License Information<a href="#license-information" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>The Commerce SDK is licensed under BSD-3-Clause license. See the <a href="media/LICENSE.txt">license</a> for details.</p>
+</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#commerce-sdk"><span>commerce-<wbr/>sdk</span></a><ul><li><a href="#documentation"><span>Documentation</span></a></li><li><ul><li><a href="#navigating-the-documentation"><span>Navigating the <wbr/>Documentation</span></a></li></ul></li><li><a href="#warning-planned-api-changes-warning"><span>:warning: <wbr/>Planned <wbr/>API <wbr/>Changes :warning:</span></a></li><li><ul><li><a href="#shopper-context"><span>Shopper <wbr/>Context</span></a></li><li><a href="#shopper-login-slas"><span>Shopper <wbr/>Login (<wbr/>SLAS)</span></a></li></ul></li><li><a href="#warning-planned-sdk-changes-warning"><span>:warning: <wbr/>Planned <wbr/>SDK <wbr/>Changes :warning:</span></a></li><li><ul><li><a href="#encoding-path-parameters"><span>Encoding path parameters</span></a></li></ul></li><li><a href="#prerequisites"><span>Prerequisites</span></a></li><li><a href="#installation"><span>Installation</span></a></li><li><a href="#usage"><span>Usage</span></a></li><li><ul><li><a href="#sample-code"><span>Sample <wbr/>Code</span></a></li><li><a href="#slas-helpers"><span>SLAS helpers</span></a></li><li><a href="#error-handling"><span>Error <wbr/>Handling</span></a></li><li><a href="#autocompletion"><span>Autocompletion</span></a></li><li><a href="#fetch-options"><span>Fetch <wbr/>Options</span></a></li><li><a href="#custom-query-parameters"><span>Custom <wbr/>Query <wbr/>Parameters</span></a></li><li><a href="#custom-apis"><span>Custom <wbr/>AP<wbr/>Is</span></a></li><li><a href="#encoding-special-characters"><span>Encoding special characters</span></a></li></ul></li><li><a href="#caching"><span>Caching</span></a></li><li><ul><li><a href="#cache-storage-adapter"><span>Cache storage adapter</span></a></li><li><a href="#in-memory-cache"><span>In-<wbr/>memory cache</span></a></li><li><a href="#redis-cache"><span>Redis cache</span></a></li><li><ul><li><a href="#memory-management"><span>Memory management</span></a></li></ul></li></ul></li><li><a href="#retry-policies"><span>Retry <wbr/>Policies</span></a></li><li><a href="#logging"><span>Logging</span></a></li><li><a href="#security"><span>Security</span></a></li><li><a href="#additional-documentation"><span>Additional <wbr/>Documentation</span></a></li><li><a href="#license-information"><span>License <wbr/>Information</span></a></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="modules.html">commerce-sdk</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div></body></html>
