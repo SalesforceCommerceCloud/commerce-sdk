@@ -1,8 +1,8 @@
 ## CHANGELOG
 
-
 ## v5.0.0
 
+### Enchancements
 - Enum types have been added for certain operations and types
 - Certain operations have had types updated for query parameters
 - SLAS helpers have been refactored to accept a single `options` object argument, where the properties are the old arguments
