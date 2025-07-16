@@ -3,14 +3,12 @@
 
 ## v5.0.0
 
-**NOTE** These changes are compatible with ECOM 25.9
-
 - Enum types have been added for certain operations and types
 - Certain operations have had types updated for query parameters
 - SLAS helpers have been refactored to accept a single `options` object argument, where the properties are the old arguments
 - Path parameter special characters are encoded by default
 - API family layer and API namespace has been removed. To import API classes, please refer to the [README](https://github.com/SalesforceCommerceCloud/commerce-sdk?tab=readme-ov-file#sample-code)
-- Docs Site has been upgraded [TypeScript downgraded to 4.4.4 for TypeDoc 0.17.8 compatibility]
+- Docs Site has been upgraded to reflect new directory structure [#426](https://github.com/SalesforceCommerceCloud/commerce-sdk/pull/426)
 
 
 ## v4.2.0
