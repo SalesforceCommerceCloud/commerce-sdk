@@ -15,6 +15,7 @@ An auto-generated [documentation site](https://salesforcecommercecloud.github.io
 1. **Accessing API Classes:** Click on the API class name (e.g., `shopperProducts`) on the right hand side
 2. **Viewing Endpoints:** Scroll to the `Classes` section and click the corresponding API class link (e.g., `ShopperProducts`) to see available endpoints and their parameters
 3. **Type Definitions:** Scroll to the `Type aliases` section for available types
+4. **Navigating Back to API Classes**: To return to the main documentation page with all API classes listed on the right sidebar, click on `Globals` in the navigation.
 
 **Utility Classes:** Utility classes and methods such as `clientConfig` and `helpers` maintain the same structure as previous versions.
 
