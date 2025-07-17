@@ -38,8 +38,6 @@
 							</div>
 							<input type="checkbox" id="tsd-filter-inherited" checked />
 							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
-							<input type="checkbox" id="tsd-filter-externals" checked />
-							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
 							<input type="checkbox" id="tsd-filter-only-exported" />
 							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
 						</div>
@@ -87,10 +85,9 @@
 				<p><strong>Utility Classes:</strong> Utility classes and methods such as <code>clientConfig</code> and <code>helpers</code> maintain the same structure as previous versions.</p>
 				<p><strong>NOTES:</strong> </p>
 				<ol>
-					<li><p><strong>Type Access</strong>: API class types are accessible through the <code>&lt;api_class&gt;Types</code> namespace (e.g., <code>ShopperProductsTypes</code>). Individual types can be accessed as <code>ShopperProductsTypes.Product</code>.</p>
-					</li>
-					<li><p><strong>Type References</strong>: The <code>References</code> section under API classes in the generated documentation may show duplicate entries. This occurs because types are exported both at their original definition and under the API class namespace. Both references point to the same underlying type definition.</p>
-					</li>
+					<li><strong>Type Access</strong>: API class types are accessible through the <code>&lt;api_class&gt;Types</code> namespace (e.g., <code>ShopperProductsTypes</code>). Individual types can be accessed as <code>ShopperProductsTypes.Product</code>.</li>
+					<li><strong>Type References</strong>: The <code>References</code> section under API classes in the generated documentation may show duplicate entries. This occurs because types are exported both at their original definition and under the API class namespace. Both references point to the same underlying type definition.</li>
+					<li><strong>V4 Migration Guide</strong>: Starting in v5, API classes will no longer be exported under API family namespaces. See the <a href="#sample-code">Sample Code</a> section for migration examples.</li>
 				</ol>
 				<a href="#warning-planned-api-changes-warning" id="warning-planned-api-changes-warning" style="color: inherit; text-decoration: none;">
 					<h2>:warning: Planned API Changes :warning:</h2>
@@ -175,6 +172,11 @@
 <span class="hljs-comment">// tsc requires the --esModuleInterop flag for this</span>
 <span class="hljs-comment">// Starting in v5, API classes will no longer be namespaced under API family</span>
 <span class="hljs-keyword">import</span> { ShopperSearch, ShopperLogin, helpers, slasHelpers } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
+<span class="hljs-comment">// For v4 and below, you&#x27;ll have to import the API family first</span>
+<span class="hljs-comment">// import { Search, Customer, helpers, slasHelpers } from &quot;commerce-sdk&quot;;</span>
+<span class="hljs-comment">// const loginClient = new Customer.ShopperLogin(config);</span>
+<span class="hljs-comment">// const searchClient = new Search.ShopperSearch(config);</span>
+
 <span class="hljs-comment">// Older Node.js versions can instead use:</span>
 <span class="hljs-comment">// const { ClientConfig, helpers, slasHelpers Search } = require(&quot;commerce-sdk&quot;);</span>
 
@@ -218,7 +220,7 @@
 
 <span class="hljs-comment">// Alternatively you may use the SLAS helper functions to generate JWT/access token</span>
 <span class="hljs-keyword">const</span> guestTokenResponse = <span class="hljs-keyword">await</span> slasHelpers.loginGuestUser(
-    <span class="hljs-keyword">new</span> Customer.ShopperLogin(config), 
+    <span class="hljs-keyword">new</span> ShopperLogin(config), 
     { <span class="hljs-attr">redirectURI</span>: <span class="hljs-string">&#x27;http://localhost:3000/callback&#x27;</span> }
   )
   .then(<span class="hljs-function">(<span class="hljs-params">guestTokenResponse</span>) =&gt;</span> {
@@ -618,7 +620,7 @@ sdkLogger.setLevel(sdkLogger.levels.INFO);</code></pre>
 				<p>For more information about security considerations related to developing headless commerce applications, see
 					<a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/security-considerations-for-headless-commerce.html">Security Considerations for Headless Commerce</a> on the
 				<a href="https://developer.salesforce.com/developer-centers/commerce-cloud">Commerce Cloud Developer Center</a>.</p>
-				<p>If you discover any potential security issues, please report them to <a href="mailto:&#x73;&#101;&#99;&#x75;&#114;&#x69;&#116;&#x79;&#x40;&#x73;&#97;&#108;&#x65;&#x73;&#102;&#x6f;&#114;&#x63;&#101;&#x2e;&#x63;&#x6f;&#x6d;">&#x73;&#101;&#99;&#x75;&#114;&#x69;&#116;&#x79;&#x40;&#x73;&#97;&#108;&#x65;&#x73;&#102;&#x6f;&#114;&#x63;&#101;&#x2e;&#x63;&#x6f;&#x6d;</a> as soon as possible.</p>
+				<p>If you discover any potential security issues, please report them to <a href="mailto:&#x73;&#101;&#x63;&#117;&#x72;&#x69;&#x74;&#x79;&#x40;&#115;&#97;&#x6c;&#x65;&#x73;&#102;&#x6f;&#114;&#99;&#101;&#x2e;&#99;&#x6f;&#x6d;">&#x73;&#101;&#x63;&#117;&#x72;&#x69;&#x74;&#x79;&#x40;&#115;&#97;&#x6c;&#x65;&#x73;&#102;&#x6f;&#114;&#99;&#101;&#x2e;&#99;&#x6f;&#x6d;</a> as soon as possible.</p>
 				<a href="#additional-documentation" id="additional-documentation" style="color: inherit; text-decoration: none;">
 					<h2>Additional Documentation</h2>
 				</a>
@@ -637,15 +639,6 @@ sdkLogger.setLevel(sdkLogger.levels.INFO);</code></pre>
 				<ul>
 					<li class="globals  ">
 						<a href="globals.html"><em>Globals</em></a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/_index_.html">&quot;index&quot;</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/_types_.html">&quot;types&quot;</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/_version_.html">&quot;version&quot;</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="modules/assignments.html">assignments</a>
@@ -673,6 +666,9 @@ sdkLogger.setLevel(sdkLogger.levels.INFO);</code></pre>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="modules/helpers.html">helpers</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/index.html">index</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="modules/orders.html">orders</a>
@@ -733,6 +729,12 @@ sdkLogger.setLevel(sdkLogger.levels.INFO);</code></pre>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="modules/sourcecodegroups.html">source<wbr>Code<wbr>Groups</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/types.html">types</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/version.html">version</a>
 					</li>
 				</ul>
 			</nav>
