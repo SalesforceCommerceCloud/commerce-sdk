@@ -101,8 +101,10 @@ import type { ShopperLoginTypes } from "commerce-sdk"
 
 // demo client credentials, if you have access to your own please replace them below.
 // do not store client secret as plaintext. Store it in a secure location.
+// For guidance on generating a private client with a client secret, please refer to:
+// https://developer.salesforce.com/docs/commerce/pwa-kit-managed-runtime/guide/use-a-slas-private-client.html
+const CLIENT_SECRET = "<INSERT_CLIENT_SECRET>";
 const CLIENT_ID = "da422690-7800-41d1-8ee4-3ce983961078";
-const CLIENT_SECRET = "D*HHUrgO2%qADp2JTIUi";
 const ORG_ID = "f_ecom_zzte_053";
 const SHORT_CODE = "kv7kzm78";
 const SITE_ID = "RefArch";
