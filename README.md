@@ -22,8 +22,8 @@ An auto-generated [documentation site](https://salesforcecommercecloud.github.io
 **NOTES:** 
 
 1. **Type Access**: API class types are accessible through the `<api_class>Types` namespace (e.g., `ShopperProductsTypes`). Individual types can be accessed as `ShopperProductsTypes.Product`.
-
 2. **Type References**: The `References` section under API classes in the generated documentation may show duplicate entries. This occurs because types are exported both at their original definition and under the API class namespace. Both references point to the same underlying type definition.
+3. **V4 Migration Guide**: Starting in v5, API classes will no longer be exported under API family namespaces. See the [Sample Code](#sample-code) section for migration examples.
 
 ## :warning: Planned API Changes :warning:
 
@@ -87,6 +87,11 @@ To use an SDK client, instantiate an object of that client and configure these p
 // tsc requires the --esModuleInterop flag for this
 // Starting in v5, API classes will no longer be namespaced under API family
 import { ShopperSearch, ShopperLogin, helpers, slasHelpers } from "commerce-sdk";
+// For v4 and below, you'll have to import the API family first
+// import { Search, Customer, helpers, slasHelpers } from "commerce-sdk";
+// const loginClient = new Customer.ShopperLogin(config);
+// const searchClient = new Search.ShopperSearch(config);
+
 // Older Node.js versions can instead use:
 // const { ClientConfig, helpers, slasHelpers Search } = require("commerce-sdk");
 
@@ -130,7 +135,7 @@ async function getGuestUserAuthToken(): Promise<ShopperLoginTypes.TokenResponse>
 
 // Alternatively you may use the SLAS helper functions to generate JWT/access token
 const guestTokenResponse = await slasHelpers.loginGuestUser(
-    new Customer.ShopperLogin(config), 
+    new ShopperLogin(config), 
     { redirectURI: 'http://localhost:3000/callback' }
   )
   .then((guestTokenResponse) => {
