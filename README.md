@@ -4,6 +4,28 @@ The Salesforce Commerce SDK allows easy interaction with the Salesforce B2C Comm
 
 Visit the [Commerce Cloud Developer Center](https://developer.salesforce.com/developer-centers/commerce-cloud) to learn more about Salesforce Commerce. The developer center has API documentation, getting started guides, community forums, and more.
 ​
+## Documentation
+
+An auto-generated [documentation site](https://salesforcecommercecloud.github.io/commerce-sdk/) provides comprehensive reference for all available endpoints and types across API classes. Following the v5.0.0 release, the underlying SDK file structure has been reorganized, introducing additional layers of imports/exports that may affect navigation.
+
+### Navigating the Documentation
+
+**For API Classes:**
+
+1. **Accessing API Classes:** Click on the API class name (e.g., `shopperProducts`) on the right hand side
+2. **Viewing Endpoints:** Scroll to the `Classes` section and click the corresponding API class link (e.g., `ShopperProducts`) to see available endpoints and their parameters
+3. **Type Definitions:** Scroll to the `Type aliases` section for available types
+4. **Navigating Back to API Classes**: To return to the main documentation page with all API classes listed on the right sidebar, click on `Globals` in the navigation.
+
+**Utility Classes:** Utility classes and methods such as `clientConfig` and `helpers` maintain the same structure as previous versions.
+
+**NOTES:** 
+
+1. **Type Access**: API class types are accessible through the `<api_class>Types` namespace (e.g., `ShopperProductsTypes`). Individual types can be accessed as `ShopperProductsTypes.Product`.
+2. **Type References**: The `References` section under API classes in the generated documentation may show duplicate entries. This occurs because types are exported both at their original definition and under the API class namespace. Both references point to the same underlying type definition.
+3. **V4 Migration Guide**: Starting in v5, API classes will no longer be exported under API family namespaces. See the [Sample Code](#sample-code) section for migration examples.
+4. **Supporting Files**: The SDK includes additional supporting modules beyond the `helpers` SLAS functions. The `types` module provides common type definitions shared across API classes, while the `version` module automatically implements user agent headers for all requests. The user agent value follows the format `commerce-sdk@<version>` based on the current SDK version.
+
 ## :warning: Planned API Changes :warning:
 
 ### Shopper Context
@@ -66,6 +88,11 @@ To use an SDK client, instantiate an object of that client and configure these p
 // tsc requires the --esModuleInterop flag for this
 // Starting in v5, API classes will no longer be namespaced under API family
 import { ShopperSearch, ShopperLogin, helpers, slasHelpers } from "commerce-sdk";
+// For v4 and below, you'll have to import the API family first
+// import { Search, Customer, helpers, slasHelpers } from "commerce-sdk";
+// const loginClient = new Customer.ShopperLogin(config);
+// const searchClient = new Search.ShopperSearch(config);
+
 // Older Node.js versions can instead use:
 // const { ClientConfig, helpers, slasHelpers Search } = require("commerce-sdk");
 
@@ -74,8 +101,10 @@ import type { ShopperLoginTypes } from "commerce-sdk"
 
 // demo client credentials, if you have access to your own please replace them below.
 // do not store client secret as plaintext. Store it in a secure location.
+// For guidance on generating a private client with a client secret, please refer to:
+// https://developer.salesforce.com/docs/commerce/pwa-kit-managed-runtime/guide/use-a-slas-private-client.html
+const CLIENT_SECRET = "<INSERT_CLIENT_SECRET>";
 const CLIENT_ID = "da422690-7800-41d1-8ee4-3ce983961078";
-const CLIENT_SECRET = "D*HHUrgO2%qADp2JTIUi";
 const ORG_ID = "f_ecom_zzte_053";
 const SHORT_CODE = "kv7kzm78";
 const SITE_ID = "RefArch";
@@ -109,7 +138,7 @@ async function getGuestUserAuthToken(): Promise<ShopperLoginTypes.TokenResponse>
 
 // Alternatively you may use the SLAS helper functions to generate JWT/access token
 const guestTokenResponse = await slasHelpers.loginGuestUser(
-    new Customer.ShopperLogin(config), 
+    new ShopperLogin(config), 
     { redirectURI: 'http://localhost:3000/callback' }
   )
   .then((guestTokenResponse) => {
