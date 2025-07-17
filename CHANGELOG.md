@@ -1,6 +1,41 @@
 ## CHANGELOG
 
 ## v5.0.0
+
+### API Versions
+
+| API Name | API Version |
+|----------|-------------|
+| assignments | 1.0.35 |
+| campaigns | 1.0.37 |
+| catalogs | 1.0.41 |
+| cdn-api-process-apis | 1.0.39 |
+| cors-preferences | 1.0.4 |
+| coupons | 1.0.39 |
+| customers | 1.0.32 |
+| gift-certificates | 1.0.39 |
+| orders | 1.4.9 |
+| preferences | 1.1.3 |
+| products | 1.0.40 |
+| promotions | 1.0.33 |
+| seo | 1.0.7 |
+| shopper-baskets | 2.0.16 |
+| shopper-baskets | 1.8.25 |
+| shopper-context | 1.0.35 |
+| shopper-customers | 1.0.53 |
+| shopper-experience | 1.0.7 |
+| shopper-gift-certificates | 1.0.26 |
+| shopper-login | 1.39.40 |
+| shopper-orders | 1.4.13 |
+| shopper-products | 1.0.37 |
+| shopper-promotions | 1.0.36 |
+| shopper-search | 1.2.3 |
+| shopper-seo | 1.0.13 |
+| shopper-stores | 1.0.17 |
+| slas-admin | 1.12.30 |
+| source-code-groups | 1.0.37 |
+
+### Enchancements
 - Enum types have been added for certain operations and types
 - Certain operations have had types updated for query parameters
 - SLAS helpers have been refactored to accept a single `options` object argument, where the properties are the old arguments
