@@ -24,6 +24,7 @@ An auto-generated [documentation site](https://salesforcecommercecloud.github.io
 1. **Type Access**: API class types are accessible through the `<api_class>Types` namespace (e.g., `ShopperProductsTypes`). Individual types can be accessed as `ShopperProductsTypes.Product`.
 2. **Type References**: The `References` section under API classes in the generated documentation may show duplicate entries. This occurs because types are exported both at their original definition and under the API class namespace. Both references point to the same underlying type definition.
 3. **V4 Migration Guide**: Starting in v5, API classes will no longer be exported under API family namespaces. See the [Sample Code](#sample-code) section for migration examples.
+4. **Supporting Files**: The SDK includes additional supporting modules beyond the `helpers` SLAS functions. The `types` module provides common type definitions shared across API classes, while the `version` module automatically implements user agent headers for all requests. The user agent value follows the format `commerce-sdk@<version>` based on the current SDK version.
 
 ## :warning: Planned API Changes :warning:
 
