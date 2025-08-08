@@ -13,30 +13,6 @@ export const PRIMITIVE_DATA_TYPE_MAP = {
   "http://www.w3.org/2001/XMLSchema#boolean": "boolean",
 };
 
-export const API_FAMILIES = [
-  "assignments-oas",
-  "campaigns-oas",
-  "catalogs-oas",
-  "cdn-api-process-apis-oas",
-  "coupons-oas",
-  "customers-oas",
-  "gift-certificates-oas",
-  "orders-oas",
-  "products-oas",
-  "preferences-oas",
-  "promotions-oas",
-  "search-oas",
-  "seo-oas",
-  "slas-admin-oas",
-  "source-code-groups-oas",
-  "shopper-baskets-oas",
-  "shopper-context-oas",
-  "shopper-experience-oas",
-  "shopper-login-oas",
-  "shopper-stores-oas",
-  "shopper-consents-oas",
-];
-
 export const PRODUCTION_API_PATH = `${__dirname}/../../apis`;
 
 export const CUSTOM_METADATA = {

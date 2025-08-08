@@ -7,9 +7,8 @@
 
 import path from "path";
 import fs from "fs-extra";
-import { updateApis } from "./lib/utils";
+import { downloadLatestApis } from "./lib/utils";
 import {
-  API_FAMILIES,
   PRODUCTION_API_PATH,
   CUSTOM_METADATA,
 } from "./lib/config";
@@ -21,4 +20,7 @@ fs.writeJSONSync(
   CUSTOM_METADATA
 );
 
-API_FAMILIES.map((family) => updateApis(family, PRODUCTION_API_PATH, true));
+downloadLatestApis(
+  'category:Visibility = "External" category:"SDK Type" = "Commerce"',
+  PRODUCTION_API_PATH
+)
