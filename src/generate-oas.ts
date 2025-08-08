@@ -46,8 +46,8 @@ function appendVersionIfV2(name: string, version: string): string {
  * Helper function. Also contains explicit workaround for some API names.
  */
 export function resolveApiName(name: string, version: string): string {
-  if (name === "Shopper Baskets OAS") {
-    return version === "v2" ? "ShopperBasketsV2" : "ShopperBasketsV1";
+  if (name === "Shopper Baskets OAS" && version === "v2") {
+    return "ShopperBasketsV2"
   }
   if (name === "CDN API - Process APIs OAS") {
     return "CDNZones";
@@ -81,10 +81,7 @@ export function getAPIDetailsFromExchange(directory: string): ApiSpecDetail {
     ) as download.ExchangeConfig;
 
     return {
-      filepath: path.join(
-        directory,
-        exchangeConfig.main.replace("-public.yaml", "-internal.yaml")
-      ),
+      filepath: path.join(directory, exchangeConfig.main),
       filename: exchangeConfig.main,
       directoryName: kebabToCamelCase(
         appendVersionIfV2(
