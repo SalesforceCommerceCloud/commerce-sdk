@@ -34,6 +34,7 @@ export const API_FAMILIES = [
   "shopper-experience-oas",
   "shopper-login-oas",
   "shopper-stores-oas",
+  "shopper-consents-oas",
 ];
 
 export const PRODUCTION_API_PATH = `${__dirname}/../../apis`;
