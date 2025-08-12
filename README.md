@@ -137,10 +137,10 @@ async function getGuestUserAuthToken(): Promise<ShopperLoginTypes.TokenResponse>
 }
 
 // Alternatively you may use the SLAS helper functions to generate JWT/access token
-const guestTokenResponse = await slasHelpers.loginGuestUser(
-    new ShopperLogin(config), 
-    { redirectURI: 'http://localhost:3000/callback' }
-  )
+const guestTokenResponse = await slasHelpers.loginGuestUser({
+    slasClient: new ShopperLogin(config), 
+    parameters: { redirectURI: 'http://localhost:3000/callback' }
+  })
   .then((guestTokenResponse) => {
     console.log("Guest Token Response: ", guestTokenResponse);
     return guestTokenResponse;
