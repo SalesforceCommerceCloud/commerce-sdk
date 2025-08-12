@@ -47,7 +47,7 @@ function appendVersionIfV2(name: string, version: string): string {
  */
 export function resolveApiName(name: string, version: string): string {
   if (name === "Shopper Baskets OAS" && version === "v2") {
-    return "ShopperBasketsV2"
+    return "ShopperBasketsV2";
   }
   if (name === "CDN API - Process APIs OAS") {
     return "CDNZones";

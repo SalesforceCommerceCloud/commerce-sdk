@@ -21,14 +21,14 @@ export function removeInternalOas(directoryPath: string): void {
 
   const items = fs.readdirSync(directoryPath);
 
-  items.forEach(item => {
+  items.forEach((item) => {
     const fullPath = path.join(directoryPath, item);
     const stat = fs.statSync(fullPath);
 
     if (stat.isDirectory()) {
       // Recursively process subdirectories
       removeInternalOas(fullPath);
-    } else if (stat.isFile() && item.endsWith('-internal.yaml')) {
+    } else if (stat.isFile() && item.endsWith("-internal.yaml")) {
       // Remove internal files
       fs.removeSync(fullPath);
       console.log(`Removed internal file: ${fullPath}`);
@@ -40,5 +40,5 @@ export function removeInternalOas(directoryPath: string): void {
 if (require.main === module) {
   console.log(`Removing internal OAS files from: ${PRODUCTION_API_PATH}`);
   removeInternalOas(PRODUCTION_API_PATH);
-  console.log('Internal OAS files removal completed.');
+  console.log("Internal OAS files removal completed.");
 }
