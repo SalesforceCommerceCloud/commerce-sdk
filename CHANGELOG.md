@@ -1,11 +1,45 @@
-## CHANGELOG
+# CHANGELOG
 
 ## v5.0.0
+
+### API Versions
+
+| API Name | API Version |
+|----------|-------------|
+| assignments | 1.0.35 |
+| campaigns | 1.0.37 |
+| catalogs | 1.0.42 |
+| cdn-api-process-apis | 1.0.39 |
+| cors-preferences | 1.0.5 |
+| coupons | 1.0.39 |
+| customers | 1.0.32 |
+| gift-certificates | 1.0.39 |
+| orders | 1.4.10 |
+| preferences | 1.1.3 |
+| products | 1.0.40 |
+| promotions | 1.0.33 |
+| shopper-baskets | 1.9.0 |
+| shopper-baskets | 2.1.0 |
+| shopper-consents | 1.1.0 |
+| shopper-context | 1.1.1 |
+| shopper-customers | 1.1.1 |
+| shopper-experience | 1.0.7 |
+| shopper-gift-certificates | 1.0.26 |
+| shopper-login | 1.39.41 |
+| shopper-orders | 1.5.0 |
+| shopper-products | 1.0.37 |
+| shopper-promotions | 1.0.36 |
+| shopper-search | 1.3.0 |
+| shopper-seo | 1.0.13 |
+| shopper-stores | 1.0.17 |
+| slas-admin | 1.12.30 |
+| source-code-groups | 1.0.37 |
 
 ### Enchancements
 - Enum types have been added for certain operations and types
 - Certain operations have had types updated for query parameters
 - SLAS helpers have been refactored to accept a single `options` object argument, where the properties are the old arguments
+  - `loginGuestUserPrivate` now passes `usid` under `options.parameters`
 - Path parameter special characters are encoded by default
 - API family layer and API namespace has been removed. To import API classes, please refer to the [README](https://github.com/SalesforceCommerceCloud/commerce-sdk?tab=readme-ov-file#sample-code)
 - Docs Site has been upgraded to reflect new directory structure [#426](https://github.com/SalesforceCommerceCloud/commerce-sdk/pull/426)

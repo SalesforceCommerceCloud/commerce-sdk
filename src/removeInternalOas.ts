@@ -12,8 +12,16 @@ import { PRODUCTION_API_PATH } from "./lib/config";
 /**
  * Recursively removes all files ending in '-internal.yaml' from a directory and its subdirectories
  * @param directoryPath - The path to the directory to process
+ * @param depth - The depth of the directory to process, we limit the depth to 3 to avoid infinite recursion
  */
-export function removeInternalOas(directoryPath: string): void {
+export function removeInternalOas(directoryPath: string, depth = 0): void {
+  if (depth > 3) {
+    console.warn(
+      `Reached maximum depth (${depth}) for directory: ${directoryPath}`
+    );
+    return;
+  }
+
   if (!fs.existsSync(directoryPath)) {
     console.warn(`Directory does not exist: ${directoryPath}`);
     return;
@@ -27,7 +35,7 @@ export function removeInternalOas(directoryPath: string): void {
 
     if (stat.isDirectory()) {
       // Recursively process subdirectories
-      removeInternalOas(fullPath);
+      removeInternalOas(fullPath, depth + 1);
     } else if (stat.isFile() && item.endsWith("-internal.yaml")) {
       // Remove internal files
       fs.removeSync(fullPath);

@@ -6,37 +6,31 @@
  */
 
 import { download } from "@commerce-apps/raml-toolkit";
-import path from "path";
 
 /**
- * Updates a set of APIs for an api family and saves it to a path.
+ * Searches for an API by name and downloads it to a folder.
  *
  * NOTE: Coverage passes without this function being covered.
- *  We should have some followup to figure out how to cover it.
- *  Ive spent hours trying to mock download
- *
- * @param apiFamily - Api family to download
+ * We should have some followup to figure out how to cover it.
+ * Ive spent hours trying to mock download
+ * @param searchQuery - Query to search exchange
  * @param rootPath - Root path to download to
- *
  * @returns a promise that we will complete
  */
-export async function updateApis(
-  apiFamily: string,
-  rootPath: string,
-  isOas: boolean
+export async function downloadLatestApis(
+  searchQuery: string,
+  rootPath: string
 ): Promise<void> {
+  const matchedApis = await download.search(searchQuery, undefined, true);
+  if (!(matchedApis?.length > 0)) {
+    throw new Error(`No results in Exchange for '${searchQuery}'`);
+  }
   try {
-    const apis = await download.search(
-      `"${apiFamily}" category:Visibility = "External" category:"SDK Type" = "Commerce"`,
-      undefined, // passing undefined here is intentional. this argument corresponds to the deployment parameter, which has been deprecated
-      true
-    );
-    await download.downloadRestApis(
-      apis,
-      path.join(rootPath, apiFamily),
-      isOas
-    );
-  } catch (e) {
-    console.error(e);
+    await download.downloadRestApis(matchedApis, rootPath, true);
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      err.message = `Failed to download API specs: ${err.message}`;
+    }
+    throw err;
   }
 }

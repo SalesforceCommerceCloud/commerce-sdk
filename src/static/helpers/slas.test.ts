@@ -222,6 +222,7 @@ describe("Guest user flow", () => {
       grant_type: "client_credentials",
       channel_id: "site_id",
     },
+    parameters: {},
   };
 
   const expectedOptionsPublic = {

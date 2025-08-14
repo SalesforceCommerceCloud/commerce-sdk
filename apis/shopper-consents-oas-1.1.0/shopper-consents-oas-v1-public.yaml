@@ -1,0 +1,528 @@
+openapi: 3.0.3
+info:
+  title: Shopper Consents
+  version: v1
+  description: |-
+    # Shopper Consent
+
+    ## API Overview
+
+    The Shopper Consent API offers a centralized method for managing shopper consent. With this API, shoppers can view and update subscription preferences for marketing communications across various channels. This API controls how and where shoppers receive marketing messages while ensuring compliance with privacy regulations.
+
+    ## Key Features
+
+    - Multi-Channel Support: Manage communication subscriptions across email, SMS, push notifications, in-app messages, and postal mail.
+    - Organization-Based Management: Isolate consent preferences by organization for multi-tenant environments.
+    - Real-Time Updates: Instantly create and retrieve subscription preferences.
+    - Compliance Ready: Built with privacy regulations and consent-management best practices in mind.
+
+    ## Authentication & Authorization
+
+    The Shopper Consent API requires a JSON Web Token acquired using the Shopper Consent endpoint:
+    ```
+    https://{{shortcode}}.api.commercecloud.salesforce.com/customer/shopper-customers/v1/organizations/{{organizationId}}/customers/actions/login
+    ```
+    You must include the relevant scope(s) in the client ID used to generate the SLAS token.
+
+    ### Required Scopes
+
+    - `sfcc.shopper-consents`: Required for reading communication subscription data (GET operations).
+    - `sfcc.shopper-consents.rw`: Required for creating and modifying communication subscription data (POST operations).
+
+    ## Use Cases
+
+    ### Shopper Subscription Management
+    - Retrieve communication subscriptions: Retrieve relevant communication subscription options with display information.
+        - Guest shoppers can retrieve communication subscriptions options without pre-defined shopper credentials, for example: email address, phone number.
+        - Authenticated shoppers can retrieve communication subscription options available to their shopper credentials.
+        - Communication subscription options can be filtered by one or more qualifying tags.
+    - Update communication subscription consent preferences.
+
+    ## Data Model
+
+    ### Subscriptions
+    Subscriptions represent a shopper's consent to receive specific types of marketing communications. Each subscription includes:
+
+    - Identifier: Descriptive identifier
+    - Consent Status: Opt-in or opt-out
+    - Display Information: Title, subtitle, and description for customer-facing interfaces
+    - Tags: Categorical tags indicating where the subscription option can appear
+    - Channels: Supported communication methods, such as email, SMS, push notification
+
+    ### Channels
+    Channels define the communication methods available for a subscription:
+    - `email`: Email communications
+    - `sms`: SMS/text messages
+    - `whatsapp`: WhatsApp
+
+    ### Tags
+    Tags indicate where subscription options are displayed in your shopper experience. Tags are also accepted as optional filtering parameters in the retrieval of shopper consent subscriptions. For example:
+    - `homepage_banner`: Main website homepage
+    - `registration`: Shopper registration process
+    - `checkout`: Checkout process
+    - `user_profile`: User profile management area
+
+    ## Best Practices
+
+    ### User Experience
+    - Make it easy for shoppers to update their preferences.
+    - Respect shopper choices immediately.
+
+    ### Implementation Guidelines
+    - Implement clear and prominent unsubscribe mechanisms.
+
+    ### Compliance Considerations
+    - Ensure consent is freely given, specific, informed, and unambiguous.
+    - Implement proper data retention and deletion policies.
+    - Provide easy access to consent history and preferences.
+
+    ## Error Handling
+
+    The API uses standard HTTP status codes and returns detailed error information to help with troubleshooting:
+
+    - `400 Bad Request`: Invalid request format or missing required fields
+    - `401 Unauthorized`: Invalid or missing authentication token
+    - `403 Forbidden`: Insufficient permissions for the requested operation
+    - `404 Not Found`: Requested organization or resource not found
+    - `500 Internal Server Error`: Unexpected server error
+
+    ## Rate Limits
+
+    To ensure fair usage and system stability, the Shopper Consent API implements rate limiting. Refer to the response headers for current rate limit status and adjust your integration accordingly.
+servers:
+  - url: https://{shortCode}.api.commercecloud.salesforce.com/shopper/shopper-consents/v1
+    variables:
+      shortCode:
+        default: shortCode
+paths:
+  /organizations/{organizationId}/subscriptions:
+    get:
+      summary: Get shopper consent preferences
+      description: Retrieve all subcription preferences for the shopper (authenticated or guest)
+      operationId: getSubscriptions
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+        - $ref: '#/components/parameters/locale'
+        - $ref: '#/components/parameters/tags'
+      responses:
+        '200':
+          description: |
+            Successfully retrieved subscription preferences.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentSubscriptionResponse'
+              examples:
+                ConsentSubscriptionResponseAuthenticated:
+                  $ref: '#/components/examples/ConsentSubscriptionResponseAuthenticated'
+                ConsentSubscriptionResponseGuest:
+                  $ref: '#/components/examples/ConsentSubscriptionResponseGuest'
+        '400':
+          description: |
+            Error retrieving subscription preferences
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ConsentSubscriptionError:
+                  $ref: '#/components/examples/ConsentSubscriptionError'
+      security:
+        - ShopperToken:
+            - sfcc.shopper-consents
+    post:
+      summary: Update shopper subscription preferences
+      description: Update the consent status for a given subscription.
+      operationId: updateSubscription
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+        - $ref: '#/components/parameters/locale'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsentSubscriptionRequest'
+            examples:
+              ConsentSubscriptionUpdateRequest:
+                $ref: '#/components/examples/ConsentSubscriptionUpdateRequest'
+      responses:
+        '200':
+          description: |
+            Successfully created or updated consent status.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentSubscription'
+              examples:
+                ConsentSubscriptionUpdateResponse:
+                  $ref: '#/components/examples/ConsentSubscriptionUpdateResponse'
+        '400':
+          description: |
+            Error updating consent status
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ConsentSubscriptionUpdateError:
+                  $ref: '#/components/examples/ConsentSubscriptionUpdateError'
+      security:
+        - ShopperToken:
+            - sfcc.shopper-consents.rw
+components:
+  securitySchemes:
+    ShopperToken:
+      type: oauth2
+      description: "ShopperToken authentication follows the authorization code grant flow, as defined by the OAuth 2.1 standard. Depending on the type of OAuth client (public or private), this authorization flow has further requirements. \nFor a detailed description of the authorization flow, see the [SLAS overview](https://developer.salesforce.com/docs/commerce/commerce-api/references?meta=shopper-login:Summary).\nA shopper token allows you to access the Shopper API endpoints B2C Commerce API. These endpoints can be used to build headless storefronts and other applications.\nThe `ShopperToken` security scheme is a parent of other security schemes, such as `ShopperTokenTsob`. A Shopper API endpoint can require a specific child scheme (`ShopperTokenTsob`, for example) that cannot be accessed with a regular shopper token.\n"
+      flows:
+        clientCredentials:
+          tokenUrl: https://{shortCode}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
+          scopes:
+            sfcc:shopper-consents: Allows read operations on shopper consents
+        authorizationCode:
+          authorizationUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/authorize
+          tokenUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
+          scopes:
+            sfcc.shopper-consents.rw: Allows read/write operations on shopper consents
+  schemas:
+    OrganizationId:
+      description: An identifier for the organization the request is being made by
+      example: f_ecom_zzxy_prd
+      type: string
+      minLength: 1
+      maxLength: 32
+    SiteId:
+      minLength: 1
+      maxLength: 32
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites
+      example: RefArch
+      type: string
+    LanguageCountry:
+      pattern: ^[a-z][a-z]-[A-Z][A-Z]$
+      description: A concatenated version of the standard Language and Country codes, combined with a hyphen '`-`'.
+      example: en-US
+      type: string
+    LanguageCode:
+      pattern: ^[a-z][a-z]$
+      description: A two letter lowercase language code conforming to the [ISO 639-1](https://www.iso.org/iso-639-language-codes.html) standard. Additionally, this may be used to submit requests with the header parameter `Accept-Language`, following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766).
+      example: en
+      type: string
+    DefaultFallback:
+      default: default
+      description: A specialized value indicating the system default values for locales.
+      example: default
+      enum:
+        - default
+      type: string
+    LocaleCode:
+      description: A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified.
+      oneOf:
+        - $ref: '#/components/schemas/LanguageCountry'
+        - $ref: '#/components/schemas/LanguageCode'
+        - $ref: '#/components/schemas/DefaultFallback'
+    Tag:
+      type: string
+      description: Filter criteria for consent subscriptions
+      minLength: 1
+      maxLength: 256
+      example: homepage_banner
+    SubscriptionId:
+      type: string
+      description: Identifier for the communication subscription
+      minLength: 1
+      maxLength: 255
+      pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
+      example: weekly-newsletter
+    ConsentId:
+      type: string
+      minLength: 19
+      maxLength: 339
+      description: |
+        Identifier for the shopper communication subscription consent -- formatted as `<contactPointValue>#<communicationSubscriptionChannelId>`
+      example:
+        - jack.sparrow@salesforce.com#0eBWs0000001HmnMAE
+        - +1 424 535 3546#0eBWs0000001HmnMAE
+    ContactPointValue:
+      type: string
+      minLength: 3
+      maxLength: 320
+      description: |
+        The customer's contact point value, polymorphic based on the channel type as below:
+        - `sms` - Subject's phone number in E.164 format, ex: `+1 424 535 3546`
+        - `email` - Subject's email address in RFC 5321 & RFC 5322 format, ex: `jack.sparrow@salesforce.com`
+      example:
+        - jack.sparrow@salesforce.com
+        - +1 424 535 3546
+    SubscriptionChannel:
+      type: string
+      enum:
+        - email
+        - sms
+        - push_notification
+        - in_app
+        - postal_mail
+        - whatsapp
+      example:
+        - email
+        - sms
+        - push_notification
+        - in_app
+        - postal_mail
+        - whatsapp
+    ConsentStatus:
+      type: string
+      description: The consent status of the subscription as supplied or recorded by this system
+      enum:
+        - opt_in
+        - opt_out
+      example:
+        - opt_in
+        - opt_out
+    SubscriptionTitle:
+      type: string
+      minLength: 1
+      maxLength: 255
+      example: Weekly Newsletter
+    SubscriptionSubtitle:
+      type: string
+      minLength: 1
+      maxLength: 255
+      example: Get our weekly newsletter with the latest updates
+    ConsentSubscription:
+      type: object
+      required:
+        - subscriptionId
+        - channel
+      properties:
+        subscriptionId:
+          $ref: '#/components/schemas/SubscriptionId'
+        consentId:
+          $ref: '#/components/schemas/ConsentId'
+        contactPointValue:
+          $ref: '#/components/schemas/ContactPointValue'
+        channel:
+          $ref: '#/components/schemas/SubscriptionChannel'
+        status:
+          $ref: '#/components/schemas/ConsentStatus'
+        title:
+          $ref: '#/components/schemas/SubscriptionTitle'
+        subtitle:
+          $ref: '#/components/schemas/SubscriptionSubtitle'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+          minItems: 0
+          maxItems: 10
+          example:
+            - homepage_banner
+            - user_profile
+    ConsentSubscriptionResponse:
+      type: object
+      description: Collection wrapper of consent subscriptions
+      required:
+        - data
+      properties:
+        data:
+          type: array
+          minItems: 0
+          maxItems: 50
+          items:
+            $ref: '#/components/schemas/ConsentSubscription'
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        title:
+          description: "A short, human-readable summary of the problem\ntype.  It will not change from occurrence to occurrence of the \nproblem, except for purposes of localization\n"
+          type: string
+          maxLength: 256
+          example: You do not have enough credit
+        type:
+          description: |
+            A URI reference [RFC3986] that identifies the
+            problem type.  This specification encourages that, when
+            dereferenced, it provide human-readable documentation for the
+            problem type (e.g., using HTML [W3C.REC-html5-20141028]).  When
+            this member is not present, its value is assumed to be
+            "about:blank". It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: NotEnoughMoney
+        detail:
+          description: A human-readable explanation specific to this occurrence of the problem.
+          type: string
+          example: Your current balance is 30, but that costs 50
+        instance:
+          description: |
+            A URI reference that identifies the specific
+            occurrence of the problem.  It may or may not yield further
+            information if dereferenced.  It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: /account/12345/msgs/abc
+      required:
+        - title
+        - type
+        - detail
+    ConsentSubscriptionRequest:
+      type: object
+      description: Consent subscription update request
+      required:
+        - subscriptionId
+        - contactPointValue
+        - channel
+        - status
+      properties:
+        subscriptionId:
+          $ref: '#/components/schemas/SubscriptionId'
+        contactPointValue:
+          $ref: '#/components/schemas/ContactPointValue'
+        channel:
+          $ref: '#/components/schemas/SubscriptionChannel'
+        status:
+          $ref: '#/components/schemas/ConsentStatus'
+  parameters:
+    organizationId:
+      description: An identifier for the organization the request is being made by
+      name: organizationId
+      in: path
+      required: true
+      example: f_ecom_zzxy_prd
+      schema:
+        $ref: '#/components/schemas/OrganizationId'
+    siteId:
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites.
+      name: siteId
+      in: query
+      required: true
+      examples:
+        SiteId:
+          value: RefArch
+      schema:
+        $ref: '#/components/schemas/SiteId'
+    locale:
+      description: A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified.
+      name: locale
+      in: query
+      examples:
+        LanguageCountry:
+          value: en-US
+        CountryCode:
+          value: US
+      schema:
+        $ref: '#/components/schemas/LocaleCode'
+    tags:
+      description: Optional parameter of 0 or more query string values which act as a filtering criteria. Multiple values are treated with `OR` logic, and absence of a value indicates no filtering by tag is desired.
+      name: tags
+      in: query
+      required: false
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/Tag'
+        minItems: 0
+        maxItems: 10
+      style: form
+      explode: false
+      examples:
+        one:
+          summary: One tag filter
+          value:
+            - homepage_banner
+        multiple:
+          summary: Multiple tag filters (ORs)
+          value:
+            - homepage_banner
+            - user_profile
+            - checkout
+            - registration
+  examples:
+    ConsentSubscriptionResponseAuthenticated:
+      summary: AUTHENTICATED shopper's available consent subscriptions
+      value:
+        data:
+          - subscriptionId: weekly-newsletter
+            contactPointValue: test@test.com
+            channel: email
+            status: opt_in
+            title: Weekly Newsletter
+            subtitle: Get our weekly newsletter with the latest updates.
+            tags:
+              - homepage_banner
+              - user_profile
+          - subscriptionId: weekly-newsletter
+            contactPointValue: +1 555 321 7654
+            channel: whatsapp
+            status: opt_in
+            title: Weekly Newsletter
+            subtitle: Get our weekly newsletter with the latest updates.
+            tags:
+              - user_profile
+          - subscriptionId: promotional-offers
+            contactPointValue: +1 555 123 4567
+            channel: sms
+            status: opt_out
+            title: Promotional Offers
+            subtitle: Receive special promotional offers.
+            tags:
+              - checkout
+    ConsentSubscriptionResponseGuest:
+      summary: GUEST shopper's available consent subscriptions
+      value:
+        data:
+          - subscriptionId: weekly-newsletter
+            channel: email
+            title: Weekly Newsletter
+            subtitle: Get our weekly newsletter with the latest updates.
+            tags:
+              - homepage_banner
+              - user_profile
+          - subscriptionId: weekly-newsletter
+            channel: whatsapp
+            title: Weekly Newsletter
+            subtitle: Get our weekly newsletter with the latest updates.
+            tags:
+              - user_profile
+          - subscriptionId: promotional-offers
+            channel: sms
+            title: Promotional Offers
+            subtitle: Receive special promotional offers.
+            tags:
+              - checkout
+    ConsentSubscriptionError:
+      value:
+        title: Error Retrieving Consent Subscription
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/bad-request
+        detail: Error retrieving consent subscription.
+    ConsentSubscriptionUpdateRequest:
+      summary: Shopper's consent subscription update request
+      value:
+        subscriptionId: weekly-newsletter
+        contactPointValue: test@test.com
+        channel: email
+        status: opt_in
+    ConsentSubscriptionUpdateResponse:
+      summary: Shopper's consent subscription update response
+      value:
+        subscriptionId: weekly-newsletter
+        contactPointValue: test@test.com
+        channel: email
+        status: opt_in
+        title: Weekly Newsletter
+        subtitle: Get our weekly newsletter with the latest updates.
+        tags:
+          - homepage_banner
+          - user_profile
+    ConsentSubscriptionUpdateError:
+      value:
+        title: Error Updating Consent Subscription
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/validation
+        detail: Consent subscription could not be updated.

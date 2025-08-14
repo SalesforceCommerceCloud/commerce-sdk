@@ -19,7 +19,6 @@ import type { RequestRedirect } from "node-fetch";
 
 /**
  * Converts a string into Base64 encoding
- *
  * @param unencoded - A string to be encoded
  * @returns Base64 encoded string
  */
@@ -28,7 +27,6 @@ export const stringToBase64 = (unencoded: string): string =>
 
 /**
  * Parse out the code and usid from a redirect url
- *
  * @param urlString - A url that contains `code` and `usid` query parameters, typically returned when calling a Shopper Login endpoint
  * @returns An object containing the code and usid.
  */
@@ -48,14 +46,12 @@ export const getCodeAndUsidFromUrl = (
 
 /**
  * Creates a random string to use as a code verifier. This code is created by the client and sent with both the authorization request (as a code challenge) and the token request.
- *
  * @returns code verifier
  */
 export const createCodeVerifier = (): string => nanoid(128);
 
 /**
  * Encodes a code verifier to a code challenge to send to the authorization endpoint
- *
  * @param codeVerifier - random string to use as a code verifier
  * @returns code challenge
  */
@@ -135,7 +131,8 @@ export async function authorize(options: {
  * @param options.slasClient - a configured instance of the ShopperLogin SDK client
  * @param options.credentials - client secret used for authentication
  * @param options.credentials.clientSecret - secret associated with client ID
- * @param options.usid? - optional Unique Shopper Identifier to enable personalization
+ * @param options.parameters? - parameters to pass in the API calls. Custom parameters can be passed in with the prefix `c_` (e.g. c_myParam), and they be passed on the `authorizeCustomer` endpoint.
+ * @param options.parameters.usid? - optional Unique Shopper Identifier to enable personalization
  * @returns TokenResponse
  */
 export async function loginGuestUserPrivate(options: {
@@ -143,9 +140,12 @@ export async function loginGuestUserPrivate(options: {
   credentials: {
     clientSecret: string;
   };
-  usid?: string;
+  parameters?: {
+    usid?: string;
+  } & CustomQueryParameters;
 }): Promise<TokenResponse> {
-  const { slasClient, credentials, usid } = options;
+  const { slasClient, credentials } = options;
+  const { usid, ...restOfParams } = options.parameters || {};
   if (!slasClient.clientConfig.parameters?.siteId) {
     throw new Error(
       "Required argument channel_id is not provided through clientConfig.parameters.siteId"
@@ -159,6 +159,9 @@ export async function loginGuestUserPrivate(options: {
   const opts = {
     headers: {
       Authorization: authorization,
+    },
+    parameters: {
+      ...restOfParams,
     },
     body: {
       grant_type: "client_credentials",
