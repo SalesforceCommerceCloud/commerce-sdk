@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2025, Salesforce, Inc.
+ * Copyright (c) 2025, salesforce.com, inc.
  * All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from "fs";
+import * as path from "path";
 
 interface ApiVersion {
   name: string;
@@ -16,9 +16,9 @@ function extractApiVersionsFromDirectory(apisDir: string): ApiVersion[] {
   const apiVersions: ApiVersion[] = [];
 
   try {
-    const entries = fs.readdirSync(apisDir, {withFileTypes: true});
+    const entries = fs.readdirSync(apisDir, { withFileTypes: true });
 
-    entries.forEach(entry => {
+    entries.forEach((entry) => {
       if (entry.isDirectory()) {
         const dirName = entry.name;
 
@@ -37,7 +37,7 @@ function extractApiVersionsFromDirectory(apisDir: string): ApiVersion[] {
       }
     });
   } catch (error) {
-    console.error('Error reading APIs directory:', error);
+    console.error("Error reading APIs directory:", error);
     process.exit(1);
   }
 
@@ -45,11 +45,11 @@ function extractApiVersionsFromDirectory(apisDir: string): ApiVersion[] {
 }
 
 function generateVersionTable(apiVersions: ApiVersion[]): string {
-  let table = '### API Versions\n\n';
-  table += '| API Name | API Version |\n';
-  table += '|----------|-------------|\n';
+  let table = "### API Versions\n\n";
+  table += "| API Name | API Version |\n";
+  table += "|----------|-------------|\n";
 
-  apiVersions.forEach(api => {
+  apiVersions.forEach((api) => {
     table += `| ${api.name} | ${api.version} |\n`;
   });
 
@@ -58,7 +58,7 @@ function generateVersionTable(apiVersions: ApiVersion[]): string {
 
 function updateChangelog(changelogPath: string, versionTable: string) {
   try {
-    let changelogContent = fs.readFileSync(changelogPath, 'utf8');
+    let changelogContent = fs.readFileSync(changelogPath, "utf8");
 
     // Find the most recent version section (first ## heading)
     const versionSectionMatch = /(## .+?\n\n)/.exec(changelogContent);
@@ -108,22 +108,22 @@ function updateChangelog(changelogPath: string, versionTable: string) {
       changelogContent += `\n\n${versionTable}`;
     }
 
-    fs.writeFileSync(changelogPath, changelogContent, 'utf8');
-    console.log('✅ Successfully updated CHANGELOG.md with API version table');
+    fs.writeFileSync(changelogPath, changelogContent, "utf8");
+    console.log("✅ Successfully updated CHANGELOG.md with API version table");
   } catch (error) {
-    console.error('Error updating CHANGELOG.md:', error);
+    console.error("Error updating CHANGELOG.md:", error);
     process.exit(1);
   }
 }
 
 function main() {
   const apiVersions = extractApiVersionsFromDirectory(
-    path.join(__dirname, '../apis')
+    path.join(__dirname, "../apis")
   );
   const versionTable = generateVersionTable(apiVersions);
-  console.log('Generated version table:');
+  console.log("Generated version table:");
   console.log(versionTable);
-  updateChangelog(path.join(__dirname, '../CHANGELOG.md'), versionTable);
+  updateChangelog(path.join(__dirname, "../CHANGELOG.md"), versionTable);
 }
 
 if (require.main === module) {
