@@ -1,0 +1,608 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>ShopperConsents | commerce-sdk</title>
+	<meta name="description" content="Documentation for commerce-sdk">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">commerce-sdk</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="../modules/shopperconsents.html">shopperConsents</a>
+				</li>
+				<li>
+					<a href="shopperconsents.shopperconsents-3.html">ShopperConsents</a>
+				</li>
+			</ul>
+			<h1>Class ShopperConsents</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<a href="#shopper-consents" id="shopper-consents" style="color: inherit; text-decoration: none;">
+							<h1><a href="https://developer.salesforce.com/docs/commerce/commerce-api/references?meta=shopper-consents:Summary">Shopper Consents</a></h1>
+						</a>
+					</div>
+					<p>*# Shopper Consent</p>
+					<a href="#api-overview" id="api-overview" style="color: inherit; text-decoration: none;">
+						<h2>API Overview</h2>
+					</a>
+					<p>The Shopper Consent API offers a centralized method for managing shopper consent. With this API, shoppers can view and update subscription preferences for marketing communications across various channels. This API controls how and where shoppers receive marketing messages while ensuring compliance with privacy regulations.</p>
+					<a href="#key-features" id="key-features" style="color: inherit; text-decoration: none;">
+						<h2>Key Features</h2>
+					</a>
+					<ul>
+						<li>Multi-Channel Support: Manage communication subscriptions across email, SMS, push notifications, in-app messages, and postal mail.</li>
+						<li>Organization-Based Management: Isolate consent preferences by organization for multi-tenant environments.</li>
+						<li>Real-Time Updates: Instantly create and retrieve subscription preferences.</li>
+						<li>Compliance Ready: Built with privacy regulations and consent-management best practices in mind.</li>
+					</ul>
+					<a href="#authentication-amp-authorization" id="authentication-amp-authorization" style="color: inherit; text-decoration: none;">
+						<h2>Authentication &amp; Authorization</h2>
+					</a>
+					<p>The Shopper Consent API requires a JSON Web Token acquired using the Shopper Consent endpoint:</p>
+					<pre><code>https:<span class="hljs-regexp">//</span>{{shortcode}}.api.commercecloud.salesforce.com<span class="hljs-regexp">/customer/</span>shopper-customers<span class="hljs-regexp">/v1/</span>organizations<span class="hljs-regexp">/{{organizationId}}/</span>customers<span class="hljs-regexp">/actions/</span>login</code></pre><p>You must include the relevant scope(s) in the client ID used to generate the SLAS token.</p>
+					<a href="#required-scopes" id="required-scopes" style="color: inherit; text-decoration: none;">
+						<h3>Required Scopes</h3>
+					</a>
+					<ul>
+						<li><code>sfcc.shopper-consents</code>: Required for reading communication subscription data (GET operations).</li>
+						<li><code>sfcc.shopper-consents.rw</code>: Required for creating and modifying communication subscription data (POST operations).</li>
+					</ul>
+					<a href="#use-cases" id="use-cases" style="color: inherit; text-decoration: none;">
+						<h2>Use Cases</h2>
+					</a>
+					<a href="#shopper-subscription-management" id="shopper-subscription-management" style="color: inherit; text-decoration: none;">
+						<h3>Shopper Subscription Management</h3>
+					</a>
+					<ul>
+						<li>Retrieve communication subscriptions: Retrieve relevant communication subscription options with display information.</li>
+						<li>Guest shoppers can retrieve communication subscriptions options without pre-defined shopper credentials, for example: email address, phone number.</li>
+						<li>Authenticated shoppers can retrieve communication subscription options available to their shopper credentials.</li>
+						<li>Communication subscription options can be filtered by one or more qualifying tags.</li>
+						<li>Update communication subscription consent preferences.</li>
+					</ul>
+					<a href="#data-model" id="data-model" style="color: inherit; text-decoration: none;">
+						<h2>Data Model</h2>
+					</a>
+					<a href="#subscriptions" id="subscriptions" style="color: inherit; text-decoration: none;">
+						<h3>Subscriptions</h3>
+					</a>
+					<p>Subscriptions represent a shopper&#39;s consent to receive specific types of marketing communications. Each subscription includes:</p>
+					<ul>
+						<li>Identifier: Descriptive identifier</li>
+						<li>Consent Status: Opt-in or opt-out</li>
+						<li>Display Information: Title, subtitle, and description for customer-facing interfaces</li>
+						<li>Tags: Categorical tags indicating where the subscription option can appear</li>
+						<li>Channels: Supported communication methods, such as email, SMS, push notification</li>
+					</ul>
+					<a href="#channels" id="channels" style="color: inherit; text-decoration: none;">
+						<h3>Channels</h3>
+					</a>
+					<p>Channels define the communication methods available for a subscription:</p>
+					<ul>
+						<li><code>email</code>: Email communications</li>
+						<li><code>sms</code>: SMS/text messages</li>
+						<li><code>whatsapp</code>: WhatsApp</li>
+					</ul>
+					<a href="#tags" id="tags" style="color: inherit; text-decoration: none;">
+						<h3>Tags</h3>
+					</a>
+					<p>Tags indicate where subscription options are displayed in your shopper experience. Tags are also accepted as optional filtering parameters in the retrieval of shopper consent subscriptions. For example:</p>
+					<ul>
+						<li><code>homepage_banner</code>: Main website homepage</li>
+						<li><code>registration</code>: Shopper registration process</li>
+						<li><code>checkout</code>: Checkout process</li>
+						<li><code>user_profile</code>: User profile management area</li>
+					</ul>
+					<a href="#best-practices" id="best-practices" style="color: inherit; text-decoration: none;">
+						<h2>Best Practices</h2>
+					</a>
+					<a href="#user-experience" id="user-experience" style="color: inherit; text-decoration: none;">
+						<h3>User Experience</h3>
+					</a>
+					<ul>
+						<li>Make it easy for shoppers to update their preferences.</li>
+						<li>Respect shopper choices immediately.</li>
+					</ul>
+					<a href="#implementation-guidelines" id="implementation-guidelines" style="color: inherit; text-decoration: none;">
+						<h3>Implementation Guidelines</h3>
+					</a>
+					<ul>
+						<li>Implement clear and prominent unsubscribe mechanisms.</li>
+					</ul>
+					<a href="#compliance-considerations" id="compliance-considerations" style="color: inherit; text-decoration: none;">
+						<h3>Compliance Considerations</h3>
+					</a>
+					<ul>
+						<li>Ensure consent is freely given, specific, informed, and unambiguous.</li>
+						<li>Implement proper data retention and deletion policies.</li>
+						<li>Provide easy access to consent history and preferences.</li>
+					</ul>
+					<a href="#error-handling" id="error-handling" style="color: inherit; text-decoration: none;">
+						<h2>Error Handling</h2>
+					</a>
+					<p>The API uses standard HTTP status codes and returns detailed error information to help with troubleshooting:</p>
+					<ul>
+						<li><code>400 Bad Request</code>: Invalid request format or missing required fields</li>
+						<li><code>401 Unauthorized</code>: Invalid or missing authentication token</li>
+						<li><code>403 Forbidden</code>: Insufficient permissions for the requested operation</li>
+						<li><code>404 Not Found</code>: Requested organization or resource not found</li>
+						<li><code>500 Internal Server Error</code>: Unexpected server error</li>
+					</ul>
+					<a href="#rate-limits" id="rate-limits" style="color: inherit; text-decoration: none;">
+						<h2>Rate Limits</h2>
+					</a>
+					<p>To ensure fair usage and system stability, the Shopper Consent API implements rate limiting. Refer to the response headers for current rate limit status and adjust your integration accordingly.* <br /></p>
+					<p>For instructions on how to retrieve access token for admin APIs: <a><a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html">https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html</a></a> <br /> <br />
+					Example with admin auth</p>
+					<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { ShopperConsents, ClientConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
+<span class="hljs-comment">// or</span>
+<span class="hljs-keyword">const</span> { ShopperConsents, ClientConfig } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;commerce-sdk&quot;</span>);
+
+<span class="hljs-keyword">const</span> clientConfig: ClientConfig = {
+  <span class="hljs-attr">parameters</span>: {
+    <span class="hljs-attr">clientId</span>: <span class="hljs-string">&quot;XXXXXX&quot;</span>,
+    <span class="hljs-attr">organizationId</span>: <span class="hljs-string">&quot;XXXX&quot;</span>,
+    <span class="hljs-attr">shortCode</span>: <span class="hljs-string">&quot;XXX&quot;</span>,
+    <span class="hljs-attr">siteId</span>: <span class="hljs-string">&quot;XX&quot;</span>
+  }
+};
+
+token = { <span class="hljs-attr">access_token</span>: <span class="hljs-string">&#x27;INSERT_ACCESS_TOKEN_HERE&#x27;</span> };
+
+clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>] = <span class="hljs-string">`Bearer <span class="hljs-subst">${token.access_token}</span>`</span>;
+<span class="hljs-keyword">const</span> shopperConsentsClient = <span class="hljs-keyword">new</span> ShopperConsents(clientConfig);</code></pre>
+					<span style="font-size:.7em; display:block; text-align: right">
+						API Version: 1.4.4<br />
+						Last Updated: <br />
+					</span>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="tsd-signature-type">BaseClient</span>
+						<ul class="tsd-hierarchy">
+							<li>
+								<span class="target">ShopperConsents</span>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Constructors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite"><a href="shopperconsents.shopperconsents-3.html#constructor" class="tsd-kind-icon">constructor</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section tsd-is-inherited">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="shopperconsents.shopperconsents-3.html#clientconfig" class="tsd-kind-icon">client<wbr>Config</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="shopperconsents.shopperconsents-3.html#getsubscriptions" class="tsd-kind-icon">get<wbr>Subscriptions</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="shopperconsents.shopperconsents-3.html#updatesubscription" class="tsd-kind-icon">update<wbr>Subscription</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Constructors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
+					<a name="constructor" class="tsd-anchor"></a>
+					<h3>constructor</h3>
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Shopper<wbr>Consents<span class="tsd-signature-symbol">(</span>config<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ClientConfig</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="shopperconsents.shopperconsents-3.html" class="tsd-signature-type">ShopperConsents</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Overrides BaseClient.__constructor</p>
+								<ul>
+									<li>Defined in renderedTemplates/shopperConsents/apis/DefaultApi.ts:152</li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>config: <span class="tsd-signature-type">ClientConfig</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="shopperconsents.shopperconsents-3.html" class="tsd-signature-type">ShopperConsents</a></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+					<a name="clientconfig" class="tsd-anchor"></a>
+					<h3>client<wbr>Config</h3>
+					<div class="tsd-signature tsd-kind-icon">client<wbr>Config<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">ClientConfig</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="assignments.assignments-3.html">Assignments</a>.<a href="assignments.assignments-3.html#clientconfig">clientConfig</a></p>
+						<ul>
+							<li>Defined in node_modules/@commerce-apps/core/dist/base/client.d.ts:28</li>
+						</ul>
+					</aside>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+					<a name="getsubscriptions" class="tsd-anchor"></a>
+					<h3>get<wbr>Subscriptions</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Subscriptions<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperconsents.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>tags<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/shopperconsents.html#consentsubscriptionresponse" class="tsd-signature-type">ConsentSubscriptionResponse</a><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Subscriptions&lt;T&gt;<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperconsents.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>tags<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span>, rawResponse<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">Response</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">ConsentSubscriptionResponse</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in renderedTemplates/shopperConsents/apis/DefaultApi.ts:180</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Retrieve all subcription preferences for the shopper (authenticated or guest)</p>
+								</div>
+								<p>If you would like to get a raw Response object use the other getSubscriptions function.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperconsents.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>tags<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>An object containing the options for this method.</p>
+										</div>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/shopperconsents.html#consentsubscriptionresponse" class="tsd-signature-type">ConsentSubscriptionResponse</a><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>A promise of type ConsentSubscriptionResponse.</p>
+						</li>
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in renderedTemplates/shopperConsents/apis/DefaultApi.ts:210</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Retrieve all subcription preferences for the shopper (authenticated or guest)</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperconsents.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>tags<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>An object containing the options for this method.</p>
+										</div>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> rawResponse: <span class="tsd-signature-type">T</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>Set to true to return entire Response object instead of DTO.</p>
+										</div>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">Response</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">ConsentSubscriptionResponse</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>A promise of type Response if rawResponse is true, a promise of type ConsentSubscriptionResponse otherwise.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+					<a name="updatesubscription" class="tsd-anchor"></a>
+					<h3>update<wbr>Subscription</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">update<wbr>Subscription<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">: </span><a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>body<span class="tsd-signature-symbol">: </span><a href="../modules/shopperconsents.html#consentsubscriptionrequest" class="tsd-signature-type">ConsentSubscriptionRequest</a><span class="tsd-signature-symbol">; </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperconsents.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/shopperconsents.html#consentsubscription" class="tsd-signature-type">ConsentSubscription</a><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">update<wbr>Subscription&lt;T&gt;<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">: </span><a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>body<span class="tsd-signature-symbol">: </span><a href="../modules/shopperconsents.html#consentsubscriptionrequest" class="tsd-signature-type">ConsentSubscriptionRequest</a><span class="tsd-signature-symbol">; </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperconsents.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span>, rawResponse<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">Response</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">ConsentSubscription</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in renderedTemplates/shopperConsents/apis/DefaultApi.ts:332</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Update the consent status for a given subscription.</p>
+								</div>
+								<p>If you would like to get a raw Response object use the other updateSubscription function.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>options: <a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>body<span class="tsd-signature-symbol">: </span><a href="../modules/shopperconsents.html#consentsubscriptionrequest" class="tsd-signature-type">ConsentSubscriptionRequest</a><span class="tsd-signature-symbol">; </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperconsents.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>An object containing the options for this method.</p>
+										</div>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/shopperconsents.html#consentsubscription" class="tsd-signature-type">ConsentSubscription</a><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>A promise of type ConsentSubscription.</p>
+						</li>
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in renderedTemplates/shopperConsents/apis/DefaultApi.ts:362</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Update the consent status for a given subscription.</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>options: <a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>body<span class="tsd-signature-symbol">: </span><a href="../modules/shopperconsents.html#consentsubscriptionrequest" class="tsd-signature-type">ConsentSubscriptionRequest</a><span class="tsd-signature-symbol">; </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperconsents.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>An object containing the options for this method.</p>
+										</div>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> rawResponse: <span class="tsd-signature-type">T</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>Set to true to return entire Response object instead of DTO.</p>
+										</div>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">Response</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">ConsentSubscription</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>A promise of type Response if rawResponse is true, a promise of type ConsentSubscription otherwise.</p>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="../modules/shopperconsents.html">shopper<wbr>Consents</a>
+						<ul>
+							<li class=" tsd-kind-namespace tsd-parent-kind-module">
+								<a href="../modules/shopperconsents.shopperconsentstypes.html">Shopper<wbr>Consents<wbr>Types</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#consentstatus" class="tsd-kind-icon">Consent<wbr>Status</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#consentstatus-1" class="tsd-kind-icon">Consent<wbr>Status</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#consentsubscription" class="tsd-kind-icon">Consent<wbr>Subscription</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#consentsubscription-1" class="tsd-kind-icon">Consent<wbr>Subscription</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#consentsubscriptionrequest" class="tsd-kind-icon">Consent<wbr>Subscription<wbr>Request</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#consentsubscriptionrequest-1" class="tsd-kind-icon">Consent<wbr>Subscription<wbr>Request</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#consentsubscriptionresponse" class="tsd-kind-icon">Consent<wbr>Subscription<wbr>Response</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#consentsubscriptionresponse-1" class="tsd-kind-icon">Consent<wbr>Subscription<wbr>Response</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#defaultfallback" class="tsd-kind-icon">Default<wbr>Fallback</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#defaultfallback-1" class="tsd-kind-icon">Default<wbr>Fallback</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#errorresponse" class="tsd-kind-icon">Error<wbr>Response</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#errorresponse-1" class="tsd-kind-icon">Error<wbr>Response</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#localecode" class="tsd-kind-icon">Locale<wbr>Code</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#localecode-1" class="tsd-kind-icon">Locale<wbr>Code</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#shopperconsents-1" class="tsd-kind-icon">Shopper<wbr>Consents</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#shopperconsents-2" class="tsd-kind-icon">Shopper<wbr>Consents</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#subscriptionchannel" class="tsd-kind-icon">Subscription<wbr>Channel</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#subscriptionchannel-1" class="tsd-kind-icon">Subscription<wbr>Channel</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#defaultbaseuri" class="tsd-kind-icon">default<wbr>Base<wbr>Uri</a>
+					</li>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-class tsd-parent-kind-module">
+						<a href="shopperconsents.shopperconsents-3.html" class="tsd-kind-icon">Shopper<wbr>Consents</a>
+						<ul>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
+								<a href="shopperconsents.shopperconsents-3.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="shopperconsents.shopperconsents-3.html#clientconfig" class="tsd-kind-icon">client<wbr>Config</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+								<a href="shopperconsents.shopperconsents-3.html#getsubscriptions" class="tsd-kind-icon">get<wbr>Subscriptions</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+								<a href="shopperconsents.shopperconsents-3.html#updatesubscription" class="tsd-kind-icon">update<wbr>Subscription</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#consentstatus-2" class="tsd-kind-icon">Consent<wbr>Status</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#consentsubscription-2" class="tsd-kind-icon">Consent<wbr>Subscription</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#consentsubscriptionrequest-2" class="tsd-kind-icon">Consent<wbr>Subscription<wbr>Request</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#consentsubscriptionresponse-2" class="tsd-kind-icon">Consent<wbr>Subscription<wbr>Response</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#defaultfallback-2" class="tsd-kind-icon">Default<wbr>Fallback</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#errorresponse-2" class="tsd-kind-icon">Error<wbr>Response</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#localecode-2" class="tsd-kind-icon">Locale<wbr>Code</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#subscriptionchannel-2" class="tsd-kind-icon">Subscription<wbr>Channel</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-module">
+						<a href="../modules/shopperconsents.html#defaultbaseuri-1" class="tsd-kind-icon">default<wbr>Base<wbr>Uri</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-namespace"><span class="tsd-kind-icon">Namespace</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>
