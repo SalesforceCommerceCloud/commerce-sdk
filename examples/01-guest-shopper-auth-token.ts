@@ -32,7 +32,6 @@ const clientConfig: ClientConfig = {
 
 /**
  * Get the shopper or guest JWT/access token, along with a refresh token, using client credentials
- *
  * @returns guest user authorization token
  */
 async function getGuestUserAuthToken(): Promise<Customer.ShopperLogin.TokenResponse> {

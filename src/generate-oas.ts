@@ -44,6 +44,8 @@ function appendVersionIfV2(name: string, version: string): string {
 
 /**
  * Helper function. Also contains explicit workaround for some API names.
+ * @param name
+ * @param version
  */
 export function resolveApiName(name: string, version: string): string {
   if (name === "Shopper Baskets OAS") {
@@ -72,6 +74,7 @@ export function resolveApiName(name: string, version: string): string {
 
 /**
  * Helper that reads api details from exchange.json
+ * @param directory
  */
 export function getAPIDetailsFromExchange(directory: string): ApiSpecDetail {
   const exchangePath = path.join(directory, "exchange.json");
@@ -104,6 +107,7 @@ export function getAPIDetailsFromExchange(directory: string): ApiSpecDetail {
 
 /**
  * Invokes openapi-generator via raml-toolkit to generate SDKs
+ * @param apiSpecDetail
  */
 export function generateSDKs(apiSpecDetail: ApiSpecDetail): void {
   const { filepath, name, directoryName } = apiSpecDetail;
@@ -118,7 +122,6 @@ export function generateSDKs(apiSpecDetail: ApiSpecDetail): void {
         flags: `--reserved-words-mappings delete=delete`,
       });
     } catch (error) {
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       console.error(`Error generating SDK for ${name}: ${error}`);
     }
   }
@@ -126,6 +129,8 @@ export function generateSDKs(apiSpecDetail: ApiSpecDetail): void {
 
 /**
  * Generates the top level index file
+ * @param context
+ * @param context.children
  */
 export function generateIndex(context: {
   children: ApiSpecDetail[] | { name: string; apiName: string }[];

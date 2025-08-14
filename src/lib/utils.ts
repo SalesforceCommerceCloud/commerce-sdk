@@ -5,18 +5,16 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-import {download} from '@commerce-apps/raml-toolkit';
+import { download } from "@commerce-apps/raml-toolkit";
 
 /**
  * Searches for an API by name and downloads it to a folder.
  *
  * NOTE: Coverage passes without this function being covered.
- *  We should have some followup to figure out how to cover it.
- *  Ive spent hours trying to mock download
- *
+ * We should have some followup to figure out how to cover it.
+ * Ive spent hours trying to mock download
  * @param searchQuery - Query to search exchange
  * @param rootPath - Root path to download to
- *
  * @returns a promise that we will complete
  */
 export async function downloadLatestApis(

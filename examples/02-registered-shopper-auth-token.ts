@@ -35,7 +35,6 @@ const password = "password";
 
 /**
  * Get token for the registered customer
- *
  * @returns authorization token
  */
 async function getRegisteredShopperToken(): Promise<
