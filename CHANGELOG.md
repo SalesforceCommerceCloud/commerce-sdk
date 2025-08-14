@@ -6,6 +6,7 @@
 - Enum types have been added for certain operations and types
 - Certain operations have had types updated for query parameters
 - SLAS helpers have been refactored to accept a single `options` object argument, where the properties are the old arguments
+  - `loginGuestUserPrivate` now passes `usid` under `options.parameters`
 - Path parameter special characters are encoded by default
 - API family layer and API namespace has been removed. To import API classes, please refer to the [README](https://github.com/SalesforceCommerceCloud/commerce-sdk?tab=readme-ov-file#sample-code)
 - Docs Site has been upgraded to reflect new directory structure [#426](https://github.com/SalesforceCommerceCloud/commerce-sdk/pull/426)
