@@ -1,0 +1,112 @@
+import {
+  BaseClient,
+  ClientConfig,
+  Response,
+  StaticClient,
+  getHeaders,
+  mergeHeaders
+} from "@commerce-apps/core";
+import type { CommonParameters } from "@commerce-apps/core";
+import type { OperationOptions } from "retry";
+import type { RequestInit } from "node-fetch";
+import { defaultBaseUri } from "../runtime";
+import { USER_AGENT_HEADER, USER_AGENT_VALUE } from "../../version";
+import type {
+    CompositeParameters,
+    QueryParameters,
+    RequireParametersUnlessAllAreOptional
+} from "../../types";
+
+import type {
+    {{#imports}}
+    {{className}},
+    {{/imports}}
+} from '../models/index{{importFileExtension}}';
+
+{{#hasEnums}}
+{{#operations}}
+{{#operation}}
+{{#vendorExtensions}}
+{{^x-scapi-internal}}
+{{> apis.enum}}
+{{/x-scapi-internal}}
+{{/vendorExtensions}}
+{{^vendorExtensions}}
+{{> apis.enum}}
+{{/vendorExtensions}}
+{{/operation}}
+{{/operations}}
+{{/hasEnums}}
+
+{{#operations}}
+{{#operation}}
+{{#vendorExtensions}}
+{{^x-scapi-internal}}
+{{> apis.parameters}}
+{{/x-scapi-internal}}
+{{/vendorExtensions}}
+{{^vendorExtensions}}
+{{> apis.parameters}}
+{{/vendorExtensions}}
+{{/operation}}
+{{/operations}}
+
+/**
+* [{{appName}}](https://developer.salesforce.com/docs/commerce/commerce-api/references?meta={{#lambda.kebabcase}}{{appName}}{{/lambda.kebabcase}}:Summary)
+* ==================================
+*
+* *{{{unescapedAppDescription}}}* <br />
+*
+* For instructions on how to retrieve access token for admin APIs: <a>https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html</a> <br /> <br />
+* Example with admin auth
+*
+* ```typescript
+* import { {{#vendorExtensions}}{{#x-sdk-classname}}{{{ . }}}{{/x-sdk-classname}}{{^x-sdk-classname}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/x-sdk-classname}}{{/vendorExtensions}}{{^vendorExtensions}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/vendorExtensions}}, ClientConfig } from "commerce-sdk";
+* // or
+* const { {{#vendorExtensions}}{{#x-sdk-classname}}{{{ . }}}{{/x-sdk-classname}}{{^x-sdk-classname}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/x-sdk-classname}}{{/vendorExtensions}}{{^vendorExtensions}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/vendorExtensions}}, ClientConfig } = require("commerce-sdk");
+* 
+* const clientConfig: ClientConfig = {
+*   parameters: {
+*     clientId: "XXXXXX",
+*     organizationId: "XXXX",
+*     shortCode: "XXX",
+*     siteId: "XX"
+*   }
+* };
+* 
+* token = { access_token: 'INSERT_ACCESS_TOKEN_HERE' };
+* 
+* clientConfig.headers['authorization'] = `Bearer ${token.access_token}`;
+* const {{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}Client = new {{#vendorExtensions}}{{#x-sdk-classname}}{{{ . }}}{{/x-sdk-classname}}{{^x-sdk-classname}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/x-sdk-classname}}{{/vendorExtensions}}{{^vendorExtensions}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/vendorExtensions}}(clientConfig);
+* ```
+*
+* <span style="font-size:.7em; display:block; text-align: right">
+* API Version: 1.4.4<br />
+* Last Updated: <br />  
+* </span>
+*
+*/
+export class {{#vendorExtensions}}{{#x-sdk-classname}}{{{ . }}}{{/x-sdk-classname}}{{^x-sdk-classname}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/x-sdk-classname}}{{/vendorExtensions}}{{^vendorExtensions}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/vendorExtensions}} extends BaseClient {
+
+    constructor(config: ClientConfig) {
+        super(config);
+
+        if (!!!config.baseUri) {
+            this.clientConfig.baseUri = defaultBaseUri;
+        }
+
+    }
+
+{{#operations}}
+{{#operation}}
+{{#vendorExtensions}}
+{{^x-scapi-internal}}
+{{> apis.endpoint}}
+{{/x-scapi-internal}}
+{{/vendorExtensions}}
+{{^vendorExtensions}}
+{{> apis.endpoint}}
+{{/vendorExtensions}}
+{{/operation}}
+{{/operations}}
+}

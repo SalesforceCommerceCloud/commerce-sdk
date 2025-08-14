@@ -13,23 +13,9 @@ export const PRIMITIVE_DATA_TYPE_MAP = {
   "http://www.w3.org/2001/XMLSchema#boolean": "boolean",
 };
 
-export const API_FAMILIES = [
-  "cdn",
-  "checkout",
-  "customer",
-  "discovery",
-  "experience",
-  "pricing",
-  "product",
-  "search",
-  "seller",
-];
-
 export const PRODUCTION_API_PATH = `${__dirname}/../../apis`;
-export const STAGING_API_PATH = `${__dirname}/../../testIntegration/stagingApis`;
 
-// Root level metadata shared by production and staging APIs
-export const COMMON_METADATA = {
+export const CUSTOM_METADATA = {
   shopperAuthClient: "Customer.ShopperCustomers",
   shopperAuthApi: "authorizeCustomer",
   shopperAuthDataType: "Customer",

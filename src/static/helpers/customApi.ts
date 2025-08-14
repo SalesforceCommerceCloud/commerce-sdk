@@ -37,8 +37,6 @@ export type CustomApiParameters = {
   apiVersion?: string;
 };
 
-// tsdoc doesn't support dot notation for @param
-/* eslint-disable tsdoc/syntax */
 /**
  * A helper function designed to make calls to a custom API endpoint
  * For more information about custom APIs, please refer to the [API documentation](https://developer.salesforce.com/docs/commerce/commerce-api/guide/custom-apis.html)

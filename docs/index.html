@@ -70,6 +70,28 @@
 				<p>The Salesforce Commerce SDK allows easy interaction with the Salesforce B2C Commerce platform APIs on the Node.js runtime.  For a more lightweight SDK, which works in a browser and Node.js for the shopper experience, see <a href="https://github.com/SalesforceCommerceCloud/commerce-sdk-isomorphic">our Isomorphic SDK</a></p>
 				<p>Visit the <a href="https://developer.salesforce.com/developer-centers/commerce-cloud">Commerce Cloud Developer Center</a> to learn more about Salesforce Commerce. The developer center has API documentation, getting started guides, community forums, and more.
 				​</p>
+				<a href="#documentation" id="documentation" style="color: inherit; text-decoration: none;">
+					<h2>Documentation</h2>
+				</a>
+				<p>An auto-generated <a href="https://salesforcecommercecloud.github.io/commerce-sdk/">documentation site</a> provides comprehensive reference for all available endpoints and types across API classes. Following the v5.0.0 release, the underlying SDK file structure has been reorganized, introducing additional layers of imports/exports that may affect navigation.</p>
+				<a href="#navigating-the-documentation" id="navigating-the-documentation" style="color: inherit; text-decoration: none;">
+					<h3>Navigating the Documentation</h3>
+				</a>
+				<p><strong>For API Classes:</strong></p>
+				<ol>
+					<li><strong>Accessing API Classes:</strong> Click on the API class name (e.g., <code>shopperProducts</code>) on the right hand side</li>
+					<li><strong>Viewing Endpoints:</strong> Scroll to the <code>Classes</code> section and click the corresponding API class link (e.g., <code>ShopperProducts</code>) to see available endpoints and their parameters</li>
+					<li><strong>Type Definitions:</strong> Scroll to the <code>Type aliases</code> section for available types</li>
+					<li><strong>Navigating Back to API Classes</strong>: To return to the main documentation page with all API classes listed on the right sidebar, click on <code>Globals</code> in the navigation.</li>
+				</ol>
+				<p><strong>Utility Classes:</strong> Utility classes and methods such as <code>clientConfig</code> and <code>helpers</code> maintain the same structure as previous versions.</p>
+				<p><strong>NOTES:</strong> </p>
+				<ol>
+					<li><strong>Type Access</strong>: API class types are accessible through the <code>&lt;api_class&gt;Types</code> namespace (e.g., <code>ShopperProductsTypes</code>). Individual types can be accessed as <code>ShopperProductsTypes.Product</code>.</li>
+					<li><strong>Type References</strong>: The <code>References</code> section under API classes in the generated documentation may show duplicate entries. This occurs because types are exported both at their original definition and under the API class namespace. Both references point to the same underlying type definition.</li>
+					<li><strong>V4 Migration Guide</strong>: Starting in v5, API classes will no longer be exported under API family namespaces. See the <a href="#sample-code">Sample Code</a> section for migration examples.</li>
+					<li><strong>Supporting Files</strong>: The SDK includes additional supporting modules beyond the <code>helpers</code> SLAS functions. The <code>types</code> module provides common type definitions shared across API classes, while the <code>version</code> module automatically implements user agent headers for all requests. The user agent value follows the format <code>commerce-sdk@&lt;version&gt;</code> based on the current SDK version.</li>
+				</ol>
 				<a href="#warning-planned-api-changes-warning" id="warning-planned-api-changes-warning" style="color: inherit; text-decoration: none;">
 					<h2>:warning: Planned API Changes :warning:</h2>
 				</a>
@@ -151,14 +173,25 @@
 
 <span class="hljs-comment">// Import the SDK in TypeScript</span>
 <span class="hljs-comment">// tsc requires the --esModuleInterop flag for this</span>
-<span class="hljs-keyword">import</span> { Search, Customer, helpers, slasHelpers } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
+<span class="hljs-comment">// Starting in v5, API classes will no longer be namespaced under API family</span>
+<span class="hljs-keyword">import</span> { ShopperSearch, ShopperLogin, helpers, slasHelpers } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
+<span class="hljs-comment">// For v4 and below, you&#x27;ll have to import the API family first</span>
+<span class="hljs-comment">// import { Search, Customer, helpers, slasHelpers } from &quot;commerce-sdk&quot;;</span>
+<span class="hljs-comment">// const loginClient = new Customer.ShopperLogin(config);</span>
+<span class="hljs-comment">// const searchClient = new Search.ShopperSearch(config);</span>
+
 <span class="hljs-comment">// Older Node.js versions can instead use:</span>
 <span class="hljs-comment">// const { ClientConfig, helpers, slasHelpers Search } = require(&quot;commerce-sdk&quot;);</span>
 
+<span class="hljs-comment">// Types for each individual API can be imported as &lt;api_name&gt;Types starting in v5</span>
+<span class="hljs-keyword">import</span> type { ShopperLoginTypes } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>
+
 <span class="hljs-comment">// demo client credentials, if you have access to your own please replace them below.</span>
 <span class="hljs-comment">// do not store client secret as plaintext. Store it in a secure location.</span>
+<span class="hljs-comment">// For guidance on generating a private client with a client secret, please refer to:</span>
+<span class="hljs-comment">// https://developer.salesforce.com/docs/commerce/pwa-kit-managed-runtime/guide/use-a-slas-private-client.html</span>
+<span class="hljs-keyword">const</span> CLIENT_SECRET = <span class="hljs-string">&quot;&lt;INSERT_CLIENT_SECRET&gt;&quot;</span>;
 <span class="hljs-keyword">const</span> CLIENT_ID = <span class="hljs-string">&quot;da422690-7800-41d1-8ee4-3ce983961078&quot;</span>;
-<span class="hljs-keyword">const</span> CLIENT_SECRET = <span class="hljs-string">&quot;D*HHUrgO2%qADp2JTIUi&quot;</span>;
 <span class="hljs-keyword">const</span> ORG_ID = <span class="hljs-string">&quot;f_ecom_zzte_053&quot;</span>;
 <span class="hljs-keyword">const</span> SHORT_CODE = <span class="hljs-string">&quot;kv7kzm78&quot;</span>;
 <span class="hljs-keyword">const</span> SITE_ID = <span class="hljs-string">&quot;RefArch&quot;</span>;
@@ -179,10 +212,10 @@
  *
  * <span class="hljs-doctag">@returns </span>guest user authorization token
  */</span>
-<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getGuestUserAuthToken</span>(<span class="hljs-params"></span>): <span class="hljs-title">Promise</span>&lt;<span class="hljs-title">Customer</span>.<span class="hljs-title">ShopperLogin</span>.<span class="hljs-title">TokenResponse</span>&gt; </span>{
+<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getGuestUserAuthToken</span>(<span class="hljs-params"></span>): <span class="hljs-title">Promise</span>&lt;<span class="hljs-title">ShopperLoginTypes</span>.<span class="hljs-title">TokenResponse</span>&gt; </span>{
   <span class="hljs-keyword">const</span> base64data = Buffer.from(<span class="hljs-string">`<span class="hljs-subst">${CLIENT_ID}</span>:<span class="hljs-subst">${CLIENT_SECRET}</span>`</span>).toString(<span class="hljs-string">&quot;base64&quot;</span>);
   <span class="hljs-keyword">const</span> headers = { <span class="hljs-attr">Authorization</span>: <span class="hljs-string">`Basic <span class="hljs-subst">${base64data}</span>`</span> };
-  <span class="hljs-keyword">const</span> loginClient = <span class="hljs-keyword">new</span> Customer.ShopperLogin(config);
+  <span class="hljs-keyword">const</span> loginClient = <span class="hljs-keyword">new</span> ShopperLogin(config);
 
   <span class="hljs-keyword">return</span> <span class="hljs-keyword">await</span> loginClient.getAccessToken({
     headers,
@@ -191,10 +224,10 @@
 }
 
 <span class="hljs-comment">// Alternatively you may use the SLAS helper functions to generate JWT/access token</span>
-<span class="hljs-keyword">const</span> guestTokenResponse = <span class="hljs-keyword">await</span> slasHelpers.loginGuestUser(
-    <span class="hljs-keyword">new</span> Customer.ShopperLogin(config), 
-    { <span class="hljs-attr">redirectURI</span>: <span class="hljs-string">&#x27;http://localhost:3000/callback&#x27;</span> }
-  )
+<span class="hljs-keyword">const</span> guestTokenResponse = <span class="hljs-keyword">await</span> slasHelpers.loginGuestUser({
+    <span class="hljs-attr">slasClient</span>: <span class="hljs-keyword">new</span> ShopperLogin(config), 
+    <span class="hljs-attr">parameters</span>: { <span class="hljs-attr">redirectURI</span>: <span class="hljs-string">&#x27;http://localhost:3000/callback&#x27;</span> }
+  })
   .then(<span class="hljs-function">(<span class="hljs-params">guestTokenResponse</span>) =&gt;</span> {
     <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;Guest Token Response: &quot;</span>, guestTokenResponse);
     <span class="hljs-keyword">return</span> guestTokenResponse;
@@ -206,7 +239,7 @@ getGuestUserAuthToken().then(<span class="hljs-keyword">async</span> (token) =&g
   <span class="hljs-comment">// Add the token to the client configuration</span>
   config.headers[<span class="hljs-string">&quot;authorization&quot;</span>] = <span class="hljs-string">`Bearer <span class="hljs-subst">${token.access_token}</span>`</span>;
 
-  <span class="hljs-keyword">const</span> searchClient = <span class="hljs-keyword">new</span> Search.ShopperSearch(config);
+  <span class="hljs-keyword">const</span> searchClient = <span class="hljs-keyword">new</span> ShopperSearch(config);
 
   <span class="hljs-comment">// Search for dresses</span>
   <span class="hljs-keyword">const</span> searchResults = <span class="hljs-keyword">await</span> searchClient.productSearch({
@@ -592,7 +625,7 @@ sdkLogger.setLevel(sdkLogger.levels.INFO);</code></pre>
 				<p>For more information about security considerations related to developing headless commerce applications, see
 					<a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/security-considerations-for-headless-commerce.html">Security Considerations for Headless Commerce</a> on the
 				<a href="https://developer.salesforce.com/developer-centers/commerce-cloud">Commerce Cloud Developer Center</a>.</p>
-				<p>If you discover any potential security issues, please report them to <a href="mailto:&#x73;&#x65;&#99;&#x75;&#x72;&#x69;&#x74;&#x79;&#x40;&#x73;&#97;&#108;&#101;&#x73;&#x66;&#111;&#x72;&#x63;&#101;&#46;&#x63;&#111;&#109;">&#x73;&#x65;&#99;&#x75;&#x72;&#x69;&#x74;&#x79;&#x40;&#x73;&#97;&#108;&#101;&#x73;&#x66;&#111;&#x72;&#x63;&#101;&#46;&#x63;&#111;&#109;</a> as soon as possible.</p>
+				<p>If you discover any potential security issues, please report them to <a href="mailto:&#115;&#101;&#x63;&#x75;&#114;&#x69;&#x74;&#x79;&#x40;&#115;&#x61;&#108;&#x65;&#x73;&#x66;&#x6f;&#x72;&#99;&#x65;&#46;&#99;&#x6f;&#109;">&#115;&#101;&#x63;&#x75;&#114;&#x69;&#x74;&#x79;&#x40;&#115;&#x61;&#108;&#x65;&#x73;&#x66;&#x6f;&#x72;&#99;&#x65;&#46;&#99;&#x6f;&#109;</a> as soon as possible.</p>
 				<a href="#additional-documentation" id="additional-documentation" style="color: inherit; text-decoration: none;">
 					<h2>Additional Documentation</h2>
 				</a>
@@ -613,37 +646,97 @@ sdkLogger.setLevel(sdkLogger.levels.INFO);</code></pre>
 						<a href="globals.html"><em>Globals</em></a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="modules/_index_.html">&quot;index&quot;</a>
+						<a href="modules/assignments.html">assignments</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="modules/cdn.html">cdn</a>
+						<a href="modules/campaigns.html">campaigns</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="modules/checkout.html">checkout</a>
+						<a href="modules/catalogs.html">catalogs</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="modules/customer.html">customer</a>
+						<a href="modules/cdnapiprocessapis.html">cdn<wbr>Api<wbr>Process<wbr>Apis</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="modules/discovery.html">discovery</a>
+						<a href="modules/corspreferences.html">cors<wbr>Preferences</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="modules/experience.html">experience</a>
+						<a href="modules/coupons.html">coupons</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/customers.html">customers</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/giftcertificates.html">gift<wbr>Certificates</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="modules/helpers.html">helpers</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="modules/pricing.html">pricing</a>
+						<a href="modules/orders.html">orders</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="modules/product.html">product</a>
+						<a href="modules/preferences.html">preferences</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="modules/search.html">search</a>
+						<a href="modules/products.html">products</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="modules/seller.html">seller</a>
+						<a href="modules/promotions.html">promotions</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/shopperbaskets.html">shopper<wbr>Baskets</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/shopperbasketsv2.html">shopper<wbr>Basketsv2</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/shopperconsents.html">shopper<wbr>Consents</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/shoppercontext.html">shopper<wbr>Context</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/shoppercustomers.html">shopper<wbr>Customers</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/shopperexperience.html">shopper<wbr>Experience</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/shoppergiftcertificates.html">shopper<wbr>Gift<wbr>Certificates</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/shopperlogin.html">shopper<wbr>Login</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/shopperorders.html">shopper<wbr>Orders</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/shopperproducts.html">shopper<wbr>Products</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/shopperpromotions.html">shopper<wbr>Promotions</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/shoppersearch.html">shopper<wbr>Search</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/shopperseo.html">shopper<wbr>Seo</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/shopperstores.html">shopper<wbr>Stores</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/slasadmin.html">slas<wbr>Admin</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/sourcecodegroups.html">source<wbr>Code<wbr>Groups</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/types.html">types</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/version.html">version</a>
 					</li>
 				</ul>
 			</nav>
@@ -659,10 +752,12 @@ sdkLogger.setLevel(sdkLogger.levels.INFO);</code></pre>
 		<h2>Legend</h2>
 		<div class="tsd-legend-group">
 			<ul class="tsd-legend">
+				<li class="tsd-kind-namespace"><span class="tsd-kind-icon">Namespace</span></li>
 				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
 				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
 				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
 				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>

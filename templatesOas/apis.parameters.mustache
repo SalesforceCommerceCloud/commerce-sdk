@@ -1,0 +1,9 @@
+{{! This partial expects to be wrapped in operations/operation }}
+{{! and renders the form body parameter types for a given operation }}
+{{#hasFormParams}}export type {{nickname}}BodyType = {
+    {{#formParams}}
+    {{#isFormParam}}
+    {{paramName}}{{^required}}?{{/required}}: {{#isEnum}}{{{dataType}}}{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{dataType}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}};
+    {{/isFormParam}}
+    {{/formParams}}
+}{{/hasFormParams}}

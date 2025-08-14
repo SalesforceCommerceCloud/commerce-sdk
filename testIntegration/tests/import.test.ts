@@ -10,7 +10,7 @@ import { expectType } from "tsd";
 import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import nock from "nock";
-import { Customer } from "commerce-sdk";
+import { ShopperCustomersTypes } from "commerce-sdk";
 
 before(() => {
   chai.use(chaiAsPromised);
@@ -28,7 +28,7 @@ describe("TS: Imports work", () => {
 
   it("imports type from merged namespace", async () => {
     // This type was selected for its simplicity
-    expectType<Customer.ShopperCustomers.BasketsResult>({
+    expectType<ShopperCustomersTypes.BasketsResult>({
       baskets: [],
       total: 0,
     });

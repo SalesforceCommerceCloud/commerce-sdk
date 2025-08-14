@@ -7,7 +7,7 @@
 
 import nock from "nock";
 import { expect } from "chai";
-import { ShopperLogin } from "../../../renderedTemplates/customer/shopperLogin/shopperLogin";
+import { ShopperLogin, ShopperLoginTypes } from "../../../renderedTemplates";
 import { ISlasClient } from "./slasClient";
 import * as slasHelper from "./slas";
 import sinon from "sinon";
@@ -34,13 +34,13 @@ const credentials = {
   clientSecret: "client_secret",
 };
 
-const expectedTokenResponse: ShopperLogin.TokenResponse = {
+const expectedTokenResponse: ShopperLoginTypes.TokenResponse = {
   access_token: "access_token",
   id_token: "id_token",
   refresh_token: "refresh_token",
   expires_in: 0,
   refresh_token_expires_in: 0,
-  token_type: "token_type",
+  token_type: "Bearer",
   usid: "usid",
   customer_id: "customer_id",
   enc_user_id: "enc_user_id",
@@ -54,9 +54,8 @@ const parameters = {
   refreshToken: "refresh_token",
   usid: "usid",
 };
-
 const createSlasClient = (): ISlasClient => {
-  return new ShopperLogin(clientConfig);
+  return new ShopperLogin(clientConfig) as ISlasClient;
 };
 
 const sandbox = sinon.createSandbox();
@@ -148,6 +147,7 @@ describe("Authorize user", () => {
   };
   it("hits the authorize endpoint and receives authorization code", async () => {
     const mockSlasClient = createSlasClient();
+    const authorizeSpy = sinon.spy(mockSlasClient, "authorizeCustomer");
     const { shortCode, organizationId } = clientConfig.parameters;
 
     // slasClient is copied and tries to make an actual API call
@@ -156,11 +156,11 @@ describe("Authorize user", () => {
       .query(true)
       .reply(303, { response_body: "response_body" }, { location: mockURL });
 
-    const authResponse = await slasHelper.authorize(
-      mockSlasClient,
+    const authResponse = await slasHelper.authorize({
+      slasClient: mockSlasClient,
       codeVerifier,
-      params
-    );
+      parameters: params,
+    });
     expect(authResponse).to.be.deep.equal(expectedAuthResponse);
   });
 
@@ -174,11 +174,11 @@ describe("Authorize user", () => {
       .query(true)
       .reply(303, { response_body: "response_body" }, { location: "" });
 
-    const authResponse = await slasHelper.authorize(
-      mockSlasClient,
+    const authResponse = await slasHelper.authorize({
+      slasClient: mockSlasClient,
       codeVerifier,
-      params
-    );
+      parameters: params,
+    });
 
     const authURL = new URL(authResponse.url);
     const expectedURL = new URL(expectedAuthResponseNoLocation.url);
@@ -204,7 +204,11 @@ describe("Authorize user", () => {
       .reply(400);
 
     await slasHelper
-      .authorize(mockSlasClient, codeVerifier, params)
+      .authorize({
+        slasClient: mockSlasClient,
+        codeVerifier,
+        parameters: params,
+      })
       .catch((error) => expect(error.message).to.be.equal("400 Bad Request"));
   });
 });
@@ -218,6 +222,7 @@ describe("Guest user flow", () => {
       grant_type: "client_credentials",
       channel_id: "site_id",
     },
+    parameters: {},
   };
 
   const expectedOptionsPublic = {
@@ -241,8 +246,11 @@ describe("Guest user flow", () => {
       .query(true)
       .reply(200, expectedTokenResponse);
 
-    const accessToken = await slasHelper.loginGuestUserPrivate(mockSlasClient, {
-      clientSecret: credentials.clientSecret,
+    const accessToken = await slasHelper.loginGuestUserPrivate({
+      slasClient: mockSlasClient,
+      credentials: {
+        clientSecret: credentials.clientSecret,
+      },
     });
 
     expect(spy.getCall(0).args[0]).to.be.deep.equals(expectedOptionsPrivate);
@@ -263,8 +271,11 @@ describe("Guest user flow", () => {
     };
 
     try {
-      await slasHelper.loginGuestUserPrivate(mockSlasClientNoSiteID, {
-        clientSecret: credentials.clientSecret,
+      await slasHelper.loginGuestUserPrivate({
+        slasClient: mockSlasClientNoSiteID,
+        credentials: {
+          clientSecret: credentials.clientSecret,
+        },
       });
       expect.fail("Expected error not thrown, this line should not be reached");
     } catch (error) {
@@ -290,8 +301,11 @@ describe("Guest user flow", () => {
       .query(true)
       .reply(200, expectedTokenResponse);
 
-    const accessToken = await slasHelper.loginGuestUser(mockSlasClient, {
-      redirectURI: parameters.redirectURI,
+    const accessToken = await slasHelper.loginGuestUser({
+      slasClient: mockSlasClient,
+      parameters: {
+        redirectURI: parameters.redirectURI,
+      },
     });
 
     const options = spy.getCall(0).args[0];
@@ -318,9 +332,12 @@ describe("Guest user flow", () => {
       .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/token`)
       .query(true)
       .reply(200, expectedTokenResponse);
-    const accessToken = await slasHelper.loginGuestUser(mockSlasClient, {
-      c_cloth: "jeans",
-      redirectURI: parameters.redirectURI,
+    const accessToken = await slasHelper.loginGuestUser({
+      slasClient: mockSlasClient,
+      parameters: {
+        c_cloth: "jeans",
+        redirectURI: parameters.redirectURI,
+      },
     });
 
     const getTokenOpts = getTokenSpy.getCall(0).args[0];
@@ -364,11 +381,11 @@ describe("Registered B2C user flow", () => {
       .query(true)
       .reply(200, expectedTokenResponse);
 
-    const accessToken = await slasHelper.loginRegisteredUserB2Cprivate(
-      mockSlasClient,
+    const accessToken = await slasHelper.loginRegisteredUserB2Cprivate({
+      slasClient: mockSlasClient,
       credentials,
-      params
-    );
+      parameters: params,
+    });
     expect(accessToken).to.be.deep.equals(expectedTokenResponse);
   });
 
@@ -386,11 +403,11 @@ describe("Registered B2C user flow", () => {
       .query(true)
       .reply(200, expectedTokenResponse);
 
-    const accessToken = await slasHelper.loginRegisteredUserB2C(
-      mockSlasClient,
+    const accessToken = await slasHelper.loginRegisteredUserB2C({
+      slasClient: mockSlasClient,
       credentials,
-      params
-    );
+      parameters: params,
+    });
 
     expect(accessToken).to.be.deep.equals(expectedTokenResponse);
   });
@@ -409,12 +426,12 @@ describe("Registered B2C user flow", () => {
       .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/token`)
       .reply(200, expectedTokenResponse);
 
-    const accessToken = await slasHelper.loginRegisteredUserB2C(
-      mockSlasClient,
+    const accessToken = await slasHelper.loginRegisteredUserB2C({
+      slasClient: mockSlasClient,
       credentials,
-      params,
-      { body: { c_body: "custom-body" } }
-    );
+      parameters: params,
+      body: { c_body: "custom-body" },
+    });
     const authenticateOpts = authenticateSpy.getCall(0).args[0];
     sinon.assert.match(authenticateOpts, {
       headers: {
@@ -449,12 +466,12 @@ describe("Registered B2C user flow", () => {
       .post(`/shopper/auth/v1/organizations/${organizationId}/oauth2/token`)
       .reply(200, expectedTokenResponse);
 
-    const accessToken = await slasHelper.loginRegisteredUserB2Cprivate(
-      mockSlasClient,
+    const accessToken = await slasHelper.loginRegisteredUserB2Cprivate({
+      slasClient: mockSlasClient,
       credentials,
-      params,
-      { body: { c_body: "custom-body" } }
-    );
+      parameters: params,
+      body: { c_body: "custom-body" },
+    });
     const authenticateOpts = authenticateSpy.getCall(0).args[0];
     sinon.assert.match(authenticateOpts, {
       headers: {
@@ -483,7 +500,11 @@ describe("Registered B2C user flow", () => {
       .reply(400);
 
     await slasHelper
-      .loginRegisteredUserB2C(mockSlasClient, credentials, params)
+      .loginRegisteredUserB2C({
+        slasClient: mockSlasClient,
+        credentials,
+        parameters: params,
+      })
       .catch((error) => expect(error.message).to.be.equal("400 Bad Request"));
   });
 
@@ -497,7 +518,11 @@ describe("Registered B2C user flow", () => {
       .reply(400);
 
     await slasHelper
-      .loginRegisteredUserB2Cprivate(mockSlasClient, credentials, params)
+      .loginRegisteredUserB2Cprivate({
+        slasClient: mockSlasClient,
+        credentials,
+        parameters: params,
+      })
       .catch((error) => expect(error.message).to.be.equal("400 Bad Request"));
   });
 });
@@ -520,8 +545,11 @@ describe("Refresh Token", () => {
       .query(true)
       .reply(200, expectedTokenResponse);
 
-    const token = await slasHelper.refreshAccessToken(mockSlasClient, {
-      refreshToken: parameters.refreshToken,
+    const token = await slasHelper.refreshAccessToken({
+      slasClient: mockSlasClient,
+      parameters: {
+        refreshToken: parameters.refreshToken,
+      },
     });
     expect(spy.getCall(0).args[0]).to.be.deep.equals(expectedOpts);
     expect(token).to.be.deep.equals(expectedTokenResponse);
@@ -546,11 +574,11 @@ describe("Refresh Token", () => {
       .query(true)
       .reply(200, expectedTokenResponse);
 
-    const token = await slasHelper.refreshAccessTokenPrivate(
-      mockSlasClient,
+    const token = await slasHelper.refreshAccessTokenPrivate({
+      slasClient: mockSlasClient,
       credentials,
-      { refreshToken: parameters.refreshToken }
-    );
+      parameters: { refreshToken: parameters.refreshToken },
+    });
 
     expect(spy.getCall(0).args[0]).to.be.deep.equals(expectedOptions);
     expect(token).to.be.deep.equals(expectedTokenResponse);
@@ -579,9 +607,12 @@ describe("Logout", () => {
       .query(true)
       .reply(200, expectedTokenResponse);
 
-    const token = await slasHelper.logout(mockSlasClient, {
-      refreshToken: parameters.refreshToken,
-      accessToken: parameters.accessToken,
+    const token = await slasHelper.logout({
+      slasClient: mockSlasClient,
+      parameters: {
+        refreshToken: parameters.refreshToken,
+        accessToken: parameters.accessToken,
+      },
     });
     expect(spy.getCall(0).args[0]).to.be.deep.equals(expectedOptions);
     expect(token).to.be.deep.equals(expectedTokenResponse);

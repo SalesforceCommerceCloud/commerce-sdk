@@ -8,7 +8,7 @@
 import nock from "nock";
 import { expect } from "chai";
 import sinon from "sinon";
-import { ShopperProducts } from "../../renderedTemplates/product/shopperProducts/shopperProducts";
+import { ShopperProducts } from "../../renderedTemplates";
 
 const SITE_ID = "SITE_ID";
 const CLIENT_ID = "CLIENT_ID";
@@ -32,7 +32,7 @@ describe("Parameters", () => {
 
     const options = {
       parameters: {
-        ids: "ids",
+        ids: ["ids"],
         c_validCustomParam: "custom_param",
       },
     };
@@ -52,7 +52,7 @@ describe("Parameters", () => {
     expect(response).to.be.deep.equal(MOCK_RESPONSE);
   });
 
-  it("warns user when invalid param is passed", async () => {
+  it("warns user when an unknown param is passed", async () => {
     const productClient = new ShopperProducts({
       parameters: {
         clientId: CLIENT_ID,
@@ -64,11 +64,12 @@ describe("Parameters", () => {
 
     const options = {
       parameters: {
-        ids: "ids",
-        invalidQueryParam: "invalid_param",
+        ids: ["ids"],
+        unknownParam1: "param1",
+        unknownParam2: "param2",
       },
     };
-
+    nock.cleanAll();
     nock(`https://${SHORT_CODE}.api.commercecloud.salesforce.com`)
       .get(
         `/product/shopper-products/v1/organizations/${ORGANIZATION_ID}/products`
@@ -76,6 +77,8 @@ describe("Parameters", () => {
       .query({
         siteId: SITE_ID,
         ids: "ids",
+        unknownParam1: "param1",
+        unknownParam2: "param2",
       })
       .reply(200, MOCK_RESPONSE);
 
@@ -83,7 +86,15 @@ describe("Parameters", () => {
     const response = await productClient.getProducts(options);
 
     expect(response).to.be.deep.equal(MOCK_RESPONSE);
-    expect(warnSpy.calledWith("Invalid Parameter: invalidQueryParam")).to.be
-      .true;
+    expect(
+      warnSpy.calledWith(
+        "Found unknown parameter for getProducts: unknownParam1, adding as query parameter anyway"
+      )
+    ).to.be.true;
+    expect(
+      warnSpy.calledWith(
+        "Found unknown parameter for getProducts: unknownParam2, adding as query parameter anyway"
+      )
+    ).to.be.true;
   });
 });

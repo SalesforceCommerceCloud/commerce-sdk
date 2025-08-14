@@ -1,0 +1,24 @@
+{{! This partial expects to be wrapped in operations/operation }}
+{{! and renders the enum types for a given operation }}
+{{#allParams}}
+{{#isEnum}}
+{{#stringEnums}}
+export enum {{operationIdCamelCase}}{{enumName}} {
+{{#allowableValues}}
+    {{#enumVars}}
+    {{{name}}} = {{{value}}}{{^-last}},{{/-last}}
+    {{/enumVars}}
+{{/allowableValues}}
+}
+{{/stringEnums}}
+{{^stringEnums}}
+export type {{operationIdCamelCase}}{{enumName}} =
+{{#allowableValues}}
+    {{#enumVars}}
+    {{{value}}}{{^-last}} |{{/-last}}{{#-last}};{{/-last}}
+    {{/enumVars}}
+{{/allowableValues}}
+
+{{/stringEnums}}
+{{/isEnum}}
+{{/allParams}}

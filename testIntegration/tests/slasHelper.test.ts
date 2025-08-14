@@ -6,11 +6,11 @@
  */
 
 import { expect } from "chai";
-import { slasHelpers, Customer } from "commerce-sdk";
+import { helpers, ShopperLogin, ShopperLoginTypes } from "commerce-sdk";
 import nock from "nock";
 
 const createSlasClient = (clientConfig) => {
-  return new Customer.ShopperLogin(clientConfig);
+  return new ShopperLogin.ShopperLogin(clientConfig);
 };
 
 describe("slasHelpers", () => {
@@ -25,12 +25,14 @@ describe("slasHelpers", () => {
     },
   };
 
-  const expectedTokenResponse: Customer.ShopperLogin.TokenResponse = {
+  const expectedTokenResponse: ShopperLoginTypes.TokenResponse = {
     access_token: "access_token",
     id_token: "id_token",
     refresh_token: "refresh_token",
     expires_in: 0,
-    token_type: "token_type",
+    refresh_token_expires_in: 0,
+    idp_access_token: "idp_access_token",
+    token_type: "Bearer",
     usid: "usid",
     customer_id: "customer_id",
     enc_user_id: "enc_user_id",
@@ -50,9 +52,13 @@ describe("slasHelpers", () => {
       .reply(200, expectedTokenResponse);
 
     const slasClient = createSlasClient(clientConfig);
-    const tokenResponse = await slasHelpers.loginGuestUser(slasClient, {
-      redirectURI: "redirect_uri",
-    });
+    // TODO: Using 'as any' to avoid type errors betwen the enum 'code' and the string 'code'. This should be fixed in the future.
+    const tokenResponse = await helpers.slasHelpers.loginGuestUser(
+      slasClient as any,
+      {
+        redirectURI: "redirect_uri",
+      }
+    );
     const accessToken = tokenResponse.access_token;
 
     expect(nock.isDone()).to.be.true;

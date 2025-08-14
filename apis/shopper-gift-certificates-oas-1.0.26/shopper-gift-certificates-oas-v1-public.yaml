@@ -1,0 +1,260 @@
+openapi: 3.0.3
+info:
+  title: Shopper Gift Certificates
+  version: v1
+  description: |-
+    # API Overview
+
+    Use the Shopper Gift Certificates API to obtain gift certificate details.
+
+    ## Authentication & Authorization
+
+    The Shopper Gift Certificates API requires a JSON Web Token acquired via the Shopper Customers endpoint:
+
+    ```
+    https://{{shortCode}}.api.commercecloud.salesforce.com/customer/shopper-customers/v1/organizations/{{organizationId}}/customers/actions/login
+    ```
+
+    You must include the relevant scope(s) in the client ID used to generate the SLAS token. For details, see [Authorization Scopes Catalog.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html)
+
+    ## Use Cases
+
+    ### Retrieve Existing Gift Certificate Details
+
+    A shopper who received a code identifying a gift certificate can use the gift certificate code to query information, such as the status or remaining balance.
+
+    ### Use Hooks
+
+    For details working with hooks, see [Extensibility with Hooks.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html)
+servers:
+  - url: https://{shortCode}.api.commercecloud.salesforce.com/pricing/shopper-gift-certificates/v1
+    variables:
+      shortCode:
+        default: shortCode
+paths:
+  /organizations/{organizationId}/gift-certificate:
+    post:
+      summary: Retrieve an existing gift certificate.
+      operationId: getGiftCertificate
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GiftCertificateRequest'
+            examples:
+              Gift-Certificates:
+                $ref: '#/components/examples/GetGiftCertificate'
+      responses:
+        '200':
+          description: Gift certificate retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GiftCertificate'
+              examples:
+                CreateGiftCertificate:
+                  $ref: '#/components/examples/CreateGiftCertificate'
+        '404':
+          description: |
+            Thrown when the given gift certificate code is not valid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                GiftCertificate404:
+                  $ref: '#/components/examples/GiftCertificate404'
+      security:
+        - ShopperToken:
+            - sfcc.shopper-gift-certificates
+components:
+  securitySchemes:
+    ShopperToken:
+      type: oauth2
+      description: "ShopperToken authentication follows the authorization code grant flow, as defined by the OAuth 2.1 standard. Depending on the type of OAuth client (public or private), this authorization flow has further requirements. \nFor a detailed description of the authorization flow, see the [SLAS overview](https://developer.salesforce.com/docs/commerce/commerce-api/references?meta=shopper-login:Summary).\nA shopper token allows you to access the Shopper API endpoints of both OCAPI and the B2C Commerce API. These endpoints can be used to build headless storefronts and other applications.\nThe `ShopperToken` security scheme is a parent of other security schemes, such as `ShopperTokenTsob`. A Shopper API endpoint can require a specific child scheme (`ShopperTokenTsob`, for example) that cannot be accessed with a regular shopper token.\n"
+      flows:
+        clientCredentials:
+          tokenUrl: https://{shortCode}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
+          scopes:
+            sfcc:shopper-gift-certificates: Allows read operations on shopper gift certificates
+        authorizationCode:
+          authorizationUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/authorize
+          tokenUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
+          scopes:
+            sfcc.shopper-gift-certificates: Allows read operations on shopper gift certificates
+  schemas:
+    OrganizationId:
+      description: An identifier for the organization the request is being made by
+      example: f_ecom_zzxy_prd
+      type: string
+      minLength: 1
+      maxLength: 32
+    SiteId:
+      minLength: 1
+      maxLength: 32
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites
+      example: RefArch
+      type: string
+    GiftCertificateRequest:
+      description: Document representing a gift certificate request data.
+      additionalProperties: false
+      type: object
+      required:
+        - giftCertificateCode
+      properties:
+        giftCertificateCode:
+          description: The gift certificate code.
+          example: MYGIFTCERTIFICATECODE
+          type: string
+    GiftCertificate:
+      description: Document representing a gift certificate.
+      type: object
+      required:
+        - amount
+        - balance
+        - enabled
+        - maskedGiftCertificateCode
+        - merchantId
+        - recipientEmail
+        - recipientName
+        - senderName
+        - status
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+      properties:
+        amount:
+          format: double
+          description: The gift certificate original amount.
+          type: number
+          example: 100
+        balance:
+          format: double
+          description: The gift certificate remaining balance.
+          type: number
+          example: 100
+        description:
+          description: The gift certificate description.
+          type: string
+        enabled:
+          description: Is the gift certificate is enabled?
+          type: boolean
+          example: true
+        maskedGiftCertificateCode:
+          description: The masked gift certificate code.
+          type: string
+          example: '************FJWQ'
+        merchantId:
+          description: The merchant ID.
+          type: string
+          example: '00000001'
+        message:
+          description: The message.
+          type: string
+        recipientEmail:
+          description: The recipient email.
+          type: string
+          example: p@gmail.com
+        recipientName:
+          description: The recipient name.
+          type: string
+          example: sampleuser
+        senderName:
+          description: The sender name.
+          type: string
+          example: Salesforce Support
+        status:
+          description: The gift certificate status.
+          enum:
+            - pending
+            - issued
+            - partially_redeemed
+            - redeemed
+          type: string
+          example: issued
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        title:
+          description: "A short, human-readable summary of the problem\ntype.  It will not change from occurrence to occurrence of the \nproblem, except for purposes of localization\n"
+          type: string
+          maxLength: 256
+          example: You do not have enough credit
+        type:
+          description: |
+            A URI reference [RFC3986] that identifies the
+            problem type.  This specification encourages that, when
+            dereferenced, it provide human-readable documentation for the
+            problem type (e.g., using HTML [W3C.REC-html5-20141028]).  When
+            this member is not present, its value is assumed to be
+            "about:blank". It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: NotEnoughMoney
+        detail:
+          description: A human-readable explanation specific to this occurrence of the problem.
+          type: string
+          example: Your current balance is 30, but that costs 50
+        instance:
+          description: |
+            A URI reference that identifies the specific
+            occurrence of the problem.  It may or may not yield further
+            information if dereferenced.  It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: /account/12345/msgs/abc
+      required:
+        - title
+        - type
+        - detail
+  parameters:
+    organizationId:
+      description: An identifier for the organization the request is being made by
+      name: organizationId
+      in: path
+      required: true
+      example: f_ecom_zzxy_prd
+      schema:
+        $ref: '#/components/schemas/OrganizationId'
+    siteId:
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites.
+      name: siteId
+      in: query
+      required: true
+      examples:
+        SiteId:
+          value: RefArch
+      schema:
+        $ref: '#/components/schemas/SiteId'
+  examples:
+    GetGiftCertificate:
+      value:
+        giftCertificateCode: MYGIFTCERTIFICATECODE
+    CreateGiftCertificate:
+      value:
+        amount: 100
+        balance: 100
+        enabled: true
+        maskedGiftCertificateCode: '************FJWQ'
+        merchantId: '00000001'
+        recipientEmail: p@gmail.com
+        recipientName: sampleuser
+        senderName: Salesforce Support
+        status: issued
+    GiftCertificate404:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/not-found
+        title: Gift Certificate Not Found Exception
+        detail: The gift certificate with the provided code could not be retrieved.
