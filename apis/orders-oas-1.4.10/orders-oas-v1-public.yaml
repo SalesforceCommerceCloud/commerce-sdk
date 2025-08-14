@@ -1,0 +1,3555 @@
+openapi: 3.0.3
+info:
+  title: Orders
+  version: v1
+  description: |-
+    # API Overview
+
+    Use the Orders API to update order status and order payment status, edit shipping addresses and custom order properties, manage order payment instruments, and get order information.
+
+    ## Authentication & Authorization
+
+    The client requesting the order information must have access to the Orders resource. The API requests pass a system-to-system bearer token in the header of the request. The `POST /orders` endpoint uses the [ShopperTokenTsob](https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-login?meta=security%3AShopperTokenTsob) security scheme.
+
+    You must include the relevant scope(s) in the client ID used to generate the SLAS token. For details, see the  [Authorization Scopes Catalog.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html)
+
+    ## Update Order Statuses
+
+    An order uses several status properties to define its workflow state. Some of them are used to trigger internal processes, such as inventory allocation. Others have no default function, but are available for use with customizations.
+
+    ### Order Status
+
+    The Order status reflects the overall status of the order. Transitions between order statuses trigger actions such as invoice generation and release of inventory reservations.
+
+    Order status can have one of the following values:
+
+    -   `created` - Default value; denotes that the order was created in the system but is not yet placed.
+    -   `new` - Set this value to place the order. When you set this value, the system generates shipment and invoice numbers. After the order is placed, you can’t change the order status to `created` or `failed`.
+    -   `failed` - Set this value to fail the order, for example, when you reject the order or when its payment fails. When you set this value, the system releases the order’s inventory reservations and removes any coupon redemptions. You can only set this value if the current order status is `created`. If you change the order status from `failed` to `created`, the system tries to revert the actions taken when it was set to `failed`. If inventory isn’t available, the reversion can fail.
+    -   `failed_with_reopen` - Set this value to fail the order and reopen the basket, if applicable. The order status is set to `failed`.
+    -   `completed` - Set this value to mark the order as complete, based on your business process, for example: when the order is fully paid, exported, and shipped.
+    -   `cancelled` - Set this value to cancel the order, for example: when the shopper requests it. When you set this value, the system releases the order’s inventory reservations, restores any wishlist items, and removes any coupon redemptions. If you change the order status from `cancelled` to `completed` or `new`, the system tries to revert the actions taken when it was set to `cancelled`. If inventory isn’t available, the reversion can fail.
+
+    ### Confirmation Status
+
+    An order confirmation is a document the vendor sends to the shopper. It confirms that the order has been received and accepted. You can use confirmation status to reflect the state of the document, or for other customizations. This field is provided for use in customizations. It isn’t associated with any default functionality.
+
+    Confirmation status can have one of the following values:
+
+    -   `not_confirmed` - Default value.
+    -   `confirmed` - Set this value when the order confirmation is sent to the shopper.
+
+    ### Export Status
+
+    After an order is placed, it must be fulfilled. If your process includes an external fulfillment system, such as a Warehouse Management System, you can use export status to manage the export of order data to the external system. For example, after using the GET /orders endpoint to get order data to export, set the order’s export status to `exported`. When identifying orders to export, your query can include orders with export status `ready` and exclude orders with export status `exported`.
+
+    Export status can have one of the following values:
+
+    -   `not_exported` - Default value.
+    -   `ready` - (custom purpose) Set this value when the order is ready for export.
+    -   `exported` - Set this value when the order has been exported. When you set this value, the system finalizes the order’s inventory transactions.
+    -   `failed` - (custom purpose) Set this value when the order export fails.
+
+    ### External Status
+
+    The external status field can hold any string value. For example, you can use it for values related to an external fulfillment system. This field is provided for use in customizations, and isn’t associated with any default functionality.
+
+    ### Payment Status
+
+    Use payment status to denote whether an order is partially or fully paid. This field is provided for use in customizations, and isn’t associated with any default functionality.
+
+    Payment status can have one of the following values:
+
+    -   `not_paid` - Default value.
+    -   `part_paid` - Set this value when the order is partially paid.
+    -   `paid` - Set this value when the order is fully paid.
+
+    ### Shipping Status
+
+    Use shipping status to denote whether an order is partially or fully shipped. This field is provided for use in customizations, and isn’t associated with any default functionality.
+
+    Shipping status can have one of the following values:
+
+    -   `not_shipped` - Default value.
+    -   `part_shipped` - Set this value when the order is partially shipped.
+    -   `shipped` - Set this value when the order is fully shipped.
+
+    Example scenarios:
+
+    -   After a successful fraud check and payment authorization, set the order status to `new`.
+    -   After a failed fraud check or payment authorization, set the order status to `failed`.
+    -   After an order’s information is exported to the warehouse system, set the export status to `exported`.
+    -   After the warehouse ships an order, set the shipping status to `shipped`.
+
+    ## Change Shipping Address
+
+    Use the Orders API to update the shipping address on an order.
+
+    For example, a shopper places an order, and then sends a request to change the shipping address on that order.
+
+    ## Get Order Data
+
+    Use the Orders API system-to-system integration use cases for order retrieval, reporting, dashboards, and so on. You can get information about a single order by specifying the order number, or get information about multiple orders by searching with attribute filters.
+
+    You can use the following attribute filters:
+
+    -   order status
+    -   export status
+    -   external status
+    -   confirmation status
+    -   payment status
+    -   shipping status
+    -   creation date to/from
+    -   last modified date to/from
+    -   offset
+    -   limit
+
+    You can sort the results in ascending or descending order using the following attributes (default: descending):
+
+    -   creation date
+    -   last modified date
+
+    ## Create Orders
+
+    Use the createOrders endpoint to create orders from a third-party system, such as a social media platform. Before using the endpoint, you must first complete the checkout process: apply all sanity checks, reserve inventory, authorize payment, apply promotions, and calculate the full cost of the order. Orders made by third-party systems are treated the same as orders made directly through the B2C Commerce platform, including how status updates and exports are handled.
+
+    ## Update Orders
+
+    Use the updateOrder endpoint to make changes to custom order attributes.
+servers:
+  - url: https://{shortCode}.api.commercecloud.salesforce.com/checkout/orders/v1
+    variables:
+      shortCode:
+        default: shortCode
+paths:
+  /organizations/{organizationId}/orders:
+    get:
+      summary: "Return order details that match the query filters. By default, calling this API with no filter returns the 100 most recently created orders. To return up to 200 orders, use the limit parameter. \nTo return a page of results past the first page, use a resource offset. \n*Note* : The sum of the offset and limit parameters cannot be greater than 10000."
+      operationId: getOrders
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/sortBy'
+        - $ref: '#/components/parameters/sortOrder'
+        - $ref: '#/components/parameters/status'
+        - $ref: '#/components/parameters/exportStatus'
+        - $ref: '#/components/parameters/externalStatus'
+        - $ref: '#/components/parameters/confirmationStatus'
+        - $ref: '#/components/parameters/paymentStatus'
+        - $ref: '#/components/parameters/shippingStatus'
+        - $ref: '#/components/parameters/creationDateFrom'
+        - $ref: '#/components/parameters/creationDateTo'
+        - $ref: '#/components/parameters/lastModifiedDateFrom'
+        - $ref: '#/components/parameters/lastModifiedDateTo'
+        - $ref: '#/components/parameters/siteId'
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            maximum: 200
+          description: Maximum records to retrieve per request, not to exceed 200. Defaults to 100.
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+            default: 0
+            minimum: 0
+          description: Used to retrieve the results based on a particular resource offset.
+      responses:
+        '200':
+          description: Order details returned successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrdersResponse'
+              examples:
+                Order:
+                  $ref: '#/components/examples/OrdersGet'
+        '404':
+          description: |
+            The given site ID does not reference an existing site.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                OrderNotFound:
+                  $ref: '#/components/examples/OrderNotFound'
+      security:
+        - AmOAuth2:
+            - sfcc.orders
+            - sfcc.orders.rw
+    post:
+      summary: Create an order.
+      description: |
+        Use this endpoint whenever a fully calculated and paid or authorized order is created in any third-party system.
+
+        The endpoint can create an order on-the-fly in the Commerce Cloud platform by passing the order as JSON payload in the body of the POST request.
+
+        Other than the Basket API, this endpoint decouples any relation to other system domains, such as:
+
+        - Products
+        - Inventory
+        - Promotions
+        - Gift certificates
+        - Coupons
+
+        The order isn't treated differently than any other orders in the Commerce Cloud platform, including status updates and order exports.
+
+        **Note**: For the custom attribute to be available for orders, configure it in Business Manager for both Basket and Order objects.
+
+        **Important**: This endpoint uses the `ShopperTokenTsob` security scheme. Always check the Security section of the endpoint documentation, which, by default, is hidden.
+
+        ## Preconditions
+
+        The checkout must happen before making a request to this endpoint. That means that all sanity checks _are_ applied, the inventory _is_ reserved, the payment _is_ authorized, and the Basket _is_ fully calculated (including all promotions).
+
+        After meeting these conditions, it's possible to create the order in the Commerce Cloud platform.
+
+        ## Decoupling
+
+        This endpoint can create an order with unknown products, different pricing for known products, unplanned price-adjustments (unrelated to the system's configured promotions), and passing unknown payment and shipping methods.
+
+        **Note**: There's no lookup or calculation, even if the passed object is configured in the platform.
+
+        ## Still Coupled
+
+        The endpoint is still coupled to:
+
+        - the taxation policy (gross or net) specified in the site's preferences.
+        - the passed currency, which must be defined in the site.
+
+        ## Calculation
+
+        The platform does not perform multiplying or dividing operations on this order.
+
+        The following fields are summed during runtime on the platform:
+
+        **Order Level**
+
+        - `adjustedMerchandizeTotalTax`
+        - `adjustedShippingTotalTax`
+        - `merchandizeTotalTax`
+        - `adjustedTax`
+        - `productSubTotal`
+        - `productTotal`
+        - `shippingTotalTax`
+        - `orderTotal`
+        - `taxTotal`
+
+        **Line Item Level**
+
+        - `priceAfterItemDiscount`
+        - `priceAfterOrderDiscount`
+        - `adjustedTax`
+
+        **Shipment**
+
+        - `merchandizeTotalTax`
+        - `productSubTotal`
+        - `productTotal`
+        - `shippingTotalTax`
+
+        To make sure the fields are summed correctly, the passed `orderTotal` and `taxTotal` are compared to the platform's summed `orderTotal` and `taxTotal`.
+
+        An `InvalidOrderTotalException` or `InvalidTaxTotalException` is thrown if the calculation doesn't match.
+
+        The `orderTotal` and `taxTotal` are calculated as follows:
+
+        - `orderTotal` = sum(`ProductLineItems.grossPrice`) + sum(`Shipments.shipmentTotal`) - sum(`ProductLineItems.PriceAdjustments.grossPrice` + `Order.PriceAdjustments.grossPrice`)
+        - `taxTotal` = sum (`ProductLineItems.tax`) + sum(`Shipments.taxTotal`) - sum(`ProductLineItems.PriceAdjustments.tax` + `Order.PriceAdjustments.tax`)
+
+        ## Order Status
+
+        The order is automatically placed after creation.
+
+        The payment status can be set via payload.
+
+        All other status can be set via PATCH `orders/{orderNo}/status`.
+      operationId: createOrders
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              minimalExample:
+                $ref: '#/components/examples/CreateSimpleOrder'
+              fullExample:
+                $ref: '#/components/examples/CreateFullOrder'
+              multiShipmentExample:
+                $ref: '#/components/examples/CreateOrderMultiShipment'
+              fullPaymentInstrumentExample:
+                $ref: '#/components/examples/CreateFullPaymentInstrument'
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+      responses:
+        '201':
+          description: |
+            Order created successfully. No content returned.
+          headers:
+            Location:
+              description: The location for accessing the created order.
+              schema:
+                type: string
+        '400':
+          description: |
+            The passed taxTotal is not equal to the calculated taxTotal.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidOrderTotal:
+                  $ref: '#/components/examples/InvalidOrderTotal'
+                InvalidTaxTotal:
+                  $ref: '#/components/examples/InvalidTaxTotal'
+                BadRequest:
+                  $ref: '#/components/examples/BadRequest'
+        '404':
+          description: |
+            The given shipment ID does not reference an existing shipment.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ShipmentNotFound:
+                  $ref: '#/components/examples/ShipmentNotFound'
+      security:
+        - ShopperTokenTsob:
+            - sfcc.orders.rw
+  /organizations/{organizationId}/orders/{orderNo}:
+    get:
+      summary: Return order details for the specified order number.
+      operationId: getOrder
+      parameters:
+        - $ref: '#/components/parameters/orderNo'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '200':
+          description: Order details returned successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+              examples:
+                Order:
+                  $ref: '#/components/examples/OrderGet'
+        '404':
+          description: |
+            The given site ID does not reference an existing site.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                OrderNotFound:
+                  $ref: '#/components/examples/OrderNotFound'
+      security:
+        - AmOAuth2:
+            - sfcc.orders
+            - sfcc.orders.rw
+    patch:
+      summary: Update an order.
+      operationId: updateOrder
+      parameters:
+        - $ref: '#/components/parameters/orderNo'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              OrderUpdateRequest:
+                $ref: '#/components/examples/Order'
+            schema:
+              $ref: '#/components/schemas/OrderUpdateRequest'
+      responses:
+        '204':
+          description: |
+            Order updated successfully. No content returned.
+        '400':
+          description: |
+            Request body or path violate required syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                BadRequest:
+                  $ref: '#/components/examples/BadRequest'
+        '404':
+          description: |
+            The given site ID does not reference an existing site.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                OrderNotFound:
+                  $ref: '#/components/examples/OrderNotFound'
+      security:
+        - AmOAuth2:
+            - sfcc.orders.rw
+        - ShopperTokenTsob:
+            - sfcc.orders.rw
+  /organizations/{organizationId}/orders/{orderNo}/confirmation-status:
+    put:
+      summary: Update order confirmation status.
+      operationId: updateOrderConfirmationStatus
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/orderNo'
+        - $ref: '#/components/parameters/siteId'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              OrderConfirmationStatusUpdate:
+                $ref: '#/components/examples/OrderConfirmationStatus'
+            schema:
+              $ref: '#/components/schemas/OrderConfirmationStatusUpdateRequest'
+      responses:
+        '204':
+          description: |
+            Order confirmation status updated successfully. No content returned.
+        '400':
+          description: |
+            Request body or path violate required syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                BadRequest:
+                  $ref: '#/components/examples/BadRequest'
+        '404':
+          description: |
+            The given site ID does not reference an existing site.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                OrderNotFound:
+                  $ref: '#/components/examples/OrderNotFound'
+      security:
+        - AmOAuth2:
+            - sfcc.orders.rw
+  /organizations/{organizationId}/orders/{orderNo}/export-status:
+    put:
+      summary: Update order export status. If on-order inventory is enabled for the associated inventory list, then setting the export status to EXPORTED finalizes on-order inventory transactions for this order by changing their type from on-order to final.
+      operationId: updateOrderExportStatus
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/orderNo'
+        - $ref: '#/components/parameters/siteId'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              OrderExportStatus:
+                $ref: '#/components/examples/OrderExportStatus'
+            schema:
+              $ref: '#/components/schemas/OrderExportStatusUpdateRequest'
+      responses:
+        '204':
+          description: |
+            Order export status updated successfully. No content returned.
+        '400':
+          description: |
+            Request body or path violate required syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                BadRequest:
+                  $ref: '#/components/examples/BadRequest'
+        '404':
+          description: |
+            The given site ID does not reference an existing site.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                OrderNotFound:
+                  $ref: '#/components/examples/OrderNotFound'
+      security:
+        - AmOAuth2:
+            - sfcc.orders.rw
+  /organizations/{organizationId}/orders/{orderNo}/external-status:
+    put:
+      summary: Update order external status.
+      operationId: updateOrderExternalStatus
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/orderNo'
+        - $ref: '#/components/parameters/siteId'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              OrderExportStatus:
+                $ref: '#/components/examples/OrderExternalStatus'
+            schema:
+              $ref: '#/components/schemas/OrderExternalStatusUpdateRequest'
+      responses:
+        '204':
+          description: |
+            Order external status updated successfully. No content returned.
+        '400':
+          description: |
+            Request body or path violate required syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                BadRequest:
+                  $ref: '#/components/examples/BadRequest'
+        '404':
+          description: |
+            The given site ID does not reference an existing site.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                OrderNotFound:
+                  $ref: '#/components/examples/OrderNotFound'
+      security:
+        - AmOAuth2:
+            - sfcc.orders.rw
+  /organizations/{organizationId}/orders/{orderNo}/payment-status:
+    put:
+      summary: Update order payment status.
+      operationId: updateOrderPaymentStatus
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/orderNo'
+        - $ref: '#/components/parameters/siteId'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              PaymentStatus:
+                $ref: '#/components/examples/OrderPaymentStatus'
+            schema:
+              $ref: '#/components/schemas/OrderPaymentStatusUpdateRequest'
+      responses:
+        '204':
+          description: |
+            Order payment status updated successfully. No content returned.
+        '400':
+          description: |
+            Request body or path violate required syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                BadRequest:
+                  $ref: '#/components/examples/BadRequest'
+        '404':
+          description: |
+            The given site ID does not reference an existing site.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                OrderNotFound:
+                  $ref: '#/components/examples/OrderNotFound'
+      security:
+        - AmOAuth2:
+            - sfcc.orders.rw
+  /organizations/{organizationId}/orders/{orderNo}/shipping-status:
+    put:
+      summary: Update order shipping status.
+      operationId: updateOrderShippingStatus
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/orderNo'
+        - $ref: '#/components/parameters/siteId'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              ShippingStatus:
+                $ref: '#/components/examples/OrderShippingStatus'
+            schema:
+              $ref: '#/components/schemas/OrderShippingStatusUpdateRequest'
+      responses:
+        '204':
+          description: |
+            Order shipping status updated successfully. No content returned.
+        '400':
+          description: |
+            Request body or path violate required syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                BadRequest:
+                  $ref: '#/components/examples/BadRequest'
+        '404':
+          description: |
+            The given site ID does not reference an existing site.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                OrderNotFound:
+                  $ref: '#/components/examples/OrderNotFound'
+      security:
+        - AmOAuth2:
+            - sfcc.orders.rw
+  /organizations/{organizationId}/orders/{orderNo}/status:
+    put:
+      summary: Update order status.
+      description: |-
+        Orders in status NEW, COMPLETED or CANCELLED can't be changed to status CREATED or FAILED.
+
+        Changing the status causes different actions on inventory, coupons, wishlists, and the order itself:
+
+        - Fail Order: Release inventory and remove coupon redemptions. (CREATED -> FAILED)
+        - Fail Order With Reopen Basket: Release inventory, remove coupon redemptions, and reopen the basket, if applicable. A basket can only be
+        reopened if no other basket for the customer exists at the moment of failing the order since a customer is limited to 1 storefront basket. (CREATED -> FAILED)
+        - Undo Fail Order: Reserve inventory and recreate coupon redemptions. (FAILED -> CREATED)
+        - Place Order: Generate Shipment and invoice numbers. (CREATED -> NEW, COMPLETED or CANCELLED)
+        - Cancel Order: Release inventory, remove wishlist purchases, and remove coupon redemptions. (NEW, COMPLETED -> CANCELLED)
+        - Undo Cancel Order: Reserve inventory, add wishlist purchases, and recreate coupon redemptions. (CANCELLED -> NEW, COMPLETED)
+
+        Actions can fail, for example: when inventory is no longer available.
+      operationId: updateOrderStatus
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/orderNo'
+        - $ref: '#/components/parameters/siteId'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              OrderStatus:
+                $ref: '#/components/examples/OrderStatus'
+            schema:
+              $ref: '#/components/schemas/OrderStatusUpdateRequest'
+      responses:
+        '201':
+          description: |
+            Order status updated successfully. No content returned.
+          headers:
+            Location:
+              description: The location for accessing the reopened basket.
+              schema:
+                type: string
+        '204':
+          description: |
+            Order status updated successfully. No content returned.
+        '400':
+          description: |
+            Request body or path violate required syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                BadRequest:
+                  $ref: '#/components/examples/BadRequest'
+        '404':
+          description: |
+            The given site ID does not reference an existing site.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                OrderNotFound:
+                  $ref: '#/components/examples/OrderNotFound'
+        '409':
+          description: |
+            The failed order can't be reopened.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                UndoFailOrder:
+                  $ref: '#/components/examples/UndoFailOrder'
+      security:
+        - AmOAuth2:
+            - sfcc.orders.rw
+  /organizations/{organizationId}/orders/{orderNo}/payment-instruments/{paymentInstrumentId}:
+    patch:
+      summary: Update the payment instrument of an order.
+      operationId: updateOrderPaymentInstrument
+      parameters:
+        - $ref: '#/components/parameters/paymentInstrumentId'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/orderNo'
+        - $ref: '#/components/parameters/siteId'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              OrderPaymentInstrument:
+                $ref: '#/components/examples/OrderPaymentInstrument'
+            schema:
+              $ref: '#/components/schemas/PaymentInstrumentUpdateRequest'
+      responses:
+        '204':
+          description: |
+            Order payment instrument updated successfully. No content returned.
+        '400':
+          description: |
+            Request body or path violate required syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                BadRequest:
+                  $ref: '#/components/examples/BadRequest'
+        '404':
+          description: |
+            The given payment instrument ID does not reference an existing payment instrument.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ShipmentNotFound:
+                  $ref: '#/components/examples/ShipmentNotFound'
+      security:
+        - AmOAuth2:
+            - sfcc.orders.rw
+  /organizations/{organizationId}/orders/{orderNo}/payment-instruments/{paymentInstrumentId}/transaction:
+    patch:
+      summary: Update the transaction of an order payment instrument.
+      operationId: updateOrderPaymentTransaction
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/paymentInstrumentId'
+        - $ref: '#/components/parameters/orderNo'
+        - $ref: '#/components/parameters/siteId'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              OrderStatus:
+                $ref: '#/components/examples/OrderPaymentTransaction'
+            schema:
+              $ref: '#/components/schemas/PaymentTransactionUpdateRequest'
+      responses:
+        '204':
+          description: |
+            Payment instrument transaction updated successfully. No content returned.
+        '400':
+          description: |
+            Request body or path violate required syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                BadRequest:
+                  $ref: '#/components/examples/BadRequest'
+        '404':
+          description: |
+            The given payment instrument ID does not reference an existing payment instrument.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ShipmentNotFound:
+                  $ref: '#/components/examples/ShipmentNotFound'
+      security:
+        - AmOAuth2:
+            - sfcc.orders.rw
+  /organizations/{organizationId}/orders/{orderNo}/shipments/{shipmentId}/shipping-address:
+    put:
+      summary: Create or replace a shipping address.
+      operationId: updateOrderShippingAddress
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/shipmentId'
+        - $ref: '#/components/parameters/orderNo'
+        - $ref: '#/components/parameters/siteId'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Shipment:
+                $ref: '#/components/examples/OrderShippingAddress'
+            schema:
+              $ref: '#/components/schemas/ShippingAddressUpdateRequest'
+      responses:
+        '204':
+          description: |
+            Shipping address created or replaced successfully. No content returned.
+        '400':
+          description: |
+            Request body or path violate required syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                BadRequest:
+                  $ref: '#/components/examples/BadRequest'
+        '404':
+          description: |
+            The given shipment ID does not reference an existing shipment.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ShipmentNotFound:
+                  $ref: '#/components/examples/ShipmentNotFound'
+      security:
+        - AmOAuth2:
+            - sfcc.orders.rw
+components:
+  securitySchemes:
+    AmOAuth2:
+      type: oauth2
+      description: AccountManager OAuth 2.0 bearer token Authentication.
+      flows:
+        clientCredentials:
+          tokenUrl: https://account.demandware.com/dwsso/oauth2/access_token
+          scopes:
+            sfcc.orders: Scope granting read access to order endpoints
+            sfcc.orders.rw: Scope granting read and write access to order endpoints
+        authorizationCode:
+          authorizationUrl: https://account.demandware.com/dwsso/oauth2/authorize
+          tokenUrl: https://account.demandware.com/dwsso/oauth2/access_token
+          scopes:
+            sfcc.orders: Scope granting read access to order endpoints
+            sfcc.orders.rw: Scope granting read and write access to order endpoints
+    ShopperTokenTsob:
+      type: oauth2
+      description: "`ShopperTokenTsob` (TSOB = trusted system on behalf) is a child of the `ShopperToken` security scheme and extends the functionality of `ShopperToken` for specific use cases. \nA token of type `ShopperTokenTsob` allows you to access Shopper API endpoints, including OCAPI and B2C Commerce API for headless applications. \nOther than endpoints that require this specific subtype, you can access all other endpoints secured by the `ShopperToken` parent scheme with a `ShopperTokenTsob`.\nTo learn how to get a `ShopperTokenTsob` token, see [getTrustedSystemAccessToken](https://developer.salesforce.com/docs/commerce/commerce-api/references?meta=shopper-login:getTrustedSystemAccessToken).\n"
+      flows:
+        clientCredentials:
+          tokenUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/trusted-system/token
+          scopes:
+            sfcc.orders: Scope granting read access to order endpoints
+            sfcc.orders.rw: Scope granting read and write access to order endpoints
+  schemas:
+    OrganizationId:
+      description: An identifier for the organization the request is being made by
+      example: f_ecom_zzxy_prd
+      type: string
+      minLength: 1
+      maxLength: 32
+    OrderExportStatus:
+      description: The order export status.
+      example: exported
+      enum:
+        - exported
+        - not_exported
+        - ready
+        - failed
+      type: string
+    OrderPaymentStatus:
+      description: The order payment status.
+      example: paid
+      enum:
+        - paid
+        - part_paid
+        - not_paid
+      type: string
+    OrderShippingStatus:
+      description: The order shipping status.
+      example: shipped
+      enum:
+        - shipped
+        - part_shipped
+        - not_shipped
+      type: string
+    SiteId:
+      minLength: 1
+      maxLength: 32
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites
+      example: RefArch
+      type: string
+    CountryCode:
+      pattern: ^[A-Z][A-Z]$
+      description: A two letter uppercase country code conforming to the [ISO 3166-1](https://www.iso.org/iso-3166-country-codes.html) alpha-2 standard.
+      example: US
+      type: string
+    Address:
+      description: Document representing an order address.
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+      properties:
+        address1:
+          maxLength: 256
+          description: The first address line.
+          example: 45 Main Rd.
+          type: string
+        address2:
+          maxLength: 256
+          description: The second address line.
+          example: Apartment 204
+          type: string
+        city:
+          maxLength: 256
+          description: The city.
+          example: Burlington
+          type: string
+        companyName:
+          maxLength: 256
+          description: The company name.
+          example: Salesforce
+          type: string
+        countryCode:
+          $ref: '#/components/schemas/CountryCode'
+        firstName:
+          maxLength: 256
+          description: The first name.
+          example: Max
+          type: string
+        fullName:
+          maxLength: 256
+          description: The full name.
+          example: Max Mustermann
+          type: string
+        jobTitle:
+          maxLength: 256
+          description: The job title.
+          example: Software Engineer
+          type: string
+        lastName:
+          maxLength: 256
+          description: The last name.
+          example: Mustermann
+          type: string
+        phone:
+          maxLength: 256
+          description: The phone number.
+          example: '6175555555'
+          type: string
+        postBox:
+          maxLength: 256
+          description: The post office box.
+          example: PO BOX 109
+          type: string
+        postalCode:
+          maxLength: 256
+          description: The postal code.
+          example: '05408'
+          type: string
+        salutation:
+          maxLength: 256
+          description: The salutation.
+          example: Mr
+          type: string
+        secondName:
+          maxLength: 256
+          description: The second name.
+          type: string
+        stateCode:
+          maxLength: 256
+          description: The state code.
+          example: MA
+          type: string
+        suffix:
+          maxLength: 256
+          description: The suffix.
+          example: Sr
+          type: string
+        suite:
+          maxLength: 256
+          description: The suite.
+          type: string
+        title:
+          maxLength: 256
+          description: The title.
+          example: Dr
+          type: string
+      type: object
+    ProductId:
+      minLength: 1
+      maxLength: 100
+      type: string
+      description: The id (SKU) of the product.
+      example: apple-ipod-classic
+    ProductReference:
+      description: Document representing a product.
+      additionalProperties: false
+      properties:
+        productId:
+          $ref: '#/components/schemas/ProductId'
+        productName:
+          maxLength: 4000
+          description: The name of the product.
+          example: Nintendo DS Game Console
+          type: string
+      type: object
+    BonusDiscountLineItem:
+      description: Document representing a bonus discount line item.
+      properties:
+        bonusProducts:
+          description: The bonus products from which the customer can choose.
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductReference'
+        couponCode:
+          maxLength: 256
+          description: The coupon code that triggered the promotion, if applicable.
+          example: 5ties
+          type: string
+        id:
+          minLength: 1
+          maxLength: 256
+          description: The ID of the line item.
+          example: 91f4dd8bfa0653d58b7783b04f
+          type: string
+        maxBonusItems:
+          format: int32
+          description: The maximum number of bonus items the user can select for this promotion.
+          type: integer
+        promotionId:
+          maxLength: 256
+          description: The ID of the promotion that triggered the creation of the line item.
+          example: Buy1Get2
+          type: string
+      type: object
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+    OrderConfirmationStatus:
+      description: The order confirmation status.
+      example: confirmed
+      enum:
+        - confirmed
+        - not_confirmed
+      type: string
+    CouponItem:
+      description: Document representing a coupon item.
+      additionalProperties: false
+      properties:
+        code:
+          maxLength: 256
+          description: The coupon code.
+          example: 5ties
+          type: string
+        couponItemId:
+          minLength: 1
+          maxLength: 256
+          description: The coupon item ID.
+          example: d4c9c0141e9c74c150225580f3
+          type: string
+        statusCode:
+          description: The status of the coupon item.
+          example: no_applicable_promotion
+          enum:
+            - coupon_code_already_in_basket
+            - coupon_code_already_redeemed
+            - coupon_code_unknown
+            - coupon_disabled
+            - redemption_limit_exceeded
+            - customer_redemption_limit_exceeded
+            - timeframe_redemption_limit_exceeded
+            - no_active_promotion
+            - coupon_already_in_basket
+            - no_applicable_promotion
+            - applied
+            - adhoc
+          type: string
+        valid:
+          description: A flag indicating whether the coupon item is valid. A coupon line item is valid if the status code is "applied" or "no_applicable_promotion".
+          example: true
+          type: boolean
+      type: object
+    ISOCurrency:
+      pattern: ^[A-Z][A-Z][A-Z]$
+      description: A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard.
+      example: USD
+      type: string
+    NoValue:
+      default: N/A
+      description: A specialized value indicating the lack of definition of a currency, for example, if the value of the monetary value of the currency is an undefined number.
+      example: N/A
+      enum:
+        - N/A
+      type: string
+    CurrencyCode:
+      description: A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard, or the string `N/A` indicating that a currency is not applicable.
+      example: USD
+      oneOf:
+        - $ref: '#/components/schemas/ISOCurrency'
+        - $ref: '#/components/schemas/NoValue'
+    CustomerInfo:
+      description: Document representing a guest or logged-in customer.
+      additionalProperties: false
+      properties:
+        customerId:
+          maxLength: 100
+          description: The customer ID.
+          example: abMKqMaNYOBMnNdDNzyC5oNTi5
+          type: string
+        customerName:
+          maxLength: 256
+          description: The customer name.
+          example: Max Mustermann
+          type: string
+        customerNo:
+          maxLength: 100
+          description: The customer number.
+          example: '0002352'
+          type: string
+        email:
+          maxLength: 256
+          description: The customer email address.
+          example: no-reply@salesforce.com
+          type: string
+        guest:
+          description: A flag indicating if the order was placed by a guest.
+          example: false
+          type: boolean
+      type: object
+    GiftCertificateItem:
+      description: A gift certificate item.
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+      properties:
+        basePrice:
+          format: double
+          description: The base price of the line item, which is the unit price not including adjustments. If the taxation policy is net, it doesn't include tax. If the taxation policy is gross, it includes tax.
+          example: 50
+          type: number
+        grossPrice:
+          format: double
+          description: The gross price of the line item before applying any adjustments.
+          example: 50
+          type: number
+        itemText:
+          maxLength: 256
+          description: The text describing the item.
+          example: Nintendo eShop gift card.
+          type: string
+        netPrice:
+          format: double
+          description: The net price of the line item before applying any adjustments.
+          example: 50
+          type: number
+        tax:
+          format: double
+          description: The tax on the line item before applying any adjustments.
+          example: 0
+          type: number
+        taxBasis:
+          format: double
+          description: The amount used to calculate the tax for this item.
+          example: 50
+          type: number
+        giftCertificateMerchantId:
+          minLength: 1
+          maxLength: 256
+          description: The ID used to identify the certificate merchant.
+          example: Nintendo
+          type: string
+        giftCertificateItemId:
+          minLength: 1
+          maxLength: 256
+          description: The item ID.
+          example: 629dea6e7b61e58da629b57b21
+          type: string
+        message:
+          maxLength: 4000
+          description: The gift certificate message.
+          example: Birthday present.
+          type: string
+        recipientEmail:
+          maxLength: 256
+          description: The recipient email.
+          example: no-reply@salesforce.com
+          type: string
+        recipientName:
+          maxLength: 256
+          description: The recipient name.
+          example: Daniel Mustermann
+          type: string
+        senderName:
+          maxLength: 256
+          description: The sender name.
+          example: Max Mustermann
+          type: string
+        shipmentId:
+          minLength: 1
+          maxLength: 256
+          description: The ID of the shipment to which this item belongs.
+          example: me
+          type: string
+      type: object
+    OrderNo:
+      description: The order number
+      minLength: 1
+      maxLength: 50
+      type: string
+      example: '00000410'
+    ABTestSegment:
+      description: Document representing an AB test segment. In an AB test that compares different customer experiences, a segment defines the customers who receive a particular experience.
+      additionalProperties: false
+      properties:
+        testId:
+          minLength: 1
+          maxLength: 40
+          description: The ID of the associated AB test.
+          type: string
+        segmentId:
+          minLength: 1
+          maxLength: 40
+          description: The ID of the segment.
+          type: string
+      type: object
+      required:
+        - testId
+        - segmentId
+    Discount:
+      description: Document representing a discount.
+      additionalProperties: false
+      required:
+        - type
+      properties:
+        amount:
+          format: double
+          description: The discount amount for discount types that define specific discount amounts.
+          example: 5
+          type: number
+        percentage:
+          format: double
+          description: The discount percent for discount types that define percentage discounts.
+          example: 0.19
+          type: number
+        priceBookId:
+          maxLength: 256
+          description: The ID of the price book for discount types that use a price book.
+          example: usd-sale-prices
+          type: string
+        type:
+          description: The type of discount.
+          example: fixed_price
+          enum:
+            - percentage
+            - fixed_price
+            - amount
+            - free
+            - price_book_price
+            - bonus
+            - total_fixed_price
+            - bonus_choice
+            - percentage_off_options
+          type: string
+      type: object
+    PriceAdjustment:
+      description: Document representing a price adjustment within a basket or order. Price adjustments can be assigned at the order, product, or shipping level.
+      required:
+        - promotionId
+      properties:
+        basePrice:
+          format: double
+          description: The adjustment amount. If the taxation policy is net, it doesn't include tax. If the taxation policy is gross, it includes tax.
+          example: 12
+          type: number
+        grossPrice:
+          format: double
+          description: The adjustment amount, including tax.
+          example: 50
+          type: number
+        itemText:
+          maxLength: 256
+          description: The text describing the adjustment.
+          example: Employee discount applied.
+          type: string
+        netPrice:
+          format: double
+          description: The adjustment amount, not including tax.
+          example: 38
+          type: number
+        tax:
+          format: double
+          description: The tax on the adjustment amount.
+          example: 0.19
+          type: number
+        taxBasis:
+          format: double
+          description: The amount used to calculate the tax for this adjustment.
+          example: 50
+          type: number
+        abTestSegment:
+          description: The AB testing segment, if enabled for the site and applicable to this price adjustment.
+          allOf:
+            - $ref: '#/components/schemas/ABTestSegment'
+        appliedDiscount:
+          description: Details describing the discount on which this price adjustment is based. For adjustments not based on a discount, this value is null.
+          allOf:
+            - $ref: '#/components/schemas/Discount'
+        campaignId:
+          minLength: 1
+          maxLength: 256
+          description: The campaign ID of the promotion on which this price adjustment is based. For adjustments not based on a promotion, this value is null. For adjustments based on an AB test promotion, this value is not null, but isn't meaningful.
+          example: FreeShipping24
+          type: string
+        couponCode:
+          minLength: 1
+          maxLength: 256
+          description: The coupon code of the coupon on which this price adjustment is based. For adjustments not based on a coupon, this value is null.
+          example: 5ties
+          type: string
+        createdBy:
+          maxLength: 256
+          description: The user who created the price adjustment.
+          example: Customer
+          type: string
+        creationDate:
+          description: The timestamp when the price adjustment was created.
+          example: '2021-02-25T09:58:04.691Z'
+          type: string
+          format: date-time
+        custom:
+          description: A flag indicating whether this price adjustment was created by custom logic. This flag is set to true unless the price adjustment was created by the promotion engine.
+          example: false
+          type: boolean
+        lastModified:
+          description: The timestamp when the price adjustment was last modified.
+          example: '2021-02-25T09:58:08.715Z'
+          type: string
+          format: date-time
+        manual:
+          description: A flag indicating whether this price adjustment was created by a manual process. If the price adjustment was created by the promotion engine, this value is always false.
+          example: false
+          type: boolean
+        priceAdjustmentId:
+          minLength: 1
+          maxLength: 256
+          description: The price adjustment ID.
+          example: ba248424e3eee797f062161f8b
+          type: string
+        promotionId:
+          minLength: 1
+          maxLength: 256
+          description: The promotion ID of the promotion on which this price adjustment is based. Custom price adjustment can assign an arbitrary promotion ID, but it must not be used by the promotion engine. If no promotion ID is specified, then the system assigns a generated ID.
+          example: FreeShipping24
+          type: string
+        reasonCode:
+          minLength: 1
+          maxLength: 256
+          description: The reason code why this price adjustment was made.
+          example: Employee discount was applied.
+          type: string
+      type: object
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+    PaymentCard:
+      description: Document representing a payment card.
+      additionalProperties: false
+      properties:
+        cardType:
+          maxLength: 256
+          description: 'The payment card type (for example: Visa).'
+          example: Visa
+          type: string
+        creditCardExpired:
+          description: A flag indicating if the credit card is expired.
+          example: false
+          type: boolean
+        creditCardToken:
+          maxLength: 256
+          description: |-
+            A credit card token. If a credit card is tokenized, the token can be used to look up the credit card data at the
+            token store.
+          example: E67TY8GQ27X
+          type: string
+        expirationMonth:
+          minimum: 1
+          maximum: 12
+          format: int32
+          description: The month when the payment card expires.
+          example: 3
+          type: integer
+        expirationYear:
+          format: int32
+          description: The year when the payment card expires.
+          example: 2025
+          type: integer
+        holder:
+          maxLength: 256
+          description: The payment card holder.
+          example: Max Mustermann
+          type: string
+        issueNumber:
+          maxLength: 256
+          description: The payment card issue number.
+          example: '2'
+          type: string
+        maskedNumber:
+          maxLength: 256
+          description: The masked payment card number. There may be a maximum of first 6 and last 4 digits.
+          example: '*********4422'
+          type: string
+        numberLastDigits:
+          maxLength: 4
+          description: The last digits of payment card number.
+          example: '4422'
+          type: string
+        validFromMonth:
+          minimum: 1
+          maximum: 12
+          format: int32
+          description: The month from which the payment card is valid.
+          example: 5
+          type: integer
+        validFromYear:
+          format: int32
+          description: The year from which the payment card is valid.
+          example: 2019
+          type: integer
+      type: object
+    Status:
+      description: Document representing a status of an object.
+      additionalProperties: false
+      properties:
+        code:
+          maxLength: 256
+          description: The status code.
+          example: OK
+          type: string
+        message:
+          maxLength: 256
+          description: The message corresponding to the status.
+          example: Credit Card successfully authorized.
+          type: string
+        status:
+          minimum: 0
+          maximum: 2
+          format: int32
+          description: A constant corresponding to the status code. The value is 0 for OK, 1 for ERROR, and 2 for WARN.
+          example: 0
+          type: integer
+      type: object
+    PaymentTransaction:
+      description: Document representing an order payment transaction.
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+      properties:
+        amount:
+          format: double
+          description: The payment transaction amount.
+          example: 130.88
+          type: number
+        authorizationStatus:
+          description: The authorization status of the payment transaction.
+          allOf:
+            - $ref: '#/components/schemas/Status'
+        transactionId:
+          maxLength: 256
+          description: The payment service specific transaction ID.
+          example: 3226f0a3bc4b4f244d70dd1c2b
+          type: string
+      type: object
+    PaymentInstrument:
+      description: Document representing an order payment instrument.
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+      properties:
+        bankRoutingNumber:
+          maxLength: 256
+          description: The bank routing number.
+          example: '6784532'
+          type: string
+        maskedGiftCertificateCode:
+          maxLength: 256
+          description: The gift certificate code with the last 4 characters not masked.
+          example: '******Gzzy'
+          type: string
+        paymentCard:
+          description: The payment card.
+          allOf:
+            - $ref: '#/components/schemas/PaymentCard'
+        paymentInstrumentId:
+          minLength: 1
+          maxLength: 256
+          description: The payment instrument ID.
+          example: ba248424e3eee797f062162f8b
+          type: string
+        paymentMethodId:
+          maxLength: 256
+          description: The payment method ID.
+          example: CREDIT_CARD
+          type: string
+        paymentTransaction:
+          description: The payment transaction.
+          allOf:
+            - $ref: '#/components/schemas/PaymentTransaction'
+      type: object
+    ProductItem:
+      description: Document representing a product item.
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+      required:
+        - productId
+        - shipmentId
+        - taxRate
+      properties:
+        basePrice:
+          format: double
+          description: The base price of the line item, which is the unit price not including adjustments. If the taxation policy is net, it doesn't include tax. If the taxation policy is gross, it includes tax.
+          example: 99.99
+          type: number
+        grossPrice:
+          format: double
+          description: The gross price of the line item before applying any adjustments.
+          example: 99.99
+          type: number
+        itemText:
+          maxLength: 256
+          description: The text describing the item.
+          example: Nintendo DS Game Console
+          type: string
+        netPrice:
+          format: double
+          description: The net price of the line item before applying any adjustments.
+          example: 80.99
+          type: number
+        tax:
+          format: double
+          description: The tax on the line item before applying any adjustments.
+          example: 19
+          type: number
+        taxBasis:
+          format: double
+          description: The amount used to calculate the tax for this item.
+          example: 99.99
+          type: number
+        adjustedTax:
+          format: double
+          description: The tax on the line item, including any adjustments.
+          example: 19
+          type: number
+        bonusDiscountLineItemId:
+          minLength: 1
+          maxLength: 256
+          description: The ID of the bonus discount line item to which this bonus product relates.
+          example: ba248414e3eee797f062162f8b
+          type: string
+        bonusProductLineItem:
+          description: A flag indicating whether this item is a bonus product.
+          example: false
+          type: boolean
+        brand:
+          maxLength: 256
+          example: Nintendo
+          type: string
+        bundledProductItems:
+          description: The bundled product items.
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductItem'
+        externalLineItemStatus:
+          maxLength: 256
+          description: The external line item status.
+          example: Available
+          type: string
+        externalLineItemText:
+          description: The external line item text.
+          example: The item is available
+          type: string
+        gift:
+          description: Returns true if the item is a gift.
+          example: false
+          type: boolean
+        giftMessage:
+          maxLength: 4000
+          description: The gift message.
+          example: Happy Birthday
+          type: string
+        inventoryId:
+          maxLength: 256
+          description: The inventory list ID associated with this item.
+          example: inventory
+          type: string
+        itemId:
+          minLength: 1
+          maxLength: 256
+          description: The product item ID. Use this to identify this item when updating its quantity or creating a custom price adjustment for it.
+          example: 430ef5aad3a24de59378458434
+          type: string
+        minOrderQuantity:
+          format: double
+          description: The minimum order quantity for this product.
+          example: 1
+          type: number
+        optionItems:
+          description: The option items.
+          type: array
+          items:
+            $ref: '#/components/schemas/OptionItem'
+        position:
+          format: double
+          description: The position of the product line item.
+          type: number
+        priceAdjustments:
+          description: The price adjustments.
+          type: array
+          items:
+            $ref: '#/components/schemas/PriceAdjustment'
+        priceAfterItemDiscount:
+          format: double
+          description: The price of the product line item including item-level adjustments, but not including order-level adjustments or shipping charges. If the taxation policy is net, it doesn't include tax. If the taxation policy is gross, it includes tax.
+          type: number
+        priceAfterOrderDiscount:
+          format: double
+          description: The price of the product line item including item-level adjustments and prorated order-level adjustments, but not including shipping charges. If the taxation policy is net, it doesn't include tax. If the taxation policy is gross, it includes tax.
+          type: number
+        productId:
+          $ref: '#/components/schemas/ProductId'
+        productListItem:
+          description: If this product line item was added from a product list, this value is a reference to the corresponding product list item.
+          allOf:
+            - $ref: '#/components/schemas/ProductListItemReference'
+        productName:
+          maxLength: 4000
+          description: The name of the product.
+          example: Nintendo DS Game Console
+          type: string
+        quantity:
+          minimum: 0
+          format: double
+          description: The ordered quantity of the products represented by this item.
+          example: 1
+          type: number
+        shipmentId:
+          minLength: 1
+          maxLength: 256
+          description: The ID of the shipment to which this item belongs.
+          example: me
+          type: string
+        shippingItemId:
+          minLength: 1
+          maxLength: 256
+          description: If the product line item has a related shipping item, this value is the shipping item ID. A related shipping item represents a surcharge applied to individual products using a particular shipping method.
+          example: 006490dcc338feeafc71c964bf
+          type: string
+        stepQuantity:
+          format: double
+          example: 1
+          type: number
+        taxRate:
+          format: double
+          description: The tax rate applicable to this product line item. For a 10% tax rate, the value is 0.1.
+          example: 0.19
+          type: number
+      type: object
+    OptionItem:
+      description: An option item represents an optional purchase related to a product item, and is always associated with the parent product item. For example, a refrigerator item can have a set of option items representing different warranties on the refrigerator. A shopper can only purchase one of the warranty option items together with the parent refrigerator item.
+      properties:
+        basePrice:
+          format: double
+          description: The base price of the line item, which is the unit price not including adjustments. If the taxation policy is net, it doesn't include tax. If the taxation policy is gross, it includes tax.
+          example: 49.99
+          type: number
+        grossPrice:
+          format: double
+          description: The gross price of the line item before applying any adjustments.
+          example: 99.99
+          type: number
+        gift:
+          description: Returns true if the item is a gift.
+          example: false
+          type: boolean
+        itemText:
+          maxLength: 256
+          description: The text describing the item.
+          example: Extended Warranty - None
+          type: string
+        netPrice:
+          format: double
+          description: The net price of the line item before applying any adjustments.
+          example: 49.99
+          type: number
+        tax:
+          format: double
+          description: The tax on the line item before applying any adjustments.
+          example: 0.19
+          type: number
+        taxBasis:
+          format: double
+          description: The amount used to calculate the tax for this item.
+          example: 50
+          type: number
+        optionId:
+          minLength: 1
+          maxLength: 256
+          description: The ID of the option.
+          example: consoleWarranty
+          type: string
+        optionValueId:
+          minLength: 1
+          maxLength: 256
+          description: The ID of the option value.
+          example: '000'
+          type: string
+        priceAdjustments:
+          description: The price adjustments.
+          type: array
+          items:
+            $ref: '#/components/schemas/PriceAdjustment'
+        productId:
+          $ref: '#/components/schemas/ProductId'
+      type: object
+      required:
+        - productId
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+    ProductListReference:
+      description: Document representing a product list.
+      additionalProperties: false
+      properties:
+        description:
+          maxLength: 256
+          description: The description of this product list.
+          type: string
+        name:
+          maxLength: 256
+          description: The name of this product list.
+          type: string
+        public:
+          description: A flag indicating whether the owner made this product list available for access by other customers.
+          example: false
+          type: boolean
+        type:
+          description: The type of the product list.
+          example: wish_list
+          enum:
+            - wish_list
+            - gift_registry
+            - shopping_list
+            - custom_1
+            - custom_2
+            - custom_3
+          type: string
+      type: object
+    ProductListItemReference:
+      description: Document representing product list item details.
+      additionalProperties: false
+      required:
+        - purchasedQuantity
+      properties:
+        id:
+          minLength: 1
+          maxLength: 256
+          description: The ID of the product list item.
+          example: ba248424e3fee797f062162f8b
+          type: string
+        priority:
+          format: int32
+          description: The priority of the product list item.
+          type: integer
+        product:
+          description: A reference to the associated product.
+          allOf:
+            - $ref: '#/components/schemas/ProductReference'
+        productList:
+          description: A reference to the associated product list.
+          allOf:
+            - $ref: '#/components/schemas/ProductListReference'
+        public:
+          example: false
+          type: boolean
+        purchasedQuantity:
+          format: double
+          description: The total quantity of this item purchased from the product list.
+          example: 0
+          type: number
+        quantity:
+          minimum: 0
+          format: double
+          description: The number of products or gift certificates that get shipped when purchasing this product list item.
+          example: 1
+          type: number
+        type:
+          description: Specifies whether the item is a product or a gift certificate.
+          example: product
+          enum:
+            - product
+            - gift_certificate
+          type: string
+      type: object
+    ShippingMethodReference:
+      description: Document representing a reference to a shipping method.
+      additionalProperties: false
+      properties:
+        id:
+          maxLength: 256
+          description: The shipping method ID.
+          example: '0000457'
+          type: string
+      type: object
+    Shipment:
+      description: Document representing a shipment.
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+      required:
+        - shipmentId
+        - shipmentNo
+      properties:
+        adjustedMerchandizeTotalTax:
+          format: double
+          description: The total tax on products in the shipment, including item-level price adjustments but not including service charges such as shipping. If the Discount Taxation preference is set to Tax Products and Shipping Only Based on Adjusted Price, this amount also includes prorated order-level price adjustments.
+          example: 1.5
+          type: number
+        adjustedShippingTotalTax:
+          format: double
+          description: The total tax on shipping charges in the shipment, including shipping price adjustments.
+          example: 0.3
+          type: number
+        gift:
+          description: A flag indicating whether the shipment is a gift.
+          example: true
+          type: boolean
+        giftMessage:
+          maxLength: 4000
+          description: The gift message.
+          example: Happy Birthday
+          type: string
+        merchandizeTotalTax:
+          format: double
+          description: The total tax on products in the shipment, not including price adjustments or service charges such as shipping.
+          example: 1.5
+          type: number
+        productSubTotal:
+          format: double
+          description: The total price of all products in the shipment, including item-level adjustments, but not including order-level adjustments or shipping charges. If the taxation policy is net, it doesn't include tax. If the taxation policy is gross, it includes tax.
+          example: 29.99
+          type: number
+        productTotal:
+          format: double
+          description: The total price of all products in the shipment including item-level adjustments and prorated order-level adjustments, but not including shipping charges. If the taxation policy is net, it doesn't include tax. If the taxation policy is gross, it includes tax.
+          example: 29.99
+          type: number
+        shipmentId:
+          minLength: 1
+          maxLength: 256
+          description: The order-specific ID of the shipment. The default value is 'me'.
+          type: string
+        shipmentNo:
+          maxLength: 256
+          description: The shipment number of this shipment. This number is automatically generated.
+          type: string
+        shipmentTotal:
+          format: double
+          description: The total price of all products in the shipment including item-level adjustments, shipping charges, and tax.
+          example: 39.99
+          type: number
+        shippingAddress:
+          description: The shipping address.
+          allOf:
+            - $ref: '#/components/schemas/Address'
+        shippingMethod:
+          description: The shipping method.
+          allOf:
+            - $ref: '#/components/schemas/ShippingMethodReference'
+        shippingStatus:
+          description: The shipping status of the shipment.
+          example: shipped
+          enum:
+            - not_shipped
+            - shipped
+          type: string
+        shippingTotal:
+          format: double
+          description: The total price of all shipping charges in the shipment, including shipping adjustments. If the taxation policy is net, it doesn't include tax. If the taxation policy is gross, it includes tax.
+          example: 5.99
+          type: number
+        shippingTotalTax:
+          format: double
+          description: The total tax on shipping charges in the shipment, not including shipping price adjustments.
+          example: 0.3
+          type: number
+        taxTotal:
+          format: double
+          description: The total tax on the shipment, including item-level price adjustments and service charges such as shipping. If the Discount Taxation preference is set to Tax Products and Shipping Only Based on Adjusted Price, this amount also includes prorated order-level price adjustments. This field value must match the summed up taxTotal, and an InvalidTaxTotalException is thrown if the values do not match.
+          example: 1.8
+          type: number
+        trackingNumber:
+          maxLength: 256
+          description: The tracking number of the shipment.
+          example: 1Z204E380338943508
+          type: string
+      type: object
+    ShippingItem:
+      description: Document representing a shipping item.
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+      required:
+        - taxRate
+      properties:
+        basePrice:
+          format: double
+          description: The base price of the shipping item, which is the unit price not including adjustments. If the taxation policy is net, it doesn't include tax. If the taxation policy is gross, it includes tax.
+          example: 5.99
+          type: number
+        grossPrice:
+          format: double
+          description: The gross price of the shipping item before applying any adjustments.
+          example: 5.99
+          type: number
+        itemText:
+          maxLength: 256
+          description: The text describing the shipping item.
+          example: Shipping
+          type: string
+        netPrice:
+          format: double
+          description: The net price of the shipping item before applying any adjustments.
+          example: 5.99
+          type: number
+        tax:
+          format: double
+          description: The tax for the shipping item, not including price adjustments.
+          example: 0.3
+          type: number
+        taxBasis:
+          format: double
+          description: The amount used to calculate the tax for this shipping item.
+          example: 5.99
+          type: number
+        adjustedTax:
+          format: double
+          description: The tax for the shipping item, including price adjustments.
+          example: 0
+          type: number
+        itemId:
+          minLength: 1
+          maxLength: 256
+          description: The shipping item ID. Use this value to identify this shipping item when updating its quantity or creating a custom price adjustment for it.
+          example: ba248424e3eee798f062162f8b
+          type: string
+        priceAdjustments:
+          description: The price adjustments.
+          type: array
+          items:
+            $ref: '#/components/schemas/PriceAdjustment'
+        priceAfterItemDiscount:
+          format: double
+          description: The price of the shipping item including item-level adjustments, but not including order-level adjustments or shipping charges. If the taxation policy is net, it doesn't include tax. If the taxation policy is gross, it includes tax.
+          example: 4.99
+          type: number
+        shipmentId:
+          minLength: 1
+          maxLength: 256
+          description: The ID of the shipment to which this item belongs.
+          example: me
+          type: string
+        taxRate:
+          format: double
+          description: The tax rate applicable to this shipping line item. For a 10% tax rate, the value is 0.1.
+          example: 0.19
+          type: number
+        type:
+          default: fixed_price
+          description: The type of shipping charge applicable to this shipping item.
+          example: fixed_price
+          enum:
+            - fixed_price
+            - surcharge
+          type: string
+      type: object
+    OrderStatus:
+      description: The order status.
+      example: completed
+      enum:
+        - created
+        - new
+        - completed
+        - cancelled
+        - failed
+      type: string
+    Order:
+      description: Document representing an order.
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+      required:
+        - orderNo
+      properties:
+        adjustedMerchandizeTotalTax:
+          format: double
+          description: The total tax on products in the order, including price adjustments, but not including service charges such as shipping.
+          example: 4.95
+          type: number
+        adjustedShippingTotalTax:
+          format: double
+          description: The total tax on shipping charges in the order, including shipping price adjustments.
+          example: 0.3
+          type: number
+        affiliatePartnerId:
+          maxLength: 256
+          description: The affiliate partner ID.
+          example: PARTNER_US_001
+          type: string
+        affiliatePartnerName:
+          maxLength: 256
+          description: The affiliate partner name.
+          example: PARTNER_US_001
+          type: string
+        billingAddress:
+          description: The billing address.
+          allOf:
+            - $ref: '#/components/schemas/Address'
+        bonusDiscountLineItems:
+          description: The bonus discount line items.
+          type: array
+          items:
+            $ref: '#/components/schemas/BonusDiscountLineItem'
+        businessType:
+          description: The business type.
+          example: b2c
+          enum:
+            - b2c
+            - b2b
+          type: string
+        cancelCode:
+          maxLength: 256
+          description: The cancellation code.
+          example: canceled
+          type: string
+        cancelDescription:
+          maxLength: 4000
+          description: The cancellation description.
+          example: Ordered by mistake.
+          type: string
+        channelType:
+          description: The sales channel.
+          example: storefront
+          enum:
+            - storefront
+            - callcenter
+            - marketplace
+            - dss
+            - store
+            - pinterest
+            - twitter
+            - facebookads
+            - subscriptions
+            - onlinereservation
+            - customerservicecenter
+            - instagramcommerce
+            - tiktok
+            - snapchat
+            - google
+            - whatsapp
+            - youtube
+          type: string
+        confirmationStatus:
+          $ref: '#/components/schemas/OrderConfirmationStatus'
+        couponItems:
+          description: The coupon items.
+          type: array
+          items:
+            $ref: '#/components/schemas/CouponItem'
+        createdBy:
+          maxLength: 256
+          description: This value depends on how the order was created. If a shopper created the order, this value is Customer. If a job created the order, this value is System. Otherwise, this value is the name of the user who created the order.
+          example: Customer
+          type: string
+        creationDate:
+          description: The timestamp when the order was created.
+          example: '2015-05-19T15:23:18.000Z'
+          type: string
+          format: date-time
+        customerLocale:
+          maxLength: 256
+          description: The locale of the customer who created the order.
+          example: en_US
+          type: string
+        currency:
+          $ref: '#/components/schemas/CurrencyCode'
+        customerInfo:
+          $ref: '#/components/schemas/CustomerInfo'
+        customerOrderReference:
+          maxLength: 256
+          description: The customer-specific reference information.
+          example: REF_US_143
+          type: string
+        exportStatus:
+          $ref: '#/components/schemas/OrderExportStatus'
+        externalOrderNo:
+          maxLength: 256
+          description: The external order number associated with the order.
+          example: '00000410'
+          type: string
+        externalOrderStatus:
+          maxLength: 256
+          description: The status from an external order associated with this order.
+          example: Submitted
+          type: string
+        externalOrderText:
+          maxLength: 4000
+          description: The text from an external order associated with this order.
+          example: Order is being prepared
+          type: string
+        giftCertificateItems:
+          description: The gift certificate line items.
+          type: array
+          items:
+            $ref: '#/components/schemas/GiftCertificateItem'
+        globalPartyId:
+          maxLength: 256
+          description: The Customer 360 Global Party ID associated with the shopper.
+          type: string
+        invoiceNo:
+          maxLength: 256
+          description: The invoice number.
+          example: '00000410'
+          type: string
+        lastModified:
+          description: The timestamp when the order was last modified.
+          example: '2020-11-04T14:13:31.061Z'
+          type: string
+          format: date-time
+        merchandizeTotalTax:
+          format: double
+          description: The total tax on products in the order, not including price adjustments or service charges such as shipping.
+          example: 4.95
+          type: number
+        orderNo:
+          $ref: '#/components/schemas/OrderNo'
+        orderPriceAdjustments:
+          description: The order-level price adjustments.
+          type: array
+          items:
+            $ref: '#/components/schemas/PriceAdjustment'
+        orderTotal:
+          format: double
+          description: The total price, including products, shipping and, tax.
+          example: 110.24
+          type: number
+        paymentInstruments:
+          description: The payment instruments list.
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentInstrument'
+        paymentStatus:
+          $ref: '#/components/schemas/OrderPaymentStatus'
+        placeDate:
+          description: The timestamp when the order was placed.
+          example: '2015-05-19T15:23:18.000Z'
+          type: string
+          format: date-time
+        productItems:
+          description: The product items.
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductItem'
+        productSubTotal:
+          format: double
+          description: The total price of all products including item-level adjustments, but not including order-level adjustments or shipping charges. If the taxation policy is net, it doesn't include tax. If the taxation policy is gross, it includes tax.
+          example: 99
+          type: number
+        productTotal:
+          format: double
+          description: The total price of all products including adjustments, but not including shipping charges. If the taxation policy is net, it doesn't include tax. If the taxation policy is gross, it includes tax.
+          example: 99
+          type: number
+        remoteHost:
+          maxLength: 40
+          description: The IP of the host that placed this order. You can turn IP logging on or off for your site.
+          example: 127.0.0.1
+          type: string
+        shipments:
+          description: The shipments.
+          type: array
+          items:
+            $ref: '#/components/schemas/Shipment'
+        shippingItems:
+          description: The shipping items.
+          type: array
+          items:
+            $ref: '#/components/schemas/ShippingItem'
+        shippingStatus:
+          $ref: '#/components/schemas/OrderShippingStatus'
+        shippingTotal:
+          format: double
+          description: The total price of all shipping charges, including shipping adjustments. If the taxation policy is net, it doesn't include tax. If the taxation policy is gross, it includes tax.
+          example: 5.99
+          type: number
+        shippingTotalTax:
+          format: double
+          description: The total tax on all shipping charges, not including shipping adjustments.
+          example: 0.3
+          type: number
+        siteId:
+          $ref: '#/components/schemas/SiteId'
+        sourceCode:
+          maxLength: 256
+          description: The source code assigned to the basket from which this order was created.
+          type: string
+        sourceCodeGroupId:
+          minLength: 1
+          maxLength: 256
+          description: The group ID of the source code assigned to the basket from which this order was created.
+          type: string
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+        taxTotal:
+          format: double
+          description: The total tax amount.
+          example: 5.25
+          type: number
+        taxation:
+          description: The taxation policy (gross or net).
+          example: net
+          enum:
+            - gross
+            - net
+          type: string
+      type: object
+    OrdersResponse:
+      description: Document representing an orders result.
+      additionalProperties: false
+      properties:
+        data:
+          description: The orders data.
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+      type: object
+      required:
+        - data
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        title:
+          description: "A short, human-readable summary of the problem\ntype.  It will not change from occurrence to occurrence of the \nproblem, except for purposes of localization\n"
+          type: string
+          maxLength: 256
+          example: You do not have enough credit
+        type:
+          description: |
+            A URI reference [RFC3986] that identifies the
+            problem type.  This specification encourages that, when
+            dereferenced, it provide human-readable documentation for the
+            problem type (e.g., using HTML [W3C.REC-html5-20141028]).  When
+            this member is not present, its value is assumed to be
+            "about:blank". It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: NotEnoughMoney
+        detail:
+          description: A human-readable explanation specific to this occurrence of the problem.
+          type: string
+          example: Your current balance is 30, but that costs 50
+        instance:
+          description: |
+            A URI reference that identifies the specific
+            occurrence of the problem.  It may or may not yield further
+            information if dereferenced.  It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: /account/12345/msgs/abc
+      required:
+        - title
+        - type
+        - detail
+    CreateOrderPriceAdjustment:
+      description: "The Price Adjustment without Promotion and Coupon references - handled as `AdHocPriceAdjustments` internally. \n\nThe following fields are set:\n- manual = true\n- custom = true\n- promotionId = AD_HOC_PRICE_ADJUSTMENT"
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+      required:
+        - grossPrice
+        - netPrice
+        - tax
+      properties:
+        amount:
+          format: double
+          description: Amount to deduct from the applied line item's price. If the taxation policy is net, it doesn't  include tax. If the taxation policy is gross, it includes tax.
+          example: 6
+          type: number
+        basePrice:
+          format: double
+          description: "The adjustment amount. If the taxation policy is net, it doesn't include tax. \nIf the taxation policy is gross, it includes tax."
+          example: -6
+          type: number
+        grossPrice:
+          format: double
+          description: The adjustment amount, including tax.
+          example: -6
+          type: number
+        itemText:
+          description: The text describing the price adjustment.
+          example: 6 Dollar off.
+          type: string
+        netPrice:
+          format: double
+          description: The adjustment amount, not including tax.
+          example: -5
+          type: number
+        reasonCode:
+          description: The reason code why this price adjustment was made.
+          example: Special Offer.
+          type: string
+        tax:
+          format: double
+          description: The tax on the adjustment amount.
+          example: 1
+          type: number
+        taxBasis:
+          format: double
+          description: The amount used to calculate the tax for this adjustment.
+          example: -5
+          type: number
+      type: object
+    CreateOrderPaymentTransaction:
+      description: Document representing an order payment transaction.
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+      required:
+        - amount
+        - transactionId
+      properties:
+        amount:
+          format: double
+          description: The payment transaction amount.
+          example: 130.88
+          type: number
+        authorizationStatus:
+          description: The authorization status of the payment transaction.
+          allOf:
+            - $ref: '#/components/schemas/Status'
+        transactionId:
+          maxLength: 256
+          description: The payment service specific transaction ID.
+          example: 3226f0a3bc4b4f244d70dd1c2b
+          type: string
+      type: object
+    CreateOrderPaymentInstrument:
+      description: Document representing a payment instrument.
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+      required:
+        - paymentMethodId
+      properties:
+        paymentMethodId:
+          maxLength: 256
+          description: The payment method ID.
+          example: PAYPAL
+          type: string
+        paymentTransaction:
+          description: The payment transaction.
+          allOf:
+            - $ref: '#/components/schemas/CreateOrderPaymentTransaction'
+      type: object
+    CreateOrderOptionItem:
+      description: An option item represents an optional purchase related to a product item, and is always associated with that parent product item. For example, a refrigerator item can have a set of option items representing different warranties on the refrigerator. A shopper can only purchase one of the warranty option items together with the parent refrigerator item.
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+      required:
+        - basePrice
+        - grossPrice
+        - netPrice
+        - tax
+        - optionId
+        - optionValueId
+        - productId
+      properties:
+        basePrice:
+          format: double
+          description: The base price of the line item, which is the unit price not including adjustments. If the taxation policy is net, it doesn't include tax. If the taxation policy is gross, it includes tax.
+          example: 49.99
+          type: number
+        grossPrice:
+          format: double
+          description: The gross price of the line item before applying any adjustments.
+          example: 99.99
+          type: number
+        itemText:
+          maxLength: 256
+          description: The text describing the item.
+          example: Extended Warranty - None
+          type: string
+        netPrice:
+          format: double
+          description: The net price of the line item before applying any adjustments.
+          example: 49.99
+          type: number
+        tax:
+          format: double
+          description: The tax on the line item before applying any adjustments.
+          example: 0.19
+          type: number
+        taxBasis:
+          format: double
+          description: The amount used to calculate the tax for this item.
+          example: 50
+          type: number
+        optionId:
+          minLength: 1
+          maxLength: 256
+          description: The ID of the option.
+          example: consoleWarranty
+          type: string
+        optionValueId:
+          minLength: 1
+          maxLength: 256
+          description: The ID of the option value.
+          example: '000'
+          type: string
+        priceAdjustments:
+          maxItems: 20
+          description: The price adjustments.
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateOrderPriceAdjustment'
+        productId:
+          $ref: '#/components/schemas/ProductId'
+      type: object
+    CreateOrderProductItems:
+      description: Document representing a product item for an order.
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+      required:
+        - basePrice
+        - grossPrice
+        - netPrice
+        - productId
+        - quantity
+        - shipmentId
+        - tax
+      properties:
+        basePrice:
+          format: double
+          description: "The base price of the line item, which is the unit price not including adjustments. \nIf the taxation policy is net, it doesn't include tax. \nIf the taxation policy is gross, it includes tax."
+          example: 34.32
+          type: number
+        brand:
+          maxLength: 256
+          description: The brand of the line item.
+          example: brand0001
+          type: string
+        grossPrice:
+          format: double
+          description: The gross price of the line item before applying any adjustments.
+          example: 34.32
+          type: number
+        itemText:
+          description: The text describing the item.
+          example: Green Umbrella
+          type: string
+        netPrice:
+          format: double
+          description: The net price of the line item before applying any adjustments.
+          example: 30.32
+          type: number
+        optionItems:
+          maxItems: 10
+          description: The array of option items. This array can be empty.
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateOrderOptionItem'
+        priceAdjustments:
+          maxItems: 20
+          description: The price adjustments on product line item.
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateOrderPriceAdjustment'
+        productId:
+          $ref: '#/components/schemas/ProductId'
+        productName:
+          maxLength: 256
+          description: The name of the product.
+          example: green umbrella
+          type: string
+        quantity:
+          minimum: 0
+          format: double
+          description: The ordered quantity of the products represented by this item.
+          example: 3
+          type: number
+        shipmentId:
+          minLength: 1
+          maxLength: 256
+          description: The ID of the shipment to which this item belongs. Shipment 'me' is reserved for the system and is not valid to pass.
+          example: shipment00001
+          type: string
+        tax:
+          format: double
+          description: The tax on the line item before applying any adjustments.
+          example: 4
+          type: number
+        taxBasis:
+          format: double
+          description: The amount used to calculate the tax for this item.
+          example: 30.32
+          type: number
+        taxRate:
+          format: double
+          description: |-
+            The tax rate applicable to this product line item.
+            For a 10% tax rate, the value is 0.1.
+            Just for display. No calculation or sanity checks are applied.
+          type: number
+      type: object
+    CreateOrderShipment:
+      description: Document representing a shipment for an order.
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+      required:
+        - shipmentId
+        - shippingMethod
+        - shippingAddress
+        - shippingTotal
+        - taxTotal
+      properties:
+        shipmentId:
+          minLength: 1
+          maxLength: 256
+          description: |-
+            The order-specific ID of the shipment. The field shipmentId from line items refers to this value.
+            The first shipment always become the standard shipment and is named 'me'. The ID 'me' is reserved for the standard shipment and it is not allowed to be used by the API caller.
+          example: shipment00001
+          type: string
+        shippingMethod:
+          description: The shipping method. This has no reference to any shipments configured in the platform.
+          example: EXPRESS
+          type: string
+        shippingAddress:
+          description: The shipping address.
+          allOf:
+            - $ref: '#/components/schemas/Address'
+        shippingTotal:
+          format: double
+          description: |-
+            The total price of all shipping charges in the shipment.
+            If the taxation policy is net, it doesn't include tax.
+            If the taxation policy is gross, it includes tax.
+          example: 4.95
+          type: number
+        taxTotal:
+          format: double
+          description: The total tax on the shipment.
+          example: 0.75
+          type: number
+      type: object
+    CreateOrderRequest:
+      description: Document representing the order create request.
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+      required:
+        - billingAddress
+        - currency
+        - orderTotal
+        - paymentInstruments
+        - productItems
+        - shipments
+        - taxTotal
+      properties:
+        billingAddress:
+          description: The billing address. The name from the billing address is required and is used as the customer's name (for guest customer).
+          allOf:
+            - $ref: '#/components/schemas/Address'
+        businessType:
+          description: The business type.
+          example: b2c
+          enum:
+            - b2c
+            - b2b
+          type: string
+        channelType:
+          description: The sales channel.
+          example: instagramcommerce
+          enum:
+            - storefront
+            - callcenter
+            - marketplace
+            - dss
+            - store
+            - pinterest
+            - twitter
+            - facebookads
+            - subscriptions
+            - onlinereservation
+            - customerservicecenter
+            - instagramcommerce
+            - tiktok
+            - snapchat
+            - google
+            - whatsapp
+            - youtube
+          type: string
+        currency:
+          $ref: '#/components/schemas/CurrencyCode'
+        customerLocale:
+          maxLength: 256
+          description: The locale of the customer who created the order.
+          example: en_US
+          type: string
+        orderNo:
+          description: The order number. This must be unique in the site and is generated if no orderNo is passed in payload.
+          example: ORDER_000000001
+          allOf:
+            - $ref: '#/components/schemas/OrderNo'
+        orderPriceAdjustments:
+          maxItems: 20
+          description: The order-level price adjustments.
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateOrderPriceAdjustment'
+        orderTotal:
+          format: double
+          description: The total price, including products, shipping, and tax. If this value does not match the calculated value (sum of all grossPrices minus PriceAdjustments), an InvalidOrderTotalException is thrown.
+          example: 39.27
+          type: number
+        paymentInstruments:
+          maxItems: 20
+          description: The payment instruments list.
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateOrderPaymentInstrument'
+        paymentStatus:
+          description: The payment status from the order.
+          example: paid
+          enum:
+            - paid
+            - not_paid
+          type: string
+        productItems:
+          minItems: 1
+          maxItems: 200
+          description: The product items.
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateOrderProductItems'
+        shipments:
+          minItems: 1
+          maxItems: 10
+          description: The shipments.
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateOrderShipment'
+        taxTotal:
+          format: double
+          description: The total tax amount.
+          type: number
+      type: object
+    OrderUpdateRequest:
+      description: "Request body to create an order and set custom attributes on the order. \nPlease note that the custom attribute definition have to be configured both on the Basket and Order object in the platform."
+      type: object
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+    OrderConfirmationStatusUpdateRequest:
+      description: Request body to update the order confirmation status.
+      additionalProperties: false
+      properties:
+        status:
+          $ref: '#/components/schemas/OrderConfirmationStatus'
+      type: object
+      required:
+        - status
+    OrderExportStatusUpdateRequest:
+      description: Request body to update the order export status.
+      additionalProperties: false
+      properties:
+        status:
+          $ref: '#/components/schemas/OrderExportStatus'
+      type: object
+      required:
+        - status
+    OrderExternalStatusUpdateRequest:
+      description: Request body to update the order external status.
+      additionalProperties: false
+      properties:
+        status:
+          minLength: 1
+          maxLength: 256
+          description: The new external status.
+          example: in_delivery
+          type: string
+      type: object
+      required:
+        - status
+    OrderPaymentStatusUpdateRequest:
+      description: Request body to update the order payment status.
+      additionalProperties: false
+      properties:
+        status:
+          $ref: '#/components/schemas/OrderPaymentStatus'
+      type: object
+      required:
+        - status
+    OrderShippingStatusUpdateRequest:
+      description: Request body to update the order shipping status.
+      additionalProperties: false
+      properties:
+        status:
+          $ref: '#/components/schemas/OrderShippingStatus'
+      type: object
+      required:
+        - status
+    OrderStatusUpdateRequest:
+      description: Request body to update the order status.
+      additionalProperties: false
+      properties:
+        status:
+          description: The new status.
+          example: new
+          enum:
+            - created
+            - new
+            - completed
+            - cancelled
+            - failed
+            - failed_with_reopen
+          type: string
+      type: object
+      required:
+        - status
+    PaymentInstrumentUpdateRequest:
+      description: Request body to update custom properties.
+      type: object
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+    PaymentTransactionUpdateRequest:
+      description: Request body to update custom properties.
+      type: object
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+    ShippingAddressUpdateRequest:
+      description: Request body to update the shipping address.
+      allOf:
+        - $ref: '#/components/schemas/Address'
+  parameters:
+    organizationId:
+      description: An identifier for the organization the request is being made by
+      name: organizationId
+      in: path
+      required: true
+      example: f_ecom_zzxy_prd
+      schema:
+        $ref: '#/components/schemas/OrganizationId'
+    sortBy:
+      name: sortBy
+      in: query
+      description: Sort results by creation date or last modified date. The default is creation date.
+      required: false
+      schema:
+        type: string
+        default: creation_date
+        enum:
+          - creation_date
+          - last_modified_date
+    sortOrder:
+      name: sortOrder
+      in: query
+      description: Sort results in ascending or descending order. The default is descending.
+      required: false
+      schema:
+        type: string
+        default: desc
+        enum:
+          - asc
+          - desc
+    status:
+      name: status
+      in: query
+      description: Filter results by status. Valid statuses are 'new', 'completed', and 'cancelled'. You can include up to two statuses as a comma-separated string.
+      required: false
+      schema:
+        type: string
+    exportStatus:
+      name: exportStatus
+      in: query
+      description: Filter results by export status. Valid export statuses are 'not_exported', 'exported', 'ready', and 'failed'. You can include up to three export statuses as a comma-separated string.
+      required: false
+      schema:
+        type: array
+        items:
+          allOf:
+            - $ref: '#/components/schemas/OrderExportStatus'
+        maxItems: 3
+        example: not_exported,ready,failed
+    externalStatus:
+      name: externalStatus
+      in: query
+      description: Filter results by external status.
+      required: false
+      schema:
+        type: string
+    confirmationStatus:
+      name: confirmationStatus
+      in: query
+      description: Filter results by confirmation status. Valid confirmation statuses are 'confirmed' and 'not_confirmed'.
+      required: false
+      schema:
+        type: string
+        description: The order confirmation status.
+        example: confirmed
+        enum:
+          - confirmed
+          - not_confirmed
+    paymentStatus:
+      name: paymentStatus
+      in: query
+      description: Filter results by payment status. Valid payment statuses are 'not_paid', 'part_paid', and 'paid'. You can include up to two payment statuses as a comma-separated string.
+      required: false
+      schema:
+        type: array
+        items:
+          allOf:
+            - $ref: '#/components/schemas/OrderPaymentStatus'
+        maxItems: 3
+        example: not_paid,part_paid
+    shippingStatus:
+      name: shippingStatus
+      in: query
+      description: Filter results by shipping status. Valid shipping statuses are 'not_shipped', 'part_shipped', and 'shipped'. You can include up to two shipping statuses as a comma-separated string.
+      required: false
+      schema:
+        type: array
+        items:
+          allOf:
+            - $ref: '#/components/schemas/OrderShippingStatus'
+        maxItems: 3
+        example: not_shipped,part_shipped
+    creationDateFrom:
+      description: If passed, will return records where the `creationDate` is equal to or greater than the passed `date-only`.
+      schema:
+        type: string
+        format: date-time
+        example: '2015-05-19T15:30:18.000Z'
+      name: creationDateFrom
+      in: query
+    creationDateTo:
+      description: If passed, will return records where the `creationDate` is less than the passed `date-only`.
+      schema:
+        type: string
+        format: date-time
+        example: '2015-05-19T15:30:18.000Z'
+      name: creationDateTo
+      in: query
+    lastModifiedDateFrom:
+      description: If passed, will return records where the `lastModifiedDate` is equal to or greater than the passed `date-only`.
+      schema:
+        type: string
+        format: date-time
+        example: '2015-05-19T15:30:18.000Z'
+      name: lastModifiedDateFrom
+      in: query
+    lastModifiedDateTo:
+      description: If passed, will return records where the `lastModifiedDate` is less than the passed `date-only`.
+      schema:
+        type: string
+        format: date-time
+        example: '2015-05-19T15:30:18.000Z'
+      name: lastModifiedDateTo
+      in: query
+    siteId:
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites.
+      name: siteId
+      in: query
+      required: true
+      examples:
+        SiteId:
+          value: RefArch
+      schema:
+        $ref: '#/components/schemas/SiteId'
+    orderNo:
+      name: orderNo
+      in: path
+      description: The order number.
+      required: true
+      schema:
+        $ref: '#/components/schemas/OrderNo'
+    paymentInstrumentId:
+      name: paymentInstrumentId
+      in: path
+      description: ID of the payment instrument.
+      required: true
+      schema:
+        minLength: 1
+        type: string
+    shipmentId:
+      name: shipmentId
+      in: path
+      description: ID of the shipment.
+      required: true
+      schema:
+        minLength: 1
+        type: string
+  examples:
+    OrdersGet:
+      value:
+        data:
+          - adjustedMerchandizeTotalTax: 4.95
+            adjustedShippingTotalTax: 0.3
+            billingAddress:
+              address1: 45 Main Rd.
+              city: Burlington
+              countryCode: US
+              firstName: Max
+              fullName: Max Mustermann
+              lastName: Mustermann
+              phone: '6175555555'
+              postalCode: '05408'
+              stateCode: MA
+            confirmationStatus: confirmed
+            createdBy: storefront
+            creationDate: '2015-05-19T15:23:18.000Z'
+            currency: USD
+            customerInfo:
+              customerId: abMKqMaNYOBMnNdDNzyC5oNTi5
+              customerName: Max Mustermann
+              customerNo: '0002352'
+              email: no-reply@salesforce.com
+              guest: true
+            customerLocale: en_US
+            exportStatus: not_exported
+            invoiceNo: '00000001'
+            lastModified: '2020-11-04T14:13:31.061Z'
+            merchandizeTotalTax: 4.95
+            orderNo: '00000410'
+            orderTotal: 110.24
+            paymentInstruments:
+              - paymentCard:
+                  cardType: Visa
+                  creditCardExpired: true
+                  expirationMonth: 1
+                  expirationYear: 2020
+                  holder: Max Mustermann
+                  maskedNumber: '***************1111'
+                  numberLastDigits: '1111'
+                  validFromMonth: 1
+                  validFromYear: 2018
+                paymentInstrumentId: 21052ad719a076cdc83637851e
+                paymentMethodId: CREDIT_CARD
+                paymentTransaction:
+                  amount: 110.24
+                  transactionId: 40f07907428e23c4bbc6fb0446
+                  c_authResult: AUTHORIZED
+                c_issuerBank: JPMORGAN CHASE BANK, N.A.
+            paymentStatus: not_paid
+            placeDate: '2015-05-19T15:23:18.000Z'
+            productItems:
+              - adjustedTax: 4.95
+                basePrice: 99
+                bonusProductLineItem: false
+                gift: false
+                grossPrice: 103.95
+                itemId: 99e96c7f8b46b98de2bae5d778
+                itemText: Flat Front Pant
+                netPrice: 99
+                position: 1
+                priceAfterItemDiscount: 99
+                priceAfterOrderDiscount: 99
+                productId: '701643632930'
+                productName: Flat Front Pant
+                quantity: 1
+                shipmentId: me
+                tax: 4.95
+                taxBasis: 99
+                taxRate: 0.05
+            productSubTotal: 99
+            productTotal: 99
+            remoteHost: 127.0.0.1
+            shipments:
+              - adjustedMerchandizeTotalTax: 4.95
+                adjustedShippingTotalTax: 0.3
+                gift: false
+                merchandizeTotalTax: 99
+                productSubTotal: 99
+                productTotal: 99
+                shipmentId: me
+                shipmentNo: '00000001'
+                shipmentTotal: 110.24
+                shippingAddress:
+                  address1: 45 Main Rd.
+                  city: Burlington
+                  countryCode: US
+                  firstName: Max
+                  fullName: Max Mustermann
+                  lastName: Mustermann
+                  phone: '6175555555'
+                  postalCode: '05408'
+                  stateCode: MA
+                shippingMethod:
+                  id: DefaultShippingMethod
+                shippingStatus: not_shipped
+                shippingTotal: 5.99
+                shippingTotalTax: 0.3
+                taxTotal: 5.25
+            shippingItems:
+              - adjustedTax: 0.3
+                basePrice: 5.99
+                grossPrice: 6.29
+                itemId: 23ace383d9355c881f1c00417a
+                itemText: Shipping
+                netPrice: 5.99
+                priceAfterItemDiscount: 5.99
+                shipmentId: me
+                tax: 0.3
+                taxBasis: 5.99
+                taxRate: 0.05
+                type: fixed_price
+            shippingStatus: not_shipped
+            shippingTotal: 5.99
+            shippingTotalTax: 0.3
+            siteId: ShoppingSite
+            status: new
+            taxation: net
+            taxTotal: 5.25
+    OrderNotFound:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/order-not-found
+        title: Order Not Found
+        detail: No order with number '123' was found.
+    CreateSimpleOrder:
+      value:
+        billingAddress:
+          address1: 43 Main Rd.
+          city: Burlington
+          firstName: Jane
+          lastName: Doe
+        channelType: instagramcommerce
+        currency: USD
+        orderNo: '0000019373'
+        orderTotal: 66.91
+        paymentInstruments:
+          - paymentMethodId: PAYPAL
+            paymentTransaction:
+              amount: 66.91
+              transactionId: abc13384ajsgdk1
+        productItems:
+          - basePrice: 30.98
+            grossPrice: 61.96
+            netPrice: 49.57
+            productId: black-shoe_29347-38
+            productName: special edition shoe women 38
+            quantity: 2
+            shipmentId: shipment1
+            tax: 12.39
+        shipments:
+          - shipmentId: shipment1
+            shippingAddress:
+              address1: 43 Main Rd.
+              city: Burlington
+              firstName: Jane
+              lastName: Doe
+            shippingMethod: EXPRESS
+            shippingTotal: 4.95
+            taxTotal: 0
+        taxTotal: 12.39
+    CreateFullOrder:
+      value:
+        billingAddress:
+          address1: 45 Main Rd.
+          city: Burlington
+          countryCode: US
+          firstName: John
+          fullName: John Doe
+          jobTitle: Product Manager
+          lastName: Doe
+          phone: '6175555555'
+          postalCode: 01803-2336
+          secondName: Jr.
+          stateCode: MA
+          suffix: Jr.
+          suite: suite
+          title: M.Sc.
+        businessType: b2c
+        channelType: instagramcommerce
+        currency: USD
+        customerLocale: en_US
+        orderNo: '00000041'
+        orderPriceAdjustments:
+          - amount: 5
+            basePrice: -6
+            grossPrice: -6
+            itemText: 5 off
+            netPrice: -5
+            reasonCode: registered
+            tax: -1
+            taxBasis: 6
+        orderTotal: 113.24
+        paymentInstruments:
+          - paymentMethodId: CREDITCARD
+            paymentTransaction:
+              amount: 113.24
+              transactionId: abc13384ajsgdk1
+        paymentStatus: paid
+        productItems:
+          - basePrice: 99
+            brand: brand
+            grossPrice: 103.95
+            itemText: Flat Front Pant
+            netPrice: 99
+            priceAdjustments:
+              - amount: 5
+                grossPrice: -6
+                itemText: 5 off
+                netPrice: -5
+                reasonCode: registered
+                tax: -1
+            productId: '701643632930'
+            productName: Flat Front Pant
+            quantity: 1
+            shipmentId: '00000001'
+            tax: 4.95
+            taxBasis: 99
+            taxRate: 0.05
+        shipments:
+          - shipmentId: '00000001'
+            shippingAddress:
+              address1: 45 Main Rd.
+              address2: road 2
+              city: Burlington
+              companyName: Salesforce
+              countryCode: US
+              firstName: John
+              fullName: John Doe
+              jobTitle: Product Manager
+              lastName: Doe
+              phone: '6175555555'
+              postBox: none
+              postalCode: 01803-2336
+              salutation: Mr.
+              stateCode: MA
+              suffix: Jr.
+              suite: suite
+              title: M.Sc.
+            shippingMethod: EXPRESS
+            shippingTotal: 21.29
+            taxTotal: 4.95
+        taxTotal: 7.9
+    CreateOrderMultiShipment:
+      value:
+        billingAddress:
+          address1: 43 Main Rd.
+          city: Burlington
+          firstName: Jane
+          lastName: Doe
+        channelType: instagramcommerce
+        currency: USD
+        orderNo: '000028376'
+        orderTotal: 75.86
+        paymentInstruments:
+          - paymentMethodId: PAYPAL
+            paymentTransaction:
+              amount: 75.86
+              transactionId: abc13384ajsgdk1
+        productItems:
+          - basePrice: 30.98
+            grossPrice: 30.98
+            netPrice: 24.79
+            productId: black-shoe_081273-38
+            productName: special edition shoe women 38
+            quantity: 1
+            shipmentId: shipment1
+            tax: 6.19
+          - basePrice: 30.98
+            grossPrice: 30.98
+            netPrice: 24.79
+            productId: red-shirt_2937298-xl
+            productName: t shirt XL
+            quantity: 1
+            shipmentId: shipment2
+            tax: 6.19
+        shipments:
+          - shipmentId: shipment1
+            shippingAddress:
+              address1: 43 Main Rd.
+              city: Burlington
+              firstName: Jane
+              lastName: Doe
+            shippingMethod: GROUND
+            shippingTotal: 4.95
+            taxTotal: 0
+          - shipmentId: shipment2
+            shippingAddress:
+              address1: 45 Main Rd.
+              city: Burlington
+              firstName: John
+              lastName: Doe
+            shippingMethod: EXPRESS
+            shippingTotal: 8.95
+            taxTotal: 0
+        taxTotal: 12.38
+    CreateFullPaymentInstrument:
+      value:
+        billingAddress:
+          address1: 45 Main Rd.
+          city: Burlington
+          firstName: John
+          lastName: Doe
+        channelType: instagramcommerce
+        currency: USD
+        orderNo: '0000091837'
+        orderTotal: 66.91
+        paymentInstruments:
+          - paymentMethodId: CREDITCARD
+            paymentTransaction:
+              amount: 30
+              authorizationStatus:
+                code: '0'
+                message: credit card successfully authorized
+                status: 0
+              transactionId: abc13384ajsgdk1
+          - paymentMethodId: PAYPAL
+            paymentTransaction:
+              amount: 36.91
+              authorizationStatus:
+                code: '0'
+                message: paypal authorized
+                status: 0
+              transactionId: abceou98463
+        paymentStatus: paid
+        productItems:
+          - basePrice: 30.98
+            grossPrice: 61.96
+            netPrice: 49.57
+            productId: black-shoe_97253-38
+            productName: special edition shoe women 38
+            quantity: 2
+            shipmentId: shipment1
+            tax: 12.39
+        shipments:
+          - shipmentId: shipment1
+            shippingAddress:
+              address1: 45 Main Rd.
+              city: Burlington
+              firstName: John
+              lastName: Doe
+            shippingMethod: GROUND
+            shippingTotal: 4.95
+            taxTotal: 0
+        taxTotal: 12.39
+    InvalidOrderTotal:
+      value:
+        title: Invalid Order Total
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/invalid-order-total
+        detail: The passed order total '72.96' does not match the calculated order total '74.96'.
+    InvalidTaxTotal:
+      value:
+        title: Invalid Tax Total
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/invalid-tax-total
+        detail: The passed tax total '2.95' does not match the calculated tax total '5.56'.
+    BadRequest:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/bad-request
+        title: Bad Request
+        detail: Decoding of the property with path '$.failedExample.[1].intProperty' failed because the expected type is 'Integer|Decimal' but the actual type was 'String'.
+    ShipmentNotFound:
+      value:
+        title: Shipment Not Found,
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/not-found,
+        detail: No shipment with ID 'express_shipment' could be found.
+    OrderGet:
+      value:
+        adjustedMerchandizeTotalTax: 4.95
+        adjustedShippingTotalTax: 1.3
+        billingAddress:
+          address1: 45 Main Rd.
+          city: Burlington
+          countryCode: US
+          firstName: Max
+          fullName: Max Mustermann
+          lastName: Mustermann
+          phone: '6175555555'
+          postalCode: '05408'
+          stateCode: MA
+        confirmationStatus: confirmed
+        createdBy: storefront
+        creationDate: '2015-05-19T15:23:18.000Z'
+        currency: USD
+        customerInfo:
+          customerId: cdrjZ5iQeOQjpqKldaSzbvg2E8
+          customerName: Max Mustermann
+          customerNo: '0002352'
+          email: no-reply@salesforce.com
+          guest: true
+        customerLocale: en_US
+        exportStatus: not_exported
+        invoiceNo: '00000001'
+        lastModified: '2020-11-05T13:08:05.588Z'
+        merchandizeTotalTax: 4.95
+        orderNo: '00000410'
+        orderTotal: 110.24
+        paymentInstruments:
+          - paymentCard:
+              cardType: Visa
+              creditCardExpired: true
+              expirationMonth: 1
+              expirationYear: 2020
+              holder: Max Mustermann
+              maskedNumber: '***************1111'
+              numberLastDigits: '1111'
+              validFromMonth: 1
+              validFromYear: 2018
+            paymentInstrumentId: 2c36f04e453a2512fba74ae1ea
+            paymentMethodId: CREDIT_CARD
+            paymentTransaction:
+              amount: 110.24
+              transactionId: 40f07907428e23c4bbc6fb0446
+              c_authResult: AUTHORIZED
+            c_issuerBank: JPMORGAN CHASE BANK, N.A.
+        paymentStatus: not_paid
+        placeDate: '2015-05-19T15:23:18.000Z'
+        productItems:
+          - adjustedTax: 4.95
+            basePrice: 99
+            bonusProductLineItem: false
+            gift: false
+            grossPrice: 103.95
+            itemId: 3390171e44271bad9c36592049
+            itemText: Flat Front Pant
+            netPrice: 99
+            position: 1
+            priceAfterItemDiscount: 99
+            priceAfterOrderDiscount: 99
+            productId: '701643632930'
+            productName: Flat Front Pant
+            quantity: 1
+            shipmentId: me
+            shippingItemId: a46294cffd6945a511cb6fce05
+            tax: 4.95
+            taxBasis: 99
+            taxRate: 0.05
+        productSubTotal: 99
+        productTotal: 99
+        remoteHost: 127.0.0.1
+        shipments:
+          - adjustedMerchandizeTotalTax: 4.95
+            adjustedShippingTotalTax: 1.3
+            gift: false
+            merchandizeTotalTax: 99
+            productSubTotal: 99
+            productTotal: 99
+            shipmentId: me
+            shipmentNo: '00000001'
+            shipmentTotal: 110.24
+            shippingAddress:
+              address1: 45 Main Rd.
+              city: Burlington
+              countryCode: US
+              firstName: Max
+              fullName: Max Mustermann
+              lastName: Mustermann
+              phone: '6175555555'
+              postalCode: '05408'
+              stateCode: MA
+            shippingMethod:
+              id: DefaultShippingMethod
+            shippingStatus: not_shipped
+            shippingTotal: 25.99
+            shippingTotalTax: 1.3
+            taxTotal: 5.25
+        shippingItems:
+          - adjustedTax: 0.3
+            basePrice: 5.99
+            grossPrice: 6.29
+            itemId: 4c3d46056d49226904ee61946c
+            itemText: Shipping
+            netPrice: 5.99
+            priceAfterItemDiscount: 5.99
+            shipmentId: me
+            tax: 0.3
+            taxBasis: 5.99
+            taxRate: 0.05
+            type: fixed_price
+          - adjustedTax: 1
+            basePrice: 10
+            grossPrice: 21
+            itemId: a46294cffd6945a511cb6fce05
+            itemText: Item Shipping Cost (Surcharge)
+            netPrice: 20
+            priceAfterItemDiscount: 20
+            shipmentId: me
+            tax: 1
+            taxBasis: 20
+            taxRate: 0.05
+            type: surcharge
+        shippingStatus: not_shipped
+        shippingTotal: 25.99
+        shippingTotalTax: 1.3
+        siteId: ShoppingSite
+        status: new
+        taxation: net
+        taxTotal: 5.25
+    Order:
+      value:
+        c_carrierCode: DHL
+        c_weight: 2.4
+        c_review: null
+    OrderConfirmationStatus:
+      value:
+        status: confirmed
+    OrderExportStatus:
+      value:
+        status: exported
+    OrderExternalStatus:
+      value:
+        status: external status
+    OrderPaymentStatus:
+      value:
+        status: paid
+    OrderShippingStatus:
+      value:
+        status: shipped
+    OrderStatus:
+      value:
+        status: new
+    UndoFailOrder:
+      value:
+        title: Undo Fail Order
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/undo-fail-order
+        detail: The failed order with number '00020029’ cannot be reopened.
+    OrderPaymentInstrument:
+      value:
+        c_giftCardNumber: 12kH5DSkfsaErrRjKheWqqZ
+    OrderPaymentTransaction:
+      value:
+        c_externalReferenceCode: dfg73DsFgH93Lkj2SaArePos
+        c_processedDate: '2019-10-07'
+        c_additionalInformation: Brunch enim ligula congue eu tempus craft beer tellus amet non urna sapien you probably haven’t heard of them eros ornare massa massa. Duis craft beer mattis pellentesque nulla risus arcu San Francisco adipiscing proin lorem sapien integer wire-rimmed glasses auctor ipsum cursus eget nam. Toms bibendum donec vivamus molestie vulputate fixie cursus amet eget nibh integer craft beer pellentesque odio mauris porttitor sodales.
+    OrderShippingAddress:
+      value:
+        address1: 100 Presidential Way
+        address2: 100 Presidential Way 2
+        city: Woburn
+        lastName: Smith
+        title: Prof. Dr.
+        countryCode: US
+        phone: +1 123 456789
+        companyName: DWRE
+        secondName: Daniel
+        salutation: Mr.
+        stateCode: MA
+        postalCode: '01801'
+        firstName: John
+        jobTitle: Director
+        c_district: South End
+        c_floor: 2
+        c_note: Engineering
