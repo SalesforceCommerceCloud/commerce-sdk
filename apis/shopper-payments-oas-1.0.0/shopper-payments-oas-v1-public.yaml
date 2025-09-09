@@ -1,0 +1,333 @@
+openapi: 3.0.3
+info:
+  x-api-type: Shopper
+  x-api-family: Checkout
+  title: Shopper Payments
+  version: 1.0.0
+  description: "# API Overview\n\nUse the Shopper Payments API to retrieve payment configuration information for organizations in the B2C Commerce system.\n\nThe Shopper Payments API provides access to comprehensive payment configuration data, including payment processor settings, gateway configurations, and payment method details.\n\n## Key Features\n\nThe Shopper Payments API includes the following capabilities:\n\n- **Payment Configuration Retrieval**: Get complete payment configuration for an organization\n- **Payment Method Set Information**: Access details about configured payment method set accounts\n- **Gateway Response Data**: Retrieve payment processor gateway information and supported payment methods\n- **Payment Modes Configuration**: View supported payment modes (Multistep, Express) for each payment method\n- **SDK Version Information**: Get the current SDK version being used\n\n## Payment Configuration Endpoint\n\nThe main endpoint `/organizations/{organizationId}/payment-configuration` provides:\n\n### Configuration Settings\n- Multi-step checkout enablement status\n- Express checkout enablement status  \n- Automatic card capture settings\n- Zone identification\n- Saved payment method configuration\n- Merchant account identification\n\n### Payment Method Set Accounts\n- Account identifiers and configurations\n- Payment processor API keys and settings\n- Gateway identifiers and response data\n- Live/test mode indicators\n- Vendor information (Stripe, Adyen, PayPal, etc.)\n\n### Payment Methods\n- Supported payment method types (card, paypal, applepay, etc.)\n- Available payment modes for each method\n- Account associations\n\n## Gateway Response Handling\n\nThe API handles varying gateway response formats:\n- **Active Gateways**: Return detailed payment method information including supported card brands\n- **Inactive/Pending Gateways**: May return null gateway response data\n- **Multiple Vendors**: Support for different payment processors with vendor-specific configurations\n\n## Authentication & Authorization\n\nThe client requesting payment configuration information must have access to the `/payment-configuration` resource. The Shopper Payments API requires a shopper access token from the Shopper Login and API Access Service (SLAS).\n\nFor details on how to request a shopper access token from SLAS, see the guest user flows for [public clients](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-public-client.html#guest-user) and [private clients](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-private-client.html#guest-user) in the SLAS guides.\n\nYou must include the relevant scope(s) in the client ID used to generate the SLAS token. For details, see the [Authorization Scopes Catalog.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html)\n\n## Getting Started\n\nTo use the Shopper Payments API:\n\n1. Authenticate with the appropriate scopes (`sfcc.shopper-payments.rw`)\n2. Make a GET request to `/organizations/{organizationId}/payment-configuration`\n3. Process the returned payment configuration data for your application\n\n## Use Cases\n\n### Payment Method Discovery\nRetrieve available payment methods and their capabilities for dynamic payment form generation.\n\n### Gateway Status Monitoring\nCheck the status and configuration of payment gateways and processors.\n\n### Payment Flow Configuration\nDetermine supported payment modes (multi-step vs express) for different payment methods.\n\n### SDK Version Management\nEnsure compatibility by checking the current SDK version requirements.\n\nFor detailed implementation examples and best practices, refer to the Commerce Cloud documentation. "
+servers:
+  - url: https://{shortCode}.api.commercecloud.salesforce.com/checkout/shopper-payments/v1
+    variables:
+      shortCode:
+        default: shortCode
+tags:
+  - name: Payment Configuration
+    description: Operations related to payment configuration
+paths:
+  /organizations/{organizationId}/payment-configuration:
+    parameters:
+      - $ref: '#/components/parameters/organizationId'
+      - $ref: '#/components/parameters/siteId'
+      - $ref: '#/components/parameters/currency'
+      - $ref: '#/components/parameters/countryCode'
+    get:
+      description: |-
+        Retrieves the payment configuration for the organization.
+
+        **Parameters:**
+        - `siteId`: Required. The site identifier for context-specific configuration
+        - `currency`: Required. Three-letter currency code (ISO 4217) for payment method configuration
+        - `countryCode`: Required. Two-letter country code (ISO 3166-1 alpha-2) for country-specific payment configuration
+
+        **Response Behavior:**
+        - Returns payment configuration data when available
+        - Returns null values for missing data (e.g., when account not found or payments zone not found)
+      operationId: getPaymentConfiguration
+      summary: Get payment configuration
+      security:
+        - ShopperToken:
+            - sfcc.shopper-baskets-orders.rw
+      responses:
+        '200':
+          description: Payment configuration details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentConfiguration'
+              examples:
+                standardConfiguration:
+                  $ref: '#/components/examples/PaymentConfigurationGet'
+                nullGatewayResponse:
+                  $ref: '#/components/examples/PaymentConfigurationNullGatewayResponse'
+                noDataFound:
+                  $ref: '#/components/examples/PaymentConfigurationNoDataFound'
+      tags:
+        - Payment Configuration
+components:
+  securitySchemes:
+    ShopperToken:
+      type: oauth2
+      description: "ShopperToken authentication follows the authorization code grant flow, as defined by the OAuth 2.1 standard. Depending on the type of OAuth client (public or private), this authorization flow has further requirements. \nFor a detailed description of the authorization flow, see the [SLAS overview](https://developer.salesforce.com/docs/commerce/commerce-api/references?meta=shopper-login:Summary).\nA shopper token allows you to access the Shopper API endpoints of both OCAPI and the B2C Commerce API. These endpoints can be used to build headless storefronts and other applications.\nThe `ShopperToken` security scheme is a parent of other security schemes, such as `ShopperTokenTsob`. A Shopper API endpoint can require a specific child scheme (`ShopperTokenTsob`, for example) that cannot be accessed with a regular shopper token.\n"
+      flows:
+        clientCredentials:
+          tokenUrl: https://{shortCode}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
+          scopes:
+            sfcc.shopper-baskets-orders: Scope granting read-access to shopper basket or orders endpoints
+            sfcc.shopper-baskets-orders.rw: Scope granting read and write access to shopper basket or orders endpoints
+        authorizationCode:
+          authorizationUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/authorize
+          tokenUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
+          scopes:
+            sfcc.shopper-baskets-orders: Scope granting read-access to shopper basket or orders endpoints
+            sfcc.shopper-baskets-orders.rw: Scope granting read and write access to shopper basket or orders endpoints
+  schemas:
+    OrganizationId:
+      description: An identifier for the organization the request is being made by
+      example: f_ecom_zzxy_prd
+      type: string
+      minLength: 1
+      maxLength: 32
+    SiteId:
+      minLength: 1
+      maxLength: 32
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites
+      example: RefArch
+      type: string
+    ISOCurrency:
+      pattern: ^[A-Z][A-Z][A-Z]$
+      description: A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard.
+      example: USD
+      type: string
+    NoValue:
+      default: N/A
+      description: A specialized value indicating the lack of definition of a currency, for example, if the value of the monetary value of the currency is an undefined number.
+      example: N/A
+      enum:
+        - N/A
+      type: string
+    CurrencyCode:
+      description: A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard, or the string `N/A` indicating that a currency is not applicable.
+      example: USD
+      oneOf:
+        - $ref: '#/components/schemas/ISOCurrency'
+        - $ref: '#/components/schemas/NoValue'
+    CountryCode:
+      pattern: ^[A-Z][A-Z]$
+      description: A two letter uppercase country code conforming to the [ISO 3166-1](https://www.iso.org/iso-3166-country-codes.html) alpha-2 standard.
+      example: US
+      type: string
+    PaymentConfiguration:
+      type: object
+      properties:
+        multiStepCheckoutEnabled:
+          type: boolean
+          description: Whether multi-step checkout is enabled
+          example: false
+        expressCheckoutEnabled:
+          type: boolean
+          description: Whether express checkout is enabled
+          example: false
+        cardCaptureAutomatic:
+          type: boolean
+          description: Whether card capture is automatic
+          example: false
+        zoneId:
+          type: string
+          example: Amer-Zone
+          description: The unique identifier for a Payments zone.
+          pattern: ^[a-zA-Z0-9\-_]{1,100}$
+          minLength: 1
+          maxLength: 100
+          nullable: true
+        paymentMethodSetAccounts:
+          type: array
+          description: List of payment method set accounts
+          items:
+            type: object
+            properties:
+              accountId:
+                type: string
+                description: Account identifier
+                example: acct_1RegszI5I22eU0I3
+                minLength: 1
+                maxLength: 100
+              config:
+                type: object
+                description: Account configuration
+                properties:
+                  key:
+                    type: string
+                    description: API key for the payment processor
+                    example: pk_test_JsbBx7imKb7n7Xtlb5MH5BNO00ttiURmPV
+                    maxLength: 200
+                additionalProperties: true
+              gatewayId:
+                type: string
+                description: Gateway identifier
+                example: 0b0SB000000IpdZYAS
+                minLength: 1
+              gatewayResponse:
+                type: object
+                nullable: true
+                description: Gateway response data (optional, can be null)
+                properties:
+                  paymentMethods:
+                    type: array
+                    description: Available payment methods from gateway
+                    items:
+                      type: object
+                      properties:
+                        brands:
+                          type: array
+                          description: Supported card brands
+                          items:
+                            type: string
+                            example: visa
+                          example:
+                            - amex
+                            - cup
+                            - diners
+                            - discover
+                            - mc
+                            - visa
+                        type:
+                          type: string
+                          description: Payment method type
+                          example: scheme
+                additionalProperties: true
+              isLive:
+                type: boolean
+                description: Whether the account is in live mode
+                example: false
+              vendor:
+                type: string
+                description: Payment vendor name
+                example: Stripe
+            required:
+              - accountId
+              - gatewayId
+              - isLive
+              - vendor
+        paymentMethods:
+          type: array
+          description: Configured payment methods
+          items:
+            type: object
+            properties:
+              accountId:
+                type: string
+                description: Associated account identifier
+                example: acct_1RegszI5I22eU0I3
+                minLength: 1
+              paymentMethodType:
+                type: string
+                description: Type of payment method
+                example: card
+              paymentModes:
+                type: array
+                description: Supported payment modes
+                items:
+                  type: string
+                  example: Multistep
+                example:
+                  - Multistep
+            required:
+              - accountId
+              - paymentMethodType
+              - paymentModes
+        sdkVersion:
+          type: string
+          description: SDK version to use
+          example: latest
+      required:
+        - multiStepCheckoutEnabled
+        - expressCheckoutEnabled
+        - cardCaptureAutomatic
+        - paymentMethodSetAccounts
+        - paymentMethods
+        - sdkVersion
+  parameters:
+    organizationId:
+      description: An identifier for the organization the request is being made by
+      name: organizationId
+      in: path
+      required: true
+      example: f_ecom_zzxy_prd
+      schema:
+        $ref: '#/components/schemas/OrganizationId'
+    siteId:
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites.
+      name: siteId
+      in: query
+      required: true
+      examples:
+        SiteId:
+          value: RefArch
+      schema:
+        $ref: '#/components/schemas/SiteId'
+    currency:
+      description: A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard, or the string `N/A` indicating that a currency is not applicable.
+      name: currency
+      in: query
+      required: true
+      examples:
+        CurrencyCode:
+          value: USD
+      schema:
+        $ref: '#/components/schemas/CurrencyCode'
+    countryCode:
+      name: countryCode
+      in: query
+      description: The country code (ISO 3166-1 alpha-2) for country-specific payment configuration filtering
+      required: true
+      schema:
+        $ref: '#/components/schemas/CountryCode'
+  examples:
+    PaymentConfigurationGet:
+      value:
+        multiStepCheckoutEnabled: false
+        expressCheckoutEnabled: false
+        cardCaptureAutomatic: false
+        zoneId: Amer-Zone
+        paymentMethodSetAccounts:
+          - accountId: acct_1RegszI5I22eU0I3
+            config:
+              key: pk_test_JsbBx7imKb7n7Xtlb5MH5BNO00ttiURmPV
+            gatewayId: 0b0SB000000IpdZYAS
+            gatewayResponse:
+              paymentMethods:
+                - brands:
+                    - amex
+                    - cup
+                    - diners
+                    - discover
+                    - mc
+                    - visa
+                  type: scheme
+            isLive: false
+            vendor: Stripe
+        paymentMethods:
+          - accountId: acct_1RegszI5I22eU0I3
+            paymentMethodType: card
+            paymentModes:
+              - Multistep
+        sdkVersion: latest
+    PaymentConfigurationNullGatewayResponse:
+      value:
+        multiStepCheckoutEnabled: true
+        expressCheckoutEnabled: false
+        cardCaptureAutomatic: true
+        zoneId: EU-Central-Zone
+        paymentMethodSetAccounts:
+          - accountId: acct_eu_test_456
+            config:
+              key: pk_test_eu_key789
+            gatewayId: 0b0SB000000IpdZEU
+            gatewayResponse: null
+            isLive: false
+            vendor: Adyen
+        paymentMethods:
+          - accountId: acct_eu_test_456
+            paymentMethodType: card
+            paymentModes:
+              - Multistep
+        sdkVersion: latest
+    PaymentConfigurationNoDataFound:
+      value:
+        multiStepCheckoutEnabled: false
+        expressCheckoutEnabled: false
+        cardCaptureAutomatic: false
+        zoneId: null
+        paymentMethodSetAccounts: []
+        paymentMethods: []
+        sdkVersion: latest
