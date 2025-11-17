@@ -286,4 +286,113 @@ describe("callCustomEndpoint", () => {
       (runFetchPassedArgs[1].queryParameters as QueryParameters).siteId
     ).to.equal(copyOptions.parameters.siteId);
   });
+
+  it("should support multi-segment paths even with special characters", async () => {
+    const { shortCode, organizationId } =
+      clientConfig.parameters as CommonParameters;
+    const { apiName } = options.customApiPathParameters;
+
+    const endpointPath = "multi/segment/path/Special,Summer%";
+    const expectedEndpointPath = "multi/segment/path/Special%2CSummer%25";
+
+    const nockBasePath = `https://${shortCode}.api.commercecloud.salesforce.com`;
+    const nockEndpointPath = `/custom/${apiName}/v2/organizations/${
+      organizationId as string
+    }/${expectedEndpointPath}`;
+    nock(nockBasePath).post(nockEndpointPath).query(true).reply(200);
+
+    const copyOptions = {
+      ...options,
+      customApiPathParameters: {
+        ...options.customApiPathParameters,
+        endpointPath,
+      },
+    };
+
+    await callCustomEndpoint({
+      options: copyOptions,
+      clientConfig,
+      rawResponse: true,
+    });
+
+    const runFetchPassedArgs = runFetchSpy.getCall(0).args;
+    expect(runFetchSpy.callCount).to.equal(1);
+
+    // Verify path parameters contain the unencoded segment values
+    const pathParams = runFetchPassedArgs[1]
+      .pathParameters as CustomApiParameters &
+      CommonParameters & {
+        endpointPathSegment0?: string;
+        endpointPathSegment1?: string;
+        endpointPathSegment2?: string;
+        endpointPathSegment3?: string;
+      };
+    expect(pathParams.endpointPathSegment0).to.equal("multi");
+    expect(pathParams.endpointPathSegment1).to.equal("segment");
+    expect(pathParams.endpointPathSegment2).to.equal("path");
+    expect(pathParams.endpointPathSegment3).to.equal("Special,Summer%");
+
+    // Verify the path template uses the segment placeholders
+    expect(runFetchPassedArgs[1].path).to.equal(
+      "/organizations/{organizationId}/{endpointPathSegment0}/{endpointPathSegment1}/{endpointPathSegment2}/{endpointPathSegment3}"
+    );
+  });
+
+  it("should normalize endpoint path with multiple slashes", async () => {
+    const { shortCode, organizationId } =
+      clientConfig.parameters as CommonParameters;
+    const { apiName } = options.customApiPathParameters;
+
+    const endpointPath = "multi/segment///path////Special,Summer%";
+    const expectedEndpointPath = "multi/segment/path/Special%2CSummer%25";
+
+    const nockBasePath = `https://${shortCode}.api.commercecloud.salesforce.com`;
+    const nockEndpointPath = `/custom/${apiName}/v2/organizations/${
+      organizationId as string
+    }/${expectedEndpointPath}`;
+    nock(nockBasePath).post(nockEndpointPath).query(true).reply(200);
+
+    const copyOptions = {
+      ...options,
+      customApiPathParameters: {
+        apiName: options.customApiPathParameters.apiName,
+        apiVersion: options.customApiPathParameters.apiVersion,
+        // endpointPath is intentionally omitted so it falls back to clientConfig.parameters
+      },
+    };
+
+    await callCustomEndpoint({
+      options: copyOptions,
+      clientConfig: {
+        ...clientConfig,
+        parameters: {
+          ...clientConfig.parameters,
+          endpointPath,
+        },
+      },
+      rawResponse: true,
+    });
+
+    const runFetchPassedArgs = runFetchSpy.getCall(0).args;
+    expect(runFetchSpy.callCount).to.equal(1);
+
+    // Verify path parameters contain the normalized segment values (empty segments filtered out)
+    const pathParams = runFetchPassedArgs[1]
+      .pathParameters as CustomApiParameters &
+      CommonParameters & {
+        endpointPathSegment0?: string;
+        endpointPathSegment1?: string;
+        endpointPathSegment2?: string;
+        endpointPathSegment3?: string;
+      };
+    expect(pathParams.endpointPathSegment0).to.equal("multi");
+    expect(pathParams.endpointPathSegment1).to.equal("segment");
+    expect(pathParams.endpointPathSegment2).to.equal("path");
+    expect(pathParams.endpointPathSegment3).to.equal("Special,Summer%");
+
+    // Verify the path template uses the segment placeholders (no extra slashes)
+    expect(runFetchPassedArgs[1].path).to.equal(
+      "/organizations/{organizationId}/{endpointPathSegment0}/{endpointPathSegment1}/{endpointPathSegment2}/{endpointPathSegment3}"
+    );
+  });
 });

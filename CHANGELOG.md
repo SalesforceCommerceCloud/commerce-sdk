@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v5.1.0
+
+### Bug Fixes
+- Fix incorrect encoding of multi-segment endpoint paths in `callCustomEndpoint` []()
+
 ## v5.0.0
 
 ### API Versions
