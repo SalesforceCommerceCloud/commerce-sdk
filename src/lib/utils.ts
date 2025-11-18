@@ -5,7 +5,6 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-import { download } from "@commerce-apps/raml-toolkit";
 import { execSync } from "child_process";
 import path from "path";
 import fs from "fs-extra";
@@ -13,34 +12,6 @@ import AdmZip from "adm-zip";
 
 export const API_VERSIONS_FILE = path.join(__dirname, "../../api-versions.txt");
 export const ORG_ID = "893f605e-10e2-423a-bdb4-f952f56eb6d8";
-
-// /**
-//  * Searches for an API by name and downloads it to a folder.
-//  *
-//  * NOTE: Coverage passes without this function being covered.
-//  * We should have some followup to figure out how to cover it.
-//  * Ive spent hours trying to mock download
-//  * @param searchQuery - Query to search exchange
-//  * @param rootPath - Root path to download to
-//  * @returns a promise that we will complete
-//  */
-// export async function downloadLatestApis(
-//   searchQuery: string,
-//   rootPath: string
-// ): Promise<void> {
-//   const matchedApis = await download.search(searchQuery, undefined, true);
-//   if (!(matchedApis?.length > 0)) {
-//     throw new Error(`No results in Exchange for '${searchQuery}'`);
-//   }
-//   try {
-//     await download.downloadRestApis(matchedApis, rootPath, true);
-//   } catch (err: unknown) {
-//     if (err instanceof Error) {
-//       err.message = `Failed to download API specs: ${err.message}`;
-//     }
-//     throw err;
-//   }
-// }
 
 /**
  * Downloads API assets using anypoint-cli-v4 and extracts them to the target directory.
