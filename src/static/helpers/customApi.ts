@@ -57,15 +57,6 @@ export type CustomApiParameters = {
  * @param args.clientConfig.fetchOptions? - fetchOptions that are passed onto the fetch request
  * @param args.clientConfig.throwOnBadResponse? - flag that when set true will throw a response error if the fetch request fails (returns with a status code outside the range of 200-299 or 304 redirect)
  * @param args.rawResponse? - Flag to return the raw response from the fetch call. True for raw response object, false for the data from the response
- * @param args.options.method
- * @param args.options.parameters
- * @param args.options.customApiPathParameters
- * @param args.options.headers
- * @param args.options.body
- * @param args.options.retrySettings
- * @param args.options.fetchOptions
- * @param args.options.enableTransformBody
- * @param args.rawResponse
  * @returns Raw response or data from response based on rawResponse argument from fetch call
  */
 export const callCustomEndpoint = async (args: {
