@@ -14,9 +14,3 @@ export const PRIMITIVE_DATA_TYPE_MAP = {
 };
 
 export const PRODUCTION_API_PATH = `${__dirname}/../../apis`;
-
-export const CUSTOM_METADATA = {
-  shopperAuthClient: "Customer.ShopperCustomers",
-  shopperAuthApi: "authorizeCustomer",
-  shopperAuthDataType: "Customer",
-};
