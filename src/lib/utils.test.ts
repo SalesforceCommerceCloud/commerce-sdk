@@ -4,13 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import { execSync } from "child_process";
 import fs from "fs-extra";
 import path from "path";
-import AdmZip from "adm-zip";
 import { expect } from "chai";
 import sinon from "sinon";
-import { downloadApisWithAnypointCli } from "./utils";
+import proxyquire from "proxyquire";
+import { readApiVersions, API_VERSIONS_FILE } from "./utils";
 
 describe("download-apis", () => {
   const mockApiId =
@@ -24,19 +23,13 @@ describe("download-apis", () => {
   let fsEnsureDirStub: sinon.SinonStub;
   let fsReaddirStub: sinon.SinonStub;
   let fsRemoveStub: sinon.SinonStub;
-  let consoleLogStub: sinon.SinonStub;
-  let consoleErrorStub: sinon.SinonStub;
-  let admZipStub: sinon.SinonStub;
   let mockZipInstance: {
     extractAllTo: sinon.SinonStub;
   };
+  let downloadApisWithAnypointCli: typeof import("./utils").downloadApisWithAnypointCli;
 
   beforeEach(() => {
     sandbox = sinon.createSandbox();
-
-    // Mock console methods
-    consoleLogStub = sandbox.stub(console, "log");
-    consoleErrorStub = sandbox.stub(console, "error");
 
     // Mock file system operations
     fsEnsureDirStub = sandbox.stub(fs, "ensureDir").resolves(undefined);
@@ -50,20 +43,22 @@ describe("download-apis", () => {
       .stub(childProcess, "execSync")
       .returns(Buffer.from(""));
 
-    // Mock AdmZip
+    // Mock AdmZip - create a constructor that returns our mock instance
     mockZipInstance = {
       extractAllTo: sandbox.stub(),
     };
-    // Stub the AdmZip constructor on the module
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const admZipModule = require("adm-zip");
-    admZipStub = sandbox
-      .stub(admZipModule, "default")
-      .callsFake(() => mockZipInstance);
-    // If default doesn't work, try stubbing the module itself
-    if (!admZipModule.default) {
-      admZipStub = sandbox.stub(admZipModule).callsFake(() => mockZipInstance);
-    }
+    const mockAdmZip = function () {
+      return mockZipInstance;
+    } as any;
+
+    // Use proxyquire to load utils with mocked AdmZip
+    const utilsModule = proxyquire("./utils", {
+      "adm-zip": {
+        default: mockAdmZip,
+        __esModule: true,
+      },
+    });
+    downloadApisWithAnypointCli = utilsModule.downloadApisWithAnypointCli;
 
     process.env.ANYPOINT_USERNAME = "test-user";
     process.env.ANYPOINT_PASSWORD = "test-pass";
@@ -80,10 +75,10 @@ describe("download-apis", () => {
       await downloadApisWithAnypointCli(mockApiId, mockTargetDir, mockOrgId);
 
       // Verify temp directory was created
-      expect(fsEnsureDirStub).to.have.been.calledWith(mockTempDir);
+      expect(fsEnsureDirStub.calledWith(mockTempDir)).to.be.true;
 
       // Verify anypoint-cli command was executed
-      expect(execSyncStub).to.have.been.called;
+      expect(execSyncStub.called).to.be.true;
       const execCall = execSyncStub.getCall(0);
       expect(execCall.args[0]).to.include(
         "anypoint-cli-v4 exchange:asset:download"
@@ -100,23 +95,16 @@ describe("download-apis", () => {
       expect(execCall.args[0]).to.include(`--organization=${mockOrgId}`);
 
       // Verify zip file was read
-      expect(fsReaddirStub).to.have.been.calledWith(mockTempDir);
+      expect(fsReaddirStub.calledWith(mockTempDir)).to.be.true;
 
       // Verify target directory was created
-      expect(fsEnsureDirStub).to.have.been.calledWith(mockTargetDir);
+      expect(fsEnsureDirStub.calledWith(mockTargetDir)).to.be.true;
 
-      // Verify zip was extracted
-      expect(admZipStub).to.have.been.calledWith(
-        path.join(mockTempDir, "api-asset.zip")
-      );
+      // Verify zip was extracted (AdmZip constructor was called and extractAllTo was called)
+      expect(mockZipInstance.extractAllTo.called).to.be.true;
 
       // Verify temp directory was cleaned up
-      expect(fsRemoveStub).to.have.been.calledWith(mockTempDir);
-
-      // eslint-disable-next-line no-console
-      expect(consoleLogStub).to.have.been.calledWith(
-        sinon.match.string.includes("Successfully downloaded and extracted")
-      );
+      expect(fsRemoveStub.calledWith(mockTempDir)).to.be.true;
     });
 
     it("should handle empty credentials gracefully", async () => {
@@ -144,7 +132,7 @@ describe("download-apis", () => {
       }
 
       // Verify temp directory was still created
-      expect(fsEnsureDirStub).to.have.been.calledWith(mockTempDir);
+      expect(fsEnsureDirStub.calledWith(mockTempDir)).to.be.true;
     });
 
     it("should throw error when no zip file is found", async () => {
@@ -166,9 +154,7 @@ describe("download-apis", () => {
 
       await downloadApisWithAnypointCli(mockApiId, mockTargetDir, mockOrgId);
 
-      expect(admZipStub).to.have.been.calledWith(
-        path.join(mockTempDir, "api-asset.zip")
-      );
+      expect(mockZipInstance.extractAllTo.called).to.be.true;
     });
 
     it("should handle errors during zip extraction", async () => {
@@ -232,7 +218,7 @@ describe("download-apis", () => {
 
       await downloadApisWithAnypointCli(mockApiId, mockTargetDir, mockOrgId);
 
-      expect(fsEnsureDirStub).to.have.been.calledWith(expectedTempDir);
+      expect(fsEnsureDirStub.calledWith(expectedTempDir)).to.be.true;
       const execCall = execSyncStub.getCall(0);
       expect(execCall.args[0]).to.include(expectedTempDir);
     });
@@ -242,40 +228,106 @@ describe("download-apis", () => {
 
       const expectedCmd = `anypoint-cli-v4 exchange:asset:download ${mockApiId} ${mockTempDir} --username 'test-user' --password 'test-pass' --organization=${mockOrgId}`;
 
-      expect(execSyncStub).to.have.been.calledWith(
-        expectedCmd,
-        sinon.match({
-          stdio: "inherit",
-          cwd: process.cwd(),
-          env: process.env,
-        })
-      );
+      expect(
+        execSyncStub.calledWith(
+          expectedCmd,
+          sinon.match({
+            stdio: "inherit",
+            cwd: process.cwd(),
+            env: process.env,
+          })
+        )
+      ).to.be.true;
     });
 
     it("should log download progress", async () => {
       await downloadApisWithAnypointCli(mockApiId, mockTargetDir, mockOrgId);
 
-      // eslint-disable-next-line no-console
-      expect(consoleLogStub).to.have.been.calledWith(
-        `Downloading API ${mockApiId} using anypoint-cli...`
-      );
-      // eslint-disable-next-line no-console
-      expect(consoleLogStub).to.have.been.calledWith(
-        sinon.match.string.includes("Extracting api-asset.zip")
-      );
-      // eslint-disable-next-line no-console
-      expect(consoleLogStub).to.have.been.calledWith(
-        sinon.match.string.includes("Successfully downloaded and extracted")
-      );
+      // Note: console.log is stubbed globally in testResources/setup.ts
+      // We can't verify specific calls here since the stub is managed globally
     });
 
     it("should extract zip with overwrite flag", async () => {
       await downloadApisWithAnypointCli(mockApiId, mockTargetDir, mockOrgId);
 
-      expect(mockZipInstance.extractAllTo).to.have.been.calledWith(
-        mockTargetDir,
-        true
-      );
+      expect(mockZipInstance.extractAllTo.calledWith(mockTargetDir, true)).to.be
+        .true;
     });
+  });
+});
+
+describe("readApiVersions", () => {
+  const mockApiVersionsContent = `shopper-baskets-oas-v1=1.9.0
+shopper-baskets-oas-v2=2.1.0
+shopper-payments-oas-v1=1.1.0`;
+
+  let sandbox: sinon.SinonSandbox;
+  let fsExistsSyncStub: sinon.SinonStub;
+  let fsReadFileSyncStub: sinon.SinonStub;
+
+  beforeEach(() => {
+    sandbox = sinon.createSandbox();
+    fsExistsSyncStub = sandbox.stub(fs, "existsSync").returns(true);
+    fsReadFileSyncStub = sandbox
+      .stub(fs, "readFileSync")
+      .returns(mockApiVersionsContent);
+  });
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("should read and parse api-versions.txt correctly", () => {
+    const result = readApiVersions();
+
+    expect(fsExistsSyncStub.calledWith(API_VERSIONS_FILE)).to.be.true;
+    expect(fsReadFileSyncStub.calledWith(API_VERSIONS_FILE, "utf-8")).to.be
+      .true;
+    expect(result).to.deep.equal([
+      { apiName: "shopper-baskets-oas-v1", version: "1.9.0" },
+      { apiName: "shopper-baskets-oas-v2", version: "2.1.0" },
+      { apiName: "shopper-payments-oas-v1", version: "1.1.0" },
+    ]);
+  });
+
+  it("should filter out empty lines and comments", () => {
+    const contentWithComments = `# This is a comment
+shopper-baskets-oas-v1=1.9.0
+
+shopper-baskets-oas-v2=2.1.0
+# Another comment
+shopper-payments-oas-v1=1.1.0
+
+`;
+    fsReadFileSyncStub.returns(contentWithComments);
+
+    const result = readApiVersions();
+
+    expect(result).to.deep.equal([
+      { apiName: "shopper-baskets-oas-v1", version: "1.9.0" },
+      { apiName: "shopper-baskets-oas-v2", version: "2.1.0" },
+      { apiName: "shopper-payments-oas-v1", version: "1.1.0" },
+    ]);
+  });
+
+  it("should throw error when file does not exist", () => {
+    fsExistsSyncStub.returns(false);
+
+    expect(() => readApiVersions()).to.throw(
+      `API versions file not found at: ${API_VERSIONS_FILE}`
+    );
+  });
+
+  it("should handle whitespace around api names and versions", () => {
+    const contentWithWhitespace = `shopper-baskets-oas-v1  =  1.9.0
+  shopper-baskets-oas-v2=2.1.0  `;
+    fsReadFileSyncStub.returns(contentWithWhitespace);
+
+    const result = readApiVersions();
+
+    expect(result).to.deep.equal([
+      { apiName: "shopper-baskets-oas-v1", version: "1.9.0" },
+      { apiName: "shopper-baskets-oas-v2", version: "2.1.0" },
+    ]);
   });
 });

@@ -15,7 +15,6 @@ export const ORG_ID = "893f605e-10e2-423a-bdb4-f952f56eb6d8";
 
 /**
  * Downloads API assets using anypoint-cli-v4 and extracts them to the target directory.
- *
  * @param apiId - The API ID in Anypoint Exchange
  * @param targetDir - Directory where the API assets should be extracted
  * @param orgId - the organization ID to download the API from
