@@ -39,6 +39,9 @@ New API:
 | slas-admin | 1.12.31 |
 | source-code-groups | 1.0.38 |
 
+### Bug Fixes
+- Fix incorrect encoding of multi-segment endpoint paths in `callCustomEndpoint` [#435](https://github.com/SalesforceCommerceCloud/commerce-sdk/pull/435)
+
 ## v5.0.0
 
 ### API Versions

@@ -32,7 +32,7 @@ const contentTypeHeaderExists = (
 export type CustomApiParameters = {
   organizationId?: string;
   shortCode?: string;
-  endpointName?: string;
+  endpointPath?: string;
   apiName?: string;
   apiVersion?: string;
 };
@@ -137,10 +137,41 @@ export const callCustomEndpoint = async (args: {
     };
   }
 
+  const currentEndpointPath = (options?.customApiPathParameters?.endpointPath ||
+    clientConfig.parameters?.endpointPath) as string;
+  let newEndpointPath = currentEndpointPath;
+  const endpointPathSegments = {} as Record<string, string>;
+
+  // Normalize and template the endpointPath so each segment is encoded as a path param.
+  // Example:
+  //    currentEndpointPath: "action/categories/Special,Summer" ->
+  //    endpointPathParams: { endpointPathSegment0: "action", endpointPathSegment1: "categories", endpointPathSegment2: "Special,Summer" }
+  //    newEndpointPath: "{endpointPathSegment0}/{endpointPathSegment1}/{endpointPathSegment2}/"
+  // The TemplateURL will then encode the path parameters and construct the URL with the encoded path parameters
+  // The resulting endpointPath will be: "actions/categories/Special%2CSummer"
+  if (currentEndpointPath.includes("/")) {
+    // Normalize endpoint path by removing multiple consecutive slashes
+    const segments = currentEndpointPath
+      .split("/")
+      .filter((segment) => segment !== "");
+    newEndpointPath = "";
+    segments.forEach((segment: string, index: number) => {
+      const key = `endpointPathSegment${index}`;
+      endpointPathSegments[key] = segment;
+      newEndpointPath += `{${key}}/`;
+    });
+    // Remove the trailing slash added after the last segment
+    // as TemplateURL does not expect a trailing slash
+    newEndpointPath = newEndpointPath.slice(0, -1);
+  }
+
   const sdkOptions = {
     client: { clientConfig: clientConfigCopy },
-    path: "/organizations/{organizationId}/{endpointPath}",
-    pathParameters: pathParams as PathParameters,
+    path: `/organizations/{organizationId}/${newEndpointPath}`,
+    pathParameters: {
+      ...pathParams,
+      ...endpointPathSegments,
+    } as PathParameters,
     queryParameters: optionsCopy.parameters,
     headers: optionsCopy.headers,
     rawResponse,
