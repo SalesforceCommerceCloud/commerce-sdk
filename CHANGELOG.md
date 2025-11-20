@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v5.1.0
+
+### Bug Fixes
+- Fix incorrect encoding of multi-segment endpoint paths in `callCustomEndpoint` [#435](https://github.com/SalesforceCommerceCloud/commerce-sdk/pull/435)
+
 ## v5.0.0
 
 ### API Versions
