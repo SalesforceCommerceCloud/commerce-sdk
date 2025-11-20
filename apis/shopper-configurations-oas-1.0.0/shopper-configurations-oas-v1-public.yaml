@@ -1,0 +1,216 @@
+openapi: 3.0.3
+info:
+  x-api-type: Shopper
+  x-api-family: Configuration
+  title: Shopper Configurations
+  version: 1.0.0
+  description: "[Download API specification](https://developer.salesforce.com/static/commercecloud/commerce-api/shopper-configurations/shopper-configurations-oas-v1-public.yaml)\n\n# API Overview\nIn commerce, there is a need to provide information to the shopper facing application to allow for making decisions on execution.  This is highly cache-able data that rarely changes.  \n\nIt encompasses toggles, preferences, and configuration that allow the application to be reactive to changes performed by the merchant, admin, or support engineer.  \n\n## Use Cases\n1. What is the site name and site status (online / offline)\n2. What is the default and supported currencies\n3. What is the default and supported locales\n4. Which features are enabled\n\n# Example\n\n```\n{\n  \"configurations\":[\n    {\n      \"configurationType\":\"siteConfiguration\",\n      \"id\":\"id\",\n      \"value\":\"TestWapi\"\n    },\n    {\n      \"configurationType\":\"siteConfiguration\",\n      \"id\":\"name\",\n      \"value\":\"Test WAPI\"\n    },\n    {\n      \"configurationType\":\"siteConfiguration\",\n      \"id\":\"status\",\n      \"value\":\"online\"\n    },\n    {\n      \"configurationType\":\"siteConfiguration\",\n      \"id\":\"timezone\",\n      \"value\":\"Etc/UTC\"\n    },\n    {\n      \"configurationType\":\"siteConfiguration\",\n      \"id\":\"timezoneOffset\",\n      \"value\":0\n    },\n    {\n      \"configurationType\":\"siteConfiguration\",\n      \"id\":\"defaultCurrency\",\n      \"value\":\"USD\"\n    },\n    {\n      \"configurationType\":\"siteConfiguration\",\n      \"id\":\"allowedCurrencies\",\n      \"value\":[\n        \"USD\",\n        \"EUR\"\n      ]\n    },\n    {\n      \"configurationType\":\"siteConfiguration\",\n      \"id\":\"defaultLocale\",\n      \"value\":\"default\"\n    },\n    {\n      \"configurationType\":\"siteConfiguration\",\n      \"id\":\"allowedLocales\",\n      \"value\":[\n        {\n          \"country\":\"\",\n          \"default\":true,\n          \"displayCountry\":\"\",\n          \"displayLanguage\":\"\",\n          \"displayName\":\"default\",\n          \"id\":\"default\",\n          \"iso3Country\":\"\",\n          \"iso3Language\":\"\",\n          \"language\":\"\",\n          \"name\":\"default\"\n        },\n        {\n          \"country\":\"DE\",\n          \"default\":false,\n          \"displayCountry\":\"Deutschland\",\n          \"displayLanguage\":\"Deutsch\",\n          \"displayName\":\"Deutsch (Deutschland)\",\n          \"id\":\"de-DE\",\n          \"iso3Country\":\"DEU\",\n          \"iso3Language\":\"deu\",\n          \"language\":\"de\",\n          \"name\":\"German (Germany)\"\n        },\n        {\n          \"country\":\"\",\n          \"default\":false,\n          \"displayCountry\":\"\",\n          \"displayLanguage\":\"Deutsch\",\n          \"displayName\":\"Deutsch\",\n          \"id\":\"de\",\n          \"iso3Country\":\"\",\n          \"iso3Language\":\"deu\",\n          \"language\":\"de\",\n          \"name\":\"German\"\n        },\n        {\n          \"country\":\"US\",\n          \"default\":false,\n          \"displayCountry\":\"United States\",\n          \"displayLanguage\":\"English\",\n          \"displayName\":\"English (United States)\",\n          \"id\":\"en-US\",\n          \"iso3Country\":\"USA\",\n          \"iso3Language\":\"eng\",\n          \"language\":\"en\",\n          \"name\":\"English (United States)\"\n        },\n        {\n          \"country\":\"CA\",\n          \"default\":false,\n          \"displayCountry\":\"Canada\",\n          \"displayLanguage\":\"English\",\n          \"displayName\":\"English (Canada)\",\n          \"id\":\"en-CA\",\n          \"iso3Country\":\"CAN\",\n          \"iso3Language\":\"eng\",\n          \"language\":\"en\",\n          \"name\":\"English (Canada)\"\n        },\n        {\n          \"country\":\"\",\n          \"default\":false,\n          \"displayCountry\":\"\",\n          \"displayLanguage\":\"English\",\n          \"displayName\":\"English\",\n          \"id\":\"en\",\n          \"iso3Country\":\"\",\n          \"iso3Language\":\"eng\",\n          \"language\":\"en\",\n          \"name\":\"English\"\n        },\n        {\n          \"country\":\"\",\n          \"default\":false,\n          \"displayCountry\":\"\",\n          \"displayLanguage\":\"español\",\n          \"displayName\":\"español\",\n          \"id\":\"es\",\n          \"iso3Country\":\"\",\n          \"iso3Language\":\"spa\",\n          \"language\":\"es\",\n          \"name\":\"Spanish\"\n        }\n      ]\n    },\n    {\n      \"configurationType\":\"globalConfiguration\",\n      \"id\":\"SalesforcePaymentsAllowed\",\n      \"value\":true\n    },\n    {\n      \"configurationType\":\"globalConfiguration\",\n      \"id\":\"gcp\",\n      \"value\":\"test-gcp-key\"\n    }\n  ]\n}\n```\n\n### Caching\n\nCaching capabilities are available for the Shopper Configuration APIs. For details, see [Server-Side Web-Tier Caching.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/server-side-web-tier-caching.html)"
+servers:
+  - url: https://{shortCode}.api.commercecloud.salesforce.com/configuration/shopper-configurations/v1
+    variables:
+      shortCode:
+        default: shortCode
+paths:
+  /organizations/{organizationId}/configurations:
+    get:
+      summary: Retrieves configurations
+      description: Retrieves configurations for the specified organization and site.
+      operationId: getConfigurations
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '200':
+          description: Retrieved configurations successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteConfiguration'
+              examples:
+                ConfigurationsExample:
+                  $ref: '#/components/examples/ConfigurationsExample'
+        '400':
+          description: Bad request - invalid parameters provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getShopperConfigurations400:
+                  $ref: '#/components/examples/BadRequest'
+        '401':
+          description: Your shopper JWT is invalid and cannot be used to identify the API client.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getShopperConfigurations401:
+                  $ref: '#/components/examples/Unauthorized'
+        '404':
+          description: Application context not found for the specified organization and site.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getShopperConfigurations404:
+                  $ref: '#/components/examples/NotFound'
+      security:
+        - ShopperToken:
+            - sfcc.shopper-configurations
+components:
+  securitySchemes:
+    ShopperToken:
+      type: oauth2
+      description: |
+        Shopper token flow.
+      flows:
+        clientCredentials:
+          tokenUrl: https://{shortCode}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
+          scopes:
+            sfcc.shopper-configurations: Shopper Configurations READONLY
+        authorizationCode:
+          authorizationUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/authorize
+          tokenUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
+          scopes:
+            sfcc.shopper-configurations: Shopper Configurations READONLY
+  schemas:
+    OrganizationId:
+      description: An identifier for the organization the request is being made by
+      example: f_ecom_zzxy_prd
+      type: string
+      minLength: 1
+      maxLength: 32
+    SiteId:
+      minLength: 1
+      maxLength: 32
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites
+      example: RefArch
+      type: string
+    Configuration:
+      description: Configuration object
+      type: object
+      properties:
+        id:
+          description: identifier
+          type: string
+          maxLength: 255
+          example: SalesforcePaymentsAllowed
+        value:
+          description: value for identifier
+          example: true
+          maxLength: 255
+        configurationType:
+          description: type of configuration value
+          type: string
+          maxLength: 255
+          example: globalConfiguration
+      required:
+        - id
+        - value
+    SiteConfiguration:
+      description: Site Configuration object
+      type: object
+      properties:
+        configurations:
+          description: List configurations for the instance and site
+          maxItems: 100
+          type: array
+          items:
+            $ref: '#/components/schemas/Configuration'
+      required:
+        - configurations
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        title:
+          description: "A short, human-readable summary of the problem\ntype.  It will not change from occurrence to occurrence of the \nproblem, except for purposes of localization\n"
+          type: string
+          maxLength: 256
+          example: You do not have enough credit
+        type:
+          description: |
+            A URI reference [RFC3986] that identifies the
+            problem type.  This specification encourages that, when
+            dereferenced, it provide human-readable documentation for the
+            problem type (e.g., using HTML [W3C.REC-html5-20141028]).  When
+            this member is not present, its value is assumed to be
+            "about:blank". It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: NotEnoughMoney
+        detail:
+          description: A human-readable explanation specific to this occurrence of the problem.
+          type: string
+          example: Your current balance is 30, but that costs 50
+        instance:
+          description: |
+            A URI reference that identifies the specific
+            occurrence of the problem.  It may or may not yield further
+            information if dereferenced.  It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: /account/12345/msgs/abc
+      required:
+        - title
+        - type
+        - detail
+  parameters:
+    organizationId:
+      description: An identifier for the organization the request is being made by
+      name: organizationId
+      in: path
+      required: true
+      example: f_ecom_zzxy_prd
+      schema:
+        $ref: '#/components/schemas/OrganizationId'
+    siteId:
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites.
+      name: siteId
+      in: query
+      required: true
+      examples:
+        SiteId:
+          value: RefArch
+      schema:
+        $ref: '#/components/schemas/SiteId'
+  examples:
+    ConfigurationsExample:
+      value:
+        configurations:
+          - id: SalesforcePaymentsAllowed
+            value: true
+            configurationType: globalConfiguration
+          - id: gcp
+            value: abc123
+            configurationType: globalConfiguration
+    BadRequest:
+      summary: Bad Request Error
+      description: Example of a 400 Bad Request error response
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/bad-request
+        title: Bad Request
+        detail: The request could not be processed due to invalid parameters.
+        correlationId: 12345678-1234-1234-1234-123456789012
+    Unauthorized:
+      summary: Unauthorized Error
+      description: Example of a 401 Unauthorized error response
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/unauthorized
+        title: Unauthorized
+        detail: Your shopper JWT is invalid and cannot be used to identify the API client.
+        correlationId: 12345678-1234-1234-1234-123456789012
+    NotFound:
+      summary: Not Found Error
+      description: Example of a 404 Not Found error response
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/not-found
+        title: Not Found
+        detail: Configuration not found for the specified organization and site.
+        correlationId: 12345678-1234-1234-1234-123456789012
