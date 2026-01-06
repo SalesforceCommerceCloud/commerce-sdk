@@ -1,5 +1,41 @@
 # CHANGELOG
 
+## v5.1.0
+
+### API Versions
+
+| API Name | API Version |
+|----------|-------------|
+| assignments | 1.0.36 |
+| campaigns | 1.0.38 |
+| catalogs | 1.0.43 |
+| cdn-api-process-apis | 1.0.40 |
+| cors-preferences | 1.0.7 |
+| coupons | 1.0.40 |
+| customers | 1.0.33 |
+| gift-certificates | 1.0.40 |
+| orders | 1.4.11 |
+| preferences | 1.1.4 |
+| products | 1.0.41 |
+| promotions | 1.0.34 |
+| shopper-baskets | 1.9.1 |
+| shopper-baskets | 2.1.1 |
+| shopper-configurations | 1.0.0 |
+| shopper-consents | 1.1.2 |
+| shopper-context | 1.1.2 |
+| shopper-customers | 1.1.2 |
+| shopper-experience | 1.0.9 |
+| shopper-gift-certificates | 1.0.27 |
+| shopper-login | 1.40.0 |
+| shopper-orders | 1.5.1 |
+| shopper-products | 1.0.39 |
+| shopper-promotions | 1.0.37 |
+| shopper-search | 1.5.1 |
+| shopper-seo | 1.0.14 |
+| shopper-stores | 1.0.18 |
+| slas-admin | 1.12.31 |
+| source-code-groups | 1.0.38 |
+
 ## v5.0.0
 
 ### API Versions
