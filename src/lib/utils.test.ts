@@ -8,8 +8,9 @@ import fs from "fs-extra";
 import path from "path";
 import { expect } from "chai";
 import sinon from "sinon";
-import proxyquire from "proxyquire";
-import { readApiVersions, API_VERSIONS_FILE } from "./utils";
+import * as utils from "./utils";
+const { readApiVersions, API_VERSIONS_FILE, downloadApisWithAnypointCli } =
+  utils;
 
 describe("download-apis", () => {
   const mockApiId =
@@ -26,7 +27,7 @@ describe("download-apis", () => {
   let mockZipInstance: {
     extractAllTo: sinon.SinonStub;
   };
-  let downloadApisWithAnypointCli: typeof import("./utils").downloadApisWithAnypointCli;
+  let admZipStub: sinon.SinonStub;
 
   beforeEach(() => {
     sandbox = sinon.createSandbox();
@@ -36,29 +37,14 @@ describe("download-apis", () => {
     fsReaddirStub = sandbox.stub(fs, "readdir").resolves(["api-asset.zip"]);
     fsRemoveStub = sandbox.stub(fs, "remove").resolves(undefined);
 
-    // Mock execSync
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const childProcess = require("child_process");
-    execSyncStub = sandbox
-      .stub(childProcess, "execSync")
-      .returns(Buffer.from(""));
+    // Mock execSync wrapper
+    execSyncStub = sandbox.stub(utils, "runExecSync").returns(Buffer.from(""));
 
-    // Mock AdmZip - create a constructor that returns our mock instance
+    // Mock AdmZip constructor via createAdmZip wrapper
     mockZipInstance = {
       extractAllTo: sandbox.stub(),
     };
-    const mockAdmZip = function () {
-      return mockZipInstance;
-    } as any;
-
-    // Use proxyquire to load utils with mocked AdmZip
-    const utilsModule = proxyquire("./utils", {
-      "adm-zip": {
-        default: mockAdmZip,
-        __esModule: true,
-      },
-    });
-    downloadApisWithAnypointCli = utilsModule.downloadApisWithAnypointCli;
+    admZipStub = sandbox.stub(utils, "createAdmZip").returns(mockZipInstance);
 
     process.env.ANYPOINT_USERNAME = "test-user";
     process.env.ANYPOINT_PASSWORD = "test-pass";
@@ -101,6 +87,8 @@ describe("download-apis", () => {
       expect(fsEnsureDirStub.calledWith(mockTargetDir)).to.be.true;
 
       // Verify zip was extracted (AdmZip constructor was called and extractAllTo was called)
+      expect(admZipStub.calledWith(path.join(mockTempDir, "api-asset.zip"))).to
+        .be.true;
       expect(mockZipInstance.extractAllTo.called).to.be.true;
 
       // Verify temp directory was cleaned up
@@ -154,6 +142,8 @@ describe("download-apis", () => {
 
       await downloadApisWithAnypointCli(mockApiId, mockTargetDir, mockOrgId);
 
+      expect(admZipStub.calledWith(path.join(mockTempDir, "api-asset.zip"))).to
+        .be.true;
       expect(mockZipInstance.extractAllTo.called).to.be.true;
     });
 

@@ -14,6 +14,20 @@ export const API_VERSIONS_FILE = path.join(__dirname, "../../api-versions.txt");
 export const ORG_ID = "893f605e-10e2-423a-bdb4-f952f56eb6d8";
 
 /**
+ * Wrapper around execSync to simplify stubbing in tests.
+ */
+export const runExecSync = (
+  command: string,
+  options: Parameters<typeof execSync>[1]
+) => execSync(command, options);
+
+/**
+ * Small wrapper to create an AdmZip instance.
+ * Abstracted for easier stubbing in tests.
+ */
+export const createAdmZip = (zipPath: string) => new AdmZip(zipPath);
+
+/**
  * Downloads API assets using anypoint-cli-v4 and extracts them to the target directory.
  * @param apiId - The API ID in Anypoint Exchange
  * @param targetDir - Directory where the API assets should be extracted
@@ -40,7 +54,7 @@ export async function downloadApisWithAnypointCli(
     console.log(`Downloading API ${apiId} using anypoint-cli...`);
 
     try {
-      execSync(cmd, {
+      runExecSync(cmd, {
         stdio: "inherit",
         cwd: process.cwd(),
         env: process.env,
@@ -65,7 +79,7 @@ export async function downloadApisWithAnypointCli(
     console.log(`Extracting ${zipFile} to ${targetDir}...`);
 
     // Extract the zip file
-    const zip = new AdmZip(zipPath);
+    const zip = createAdmZip(zipPath);
 
     // Ensure target directory exists
     await fs.ensureDir(targetDir);
