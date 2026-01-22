@@ -59,3 +59,25 @@ export interface QueryParameters {
  * Generic interface for all parameter types.
  */
 export type UrlParameters = PathParameters | QueryParameters;
+
+/**
+ * Custom query parameter type with any string prefixed with `c_` as the key and the allowed
+ * types for query parameters for the value.
+ */
+export type CustomQueryParameters = {
+  [key in `c_${string}`]: string | number | boolean | string[] | number[];
+};
+
+/**
+ * Custom body request type with any string prefixed with `c_` as the key and the allowed
+ * types for the value.
+ */
+export type CustomRequestBody = {
+  [key in `c_${string}`]:
+    | string
+    | number
+    | boolean
+    | string[]
+    | number[]
+    | { [key: string]: unknown };
+};

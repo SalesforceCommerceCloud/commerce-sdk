@@ -12,10 +12,9 @@ import {
   ISlasClient,
   TokenResponse,
   TokenRequest,
-  CustomQueryParameters,
-  CustomRequestBody,
 } from "./slasClient";
 import type { RequestRedirect } from "node-fetch";
+import { CustomQueryParameters, CustomRequestBody } from "../types";
 
 /**
  * Converts a string into Base64 encoding
