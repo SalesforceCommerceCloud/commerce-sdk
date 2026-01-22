@@ -8,11 +8,7 @@
 import { nanoid } from "nanoid";
 import { URL, URLSearchParams } from "url";
 import { ResponseError } from "@commerce-apps/core";
-import {
-  ISlasClient,
-  TokenResponse,
-  TokenRequest,
-} from "./slasClient";
+import { ISlasClient, TokenResponse, TokenRequest } from "./slasClient";
 import type { RequestRedirect } from "node-fetch";
 import { CustomQueryParameters, CustomRequestBody } from "../types";
 
@@ -310,6 +306,8 @@ export async function loginRegisteredUserB2Cprivate(options: {
  * @param options.parameters.redirectURI - Per OAuth standard, a valid app route. Must be listed in your SLAS configuration. On server, this will not be actually called. On browser, this will be called, but ignored.
  * @param options.parameters.usid? - Unique Shopper Identifier to enable personalization.
  * @param options.body? - optional body to pass in the ShopperLogin authenticateCustomer method
+ * @param options.parameters.usid
+ * @param options.body
  * @returns TokenResponse
  */
 export async function loginRegisteredUserB2C(options: {
