@@ -8,11 +8,7 @@
 import { nanoid } from "nanoid";
 import { URL, URLSearchParams } from "url";
 import { ResponseError } from "@commerce-apps/core";
-import {
-  ISlasClient,
-  TokenResponse,
-  TokenRequest,
-} from "./slasClient";
+import { ISlasClient, TokenResponse, TokenRequest } from "./slasClient";
 import type { RequestRedirect } from "node-fetch";
 import { CustomQueryParameters, CustomRequestBody } from "../types";
 

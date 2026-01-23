@@ -7,10 +7,7 @@
 
 import path from "path";
 import fs from "fs-extra";
-import {
-  downloadApisWithAnypointCli,
-  readApiVersions,
-} from "./lib/utils";
+import { downloadApisWithAnypointCli, readApiVersions } from "./lib/utils";
 import { PRODUCTION_API_PATH, ORG_ID } from "./lib/config";
 import dotenv from "dotenv";
 import { removeInternalOas } from "./removeInternalOas";
