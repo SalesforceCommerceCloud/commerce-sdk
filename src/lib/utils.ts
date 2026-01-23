@@ -9,9 +9,7 @@ import { execSync } from "child_process";
 import path from "path";
 import fs from "fs-extra";
 import AdmZip from "adm-zip";
-
-export const API_VERSIONS_FILE = path.join(__dirname, "../../api-versions.txt");
-export const ORG_ID = "893f605e-10e2-423a-bdb4-f952f56eb6d8";
+import { API_VERSIONS_FILE } from "./config";
 
 /**
  * Wrapper around execSync to simplify stubbing in tests.
