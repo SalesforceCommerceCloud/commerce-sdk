@@ -42,7 +42,12 @@
             {{^isBodyParam}}
             {{^isHeaderParam}}
             {{^isFormParam}}
+                {{#uniqueItems}}
+                {{paramName}}{{^required}}?{{/required}}: Array<{{#items}}{{#isEnum}}{{#lambda.titlecase}}{{nickname}}{{/lambda.titlecase}}{{#lambda.titlecase}}{{paramName}}{{/lambda.titlecase}}Enum{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{dataType}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}}{{/items}}{{^items}}{{#isEnum}}{{#lambda.titlecase}}{{nickname}}{{/lambda.titlecase}}{{#lambda.titlecase}}{{paramName}}{{/lambda.titlecase}}Enum{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{dataType}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}}{{/items}}>;
+                {{/uniqueItems}}
+                {{^uniqueItems}}
                 {{paramName}}{{^required}}?{{/required}}: {{#isEnum}}{{{datatypeWithEnum}}}{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{dataType}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}};
+                {{/uniqueItems}}
             {{/isFormParam}}
             {{/isHeaderParam}}
             {{/isBodyParam}}
@@ -115,7 +120,12 @@
                 {{^isBodyParam}}
                 {{^isHeaderParam}}
                 {{^isFormParam}}
+                {{#uniqueItems}}
+                {{paramName}}{{^required}}?{{/required}}: Array<{{#items}}{{#isEnum}}{{#lambda.titlecase}}{{nickname}}{{/lambda.titlecase}}{{#lambda.titlecase}}{{paramName}}{{/lambda.titlecase}}Enum{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{dataType}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}}{{/items}}{{^items}}{{#isEnum}}{{#lambda.titlecase}}{{nickname}}{{/lambda.titlecase}}{{#lambda.titlecase}}{{paramName}}{{/lambda.titlecase}}Enum{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{dataType}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}}{{/items}}>;
+                {{/uniqueItems}}
+                {{^uniqueItems}}
                 {{paramName}}{{^required}}?{{/required}}: {{#isEnum}}{{{datatypeWithEnum}}}{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{dataType}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}};
+                {{/uniqueItems}}
                 {{/isFormParam}}
                 {{/isHeaderParam}}
                 {{/isBodyParam}}
@@ -189,7 +199,12 @@
                 {{^isBodyParam}}
                 {{^isHeaderParam}}
                 {{^isFormParam}}
+                {{#uniqueItems}}
+                {{paramName}}{{^required}}?{{/required}}: Array<{{#items}}{{#isEnum}}{{#lambda.titlecase}}{{nickname}}{{/lambda.titlecase}}{{#lambda.titlecase}}{{paramName}}{{/lambda.titlecase}}Enum{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{dataType}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}}{{/items}}{{^items}}{{#isEnum}}{{#lambda.titlecase}}{{nickname}}{{/lambda.titlecase}}{{#lambda.titlecase}}{{paramName}}{{/lambda.titlecase}}Enum{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{dataType}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}}{{/items}}>;
+                {{/uniqueItems}}
+                {{^uniqueItems}}
                 {{paramName}}{{^required}}?{{/required}}: {{#isEnum}}{{{datatypeWithEnum}}}{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{dataType}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}};
+                {{/uniqueItems}}
                 {{/isFormParam}}
                 {{/isHeaderParam}}
                 {{/isBodyParam}}
@@ -243,19 +258,9 @@
 
         {{#queryParams}}
         if (optionParams["{{paramName}}"] !== undefined) {
-            {{#uniqueItems}}
-            queryParams["{{paramName}}"] = optionParams["{{paramName}}"] instanceof Set ? Array.from(optionParams["{{paramName}}"]) : optionParams["{{paramName}}"];
-            {{/uniqueItems}}
-            {{^uniqueItems}}
             queryParams["{{paramName}}"] = optionParams["{{paramName}}"];
-            {{/uniqueItems}}
         } else if (configParams["{{paramName}}"] !== undefined) {
-            {{#uniqueItems}}
-            queryParams["{{paramName}}"] = configParams["{{paramName}}"] instanceof Set ? Array.from(configParams["{{paramName}}"]) : configParams["{{paramName}}"];
-            {{/uniqueItems}}
-            {{^uniqueItems}}
             queryParams["{{paramName}}"] = configParams["{{paramName}}"];
-            {{/uniqueItems}}
         }
         {{#required}}
         else {
