@@ -80,167 +80,54 @@
 					<a href="#api-overview" id="api-overview" style="color: inherit; text-decoration: none;">
 						<h1>API Overview</h1>
 					</a>
-					<p>In commerce, there is a need to provide information to the shopper facing application to allow for making decisions on execution.  This is highly cache-able data that rarely changes.</p>
-					<p>It encompasses toggles, preferences, and configuration that allow the application to be reactive to changes performed by the merchant, admin, or support engineer.</p>
+					<p>The Shopper Configurations API provides cacheable configuration data to shopper-facing applications, enabling them to make decisions based on merchant settings without requiring server-side logic.</p>
+					<p>This highly cacheable data encompasses toggles, preferences, and configuration information that allows the application to be reactive to changes performed by the merchant, admin, or support engineer.</p>
+					<p>Configuration types include:</p>
+					<ul>
+						<li>siteConfiguration: Site-specific settings such as name, status, currencies, and locales</li>
+						<li>globalConfiguration: Instance-wide settings such as feature flags</li>
+					</ul>
+					<a href="#authentication-amp-authorization" id="authentication-amp-authorization" style="color: inherit; text-decoration: none;">
+						<h2>Authentication &amp; Authorization</h2>
+					</a>
+					<p>The Shopper Configuration API requires a shopper access token from the Shopper Login and API Access Service (SLAS).</p>
+					<p>You must include <code>sfcc.shopper-configuations</code> in the client ID used to generate the SLAS token. For a full list of required permissions, see the <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html">Authorization Scopes Catalog.</a></p>
+					<p>For details on how to request a shopper access token from SLAS, see the guest user flows for <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-public-client.html">public clients</a> and <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-private-client.html">private clients</a> in the SLAS guides.</p>
 					<a href="#use-cases" id="use-cases" style="color: inherit; text-decoration: none;">
 						<h2>Use Cases</h2>
 					</a>
-					<ol>
-						<li>What is the site name and site status (online / offline)</li>
-						<li>What is the default and supported currencies</li>
-						<li>What is the default and supported locales</li>
-						<li>Which features are enabled</li>
-					</ol>
-					<a href="#example" id="example" style="color: inherit; text-decoration: none;">
-						<h1>Example</h1>
+					<a href="#use-hooks" id="use-hooks" style="color: inherit; text-decoration: none;">
+						<h3>Use Hooks</h3>
 					</a>
-					<pre><code>{
-<span class="hljs-attr">&quot;configurations&quot;</span>:[
-{
-<span class="hljs-attr">&quot;configurationType&quot;</span>:<span class="hljs-string">&quot;siteConfiguration&quot;</span>,
-<span class="hljs-attr">&quot;id&quot;</span>:<span class="hljs-string">&quot;id&quot;</span>,
-<span class="hljs-attr">&quot;value&quot;</span>:<span class="hljs-string">&quot;TestWapi&quot;</span>
-},
-{
-<span class="hljs-attr">&quot;configurationType&quot;</span>:<span class="hljs-string">&quot;siteConfiguration&quot;</span>,
-<span class="hljs-attr">&quot;id&quot;</span>:<span class="hljs-string">&quot;name&quot;</span>,
-<span class="hljs-attr">&quot;value&quot;</span>:<span class="hljs-string">&quot;Test WAPI&quot;</span>
-},
-{
-<span class="hljs-attr">&quot;configurationType&quot;</span>:<span class="hljs-string">&quot;siteConfiguration&quot;</span>,
-<span class="hljs-attr">&quot;id&quot;</span>:<span class="hljs-string">&quot;status&quot;</span>,
-<span class="hljs-attr">&quot;value&quot;</span>:<span class="hljs-string">&quot;online&quot;</span>
-},
-{
-<span class="hljs-attr">&quot;configurationType&quot;</span>:<span class="hljs-string">&quot;siteConfiguration&quot;</span>,
-<span class="hljs-attr">&quot;id&quot;</span>:<span class="hljs-string">&quot;timezone&quot;</span>,
-<span class="hljs-attr">&quot;value&quot;</span>:<span class="hljs-string">&quot;Etc/UTC&quot;</span>
-},
-{
-<span class="hljs-attr">&quot;configurationType&quot;</span>:<span class="hljs-string">&quot;siteConfiguration&quot;</span>,
-<span class="hljs-attr">&quot;id&quot;</span>:<span class="hljs-string">&quot;timezoneOffset&quot;</span>,
-<span class="hljs-attr">&quot;value&quot;</span>:<span class="hljs-number">0</span>
-},
-{
-<span class="hljs-attr">&quot;configurationType&quot;</span>:<span class="hljs-string">&quot;siteConfiguration&quot;</span>,
-<span class="hljs-attr">&quot;id&quot;</span>:<span class="hljs-string">&quot;defaultCurrency&quot;</span>,
-<span class="hljs-attr">&quot;value&quot;</span>:<span class="hljs-string">&quot;USD&quot;</span>
-},
-{
-<span class="hljs-attr">&quot;configurationType&quot;</span>:<span class="hljs-string">&quot;siteConfiguration&quot;</span>,
-<span class="hljs-attr">&quot;id&quot;</span>:<span class="hljs-string">&quot;allowedCurrencies&quot;</span>,
-<span class="hljs-attr">&quot;value&quot;</span>:[
-<span class="hljs-string">&quot;USD&quot;</span>,
-<span class="hljs-string">&quot;EUR&quot;</span>
-]
-},
-{
-<span class="hljs-attr">&quot;configurationType&quot;</span>:<span class="hljs-string">&quot;siteConfiguration&quot;</span>,
-<span class="hljs-attr">&quot;id&quot;</span>:<span class="hljs-string">&quot;defaultLocale&quot;</span>,
-<span class="hljs-attr">&quot;value&quot;</span>:<span class="hljs-string">&quot;default&quot;</span>
-},
-{
-<span class="hljs-attr">&quot;configurationType&quot;</span>:<span class="hljs-string">&quot;siteConfiguration&quot;</span>,
-<span class="hljs-attr">&quot;id&quot;</span>:<span class="hljs-string">&quot;allowedLocales&quot;</span>,
-<span class="hljs-attr">&quot;value&quot;</span>:[
-{
-<span class="hljs-attr">&quot;country&quot;</span>:<span class="hljs-string">&quot;&quot;</span>,
-<span class="hljs-attr">&quot;default&quot;</span>:<span class="hljs-literal">true</span>,
-<span class="hljs-attr">&quot;displayCountry&quot;</span>:<span class="hljs-string">&quot;&quot;</span>,
-<span class="hljs-attr">&quot;displayLanguage&quot;</span>:<span class="hljs-string">&quot;&quot;</span>,
-<span class="hljs-attr">&quot;displayName&quot;</span>:<span class="hljs-string">&quot;default&quot;</span>,
-<span class="hljs-attr">&quot;id&quot;</span>:<span class="hljs-string">&quot;default&quot;</span>,
-<span class="hljs-attr">&quot;iso3Country&quot;</span>:<span class="hljs-string">&quot;&quot;</span>,
-<span class="hljs-attr">&quot;iso3Language&quot;</span>:<span class="hljs-string">&quot;&quot;</span>,
-<span class="hljs-attr">&quot;language&quot;</span>:<span class="hljs-string">&quot;&quot;</span>,
-<span class="hljs-attr">&quot;name&quot;</span>:<span class="hljs-string">&quot;default&quot;</span>
-},
-{
-<span class="hljs-attr">&quot;country&quot;</span>:<span class="hljs-string">&quot;DE&quot;</span>,
-<span class="hljs-attr">&quot;default&quot;</span>:<span class="hljs-literal">false</span>,
-<span class="hljs-attr">&quot;displayCountry&quot;</span>:<span class="hljs-string">&quot;Deutschland&quot;</span>,
-<span class="hljs-attr">&quot;displayLanguage&quot;</span>:<span class="hljs-string">&quot;Deutsch&quot;</span>,
-<span class="hljs-attr">&quot;displayName&quot;</span>:<span class="hljs-string">&quot;Deutsch (Deutschland)&quot;</span>,
-<span class="hljs-attr">&quot;id&quot;</span>:<span class="hljs-string">&quot;de-DE&quot;</span>,
-<span class="hljs-attr">&quot;iso3Country&quot;</span>:<span class="hljs-string">&quot;DEU&quot;</span>,
-<span class="hljs-attr">&quot;iso3Language&quot;</span>:<span class="hljs-string">&quot;deu&quot;</span>,
-<span class="hljs-attr">&quot;language&quot;</span>:<span class="hljs-string">&quot;de&quot;</span>,
-<span class="hljs-attr">&quot;name&quot;</span>:<span class="hljs-string">&quot;German (Germany)&quot;</span>
-},
-{
-<span class="hljs-attr">&quot;country&quot;</span>:<span class="hljs-string">&quot;&quot;</span>,
-<span class="hljs-attr">&quot;default&quot;</span>:<span class="hljs-literal">false</span>,
-<span class="hljs-attr">&quot;displayCountry&quot;</span>:<span class="hljs-string">&quot;&quot;</span>,
-<span class="hljs-attr">&quot;displayLanguage&quot;</span>:<span class="hljs-string">&quot;Deutsch&quot;</span>,
-<span class="hljs-attr">&quot;displayName&quot;</span>:<span class="hljs-string">&quot;Deutsch&quot;</span>,
-<span class="hljs-attr">&quot;id&quot;</span>:<span class="hljs-string">&quot;de&quot;</span>,
-<span class="hljs-attr">&quot;iso3Country&quot;</span>:<span class="hljs-string">&quot;&quot;</span>,
-<span class="hljs-attr">&quot;iso3Language&quot;</span>:<span class="hljs-string">&quot;deu&quot;</span>,
-<span class="hljs-attr">&quot;language&quot;</span>:<span class="hljs-string">&quot;de&quot;</span>,
-<span class="hljs-attr">&quot;name&quot;</span>:<span class="hljs-string">&quot;German&quot;</span>
-},
-{
-<span class="hljs-attr">&quot;country&quot;</span>:<span class="hljs-string">&quot;US&quot;</span>,
-<span class="hljs-attr">&quot;default&quot;</span>:<span class="hljs-literal">false</span>,
-<span class="hljs-attr">&quot;displayCountry&quot;</span>:<span class="hljs-string">&quot;United States&quot;</span>,
-<span class="hljs-attr">&quot;displayLanguage&quot;</span>:<span class="hljs-string">&quot;English&quot;</span>,
-<span class="hljs-attr">&quot;displayName&quot;</span>:<span class="hljs-string">&quot;English (United States)&quot;</span>,
-<span class="hljs-attr">&quot;id&quot;</span>:<span class="hljs-string">&quot;en-US&quot;</span>,
-<span class="hljs-attr">&quot;iso3Country&quot;</span>:<span class="hljs-string">&quot;USA&quot;</span>,
-<span class="hljs-attr">&quot;iso3Language&quot;</span>:<span class="hljs-string">&quot;eng&quot;</span>,
-<span class="hljs-attr">&quot;language&quot;</span>:<span class="hljs-string">&quot;en&quot;</span>,
-<span class="hljs-attr">&quot;name&quot;</span>:<span class="hljs-string">&quot;English (United States)&quot;</span>
-},
-{
-<span class="hljs-attr">&quot;country&quot;</span>:<span class="hljs-string">&quot;CA&quot;</span>,
-<span class="hljs-attr">&quot;default&quot;</span>:<span class="hljs-literal">false</span>,
-<span class="hljs-attr">&quot;displayCountry&quot;</span>:<span class="hljs-string">&quot;Canada&quot;</span>,
-<span class="hljs-attr">&quot;displayLanguage&quot;</span>:<span class="hljs-string">&quot;English&quot;</span>,
-<span class="hljs-attr">&quot;displayName&quot;</span>:<span class="hljs-string">&quot;English (Canada)&quot;</span>,
-<span class="hljs-attr">&quot;id&quot;</span>:<span class="hljs-string">&quot;en-CA&quot;</span>,
-<span class="hljs-attr">&quot;iso3Country&quot;</span>:<span class="hljs-string">&quot;CAN&quot;</span>,
-<span class="hljs-attr">&quot;iso3Language&quot;</span>:<span class="hljs-string">&quot;eng&quot;</span>,
-<span class="hljs-attr">&quot;language&quot;</span>:<span class="hljs-string">&quot;en&quot;</span>,
-<span class="hljs-attr">&quot;name&quot;</span>:<span class="hljs-string">&quot;English (Canada)&quot;</span>
-},
-{
-<span class="hljs-attr">&quot;country&quot;</span>:<span class="hljs-string">&quot;&quot;</span>,
-<span class="hljs-attr">&quot;default&quot;</span>:<span class="hljs-literal">false</span>,
-<span class="hljs-attr">&quot;displayCountry&quot;</span>:<span class="hljs-string">&quot;&quot;</span>,
-<span class="hljs-attr">&quot;displayLanguage&quot;</span>:<span class="hljs-string">&quot;English&quot;</span>,
-<span class="hljs-attr">&quot;displayName&quot;</span>:<span class="hljs-string">&quot;English&quot;</span>,
-<span class="hljs-attr">&quot;id&quot;</span>:<span class="hljs-string">&quot;en&quot;</span>,
-<span class="hljs-attr">&quot;iso3Country&quot;</span>:<span class="hljs-string">&quot;&quot;</span>,
-<span class="hljs-attr">&quot;iso3Language&quot;</span>:<span class="hljs-string">&quot;eng&quot;</span>,
-<span class="hljs-attr">&quot;language&quot;</span>:<span class="hljs-string">&quot;en&quot;</span>,
-<span class="hljs-attr">&quot;name&quot;</span>:<span class="hljs-string">&quot;English&quot;</span>
-},
-{
-<span class="hljs-attr">&quot;country&quot;</span>:<span class="hljs-string">&quot;&quot;</span>,
-<span class="hljs-attr">&quot;default&quot;</span>:<span class="hljs-literal">false</span>,
-<span class="hljs-attr">&quot;displayCountry&quot;</span>:<span class="hljs-string">&quot;&quot;</span>,
-<span class="hljs-attr">&quot;displayLanguage&quot;</span>:<span class="hljs-string">&quot;español&quot;</span>,
-<span class="hljs-attr">&quot;displayName&quot;</span>:<span class="hljs-string">&quot;español&quot;</span>,
-<span class="hljs-attr">&quot;id&quot;</span>:<span class="hljs-string">&quot;es&quot;</span>,
-<span class="hljs-attr">&quot;iso3Country&quot;</span>:<span class="hljs-string">&quot;&quot;</span>,
-<span class="hljs-attr">&quot;iso3Language&quot;</span>:<span class="hljs-string">&quot;spa&quot;</span>,
-<span class="hljs-attr">&quot;language&quot;</span>:<span class="hljs-string">&quot;es&quot;</span>,
-<span class="hljs-attr">&quot;name&quot;</span>:<span class="hljs-string">&quot;Spanish&quot;</span>
-}
-]
-},
-{
-<span class="hljs-attr">&quot;configurationType&quot;</span>:<span class="hljs-string">&quot;globalConfiguration&quot;</span>,
-<span class="hljs-attr">&quot;id&quot;</span>:<span class="hljs-string">&quot;SalesforcePaymentsAllowed&quot;</span>,
-<span class="hljs-attr">&quot;value&quot;</span>:<span class="hljs-literal">true</span>
-},
-{
-<span class="hljs-attr">&quot;configurationType&quot;</span>:<span class="hljs-string">&quot;globalConfiguration&quot;</span>,
-<span class="hljs-attr">&quot;id&quot;</span>:<span class="hljs-string">&quot;gcp&quot;</span>,
-<span class="hljs-attr">&quot;value&quot;</span>:<span class="hljs-string">&quot;test-gcp-key&quot;</span>
-}
-]
-}</code></pre>
+					<p>You can extend the Shopper Configurations response with custom data using the <code>dw.shop.shopper_configuration.modifyGETResponse</code> hook. This is useful for adding custom site preferences to the response.</p>
+					<a href="#example-hook-implementation" id="example-hook-implementation" style="color: inherit; text-decoration: none;">
+						<h3>Example Hook Implementation</h3>
+					</a>
+					<pre><code class="language-javascript"><span class="hljs-built_in">exports</span>.modifyGETResponse = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">configResp</span>) </span>{
+<span class="hljs-keyword">var</span> customPreference = dw.system.Site.getCurrent().getCustomPreferenceValue(
+<span class="hljs-string">&quot;customerServiceEmail&quot;</span>
+);
+configResp.c_customPrefs = {
+<span class="hljs-attr">customerServiceEmail</span>: customPreference || <span class="hljs-string">&quot;noreply@example.com&quot;</span>
+};
+};</code></pre>
+					<p>For details on hook registration, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/hook-method-details.html">Hook Method Details</a>.</p>
+					<a href="#site-identification-and-availability" id="site-identification-and-availability" style="color: inherit; text-decoration: none;">
+						<h3>Site Identification and Availability</h3>
+					</a>
+					<p>Retrieve the site&#39;s display name and current operational status to determine if the storefront is online, offline, or in a maintenance state for shoppers.</p>
+					<a href="#currency-configuration" id="currency-configuration" style="color: inherit; text-decoration: none;">
+						<h3>Currency Configuration</h3>
+					</a>
+					<p>Identify the default currency for the site and the list of all supported currencies to ensure correct price rendering and multi-currency support.</p>
+					<a href="#locale-and-language-settings" id="locale-and-language-settings" style="color: inherit; text-decoration: none;">
+						<h3>Locale and Language Settings</h3>
+					</a>
+					<p>Access the default locale and the full set of supported locales to localize content, formatting, and language for the shopper&#39;s specific region.</p>
+					<a href="#feature-enablement" id="feature-enablement" style="color: inherit; text-decoration: none;">
+						<h3>Feature Enablement</h3>
+					</a>
+					<p>View the status of various storefront features and toggles to dynamically enable or disable application logic based on the merchant&#39;s active configuration.</p>
 					<a href="#caching" id="caching" style="color: inherit; text-decoration: none;">
 						<h3>Caching</h3>
 					</a>
@@ -321,7 +208,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 							<aside class="tsd-sources">
 								<p>Overrides BaseClient.__constructor</p>
 								<ul>
-									<li>Defined in renderedTemplates/shopperConfigurations/apis/DefaultApi.ts:230</li>
+									<li>Defined in renderedTemplates/shopperConfigurations/apis/DefaultApi.ts:123</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -362,7 +249,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperConfigurations/apis/DefaultApi.ts:256</li>
+									<li>Defined in renderedTemplates/shopperConfigurations/apis/DefaultApi.ts:149</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -388,7 +275,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperConfigurations/apis/DefaultApi.ts:282</li>
+									<li>Defined in renderedTemplates/shopperConfigurations/apis/DefaultApi.ts:175</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">

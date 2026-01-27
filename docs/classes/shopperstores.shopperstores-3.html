@@ -80,12 +80,38 @@
 					<a href="#api-overview" id="api-overview" style="color: inherit; text-decoration: none;">
 						<h1>API Overview</h1>
 					</a>
-					<p>Provides access to stores via search or ID lookup.</p>
+					<p>Use this API to access stores via search or ID lookup.</p>
 					<a href="#authentication-amp-authorization" id="authentication-amp-authorization" style="color: inherit; text-decoration: none;">
 						<h2>Authentication &amp; Authorization</h2>
 					</a>
 					<p>The Shopper Stores API requires a shopper access token from the <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-shopper-apis.html">Shopper Login and API Access Service (SLAS).</a></p>
-					<p>You must include the relevant scope(s) in the client ID used to generate the SLAS token. For details, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html">Authorization Scopes Catalog.</a>* <br /></p>
+					<p>You must include <code>sfcc.shopper-stores</code> and other relevant scope(s) in the client ID used to generate the SLAS token. For a full list of permissions, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html">Authorization Scopes Catalog.</a></p>
+					<p>For details on how to request a shopper access token from SLAS, see the guest user flows for <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-public-client.html">public clients</a> and <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-private-client.html">private clients</a> in the SLAS guides.</p>
+					<a href="#use-cases" id="use-cases" style="color: inherit; text-decoration: none;">
+						<h2>Use Cases</h2>
+					</a>
+					<a href="#store-retrieval" id="store-retrieval" style="color: inherit; text-decoration: none;">
+						<h3>Store Retrieval</h3>
+					</a>
+					<ul>
+						<li>Specific Lookup: Retrieve detailed information for one or more stores using unique IDs.</li>
+						<li>Localization: Fetch store data tailored to specific languages and regional formats using locale.</li>
+					</ul>
+					<a href="#location-based-search" id="location-based-search" style="color: inherit; text-decoration: none;">
+						<h3>Location-Based Search</h3>
+					</a>
+					<ul>
+						<li>Proximity Search: Find stores within a specific radius (miles or kilometers) of a shopper.</li>
+						<li>Coordinate Search: Locate stores using precise latitude and longitude pairs.</li>
+						<li>Postal Code Search: Identify stores near a specific zip or postal code using automated geolocation mapping.</li>
+					</ul>
+					<a href="#search-optimization" id="search-optimization" style="color: inherit; text-decoration: none;">
+						<h3>Search Optimization</h3>
+					</a>
+					<ul>
+						<li>Threshold Filtering: Limit results to a maximum distance from the shopper&#39;s location.</li>
+						<li>Pagination: Manage large result sets efficiently using limit and offset parameters.* <br /></li>
+					</ul>
 					<p>For instructions on how to retrieve access token for admin APIs: <a><a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html">https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html</a></a> <br /> <br />
 					Example with admin auth</p>
 					<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { ShopperStores, ClientConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
@@ -163,7 +189,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 							<aside class="tsd-sources">
 								<p>Overrides BaseClient.__constructor</p>
 								<ul>
-									<li>Defined in renderedTemplates/shopperStores/apis/DefaultApi.ts:78</li>
+									<li>Defined in renderedTemplates/shopperStores/apis/DefaultApi.ts:98</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -204,7 +230,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperStores/apis/DefaultApi.ts:106</li>
+									<li>Defined in renderedTemplates/shopperStores/apis/DefaultApi.ts:126</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -229,7 +255,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperStores/apis/DefaultApi.ts:136</li>
+									<li>Defined in renderedTemplates/shopperStores/apis/DefaultApi.ts:156</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -275,7 +301,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperStores/apis/DefaultApi.ts:275</li>
+									<li>Defined in renderedTemplates/shopperStores/apis/DefaultApi.ts:295</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -310,7 +336,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperStores/apis/DefaultApi.ts:326</li>
+									<li>Defined in renderedTemplates/shopperStores/apis/DefaultApi.ts:346</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -377,12 +403,6 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-reference tsd-parent-kind-module">
-						<a href="../modules/shopperstores.html#defaultfallback" class="tsd-kind-icon">Default<wbr>Fallback</a>
-					</li>
-					<li class=" tsd-kind-reference tsd-parent-kind-module">
-						<a href="../modules/shopperstores.html#defaultfallback-1" class="tsd-kind-icon">Default<wbr>Fallback</a>
-					</li>
 					<li class=" tsd-kind-reference tsd-parent-kind-module">
 						<a href="../modules/shopperstores.html#distanceunit" class="tsd-kind-icon">Distance<wbr>Unit</a>
 					</li>
@@ -461,9 +481,6 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 					</li>
 				</ul>
 				<ul class="after-current">
-					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
-						<a href="../modules/shopperstores.html#defaultfallback-2" class="tsd-kind-icon">Default<wbr>Fallback</a>
-					</li>
 					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
 						<a href="../modules/shopperstores.html#distanceunit-2" class="tsd-kind-icon">Distance<wbr>Unit</a>
 					</li>
