@@ -7,19 +7,14 @@
 
 import path from "path";
 import fs from "fs-extra";
-import {
-  downloadApisWithAnypointCli,
-  readApiVersions,
-  ORG_ID,
-} from "./lib/utils";
-import { PRODUCTION_API_PATH } from "./lib/config";
+import { downloadApisWithAnypointCli, readApiVersions } from "./lib/utils";
+import { PRODUCTION_API_PATH, ORG_ID } from "./lib/config";
 import dotenv from "dotenv";
 import { removeInternalOas } from "./removeInternalOas";
 
 dotenv.config();
 
 // Constants
-// const PRODUCTION_API_PATH = path.join(__dirname, '../apis');
 const OLD_APIS_PATH = path.join(__dirname, "../temp/oldApis");
 
 /**

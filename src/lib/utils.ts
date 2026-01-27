@@ -9,14 +9,10 @@ import { execSync } from "child_process";
 import path from "path";
 import fs from "fs-extra";
 import AdmZip from "adm-zip";
-
-export const API_VERSIONS_FILE = path.join(__dirname, "../../api-versions.txt");
-export const ORG_ID = "893f605e-10e2-423a-bdb4-f952f56eb6d8";
+import { API_VERSIONS_FILE } from "./config";
 
 /**
  * Wrapper around execSync to simplify stubbing in tests.
- * @param command
- * @param options
  */
 export const runExecSync = (
   command: string,
@@ -26,7 +22,6 @@ export const runExecSync = (
 /**
  * Small wrapper to create an AdmZip instance.
  * Abstracted for easier stubbing in tests.
- * @param zipPath
  */
 export const createAdmZip = (zipPath: string) => new AdmZip(zipPath);
 

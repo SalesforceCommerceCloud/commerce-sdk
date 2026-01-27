@@ -9,8 +9,8 @@ import path from "path";
 import { expect } from "chai";
 import sinon from "sinon";
 import * as utils from "./utils";
-const { readApiVersions, API_VERSIONS_FILE, downloadApisWithAnypointCli } =
-  utils;
+import { API_VERSIONS_FILE } from "./config";
+const { readApiVersions, downloadApisWithAnypointCli } = utils;
 
 describe("download-apis", () => {
   const mockApiId =
