@@ -1,0 +1,325 @@
+openapi: 3.0.3
+info:
+  x-api-type: Shopper
+  x-api-family: Configuration
+  title: Shopper Configurations
+  version: 1.0.2
+  description: |-
+    [Download API specification](https://developer.salesforce.com/static/commercecloud/commerce-api/shopper-configurations/shopper-configurations-oas-v1-public.yaml)
+
+    # API Overview
+
+    The Shopper Configurations API provides cacheable configuration data to shopper-facing applications, enabling them to make decisions based on merchant settings without requiring server-side logic.
+
+    This highly cacheable data encompasses toggles, preferences, and configuration information that allows the application to be reactive to changes performed by the merchant, admin, or support engineer.
+
+    Configuration types include:
+
+    - siteConfiguration: Site-specific settings such as name, status, currencies, and locales
+    - globalConfiguration: Instance-wide settings such as feature flags
+
+    ## Authentication & Authorization
+
+    The Shopper Configuration API requires a shopper access token from the Shopper Login and API Access Service (SLAS).
+
+    You must include `sfcc.shopper-configuations` in the client ID used to generate the SLAS token. For a full list of required permissions, see the [Authorization Scopes Catalog.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html)
+
+    For details on how to request a shopper access token from SLAS, see the guest user flows for [public clients](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-public-client.html) and [private clients](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-private-client.html) in the SLAS guides.
+
+    ## Use Cases
+
+    ### Use Hooks
+    You can extend the Shopper Configurations response with custom data using the `dw.shop.shopper_configuration.modifyGETResponse` hook. This is useful for adding custom site preferences to the response.
+
+    ### Example Hook Implementation
+
+    ```javascript
+    exports.modifyGETResponse = function (configResp) {
+      var customPreference = dw.system.Site.getCurrent().getCustomPreferenceValue(
+        "customerServiceEmail"
+      );
+      configResp.c_customPrefs = {
+        customerServiceEmail: customPreference || "noreply@example.com"
+      };
+    };
+    ```
+
+    For details on hook registration, see [Hook Method Details](https://developer.salesforce.com/docs/commerce/commerce-api/guide/hook-method-details.html).
+
+    ### Site Identification and Availability
+
+    Retrieve the site's display name and current operational status to determine if the storefront is online, offline, or in a maintenance state for shoppers.
+
+    ### Currency Configuration
+
+    Identify the default currency for the site and the list of all supported currencies to ensure correct price rendering and multi-currency support.
+
+    ### Locale and Language Settings
+
+    Access the default locale and the full set of supported locales to localize content, formatting, and language for the shopper's specific region.
+
+    ### Feature Enablement
+
+    View the status of various storefront features and toggles to dynamically enable or disable application logic based on the merchant's active configuration.
+
+    ### Caching
+
+    Caching capabilities are available for the Shopper Configuration APIs. For details, see [Server-Side Web-Tier Caching.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/server-side-web-tier-caching.html)
+servers:
+  - url: https://{shortCode}.api.commercecloud.salesforce.com/configuration/shopper-configurations/v1
+    variables:
+      shortCode:
+        default: shortCode
+paths:
+  /organizations/{organizationId}/configurations:
+    get:
+      summary: Retrieves configurations
+      description: Retrieves configurations for the specified organization and site.
+      operationId: getConfigurations
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '200':
+          description: Retrieved configurations successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteConfiguration'
+              examples:
+                ConfigurationsExample:
+                  $ref: '#/components/examples/ConfigurationsExample'
+        '400':
+          description: Bad request - invalid parameters provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getShopperConfigurations400:
+                  $ref: '#/components/examples/BadRequest'
+        '401':
+          description: Your shopper JWT is invalid and cannot be used to identify the API client.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getShopperConfigurations401:
+                  $ref: '#/components/examples/Unauthorized'
+        '404':
+          description: Application context not found for the specified organization and site.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getShopperConfigurations404:
+                  $ref: '#/components/examples/NotFound'
+      security:
+        - ShopperToken:
+            - sfcc.shopper-configurations
+components:
+  securitySchemes:
+    ShopperToken:
+      type: oauth2
+      description: |
+        Shopper token flow.
+      flows:
+        clientCredentials:
+          tokenUrl: https://{shortCode}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
+          scopes:
+            sfcc.shopper-configurations: Shopper Configurations READONLY
+        authorizationCode:
+          authorizationUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/authorize
+          tokenUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
+          scopes:
+            sfcc.shopper-configurations: Shopper Configurations READONLY
+  schemas:
+    OrganizationId:
+      description: An identifier for the organization the request is being made by
+      example: f_ecom_zzxy_prd
+      type: string
+      minLength: 1
+      maxLength: 32
+    SiteId:
+      minLength: 1
+      maxLength: 32
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites
+      example: RefArch
+      type: string
+    Configuration:
+      description: Configuration object
+      type: object
+      properties:
+        id:
+          description: identifier
+          type: string
+          maxLength: 255
+          example: SalesforcePaymentsAllowed
+        value:
+          description: value for identifier
+          example: true
+          maxLength: 255
+        configurationType:
+          description: type of configuration value
+          type: string
+          maxLength: 255
+          example: globalConfiguration
+      required:
+        - id
+        - value
+    SiteConfiguration:
+      description: Site Configuration object
+      type: object
+      properties:
+        configurations:
+          description: List configurations for the instance and site
+          maxItems: 100
+          type: array
+          items:
+            $ref: '#/components/schemas/Configuration'
+      required:
+        - configurations
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        title:
+          description: "A short, human-readable summary of the problem\ntype.  It will not change from occurrence to occurrence of the \nproblem, except for purposes of localization\n"
+          type: string
+          maxLength: 256
+          example: You do not have enough credit
+        type:
+          description: |
+            A URI reference [RFC3986] that identifies the
+            problem type.  This specification encourages that, when
+            dereferenced, it provide human-readable documentation for the
+            problem type (e.g., using HTML [W3C.REC-html5-20141028]).  When
+            this member is not present, its value is assumed to be
+            "about:blank". It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: NotEnoughMoney
+        detail:
+          description: A human-readable explanation specific to this occurrence of the problem.
+          type: string
+          example: Your current balance is 30, but that costs 50
+        instance:
+          description: |
+            A URI reference that identifies the specific
+            occurrence of the problem.  It may or may not yield further
+            information if dereferenced.  It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: /account/12345/msgs/abc
+      required:
+        - title
+        - type
+        - detail
+  parameters:
+    organizationId:
+      description: An identifier for the organization the request is being made by
+      name: organizationId
+      in: path
+      required: true
+      example: f_ecom_zzxy_prd
+      schema:
+        $ref: '#/components/schemas/OrganizationId'
+    siteId:
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites.
+      name: siteId
+      in: query
+      required: true
+      examples:
+        SiteId:
+          value: RefArch
+      schema:
+        $ref: '#/components/schemas/SiteId'
+  examples:
+    ConfigurationsExample:
+      value:
+        configurations:
+          - id: id
+            value: RefArch
+            configurationType: siteConfiguration
+          - id: name
+            value: Ref Arch
+            configurationType: siteConfiguration
+          - id: status
+            value: online
+            configurationType: siteConfiguration
+          - id: timezone
+            value: Etc/UTC
+            configurationType: siteConfiguration
+          - id: timezoneOffset
+            value: 0
+            configurationType: siteConfiguration
+          - id: defaultCurrency
+            value: USD
+            configurationType: siteConfiguration
+          - id: allowedCurrencies
+            value:
+              - USD
+              - EUR
+            configurationType: siteConfiguration
+          - id: defaultLocale
+            value: en-US
+            configurationType: siteConfiguration
+          - id: allowedLocales
+            value:
+              - id: en-US
+                country: US
+                default: true
+                displayCountry: United States
+                displayLanguage: English
+                displayName: English (United States)
+                iso3Country: USA
+                iso3Language: eng
+                language: en
+                name: English (United States)
+              - id: en-CA
+                country: CA
+                default: false
+                displayCountry: Canada
+                displayLanguage: English
+                displayName: English (Canada)
+                iso3Country: CAN
+                iso3Language: eng
+                language: en
+                name: English (Canada)
+            configurationType: siteConfiguration
+          - id: SalesforcePaymentsAllowed
+            value: true
+            configurationType: globalConfiguration
+          - id: gcp
+            value: abc123
+            configurationType: globalConfiguration
+    BadRequest:
+      summary: Bad Request Error
+      description: Example of a 400 Bad Request error response
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/bad-request
+        title: Bad Request
+        detail: The request could not be processed due to invalid parameters.
+        correlationId: 12345678-1234-1234-1234-123456789012
+    Unauthorized:
+      summary: Unauthorized Error
+      description: Example of a 401 Unauthorized error response
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/unauthorized
+        title: Unauthorized
+        detail: Your shopper JWT is invalid and cannot be used to identify the API client.
+        correlationId: 12345678-1234-1234-1234-123456789012
+    NotFound:
+      summary: Not Found Error
+      description: Example of a 404 Not Found error response
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/not-found
+        title: Not Found
+        detail: Configuration not found for the specified organization and site.
+        correlationId: 12345678-1234-1234-1234-123456789012

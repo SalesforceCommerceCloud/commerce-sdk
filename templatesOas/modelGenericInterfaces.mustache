@@ -10,7 +10,7 @@
   */
 export type {{classname}} = {
     {{#vars}}
-    {{baseName}}{{^required}}?{{/required}}: {{#isEnum}}{{{datatypeWithEnum}}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{datatype}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}};
+    {{baseName}}{{^required}}?{{/required}}: {{#isArray}}{{#uniqueItems}}Array<{{#items}}{{#isEnum}}{{{datatypeWithEnum}}}{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{datatype}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{/isEnum}}{{/items}}>{{/uniqueItems}}{{^uniqueItems}}{{#isEnum}}{{{datatypeWithEnum}}}{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{datatype}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{/isEnum}}{{/uniqueItems}}{{/isArray}}{{^isArray}}{{#isEnum}}{{{datatypeWithEnum}}}{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{datatype}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{/isEnum}}{{/isArray}}{{#isNullable}} | null{{/isNullable}};
     {{/vars}}
 } & { [key: string]: any }
 {{#hasEnums}}

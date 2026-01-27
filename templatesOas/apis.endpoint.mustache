@@ -33,7 +33,7 @@
     {{/hasFormParams}}
     {{/hasBodyParam}}
     *
-    * @returns A promise of type {{{returnType}}}{{^returnType}}void{{/returnType}}.
+    * @returns A promise of type {{#returnType}}{{#isArray}}Array<{{returnBaseType}}>{{/isArray}}{{^isArray}}{{{returnType}}}{{/isArray}}{{/returnType}}{{^returnType}}void{{/returnType}}.
     */
     {{nickname}}(
         options{{^hasBodyParam}}?{{/hasBodyParam}}: RequireParametersUnlessAllAreOptional<{
@@ -42,7 +42,12 @@
             {{^isBodyParam}}
             {{^isHeaderParam}}
             {{^isFormParam}}
+                {{#uniqueItems}}
+                {{paramName}}{{^required}}?{{/required}}: Array<{{#items}}{{#isEnum}}{{#lambda.titlecase}}{{nickname}}{{/lambda.titlecase}}{{#lambda.titlecase}}{{paramName}}{{/lambda.titlecase}}Enum{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{dataType}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}}{{/items}}{{^items}}{{#isEnum}}{{#lambda.titlecase}}{{nickname}}{{/lambda.titlecase}}{{#lambda.titlecase}}{{paramName}}{{/lambda.titlecase}}Enum{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{dataType}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}}{{/items}}>;
+                {{/uniqueItems}}
+                {{^uniqueItems}}
                 {{paramName}}{{^required}}?{{/required}}: {{#isEnum}}{{{datatypeWithEnum}}}{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{dataType}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}};
+                {{/uniqueItems}}
             {{/isFormParam}}
             {{/isHeaderParam}}
             {{/isBodyParam}}
@@ -72,7 +77,7 @@
             {{/hasFormParams}}
             {{/hasBodyParam}}
         }>
-    ): Promise<{{{returnType}}}{{^returnType}}void{{/returnType}}>;
+    ): Promise<{{#returnType}}{{#isArray}}Array<{{returnBaseType}}>{{/isArray}}{{^isArray}}{{{returnType}}}{{/isArray}}{{/returnType}}{{^returnType}}void{{/returnType}}>;
 
     /**
     * {{{unescapedNotes}}}
@@ -106,7 +111,7 @@
     {{/hasBodyParam}}
     * @param rawResponse - Set to true to return entire Response object instead of DTO.
     * 
-    * @returns A promise of type Response if rawResponse is true, a promise of type {{{returnType}}}{{^returnType}}void{{/returnType}} otherwise.
+    * @returns A promise of type Response if rawResponse is true, a promise of type {{#returnType}}{{#isArray}}Array<{{returnBaseType}}>{{/isArray}}{{^isArray}}{{{returnType}}}{{/isArray}}{{/returnType}}{{^returnType}}void{{/returnType}} otherwise.
     */
     {{nickname}}<T extends boolean>(
         options{{^hasBodyParam}}?{{/hasBodyParam}}: RequireParametersUnlessAllAreOptional<{
@@ -115,7 +120,12 @@
                 {{^isBodyParam}}
                 {{^isHeaderParam}}
                 {{^isFormParam}}
+                {{#uniqueItems}}
+                {{paramName}}{{^required}}?{{/required}}: Array<{{#items}}{{#isEnum}}{{#lambda.titlecase}}{{nickname}}{{/lambda.titlecase}}{{#lambda.titlecase}}{{paramName}}{{/lambda.titlecase}}Enum{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{dataType}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}}{{/items}}{{^items}}{{#isEnum}}{{#lambda.titlecase}}{{nickname}}{{/lambda.titlecase}}{{#lambda.titlecase}}{{paramName}}{{/lambda.titlecase}}Enum{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{dataType}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}}{{/items}}>;
+                {{/uniqueItems}}
+                {{^uniqueItems}}
                 {{paramName}}{{^required}}?{{/required}}: {{#isEnum}}{{{datatypeWithEnum}}}{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{dataType}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}};
+                {{/uniqueItems}}
                 {{/isFormParam}}
                 {{/isHeaderParam}}
                 {{/isBodyParam}}
@@ -146,7 +156,7 @@
             {{/hasBodyParam}}
         }>,
         rawResponse?: T
-    ): Promise<T extends true ? Response : {{{returnType}}}{{^returnType}}void{{/returnType}}>;
+    ): Promise<T extends true ? Response : {{#returnType}}{{#isArray}}Array<{{returnBaseType}}>{{/isArray}}{{^isArray}}{{{returnType}}}{{/isArray}}{{/returnType}}{{^returnType}}void{{/returnType}}>;
 
     /**
     * {{{unescapedNotes}}}
@@ -180,7 +190,7 @@
     {{/hasBodyParam}}
     * @param rawResponse - Set to true to return entire Response object instead of DTO.
     * 
-    * @returns A promise of type Response if rawResponse is true, a promise of type {{{returnType}}}{{^returnType}}void{{/returnType}} otherwise.
+    * @returns A promise of type Response if rawResponse is true, a promise of type {{#returnType}}{{#isArray}}Array<{{returnBaseType}}>{{/isArray}}{{^isArray}}{{{returnType}}}{{/isArray}}{{/returnType}}{{^returnType}}void{{/returnType}} otherwise.
     */
     async {{nickname}}(
         options{{^hasBodyParam}}?{{/hasBodyParam}}: RequireParametersUnlessAllAreOptional<{
@@ -189,7 +199,12 @@
                 {{^isBodyParam}}
                 {{^isHeaderParam}}
                 {{^isFormParam}}
+                {{#uniqueItems}}
+                {{paramName}}{{^required}}?{{/required}}: Array<{{#items}}{{#isEnum}}{{#lambda.titlecase}}{{nickname}}{{/lambda.titlecase}}{{#lambda.titlecase}}{{paramName}}{{/lambda.titlecase}}Enum{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{dataType}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}}{{/items}}{{^items}}{{#isEnum}}{{#lambda.titlecase}}{{nickname}}{{/lambda.titlecase}}{{#lambda.titlecase}}{{paramName}}{{/lambda.titlecase}}Enum{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{dataType}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}}{{/items}}>;
+                {{/uniqueItems}}
+                {{^uniqueItems}}
                 {{paramName}}{{^required}}?{{/required}}: {{#isEnum}}{{{datatypeWithEnum}}}{{/isEnum}}{{^isEnum}}{{^isDateTime}}{{^isDate}}{{{dataType}}}{{/isDate}}{{/isDateTime}}{{#isDateTime}}string{{/isDateTime}}{{#isDate}}string{{/isDate}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}};
+                {{/uniqueItems}}
                 {{/isFormParam}}
                 {{/isHeaderParam}}
                 {{/isBodyParam}}
@@ -220,7 +235,7 @@
             {{/hasBodyParam}}
         }>,
         rawResponse?: boolean
-    ): Promise<Response | {{{returnType}}}{{^returnType}}void{{/returnType}}> {
+    ): Promise<Response | {{#returnType}}{{#isArray}}Array<{{returnBaseType}}>{{/isArray}}{{^isArray}}{{{returnType}}}{{/isArray}}{{/returnType}}{{^returnType}}void{{/returnType}}> {
         const optionParams = options?.parameters || ({} as Partial<NonNullable<NonNullable<typeof options>["parameters"]>>);
         const configParams = this.clientConfig.parameters as CommonParameters;
         
