@@ -66,10 +66,36 @@ export function resolveApiName(name: string, version: string): string {
   if (name === "Catalogs OAS") {
     return "CatalogsV1";
   }
-  if (name === "Cors Preferences OAS") {
+  if (name === "Cors OAS") {
     return "CORSPreferences";
   }
+  if (name === "Auth Admin OAS") {
+    return "SlasAdmin";
+  }
+  if (name === "Auth OAS") {
+    return "ShopperLogin";
+  }
+  if (name === "Zones OAS") {
+    return "CDNZones";
+  }
   return name.replace(/\s+/g, "").replace("OAS", "");
+}
+
+function resolveDirectoryName(name: string, version?: string): string {
+  let currentName = name;
+  if (name === "auth") {
+    currentName = "shopperLogin";
+  }
+  if (name === "auth-admin") {
+    currentName = "slasAdmin";
+  }
+  if (name === "zones") {
+    currentName = "cdnApiProcessApis";
+  }
+  if (name === "cors") {
+    currentName = "corsPreferences";
+  }
+  return kebabToCamelCase(appendVersionIfV2(currentName, version || ""));
 }
 
 /**
@@ -86,11 +112,9 @@ export function getAPIDetailsFromExchange(directory: string): ApiSpecDetail {
     return {
       filepath: path.join(directory, exchangeConfig.main),
       filename: exchangeConfig.main,
-      directoryName: kebabToCamelCase(
-        appendVersionIfV2(
-          exchangeConfig.assetId.replace("-oas", ""),
-          exchangeConfig.apiVersion
-        )
+      directoryName: resolveDirectoryName(
+        exchangeConfig.assetId.replace("-oas", ""),
+        exchangeConfig.apiVersion
       ),
       name:
         exchangeConfig.apiVersion === "v2"
