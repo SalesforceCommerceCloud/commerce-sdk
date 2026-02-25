@@ -50,7 +50,20 @@ function generateVersionTable(apiVersions: ApiVersion[]): string {
   table += "|----------|-------------|\n";
 
   apiVersions.forEach((api) => {
-    table += `| ${api.name} | ${api.version} |\n`;
+    let displayName = api.name
+    if (api.name === 'auth') {
+      displayName = 'shopper-login';
+    }
+    if (api.name === 'auth-admin') {
+      displayName = 'slas-admin';
+    }
+    if (api.name === 'zones') {
+      displayName = 'cdn-api-process-apis';
+    }
+    if (api.name === 'cors') {
+      displayName = 'cors-preferences';
+    }
+    table += `| ${displayName} | ${api.version} |\n`;
   });
 
   return table;

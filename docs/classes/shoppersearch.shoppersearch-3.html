@@ -87,7 +87,7 @@
 					</a>
 					<p>The client requesting the API must have access to the product search and search suggestion resources.</p>
 					<p>The Shopper Search API requires a JWT acquired via the Shopper Customers endpoint:</p>
-					<pre><code>https:<span class="hljs-regexp">//</span>{shortCode}.api.commercecloud.salesforce.com<span class="hljs-regexp">/customer/</span>shopper-customers<span class="hljs-regexp">/v1/</span>organizations<span class="hljs-regexp">/{organizationId}/</span>customers<span class="hljs-regexp">/actions/</span>login</code></pre>
+					<pre><code>https:<span class="hljs-regexp">//</span>{shortCode}.api.commercecloud.salesforce.com<span class="hljs-regexp">/customer/</span>shopper-customers<span class="hljs-regexp">/v1/</span>organizations<span class="hljs-regexp">/{organizationId}/</span>customers<span class="hljs-regexp">/actions/</span>login</code></pre><p>You must include the relevant scopes in the client ID used to generate the SLAS token. For a full list of permissions, see the <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html">Authorization Scopes Catalog.</a></p>
 					<a href="#use-cases" id="use-cases" style="color: inherit; text-decoration: none;">
 						<h2>Use Cases</h2>
 					</a>
@@ -126,28 +126,28 @@
 					</a>
 					<p>You can filter products by their role in a promotion using the <code>pmid</code> (promotion ID) and <code>pmpt</code> (promotion product type) refinement parameters together. This allows you to find specific types of products within a promotion:</p>
 					<ul>
-						<li><strong><code>pmid</code></strong>: Specifies the promotion ID to filter by</li>
-						<li><strong><code>pmpt</code></strong>: Specifies the type of products to return within that promotion:</li>
+						<li><code>pmid</code>: Specifies the promotion ID to filter by</li>
+						<li><code>pmpt</code>: Specifies the type of products to return within that promotion:</li>
 						<li><code>all</code>: Returns all products related to the promotion (default behavior)</li>
 						<li><code>qualifying</code>: Returns only products that qualify for the promotion but don&#39;t receive the discount/bonus</li>
 						<li><code>discounted</code>: Returns only products that receive a discount in the promotion</li>
 						<li><code>bonus</code>: Returns only products that are given as bonuses in the promotion</li>
 					</ul>
-					<p><em>Example Usage:*</em></p>
+					<p>Example Usage:</p>
 					<pre><code><span class="hljs-builtin-name">GET</span> /organizations/{organizationId}/product-search?<span class="hljs-attribute">refine</span>=pmid=summer-sale&amp;refine=pmpt=discounted</code></pre><p>This would return only the products that receive discounts in the &quot;summer-sale&quot; promotion.</p>
 					<p><em>Note:*</em> The <code>pmpt</code> parameter only has an effect when used with <code>pmid</code>. If <code>pmpt</code> is specified without <code>pmid</code>, it will be ignored and all products will be returned.</p>
 					<a href="#shopper-personalization" id="shopper-personalization" style="color: inherit; text-decoration: none;">
-						<h4>Shopper Personalization</h4>
+						<h3>Shopper Personalization</h3>
 					</a>
 					<p>The SCAPI response can be personalized using the Shopper Context API or hooks. By setting specific values in the Shopper Context API, you can modify the response of the &#39;getProduct&#39; or &#39;getProducts&#39; endpoint based on the shopper&#39;s context. For instance, you can offer a 5% discount or free shipping to shoppers using mobile devices.</p>
 					<a href="#jwa-caching" id="jwa-caching" style="color: inherit; text-decoration: none;">
-						<h4>JWA Caching</h4>
+						<h2>JWA Caching</h2>
 					</a>
 					<p>The response is cached in JWA, which means promotion data contained in the response is also cached based on the TTL (Time to Live) specified in the Business Manager <a href="https://help.salesforce.com/s/articleView?id=cc.b2c_feature_switches.htm&amp;type=5">Feature Switches</a> configuration.
 					When the shopper context value is updated, a check is conducted to see if the updated shopper context affects the retrieval of product-promotion data. If it does, then the response is fetched from the source and cached in the JWA.</p>
 					<p>For details, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/server-side-web-tier-caching.html">Server-Side Web-Tier Caching.</a></p>
 					<a href="#use-hooks" id="use-hooks" style="color: inherit; text-decoration: none;">
-						<h3>Use Hooks</h3>
+						<h2>Use Hooks</h2>
 					</a>
 					<p>For details working with hooks, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html">Extensibility with Hooks.</a></p>
 					<a href="#best-practices" id="best-practices" style="color: inherit; text-decoration: none;">
@@ -240,7 +240,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 							<aside class="tsd-sources">
 								<p>Overrides BaseClient.__constructor</p>
 								<ul>
-									<li>Defined in renderedTemplates/shopperSearch/apis/DefaultApi.ts:185</li>
+									<li>Defined in renderedTemplates/shopperSearch/apis/DefaultApi.ts:186</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -281,7 +281,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperSearch/apis/DefaultApi.ts:220</li>
+									<li>Defined in renderedTemplates/shopperSearch/apis/DefaultApi.ts:221</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -308,7 +308,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperSearch/apis/DefaultApi.ts:262</li>
+									<li>Defined in renderedTemplates/shopperSearch/apis/DefaultApi.ts:263</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -358,7 +358,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperSearch/apis/DefaultApi.ts:465</li>
+									<li>Defined in renderedTemplates/shopperSearch/apis/DefaultApi.ts:466</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -386,7 +386,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperSearch/apis/DefaultApi.ts:542</li>
+									<li>Defined in renderedTemplates/shopperSearch/apis/DefaultApi.ts:543</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
