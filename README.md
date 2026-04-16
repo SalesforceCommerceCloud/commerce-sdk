@@ -50,7 +50,7 @@ In the next major version release, the SDK will encode special characters (UTF-8
 
 Download and install Node.js and npm [here](https://nodejs.org/en/download/).
 ​
-> **Note:** Only Node.js versions 16, 18, and 20 are supported. Other versions can cause unexpected results. To use a different version of Node.js for other projects, you can manage multiple versions of Node.js with [nvm](https://github.com/nvm-sh/nvm). ​
+> **Note:** Requirements: Node `^20.x` or `^22.x`. To use a different version of Node.js for other projects, you can manage multiple versions of Node.js with [nvm](https://github.com/nvm-sh/nvm). ​
 
 ## Installation
 
