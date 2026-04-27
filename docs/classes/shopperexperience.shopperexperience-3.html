@@ -80,7 +80,7 @@
 					<a href="#api-overview" id="api-overview" style="color: inherit; text-decoration: none;">
 						<h1>API Overview</h1>
 					</a>
-					<p>Use the Shopper Experience API to look up page information for pages that are created in Page Designer, content assets and to access content folders.</p>
+					<p>Use the Shopper Experience API to look up page information for pages created in Page Designer, search and retrieve content assets, and access content folders.</p>
 					<a href="#authentication-amp-authorization" id="authentication-amp-authorization" style="color: inherit; text-decoration: none;">
 						<h2>Authentication &amp; Authorization</h2>
 					</a>
@@ -102,6 +102,21 @@
 						<li>Configurable depth levels for subfolder retrieval (0, 1, or 2 levels)</li>
 					</ul>
 					<p>Only content folders that are marked as online are returned in the API responses.</p>
+					<a href="#search-content-assets" id="search-content-assets" style="color: inherit; text-decoration: none;">
+						<h3>Search Content Assets</h3>
+					</a>
+					<p>Search for content assets using keywords and refinement filters. The search functionality supports:</p>
+					<ul>
+						<li>Keyword-based search across content assets</li>
+						<li>Refinement attributes to filter results, for example, by folder or content type</li>
+						<li>Sorting by configurable attributes</li>
+						<li>Pagination for large result sets (up to 200 items per page)</li>
+					</ul>
+					<p>Only content assets that are online and assigned to a folder are included in search results.</p>
+					<a href="#batch-retrieval" id="batch-retrieval" style="color: inherit; text-decoration: none;">
+						<h3>Batch Retrieval</h3>
+					</a>
+					<p>Retrieve multiple content assets or content folders in a single API request for improved performance (up to 50 content assets or folders at once).</p>
 					<a href="#page-responses" id="page-responses" style="color: inherit; text-decoration: none;">
 						<h2>Page Responses</h2>
 					</a>
@@ -110,6 +125,8 @@
 						<li>The entire component hierarchy of the page at design time.</li>
 						<li>All merchant data provided at design time.</li>
 						<li>Server-side scripting data provided at run time.</li>
+						<li>Tracking for each rendered component or fragment using a globally unique content link UUID.</li>
+						<li>Support for reusable component fragments that can be shared across multiple pages.</li>
 					</ul>
 					<p>Both the page and components contain the values of all native and custom attributes that have been populated during page authoring.</p>
 					<p>Only visible pages are returned. Because the visibility of components is driven by rules (scheduling or customer groups, for example), these rules are subject to evaluation when assembling the component hierarchy in the response. Only components that are visible for the current customer context appear in the response. The same rules apply to the page itself, which is only be processed and returned if it is visible.</p>
@@ -188,6 +205,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="shopperexperience.shopperexperience-3.html#getmultiplecontent" class="tsd-kind-icon">get<wbr>Multiple<wbr>Content</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="shopperexperience.shopperexperience-3.html#getpage" class="tsd-kind-icon">get<wbr>Page</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="shopperexperience.shopperexperience-3.html#getpages" class="tsd-kind-icon">get<wbr>Pages</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="shopperexperience.shopperexperience-3.html#resolvequalifiers" class="tsd-kind-icon">resolve<wbr>Qualifiers</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="shopperexperience.shopperexperience-3.html#searchcontent" class="tsd-kind-icon">search<wbr>Content</a></li>
 							</ul>
 						</section>
@@ -207,7 +225,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 							<aside class="tsd-sources">
 								<p>Overrides BaseClient.__constructor</p>
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:125</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:143</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -248,7 +266,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:158</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:176</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -279,7 +297,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:193</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:211</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -333,7 +351,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:327</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:345</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -362,7 +380,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:362</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:380</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -414,7 +432,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:502</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:520</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -443,7 +461,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:537</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:555</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -495,7 +513,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:678</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:696</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -526,7 +544,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:713</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:731</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -580,7 +598,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:850</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:868</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -612,7 +630,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:889</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:907</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -667,7 +685,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:1046</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:1064</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -700,7 +718,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:1091</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:1109</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -746,6 +764,95 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+					<a name="resolvequalifiers" class="tsd-anchor"></a>
+					<h3>resolve<wbr>Qualifiers</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">resolve<wbr>Qualifiers<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">: </span><a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>body<span class="tsd-signature-symbol">: </span><a href="../modules/shopperexperience.html#qualifierresolverequest" class="tsd-signature-type">QualifierResolveRequest</a><span class="tsd-signature-symbol"> &amp; </span><a href="../modules/types.html#customrequestbody" class="tsd-signature-type">CustomRequestBody</a><span class="tsd-signature-symbol">; </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperexperience.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/shopperexperience.html#qualifierresolveresponse" class="tsd-signature-type">QualifierResolveResponse</a><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">resolve<wbr>Qualifiers&lt;T&gt;<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">: </span><a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>body<span class="tsd-signature-symbol">: </span><a href="../modules/shopperexperience.html#qualifierresolverequest" class="tsd-signature-type">QualifierResolveRequest</a><span class="tsd-signature-symbol"> &amp; </span><a href="../modules/types.html#customrequestbody" class="tsd-signature-type">CustomRequestBody</a><span class="tsd-signature-symbol">; </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperexperience.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span>, rawResponse<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">Response</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">QualifierResolveResponse</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:1281</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Resolves a list of customer groups, campaigns, promotions, and data bindings for the given user.</p>
+								</div>
+								<p>The endpoint takes each value and determines whether the user is active for the item:</p>
+								<ul>
+									<li>Customer groups are verified against the user&#39;s qualification via the EffectiveContext.</li>
+									<li>Campaign qualifiers are checked to determine if the user is applicable for each campaign and promotion.</li>
+									<li>Data bindings are resolved by fetching the requested records from their respective data providers.</li>
+								</ul>
+								<p>Returns a boolean result for each provided qualifier and resolved data binding objects grouped by provider type and record identifier. If a qualifier cannot be validated, <code>false</code> is returned for that item. If a data binding cannot be resolved, it is omitted from the response.</p>
+								<p>If you would like to get a raw Response object use the other resolveQualifiers function.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>options: <a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>body<span class="tsd-signature-symbol">: </span><a href="../modules/shopperexperience.html#qualifierresolverequest" class="tsd-signature-type">QualifierResolveRequest</a><span class="tsd-signature-symbol"> &amp; </span><a href="../modules/types.html#customrequestbody" class="tsd-signature-type">CustomRequestBody</a><span class="tsd-signature-symbol">; </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperexperience.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>An object containing the options for this method.</p>
+										</div>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/shopperexperience.html#qualifierresolveresponse" class="tsd-signature-type">QualifierResolveResponse</a><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>A promise of type QualifierResolveResponse.</p>
+						</li>
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:1319</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Resolves a list of customer groups, campaigns, promotions, and data bindings for the given user.</p>
+								</div>
+								<p>The endpoint takes each value and determines whether the user is active for the item:</p>
+								<ul>
+									<li>Customer groups are verified against the user&#39;s qualification via the EffectiveContext.</li>
+									<li>Campaign qualifiers are checked to determine if the user is applicable for each campaign and promotion.</li>
+									<li>Data bindings are resolved by fetching the requested records from their respective data providers.</li>
+								</ul>
+								<p>Returns a boolean result for each provided qualifier and resolved data binding objects grouped by provider type and record identifier. If a qualifier cannot be validated, <code>false</code> is returned for that item. If a data binding cannot be resolved, it is omitted from the response.</p>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>options: <a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>body<span class="tsd-signature-symbol">: </span><a href="../modules/shopperexperience.html#qualifierresolverequest" class="tsd-signature-type">QualifierResolveRequest</a><span class="tsd-signature-symbol"> &amp; </span><a href="../modules/types.html#customrequestbody" class="tsd-signature-type">CustomRequestBody</a><span class="tsd-signature-symbol">; </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperexperience.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>An object containing the options for this method.</p>
+										</div>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> rawResponse: <span class="tsd-signature-type">T</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>Set to true to return entire Response object instead of DTO.</p>
+										</div>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">Response</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">QualifierResolveResponse</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>A promise of type Response if rawResponse is true, a promise of type QualifierResolveResponse otherwise.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
 					<a name="searchcontent" class="tsd-anchor"></a>
 					<h3>search<wbr>Content</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
@@ -756,7 +863,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:1273</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:1464</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -792,7 +899,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:1325</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:1516</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -888,6 +995,9 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
 								<a href="shopperexperience.shopperexperience-3.html#getpages" class="tsd-kind-icon">get<wbr>Pages</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+								<a href="shopperexperience.shopperexperience-3.html#resolvequalifiers" class="tsd-kind-icon">resolve<wbr>Qualifiers</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
 								<a href="shopperexperience.shopperexperience-3.html#searchcontent" class="tsd-kind-icon">search<wbr>Content</a>
