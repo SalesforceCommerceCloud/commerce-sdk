@@ -3,7 +3,7 @@ info:
   x-api-type: Shopper
   x-api-family: Customer
   title: Shopper Customers
-  version: 1.6.1
+  version: 1.7.0
   description: |-
     [Download API specification](https://developer.salesforce.com/static/commercecloud/commerce-api/shopper-customers/shopper-customers-oas-v1-public.yaml)
 
@@ -620,8 +620,9 @@ paths:
             type: integer
             format: int32
             default: 10
+            minimum: 1
             maximum: 50
-          description: Maximum records to retrieve per request, not to exceed 50. Defaults to 10.
+          description: Number of records to retrieve per request. Must be between 1 (minimum) and 50 (maximum). Defaults to 10.
         - name: offset
           in: query
           required: false
@@ -895,7 +896,7 @@ paths:
   /organizations/{organizationId}/customers/{customerId}/payment-method-references/{paymentMethodReferenceId}:
     delete:
       summary: Delete a customer's payment method reference. This endpoint only accepts a registered customer ShopperToken (JWT).
-      description: Deletes a specific payment method reference from a customer's account using the payment method reference ID and account ID.
+      description: Deletes a specific payment method reference from a customer's account using the payment method reference ID and account ID. This endpoint requires Salesforce Payments integration.
       operationId: deleteCustomerPaymentMethodReference
       parameters:
         - $ref: '#/components/parameters/paymentMethodReferenceId'
@@ -906,6 +907,40 @@ paths:
       responses:
         '204':
           description: No content
+      security:
+        - ShopperToken:
+            - sfcc.shopper-myaccount.paymentinstruments.rw
+  /organizations/{organizationId}/customers/{customerId}/payment-method-references/actions/setup:
+    post:
+      summary: Set up a new payment method reference for a customer. This endpoint only accepts a registered customer ShopperToken (JWT).
+      description: Initiates the setup of a new payment method reference for a customer. This endpoint requires Salesforce Payments integration.
+      operationId: setupCustomerPaymentMethodReference
+      parameters:
+        - $ref: '#/components/parameters/customerId'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+        - $ref: '#/components/parameters/zoneId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentMethodReferenceSetupRequest'
+            examples:
+              PaymentMethodReferenceSetupBodyStripe:
+                $ref: '#/components/examples/PaymentMethodReferenceSetupBodyStripe'
+              PaymentMethodReferenceSetupBodyAdyen:
+                $ref: '#/components/examples/PaymentMethodReferenceSetupBodyAdyen'
+        required: true
+      responses:
+        '200':
+          description: Payment method reference setup initiated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentMethodReferenceSetupResponse'
+              examples:
+                setupPaymentMethodReferenceSuccess:
+                  $ref: '#/components/examples/setupPaymentMethodReferenceSuccess'
         '400':
           description: |
             CustomerId URL parameter does not match the verified customer represented by the JWT token.
@@ -914,8 +949,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               examples:
-                registerCustomer400:
-                  $ref: '#/components/examples/registerCustomer400'
+                getCustomer404:
+                  $ref: '#/components/examples/getCustomer404'
         '404':
           description: |
             Requested resource not found.
@@ -926,6 +961,8 @@ paths:
               examples:
                 getCustomer404:
                   $ref: '#/components/examples/getCustomer404'
+                setupPaymentMethodReferencePaymentZoneNotFound404:
+                  $ref: '#/components/examples/setupPaymentMethodReferencePaymentZoneNotFound404'
       security:
         - ShopperToken:
             - sfcc.shopper-myaccount.paymentinstruments.rw
@@ -1863,6 +1900,11 @@ components:
           description: The customer's company name.
           example: Acme
           maxLength: 256
+          type: string
+        crmContactId:
+          description: The customer's core contact ID.
+          example: 003xx000004WhKe
+          maxLength: 18
           type: string
         creationDate:
           description: Returns the value of attribute 'creationDate'.
@@ -4177,6 +4219,58 @@ components:
               example: 2028
           description: The payment card expiration information.
       description: Document representing a customer payment instrument update request. Only allows updating the default flag and card expiration date.
+    PaymentMethodReferenceSetupRequest:
+      type: object
+      description: Request to set up a new payment method reference.
+      required:
+        - gatewayProperties
+      properties:
+        paymentMethodType:
+          type: string
+          maxLength: 256
+          description: Payment Method Type
+          example: card
+        gatewayProperties:
+          description: Properties specific to the payment gateway
+          type: object
+          additionalProperties: false
+          properties:
+            stripe:
+              description: |
+                # Stripe-specific properties.
+              type: object
+              additionalProperties: true
+            adyen:
+              description: |
+                # Adyen-specific properties.
+              type: object
+              additionalProperties: true
+    PaymentMethodReferenceSetupResponse:
+      type: object
+      description: Response from setting up a new payment method reference.
+      required:
+        - paymentMethodReferenceSetupId
+      properties:
+        paymentMethodReferenceSetupId:
+          type: string
+          maxLength: 256
+          description: The provider-specific identifier for the payment method reference setup (e.g., Stripe Setup Intent ID, Adyen pspReference).
+          example: seti_1Mm8s8LkdIwHu7ix0OXBfTRG
+        gatewayProperties:
+          description: Properties specific to the payment gateway
+          type: object
+          additionalProperties: false
+          properties:
+            stripe:
+              description: |
+                # Stripe-specific properties.
+              type: object
+              additionalProperties: true
+            adyen:
+              description: |
+                # Adyen-specific properties.
+              type: object
+              additionalProperties: true
     CustomerProductListRegistrant:
       description: Document representing a customer product list registrant.
       properties:
@@ -5441,6 +5535,20 @@ components:
         maxLength: 256
         type: string
         example: acc_987654321
+    zoneId:
+      name: zoneId
+      in: query
+      description: The zone identifier for the payment configuration.
+      required: true
+      examples:
+        ZoneId:
+          value: Amer-Zone
+      schema:
+        type: string
+        description: The unique identifier for a Payments zone.
+        minLength: 1
+        maxLength: 100
+        example: Amer-Zone
     listId:
       name: listId
       in: path
@@ -5512,6 +5620,7 @@ components:
     customerRegistrationResponse:
       value:
         authType: registered
+        crmContactId: 003xx000004WhKe
         creationDate: '2020-02-13T17:44:15.892Z'
         customerId: abkd9LhOWzAiAFubdEDChtkMHW
         customerNo: '00006002'
@@ -5594,6 +5703,7 @@ components:
             salutation: Mr.
             stateCode: MA
         authType: registered
+        crmContactId: 003xx000004WhKe
         creationDate: '2020-02-14T20:39:53.818Z'
         customerId: abfTEMDZOgi3JPrkHjv9IhoziM
         customerNo: '00010009'
@@ -5633,6 +5743,7 @@ components:
             salutation: Mr.
             stateCode: MA
         authType: registered
+        crmContactId: 003xx000004WhKe
         creationDate: '2020-02-14T20:39:53.818Z'
         customerId: abfTEMDZOgi3JPrkHjv9IhoziM
         customerNo: '00010009'
@@ -5669,6 +5780,7 @@ components:
     updateCustomerResponse:
       value:
         authType: registered
+        crmContactId: 003xx000004WhKe
         creationDate: '2020-02-14T20:39:53.818Z'
         customerId: abfTEMDZOgi3JPrkHjv9IhoziM
         customerNo: '00010009'
@@ -6414,6 +6526,37 @@ components:
         title: Unsupported Fields
         type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/unsupported-fields
         detail: Unsupported fields in the request for updates.
+    PaymentMethodReferenceSetupBodyStripe:
+      summary: Setup Payment Method Reference (Stripe)
+      value:
+        paymentMethodType: card
+        gatewayProperties:
+          stripe:
+            usage: on_session
+    PaymentMethodReferenceSetupBodyAdyen:
+      summary: Setup Payment Method Reference (Adyen)
+      value:
+        gatewayProperties:
+          adyen:
+            paymentMethod:
+              type: scheme
+              encryptedCardNumber: test_4111111111111111
+              encryptedExpiryMonth: test_03
+              encryptedExpiryYear: test_2030
+              encryptedSecurityCode: test_737
+    setupPaymentMethodReferenceSuccess:
+      summary: Successful payment method reference setup (Stripe)
+      value:
+        paymentMethodReferenceSetupId: seti_1Mm8s8LkdIwHu7ix0OXBfTRG
+        gatewayProperties:
+          stripe:
+            clientSecret: seti_1Mm8s8LkdIwHu7ix0OXBfTRG_secret_NXDICkPqPeiBTAFYUKGBMVdE7
+    setupPaymentMethodReferencePaymentZoneNotFound404:
+      value:
+        title: Payment Zone Not Found
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/payment-zone-not-found
+        detail: No payment zone with ID 'Amer-Zone' could be found.
+        zoneId: Amer-Zone
     customerProductListResult:
       value:
         limit: 1

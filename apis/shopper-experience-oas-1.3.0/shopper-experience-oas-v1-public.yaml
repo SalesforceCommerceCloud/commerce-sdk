@@ -3,12 +3,12 @@ info:
   x-api-type: Shopper
   x-api-family: Experience
   title: Shopper Experience
-  version: 1.2.1
+  version: 1.3.0
   description: |-
     [Download API specification](https://developer.salesforce.com/static/commercecloud/commerce-api/shopper-experience/shopper-experience-oas-v1-public.yaml)
 
     # API Overview
-    Use the Shopper Experience API to look up page information for pages that are created in Page Designer, content assets and to access content folders.
+    Use the Shopper Experience API to look up page information for pages created in Page Designer, search and retrieve content assets, and access content folders.
 
     ## Authentication & Authorization
 
@@ -32,12 +32,27 @@ info:
 
     Only content folders that are marked as online are returned in the API responses.
 
+    ### Search Content Assets
+    Search for content assets using keywords and refinement filters. The search functionality supports:
+
+    - Keyword-based search across content assets
+    - Refinement attributes to filter results, for example, by folder or content type
+    - Sorting by configurable attributes
+    - Pagination for large result sets (up to 200 items per page)
+
+    Only content assets that are online and assigned to a folder are included in search results.
+
+    ### Batch Retrieval
+    Retrieve multiple content assets or content folders in a single API request for improved performance (up to 50 content assets or folders at once).
+
     ## Page Responses
     Responses for pages include the following:
 
     - The entire component hierarchy of the page at design time.
     - All merchant data provided at design time.
     - Server-side scripting data provided at run time.
+    - Tracking for each rendered component or fragment using a globally unique content link UUID.
+    - Support for reusable component fragments that can be shared across multiple pages.
 
     Both the page and components contain the values of all native and custom attributes that have been populated during page authoring.
 
@@ -248,8 +263,9 @@ paths:
             type: integer
             format: int32
             default: 50
+            minimum: 1
             maximum: 200
-          description: Maximum records to retrieve per request, not to exceed 200. Defaults to 50.
+          description: Number of records to retrieve per request. Must be between 1 (minimum) and 200 (maximum). Defaults to 50.
         - name: offset
           in: query
           required: false
@@ -365,11 +381,72 @@ paths:
       security:
         - ShopperToken:
             - sfcc.shopper-experience.folders
+  /organizations/{organizationId}/qualifiers/resolve:
+    post:
+      summary: Resolve qualifiers for customer groups, campaign promotions, and data binding contexts.
+      description: |
+        Resolves a list of customer groups, campaigns, promotions, and data bindings for the given user.
+
+        The endpoint takes each value and determines whether the user is active for the item:
+        - Customer groups are verified against the user's qualification via the EffectiveContext.
+        - Campaign qualifiers are checked to determine if the user is applicable for each campaign and promotion.
+        - Data bindings are resolved by fetching the requested records from their respective data providers.
+
+        Returns a boolean result for each provided qualifier and resolved data binding objects grouped by provider type and record identifier. If a qualifier cannot be validated, `false` is returned for that item. If a data binding cannot be resolved, it is omitted from the response.
+      operationId: resolveQualifiers
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+        - $ref: '#/components/parameters/locale'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QualifierResolveRequest'
+            examples:
+              QualifierResolveRequest:
+                $ref: '#/components/examples/QualifierResolveRequest'
+      responses:
+        '200':
+          description: Success. All qualifiers have been resolved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QualifierResolveResponse'
+              examples:
+                QualifierResolveResponse:
+                  $ref: '#/components/examples/QualifierResolveResponse'
+        '400':
+          description: |
+            Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                QualifierResolveBadRequest:
+                  $ref: '#/components/examples/QualifierResolveBadRequest'
+                QualifierResolveTooManyItems:
+                  $ref: '#/components/examples/QualifierResolveTooManyItems'
+                QualifierResolveInvalidIdentifier:
+                  $ref: '#/components/examples/QualifierResolveInvalidIdentifier'
+                QualifierResolveInvalidDataBindingType:
+                  $ref: '#/components/examples/QualifierResolveInvalidDataBindingType'
+                QualifierResolveInvalidDataBindingId:
+                  $ref: '#/components/examples/QualifierResolveInvalidDataBindingId'
+      security:
+        - ShopperToken:
+            - sfcc.shopper-experience.qualifiers
 components:
   securitySchemes:
     ShopperToken:
       type: oauth2
-      description: "ShopperToken authentication follows the authorization code grant flow, as defined by the OAuth 2.1 standard. Depending on the type of OAuth client (public or private), this authorization flow has further requirements. \nFor a detailed description of the authorization flow, see the [SLAS overview](https://developer.salesforce.com/docs/commerce/commerce-api/references?meta=shopper-login:Summary).\nA shopper token allows you to access the Shopper API endpoints of both OCAPI and the B2C Commerce API. These endpoints can be used to build headless storefronts and other applications.\nThe `ShopperToken` security scheme is a parent of other security schemes, such as `ShopperTokenTsob`. A Shopper API endpoint can require a specific child scheme (`ShopperTokenTsob`, for example) that cannot be accessed with a regular shopper token.\n"
+      description: |
+        ShopperToken authentication follows the authorization code grant flow, as defined by the OAuth 2.1 standard. Depending on the type of OAuth client (public or private), this authorization flow has further requirements.
+        For a detailed description of the authorization flow, see the [SLAS overview](https://developer.salesforce.com/docs/commerce/commerce-api/references?meta=shopper-login:Summary).
+        A shopper token allows you to access the Shopper API endpoints of both OCAPI and the B2C Commerce API. These endpoints can be used to build headless storefronts and other applications.
+        The `ShopperToken` security scheme is a parent of other security schemes, such as `ShopperTokenTsob`. A Shopper API endpoint can require a specific child scheme (`ShopperTokenTsob`, for example) that cannot be accessed with a regular shopper token.
       flows:
         clientCredentials:
           tokenUrl: https://{shortCode}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
@@ -378,6 +455,7 @@ components:
             sfcc.shopper-experience.pages: Shopper Experience scope READONLY for pages
             sfcc.shopper-experience.contents: Shopper Experience scope READONLY for contents
             sfcc.shopper-experience.folders: Shopper Experience scope READONLY for folders
+            sfcc.shopper-experience.qualifiers: Shopper Experience scope for resolving qualifiers
         authorizationCode:
           authorizationUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/authorize
           tokenUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
@@ -386,6 +464,7 @@ components:
             sfcc.shopper-experience.pages: Shopper Experience scope READONLY for pages
             sfcc.shopper-experience.contents: Shopper Experience scope READONLY for contents
             sfcc.shopper-experience.folders: Shopper Experience scope READONLY for folders
+            sfcc.shopper-experience.qualifiers: Shopper Experience scope for resolving qualifiers
   schemas:
     OrganizationId:
       description: An identifier for the organization the request is being made by
@@ -460,6 +539,23 @@ components:
           description: Component type identifier.
           example: commerce_assets.carousel
           type: string
+        name:
+          maxLength: 256
+          title: Component Name
+          description: Display name of the component.
+          example: Topseller Carousel
+          type: string
+        fragment:
+          title: Fragment
+          description: Indicates whether the component is a fragment. True if the component is a fragment, otherwise false.
+          type: boolean
+          example: false
+        contentLinkUuid:
+          maxLength: 256
+          title: Content Link UUID
+          description: Represents a globally unique identifier for every instance of a content component (or fragment) rendered on a page.
+          type: string
+          example: 0e1f329d4ac66ff2c3bbf70301
         data:
           title: Component Data
           description: The configuration data assigned to the component.
@@ -468,12 +564,31 @@ components:
             category: topseller
           type: object
           additionalProperties: false
+        localized:
+          title: Localized
+          description: Whether the component has been localized with content in the current locale. If false, the components content will fallback to the default locale.
+          type: boolean
+          example: true
+        visible:
+          title: Visibility
+          description: Whether the component is visible based on the current visiblity rules and context.
+          type: boolean
+          example: true
         custom:
           title: Custom Component Data
           description: Any custom data added by the custom code for this component.
           example:
             detailUrl: www.myshop.com/topseller
           type: object
+          additionalProperties: false
+        designMetadata:
+          title: Design Metadata
+          description: Design metadata of the component. This includes information about the component type definition needed by the page designer for design-time functionality.
+          type: object
+          example:
+            id: commerce_assets.carousel
+            name: Carousel Component
+            archType: headless
           additionalProperties: false
         regions:
           title: Regions
@@ -559,6 +674,25 @@ components:
           example:
             thumbnail_full: http://static.myshop.com/myshop.jpg
           type: object
+          additionalProperties: false
+        visible:
+          title: Visibility
+          description: Whether the page is visible based on the current visiblity rules and context.
+          type: boolean
+          example: true
+        localized:
+          title: Localized
+          description: Whether the page has been localized with content in the current locale. If false, the page content will fallback to the default locale.
+          type: boolean
+          example: true
+        designMetadata:
+          title: Design Metadata
+          description: Design metadata of the page. This includes information about the page type definition needed by the page designer for design-time functionality.
+          type: object
+          example:
+            id: storePage
+            name: Store Page
+            archType: headless
           additionalProperties: false
         regions:
           title: Regions
@@ -917,6 +1051,127 @@ components:
       required:
         - data
       type: object
+    CampaignQualifier:
+      description: A campaign and promotion pair to resolve qualification for.
+      properties:
+        campaignId:
+          title: Campaign ID
+          description: The identifier of the campaign.
+          type: string
+          minLength: 1
+          maxLength: 256
+          example: my-campaign
+        promotionId:
+          title: Promotion ID
+          description: The identifier of the promotion within the campaign.
+          type: string
+          minLength: 1
+          maxLength: 256
+          example: my-promotion
+      required:
+        - campaignId
+        - promotionId
+      type: object
+    DataBindingRequirement:
+      description: A data binding requirement specifying a provider type and record identifier to resolve.
+      properties:
+        type:
+          title: Type
+          description: The data provider type identifier.
+          type: string
+          minLength: 1
+          maxLength: 256
+          example: content_asset
+        id:
+          title: ID
+          description: The record identifier to resolve from the data provider.
+          type: string
+          minLength: 1
+          maxLength: 256
+          example: homepage-banner
+      required:
+        - type
+        - id
+      type: object
+    QualifierResolveRequest:
+      description: Request body for resolving customer group qualifications, campaign promotion eligibility, and data bindings. All fields are optional. An empty body is valid and returns an empty response.
+      properties:
+        customerGroups:
+          title: Customer Groups
+          description: List of customer group identifiers to resolve qualification for.
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 256
+            example: VIP
+          maxItems: 50
+          example:
+            - VIP
+        campaignQualifiers:
+          title: Campaign Qualifiers
+          description: List of campaign and promotion pairs to resolve qualification for.
+          type: array
+          items:
+            $ref: '#/components/schemas/CampaignQualifier'
+          maxItems: 50
+        dataBindings:
+          title: Data Bindings
+          description: List of data binding requirements to resolve, each specifying a provider type and record identifier.
+          type: array
+          items:
+            $ref: '#/components/schemas/DataBindingRequirement'
+          maxItems: 50
+      type: object
+    ResolvedDataBinding:
+      description: A resolved data binding object containing arbitrary key-value pairs returned by the data provider for a specific record. The shape of the object is determined by the data provider and may include any user-defined fields.
+      type: object
+      additionalProperties: true
+      example:
+        title: Winter Sale
+        body: <div>Shop our winter collection</div>
+        c_showCountdown: true
+        c_endDate: '2026-03-31T23:59:59Z'
+    QualifierResolveResponse:
+      description: Response containing the resolved qualification results for customer groups, campaign qualifiers, and data bindings.
+      properties:
+        customerGroups:
+          title: Customer Groups
+          description: Map of customer group identifiers to their qualification status. True if the user is qualified, false otherwise.
+          type: object
+          additionalProperties:
+            type: boolean
+            example: true
+          example:
+            VIP: true
+        campaignQualifiers:
+          title: Campaign Qualifiers
+          description: Map of campaign identifiers to a map of promotion identifiers and their qualification status. True if the user is applicable, false otherwise.
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: boolean
+              example: false
+          example:
+            my-campaign:
+              my-promotion: false
+        dataBindings:
+          title: Data Bindings
+          description: Resolved data binding objects grouped by provider type, then by record identifier. Used by the expression resolver to evaluate attribute expressions.
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              $ref: '#/components/schemas/ResolvedDataBinding'
+          example:
+            content_asset:
+              homepage-banner:
+                title: Winter Sale
+                body: <div>Shop our winter collection</div>
+                c_showCountdown: true
+                c_endDate: '2026-03-31T23:59:59Z'
+      type: object
   parameters:
     organizationId:
       description: An identifier for the organization the request is being made by
@@ -1118,36 +1373,68 @@ components:
               thumbnail: myshop.jpg
             custom:
               thumbnail_full: http://static.myshop.com/myshop.jpg
+            visible: true
+            localized: true
+            designMetadata:
+              id: storePage
+              name: Store Page
+              archType: headless
             regions:
               - id: header
                 components:
                   - id: 2192f5b9aac0f2af2385f6f6b7
                     typeId: commerce_assets.banner
+                    name: Sale Banner
+                    fragment: false
+                    contentLinkUuid: a7b2c4d8e1f9032a5b6c7d8e9f0
                     data:
                       title: Products On Sale
                       bannerImage: sale/topsellerPromo.jpg
+                    localized: true
+                    visible: true
                     custom:
                       thumbnail_full: http://static.myshop.com/sale/topsellerPromo.jpg
+                    designMetadata:
+                      id: commerce_assets.banner
+                      name: Banner Component
+                      archType: headless
               - id: main
                 components:
                   - id: 5c5ebbcd2aee1a67af519c83b5
                     typeId: commerce_assets.carousel
+                    name: Topseller Carousel
+                    fragment: false
+                    contentLinkUuid: 3f8e2a1b5c9d7e4f0a2b3c6d8e1
                     data:
                       title: Topseller
                       category: topseller
+                    localized: true
+                    visible: true
                     custom:
                       detailUrl: www.myshop.com/topseller
+                    designMetadata:
+                      id: commerce_assets.carousel
+                      name: Carousel Component
+                      archType: headless
                     regions:
                       - id: tiles
                         components:
                           - id: d98a30dfe93715e3e6fc22a329
                             typeId: commerce_assets.productTile
+                            fragment: true
+                            contentLinkUuid: c4d6e8f0a2b4c6d8e0f2a4b6c8d
                             data:
                               product: iphone6
+                            localized: false
+                            visible: true
                           - id: 43aa39896afb9292308181ce14
                             typeId: commerce_assets.productTile
+                            fragment: false
+                            contentLinkUuid: 9e1a3c5d7f0b2e4a6c8d0f2b4e6
                             data:
                               product: iphone7
+                            localized: true
+                            visible: false
           - id: detailpage
             typeId: storePage
             name: storepage
@@ -1157,6 +1444,12 @@ components:
             pageKeywords: fashion, my shop, store
             data:
               thumbnail: mystore.jpg
+            visible: true
+            localized: false
+            designMetadata:
+              id: storePage
+              name: Store Page
+              archType: headless
     BusinessObjectIDInvalid:
       value:
         title: Business Object ID Invalid
@@ -1181,23 +1474,42 @@ components:
           thumbnail: myshop.jpg
         custom:
           thumbnail_full: http://static.myshop.com/myshop.jpg
+        visible: true
+        localized: true
+        designMetadata:
+          id: storePage
+          name: Store Page
+          archType: headless
         regions:
           - id: header
             components:
               - id: 375b9107b067902827083772f9
                 typeId: commerce_assets.banner
+                name: Sale Banner
+                fragment: false
+                contentLinkUuid: 2b4d6f8a0c2e4a6b8d0f2a4c6e8
                 data:
                   title: Products On Sale
                   bannerImage: sale/topsellerPromo.jpg
+                localized: true
+                visible: true
                 custom:
                   thumbnail_full: http://static.myshop.com/sale/topsellerPromo.jpg
+                designMetadata:
+                  id: commerce_assets.banner
+                  name: Banner Component
+                  archType: headless
           - id: main
             components:
               - id: be1f331b92d8ad7e38e440e35d
                 typeId: commerce_assets.carousel
+                fragment: false
+                contentLinkUuid: f0a2c4e6b8d0f2a4c6e8b0d2f4
                 data:
                   title: Topseller
                   category: topseller
+                localized: true
+                visible: true
                 custom:
                   detailUrl: www.myshop.com/topseller
                 regions:
@@ -1205,12 +1517,20 @@ components:
                     components:
                       - id: 45af07459684e6db78990c5d05
                         typeId: commerce_assets.productTile
+                        fragment: false
+                        contentLinkUuid: 5d7f1a3b5c7e9f0a2c4d6e8f0a2
                         data:
                           product: iphone6
+                        localized: false
+                        visible: true
                       - id: df6e33766d90e7e205d109aa2f
                         typeId: commerce_assets.productTile
+                        fragment: false
+                        contentLinkUuid: e8b0d2f4a6c8e0b2d4f6a8c0e2b
                         data:
                           product: iphone7
+                        localized: true
+                        visible: false
     AspectAttributeInvalid:
       value:
         title: Aspect Attribute Invalid
@@ -1378,6 +1698,55 @@ components:
             pageDescription: SEO description for category folder
             pageKeywords: category, products, listing
             folders: []
+    QualifierResolveRequest:
+      value:
+        customerGroups:
+          - VIP
+        campaignQualifiers:
+          - campaignId: my-campaign
+            promotionId: my-promotion
+        dataBindings:
+          - type: content_asset
+            id: homepage-banner
+    QualifierResolveResponse:
+      value:
+        customerGroups:
+          VIP: true
+        campaignQualifiers:
+          my-campaign:
+            my-promotion: false
+        dataBindings:
+          content_asset:
+            homepage-banner:
+              title: Winter Sale
+              body: <div>Shop our winter collection</div>
+              c_showCountdown: true
+              c_endDate: '2026-03-31T23:59:59Z'
+    QualifierResolveBadRequest:
+      value:
+        title: Bad Request
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/bad-request
+        detail: Invalid request body. The 'campaignQualifiers' array contains entries missing required fields 'campaignId' or 'promotionId'.
+    QualifierResolveTooManyItems:
+      value:
+        title: Bad Request
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/bad-request
+        detail: '''campaignQualifiers'' violates the value constraint. The expected value is between ''(0..50)''.'
+    QualifierResolveInvalidIdentifier:
+      value:
+        title: Bad Request
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/bad-request
+        detail: Invalid request body. The 'customerGroups' array contains empty or invalid identifiers.
+    QualifierResolveInvalidDataBindingType:
+      value:
+        title: Bad Request
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/bad-request
+        detail: Invalid request body. The 'dataBindings' array contains entries missing the required 'type' field.
+    QualifierResolveInvalidDataBindingId:
+      value:
+        title: Bad Request
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/bad-request
+        detail: Invalid request body. The 'dataBindings' array contains entries missing the required 'id' field.
   responses:
     401unauthorized:
       description: Your access token is invalid or expired and can’t be used to identify a user.
