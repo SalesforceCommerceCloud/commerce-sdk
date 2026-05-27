@@ -42,11 +42,6 @@ _ECOM v26.6_
 ### Enhancements
 
 - Add Shopper Availability API (`shopperAvailability`).
-- Bump API versions for ECOM v26.6: `auth-oas` (1.46.0 → 1.48.0), `auth-admin-oas` (1.17.0 → 1.18.0), `preferences` (1.2.1 → 1.2.2), `products` (1.1.5 → 1.2.0), `shopper-customers` (1.7.0 → 1.8.0), `shopper-experience` (1.3.0 → 1.4.1), `shopper-products` (1.3.0 → 1.5.1), `shopper-search` (1.8.0 → 1.9.0).
-- `shopper-login`: add `getOtpRequest` and `getOtpVerify` endpoints. Add optional `x-slas-client-auth` header on authorize and login. Add optional `strict_verify` query parameter on passwordless login. Add optional `idpValidate` query parameter on userinfo.
-- `slas-admin`: add optional `strictClientAuth` field on Client responses and PUT request body.
-- `shopper-search`: add optional `imgTypes` query parameter on product-search. Increase `q` query parameter maxLength from 50 to 500.
-- `shopper-products`: the `availability` value of the `expand` parameter is deprecated — use the new Shopper Availability API for better caching performance.
 
 ### Breaking changes
 
