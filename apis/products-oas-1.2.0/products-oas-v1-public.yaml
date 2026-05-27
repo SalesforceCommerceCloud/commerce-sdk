@@ -3,7 +3,7 @@ info:
   x-api-type: Admin
   x-api-family: Product
   title: Products
-  version: 1.1.5
+  version: 1.2.0
   description: |-
     [Download API specification](https://developer.salesforce.com/static/commercecloud/commerce-api/products/products-oas-v1-public.yaml)
 
@@ -363,8 +363,9 @@ paths:
             type: integer
             format: int32
             default: 25
+            minimum: 1
             maximum: 50
-          description: Maximum records to retrieve per request, not to exceed 50. Defaults to 25.
+          description: Number of records to retrieve per request. Must be between 1 (minimum) and 50 (maximum). Defaults to 25.
         - name: offset
           in: query
           required: false
@@ -651,8 +652,9 @@ paths:
             type: integer
             format: int32
             default: 25
+            minimum: 1
             maximum: 50
-          description: Maximum records to retrieve per request, not to exceed 50. Defaults to 25.
+          description: Number of records to retrieve per request. Must be between 1 (minimum) and 50 (maximum). Defaults to 25.
         - name: offset
           in: query
           required: false
@@ -939,8 +941,9 @@ paths:
             type: integer
             format: int32
             default: 25
+            minimum: 1
             maximum: 50
-          description: Maximum records to retrieve per request, not to exceed 50. Defaults to 25.
+          description: Number of records to retrieve per request. Must be between 1 (minimum) and 50 (maximum). Defaults to 25.
         - name: offset
           in: query
           required: false
@@ -1710,8 +1713,9 @@ paths:
             type: integer
             format: int32
             default: 25
+            minimum: 1
             maximum: 50
-          description: Maximum records to retrieve per request, not to exceed 50. Defaults to 25.
+          description: Number of records to retrieve per request. Must be between 1 (minimum) and 50 (maximum). Defaults to 25.
         - name: offset
           in: query
           required: false
@@ -2180,11 +2184,10 @@ components:
       description: The id (SKU) of the product.
       example: apple-ipod-classic
     OrganizationId:
-      description: An identifier for the organization the request is being made by
+      description: An identifier for the Salesforce Commerce Cloud organization the request is being made by. It consists of a prefix 'f_ecom_' followed by a 4-character [realm identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#realm-id) and a 3-character [instance type identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#instance-id).
       example: f_ecom_zzxy_prd
       type: string
-      minLength: 1
-      maxLength: 32
+      pattern: ^f_ecom_[a-z]{4}_(prd|stg|dev|s[0-9]{2}|[0-9]{3})$
     SiteId:
       minLength: 1
       maxLength: 32
@@ -3378,11 +3381,6 @@ components:
         - fields
         - searchPhrase
       additionalProperties: false
-    String256:
-      type: string
-      maxLength: 256
-      description: "The String256 schema is a foundational schema designed for fields or attributes that are stored in a database field with a maximum capacity of 256 bytes. \nThis schema accommodates various character sets, with the following considerations:\n  - ASCII Characters: Each ASCII character occupies 1 byte, allowing up to 256 characters.\n  - Latin Characters: Many Latin characters require 2 bytes each, allowing up to 128 characters.\n  - Asian Characters: Many Asian characters require 3 bytes each, allowing approximately 85 characters."
-      example: Max Mustermann
     Sort:
       description: Document representing a sort request. Each API has a different default sort configuration that can be modified in the request.
       example:
@@ -3392,8 +3390,9 @@ components:
       properties:
         field:
           description: The name of the field to sort on.
-          allOf:
-            - $ref: '#/components/schemas/String256'
+          type: string
+          maxLength: 256
+          example: couponId
         sortOrder:
           default: asc
           description: The sort order to be applied when sorting. When omitted, the default sort order (asc) is used.
@@ -3640,11 +3639,6 @@ components:
         - $ref: '#/components/schemas/LanguageCountry'
         - $ref: '#/components/schemas/LanguageCode'
         - $ref: '#/components/schemas/DefaultFallback'
-    String4000:
-      type: string
-      maxLength: 4000
-      description: "The String4000 schema is a foundational schema designed for fields or attributes that are stored in a database field with a maximum capacity of 4000 bytes. \nThis schema accommodates various character sets, with the following considerations:\n  - ASCII Characters: Each ASCII character occupies 1 byte, allowing up to 4000 characters.\n  - Latin Characters: Many Latin characters require 2 bytes each, allowing up to 2000 characters.\n  - Asian Characters: Many Asian characters require 3 bytes each, allowing approximately 1333 characters."
-      example: This is a detailed description of an Excellent Product. It includes all the features, specifications, and benefits of the product. The Excellent Product is designed to provide exceptional performance and reliability. It is made from high-quality materials and has been rigorously tested to ensure it meets the highest standards. Whether you are using it for personal or professional purposes, the Excellent Product is the perfect choice. With its advanced technology and user-friendly design, it offers unparalleled convenience and efficiency. Order your Excellent Product today and experience the difference it can make.
     CategorizationAttributeDefinition:
       required:
         - allowedOperators
@@ -3655,13 +3649,13 @@ components:
       properties:
         id:
           description: The ID of the supported attribute.
-          allOf:
-            - $ref: '#/components/schemas/String256'
+          type: string
+          maxLength: 256
           example: producttype
         attributeName:
           description: The display name of the supported attribute.
-          allOf:
-            - $ref: '#/components/schemas/String4000'
+          type: string
+          maxLength: 4000
           example: Product Type
         attributeType:
           type: string
@@ -3717,8 +3711,8 @@ components:
             - notEquals
         allowedValues:
           items:
-            allOf:
-              - $ref: '#/components/schemas/String4000'
+            type: string
+            maxLength: 4000
             example: 1
           type: array
           description: The list of allowed values for this attribute IF its attributeType is an ENUM.
@@ -3727,8 +3721,8 @@ components:
             - 2
         allowedDisplayValues:
           items:
-            allOf:
-              - $ref: '#/components/schemas/String4000'
+            type: string
+            maxLength: 4000
             example: One
           type: array
           description: |
@@ -3852,7 +3846,7 @@ components:
       schema:
         $ref: '#/components/schemas/ProductId'
     organizationId:
-      description: An identifier for the organization the request is being made by
+      description: An identifier for the Salesforce Commerce Cloud organization the request is being made by. It consists of a prefix 'f_ecom_' followed by a 4-character [realm identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#realm-id) and a 3-character [instance type identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#instance-id).
       name: organizationId
       in: path
       required: true
@@ -3883,8 +3877,9 @@ components:
       required: true
       schema:
         minLength: 1
-        allOf:
-          - $ref: '#/components/schemas/String256'
+        type: string
+        maxLength: 256
+        example: colour
     currency:
       description: A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard, or the string `N/A` indicating that a currency is not applicable.
       name: currency
@@ -3901,8 +3896,8 @@ components:
       required: true
       schema:
         minLength: 1
-        allOf:
-          - $ref: '#/components/schemas/String256'
+        type: string
+        maxLength: 256
         example: sony-ps3-bundle
     attributeId:
       name: attributeId
@@ -3911,8 +3906,9 @@ components:
       required: true
       schema:
         minLength: 1
-        allOf:
-          - $ref: '#/components/schemas/String256'
+        type: string
+        maxLength: 256
+        example: colour
     locale:
       description: A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified.
       name: locale
