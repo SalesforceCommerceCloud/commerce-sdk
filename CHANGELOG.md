@@ -43,10 +43,6 @@ _ECOM v26.6_
 
 - Add Shopper Availability API (`shopperAvailability`).
 
-### Breaking changes
-
-- `preferences` PATCH `/site-preference-groups/{groupId}/{instanceType}/preferences/{preferenceId}`: `attributeDefinition.id` is now a required field on the request body. Existing clients that PATCH preferences without supplying `attributeDefinition.id` will start receiving 400 responses after the v26.6 deploy. Per team policy this does not trigger a major SDK bump — the SDK tracks the underlying SCAPI contract.
-
 ## v6.2.0
 
 ### API Versions
