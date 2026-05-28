@@ -374,7 +374,7 @@
 				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module">
 					<a name="campaignqualifier-2" class="tsd-anchor"></a>
 					<h3>Campaign<wbr>Qualifier</h3>
-					<div class="tsd-signature tsd-kind-icon">Campaign<wbr>Qualifier<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>campaignId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>promotionId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">{}</span></div>
+					<div class="tsd-signature tsd-kind-icon">Campaign<wbr>Qualifier<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>campaignId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>promotionId<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">{}</span></div>
 					<aside class="tsd-sources">
 						<ul>
 							<li>Defined in renderedTemplates/shopperExperience/models/CampaignQualifier.ts:14</li>
@@ -383,14 +383,14 @@
 					<div class="tsd-comment tsd-typography">
 						<dl class="tsd-comment-tags">
 							<dt>property</dt>
-							<dd><p>campaignId: The identifier of the campaign.</p>
+							<dd><p>campaignId: The campaign identifier.</p>
 								<ul>
 									<li><strong>Min Length:</strong> 1</li>
 									<li><strong>Max Length:</strong> 256</li>
 								</ul>
 							</dd>
 							<dt>property</dt>
-							<dd><p>promotionId: The identifier of the promotion within the campaign.</p>
+							<dd><p>promotionId: Optional promotion identifier. When provided, qualification requires both the campaign and the specific promotion-campaign assignment to apply.</p>
 								<ul>
 									<li><strong>Min Length:</strong> 1</li>
 									<li><strong>Max Length:</strong> 256</li>
@@ -920,7 +920,7 @@
 							<dd><p>customerGroups: List of customer group identifiers to resolve qualification for.</p>
 							</dd>
 							<dt>property</dt>
-							<dd><p>campaignQualifiers: List of campaign and promotion pairs to resolve qualification for.</p>
+							<dd><p>campaignQualifiers: List of campaign qualifiers to resolve. Each qualifier must include a campaignId and may optionally include a promotionId.</p>
 							</dd>
 							<dt>property</dt>
 							<dd><p>dataBindings: List of data binding requirements to resolve, each specifying a provider type and record identifier.</p>
@@ -931,10 +931,10 @@
 				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module">
 					<a name="qualifierresolveresponse-2" class="tsd-anchor"></a>
 					<h3>Qualifier<wbr>Resolve<wbr>Response</h3>
-					<div class="tsd-signature tsd-kind-icon">Qualifier<wbr>Resolve<wbr>Response<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>campaignQualifiers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>customerGroups<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>dataBindings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">{}</span></div>
+					<div class="tsd-signature tsd-kind-icon">Qualifier<wbr>Resolve<wbr>Response<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>campaignQualifiers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>campaigns<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>customerGroups<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>dataBindings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">{}</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in renderedTemplates/shopperExperience/models/QualifierResolveResponse.ts:12</li>
+							<li>Defined in renderedTemplates/shopperExperience/models/QualifierResolveResponse.ts:14</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -943,7 +943,10 @@
 							<dd><p>customerGroups: Map of customer group identifiers to their qualification status. True if the user is qualified, false otherwise.</p>
 							</dd>
 							<dt>property</dt>
-							<dd><p>campaignQualifiers: Map of campaign identifiers to a map of promotion identifiers and their qualification status. True if the user is applicable, false otherwise.</p>
+							<dd><p>campaignQualifiers: Map of campaign ID to promotion qualification results. Each value is a map of promotion ID to qualification result. Only contains entries for request qualifiers that included a promotionId.</p>
+							</dd>
+							<dt>property</dt>
+							<dd><p>campaigns: Map of campaign ID to qualification result for request qualifiers that did not include a promotionId. A value of true means the campaign is active and its scenario rule applies to the shopper context.</p>
 							</dd>
 							<dt>property</dt>
 							<dd><p>dataBindings: Resolved data binding objects grouped by provider type, then by record identifier. Used by the expression resolver to evaluate attribute expressions.</p>

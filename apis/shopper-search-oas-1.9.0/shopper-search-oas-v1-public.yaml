@@ -3,7 +3,7 @@ info:
   x-api-type: Shopper
   x-api-family: Search
   title: Shopper Search
-  version: 1.8.0
+  version: 1.9.0
   description: "[Download API specification](https://developer.salesforce.com/static/commercecloud/commerce-api/shopper-search/shopper-search-oas-v1-public.yaml)\n\n# API Overview\n\nUse the Shopper Search API for search functionality that lets shoppers search for products using keywords and refinement. The search results can be products or suggestions based on the endpoint you choose in the API.\n\nCaching is provided for the Shopper Search API. For details, see [Server-Side Web-Tier Caching.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/server-side-web-tier-caching.html)\n\n## Authentication & Authorization\n\nThe client requesting the API must have access to the product search and search suggestion resources. \n\nThe Shopper Search API requires a JWT acquired via the Shopper Customers endpoint:\n\n```\nhttps://{shortCode}.api.commercecloud.salesforce.com/customer/shopper-customers/v1/organizations/{organizationId}/customers/actions/login\n```\n\nYou must include the relevant scopes in the client ID used to generate the SLAS token. For a full list of permissions, see the [Authorization Scopes Catalog.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html)\n\n## Use Cases\n\n### Provide Search Suggestions\n\nUse the Shopper Search API to provide search suggestions as a shopper searches.\n\nFor example, a developer who is building a shopping app using the Salesforce Commerce API would like to provide product, brand, and category suggestions. When a shopper types in a search phrase that exceeds a definable minimum length and the GET Search Suggestion endpoint is requested, the platform delivers a set of suggestions with products (name, ID), brands (name), and categories (name, ID). Shoppers can reach their desired search results more quickly using the suggested completion and correction.\n\n### Provide Search Results\n\nUse the Shopper Search API to gather product results for a shoppers search query.\n\nFor example, a developer who is building a shopping app using the Salesforce Commerce API would like to implement a product search functionality. When a shopper enters a search phrase and the GET Product Search endpoint is requested, the platform performs a keyword search and a sorted search result is returned. The sorted search result can be refined according to given values (for example, a price range).\nThe product search result contains a definable number of product search hits. A product search hit describes a matching product with its ID and name. Furthermore, the search hit contains product images, prices, represented products, and variations. In addition to the search hits, the search results also deliver refinement and sorting options.\n\n### Retrieve Promotion Information\n\nNote: This only applies if `promotions` expand is provided in the query parameter.\n\nPromotions provide discounts to shoppers when they meet certain purchase requirements.\n\nPromotion information is described in detail in [Promotion Details](https://developer.salesforce.com/docs/commerce/commerce-api/guide/promotion-details.html), but the following list provides several key points:\n\n- Pricing discounts for basket and shipping promotions are NEVER returned by the 'getProduct' or 'getProducts' endpoint.\n- Promotional pricing is ONLY returned for products that are included with non-conditional promotions.\n- Callout messages are ALWAYS returned by the 'getProduct' and 'getProducts' endpoints.\n\nBy default, 'getProduct' and 'getProducts' return promotion information for a queried product. Promotion information includes both pricing and callout message information. However, the specific pricing and callout information that is fetched is determined by:\n\n- Promotion Type\n- Product Type\n- Product Purchase Requirements\n\nSome promotions can be displayed on a Product Data Page (PDP) or Product Listing page (PLP), while other promotions are displayed in the context of a basket, such as an order level promotion: \"add the product to your basket to view price information\". It is important to understand what is included in the response when designing a PDP or PLP on top of SCAPI to ensure your design aligns with implementable features.\n\nNote: When you search for a variant product, the Product Search API returns the master or main product as the primary search hit. When promotion data (productPromotion) is returned, it does not contain pricing information because the returned product is the main product. To retrieve pricing information, pass the query string `allVariationProperties=true` with the `promotions` expand parameter, which returns pricing data for variant products if the promotion is unconditional. The `allVariationProperties` flag specifies the variation properties to be included in the result.\n\n### Filter Products by Promotion Role\n\nYou can filter products by their role in a promotion using the `pmid` (promotion ID) and `pmpt` (promotion product type) refinement parameters together. This allows you to find specific types of products within a promotion:\n\n- `pmid`: Specifies the promotion ID to filter by\n- `pmpt`: Specifies the type of products to return within that promotion:\n  - `all`: Returns all products related to the promotion (default behavior)\n  - `qualifying`: Returns only products that qualify for the promotion but don't receive the discount/bonus\n  - `discounted`: Returns only products that receive a discount in the promotion  \n  - `bonus`: Returns only products that are given as bonuses in the promotion\n\nExample Usage:\n```\nGET /organizations/{organizationId}/product-search?refine=pmid=summer-sale&refine=pmpt=discounted\n```\n\nThis would return only the products that receive discounts in the \"summer-sale\" promotion.\n\n**Note:** The `pmpt` parameter only has an effect when used with `pmid`. If `pmpt` is specified without `pmid`, it will be ignored and all products will be returned.\n\n### Shopper Personalization\nThe SCAPI response can be personalized using the Shopper Context API or hooks. By setting specific values in the Shopper Context API, you can modify the response of the 'getProduct' or 'getProducts' endpoint based on the shopper's context. For instance, you can offer a 5% discount or free shipping to shoppers using mobile devices.\n\n## JWA Caching\nThe response is cached in JWA, which means promotion data contained in the response is also cached based on the TTL (Time to Live) specified in the Business Manager [Feature Switches](https://help.salesforce.com/s/articleView?id=cc.b2c_feature_switches.htm&type=5) configuration.\nWhen the shopper context value is updated, a check is conducted to see if the updated shopper context affects the retrieval of product-promotion data. If it does, then the response is fetched from the source and cached in the JWA.\n\nFor details, see [Server-Side Web-Tier Caching.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/server-side-web-tier-caching.html)\n\n## Use Hooks\n\nFor details working with hooks, see [Extensibility with Hooks.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html)\n\n## Best Practices\n\nThese best practices refer to features that are generally available with B2C Commerce 24.3.\n\nFor better performance, when you call the GET Product Search endpoint, we recommend that you:\n\n- Use the `select` query parameter to filter the response of a specified field or set of fields, and remove default outputs that you don't need. For example, filter the response to return only the relevant product names, ids, variants, and product IDs of the variants.\n- Limit API requests to the GET Product Search endpoint instead of calling both the GET Product Search and GET Products endpoints to show information on a product listing page (PLP). Use these features to provide the additional product information needed to render product tiles:\n    - **Allowable value:** `promotions` value in the `expand` query parameter\n    - **Query parameters:** `perPricebook`, `allImages`, and `allVariationProperties`\n    - **Responses:** `productPromotions`, `imageGroups`, `priceRanges`, `tieredPrices`, `variants`, and `variationGroups`\n- Pass in only the `expand` values and query parameters that you consider necessary to meet your PLP requirements. Requesting large amounts of information can increase the latency, especially if there's a lot of data to be returned (for example, many imageGroups and variants)."
 servers:
   - url: https://{shortCode}.api.commercecloud.salesforce.com/search/shopper-search/v1
@@ -27,6 +27,7 @@ paths:
         - $ref: '#/components/parameters/locale'
         - $ref: '#/components/parameters/expandProductSearch'
         - $ref: '#/components/parameters/allImages'
+        - $ref: '#/components/parameters/imgTypes'
         - $ref: '#/components/parameters/perPricebook'
         - $ref: '#/components/parameters/allVariationProperties'
         - $ref: '#/components/parameters/includedCustomVariationProperties'
@@ -37,8 +38,9 @@ paths:
             type: integer
             format: int32
             default: 25
+            minimum: 1
             maximum: 200
-          description: Maximum records to retrieve per request, not to exceed 200. Defaults to 25.
+          description: Number of records to retrieve per request. Must be between 1 (minimum) and 200 (maximum). Defaults to 25.
         - name: offset
           in: query
           required: false
@@ -140,11 +142,10 @@ components:
             sfcc.shopper-product-search: Allows read operations on shopper search.
   schemas:
     OrganizationId:
-      description: An identifier for the organization the request is being made by
+      description: An identifier for the Salesforce Commerce Cloud organization the request is being made by. It consists of a prefix 'f_ecom_' followed by a 4-character [realm identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#realm-id) and a 3-character [instance type identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#instance-id).
       example: f_ecom_zzxy_prd
       type: string
-      minLength: 1
-      maxLength: 32
+      pattern: ^f_ecom_[a-z]{4}_(prd|stg|dev|s[0-9]{2}|[0-9]{3})$
     Select:
       minLength: 1
       description: The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names or work with wildcards. You can also specify array operations and filter expressions. The actual selector value must be enclosed within parentheses. For more information, please read the documentation about property selectors [here](https://developer.salesforce.com/docs/commerce/commerce-api/guide/scapi-property-selection.html).
@@ -1105,7 +1106,7 @@ components:
       type: object
   parameters:
     organizationId:
-      description: An identifier for the organization the request is being made by
+      description: An identifier for the Salesforce Commerce Cloud organization the request is being made by. It consists of a prefix 'f_ecom_' followed by a 4-character [realm identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#realm-id) and a 3-character [instance type identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#instance-id).
       name: organizationId
       in: path
       required: true
@@ -1131,10 +1132,10 @@ components:
     qProductSearch:
       name: q
       in: query
-      description: The query phrase to search for. For example to search for a product "shirt", type q=shirt.
+      description: The query phrase to search for. For example to search for a product "shirt", type q=shirt. **Note:** - Lexical search queries are limited to a maximum of 50 characters.
       required: false
       schema:
-        maxLength: 50
+        maxLength: 500
         minLength: 1
         type: string
         example: shirt
@@ -1201,11 +1202,29 @@ components:
     allImages:
       name: allImages
       in: query
-      description: "When the `images` expand parameter is used with this flag, the response includes the `imageGroups property`, which contains an image model. \nIf this flag is true, the full image model is returned. If false, only matching images are included. \nIf no flag is passed, the `imageGroups` property is omitted from the response."
+      description: |-
+        When the `images` expand parameter is used with this flag, the response includes the `imageGroups` property, which contains an image model.
+        If this flag is true, the full image model is returned and you can combine with `imgTypes` to filter image types and counts. If false, only matching images are included.
+        If no flag is passed, the `imageGroups` property is omitted from the response.
       required: false
       schema:
         type: boolean
         example: true
+    imgTypes:
+      name: imgTypes
+      in: query
+      description: |-
+        Filters product images by type with optional count limits per type. This parameter requires both the `images` expand parameter and `allImages=true`.
+        When used, the response includes the `imageGroups` property filtered by the specified image types.
+        The format is a comma-separated list of image types with optional counts: `<imageType>:<count>,<imageType>:<count>`.
+        If the count is omitted, all images of that type are returned. If specified, the count limits the number of images returned for that type.
+        For example, `imgTypes=large:2,small:1` returns up to 2 large images and 1 small image per product in the imageGroups.
+        If `imgTypes` is used without `allImages=true`, it is ignored and imageGroups aren't included in the response.
+      required: false
+      schema:
+        type: string
+        maxLength: 50
+        example: large:2,small:1
     perPricebook:
       name: perPricebook
       in: query
