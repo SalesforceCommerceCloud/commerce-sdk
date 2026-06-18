@@ -37,8 +37,9 @@
     "renderTemplates": "PACKAGE_VERSION=$(node -p \"require('./package.json').version\") ts-node src/generate-oas.ts",
     "snyk:auth": "snyk auth",
     "pretest": "npm run lint && npm run depcheck",
-    "test": "nyc mocha \"src/**/*.test.ts\"",
+    "test": "nyc mocha \"src/**/*.test.ts\" && npm run test:workflow",
     "test:ci": "npm test -- --reporter=xunit --reporter-options output=./reports/generator.xml",
+    "test:workflow": "node --test src/test/releaseOnMergeWorkflow.mjs",
     "updateApis": "npm run backupApis && ts-node src/updateApis.ts && npm run diffApis"
   },
   "mocha": {
