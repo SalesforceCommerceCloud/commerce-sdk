@@ -1,0 +1,108 @@
+name: Release on merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+jobs:
+  tag-and-release:
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          fetch-depth: 1
+
+      - id: version
+        name: Resolve version and cross-check sources
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          set -euo pipefail
+
+          if [[ ! "$HEAD_REF" =~ ^release/v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+            echo "::error::Branch name does not match release format: $HEAD_REF"
+            exit 1
+          fi
+          BRANCH_VERSION="${BASH_REMATCH[1]}"
+
+          PKG_VERSION=$(node -p "require('./package.json').version")
+
+          CHANGELOG_VERSION=$(awk '/^## v[0-9]+\.[0-9]+\.[0-9]+/ { sub(/^## v/, ""); print; exit }' CHANGELOG.md)
+
+          if [[ "$BRANCH_VERSION" != "$PKG_VERSION" || "$PKG_VERSION" != "$CHANGELOG_VERSION" ]]; then
+            echo "::error::Version mismatch across sources"
+            echo "  branch:        $BRANCH_VERSION"
+            echo "  package.json:  $PKG_VERSION"
+            echo "  CHANGELOG.md:  $CHANGELOG_VERSION"
+            exit 1
+          fi
+
+          echo "version=v$BRANCH_VERSION" >> "$GITHUB_OUTPUT"
+          echo "Resolved release version: v$BRANCH_VERSION"
+
+      - id: notes
+        name: Extract release notes from CHANGELOG
+        env:
+          VER: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          NOTES=$(awk -v ver="$VER" '
+            $0 == "## " ver { found=1; next }
+            found && /^## v/ { exit }
+            found { print }
+          ' CHANGELOG.md | awk 'NF{p=1} p' | awk '{lines[NR]=$0} END{for(i=NR;i>0;i--){if(lines[i]!=""){last=i;break}} for(i=1;i<=last;i++) print lines[i]}')
+
+          if [[ -z "$NOTES" ]]; then
+            echo "::error::No CHANGELOG section found for $VER"
+            exit 1
+          fi
+
+          {
+            echo "notes<<RELEASE_NOTES_b3c1f8a4_DELIM"
+            echo "$NOTES"
+            echo "RELEASE_NOTES_b3c1f8a4_DELIM"
+          } >> "$GITHUB_OUTPUT"
+
+      - id: tag-exists
+        name: Check if tag already exists
+        env:
+          TAG: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          if git ls-remote --tags --exit-code origin "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists on origin — skipping tag creation"
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create and push tag
+        if: steps.tag-exists.outputs.exists == 'false'
+        env:
+          TAG: ${{ steps.version.outputs.version }}
+          SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG" -m "$TAG" "$SHA"
+          git push origin "$TAG"
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.version.outputs.version }}
+          NOTES: ${{ steps.notes.outputs.notes }}
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists — skipping"
+            exit 0
+          fi
+          gh release create "$TAG" --title "$TAG" --notes "$NOTES"
