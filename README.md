@@ -52,6 +52,16 @@ Download and install Node.js and npm [here](https://nodejs.org/en/download/).
 ​
 > **Note:** Requirements: Node `^20.x` or `^22.x`. To use a different version of Node.js for other projects, you can manage multiple versions of Node.js with [nvm](https://github.com/nvm-sh/nvm). ​
 
+## Node.js version compatibility
+
+A regression in Node.js 24.17.0 and 22.23.0 caused libraries built on `node-fetch@2` to throw false `ERR_STREAM_PREMATURE_CLOSE` ("Premature close") errors when reusing keep-alive connections. The security fix in those releases added a listener to the socket `'data'` event, which `node-fetch@2` misreads as a truncated response ([nodejs/node#63989](https://github.com/nodejs/node/issues/63989)).
+
+> **Note:** commerce-sdk is **not** affected by this regression. Its HTTP layer is built on `make-fetch-happen`, which does not use the socket-listener heuristic that triggers the false error. The companion [Isomorphic SDK](https://github.com/SalesforceCommerceCloud/commerce-sdk-isomorphic) does depend on `node-fetch@2` directly on its Node.js path, so it is affected; the upgrade guidance below applies to it as to any `node-fetch@2` consumer.
+
+If your application or another dependency uses `node-fetch@2`, upgrade to a Node.js release that contains the [upstream fix](https://github.com/nodejs/node/pull/64004): on the 24.x line use 24.18.0 or later (avoid 24.17.0); on the 22.x line use 22.23.1 or later (avoid 22.23.0). The fixed releases retain the security patch that the regression rode in on, so upgrade forward rather than downgrading.
+
+Newer "Current"-line releases (Node 26.x) that shipped the same security patch are affected as well. As of June 24, 2026 no fixed 26.x release had shipped; check the [Node 26.x changelog](https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V26.md) for a release that contains the [upstream fix](https://github.com/nodejs/node/pull/64004). For production, prefer an LTS line (24.x or 22.x) on the fixed versions above.
+
 ## Installation
 
 Use npm to install the Commerce SDK.
