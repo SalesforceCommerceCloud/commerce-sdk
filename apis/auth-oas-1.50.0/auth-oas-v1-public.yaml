@@ -3,7 +3,7 @@ info:
   x-api-type: Shopper
   x-api-family: Shopper
   title: Auth
-  version: 1.48.0
+  version: 1.50.0
   description: |-
     [Download API specification](https://developer.salesforce.com/static/commercecloud/commerce-api/auth/auth-oas-v1-public.yaml)
 
@@ -729,20 +729,7 @@ paths:
   /organizations/{organizationId}/oauth2/token:
     post:
       summary: Get the shopper or guest JWT access token and a refresh token.
-      description: |-
-        This is the second step of the OAuth 2.1 authorization code flow.
-
-        For a private client, an application is able to get an access token for the shopper through the back channel (a trusted server) by passing in the client credentials and the authorization code retrieved from the `authorize` endpoint.
-
-        For a guest user, get the shopper JWT access token and a refresh token. This is where a client appplication is able to get an access token for the guest user through the back channel (a trusted server) by passing in the client credentials.
-
-        For a public client using PKCE, an application passes a PKCE `code_verifier` that matches the `code_challenge` that was used to `authorize` the customer along with the authorization code.
-
-        When refreshing the access token with a private client ID and client secret, the refresh token is _not_ regenerated. However, when refreshing the access token with a public client ID, the refresh token is _always_ regenerated. The old refresh token is voided with every refresh call, so the refresh token on the client must be replaced to always store the new refresh token.
-
-        See the Body section for required parameters, including `grant_type` and others that depend on the value of `grant_type`.
-
-        **Important**: As of July 31, 2024**, SLAS requires the `channel_id` query parameter in token requests.
+      description: "This is the second step of the OAuth 2.1 authorization code flow.\n\nFor a private client, an application is able to get an access token for the shopper through the back channel (a trusted server) by passing in the client credentials and the authorization code retrieved from the `authorize` endpoint.\n\nFor a guest user, get the shopper JWT access token and a refresh token. This is where a client application is able to get an access token for the guest user through the back channel (a trusted server) by passing in the client credentials.\n\nFor a public client using PKCE, an application passes a PKCE `code_verifier` that matches the `code_challenge` that was used to `authorize` the customer along with the authorization code.\n\nWhen refreshing the access token with a private client ID and client secret, the refresh token is _not_ regenerated. However, when refreshing the access token with a public client ID, the refresh token is _always_ regenerated. The old refresh token is voided with every refresh call, so the refresh token on the client must be replaced to always store the new refresh token.\n\nSee the Body section for required parameters, including `grant_type` and others that depend on the value of `grant_type`.\n\n**Important**: As of July 31, 2024**, SLAS requires the `channel_id` query parameter in token requests.\n\n---\n\n# Token Issuer Subject Construction & Constraints #\nThe Issuer Subject (`isb`) claim of the issued JWT is a composite string that\nidentifies the shopper session. It concatenates the identity origin (`uido`),\nlogin ID (`upn`), display name (`uidn`), guest customer ID (`gcid`, 26 chars),\nregistered customer ID (`rcid`, 26 chars, when applicable), channel ID (`chid`),\nand any flow-specific values (`tsob`, `taob`, `agent`, `login`, `sesb`) as\n`key:value` pairs separated by `::`.\n\n**Constraint:** the assembled `isb` must not exceed **256 characters**.\nExceeding this returns `400 BAD_REQUEST` with *\"Issuer Subject length must be\nless than 256 characters\"*.\n\n**Length calculation breakdown** (with `gcid`=26, `rcid`=26, `chid`≤100).\nOverhead = key chars + each key's trailing `:` + `::` separators between pairs.\n\n| Shape | Overhead | Fixed values | Remaining budget |\n|---|---|---|---|\n| Guest | 32 | gcid 26 + chid 100 = 126 | 98 |\n| Registered | 39 | gcid 26 + rcid 26 + chid 100 = 152 | 65 |\n| TSOB guest | 39 | gcid 26 + chid 100 = 126 | 91 - len(tsob) |\n| TSOB registered | 46 | gcid 26 + rcid 26 + chid 100 = 152 | 58 - len(tsob) |\n| Pwdless | 47 | gcid 26 + rcid 26 + chid 100 = 152 | 57 - len(login) |\n| SESB guest | 39 | gcid 26 + chid 100 = 126 | 91 - len(sesb) |\n| SESB registered | 46 | gcid 26 + rcid 26 + chid 100 = 152 | 58 - len(sesb) |\n| TAOB guest | 47 | gcid 26 + chid 100 = 126 | 83 - len(taob + agent) |\n| TAOB registered | 54 | gcid 26 + rcid 26 + chid 100 = 152 | 50 - len(taob + agent) |\n\n**Worst case (TAOB registered):**\n\n```\n256  total\n- 54 overhead\n- 26  gcid\n- 26  rcid\n- 100  chid (allowed max)\n----\n50\n\nThen if taob = ta_ext_on_behalf_of: \n50 - 19 = 31\n\nMeaning only 31 characters remain for uido + upn + uidn + agent.\n\n```\n\n**Practical caps per variable sub-claim:**\n\n| Sub-claim | Description | Max length |\n|---|---|---|\n| `uido` | Identity origin | ~20 |\n| `upn` | Login ID / email | ~80 |\n| `uidn` | Display name (after `%3A` escaping) | ~60 |\n| `tsob` / `taob` | Trusted-system / trusted-agent hint | ~21 |\n| `agent` | Agent ID | ~32 |\n| `login` | Passwordless literal (e.g. `pwdless`) | short |\n| `sesb` | Session-bridge hint | short |\n| `chid` | Channel ID | 100 |\n\n**Notes:**\n- **Identity Origin Variance** — `uido` is a static IDP-configuration string\n  (e.g. `ecom`, `google`, `Link_Brand_Production`). A longer origin reduces\n  the budget available for user-supplied inputs.\n- **Double-Count Fallback** — if a shopper registers without a first and last\n  name, `uidn` is generated from the email (prefix as first name, domain as\n  last name), so the email is effectively counted **twice** (once as `upn`,\n  once as `uidn`). Long emails are the most common cause of overflow.\n- Colons inside `uidn` are URL-encoded as `%3A`, which can further inflate\n  its length."
       operationId: getAccessToken
       parameters:
         - $ref: '#/components/parameters/organizationId'
@@ -1058,14 +1045,7 @@ paths:
   /organizations/{organizationId}/oauth2/trusted-system/token:
     post:
       summary: Get a shopper JWT access token for a registered customer whose credentials are stored using a third party.
-      description: |-
-        The SLAS client must have the `sfcc.ts_ext_on_behalf_of` scope to access this endpoint.
-
-
-        For trusted-system requests, you can use a basic authorization header that includes a SLAS private client ID and SLAS private client secret instead of the bearer token.
-
-
-        For trusted-system requests, you cannot use SLAS public client_ids.
+      description: "The SLAS client must have the `sfcc.ts_ext_on_behalf_of` scope to access this endpoint.\n\n\nFor trusted-system requests, you can use a basic authorization header that includes a SLAS private client ID and SLAS private client secret instead of the bearer token.\n\n\nFor trusted-system requests, you cannot use SLAS public client_ids.\n\n---\n\n# Token Issuer Subject Construction & Constraints #\nThe Issuer Subject (`isb`) claim of the issued JWT is a composite string that\nidentifies the shopper session. It concatenates the identity origin (`uido`),\nlogin ID (`upn`), display name (`uidn`), guest customer ID (`gcid`, 26 chars),\nregistered customer ID (`rcid`, 26 chars, when applicable), channel ID (`chid`),\nand any flow-specific values (`tsob`, `taob`, `agent`, `login`, `sesb`) as\n`key:value` pairs separated by `::`.\n\n**Constraint:** the assembled `isb` must not exceed **256 characters**.\nExceeding this returns `400 BAD_REQUEST` with *\"Issuer Subject length must be\nless than 256 characters\"*.\n\n**Length calculation breakdown** (with `gcid`=26, `rcid`=26, `chid`≤100).\nOverhead = key chars + each key's trailing `:` + `::` separators between pairs.\n\n| Shape | Overhead | Fixed values | Remaining budget |\n|---|---|---|---|\n| Guest | 32 | gcid 26 + chid 100 = 126 | 98 |\n| Registered | 39 | gcid 26 + rcid 26 + chid 100 = 152 | 65 |\n| TSOB guest | 39 | gcid 26 + chid 100 = 126 | 91 - len(tsob) |\n| TSOB registered | 46 | gcid 26 + rcid 26 + chid 100 = 152 | 58 - len(tsob) |\n| Pwdless | 47 | gcid 26 + rcid 26 + chid 100 = 152 | 57 - len(login) |\n| SESB guest | 39 | gcid 26 + chid 100 = 126 | 91 - len(sesb) |\n| SESB registered | 46 | gcid 26 + rcid 26 + chid 100 = 152 | 58 - len(sesb) |\n| TAOB guest | 47 | gcid 26 + chid 100 = 126 | 83 - len(taob + agent) |\n| TAOB registered | 54 | gcid 26 + rcid 26 + chid 100 = 152 | 50 - len(taob + agent) |\n\n**Worst case (TAOB registered):**\n\n```\n256  total\n- 54 overhead\n- 26  gcid\n- 26  rcid\n- 100  chid (allowed max)\n----\n50\n\nThen if taob = ta_ext_on_behalf_of: \n50 - 19 = 31\n\nMeaning only 31 characters remain for uido + upn + uidn + agent.\n\n```\n\n**Practical caps per variable sub-claim:**\n\n| Sub-claim | Description | Max length |\n|---|---|---|\n| `uido` | Identity origin | ~20 |\n| `upn` | Login ID / email | ~80 |\n| `uidn` | Display name (after `%3A` escaping) | ~60 |\n| `tsob` / `taob` | Trusted-system / trusted-agent hint | ~21 |\n| `agent` | Agent ID | ~32 |\n| `login` | Passwordless literal (e.g. `pwdless`) | short |\n| `sesb` | Session-bridge hint | short |\n| `chid` | Channel ID | 100 |\n\n**Notes:**\n- **Identity Origin Variance** — `uido` is a static IDP-configuration string\n  (e.g. `ecom`, `google`, `Link_Brand_Production`). A longer origin reduces\n  the budget available for user-supplied inputs.\n- **Double-Count Fallback** — if a shopper registers without a first and last\n  name, `uidn` is generated from the email (prefix as first name, domain as\n  last name), so the email is effectively counted **twice** (once as `upn`,\n  once as `uidn`). Long emails are the most common cause of overflow.\n- Colons inside `uidn` are URL-encoded as `%3A`, which can further inflate\n  its length."
       operationId: getTrustedSystemAccessToken
       parameters:
         - $ref: '#/components/parameters/organizationId'
@@ -1842,7 +1822,79 @@ paths:
   /organizations/{organizationId}/oauth2/passwordless/token:
     post:
       summary: Issue a shopper token (JWT).
-      description: This endpoint issues a shopper JWT access token using a passwordless login token. It enables authentication flows where traditional username/password combinations are not required, supporting alternative authentication methods.
+      description: |-
+        This endpoint issues a shopper JSON Web Token (JWT) using a passwordless login token. It enables authentication flows where traditional username/password combinations are not required, supporting alternative authentication methods.
+
+        ---
+
+        # Token Issuer Subject Construction & Constraints #
+        The Issuer Subject (`isb`) claim of the issued JWT is a composite string that
+        identifies the shopper session. It concatenates the identity origin (`uido`),
+        login ID (`upn`), display name (`uidn`), guest customer ID (`gcid`, 26 chars),
+        registered customer ID (`rcid`, 26 chars, when applicable), channel ID (`chid`),
+        and any flow-specific values (`tsob`, `taob`, `agent`, `login`, `sesb`) as
+        `key:value` pairs separated by `::`.
+
+        **Constraint:** the assembled `isb` must not exceed **256 characters**.
+        Exceeding this returns `400 BAD_REQUEST` with *"Issuer Subject length must be
+        less than 256 characters"*.
+
+        **Length calculation breakdown** (with `gcid`=26, `rcid`=26, `chid`≤100).
+        Overhead = key chars + each key's trailing `:` + `::` separators between pairs.
+
+        | Shape | Overhead | Fixed values | Remaining budget |
+        |---|---|---|---|
+        | Guest | 32 | gcid 26 + chid 100 = 126 | 98 |
+        | Registered | 39 | gcid 26 + rcid 26 + chid 100 = 152 | 65 |
+        | TSOB guest | 39 | gcid 26 + chid 100 = 126 | 91 - len(tsob) |
+        | TSOB registered | 46 | gcid 26 + rcid 26 + chid 100 = 152 | 58 - len(tsob) |
+        | Pwdless | 47 | gcid 26 + rcid 26 + chid 100 = 152 | 57 - len(login) |
+        | SESB guest | 39 | gcid 26 + chid 100 = 126 | 91 - len(sesb) |
+        | SESB registered | 46 | gcid 26 + rcid 26 + chid 100 = 152 | 58 - len(sesb) |
+        | TAOB guest | 47 | gcid 26 + chid 100 = 126 | 83 - len(taob + agent) |
+        | TAOB registered | 54 | gcid 26 + rcid 26 + chid 100 = 152 | 50 - len(taob + agent) |
+
+        **Worst case (TAOB registered):**
+
+        ```
+        256  total
+        - 54 overhead
+        - 26  gcid
+        - 26  rcid
+        - 100  chid (allowed max)
+        ----
+        50
+
+        Then if taob = ta_ext_on_behalf_of:
+        50 - 19 = 31
+
+        Meaning only 31 characters remain for uido + upn + uidn + agent.
+
+        ```
+
+        **Practical caps per variable sub-claim:**
+
+        | Sub-claim | Description | Max length |
+        |---|---|---|
+        | `uido` | Identity origin | ~20 |
+        | `upn` | Login ID / email | ~80 |
+        | `uidn` | Display name (after `%3A` escaping) | ~60 |
+        | `tsob` / `taob` | Trusted-system / trusted-agent hint | ~21 |
+        | `agent` | Agent ID | ~32 |
+        | `login` | Passwordless literal (e.g. `pwdless`) | short |
+        | `sesb` | Session-bridge hint | short |
+        | `chid` | Channel ID | 100 |
+
+        **Notes:**
+        - **Identity Origin Variance** — `uido` is a static IdP-configuration string
+        (e.g. `ecom`, `google`, `Link_Brand_Production`). A longer origin reduces
+        the budget available for user-supplied inputs.
+        - **Double-Count Fallback** — if a shopper registers without a first and last
+        name, `uidn` is generated from the email (prefix as first name, domain as
+        last name), so the email is effectively counted **twice** (once as `upn`,
+        once as `uidn`). Long emails are the most common cause of overflow.
+        - Colons inside `uidn` are URL-encoded as `%3A`, which can further inflate
+        its length.
       operationId: getPasswordLessAccessToken
       parameters:
         - $ref: '#/components/parameters/organizationId'

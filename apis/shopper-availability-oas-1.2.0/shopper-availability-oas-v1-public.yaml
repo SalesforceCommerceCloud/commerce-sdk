@@ -3,7 +3,7 @@ info:
   x-api-type: Shopper
   x-api-family: Product
   title: Shopper Availability
-  version: 1.1.0
+  version: 1.2.0
   description: |-
     [Download API specification](https://developer.salesforce.com/static/commercecloud/commerce-api/shopper-availability/shopper-availability-oas-v1-public.yaml)
 
@@ -56,6 +56,7 @@ paths:
       security:
         - ShopperToken:
             - sfcc.shopper-availability
+            - sfcc.shopper-standard
       parameters:
         - $ref: '#/components/parameters/productIds'
         - $ref: '#/components/parameters/inventoryIds'
@@ -114,11 +115,13 @@ components:
           tokenUrl: https://{shortCode}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
           scopes:
             sfcc.shopper-availability: scope granting read-access to shopper availability endpoints
+            sfcc.shopper-standard: standard aggregated scope granting read-access to a curated set of shopper endpoints
         authorizationCode:
           authorizationUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/authorize
           tokenUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
           scopes:
             sfcc.shopper-availability: scope granting read-access to shopper availability endpoints
+            sfcc.shopper-standard: standard aggregated scope granting read-access to a curated set of shopper endpoints
   schemas:
     OrganizationId:
       description: An identifier for the Salesforce Commerce Cloud organization the request is being made by. It consists of a prefix 'f_ecom_' followed by a 4-character [realm identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#realm-id) and a 3-character [instance type identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#instance-id).

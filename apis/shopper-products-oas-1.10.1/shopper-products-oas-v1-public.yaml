@@ -3,15 +3,13 @@ info:
   x-api-type: Shopper
   x-api-family: Product
   title: Shopper Products
-  version: 1.5.1
+  version: 1.10.1
   description: |-
     [Download API specification](https://developer.salesforce.com/static/commercecloud/commerce-api/shopper-products/shopper-products-oas-v1-public.yaml)
 
     # API Overview
 
     The Shopper Products API enables you to access product details for products that are online, merchandised to a particular site catalog, and ready to be sold. You can use these product details to merchandise the product on other ecommerce channels. To set up category navigation paths on other commerce apps or storefronts, you can use the Categories API.
-
-    Caching is provided for the Shopper Products API. For details, see [Server-Side Web-Tier Caching.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/server-side-web-tier-caching.html)
 
     ## Authentication & Authorization
 
@@ -21,7 +19,63 @@ info:
 
     For details on how to request a shopper access token from SLAS, see the guest user flows for [public clients](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-public-client.html#guest-user) and [private clients](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-private-client.html#guest-user) in the SLAS guides.
 
+    ## Customization
+
+    ### Custom Properties
+
+    This API supports custom properties (prefixed with `c_`). For details, see [Custom Properties.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/custom-properties.html)
+
+    ### Hooks
+
+    For details on working with hooks, see [Extensibility with Hooks.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html)
+
+    ## Request Details
+
+    ### Property Selection
+
+    This API supports the `select` query parameter for filtering response properties. For details, see [Property Selection.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/scapi-property-selection.html)
+
+    ### URL Encoding
+
+    If resource identifiers in request parameters contain commas (`,`) or percent signs (`%`), they must be URL encoded. For details, see [Encode URL Special Characters.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/url-encode.html)
+
+    ## Response Details
+
+    ### Personalization
+
+    Responses from this API can be personalized using the [Shopper Context API.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/shopper-context-api.html) By setting context attributes such as customer group, source code, or store ID, you can retrieve personalized promotions, pricing, and shipping methods. For details on how personalization interacts with caching, see [Personalized Caching.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/server-side-web-tier-caching.html#personalized-caching)
+
+    ### Caching
+
+    Caching is provided for this API. For details, see [Server-Side Web-Tier Caching.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/server-side-web-tier-caching.html)
+
+    ### Timeouts
+
+    Shopper API requests must respond within 10 seconds, including any hook execution. If a response exceeds this threshold, an HTTP 504 status code is returned. For details, see [Timeouts and Limits.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/timeouts-limits.html)
+
+    ### Error Handling
+
+    Error responses follow the [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807) problem detail format. To trace errors, include a `correlation-id` header in your request — the response returns it as `x-correlation-id`. For details, see [HTTP Status Codes and Errors.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/error-response-codes.html)
+
     ## Use Cases
+
+    ### Get a Single Product
+
+    Retrieve product details by ID. Replace `{access_token}` with a valid SLAS token.
+
+    ```sh
+    curl "https://{shortCode}.api.commercecloud.salesforce.com/product/shopper-products/v1/organizations/{organizationId}/products/25695327M?siteId=RefArch" \
+      -H "Authorization: Bearer {access_token}"
+    ```
+
+    ### Get Multiple Products
+
+    Retrieve up to 24 products in a single request:
+
+    ```sh
+    curl "https://{shortCode}.api.commercecloud.salesforce.com/product/shopper-products/v1/organizations/{organizationId}/products?ids=25695327M,25519318M&siteId=RefArch" \
+      -H "Authorization: Bearer {access_token}"
+    ```
 
     ### Populate Product Listing Pages
 
@@ -64,10 +118,6 @@ info:
 
     For details, see [Server-Side Web-Tier Caching.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/server-side-web-tier-caching.html)
 
-    ### Use Hooks
-
-    For details working with hooks, see [Extensibility with Hooks.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html)
-
     ## Resources
 
     ### Product
@@ -79,10 +129,15 @@ info:
     Categories and subcategories are the structure by which products are organized and grouped in a catalog and on a storefront. Categories can have relationships to other categories. Further, each category can provide context that is inherited by subcategories. For example, a category can have an assigned attribute. A product assigned to that category or any subcategory inherits the categories’s attribute value. Once the product is removed from the category, the attribute value is no longer inherited by the product. You can also use category linking for site hierarchical navigation. For example, inside the Clothing category you may have Men’s, and inside the Men’s category you may have Pants.
 
     Categories are not tags.
+
+    ## Related APIs
+
+    - [Products (Admin)](https://developer.salesforce.com/docs/commerce/commerce-api/references/products?meta=Summary) — Manage product catalogs, variations, and options.
 servers:
   - url: https://{shortCode}.api.commercecloud.salesforce.com/product/shopper-products/v1
     variables:
       shortCode:
+        description: An eight-character string assigned to a realm for routing purposes. See [Base URL and Request Formation.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html)
         default: shortCode
 paths:
   /organizations/{organizationId}/products:
@@ -101,6 +156,7 @@ paths:
         - $ref: '#/components/parameters/inventoryIds'
         - $ref: '#/components/parameters/expand_multiId'
         - $ref: '#/components/parameters/allImages'
+        - $ref: '#/components/parameters/imgTypes'
         - $ref: '#/components/parameters/perPricebook'
         - $ref: '#/components/parameters/siteId'
         - $ref: '#/components/parameters/select'
@@ -142,6 +198,7 @@ paths:
         - $ref: '#/components/parameters/inventoryIds'
         - $ref: '#/components/parameters/expand_singleId'
         - $ref: '#/components/parameters/allImages'
+        - $ref: '#/components/parameters/imgTypes'
         - $ref: '#/components/parameters/perPricebook'
         - $ref: '#/components/parameters/select'
         - $ref: '#/components/parameters/currency'
@@ -177,6 +234,195 @@ paths:
               examples:
                 GetProductNotFoundResponseExample:
                   $ref: '#/components/examples/GetProductNotFoundResponseExample'
+  /organizations/{organizationId}/products/{productId}/images:
+    parameters:
+      - $ref: '#/components/parameters/organizationId'
+      - $ref: '#/components/parameters/productId'
+    get:
+      description: |-
+        Returns a Product document for the specified product ID, focused on imageGroups and related image fields. Only
+        online products assigned to a site catalog are returned.
+
+        Use the following parameters to control image output:
+        imgTypes — Filters which catalog view types to include, with optional per-type image limits. Defaults to all
+        view types with a 200-image cap per type.
+
+        allImages — Controls whether the full image model is returned.
+
+        variationAttribute — Narrows image selection by variation context. Applies only when allImages is true.
+      operationId: getProductImages
+      summary: Returns product image data for a single product.
+      security:
+        - ShopperToken:
+            - sfcc.shopper-products
+      parameters:
+        - $ref: '#/components/parameters/parameters-imgTypes'
+        - $ref: '#/components/parameters/parameters-allImages'
+        - $ref: '#/components/parameters/variationAttribute'
+        - $ref: '#/components/parameters/siteId'
+        - $ref: '#/components/parameters/locale'
+      x-extensionPoints:
+        - phase: before
+          name: sfcc.product.shopper-products.v1.products.productId.images.beforeGET
+          description: Called before retrieving product images.
+          arguments:
+            - $ref: '#/components/parameters/productId'
+            - $ref: '#/components/parameters/imgTypes'
+            - $ref: '#/components/parameters/allImages'
+            - $ref: '#/components/parameters/variationAttribute'
+        - phase: modifyResponse
+          name: sfcc.product.shopper-products.v1.products.productId.images.modifyGETResponse
+          description: Called to modify the product images response.
+          arguments:
+            - $ref: '#/components/schemas/ProductImages'
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductImages'
+              examples:
+                GetProductImagesResponseExample:
+                  $ref: '#/components/examples/GetProductImagesResponseExample'
+        '400':
+          description: Bad Request.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                GetProductImagesBadRequestResponseExample:
+                  $ref: '#/components/examples/GetProductImagesBadRequestResponseExample'
+        '401':
+          $ref: '#/components/responses/401unauthorized'
+        '404':
+          description: Product Not Found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                GetProductImagesNotFoundResponseExample:
+                  $ref: '#/components/examples/GetProductImagesNotFoundResponseExample'
+  /organizations/{organizationId}/products/{productId}/prices:
+    parameters:
+      - $ref: '#/components/parameters/organizationId'
+      - $ref: '#/components/parameters/parameters-productId'
+    get:
+      description: Returns price details for a single product that is online and assigned to a site catalog. Returns the effective sales price, tiered prices, and per-pricebook prices. Prices are personalized by customer group and pricebook. Responses are not CDN-cached but are eligible for JWA caching with a 15-minute TTL.
+      operationId: getProductPrices
+      summary: Returns price details for a single product.
+      security:
+        - ShopperToken:
+            - sfcc.shopper-products
+      x-extensionPoints:
+        - phase: before
+          name: sfcc.product.shopper-products.v1.products.productId.prices.beforeGET
+          description: called before retrieving product price details.
+          arguments:
+            - $ref: '#/components/parameters/productId'
+            - $ref: '#/components/parameters/siteId'
+            - $ref: '#/components/parameters/locale'
+            - $ref: '#/components/parameters/currency'
+        - phase: modifyResponse
+          name: sfcc.product.shopper-products.v1.products.productId.prices.modifyGETResponse
+          description: called to modify the product price details response.
+          arguments:
+            - $ref: '#/components/schemas/PricesResult'
+      parameters:
+        - $ref: '#/components/parameters/siteId'
+        - $ref: '#/components/parameters/locale'
+        - $ref: '#/components/parameters/currency'
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PricesResult'
+              examples:
+                GetProductPricesResponseExample:
+                  $ref: '#/components/examples/GetProductPricesResponseExample'
+        '400':
+          description: Bad Request.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                GetProductPricesBadRequestResponseExample:
+                  $ref: '#/components/examples/GetProductPricesBadRequestResponseExample'
+        '401':
+          $ref: '#/components/responses/401unauthorized'
+        '404':
+          description: Product Not Found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                GetProductPricesNotFoundResponseExample:
+                  $ref: '#/components/examples/GetProductPricesNotFoundResponseExample'
+  /organizations/{organizationId}/products/{productId}/promotions:
+    parameters:
+      - $ref: '#/components/parameters/organizationId'
+      - $ref: '#/components/parameters/components-parameters-productId'
+    get:
+      description: Returns active promotion details for a single product that is online and assigned to a site catalog. Active promotions are filtered by customer group, campaign date range, and time slot. Promotions are personalized. Responses are not CDN-cached but are eligible for JWA caching with a 15-minute TTL.
+      operationId: getProductPromotions
+      summary: Returns active promotion details for a single product.
+      security:
+        - ShopperToken:
+            - sfcc.shopper-products
+      x-extensionPoints:
+        - phase: before
+          name: sfcc.product.shopper-products.v1.products.productId.promotions.beforeGET
+          description: called before retrieving product promotion details.
+          arguments:
+            - $ref: '#/components/parameters/productId'
+            - $ref: '#/components/parameters/siteId'
+            - $ref: '#/components/parameters/locale'
+            - $ref: '#/components/parameters/currency'
+        - phase: modifyResponse
+          name: sfcc.product.shopper-products.v1.products.productId.promotions.modifyGETResponse
+          description: called to modify the product promotions response.
+          arguments:
+            - $ref: '#/components/schemas/PromotionsResult'
+      parameters:
+        - $ref: '#/components/parameters/siteId'
+        - $ref: '#/components/parameters/locale'
+        - $ref: '#/components/parameters/currency'
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromotionsResult'
+              examples:
+                GetProductPromotionsResponseExample:
+                  $ref: '#/components/examples/GetProductPromotionsResponseExample'
+        '400':
+          description: Bad Request.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                GetProductPromotionsBadRequestResponseExample:
+                  $ref: '#/components/examples/GetProductPromotionsBadRequestResponseExample'
+        '401':
+          $ref: '#/components/responses/401unauthorized'
+        '404':
+          description: Product Not Found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                GetProductPromotionsNotFoundResponseExample:
+                  $ref: '#/components/examples/GetProductPromotionsNotFoundResponseExample'
   /organizations/{organizationId}/categories:
     parameters:
       - $ref: '#/components/parameters/organizationId'
@@ -264,7 +510,7 @@ components:
   securitySchemes:
     ShopperToken:
       type: oauth2
-      description: "ShopperToken authentication follows the authorization code grant flow, as defined by the OAuth 2.1 standard. Depending on the type of OAuth client (public or private), this authorization flow has further requirements. \nFor a detailed description of the authorization flow, see the [SLAS overview](https://developer.salesforce.com/docs/commerce/commerce-api/references?meta=shopper-login:Summary).\nA shopper token allows you to access the Shopper API endpoints of both OCAPI and the B2C Commerce API. These endpoints can be used to build headless storefronts and other applications.\nThe `ShopperToken` security scheme is a parent of other security schemes, such as `ShopperTokenTsob`. A Shopper API endpoint can require a specific child scheme (`ShopperTokenTsob`, for example) that cannot be accessed with a regular shopper token.\n"
+      description: "ShopperToken authentication follows the authorization code grant flow, as defined by the OAuth 2.1 standard. Depending on the type of OAuth client (public or private), this authorization flow has further requirements. \nFor a detailed description of the authorization flow, see the [SLAS overview](https://developer.salesforce.com/docs/commerce/commerce-api/references?meta=shopper-login:Summary).\nA shopper token allows you to access the Shopper API endpoints of both the Open Commerce API (OCAPI) and the B2C Commerce API. These endpoints can be used to build headless storefronts and other applications.\nThe `ShopperToken` security scheme is a parent of other security schemes, such as `ShopperTokenTsob`. A Shopper API endpoint can require a specific child scheme (`ShopperTokenTsob`, for example) that cannot be accessed with a regular shopper token.\n"
       flows:
         clientCredentials:
           tokenUrl: https://{shortCode}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
@@ -272,8 +518,8 @@ components:
             sfcc.shopper-products: scope granting read-access to product endpoints
             sfcc.shopper-categories: scope granting read-access to category endpoints
         authorizationCode:
-          authorizationUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/authorize
-          tokenUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
+          authorizationUrl: https://{shortCode}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/authorize
+          tokenUrl: https://{shortCode}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
           scopes:
             sfcc.shopper-products: scope granting read-access to product endpoints
             sfcc.shopper-categories: scope granting read-access to category endpoints
@@ -460,6 +706,42 @@ components:
           description: The ID of the products primary category.
           example: electronics
           type: string
+        primaryCategory:
+          description: |-
+            The primary category of the product, including its full ancestor breadcrumb path (root to leaf,
+            root category node excluded). Only present when the primary_category expand is requested.
+          type: object
+          properties:
+            id:
+              description: The ID of the primary category.
+              example: electronics-digital-media-players
+              type: string
+              minLength: 1
+              maxLength: 256
+            name:
+              description: The localized name of the primary category.
+              example: iPod & MP3 Players
+              type: string
+              minLength: 1
+              maxLength: 256
+            parentCategoryTree:
+              description: The list of ancestor categories from root to the primary category (root category node excluded).
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    description: The ID of the ancestor category.
+                    example: electronics
+                    type: string
+                    minLength: 1
+                    maxLength: 256
+                  name:
+                    description: The name of the ancestor category.
+                    example: Electronics
+                    type: string
+                    minLength: 1
+                    maxLength: 256
         productLinks:
           description: The array of source and target product links information.
           type: array
@@ -816,6 +1098,18 @@ components:
           description: Locale-specific value of the Page Meta Tag, evaluated by resolving the rule set for the given Business Manager ID.
           type: string
           example: Buy the Long Sleeve Covered Placket Blouse for USD 61.99.
+        type:
+          description: |-
+            The kind of Page Meta Tag, indicating how the storefront should render the value.
+            Documented values are `name`, `property`, `title`, and `jsonld`:
+              * `name` — render as `<meta name="...">`.
+              * `property` — render as `<meta property="...">` (e.g. Open Graph tags).
+              * `title` — render as the HTML `<title>` element.
+              * `jsonld` — JSON-LD structured data, intended for rendering inside `<script type="application/ld+json">`.
+            The field may be absent when the kind cannot be determined. Clients should treat unknown values as opaque so additional kinds can be introduced without breaking the contract.
+          type: string
+          maxLength: 64
+          example: name
     PriceRange:
       description: Document representing price ranges for a product which happens to be a master product (per Pricebook)
       properties:
@@ -1175,6 +1469,145 @@ components:
         - title
         - type
         - detail
+    ProductImages:
+      description: Document containing only the image groups for a product. Contains no price, availability, or other non-image data.
+      properties:
+        id:
+          $ref: '#/components/schemas/ProductId'
+        imageGroups:
+          description: Array of image groups for this product. Each group corresponds to a view type and optionally to specific variation attribute values.
+          type: array
+          items:
+            $ref: '#/components/schemas/ImageGroup'
+      required:
+        - id
+      type: object
+    ProductPriceRange:
+      description: Document representing the min/max price range for a single pricebook. Only present for complex products (master, variation group, product set).
+      properties:
+        pricebook:
+          description: The ID of the pricebook.
+          example: usd-sale-pricebook
+          type: string
+          minLength: 1
+          maxLength: 256
+        minPrice:
+          format: double
+          description: The minimum price across all variants for this pricebook.
+          example: 19.99
+          type: number
+        maxPrice:
+          format: double
+          description: The maximum price across all variants for this pricebook.
+          example: 99.99
+          type: number
+      type: object
+    PricesResult:
+      description: Document representing the price details for a single product. Contains only price-related fields; no images, availability, variations, or other product data are included. Price fields are absent when no pricebook is configured for the requested site and locale context — only `productId` is guaranteed in the response.
+      properties:
+        productId:
+          description: The ID of the product.
+          example: apple-ipod-shuffle
+          type: string
+          minLength: 1
+          maxLength: 100
+        price:
+          format: double
+          description: |-
+            The effective sales price of the product. For complex products (master, set), this is the minimum
+            price of the related child products.
+          example: 89.99
+          type: number
+        priceMax:
+          format: double
+          description: The maximum sales price. For complex products (master, set), this is the maximum price of the related child products.
+          example: 99.99
+          type: number
+        pricePerUnit:
+          format: double
+          description: The price per unit if defined for the product.
+          example: 8.99
+          type: number
+        pricePerUnitMax:
+          format: double
+          description: The maximum price per unit, typically for a master product's variant.
+          example: 9.99
+          type: number
+        pricePerUnitUnit:
+          description: The unit of measure for the per-unit price (e.g. "kg", "lb").
+          example: kg
+          type: string
+          minLength: 1
+          maxLength: 256
+        tieredPrices:
+          description: The list of tiered prices for the product. Each entry represents a price for a given pricebook and minimum order quantity threshold. Uses the effective (lowest) winning price from the merged applicable pricebooks for each quantity tier — matching the SCAPI product endpoint's tieredPrices field.
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductPriceTable'
+        prices:
+          description: A map of pricebook IDs to their corresponding prices for this product.
+          type: object
+          example:
+            usd-sale-pricebook: 89.99
+            usd-list-pricebook: 99.99
+          additionalProperties:
+            format: double
+            type: number
+            example: 89.99
+        currency:
+          $ref: '#/components/schemas/CurrencyCode'
+        priceRanges:
+          description: Per-pricebook min/max price ranges. Only present for complex products (master, variation group, product set) that have variants with differing prices.
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductPriceRange'
+      required:
+        - productId
+      type: object
+    schemas-ProductPromotion:
+      description: Document representing an active promotion applicable to a product.
+      properties:
+        promotionId:
+          description: The unique ID of the promotion.
+          example: 20off-electronics
+          type: string
+          minLength: 1
+          maxLength: 256
+        calloutMsg:
+          description: The localized call-out message of the promotion.
+          example: Save 20%!
+          type: string
+          minLength: 1
+          maxLength: 4000
+        promotionalPrice:
+          format: double
+          description: The promotional price for this product. Only present for PRODUCT class promotions.
+          example: 71.99
+          type: number
+      required:
+        - promotionId
+        - calloutMsg
+      type: object
+    PromotionsResult:
+      description: Document representing the active promotion details for a single product. Contains only promotion-related fields; no price, images, availability, variations, or other product data are included. Active promotions are filtered by customer group, campaign date range, and time slot.
+      properties:
+        productId:
+          description: The ID of the product.
+          example: apple-ipod-shuffle
+          type: string
+          minLength: 1
+          maxLength: 100
+        productPromotions:
+          description: |-
+            An array of active customer promotions applicable to this product, sorted by promotion priority
+            using SORT_BY_EXCLUSIVITY ordering (exclusivity → rank → promotion class → discount type →
+            best discount → ID). This array can be empty. Coupon promotions are not returned in this array.
+          type: array
+          items:
+            $ref: '#/components/schemas/schemas-ProductPromotion'
+      required:
+        - productId
+      type: object
     CategoryId:
       maxLength: 256
       minLength: 1
@@ -1341,6 +1774,7 @@ components:
         The value "none" may be used to turn off all expand options.
         The page_meta_tags expand value is optional and available starting from B2C Commerce version 25.2.
         The availability expand is deprecated. Use the Shopper Availability API instead for better caching performance.
+        The primary_category expand returns the full breadcrumb path (root to leaf) for each product's primary category.
       in: query
       style: form
       explode: false
@@ -1366,6 +1800,7 @@ components:
             - recommendations
             - shipping_methods
             - page_meta_tags
+            - primary_category
           example: promotions
     allImages:
       name: allImages
@@ -1374,6 +1809,21 @@ components:
       schema:
         type: boolean
         example: true
+    imgTypes:
+      name: imgTypes
+      description: |-
+        Filters product images by viewType with optional count limits per type. This parameter requires the images expand parameter.
+        When used, the response includes the imageGroups property filtered by the specified image types.
+        The format is a comma-separated list of image types with optional counts: <viewType>:<count>,<viewType>:<count>.
+        If the count is omitted, all images of that type are returned. If specified, the count limits the number of images returned for that type.
+        For example, imgTypes=large:2,small:1 returns up to 2 large images and 1 small image per product in the imageGroups.
+        If imgTypes is used without expand=images, it is ignored and imageGroups aren't included in the response.
+      in: query
+      example: large:3,small:1
+      schema:
+        type: string
+        maxLength: 50
+        example: large:3,small:1
     perPricebook:
       name: perPricebook
       description: The flag that indicates whether to retrieve the per PriceBook prices and tiered prices (if available) for requested Products. Available end of June, 2021.
@@ -1433,6 +1883,7 @@ components:
         The value "none" may be used to turn off all expand options.
         The page_meta_tags expand value is optional and available starting from B2C Commerce version 25.2.
         The availability expand is deprecated. Use the Shopper Availability API instead for better caching performance.
+        The primary_category expand returns the full breadcrumb path (root to leaf) for the product's primary category.
       in: query
       style: form
       explode: false
@@ -1458,7 +1909,72 @@ components:
             - recommendations
             - shipping_methods
             - page_meta_tags
+            - primary_category
           example: links
+    productId:
+      name: productId
+      description: The ID of the product whose images to retrieve.
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/ProductId'
+    parameters-imgTypes:
+      name: imgTypes
+      description: |-
+        Comma-separated list of view types to include in the response, with optional per-type image limits. Each item is
+        either viewType or viewType:count. If omitted, all catalog view types are returned, up to 200 images per view
+        type. If present, only the listed view types are included. The image count defaults to 200 per view type when
+        no limit is specified.
+      in: query
+      example: large:3,small:1
+      schema:
+        type: string
+        maxLength: 50
+        example: large:3,small:1
+    parameters-allImages:
+      name: allImages
+      description: |-
+        When true, returns all variation-specific image groups rather than only the best-matching group
+        for the product's variation attribute values. Default: false.
+      in: query
+      schema:
+        type: boolean
+        default: false
+        example: false
+    variationAttribute:
+      name: variationAttribute
+      description: |-
+        Variation attribute values used to filter image groups when allImages=true.
+        Format: <attributeId>=<value>. This parameter can be repeated for multiple attributes.
+        Example: color=red&variationAttribute=size=L
+      in: query
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+          minLength: 1
+          maxLength: 256
+          example: color=red
+        example:
+          - color=red
+    parameters-productId:
+      name: productId
+      description: The ID of the product whose prices to retrieve.
+      example: apple-ipod-shuffle
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/ProductId'
+    components-parameters-productId:
+      name: productId
+      description: The ID of the product whose promotions to retrieve.
+      example: apple-ipod-shuffle
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/ProductId'
     parameters-ids:
       name: ids
       description: The comma separated list of category IDs (max 50).
@@ -1553,14 +2069,29 @@ components:
         pageMetaTags:
           - id: description
             value: The updated Shuffle features the same-sized circular control pad in a more compact, clip-on case, making it perfect for on-the-go use.
+            type: name
           - id: robots
             value: index, follow
+            type: name
           - id: title
             value: Buy the Apple iPod Shuffle for USD 45.99-69.00.
+            type: title
+          - id: og:title
+            value: Apple iPod Shuffle
+            type: property
+          - id: product
+            value: '{"@context":"https://schema.org/","@type":"Product","name":"Apple iPod Shuffle","sku":"apple-ipod-shuffle","offers":{"@type":"AggregateOffer","priceCurrency":"USD","lowPrice":"45.99","highPrice":"69.00"}}'
+            type: jsonld
         pageTitle: Apple iPod Shuffle
         price: 45.99
         priceMax: 69
         primaryCategoryId: electronics-digital-media-players
+        primaryCategory:
+          id: electronics-digital-media-players
+          name: iPod & MP3 Players
+          parentCategoryTree:
+            - id: electronics
+              name: Electronics
         shortDescription: With the same size circular control pad as the previous model on a much more compact case with a built-in clip, the updated shuffle is ready to rock and easily tags along when you're on the go.
         stepQuantity: 1
         type:
@@ -1654,6 +2185,103 @@ components:
         type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/product-not-found
         detail: No product with ID 'pple-ipod-shuffle' for site 'SiteGenesis' could be found.
         productId: pple-ipod-shuffle
+        siteId: SiteGenesis
+    GetProductImagesResponseExample:
+      value:
+        id: apple-ipod-shuffle
+        imageGroups:
+          - images:
+              - alt: Apple iPod Shuffle, large
+                disBaseLink: https://example.com/on/demandware.static/-/Sites-electronics-catalog/default/dwc2cc65b0/images/large/ipod-shuffle-silver.jpg
+                link: https://example.com/on/demandware.static/-/Sites-electronics-catalog/default/dwc2cc65b0/images/large/ipod-shuffle-silver.jpg
+                title: Apple iPod Shuffle
+              - alt: Apple iPod Shuffle Blue, large
+                disBaseLink: https://example.com/on/demandware.static/-/Sites-electronics-catalog/default/dw1a2b3c4d/images/large/ipod-shuffle-blue.jpg
+                link: https://example.com/on/demandware.static/-/Sites-electronics-catalog/default/dw1a2b3c4d/images/large/ipod-shuffle-blue.jpg
+                title: Apple iPod Shuffle Blue
+            variationAttributes:
+              - id: color
+                values:
+                  - value: Blue
+            viewType: large
+          - images:
+              - alt: Apple iPod Shuffle, small
+                link: https://example.com/on/demandware.static/-/Sites-electronics-catalog/default/dw2b078e02/images/small/ipod-shuffle-silver.jpg
+                title: Apple iPod Shuffle
+            viewType: small
+          - images:
+              - alt: Apple iPod Shuffle Silver Swatch
+                link: https://example.com/on/demandware.static/-/Sites-electronics-catalog/default/dw3c089f13/images/swatch/ipod-shuffle-silver-swatch.jpg
+                title: Silver
+              - alt: Apple iPod Shuffle Blue Swatch
+                link: https://example.com/on/demandware.static/-/Sites-electronics-catalog/default/dw4d090g24/images/swatch/ipod-shuffle-blue-swatch.jpg
+                title: Blue
+            viewType: swatch
+    GetProductImagesBadRequestResponseExample:
+      value:
+        title: Bad Request
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/validation
+        detail: The 'imgTypes' parameter value 'large:abc' is invalid. Counts must be positive integers.
+    GetProductImagesNotFoundResponseExample:
+      value:
+        title: Product Not Found
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/product-not-found
+        detail: No product with ID 'unknown-product-id' for site 'SiteGenesis' could be found.
+        productId: unknown-product-id
+        siteId: SiteGenesis
+    GetProductPricesResponseExample:
+      value:
+        productId: apple-ipod-shuffle
+        price: 89.99
+        priceMax: 99.99
+        pricePerUnit: 8.99
+        pricePerUnitMax: 9.99
+        pricePerUnitUnit: kg
+        tieredPrices:
+          - price: 89.99
+            pricebook: usd-sale-pricebook
+            quantity: 1
+          - price: 79.99
+            pricebook: usd-sale-pricebook
+            quantity: 10
+          - price: 69.99
+            pricebook: usd-sale-pricebook
+            quantity: 50
+        prices:
+          usd-sale-pricebook: 89.99
+          usd-list-pricebook: 99.99
+    GetProductPricesBadRequestResponseExample:
+      value:
+        title: Bad Request
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/validation
+        detail: The locale 'xx-INVALID' is not valid.
+    GetProductPricesNotFoundResponseExample:
+      value:
+        title: Product Not Found
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/product-not-found
+        detail: No product with ID 'unknown-product' for site 'SiteGenesis' could be found.
+        productId: unknown-product
+        siteId: SiteGenesis
+    GetProductPromotionsResponseExample:
+      value:
+        productId: apple-ipod-shuffle
+        productPromotions:
+          - promotionId: 20off-electronics
+            calloutMsg: Save 20%!
+            promotionalPrice: 71.99
+          - promotionId: free-shipping-50
+            calloutMsg: Free Shipping
+    GetProductPromotionsBadRequestResponseExample:
+      value:
+        title: Bad Request
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/validation
+        detail: The locale 'xx-INVALID' is not valid.
+    GetProductPromotionsNotFoundResponseExample:
+      value:
+        title: Product Not Found
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/product-not-found
+        detail: No product with ID 'unknown-product' for site 'SiteGenesis' could be found.
+        productId: unknown-product
         siteId: SiteGenesis
     GetCategoriesResponseExample:
       value:

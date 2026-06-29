@@ -3,7 +3,7 @@ info:
   x-api-type: Shopper
   x-api-family: Checkout
   title: Shopper Baskets
-  version: 2.5.1
+  version: 2.9.0
   description: |-
     [Download API specification](https://developer.salesforce.com/static/commercecloud/commerce-api/shopper-baskets-v2/shopper-baskets-oas-v2-public.yaml)
 
@@ -57,11 +57,61 @@ info:
     -   `/baskets/{basketId}/items/{itemId}/taxes`
     -   `/baskets/{basketId}/price-books`
 
-    ## Use Cases
+    ## Customization
 
-    ### Use Hooks
+    ### Custom Properties
+
+    This API supports custom properties (prefixed with `c_`). For details, see [Custom Properties.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/custom-properties.html)
+
+    ### Hooks
 
     For details on working with hooks, see [Extensibility with Hooks.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html)
+
+    ## Response Details
+
+    ### Personalization
+
+    Responses from this API can be personalized using the [Shopper Context API.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/shopper-context-api.html) By setting context attributes such as customer group, source code, or store ID, you can retrieve personalized promotions, pricing, and shipping methods. For details on how personalization interacts with caching, see [Personalized Caching.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/server-side-web-tier-caching.html#personalized-caching)
+
+    ### Caching
+
+    Responses from this API are not cached. Basket data is stateful and unique to each shopper session.
+
+    ### Timeouts
+
+    Shopper API requests must respond within 10 seconds, including any hook execution. If a response exceeds this threshold, an HTTP 504 status code is returned. For details, see [Timeouts and Limits.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/timeouts-limits.html)
+
+    ### Error Handling
+
+    Error responses follow the [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807) problem detail format. To trace errors, include a `correlation-id` header in your request — the response returns it as `x-correlation-id`. For details, see [HTTP Status Codes and Errors.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/error-response-codes.html)
+
+    ## Use Cases
+
+    ### Create a Basket
+
+    Create a new basket for the shopper.
+
+    ```sh
+    curl "https://{shortCode}.api.commercecloud.salesforce.com/checkout/shopper-baskets/v2/organizations/{organizationId}/baskets?siteId=RefArch" \
+      -X POST \
+      -H "Authorization: Bearer {access_token}" \
+      -H "Content-Type: application/json" \
+      -d '{}'
+    ```
+
+    ### Add an Item to a Basket
+
+    Add a product to an existing basket.
+
+    ```sh
+    curl "https://{shortCode}.api.commercecloud.salesforce.com/checkout/shopper-baskets/v2/organizations/{organizationId}/baskets/{basketId}/items?siteId=RefArch" \
+      -X POST \
+      -H "Authorization: Bearer {access_token}" \
+      -H "Content-Type: application/json" \
+      -d '[{ "productId": "25695327M", "quantity": 1 }]'
+    ```
+
+
 
     ### Basket Calculation
 
@@ -98,16 +148,18 @@ info:
 
     The following example shows an implementation of external tax calculation with hooks enabled in the [Calculate Hook](https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html#calculate-hook):
 
-        exports.calculate = function (basket) {
-           if ( basket.isExternallyTaxed() )
-           {
-              TaxMgr.applyExternalTaxation( basket ); // apply the external tax calculation based on the tax rates set by the SCAPI external taxation APIs
-           }
-           else
-           {
-              // calculation with tax tables or customization
-           }
-        }
+    ```javascript
+    exports.calculate = function (basket) {
+       if ( basket.isExternallyTaxed() )
+       {
+          TaxMgr.applyExternalTaxation( basket ); // apply the external tax calculation based on the tax rates set by the SCAPI external taxation APIs
+       }
+       else
+       {
+          // calculation with tax tables or customization
+       }
+    }
+    ```
 
     ## Temporary Baskets
 
@@ -117,10 +169,18 @@ info:
     - Available to all shoppers (guest and registered shoppers), as well as agents.
 
     To create a temporary basket, set the `temporary` parameter to `true` with the [Create basket](https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets-v2?meta=createBasket) endpoint.
+
+    To promote a temporary basket by clearing its `isTemporary` flag, use the [Promote basket](https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets-v2?meta=promoteTemporaryBasket) endpoint.
+
+    ## Related APIs
+
+    - [Shopper Orders](https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-orders?meta=Summary) — Place an order from a completed basket.
+    - [Shopper Payments](https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-payments?meta=Summary) — Retrieve payment method configuration for checkout.
 servers:
   - url: https://{shortCode}.api.commercecloud.salesforce.com/checkout/shopper-baskets/v2
     variables:
       shortCode:
+        description: An eight-character string assigned to a realm for routing purposes. See [Base URL and Request Formation.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html)
         default: shortCode
 paths:
   /organizations/{organizationId}/baskets:
@@ -188,7 +248,7 @@ paths:
                 TemporaryBasketQuotaExceededException:
                   $ref: '#/components/examples/TemporaryBasketQuotaExceededException'
         '404':
-          description: Thrown if the shipment with the given shipment ID is unknown.
+          description: Returned if the shipment with the given shipment ID is unknown.
           content:
             application/problem+json:
               examples:
@@ -359,6 +419,7 @@ paths:
       summary: Retrieve an existing basket.
       parameters:
         - $ref: '#/components/parameters/locale'
+        - $ref: '#/components/parameters/expand'
       responses:
         '200':
           description: Success, the response body contains the retrieved basket.
@@ -369,6 +430,10 @@ paths:
               examples:
                 GetBasket:
                   $ref: '#/components/examples/BasketGet'
+                GetBasketWithOrderApproachingDiscount:
+                  $ref: '#/components/examples/BasketGetWithOrderApproachingDiscount'
+                GetBasketWithShippingApproachingDiscount:
+                  $ref: '#/components/examples/BasketGetWithShippingApproachingDiscount'
         '400':
           description: |-
             The customer assigned to the basket does not
@@ -487,6 +552,73 @@ paths:
               examples:
                 BasketNotFound:
                   $ref: '#/components/examples/BasketNotFound'
+      security:
+        - ShopperToken:
+            - sfcc.shopper-baskets-orders.rw
+            - sfcc.shopper-standard
+    parameters:
+      - $ref: '#/components/parameters/siteId'
+      - $ref: '#/components/parameters/organizationId'
+      - $ref: '#/components/parameters/basketId'
+  /organizations/{organizationId}/baskets/{basketId}/actions/promote:
+    post:
+      description: |-
+        Clears the `isTemporary` flag on a temporary basket (`isTemporary = true`). The basket UUID is preserved. For regular shopper baskets, the result satisfies `isStorefrontBasket`; for agent baskets (`isAgentBasket = true`), the `isTemporary` flag is cleared but the basket remains an agent basket — it does not become a storefront basket.
+
+        **Agent baskets:** Because agent baskets do not occupy the customer's storefront basket slot after promotion, conflict resolution is skipped entirely. The `merge` and `overrideExisting` parameters are ignored when promoting an agent basket.
+
+        For non-agent baskets, if the shopper already has a storefront basket, this endpoint uses the `merge` parameter to control the behavior:
+        - `true` (recommended): Executes the `dw.order.mergeBasket` hook to fold the pre-existing storefront basket's contents into the promoted basket.
+        - `false`: Either overrides the pre-existing storefront basket or returns a `409` response, depending on the `overrideExisting` parameter.
+
+        If `merge=false` and the shopper has a pre-existing storefront basket, the `overrideExisting` parameter controls the behavior:
+        - `false` (default): Returns a `BasketNotPromotableException` (HTTP status 409).
+        - `true`: Deletes the pre-existing storefront basket and completes the promotion.
+      operationId: promoteTemporaryBasket
+      summary: Promote a temporary basket by clearing its isTemporary flag.
+      x-extensionPoints:
+        - phase: service-logic
+          name: dw.order.mergeBasket
+          description: Called when merge=true and the shopper has a pre-existing storefront basket. Merges the pre-existing basket into the promoted basket.
+          arguments:
+            - name: dw.order.Basket
+              description: The pre-existing storefront basket (source); null if no pre-existing basket exists.
+            - name: dw.order.Basket
+              description: The promoted basket (survivor).
+      parameters:
+        - $ref: '#/components/parameters/overrideExisting'
+        - $ref: '#/components/parameters/merge'
+        - $ref: '#/components/parameters/locale'
+      responses:
+        '200':
+          description: The basket's `isTemporary` flag has been cleared. For regular shopper baskets the result is a storefront basket; agent baskets remain agent baskets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Basket'
+              examples:
+                BasketPutStorefront:
+                  $ref: '#/components/examples/BasketPutStorefront'
+        '404':
+          description: The basket with the given basket ID is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                BasketNotFound:
+                  $ref: '#/components/examples/BasketNotFound'
+                CustomerInfoJwtMismatch:
+                  $ref: '#/components/examples/CustomerInfoJwtMismatch'
+        '409':
+          description: The call returns this response when the `merge` request parameter is set to `false` and the shopper has a pre-existing storefront basket and `overrideExisting` is set to `false` (default value).
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                BasketNotPromotableException:
+                  $ref: '#/components/examples/BasketNotPromotableException'
       security:
         - ShopperToken:
             - sfcc.shopper-baskets-orders.rw
@@ -1385,7 +1517,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OrderPaymentInstrument'
+              $ref: '#/components/schemas/BasketPaymentInstrumentRequest'
             examples:
               PaymentInstrumentPatch:
                 $ref: '#/components/examples/PaymentInstrumentPatch'
@@ -2100,7 +2232,7 @@ paths:
                 BasketPutStorefront:
                   $ref: '#/components/examples/BasketPutStorefront'
         '400':
-          description: Thrown if a storefront basket already exists and the query parameter `exchange` is false.
+          description: Returned if a storefront basket already exists and the query parameter `exchange` is false.
           content:
             application/problem+json:
               schema:
@@ -2261,11 +2393,10 @@ components:
       example: RefArch
       type: string
     OrganizationId:
-      description: An identifier for the organization the request is being made by
+      description: An identifier for the Salesforce Commerce Cloud organization the request is being made by. It consists of a prefix 'f_ecom_' followed by a 4-character [realm identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#realm-id) and a 3-character [instance type identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#instance-id).
       example: f_ecom_zzxy_prd
       type: string
-      minLength: 1
-      maxLength: 32
+      pattern: ^f_ecom_[a-z]{4}_(prd|stg|dev|s[0-9]{2}|[0-9]{3})$
     LanguageCountry:
       pattern: ^[a-z][a-z]-[A-Z][A-Z]$
       description: A concatenated version of the standard Language and Country codes, combined with a hyphen '`-`'.
@@ -3545,6 +3676,96 @@ components:
           description: The tax rate applicable to this product line item. For a 10% tax rate, the value is 0.1. It is read only.
           type: number
       type: object
+    PromotionLink:
+      description: Document representing a promotion link.
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+      type: object
+      properties:
+        promotionId:
+          description: The unique id of the promotion.
+          example: 10off100
+          type: string
+          minLength: 1
+          maxLength: 256
+        name:
+          description: The localized name of the promotion.
+          example: 10% off $100 orders
+          type: string
+          minLength: 1
+          maxLength: 256
+        calloutMsg:
+          description: The localized call-out message of the promotion.
+          example: Spend $10 more to save 10%!
+          type: string
+          minLength: 1
+          maxLength: 256
+        title:
+          description: The link title.
+          example: 10% off $100 orders
+          type: string
+          minLength: 1
+          maxLength: 256
+        link:
+          description: The URL addressing the promotion.
+          example: /s/SiteGenesis/promotion?id=10off100
+          type: string
+          minLength: 1
+          maxLength: 2048
+    ApproachingDiscount:
+      description: Document representing an approaching discount for a basket. Contains information about promotions the customer is close to qualifying for.
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+      type: object
+      properties:
+        type:
+          description: The type of approaching discount (order-level or shipping-level).
+          example: order
+          enum:
+            - order
+            - shipping
+          type: string
+        conditionThreshold:
+          format: double
+          description: The total amount needed to receive the discount.
+          example: 100
+          type: number
+        merchandiseTotal:
+          format: double
+          description: The amount the customer basket contributes towards the purchase condition.
+          example: 90
+          type: number
+        discount:
+          description: The applied discount when the order meets the threshold.
+          allOf:
+            - $ref: '#/components/schemas/Discount'
+        promotionLink:
+          description: Document representing a promotion link.
+          allOf:
+            - $ref: '#/components/schemas/PromotionLink'
+        shipmentId:
+          description: The unique id of the shipment the discount relates to. Only applicable when type = shipping.
+          example: me
+          type: string
+          minLength: 1
+          maxLength: 256
+        shippingMethods:
+          description: The shipping methods the promotion relates to. Only applicable when type = shipping.
+          type: array
+          items:
+            $ref: '#/components/schemas/ShippingMethod'
+      required:
+        - type
     Basket:
       description: Document representing a basket.
       additionalProperties:
@@ -3607,6 +3828,8 @@ components:
             - google
             - whatsapp
             - youtube
+            - chatgpt
+            - gemini
           type: string
         couponItems:
           description: The coupon items.
@@ -3735,6 +3958,11 @@ components:
           description: If the created basket is a temporary basket, this is set to true. Otherwise, it is set to false.
           example: true
           type: boolean
+        approachingDiscounts:
+          description: A list of approaching discount objects for the basket. The list includes both order-level and shipping-level promotions. This field is only included when the expand query parameter contains 'approaching_discounts'.
+          type: array
+          items:
+            $ref: '#/components/schemas/ApproachingDiscount'
       type: object
     ErrorResponse:
       type: object
@@ -4186,7 +4414,7 @@ components:
       schema:
         $ref: '#/components/schemas/SiteId'
     organizationId:
-      description: An identifier for the organization the request is being made by
+      description: An identifier for the Salesforce Commerce Cloud organization the request is being made by. It consists of a prefix 'f_ecom_' followed by a 4-character [realm identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#realm-id) and a 3-character [instance type identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#instance-id).
       name: organizationId
       in: path
       required: true
@@ -4214,7 +4442,16 @@ components:
     populateCustomerDetails:
       name: populateCustomerDetails
       in: query
-      description: "If set to true, the system invokes the `dw.order.populateCustomerDetails` hook.\n\nBy default, the hook retrieves the registered customer's default address or first saved address, and payment instrument. \nThe hook then uses this information to populate the basket:\n- If no shipping address is specified, the shipping address is set to the customer's saved address.\n- If no billing address is specified, the billing address is set to the customer's saved address.\n- If no payment instrument is specified, the payment instrument is set to the customer's saved payment instrument.\n\nThis behavior can be customized by overriding the hook."
+      description: |-
+        If set to true, the system invokes the `dw.order.populateCustomerDetails` hook.
+
+        By default, the hook retrieves the registered customer's default address or first saved address, and payment instrument.
+        The hook then uses this information to populate the basket:
+        - If no shipping address is specified, the shipping address is set to the customer's saved address.
+        - If no billing address is specified, the billing address is set to the customer's saved address.
+        - If no payment instrument is specified, the payment instrument is set to the customer's saved payment instrument.
+
+        This behavior can be customized by overriding the hook.
       schema:
         default: false
         type: boolean
@@ -4284,6 +4521,27 @@ components:
         minLength: 1
         type: string
       description: The ID of the basket to be modified.
+    expand:
+      name: expand
+      in: query
+      description: |-
+        Expands the response with additional data.
+        - payment_references: Adds a `paymentReference` object to each `paymentInstrument`, holding data regarding the payment with the external payment gateway. If Salesforce Payments is not enabled, this expansion has no effect.
+        - approaching_discounts: The endpoint returns the approachingDiscounts array on the basket, which contains order and shipping discount entries. If you don't provide this parameter, the approachingDiscounts field isn't included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - payment_references
+            - approaching_discounts
+          example: payment_references
+        example:
+          - payment_references
+          - approaching_discounts
     removeExternalTax:
       name: removeExternalTax
       in: query
@@ -4293,6 +4551,7 @@ components:
         type: boolean
     useAsShipping:
       name: useAsShipping
+      description: When true, the address is also used as the shipping address.
       in: query
       schema:
         type: boolean
@@ -4338,6 +4597,7 @@ components:
       description: The ID of the shipment to be modified.
     useAsBilling:
       name: useAsBilling
+      description: When true, the address is also used as the billing address.
       in: query
       schema:
         type: boolean
@@ -4665,6 +4925,180 @@ components:
         shippingTotalTax: 0.8
         taxation: net
         taxTotal: 30.8
+    BasketGetWithOrderApproachingDiscount:
+      value:
+        adjustedMerchandizeTotalTax: 30
+        adjustedShippingTotalTax: 0.8
+        agentBasket: false
+        basketId: a10ff320829cb0eef93ca5310a
+        channelType: storefront
+        creationDate: '2019-10-17T08:29:55.340Z'
+        currency: USD
+        customerInfo:
+          customerId: beQeANXJNsd0xcINsB6cSrobQa
+          email: shopper@salesforce-test.com
+        lastModified: '2019-10-17T08:29:55.698Z'
+        merchandizeTotalTax: 30
+        orderTotal: 646.76
+        productItems:
+          - adjustedTax: 30
+            basePrice: 199.99
+            bonusProductLineItem: false
+            gift: false
+            itemId: 3d4e28425ce0b3a65b0ac4e163
+            itemText: Green Umbrella - Sustained Edition
+            price: 599.97
+            priceAfterItemDiscount: 599.97
+            priceAfterOrderDiscount: 599.97
+            productId: green-umbrella
+            productName: Green Umbrella - Sustained Edition
+            quantity: 3
+            shipmentId: me
+            tax: 30
+            taxBasis: 599.97
+            taxClassId: standard
+            taxRate: 0.05
+        productSubTotal: 599.97
+        productTotal: 599.97
+        shipments:
+          - adjustedMerchandizeTotalTax: 30
+            adjustedShippingTotalTax: 0.8
+            gift: false
+            merchandizeTotalTax: 30
+            productSubTotal: 599.97
+            productTotal: 599.97
+            shipmentId: me
+            shipmentTotal: 646.76
+            shippingMethod:
+              description: Order received within 7-10 business days
+              id: '001'
+              name: Ground
+              price: 15.99
+            shippingStatus: not_shipped
+            shippingTotal: 15.99
+            shippingTotalTax: 0.8
+            taxTotal: 30.8
+        shippingItems:
+          - adjustedTax: 0.8
+            basePrice: 15.99
+            itemId: d5ed0e58b8f8b5efe8d617a630
+            itemText: Shipping
+            price: 15.99
+            priceAfterItemDiscount: 15.99
+            shipmentId: me
+            tax: 0.8
+            taxBasis: 15.99
+            taxClassId: standard
+            taxRate: 0.05
+        shippingTotal: 15.99
+        shippingTotalTax: 0.8
+        taxation: net
+        taxTotal: 30.8
+        approachingDiscounts:
+          - type: order
+            conditionThreshold: 700
+            merchandiseTotal: 599.97
+            discount:
+              type: percentage
+              percentage: 0.15
+            promotionLink:
+              promotionId: 15off700
+              name: 15% off $700 orders
+              calloutMsg: Spend $100 more to save 15%!
+              title: 15% off $700 orders
+              link: /s/RefArch/promotions/15off700
+    BasketGetWithShippingApproachingDiscount:
+      value:
+        adjustedMerchandizeTotalTax: 30
+        adjustedShippingTotalTax: 0.8
+        agentBasket: false
+        basketId: a10ff320829cb0eef93ca5310a
+        channelType: storefront
+        creationDate: '2019-10-17T08:29:55.340Z'
+        currency: USD
+        customerInfo:
+          customerId: beQeANXJNsd0xcINsB6cSrobQa
+          email: shopper@salesforce-test.com
+        lastModified: '2019-10-17T08:29:55.698Z'
+        merchandizeTotalTax: 30
+        orderTotal: 646.76
+        productItems:
+          - adjustedTax: 30
+            basePrice: 199.99
+            bonusProductLineItem: false
+            gift: false
+            itemId: 3d4e28425ce0b3a65b0ac4e163
+            itemText: Green Umbrella - Sustained Edition
+            price: 599.97
+            priceAfterItemDiscount: 599.97
+            priceAfterOrderDiscount: 599.97
+            productId: green-umbrella
+            productName: Green Umbrella - Sustained Edition
+            quantity: 3
+            shipmentId: me
+            tax: 30
+            taxBasis: 599.97
+            taxClassId: standard
+            taxRate: 0.05
+        productSubTotal: 599.97
+        productTotal: 599.97
+        shipments:
+          - adjustedMerchandizeTotalTax: 30
+            adjustedShippingTotalTax: 0.8
+            gift: false
+            merchandizeTotalTax: 30
+            productSubTotal: 599.97
+            productTotal: 599.97
+            shipmentId: me
+            shipmentTotal: 646.76
+            shippingMethod:
+              description: Order received within 7-10 business days
+              id: '001'
+              name: Ground
+              price: 15.99
+            shippingStatus: not_shipped
+            shippingTotal: 15.99
+            shippingTotalTax: 0.8
+            taxTotal: 30.8
+        shippingItems:
+          - adjustedTax: 0.8
+            basePrice: 15.99
+            itemId: d5ed0e58b8f8b5efe8d617a630
+            itemText: Shipping
+            price: 15.99
+            priceAfterItemDiscount: 15.99
+            shipmentId: me
+            tax: 0.8
+            taxBasis: 15.99
+            taxClassId: standard
+            taxRate: 0.05
+        shippingTotal: 15.99
+        shippingTotalTax: 0.8
+        taxation: net
+        taxTotal: 30.8
+        approachingDiscounts:
+          - type: shipping
+            conditionThreshold: 750
+            merchandiseTotal: 599.97
+            discount:
+              type: amount
+              amount: 15.99
+            promotionLink:
+              promotionId: freeship750
+              name: Free shipping over $750
+              calloutMsg: Add $150 more for free shipping!
+              title: Free shipping over $750
+              link: /s/RefArch/promotions/freeship750
+            shipmentId: me
+            shippingMethods:
+              - id: '001'
+                name: Ground
+                description: Order received within 7-10 business days
+                price: 15.99
+              - id: '002'
+                name: 2-Day Express
+                description: Order received in 2 business days
+                price: 20.99
     CustomerInfoJwtMismatch:
       value:
         type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/bad-request
@@ -4800,6 +5234,132 @@ components:
         taxation: net
         taxTotal: 30.8
         c_textValue: oak
+    BasketPutStorefront:
+      value:
+        adjustedMerchandizeTotalTax: 30
+        adjustedShippingTotalTax: 0.8
+        agentBasket: false
+        basketId: a10ff320829cb0eef93ca5310a
+        billingAddress:
+          address1: 104 Presidential Way
+          city: Woburn
+          countryCode: US
+          firstName: Stephanie
+          fullName: Stephanie Miller
+          id: bfea663fd3de75d5be3ec02702
+          lastName: Miller
+          postalCode: '01801'
+          stateCode: MA
+        channelType: callcenter
+        couponItems:
+          - code: 5ties
+            couponItemId: cc6ef43f207bf64099288aec36
+            statusCode: no_applicable_promotion
+            valid: true
+        creationDate: '2019-10-17T08:29:55.340Z'
+        currency: USD
+        customerInfo:
+          customerId: beQeANXJNsd0xcINsB6cSrobQa
+          email: shopper@salesforce-test.com
+        lastModified: '2019-10-17T08:29:55.698Z'
+        merchandizeTotalTax: 30
+        orderTotal: 646.76
+        paymentInstruments:
+          - amount: 0
+            paymentCard:
+              cardType: Visa
+              creditCardExpired: false
+            paymentInstrumentId: b7679bea661819b2de78b9de7d
+            paymentMethodId: CREDIT_CARD
+        productItems:
+          - adjustedTax: 30
+            basePrice: 199.99
+            bonusProductLineItem: false
+            gift: false
+            itemId: 3d4e28425ce0b3a65b0ac4e163
+            itemText: Green Umbrella - Sustained Edition
+            optionItems:
+              - adjustedTax: 0
+                basePrice: 0
+                bonusProductLineItem: false
+                gift: false
+                itemId: ff9452ed11fcf5c80f9143a8f1
+                itemText: We will plant a tree for your order.
+                optionId: plantATree
+                optionValueId: '000'
+                price: 0
+                priceAfterItemDiscount: 0
+                priceAfterOrderDiscount: 0
+                productId: '000'
+                productName: Plant a tree.
+                quantity: 3
+                shipmentId: me
+                tax: 0
+                taxBasis: 0
+                taxClassId: standard
+                taxRate: 0.05
+            price: 599.97
+            priceAfterItemDiscount: 599.97
+            priceAfterOrderDiscount: 599.97
+            productId: green-umbrella
+            productName: Green Umbrella - Sustained Edition
+            quantity: 3
+            shipmentId: me
+            tax: 30
+            taxBasis: 599.97
+            taxClassId: standard
+            taxRate: 0.05
+        productSubTotal: 599.97
+        productTotal: 599.97
+        shipments:
+          - adjustedMerchandizeTotalTax: 30
+            adjustedShippingTotalTax: 0.8
+            gift: false
+            merchandizeTotalTax: 30
+            productSubTotal: 599.97
+            productTotal: 599.97
+            shipmentId: me
+            shipmentTotal: 646.76
+            shippingAddress:
+              address1: 4162  Turkey Pen Road
+              city: New York
+              countryCode: US
+              firstName: Agustin
+              fullName: Agustin Estes
+              id: 4432af77112f7c2433248a48e8
+              lastName: Estes
+              postalCode: '10016'
+              stateCode: NY
+            shippingMethod:
+              description: Order received within 7-10 business days
+              id: '001'
+              name: Ground
+              price: 15.99
+            shippingStatus: not_shipped
+            shippingTotal: 15.99
+            shippingTotalTax: 0.8
+            taxTotal: 30.8
+        shippingItems:
+          - adjustedTax: 0.8
+            basePrice: 15.99
+            itemId: d5ed0e58b8f8b5efe8d617a630
+            itemText: Shipping
+            price: 15.99
+            priceAfterItemDiscount: 15.99
+            shipmentId: me
+            tax: 0.8
+            taxBasis: 15.99
+            taxClassId: standard
+            taxRate: 0.05
+        shippingTotal: 15.99
+        shippingTotalTax: 0.8
+        taxation: net
+        taxTotal: 30.8
+    BasketNotPromotableException:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/basket-not-promotable-exception
+        title: Conflict
+        detail: The basket with ID 'a10ff320829cb0eef93ca5310a' cannot be promoted to a storefront basket in its current state.
     BasketPutAgent:
       value:
         adjustedMerchandizeTotalTax: 30
@@ -6665,127 +7225,6 @@ components:
             price: 0
             c_storePickupEnabled: true
         defaultShippingMethodId: '001'
-    BasketPutStorefront:
-      value:
-        adjustedMerchandizeTotalTax: 30
-        adjustedShippingTotalTax: 0.8
-        agentBasket: false
-        basketId: a10ff320829cb0eef93ca5310a
-        billingAddress:
-          address1: 104 Presidential Way
-          city: Woburn
-          countryCode: US
-          firstName: Stephanie
-          fullName: Stephanie Miller
-          id: bfea663fd3de75d5be3ec02702
-          lastName: Miller
-          postalCode: '01801'
-          stateCode: MA
-        channelType: callcenter
-        couponItems:
-          - code: 5ties
-            couponItemId: cc6ef43f207bf64099288aec36
-            statusCode: no_applicable_promotion
-            valid: true
-        creationDate: '2019-10-17T08:29:55.340Z'
-        currency: USD
-        customerInfo:
-          customerId: beQeANXJNsd0xcINsB6cSrobQa
-          email: shopper@salesforce-test.com
-        lastModified: '2019-10-17T08:29:55.698Z'
-        merchandizeTotalTax: 30
-        orderTotal: 646.76
-        paymentInstruments:
-          - amount: 0
-            paymentCard:
-              cardType: Visa
-              creditCardExpired: false
-            paymentInstrumentId: b7679bea661819b2de78b9de7d
-            paymentMethodId: CREDIT_CARD
-        productItems:
-          - adjustedTax: 30
-            basePrice: 199.99
-            bonusProductLineItem: false
-            gift: false
-            itemId: 3d4e28425ce0b3a65b0ac4e163
-            itemText: Green Umbrella - Sustained Edition
-            optionItems:
-              - adjustedTax: 0
-                basePrice: 0
-                bonusProductLineItem: false
-                gift: false
-                itemId: ff9452ed11fcf5c80f9143a8f1
-                itemText: We will plant a tree for your order.
-                optionId: plantATree
-                optionValueId: '000'
-                price: 0
-                priceAfterItemDiscount: 0
-                priceAfterOrderDiscount: 0
-                productId: '000'
-                productName: Plant a tree.
-                quantity: 3
-                shipmentId: me
-                tax: 0
-                taxBasis: 0
-                taxClassId: standard
-                taxRate: 0.05
-            price: 599.97
-            priceAfterItemDiscount: 599.97
-            priceAfterOrderDiscount: 599.97
-            productId: green-umbrella
-            productName: Green Umbrella - Sustained Edition
-            quantity: 3
-            shipmentId: me
-            tax: 30
-            taxBasis: 599.97
-            taxClassId: standard
-            taxRate: 0.05
-        productSubTotal: 599.97
-        productTotal: 599.97
-        shipments:
-          - adjustedMerchandizeTotalTax: 30
-            adjustedShippingTotalTax: 0.8
-            gift: false
-            merchandizeTotalTax: 30
-            productSubTotal: 599.97
-            productTotal: 599.97
-            shipmentId: me
-            shipmentTotal: 646.76
-            shippingAddress:
-              address1: 4162  Turkey Pen Road
-              city: New York
-              countryCode: US
-              firstName: Agustin
-              fullName: Agustin Estes
-              id: 4432af77112f7c2433248a48e8
-              lastName: Estes
-              postalCode: '10016'
-              stateCode: NY
-            shippingMethod:
-              description: Order received within 7-10 business days
-              id: '001'
-              name: Ground
-              price: 15.99
-            shippingStatus: not_shipped
-            shippingTotal: 15.99
-            shippingTotalTax: 0.8
-            taxTotal: 30.8
-        shippingItems:
-          - adjustedTax: 0.8
-            basePrice: 15.99
-            itemId: d5ed0e58b8f8b5efe8d617a630
-            itemText: Shipping
-            price: 15.99
-            priceAfterItemDiscount: 15.99
-            shipmentId: me
-            tax: 0.8
-            taxBasis: 15.99
-            taxClassId: standard
-            taxRate: 0.05
-        shippingTotal: 15.99
-        shippingTotalTax: 0.8
-        taxation: net
-        taxTotal: 30.8
     BasketTaxGet:
       value:
         taxes:
