@@ -3,7 +3,7 @@ info:
   x-api-type: Shopper
   x-api-family: Checkout
   title: Shopper Orders
-  version: 1.12.1
+  version: 1.15.0
   description: |-
     [Download API specification](https://developer.salesforce.com/static/commercecloud/commerce-api/shopper-orders/shopper-orders-oas-v1-public.yaml)
 
@@ -20,27 +20,70 @@ info:
 
     To update the payment status, use the Orders API.
 
-    Caching is provided for the Shopper Products API. For details, see [Server-Side Web-Tier Caching](https://developer.salesforce.com/docs/commerce/commerce-api/guide/server-side-web-tier-caching.html).
+    Responses from this API are not cached because order data is transactional and unique to each shopper.
 
     For additional guidance when working with baskets, see [Build Baskets and Place Orders](https://developer.salesforce.com/docs/commerce/commerce-api/guide/work-with-baskets-orders.html).
 
     ## Authentication & Authorization
 
-    The client requesting the product information must have access to the Products resource. The Shopper Products API requires a shopper access token from the Shopper Login and API Access Service (SLAS).
+    The client requesting order information must have access to the Orders resource. The Shopper Orders API requires a shopper access token from the Shopper Login and API Access Service (SLAS).
 
     For details on how to request a shopper access token from SLAS, see the guest user flows for [public clients](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-public-client.html#guest-user) and [private clients](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-private-client.html#guest-user) in the SLAS guides.
 
     You must include `sfcc.shopper-baskets-orders` or `sfcc.shopper-baskets-orders.rw` in the client ID used to generate the SLAS token. For a full list of permissions, see the [Authorization Scopes Catalog.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html)
 
-    ## Use Cases
+    ## Customization
 
-    ### Use Hooks
+    ### Custom Properties
+
+    This API supports custom properties (prefixed with `c_`). For details, see [Custom Properties.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/custom-properties.html)
+
+    ### Hooks
 
     For details on working with hooks, see [Extensibility with Hooks.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html)
+
+    ## Response Details
+
+    ### Personalization
+
+    Responses from this API are not personalized via the Shopper Context API.
+
+    ### Caching
+
+    Responses from this API are not cached. Order data is transactional and unique to each shopper.
+
+    ### Timeouts
+
+    Shopper API requests must respond within 10 seconds, including any hook execution. If a response exceeds this threshold, an HTTP 504 status code is returned. For details, see [Timeouts and Limits.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/timeouts-limits.html)
+
+    ### Error Handling
+
+    Error responses follow the [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807) problem detail format. To trace errors, include a `correlation-id` header in your request — the response returns it as `x-correlation-id`. For details, see [HTTP Status Codes and Errors.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/error-response-codes.html)
+
+    ## Use Cases
+
+    ### Create an Order from a Basket
+
+    Place an order by providing a basket ID. The basket must have a valid shipping address, shipping method, billing address, and payment instrument.
+
+    ```sh
+    curl "https://{shortCode}.api.commercecloud.salesforce.com/checkout/shopper-orders/v1/organizations/{organizationId}/orders?siteId=RefArch" \
+      -X POST \
+      -H "Authorization: Bearer {access_token}" \
+      -H "Content-Type: application/json" \
+      -d '{ "basketId": "{basketId}" }'
+    ```
+
+
+    ## Related APIs
+
+    - [Orders (Admin)](https://developer.salesforce.com/docs/commerce/commerce-api/references/orders?meta=Summary) — Update order status, payment status, and shipping addresses.
+    - [Shopper Baskets](https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets-v2?meta=Summary) — Build and manage baskets before placing an order.
 servers:
   - url: https://{shortCode}.api.commercecloud.salesforce.com/checkout/shopper-orders/v1
     variables:
       shortCode:
+        description: An eight-character string assigned to a realm for routing purposes. See [Base URL and Request Formation.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html)
         default: shortCode
 paths:
   /organizations/{organizationId}/orders:
@@ -85,9 +128,9 @@ paths:
             - a product item is not available.
             - the customer assigned to the basket does not
             match the verified customer represented by the JWT token.
-            - the basket contains flashes.
+            - the basket contains flashes (validation errors that prevent order placement).
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               examples:
@@ -96,7 +139,7 @@ paths:
         '404':
           description: The basket with the given basket ID is unknown.
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               examples:
@@ -104,6 +147,40 @@ paths:
                   $ref: '#/components/examples/BasketNotFound'
       security:
         - ShopperToken:
+            - sfcc.shopper-baskets-orders.rw
+            - sfcc.shopper-standard
+  /organizations/{organizationId}/orders/oms-meta-data:
+    get:
+      description: |-
+        Retrieves configuration data from Order Management (OMS) required by the storefront to render cancel and return experiences.
+        The response contains the reason codes configured in OMS for cancelling an order and for returning order items.
+        Each reason code carries a `default` flag. When the caller omits a reason, the cancel and return endpoints (`cancelOmsOrder`, `returnOmsOrder`) apply the reason marked as `default` for that flow.
+      operationId: getOmsMetaData
+      summary: Retrieve Order Management (OMS) configuration data needed to render cancel and return experiences.
+      x-extensionPoints:
+        - phase: modifyResponse
+          name: sfcc.checkout.shopper-orders.v1.orders.oms-meta-data.modifyGETResponse
+          description: Called to modify the OMS meta data returned in the response.
+          arguments:
+            - $ref: '#/components/schemas/OmsMetaData'
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '200':
+          description: Success, the response body contains the OMS meta data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OmsMetaData'
+              examples:
+                OmsMetaData:
+                  $ref: '#/components/examples/OmsMetaData'
+        '409':
+          $ref: '#/components/responses/409OmsNotActive'
+      security:
+        - ShopperToken:
+            - sfcc.shopper-baskets-orders
             - sfcc.shopper-baskets-orders.rw
             - sfcc.shopper-standard
   /organizations/{organizationId}/orders/{orderNo}:
@@ -130,7 +207,7 @@ paths:
         '404':
           description: The order with the given order number is unknown.
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               examples:
@@ -143,23 +220,20 @@ paths:
             - sfcc.shopper-standard
   /organizations/{organizationId}/orders/{orderNo}/lookup:
     post:
-      description: |+
-        Use this endpoint to lookup a guest order.
+      description: |
+        Retrieve order details using non-token identifiers or an authenticated shopper session.
 
-        **Important**: This endpoint uses the [ShopperTokenTsob](https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-login?meta=security%3AShopperTokenTsob) security scheme. Always check the Security section of the endpoint documentation, which is hidden by default.
-
-        The API uses the `orderViewCode` generated during the order creation and the `email` of the order customer to lookup a guest order. If email is not provided on the order, the field can be left blank in the lookup request.
-        **Note**: In the no email on order scenario, the custom implementation must include an additional verification of an order attribute. For example, a postal code or mobile number.
-
-        This API can also be used for looking up an order for a registered customer. In addition to the verification steps used for guest order lookup, the API also verifies that the customer ID of the order matches with the customer ID supplied in the `ShopperTokenTsob`.
-
+        The endpoint distinguishes between two levels of access:
+            - Full access: Granted using shopper authentication or an OrderViewCode paired with email or phone information. Returns the complete order graph.
+            - Partial access: Granted using a billing PostalCode paired with email or phone information. Filters sensitive data and Personally Identifiable Information (PII).
       operationId: guestOrderLookup
-      summary: Retrieve order information for a specific guest order.
+      summary: Retrieve order information using a combination of non-token identifying factors.
       parameters:
         - $ref: '#/components/parameters/organizationId'
         - $ref: '#/components/parameters/orderNo'
         - $ref: '#/components/parameters/siteId'
         - $ref: '#/components/parameters/locale'
+        - $ref: '#/components/parameters/expandOrders'
       requestBody:
         content:
           application/json:
@@ -170,7 +244,7 @@ paths:
               $ref: '#/components/schemas/OrderLookupRequest'
       responses:
         '200':
-          description: Success, the response body contains the order found with the order view code.
+          description: Success, the response returns the order, though sensitive details may be filtered based on access level.
           content:
             application/json:
               schema:
@@ -178,33 +252,33 @@ paths:
               examples:
                 Order:
                   $ref: '#/components/examples/examples-OrderPost'
+                OrderPartialAccess:
+                  $ref: '#/components/examples/OrderPartialAccess'
         '400':
           description: |-
             Possible reasons:
-            - order view code or email is missing.
+            - The combination of identifying information is not sufficient for any access level.
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               examples:
-                BadRequest:
-                  $ref: '#/components/examples/BadRequest'
+                InsufficientIdentifyingInformation:
+                  $ref: '#/components/examples/InsufficientIdentifyingInformation'
         '404':
           description: |-
             Order was not found. Possible reasons:
             - the order with the given order no is unknown.
-            - the given order view code does not match the one in the order.
-            - the given email does not match the one in the order.
-            - the authorized customer of a registered customer order lookup does not match the customer in the order.
+            - the combination of identifying information you provided, such as email or postal code, does not match the order record.
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               examples:
                 OrderNotFound:
                   $ref: '#/components/examples/OrderNotFound'
       security:
-        - ShopperTokenTsob:
+        - ShopperToken:
             - sfcc.shopper-baskets-orders
             - sfcc.shopper-baskets-orders.rw
             - sfcc.shopper-standard
@@ -253,7 +327,7 @@ paths:
             Possible reasons:
               - Invalid request parameters.
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               examples:
@@ -262,7 +336,7 @@ paths:
         '404':
           description: The order with the given order number is unknown for the shopper.
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               examples:
@@ -271,12 +345,116 @@ paths:
         '409':
           description: The order is in invalid status.
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               examples:
                 InvalidStateTransition:
                   $ref: '#/components/examples/InvalidStateTransition'
+  /organizations/{organizationId}/orders/{orderNo}/actions/oms-cancel-order:
+    post:
+      description: |-
+        Cancels an order that is integrated with Order Management (OMS).
+        The cancellation always applies to the entire order; partial cancellations are not supported.
+      operationId: cancelOmsOrder
+      summary: Cancel an order that is integrated with Order Management (OMS).
+      x-extensionPoints:
+        - phase: modifyResponse
+          name: sfcc.checkout.shopper-orders.v1.orders.orderNo.actions.oms-cancel-order.modifyPOSTResponse
+          description: Called to modify the order returned in the response after cancellation.
+          arguments:
+            - $ref: '#/components/schemas/Order'
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/orderNo'
+        - $ref: '#/components/parameters/siteId'
+        - $ref: '#/components/parameters/locale'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              OmsCancelOrder:
+                $ref: '#/components/examples/OmsCancelOrder'
+            schema:
+              $ref: '#/components/schemas/OmsCancelOrderRequest'
+      responses:
+        '200':
+          description: Success, the response body contains the updated order retrieved from Order Management (OMS).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+              examples:
+                Order:
+                  $ref: '#/components/examples/OrderGet'
+        '400':
+          $ref: '#/components/responses/400OmsCancelBadRequest'
+        '404':
+          description: The order with the given order number is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                OrderNotFound:
+                  $ref: '#/components/examples/OrderNotFound'
+        '409':
+          $ref: '#/components/responses/409OmsCancelConflict'
+      security:
+        - ShopperToken:
+            - sfcc.shopper-baskets-orders.rw
+            - sfcc.shopper-standard
+  /organizations/{organizationId}/orders/{orderNo}/actions/oms-return-order:
+    post:
+      description: Initiates the return of one or more items of an order that is integrated with Order Management (OMS).
+      operationId: returnOmsOrder
+      summary: Initiate the return of one or more items of an order that is integrated with Order Management (OMS).
+      x-extensionPoints:
+        - phase: modifyResponse
+          name: sfcc.checkout.shopper-orders.v1.orders.orderNo.actions.oms-return-order.modifyPOSTResponse
+          description: Called to modify the order returned in the response after the return was initiated.
+          arguments:
+            - $ref: '#/components/schemas/Order'
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/orderNo'
+        - $ref: '#/components/parameters/siteId'
+        - $ref: '#/components/parameters/locale'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              OmsReturnOrder:
+                $ref: '#/components/examples/OmsReturnOrder'
+            schema:
+              $ref: '#/components/schemas/OmsReturnOrderRequest'
+      responses:
+        '200':
+          description: Success, the response body contains the updated order retrieved from Order Management (OMS).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+              examples:
+                Order:
+                  $ref: '#/components/examples/OrderGet'
+        '400':
+          $ref: '#/components/responses/400OmsReturnBadRequest'
+        '404':
+          description: The order with the given order number is unknown.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                OrderNotFound:
+                  $ref: '#/components/examples/OrderNotFound'
+        '409':
+          $ref: '#/components/responses/409OmsReturnConflict'
+      security:
+        - ShopperToken:
+            - sfcc.shopper-baskets-orders.rw
+            - sfcc.shopper-standard
   /organizations/{organizationId}/orders/{orderNo}/payment-instruments:
     post:
       description: |-
@@ -317,7 +495,7 @@ paths:
             - the given order number is invalid.
             - the provided payment method is invalid or not applicable.
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               examples:
@@ -326,7 +504,7 @@ paths:
         '404':
           description: The order with the given order number is unknown.
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               examples:
@@ -361,7 +539,7 @@ paths:
             - The payment instrument with the given order payment
             instrument ID is unknown.
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               examples:
@@ -417,7 +595,7 @@ paths:
             ID already is permanently masked.
             - the provided payment method is invalid or not applicable.
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               examples:
@@ -430,7 +608,7 @@ paths:
             - The payment instrument with the given payment
             instrument ID is unknown.
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               examples:
@@ -465,7 +643,7 @@ paths:
             The customer assigned to the order does not
             match the verified customer represented by the JSON Web Token (JWT).
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               examples:
@@ -474,7 +652,7 @@ paths:
         '404':
           description: The order with the given order number is unknown.
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               examples:
@@ -512,7 +690,7 @@ paths:
         '404':
           description: The order with the given order number is unknown.
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               examples:
@@ -521,7 +699,7 @@ paths:
         '409':
           description: "Possible Reasons: \n  - The tax mode of the referenced basket is not set to EXTERNAL."
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               examples:
@@ -576,11 +754,10 @@ components:
             sfcc.shopper-baskets-orders.rw: Scope granting read and write access to shopper basket or orders endpoints
   schemas:
     OrganizationId:
-      description: An identifier for the organization the request is being made by
+      description: An identifier for the Salesforce Commerce Cloud organization the request is being made by. It consists of a prefix 'f_ecom_' followed by a 4-character [realm identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#realm-id) and a 3-character [instance type identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#instance-id).
       example: f_ecom_zzxy_prd
       type: string
-      minLength: 1
-      maxLength: 32
+      pattern: ^f_ecom_[a-z]{4}_(prd|stg|dev|s[0-9]{2}|[0-9]{3})$
     SiteId:
       minLength: 1
       maxLength: 32
@@ -1928,6 +2105,8 @@ components:
             - google
             - whatsapp
             - youtube
+            - chatgpt
+            - gemini
           type: string
         couponItems:
           description: The coupon items.
@@ -2066,6 +2245,14 @@ components:
     OmsProductData:
       description: "Additional information retrieved from Order Management (OMS) \nSee https://developer.salesforce.com/docs/atlas.en-us.order_management_developer_guide.meta/order_management_developer_guide/sforce_api_objects_orderitemsummary.htm for more information.\nOnly available in context of an order."
       additionalProperties: false
+      example:
+        status: ordered
+        quantityAvailableToCancel: 2
+        quantityAvailableToReturn: 2
+        quantityCanceled: 0
+        quantityReturnInitiated: 0
+        quantityReturned: 0
+        quantityOrdered: 2
       properties:
         status:
           description: Order Management (OMS) status
@@ -2085,6 +2272,31 @@ components:
         quantityAvailableToCancel:
           format: double
           description: The quantity that can be cancelled.
+          example: 2
+          type: number
+        quantityAvailableToReturn:
+          format: double
+          description: The quantity that can be returned.
+          example: 2
+          type: number
+        quantityCanceled:
+          format: double
+          description: The quantity that has been cancelled.
+          example: 0
+          type: number
+        quantityReturnInitiated:
+          format: double
+          description: The quantity for which a return has been initiated.
+          example: 0
+          type: number
+        quantityReturned:
+          format: double
+          description: The quantity that has been returned.
+          example: 0
+          type: number
+        quantityOrdered:
+          format: double
+          description: The quantity that was originally ordered.
           example: 2
           type: number
       type: object
@@ -2215,6 +2427,8 @@ components:
             - google
             - whatsapp
             - youtube
+            - chatgpt
+            - gemini
           type: string
         confirmationStatus:
           description: The confirmation status.
@@ -2467,12 +2681,48 @@ components:
         - title
         - type
         - detail
+    OmsReasonCode:
+      description: A single reason code configured in Order Management (OMS).
+      type: object
+      additionalProperties: false
+      required:
+        - reason
+        - default
+      properties:
+        reason:
+          description: The reason value as configured in OMS.
+          type: string
+          maxLength: 256
+          example: Defect
+        default:
+          description: Whether this reason is the default that the server uses when no reason is supplied on a cancel or return request.
+          type: boolean
+          example: false
+    OmsMetaData:
+      description: Configuration data from Order Management (OMS) that the storefront requires to render cancel and return experiences.
+      type: object
+      additionalProperties: false
+      required:
+        - cancelReasonCodes
+        - returnReasonCodes
+      properties:
+        cancelReasonCodes:
+          description: The reason codes available for cancelling an order. The server applies the reason marked with `default` when no reason is supplied on the cancel request.
+          type: array
+          items:
+            $ref: '#/components/schemas/OmsReasonCode'
+        returnReasonCodes:
+          description: The reason codes available for returning order items. The server applies the reason marked with `default` when no reason is supplied on a returned item.
+          type: array
+          items:
+            $ref: '#/components/schemas/OmsReasonCode'
+    OmsNotActiveErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+      description: Indicates that an OMS-dependent endpoint was called for a site that does not have OMS enabled.
     OrderLookupRequest:
       description: Document representing an order lookup request.
       type: object
-      required:
-        - email
-        - orderViewCode
       additionalProperties: false
       properties:
         email:
@@ -2482,6 +2732,16 @@ components:
         orderViewCode:
           description: The order view code associated with the order to be looked up.
           type: string
+        postalCode:
+          maxLength: 256
+          description: The billing address postal code of the order to be looked up.
+          type: string
+          example: '05408'
+        phone:
+          maxLength: 256
+          description: The phone number of the order to be looked up.
+          type: string
+          example: '6175555555'
     FailOrderRequest:
       description: Document representing a fail order request.
       type: object
@@ -2494,6 +2754,141 @@ components:
             - payment_auth_failure
           type: string
           example: payment_confirm_failure
+    OmsCancelOrderRequest:
+      description: |-
+        Document representing a request to cancel an order that is integrated with Order Management (OMS).
+        The cancellation always applies to the entire order; partial cancellations are not supported.
+      type: object
+      additionalProperties: false
+      properties:
+        reason:
+          description: |-
+            The reason for cancelling the order. The value must match one of the `cancelReasonCodes` configured in OMS and returned by the
+            `getOmsMetaData` endpoint. When omitted, the default reason code configured in OMS is applied by the server.
+          type: string
+          maxLength: 256
+          example: Not specified
+    InvalidReasonCodeErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+      description: Indicates that the supplied reason code does not match any reason configured in OMS.
+      properties:
+        reason:
+          description: The reason value that the request supplied.
+          type: string
+          maxLength: 256
+          example: Damaged in transit
+    OrderCancelFailedErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+      description: |-
+        Returned when the order cannot be cancelled. This covers both the case where the
+        order's state no longer permits cancellation and the case where Order Management
+        (OMS) rejected the cancel request after ECOM accepted the input.
+      properties:
+        orderNo:
+          description: The order number from the request path.
+          type: string
+          maxLength: 256
+          example: '00000335'
+    OmsReturnProductItem:
+      description: An individual product item to be returned as part of an `OmsReturnOrderRequest`.
+      type: object
+      additionalProperties: false
+      required:
+        - itemId
+        - quantity
+      properties:
+        itemId:
+          description: The identifier of the product item on the order to be returned.
+          type: string
+          maxLength: 256
+          example: 10uVF0000003W0BYAU
+        quantity:
+          description: The quantity to be returned. Can't exceed the `quantityAvailableToReturn` of the product item on the order.
+          type: number
+          format: double
+          minimum: 0
+          example: 1
+        reason:
+          description: |-
+            The reason for returning this product item. The value must match one of the `returnReasonCodes` configured in OMS and returned
+            by the `getOmsMetaData` endpoint. When omitted, the server applies the default reason code configured in OMS.
+          type: string
+          maxLength: 256
+          example: Defect
+    OmsReturnOrderRequest:
+      description: Document representing a request to initiate the return of one or more items of an order that is integrated with Order Management (OMS).
+      type: object
+      additionalProperties: false
+      required:
+        - productItems
+      properties:
+        productItems:
+          description: The product items of the order for which to initiate a return.
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/OmsReturnProductItem'
+    UnknownProductItemIdsErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+      description: Indicates that one or more `productItems[].itemId` values supplied in the return request do not match any product item of the order.
+      properties:
+        orderNo:
+          description: The order number from the request path.
+          type: string
+          maxLength: 256
+          example: '00000335'
+        unknownItemIds:
+          description: The `productItems[].itemId` values from the request that do not match any product item of the order.
+          type: array
+          items:
+            type: string
+            maxLength: 256
+            example: 10uVF0000003W0BYAU
+          example:
+            - 10uVF0000003W0BYAU
+            - 11uVF0000045W0BYAU
+    ReturnQuantityExceededErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+      description: |-
+        Returned when one or more `productItems` entries in the return request specify a
+        quantity that exceeds the quantity available to return for that item. Issue a GET
+        on the order to obtain the current available quantities and resubmit with valid
+        values.
+      properties:
+        orderNo:
+          description: The order number from the request path.
+          type: string
+          maxLength: 256
+          example: '00000335'
+        itemIds:
+          description: The `productItems[].itemId` values from the request whose requested quantity exceeded the quantity available to return.
+          type: array
+          items:
+            type: string
+            maxLength: 256
+            example: 10uVF0000003W0BYAU
+          example:
+            - 10uVF0000003W0BYAU
+            - 11uVF0000045W0BYAU
+    OrderReturnFailedErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+      description: |-
+        Returned when the order cannot be returned. This covers both the case where the
+        order's state no longer permits return of the requested items and the case where
+        Order Management (OMS) rejected the return request after ECOM accepted the input.
+        Obvious input problems are reported as 400 Bad Request before the request reaches
+        OMS.
+      properties:
+        orderNo:
+          description: The order number from the request path.
+          type: string
+          maxLength: 256
+          example: '00000335'
     OrderPaymentCardRequest:
       description: Document representing an order payment card request.
       type: object
@@ -2803,7 +3198,7 @@ components:
       additionalProperties: false
   parameters:
     organizationId:
-      description: An identifier for the organization the request is being made by
+      description: An identifier for the Salesforce Commerce Cloud organization the request is being made by. It consists of a prefix 'f_ecom_' followed by a 4-character [realm identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#realm-id) and a 3-character [instance type identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#instance-id).
       name: organizationId
       in: path
       required: true
@@ -3038,6 +3433,22 @@ components:
         type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/basket-not-found
         title: Basket Not Found
         detail: No basket with ID '123' could be found.
+    OmsMetaData:
+      value:
+        cancelReasonCodes:
+          - reason: Not specified
+            default: true
+          - reason: Defect
+            default: false
+          - reason: Wrong item
+            default: false
+        returnReasonCodes:
+          - reason: Not specified
+            default: true
+          - reason: Defect
+            default: false
+          - reason: Does not fit
+            default: false
     OrderGet:
       value:
         adjustedMerchandizeTotalTax: 30
@@ -3197,6 +3608,113 @@ components:
       value:
         email: no-reply@salesforce.com
         orderViewCode: YGXrGbZWlr29tIsGnYgR5o_8OxBMXWigevx1WD0X1Hc
+    OrderPartialAccess:
+      value:
+        adjustedMerchandizeTotalTax: 30
+        adjustedShippingTotalTax: 0.8
+        billingAddress:
+          postalCode: '01801'
+        channelType: storefront
+        currency: USD
+        groupedTaxItems:
+          - taxRate: 0.05
+            taxValue: 30.8
+        guest: true
+        lastModified: '2019-10-22T12:17:28.376Z'
+        merchandizeTotalTax: 30
+        orderNo: '00000410'
+        orderPriceAdjustments:
+          - appliedDiscount:
+              amount: 10
+              type: amount
+            reasonCode: customer service
+            creationDate: '2019-10-22T12:17:28.347Z'
+            custom: true
+            lastModified: '2019-10-22T12:17:28.349Z'
+            manual: true
+            price: -10
+            priceAdjustmentId: 63b9eb9b4a92bd3e5c6ee804c2
+            promotionId: 5ties
+        orderTotal: 586.76
+        productItems:
+          - adjustedTax: 30
+            basePrice: 199.99
+            bonusProductLineItem: false
+            gift: false
+            itemId: d9516eecc64bd90b0022714d26
+            itemText: Green Umbrella - Sustained Edition
+            optionItems:
+              - adjustedTax: 0
+                basePrice: 0
+                bonusProductLineItem: false
+                gift: false
+                itemId: 8991e8d7adf0f46ffbc584e175
+                itemText: We will plant a tree for your order.
+                optionId: plantATree
+                optionValueId: '000'
+                price: 0
+                priceAfterItemDiscount: 0
+                priceAfterOrderDiscount: 0
+                productId: '000'
+                productName: Plant a tree.
+                quantity: 3
+                shipmentId: me
+                tax: 0
+                taxBasis: 0
+                taxClassId: standard
+                taxRate: 0.05
+            price: 599.99
+            priceAfterItemDiscount: 599.99
+            priceAfterOrderDiscount: 589.99
+            productId: green-umbrella
+            productName: Green Umbrella - Sustained Edition
+            quantity: 3
+            shipmentId: me
+            tax: 30
+            taxBasis: 599.97
+            taxClassId: standard
+            taxRate: 0.05
+        productSubTotal: 599.97
+        productTotal: 599.97
+        shipments:
+          - adjustedMerchandizeTotalTax: 37
+            adjustedShippingTotalTax: 0.5
+            gift: false
+            merchandizeTotalTax: 30
+            productSubTotal: 599.97
+            productTotal: 599.97
+            shipmentId: me
+            shipmentTotal: 646.76
+            shippingMethod:
+              description: Order received within 7-10 business days.
+              id: '001'
+              name: Ground
+              price: 15.99
+            shippingTotal: 15.99
+            shippingTotalTax: 0.8
+            taxTotal: 30.8
+        shippingItems:
+          - adjustedTax: 0.8
+            basePrice: 15.99
+            itemId: 768abee75aa8015239a9696c7e
+            itemText: Shipping
+            price: 15.99
+            priceAfterItemDiscount: 15.99
+            shipmentId: me
+            tax: 0.8
+            taxBasis: 15.99
+            taxClassId: standard
+            taxRate: 0.05
+        shippingTotal: 15.99
+        shippingTotalTax: 0.8
+        status: created
+        taxation: net
+        taxTotal: 30.8
+    InsufficientIdentifyingInformation:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/insufficient-identifying-information
+        title: Insufficient Identifying Information
+        detail: Insufficient identifying information provided to retrieve the order.
     OrderNotFound:
       value:
         type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/order-not-found
@@ -3210,6 +3728,18 @@ components:
         type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/order-status-transition
         title: Order Status Transition
         detail: The order status change from 'Completed' to 'Failed' for order with number '00000335' isn't supported.
+    OmsCancelOrder:
+      value:
+        reason: Wrong item
+    OmsReturnOrder:
+      value:
+        productItems:
+          - itemId: 10uVF0000003W0BYAU
+            quantity: 1
+            reason: Does not fit
+          - itemId: 11uVF0000045W0BYAU
+            quantity: 1
+            reason: Defect
     PaymentInstrumentPost:
       value:
         amount: 700
@@ -3831,3 +4361,108 @@ components:
         type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/unsupported-request-if-scapi-hooks-enabled
         title: Unsupported Request If SCAPI Hooks Enabled
         detail: You can't call this endpoint because Salesforce Commerce API hook execution is enabled.
+    OmsNotActiveErrorResponseExample:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/oms-not-active
+        detail: Order Management (OMS) is not active for this site.
+        title: Oms Not Active
+    InvalidReasonCodeErrorResponseExample:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/invalid-reason-code
+        detail: The reason 'Damaged in transit' is not configured in Order Management (OMS).
+        title: Invalid Reason Code
+    OrderCancelFailedErrorResponseExample:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/order-cancel-failed
+        detail: Order '00000335' cannot be cancelled.
+        title: Order Cancel Failed
+    UnknownProductItemIdsErrorResponseExample:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/unknown-product-item-ids
+        detail: One or more product item IDs in the request are not part of order '00000335'.
+        title: Unknown Product Item Ids
+    ReturnQuantityExceededErrorResponseExample:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/return-quantity-exceeded
+        detail: The return request for order '00000335' exceeds the quantity available to return on one or more items.
+        title: Return Quantity Exceeded
+    OrderReturnFailedErrorResponseExample:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/order-return-failed
+        detail: Order '00000335' cannot be returned.
+        title: Order Return Failed
+  responses:
+    409OmsNotActive:
+      description: Order Management (OMS) is not active for this site.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/OmsNotActiveErrorResponse'
+          examples:
+            OmsNotActiveErrorResponseExample:
+              $ref: '#/components/examples/OmsNotActiveErrorResponseExample'
+    400OmsCancelBadRequest:
+      description: |-
+        The cancel request is invalid. Possible reasons:
+        - The supplied reason code is not configured in Order Management (OMS).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/InvalidReasonCodeErrorResponse'
+          examples:
+            InvalidReasonCodeErrorResponseExample:
+              $ref: '#/components/examples/InvalidReasonCodeErrorResponseExample'
+    409OmsCancelConflict:
+      description: |-
+        The order cannot be cancelled. Possible reasons:
+        - The order is no longer in a state that permits cancellation.
+        - Order Management (OMS) rejected the cancel request after ECOM accepted the input.
+        - Order Management (OMS) is not active for this site.
+      content:
+        application/problem+json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/OrderCancelFailedErrorResponse'
+              - $ref: '#/components/schemas/OmsNotActiveErrorResponse'
+          examples:
+            OrderCancelFailedErrorResponseExample:
+              $ref: '#/components/examples/OrderCancelFailedErrorResponseExample'
+            OmsNotActiveErrorResponseExample:
+              $ref: '#/components/examples/OmsNotActiveErrorResponseExample'
+    400OmsReturnBadRequest:
+      description: |-
+        The return request is invalid. Possible reasons:
+        - The supplied reason code is not configured in Order Management (OMS).
+        - One or more of the supplied `productItems[].itemId` values do not match any product item of the order.
+        - The requested return quantity exceeds the quantity available to return for one or more items.
+      content:
+        application/problem+json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/InvalidReasonCodeErrorResponse'
+              - $ref: '#/components/schemas/UnknownProductItemIdsErrorResponse'
+              - $ref: '#/components/schemas/ReturnQuantityExceededErrorResponse'
+          examples:
+            InvalidReasonCodeErrorResponseExample:
+              $ref: '#/components/examples/InvalidReasonCodeErrorResponseExample'
+            UnknownProductItemIdsErrorResponseExample:
+              $ref: '#/components/examples/UnknownProductItemIdsErrorResponseExample'
+            ReturnQuantityExceededErrorResponseExample:
+              $ref: '#/components/examples/ReturnQuantityExceededErrorResponseExample'
+    409OmsReturnConflict:
+      description: |-
+        The order cannot be returned. Possible reasons:
+        - The order is no longer in a state that permits return of the requested items.
+        - Order Management (OMS) rejected the return after ECOM accepted the input.
+        - Order Management (OMS) is not active for this site.
+      content:
+        application/problem+json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/OrderReturnFailedErrorResponse'
+              - $ref: '#/components/schemas/OmsNotActiveErrorResponse'
+          examples:
+            OrderReturnFailedErrorResponseExample:
+              $ref: '#/components/examples/OrderReturnFailedErrorResponseExample'
+            OmsNotActiveErrorResponseExample:
+              $ref: '#/components/examples/OmsNotActiveErrorResponseExample'

@@ -878,7 +878,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:1840</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:1911</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -886,11 +886,165 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 									<p>This is the second step of the OAuth 2.1 authorization code flow.</p>
 								</div>
 								<p>For a private client, an application is able to get an access token for the shopper through the back channel (a trusted server) by passing in the client credentials and the authorization code retrieved from the <code>authorize</code> endpoint.</p>
-								<p>For a guest user, get the shopper JWT access token and a refresh token. This is where a client appplication is able to get an access token for the guest user through the back channel (a trusted server) by passing in the client credentials.</p>
+								<p>For a guest user, get the shopper JWT access token and a refresh token. This is where a client application is able to get an access token for the guest user through the back channel (a trusted server) by passing in the client credentials.</p>
 								<p>For a public client using PKCE, an application passes a PKCE <code>code_verifier</code> that matches the <code>code_challenge</code> that was used to <code>authorize</code> the customer along with the authorization code.</p>
 								<p>When refreshing the access token with a private client ID and client secret, the refresh token is <em>not</em> regenerated. However, when refreshing the access token with a public client ID, the refresh token is <em>always</em> regenerated. The old refresh token is voided with every refresh call, so the refresh token on the client must be replaced to always store the new refresh token.</p>
 								<p>See the Body section for required parameters, including <code>grant_type</code> and others that depend on the value of <code>grant_type</code>.</p>
 								<p><em>Important<em>*: As of July 31, 2024</em></em>, SLAS requires the <code>channel_id</code> query parameter in token requests.</p>
+								<hr>
+								<a href="#token-issuer-subject-construction-amp-constraints" id="token-issuer-subject-construction-amp-constraints" style="color: inherit; text-decoration: none;">
+									<h1>Token Issuer Subject Construction &amp; Constraints</h1>
+								</a>
+								<p>The Issuer Subject (<code>isb</code>) claim of the issued JWT is a composite string that
+									identifies the shopper session. It concatenates the identity origin (<code>uido</code>),
+									login ID (<code>upn</code>), display name (<code>uidn</code>), guest customer ID (<code>gcid</code>, 26 chars),
+									registered customer ID (<code>rcid</code>, 26 chars, when applicable), channel ID (<code>chid</code>),
+									and any flow-specific values (<code>tsob</code>, <code>taob</code>, <code>agent</code>, <code>login</code>, <code>sesb</code>) as
+								<code>key:value</code> pairs separated by <code>::</code>.</p>
+								<p><em>Constraint:** the assembled <code>isb</code> must not exceed <strong>256 characters</strong>.
+										Exceeding this returns <code>400 BAD_REQUEST</code> with *&quot;Issuer Subject length must be
+								less than 256 characters&quot;</em>.</p>
+								<p><em>Length calculation breakdown*</em> (with <code>gcid</code>=26, <code>rcid</code>=26, <code>chid</code>≤100).
+								Overhead = key chars + each key&#39;s trailing <code>:</code> + <code>::</code> separators between pairs.</p>
+								<table>
+									<thead>
+										<tr>
+											<th>Shape</th>
+											<th>Overhead</th>
+											<th>Fixed values</th>
+											<th>Remaining budget</th>
+										</tr>
+									</thead>
+									<tbody><tr>
+											<td>Guest</td>
+											<td>32</td>
+											<td>gcid 26 + chid 100 = 126</td>
+											<td>98</td>
+										</tr>
+										<tr>
+											<td>Registered</td>
+											<td>39</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>65</td>
+										</tr>
+										<tr>
+											<td>TSOB guest</td>
+											<td>39</td>
+											<td>gcid 26 + chid 100 = 126</td>
+											<td>91 - len(tsob)</td>
+										</tr>
+										<tr>
+											<td>TSOB registered</td>
+											<td>46</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>58 - len(tsob)</td>
+										</tr>
+										<tr>
+											<td>Pwdless</td>
+											<td>47</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>57 - len(login)</td>
+										</tr>
+										<tr>
+											<td>SESB guest</td>
+											<td>39</td>
+											<td>gcid 26 + chid 100 = 126</td>
+											<td>91 - len(sesb)</td>
+										</tr>
+										<tr>
+											<td>SESB registered</td>
+											<td>46</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>58 - len(sesb)</td>
+										</tr>
+										<tr>
+											<td>TAOB guest</td>
+											<td>47</td>
+											<td>gcid 26 + chid 100 = 126</td>
+											<td>83 - len(taob + agent)</td>
+										</tr>
+										<tr>
+											<td>TAOB registered</td>
+											<td>54</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>50 - len(taob + agent)</td>
+										</tr>
+								</tbody></table>
+								<p><em>Worst case (TAOB registered):*</em></p>
+								<pre><code>256  total
+<span class="hljs-bullet">- </span>54 overhead
+<span class="hljs-bullet">- </span>26  gcid
+<span class="hljs-bullet">- </span>26  rcid
+<span class="hljs-section">- 100  chid (allowed max)
+----</span>
+50
+
+Then if taob = ta_ext_on_behalf_of:
+50 - 19 = 31
+
+Meaning only 31 characters remain for uido <span class="hljs-code">+ upn +</span> uidn + agent.
+</code></pre><p><em>Practical caps per variable sub-claim:*</em></p>
+								<table>
+									<thead>
+										<tr>
+											<th>Sub-claim</th>
+											<th>Description</th>
+											<th>Max length</th>
+										</tr>
+									</thead>
+									<tbody><tr>
+											<td><code>uido</code></td>
+											<td>Identity origin</td>
+											<td>~20</td>
+										</tr>
+										<tr>
+											<td><code>upn</code></td>
+											<td>Login ID / email</td>
+											<td>~80</td>
+										</tr>
+										<tr>
+											<td><code>uidn</code></td>
+											<td>Display name (after <code>%3A</code> escaping)</td>
+											<td>~60</td>
+										</tr>
+										<tr>
+											<td><code>tsob</code> / <code>taob</code></td>
+											<td>Trusted-system / trusted-agent hint</td>
+											<td>~21</td>
+										</tr>
+										<tr>
+											<td><code>agent</code></td>
+											<td>Agent ID</td>
+											<td>~32</td>
+										</tr>
+										<tr>
+											<td><code>login</code></td>
+											<td>Passwordless literal (e.g. <code>pwdless</code>)</td>
+											<td>short</td>
+										</tr>
+										<tr>
+											<td><code>sesb</code></td>
+											<td>Session-bridge hint</td>
+											<td>short</td>
+										</tr>
+										<tr>
+											<td><code>chid</code></td>
+											<td>Channel ID</td>
+											<td>100</td>
+										</tr>
+								</tbody></table>
+								<p><em>Notes:*</em></p>
+								<ul>
+									<li><strong>Identity Origin Variance</strong> — <code>uido</code> is a static IDP-configuration string
+										(e.g. <code>ecom</code>, <code>google</code>, <code>Link_Brand_Production</code>). A longer origin reduces
+									the budget available for user-supplied inputs.</li>
+									<li><strong>Double-Count Fallback</strong> — if a shopper registers without a first and last
+										name, <code>uidn</code> is generated from the email (prefix as first name, domain as
+										last name), so the email is effectively counted <strong>twice</strong> (once as <code>upn</code>,
+									once as <code>uidn</code>). Long emails are the most common cause of overflow.</li>
+									<li>Colons inside <code>uidn</code> are URL-encoded as <code>%3A</code>, which can further inflate
+									its length.</li>
+								</ul>
 								<p>If you would like to get a raw Response object use the other getAccessToken function.</p>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -910,7 +1064,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:1887</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:2029</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -918,11 +1072,165 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 									<p>This is the second step of the OAuth 2.1 authorization code flow.</p>
 								</div>
 								<p>For a private client, an application is able to get an access token for the shopper through the back channel (a trusted server) by passing in the client credentials and the authorization code retrieved from the <code>authorize</code> endpoint.</p>
-								<p>For a guest user, get the shopper JWT access token and a refresh token. This is where a client appplication is able to get an access token for the guest user through the back channel (a trusted server) by passing in the client credentials.</p>
+								<p>For a guest user, get the shopper JWT access token and a refresh token. This is where a client application is able to get an access token for the guest user through the back channel (a trusted server) by passing in the client credentials.</p>
 								<p>For a public client using PKCE, an application passes a PKCE <code>code_verifier</code> that matches the <code>code_challenge</code> that was used to <code>authorize</code> the customer along with the authorization code.</p>
 								<p>When refreshing the access token with a private client ID and client secret, the refresh token is <em>not</em> regenerated. However, when refreshing the access token with a public client ID, the refresh token is <em>always</em> regenerated. The old refresh token is voided with every refresh call, so the refresh token on the client must be replaced to always store the new refresh token.</p>
 								<p>See the Body section for required parameters, including <code>grant_type</code> and others that depend on the value of <code>grant_type</code>.</p>
 								<p><em>Important<em>*: As of July 31, 2024</em></em>, SLAS requires the <code>channel_id</code> query parameter in token requests.</p>
+								<hr>
+								<a href="#token-issuer-subject-construction-amp-constraints" id="token-issuer-subject-construction-amp-constraints" style="color: inherit; text-decoration: none;">
+									<h1>Token Issuer Subject Construction &amp; Constraints</h1>
+								</a>
+								<p>The Issuer Subject (<code>isb</code>) claim of the issued JWT is a composite string that
+									identifies the shopper session. It concatenates the identity origin (<code>uido</code>),
+									login ID (<code>upn</code>), display name (<code>uidn</code>), guest customer ID (<code>gcid</code>, 26 chars),
+									registered customer ID (<code>rcid</code>, 26 chars, when applicable), channel ID (<code>chid</code>),
+									and any flow-specific values (<code>tsob</code>, <code>taob</code>, <code>agent</code>, <code>login</code>, <code>sesb</code>) as
+								<code>key:value</code> pairs separated by <code>::</code>.</p>
+								<p><em>Constraint:** the assembled <code>isb</code> must not exceed <strong>256 characters</strong>.
+										Exceeding this returns <code>400 BAD_REQUEST</code> with *&quot;Issuer Subject length must be
+								less than 256 characters&quot;</em>.</p>
+								<p><em>Length calculation breakdown*</em> (with <code>gcid</code>=26, <code>rcid</code>=26, <code>chid</code>≤100).
+								Overhead = key chars + each key&#39;s trailing <code>:</code> + <code>::</code> separators between pairs.</p>
+								<table>
+									<thead>
+										<tr>
+											<th>Shape</th>
+											<th>Overhead</th>
+											<th>Fixed values</th>
+											<th>Remaining budget</th>
+										</tr>
+									</thead>
+									<tbody><tr>
+											<td>Guest</td>
+											<td>32</td>
+											<td>gcid 26 + chid 100 = 126</td>
+											<td>98</td>
+										</tr>
+										<tr>
+											<td>Registered</td>
+											<td>39</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>65</td>
+										</tr>
+										<tr>
+											<td>TSOB guest</td>
+											<td>39</td>
+											<td>gcid 26 + chid 100 = 126</td>
+											<td>91 - len(tsob)</td>
+										</tr>
+										<tr>
+											<td>TSOB registered</td>
+											<td>46</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>58 - len(tsob)</td>
+										</tr>
+										<tr>
+											<td>Pwdless</td>
+											<td>47</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>57 - len(login)</td>
+										</tr>
+										<tr>
+											<td>SESB guest</td>
+											<td>39</td>
+											<td>gcid 26 + chid 100 = 126</td>
+											<td>91 - len(sesb)</td>
+										</tr>
+										<tr>
+											<td>SESB registered</td>
+											<td>46</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>58 - len(sesb)</td>
+										</tr>
+										<tr>
+											<td>TAOB guest</td>
+											<td>47</td>
+											<td>gcid 26 + chid 100 = 126</td>
+											<td>83 - len(taob + agent)</td>
+										</tr>
+										<tr>
+											<td>TAOB registered</td>
+											<td>54</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>50 - len(taob + agent)</td>
+										</tr>
+								</tbody></table>
+								<p><em>Worst case (TAOB registered):*</em></p>
+								<pre><code>256  total
+<span class="hljs-bullet">- </span>54 overhead
+<span class="hljs-bullet">- </span>26  gcid
+<span class="hljs-bullet">- </span>26  rcid
+<span class="hljs-section">- 100  chid (allowed max)
+----</span>
+50
+
+Then if taob = ta_ext_on_behalf_of:
+50 - 19 = 31
+
+Meaning only 31 characters remain for uido <span class="hljs-code">+ upn +</span> uidn + agent.
+</code></pre><p><em>Practical caps per variable sub-claim:*</em></p>
+								<table>
+									<thead>
+										<tr>
+											<th>Sub-claim</th>
+											<th>Description</th>
+											<th>Max length</th>
+										</tr>
+									</thead>
+									<tbody><tr>
+											<td><code>uido</code></td>
+											<td>Identity origin</td>
+											<td>~20</td>
+										</tr>
+										<tr>
+											<td><code>upn</code></td>
+											<td>Login ID / email</td>
+											<td>~80</td>
+										</tr>
+										<tr>
+											<td><code>uidn</code></td>
+											<td>Display name (after <code>%3A</code> escaping)</td>
+											<td>~60</td>
+										</tr>
+										<tr>
+											<td><code>tsob</code> / <code>taob</code></td>
+											<td>Trusted-system / trusted-agent hint</td>
+											<td>~21</td>
+										</tr>
+										<tr>
+											<td><code>agent</code></td>
+											<td>Agent ID</td>
+											<td>~32</td>
+										</tr>
+										<tr>
+											<td><code>login</code></td>
+											<td>Passwordless literal (e.g. <code>pwdless</code>)</td>
+											<td>short</td>
+										</tr>
+										<tr>
+											<td><code>sesb</code></td>
+											<td>Session-bridge hint</td>
+											<td>short</td>
+										</tr>
+										<tr>
+											<td><code>chid</code></td>
+											<td>Channel ID</td>
+											<td>100</td>
+										</tr>
+								</tbody></table>
+								<p><em>Notes:*</em></p>
+								<ul>
+									<li><strong>Identity Origin Variance</strong> — <code>uido</code> is a static IDP-configuration string
+										(e.g. <code>ecom</code>, <code>google</code>, <code>Link_Brand_Production</code>). A longer origin reduces
+									the budget available for user-supplied inputs.</li>
+									<li><strong>Double-Count Fallback</strong> — if a shopper registers without a first and last
+										name, <code>uidn</code> is generated from the email (prefix as first name, domain as
+										last name), so the email is effectively counted <strong>twice</strong> (once as <code>upn</code>,
+									once as <code>uidn</code>). Long emails are the most common cause of overflow.</li>
+									<li>Colons inside <code>uidn</code> are URL-encoded as <code>%3A</code>, which can further inflate
+									its length.</li>
+								</ul>
 							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
@@ -965,7 +1273,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:2010</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:2223</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -993,7 +1301,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:2039</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:2252</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1044,7 +1352,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:2143</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:2356</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1073,7 +1381,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:2176</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:2389</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1125,13 +1433,167 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:2302</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:2586</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>This endpoint issues a shopper JWT access token using a passwordless login token. It enables authentication flows where traditional username/password combinations are not required, supporting alternative authentication methods.</p>
+									<p>This endpoint issues a shopper JSON Web Token (JWT) using a passwordless login token. It enables authentication flows where traditional username/password combinations are not required, supporting alternative authentication methods.</p>
 								</div>
+								<hr>
+								<a href="#token-issuer-subject-construction-amp-constraints" id="token-issuer-subject-construction-amp-constraints" style="color: inherit; text-decoration: none;">
+									<h1>Token Issuer Subject Construction &amp; Constraints</h1>
+								</a>
+								<p>The Issuer Subject (<code>isb</code>) claim of the issued JWT is a composite string that
+									identifies the shopper session. It concatenates the identity origin (<code>uido</code>),
+									login ID (<code>upn</code>), display name (<code>uidn</code>), guest customer ID (<code>gcid</code>, 26 chars),
+									registered customer ID (<code>rcid</code>, 26 chars, when applicable), channel ID (<code>chid</code>),
+									and any flow-specific values (<code>tsob</code>, <code>taob</code>, <code>agent</code>, <code>login</code>, <code>sesb</code>) as
+								<code>key:value</code> pairs separated by <code>::</code>.</p>
+								<p><em>Constraint:** the assembled <code>isb</code> must not exceed <strong>256 characters</strong>.
+										Exceeding this returns <code>400 BAD_REQUEST</code> with *&quot;Issuer Subject length must be
+								less than 256 characters&quot;</em>.</p>
+								<p><em>Length calculation breakdown*</em> (with <code>gcid</code>=26, <code>rcid</code>=26, <code>chid</code>≤100).
+								Overhead = key chars + each key&#39;s trailing <code>:</code> + <code>::</code> separators between pairs.</p>
+								<table>
+									<thead>
+										<tr>
+											<th>Shape</th>
+											<th>Overhead</th>
+											<th>Fixed values</th>
+											<th>Remaining budget</th>
+										</tr>
+									</thead>
+									<tbody><tr>
+											<td>Guest</td>
+											<td>32</td>
+											<td>gcid 26 + chid 100 = 126</td>
+											<td>98</td>
+										</tr>
+										<tr>
+											<td>Registered</td>
+											<td>39</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>65</td>
+										</tr>
+										<tr>
+											<td>TSOB guest</td>
+											<td>39</td>
+											<td>gcid 26 + chid 100 = 126</td>
+											<td>91 - len(tsob)</td>
+										</tr>
+										<tr>
+											<td>TSOB registered</td>
+											<td>46</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>58 - len(tsob)</td>
+										</tr>
+										<tr>
+											<td>Pwdless</td>
+											<td>47</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>57 - len(login)</td>
+										</tr>
+										<tr>
+											<td>SESB guest</td>
+											<td>39</td>
+											<td>gcid 26 + chid 100 = 126</td>
+											<td>91 - len(sesb)</td>
+										</tr>
+										<tr>
+											<td>SESB registered</td>
+											<td>46</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>58 - len(sesb)</td>
+										</tr>
+										<tr>
+											<td>TAOB guest</td>
+											<td>47</td>
+											<td>gcid 26 + chid 100 = 126</td>
+											<td>83 - len(taob + agent)</td>
+										</tr>
+										<tr>
+											<td>TAOB registered</td>
+											<td>54</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>50 - len(taob + agent)</td>
+										</tr>
+								</tbody></table>
+								<p><em>Worst case (TAOB registered):*</em></p>
+								<pre><code>256  total
+<span class="hljs-bullet">- </span>54 overhead
+<span class="hljs-bullet">- </span>26  gcid
+<span class="hljs-bullet">- </span>26  rcid
+<span class="hljs-section">- 100  chid (allowed max)
+----</span>
+50
+
+Then if taob = ta_ext_on_behalf_of:
+50 - 19 = 31
+
+Meaning only 31 characters remain for uido <span class="hljs-code">+ upn +</span> uidn + agent.
+</code></pre><p><em>Practical caps per variable sub-claim:*</em></p>
+								<table>
+									<thead>
+										<tr>
+											<th>Sub-claim</th>
+											<th>Description</th>
+											<th>Max length</th>
+										</tr>
+									</thead>
+									<tbody><tr>
+											<td><code>uido</code></td>
+											<td>Identity origin</td>
+											<td>~20</td>
+										</tr>
+										<tr>
+											<td><code>upn</code></td>
+											<td>Login ID / email</td>
+											<td>~80</td>
+										</tr>
+										<tr>
+											<td><code>uidn</code></td>
+											<td>Display name (after <code>%3A</code> escaping)</td>
+											<td>~60</td>
+										</tr>
+										<tr>
+											<td><code>tsob</code> / <code>taob</code></td>
+											<td>Trusted-system / trusted-agent hint</td>
+											<td>~21</td>
+										</tr>
+										<tr>
+											<td><code>agent</code></td>
+											<td>Agent ID</td>
+											<td>~32</td>
+										</tr>
+										<tr>
+											<td><code>login</code></td>
+											<td>Passwordless literal (e.g. <code>pwdless</code>)</td>
+											<td>short</td>
+										</tr>
+										<tr>
+											<td><code>sesb</code></td>
+											<td>Session-bridge hint</td>
+											<td>short</td>
+										</tr>
+										<tr>
+											<td><code>chid</code></td>
+											<td>Channel ID</td>
+											<td>100</td>
+										</tr>
+								</tbody></table>
+								<p><em>Notes:*</em></p>
+								<ul>
+									<li><strong>Identity Origin Variance</strong> — <code>uido</code> is a static IdP-configuration string
+										(e.g. <code>ecom</code>, <code>google</code>, <code>Link_Brand_Production</code>). A longer origin reduces
+									the budget available for user-supplied inputs.</li>
+									<li><strong>Double-Count Fallback</strong> — if a shopper registers without a first and last
+										name, <code>uidn</code> is generated from the email (prefix as first name, domain as
+										last name), so the email is effectively counted <strong>twice</strong> (once as <code>upn</code>,
+									once as <code>uidn</code>). Long emails are the most common cause of overflow.</li>
+									<li>Colons inside <code>uidn</code> are URL-encoded as <code>%3A</code>, which can further inflate
+									its length.</li>
+								</ul>
 								<p>If you would like to get a raw Response object use the other getPasswordLessAccessToken function.</p>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1151,13 +1613,167 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:2334</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:2689</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>This endpoint issues a shopper JWT access token using a passwordless login token. It enables authentication flows where traditional username/password combinations are not required, supporting alternative authentication methods.</p>
+									<p>This endpoint issues a shopper JSON Web Token (JWT) using a passwordless login token. It enables authentication flows where traditional username/password combinations are not required, supporting alternative authentication methods.</p>
 								</div>
+								<hr>
+								<a href="#token-issuer-subject-construction-amp-constraints" id="token-issuer-subject-construction-amp-constraints" style="color: inherit; text-decoration: none;">
+									<h1>Token Issuer Subject Construction &amp; Constraints</h1>
+								</a>
+								<p>The Issuer Subject (<code>isb</code>) claim of the issued JWT is a composite string that
+									identifies the shopper session. It concatenates the identity origin (<code>uido</code>),
+									login ID (<code>upn</code>), display name (<code>uidn</code>), guest customer ID (<code>gcid</code>, 26 chars),
+									registered customer ID (<code>rcid</code>, 26 chars, when applicable), channel ID (<code>chid</code>),
+									and any flow-specific values (<code>tsob</code>, <code>taob</code>, <code>agent</code>, <code>login</code>, <code>sesb</code>) as
+								<code>key:value</code> pairs separated by <code>::</code>.</p>
+								<p><em>Constraint:** the assembled <code>isb</code> must not exceed <strong>256 characters</strong>.
+										Exceeding this returns <code>400 BAD_REQUEST</code> with *&quot;Issuer Subject length must be
+								less than 256 characters&quot;</em>.</p>
+								<p><em>Length calculation breakdown*</em> (with <code>gcid</code>=26, <code>rcid</code>=26, <code>chid</code>≤100).
+								Overhead = key chars + each key&#39;s trailing <code>:</code> + <code>::</code> separators between pairs.</p>
+								<table>
+									<thead>
+										<tr>
+											<th>Shape</th>
+											<th>Overhead</th>
+											<th>Fixed values</th>
+											<th>Remaining budget</th>
+										</tr>
+									</thead>
+									<tbody><tr>
+											<td>Guest</td>
+											<td>32</td>
+											<td>gcid 26 + chid 100 = 126</td>
+											<td>98</td>
+										</tr>
+										<tr>
+											<td>Registered</td>
+											<td>39</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>65</td>
+										</tr>
+										<tr>
+											<td>TSOB guest</td>
+											<td>39</td>
+											<td>gcid 26 + chid 100 = 126</td>
+											<td>91 - len(tsob)</td>
+										</tr>
+										<tr>
+											<td>TSOB registered</td>
+											<td>46</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>58 - len(tsob)</td>
+										</tr>
+										<tr>
+											<td>Pwdless</td>
+											<td>47</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>57 - len(login)</td>
+										</tr>
+										<tr>
+											<td>SESB guest</td>
+											<td>39</td>
+											<td>gcid 26 + chid 100 = 126</td>
+											<td>91 - len(sesb)</td>
+										</tr>
+										<tr>
+											<td>SESB registered</td>
+											<td>46</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>58 - len(sesb)</td>
+										</tr>
+										<tr>
+											<td>TAOB guest</td>
+											<td>47</td>
+											<td>gcid 26 + chid 100 = 126</td>
+											<td>83 - len(taob + agent)</td>
+										</tr>
+										<tr>
+											<td>TAOB registered</td>
+											<td>54</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>50 - len(taob + agent)</td>
+										</tr>
+								</tbody></table>
+								<p><em>Worst case (TAOB registered):*</em></p>
+								<pre><code>256  total
+<span class="hljs-bullet">- </span>54 overhead
+<span class="hljs-bullet">- </span>26  gcid
+<span class="hljs-bullet">- </span>26  rcid
+<span class="hljs-section">- 100  chid (allowed max)
+----</span>
+50
+
+Then if taob = ta_ext_on_behalf_of:
+50 - 19 = 31
+
+Meaning only 31 characters remain for uido <span class="hljs-code">+ upn +</span> uidn + agent.
+</code></pre><p><em>Practical caps per variable sub-claim:*</em></p>
+								<table>
+									<thead>
+										<tr>
+											<th>Sub-claim</th>
+											<th>Description</th>
+											<th>Max length</th>
+										</tr>
+									</thead>
+									<tbody><tr>
+											<td><code>uido</code></td>
+											<td>Identity origin</td>
+											<td>~20</td>
+										</tr>
+										<tr>
+											<td><code>upn</code></td>
+											<td>Login ID / email</td>
+											<td>~80</td>
+										</tr>
+										<tr>
+											<td><code>uidn</code></td>
+											<td>Display name (after <code>%3A</code> escaping)</td>
+											<td>~60</td>
+										</tr>
+										<tr>
+											<td><code>tsob</code> / <code>taob</code></td>
+											<td>Trusted-system / trusted-agent hint</td>
+											<td>~21</td>
+										</tr>
+										<tr>
+											<td><code>agent</code></td>
+											<td>Agent ID</td>
+											<td>~32</td>
+										</tr>
+										<tr>
+											<td><code>login</code></td>
+											<td>Passwordless literal (e.g. <code>pwdless</code>)</td>
+											<td>short</td>
+										</tr>
+										<tr>
+											<td><code>sesb</code></td>
+											<td>Session-bridge hint</td>
+											<td>short</td>
+										</tr>
+										<tr>
+											<td><code>chid</code></td>
+											<td>Channel ID</td>
+											<td>100</td>
+										</tr>
+								</tbody></table>
+								<p><em>Notes:*</em></p>
+								<ul>
+									<li><strong>Identity Origin Variance</strong> — <code>uido</code> is a static IdP-configuration string
+										(e.g. <code>ecom</code>, <code>google</code>, <code>Link_Brand_Production</code>). A longer origin reduces
+									the budget available for user-supplied inputs.</li>
+									<li><strong>Double-Count Fallback</strong> — if a shopper registers without a first and last
+										name, <code>uidn</code> is generated from the email (prefix as first name, domain as
+										last name), so the email is effectively counted <strong>twice</strong> (once as <code>upn</code>,
+									once as <code>uidn</code>). Long emails are the most common cause of overflow.</li>
+									<li>Colons inside <code>uidn</code> are URL-encoded as <code>%3A</code>, which can further inflate
+									its length.</li>
+								</ul>
 							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
@@ -1200,7 +1816,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:2447</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:2873</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1226,7 +1842,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:2482</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:2908</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1275,7 +1891,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:2608</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:3034</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1305,7 +1921,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:2653</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:3079</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1358,7 +1974,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:2782</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:3208</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1385,7 +2001,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:2820</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:3246</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1435,7 +2051,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:2951</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:3377</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1461,7 +2077,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:3004</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:3430</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1510,7 +2126,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:3201</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:3698</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1519,6 +2135,160 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 								</div>
 								<p>For trusted-system requests, you can use a basic authorization header that includes a SLAS private client ID and SLAS private client secret instead of the bearer token.</p>
 								<p>For trusted-system requests, you cannot use SLAS public client_ids.</p>
+								<hr>
+								<a href="#token-issuer-subject-construction-amp-constraints" id="token-issuer-subject-construction-amp-constraints" style="color: inherit; text-decoration: none;">
+									<h1>Token Issuer Subject Construction &amp; Constraints</h1>
+								</a>
+								<p>The Issuer Subject (<code>isb</code>) claim of the issued JWT is a composite string that
+									identifies the shopper session. It concatenates the identity origin (<code>uido</code>),
+									login ID (<code>upn</code>), display name (<code>uidn</code>), guest customer ID (<code>gcid</code>, 26 chars),
+									registered customer ID (<code>rcid</code>, 26 chars, when applicable), channel ID (<code>chid</code>),
+									and any flow-specific values (<code>tsob</code>, <code>taob</code>, <code>agent</code>, <code>login</code>, <code>sesb</code>) as
+								<code>key:value</code> pairs separated by <code>::</code>.</p>
+								<p><em>Constraint:** the assembled <code>isb</code> must not exceed <strong>256 characters</strong>.
+										Exceeding this returns <code>400 BAD_REQUEST</code> with *&quot;Issuer Subject length must be
+								less than 256 characters&quot;</em>.</p>
+								<p><em>Length calculation breakdown*</em> (with <code>gcid</code>=26, <code>rcid</code>=26, <code>chid</code>≤100).
+								Overhead = key chars + each key&#39;s trailing <code>:</code> + <code>::</code> separators between pairs.</p>
+								<table>
+									<thead>
+										<tr>
+											<th>Shape</th>
+											<th>Overhead</th>
+											<th>Fixed values</th>
+											<th>Remaining budget</th>
+										</tr>
+									</thead>
+									<tbody><tr>
+											<td>Guest</td>
+											<td>32</td>
+											<td>gcid 26 + chid 100 = 126</td>
+											<td>98</td>
+										</tr>
+										<tr>
+											<td>Registered</td>
+											<td>39</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>65</td>
+										</tr>
+										<tr>
+											<td>TSOB guest</td>
+											<td>39</td>
+											<td>gcid 26 + chid 100 = 126</td>
+											<td>91 - len(tsob)</td>
+										</tr>
+										<tr>
+											<td>TSOB registered</td>
+											<td>46</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>58 - len(tsob)</td>
+										</tr>
+										<tr>
+											<td>Pwdless</td>
+											<td>47</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>57 - len(login)</td>
+										</tr>
+										<tr>
+											<td>SESB guest</td>
+											<td>39</td>
+											<td>gcid 26 + chid 100 = 126</td>
+											<td>91 - len(sesb)</td>
+										</tr>
+										<tr>
+											<td>SESB registered</td>
+											<td>46</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>58 - len(sesb)</td>
+										</tr>
+										<tr>
+											<td>TAOB guest</td>
+											<td>47</td>
+											<td>gcid 26 + chid 100 = 126</td>
+											<td>83 - len(taob + agent)</td>
+										</tr>
+										<tr>
+											<td>TAOB registered</td>
+											<td>54</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>50 - len(taob + agent)</td>
+										</tr>
+								</tbody></table>
+								<p><em>Worst case (TAOB registered):*</em></p>
+								<pre><code>256  total
+<span class="hljs-bullet">- </span>54 overhead
+<span class="hljs-bullet">- </span>26  gcid
+<span class="hljs-bullet">- </span>26  rcid
+<span class="hljs-section">- 100  chid (allowed max)
+----</span>
+50
+
+Then if taob = ta_ext_on_behalf_of:
+50 - 19 = 31
+
+Meaning only 31 characters remain for uido <span class="hljs-code">+ upn +</span> uidn + agent.
+</code></pre><p><em>Practical caps per variable sub-claim:*</em></p>
+								<table>
+									<thead>
+										<tr>
+											<th>Sub-claim</th>
+											<th>Description</th>
+											<th>Max length</th>
+										</tr>
+									</thead>
+									<tbody><tr>
+											<td><code>uido</code></td>
+											<td>Identity origin</td>
+											<td>~20</td>
+										</tr>
+										<tr>
+											<td><code>upn</code></td>
+											<td>Login ID / email</td>
+											<td>~80</td>
+										</tr>
+										<tr>
+											<td><code>uidn</code></td>
+											<td>Display name (after <code>%3A</code> escaping)</td>
+											<td>~60</td>
+										</tr>
+										<tr>
+											<td><code>tsob</code> / <code>taob</code></td>
+											<td>Trusted-system / trusted-agent hint</td>
+											<td>~21</td>
+										</tr>
+										<tr>
+											<td><code>agent</code></td>
+											<td>Agent ID</td>
+											<td>~32</td>
+										</tr>
+										<tr>
+											<td><code>login</code></td>
+											<td>Passwordless literal (e.g. <code>pwdless</code>)</td>
+											<td>short</td>
+										</tr>
+										<tr>
+											<td><code>sesb</code></td>
+											<td>Session-bridge hint</td>
+											<td>short</td>
+										</tr>
+										<tr>
+											<td><code>chid</code></td>
+											<td>Channel ID</td>
+											<td>100</td>
+										</tr>
+								</tbody></table>
+								<p><em>Notes:*</em></p>
+								<ul>
+									<li><strong>Identity Origin Variance</strong> — <code>uido</code> is a static IDP-configuration string
+										(e.g. <code>ecom</code>, <code>google</code>, <code>Link_Brand_Production</code>). A longer origin reduces
+									the budget available for user-supplied inputs.</li>
+									<li><strong>Double-Count Fallback</strong> — if a shopper registers without a first and last
+										name, <code>uidn</code> is generated from the email (prefix as first name, domain as
+										last name), so the email is effectively counted <strong>twice</strong> (once as <code>upn</code>,
+									once as <code>uidn</code>). Long emails are the most common cause of overflow.</li>
+									<li>Colons inside <code>uidn</code> are URL-encoded as <code>%3A</code>, which can further inflate
+									its length.</li>
+								</ul>
 								<p>If you would like to get a raw Response object use the other getTrustedSystemAccessToken function.</p>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1538,7 +2308,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:3242</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:3810</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1547,6 +2317,160 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 								</div>
 								<p>For trusted-system requests, you can use a basic authorization header that includes a SLAS private client ID and SLAS private client secret instead of the bearer token.</p>
 								<p>For trusted-system requests, you cannot use SLAS public client_ids.</p>
+								<hr>
+								<a href="#token-issuer-subject-construction-amp-constraints" id="token-issuer-subject-construction-amp-constraints" style="color: inherit; text-decoration: none;">
+									<h1>Token Issuer Subject Construction &amp; Constraints</h1>
+								</a>
+								<p>The Issuer Subject (<code>isb</code>) claim of the issued JWT is a composite string that
+									identifies the shopper session. It concatenates the identity origin (<code>uido</code>),
+									login ID (<code>upn</code>), display name (<code>uidn</code>), guest customer ID (<code>gcid</code>, 26 chars),
+									registered customer ID (<code>rcid</code>, 26 chars, when applicable), channel ID (<code>chid</code>),
+									and any flow-specific values (<code>tsob</code>, <code>taob</code>, <code>agent</code>, <code>login</code>, <code>sesb</code>) as
+								<code>key:value</code> pairs separated by <code>::</code>.</p>
+								<p><em>Constraint:** the assembled <code>isb</code> must not exceed <strong>256 characters</strong>.
+										Exceeding this returns <code>400 BAD_REQUEST</code> with *&quot;Issuer Subject length must be
+								less than 256 characters&quot;</em>.</p>
+								<p><em>Length calculation breakdown*</em> (with <code>gcid</code>=26, <code>rcid</code>=26, <code>chid</code>≤100).
+								Overhead = key chars + each key&#39;s trailing <code>:</code> + <code>::</code> separators between pairs.</p>
+								<table>
+									<thead>
+										<tr>
+											<th>Shape</th>
+											<th>Overhead</th>
+											<th>Fixed values</th>
+											<th>Remaining budget</th>
+										</tr>
+									</thead>
+									<tbody><tr>
+											<td>Guest</td>
+											<td>32</td>
+											<td>gcid 26 + chid 100 = 126</td>
+											<td>98</td>
+										</tr>
+										<tr>
+											<td>Registered</td>
+											<td>39</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>65</td>
+										</tr>
+										<tr>
+											<td>TSOB guest</td>
+											<td>39</td>
+											<td>gcid 26 + chid 100 = 126</td>
+											<td>91 - len(tsob)</td>
+										</tr>
+										<tr>
+											<td>TSOB registered</td>
+											<td>46</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>58 - len(tsob)</td>
+										</tr>
+										<tr>
+											<td>Pwdless</td>
+											<td>47</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>57 - len(login)</td>
+										</tr>
+										<tr>
+											<td>SESB guest</td>
+											<td>39</td>
+											<td>gcid 26 + chid 100 = 126</td>
+											<td>91 - len(sesb)</td>
+										</tr>
+										<tr>
+											<td>SESB registered</td>
+											<td>46</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>58 - len(sesb)</td>
+										</tr>
+										<tr>
+											<td>TAOB guest</td>
+											<td>47</td>
+											<td>gcid 26 + chid 100 = 126</td>
+											<td>83 - len(taob + agent)</td>
+										</tr>
+										<tr>
+											<td>TAOB registered</td>
+											<td>54</td>
+											<td>gcid 26 + rcid 26 + chid 100 = 152</td>
+											<td>50 - len(taob + agent)</td>
+										</tr>
+								</tbody></table>
+								<p><em>Worst case (TAOB registered):*</em></p>
+								<pre><code>256  total
+<span class="hljs-bullet">- </span>54 overhead
+<span class="hljs-bullet">- </span>26  gcid
+<span class="hljs-bullet">- </span>26  rcid
+<span class="hljs-section">- 100  chid (allowed max)
+----</span>
+50
+
+Then if taob = ta_ext_on_behalf_of:
+50 - 19 = 31
+
+Meaning only 31 characters remain for uido <span class="hljs-code">+ upn +</span> uidn + agent.
+</code></pre><p><em>Practical caps per variable sub-claim:*</em></p>
+								<table>
+									<thead>
+										<tr>
+											<th>Sub-claim</th>
+											<th>Description</th>
+											<th>Max length</th>
+										</tr>
+									</thead>
+									<tbody><tr>
+											<td><code>uido</code></td>
+											<td>Identity origin</td>
+											<td>~20</td>
+										</tr>
+										<tr>
+											<td><code>upn</code></td>
+											<td>Login ID / email</td>
+											<td>~80</td>
+										</tr>
+										<tr>
+											<td><code>uidn</code></td>
+											<td>Display name (after <code>%3A</code> escaping)</td>
+											<td>~60</td>
+										</tr>
+										<tr>
+											<td><code>tsob</code> / <code>taob</code></td>
+											<td>Trusted-system / trusted-agent hint</td>
+											<td>~21</td>
+										</tr>
+										<tr>
+											<td><code>agent</code></td>
+											<td>Agent ID</td>
+											<td>~32</td>
+										</tr>
+										<tr>
+											<td><code>login</code></td>
+											<td>Passwordless literal (e.g. <code>pwdless</code>)</td>
+											<td>short</td>
+										</tr>
+										<tr>
+											<td><code>sesb</code></td>
+											<td>Session-bridge hint</td>
+											<td>short</td>
+										</tr>
+										<tr>
+											<td><code>chid</code></td>
+											<td>Channel ID</td>
+											<td>100</td>
+										</tr>
+								</tbody></table>
+								<p><em>Notes:*</em></p>
+								<ul>
+									<li><strong>Identity Origin Variance</strong> — <code>uido</code> is a static IDP-configuration string
+										(e.g. <code>ecom</code>, <code>google</code>, <code>Link_Brand_Production</code>). A longer origin reduces
+									the budget available for user-supplied inputs.</li>
+									<li><strong>Double-Count Fallback</strong> — if a shopper registers without a first and last
+										name, <code>uidn</code> is generated from the email (prefix as first name, domain as
+										last name), so the email is effectively counted <strong>twice</strong> (once as <code>upn</code>,
+									once as <code>uidn</code>). Long emails are the most common cause of overflow.</li>
+									<li>Colons inside <code>uidn</code> are URL-encoded as <code>%3A</code>, which can further inflate
+									its length.</li>
+								</ul>
 							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
@@ -1589,7 +2513,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:3359</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:3998</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1615,7 +2539,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:3390</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:4029</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1664,7 +2588,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:3501</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:4140</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1690,7 +2614,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:3525</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:4164</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1739,7 +2663,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:3620</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:4259</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1765,7 +2689,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:3648</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:4287</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1814,7 +2738,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:3761</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:4400</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1842,7 +2766,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:3803</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:4442</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1893,7 +2817,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:3954</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:4593</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1921,7 +2845,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:3990</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:4629</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1972,7 +2896,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:4105</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:4744</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1998,7 +2922,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:4138</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:4777</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2047,7 +2971,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:4245</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:4884</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2073,7 +2997,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:4273</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:4912</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2122,7 +3046,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:4381</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:5020</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2150,7 +3074,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:4415</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:5054</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2201,7 +3125,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:4531</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:5170</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2229,7 +3153,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:4567</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:5206</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2280,7 +3204,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:4679</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:5318</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2306,7 +3230,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:4709</li>
+									<li>Defined in renderedTemplates/shopperLogin/apis/DefaultApi.ts:5348</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">

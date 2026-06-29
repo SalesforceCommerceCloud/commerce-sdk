@@ -81,16 +81,62 @@
 						<h1>API Overview</h1>
 					</a>
 					<p>Use the Shopper Search API for search functionality that lets shoppers search for products using keywords and refinement. The search results can be products or suggestions based on the endpoint you choose in the API.</p>
-					<p>Caching is provided for the Shopper Search API. For details, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/server-side-web-tier-caching.html">Server-Side Web-Tier Caching.</a></p>
 					<a href="#authentication-amp-authorization" id="authentication-amp-authorization" style="color: inherit; text-decoration: none;">
 						<h2>Authentication &amp; Authorization</h2>
 					</a>
 					<p>The client requesting the API must have access to the product search and search suggestion resources.</p>
 					<p>The Shopper Search API requires a JWT acquired via the Shopper Customers endpoint:</p>
 					<pre><code>https:<span class="hljs-regexp">//</span>{shortCode}.api.commercecloud.salesforce.com<span class="hljs-regexp">/customer/</span>shopper-customers<span class="hljs-regexp">/v1/</span>organizations<span class="hljs-regexp">/{organizationId}/</span>customers<span class="hljs-regexp">/actions/</span>login</code></pre><p>You must include the relevant scopes in the client ID used to generate the SLAS token. For a full list of permissions, see the <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html">Authorization Scopes Catalog.</a></p>
+					<a href="#customization" id="customization" style="color: inherit; text-decoration: none;">
+						<h2>Customization</h2>
+					</a>
+					<a href="#custom-properties" id="custom-properties" style="color: inherit; text-decoration: none;">
+						<h3>Custom Properties</h3>
+					</a>
+					<p>This API supports custom properties (prefixed with <code>c_</code>). For details, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/custom-properties.html">Custom Properties.</a></p>
+					<a href="#hooks" id="hooks" style="color: inherit; text-decoration: none;">
+						<h3>Hooks</h3>
+					</a>
+					<p>For details on working with hooks, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html">Extensibility with Hooks.</a></p>
+					<a href="#request-details" id="request-details" style="color: inherit; text-decoration: none;">
+						<h2>Request Details</h2>
+					</a>
+					<a href="#property-selection" id="property-selection" style="color: inherit; text-decoration: none;">
+						<h3>Property Selection</h3>
+					</a>
+					<p>This API supports the <code>select</code> query parameter for filtering response properties. For details, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/scapi-property-selection.html">Property Selection.</a></p>
+					<a href="#url-encoding" id="url-encoding" style="color: inherit; text-decoration: none;">
+						<h3>URL Encoding</h3>
+					</a>
+					<p>If resource identifiers in request parameters contain commas (<code>,</code>) or percent signs (<code>%</code>), they must be URL encoded. For details, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/url-encode.html">Encode URL Special Characters.</a></p>
+					<a href="#response-details" id="response-details" style="color: inherit; text-decoration: none;">
+						<h2>Response Details</h2>
+					</a>
+					<a href="#personalization" id="personalization" style="color: inherit; text-decoration: none;">
+						<h3>Personalization</h3>
+					</a>
+					<p>Responses from this API can be personalized using the <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/shopper-context-api.html">Shopper Context API.</a> By setting context attributes such as customer group, source code, or store ID, you can retrieve personalized promotions, pricing, and shipping methods. For details on how personalization interacts with caching, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/server-side-web-tier-caching.html#personalized-caching">Personalized Caching.</a></p>
+					<a href="#caching" id="caching" style="color: inherit; text-decoration: none;">
+						<h3>Caching</h3>
+					</a>
+					<p>Caching is provided for this API. For details, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/server-side-web-tier-caching.html">Server-Side Web-Tier Caching.</a></p>
+					<a href="#timeouts" id="timeouts" style="color: inherit; text-decoration: none;">
+						<h3>Timeouts</h3>
+					</a>
+					<p>Shopper API requests must respond within 10 seconds, including any hook execution. If a response exceeds this threshold, an HTTP 504 status code is returned. For details, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/timeouts-limits.html">Timeouts and Limits.</a></p>
+					<a href="#error-handling" id="error-handling" style="color: inherit; text-decoration: none;">
+						<h3>Error Handling</h3>
+					</a>
+					<p>Error responses follow the <a href="https://datatracker.ietf.org/doc/html/rfc7807">RFC 7807</a> problem detail format. To trace errors, include a <code>correlation-id</code> header in your request — the response returns it as <code>x-correlation-id</code>. For details, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/error-response-codes.html">HTTP Status Codes and Errors.</a></p>
 					<a href="#use-cases" id="use-cases" style="color: inherit; text-decoration: none;">
 						<h2>Use Cases</h2>
 					</a>
+					<a href="#search-for-products" id="search-for-products" style="color: inherit; text-decoration: none;">
+						<h3>Search for Products</h3>
+					</a>
+					<p>Search for products by keyword. Replace <code>{access_token}</code> with a valid SLAS token.</p>
+					<pre><code class="language-sh">curl <span class="hljs-string">&quot;https://{shortCode}.api.commercecloud.salesforce.com/search/shopper-search/v1/organizations/{organizationId}/product-search?q=dress&amp;siteId=RefArch&amp;limit=5&quot;</span> \
+-H <span class="hljs-string">&quot;Authorization: Bearer {access_token}&quot;</span></code></pre>
 					<a href="#provide-search-suggestions" id="provide-search-suggestions" style="color: inherit; text-decoration: none;">
 						<h3>Provide Search Suggestions</h3>
 					</a>
@@ -146,10 +192,6 @@
 					<p>The response is cached in JWA, which means promotion data contained in the response is also cached based on the TTL (Time to Live) specified in the Business Manager <a href="https://help.salesforce.com/s/articleView?id=cc.b2c_feature_switches.htm&amp;type=5">Feature Switches</a> configuration.
 					When the shopper context value is updated, a check is conducted to see if the updated shopper context affects the retrieval of product-promotion data. If it does, then the response is fetched from the source and cached in the JWA.</p>
 					<p>For details, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/server-side-web-tier-caching.html">Server-Side Web-Tier Caching.</a></p>
-					<a href="#use-hooks" id="use-hooks" style="color: inherit; text-decoration: none;">
-						<h2>Use Hooks</h2>
-					</a>
-					<p>For details working with hooks, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html">Extensibility with Hooks.</a></p>
 					<a href="#best-practices" id="best-practices" style="color: inherit; text-decoration: none;">
 						<h2>Best Practices</h2>
 					</a>
@@ -240,7 +282,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 							<aside class="tsd-sources">
 								<p>Overrides BaseClient.__constructor</p>
 								<ul>
-									<li>Defined in renderedTemplates/shopperSearch/apis/DefaultApi.ts:186</li>
+									<li>Defined in renderedTemplates/shopperSearch/apis/DefaultApi.ts:229</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -281,7 +323,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperSearch/apis/DefaultApi.ts:221</li>
+									<li>Defined in renderedTemplates/shopperSearch/apis/DefaultApi.ts:264</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -308,7 +350,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperSearch/apis/DefaultApi.ts:263</li>
+									<li>Defined in renderedTemplates/shopperSearch/apis/DefaultApi.ts:306</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -358,7 +400,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperSearch/apis/DefaultApi.ts:472</li>
+									<li>Defined in renderedTemplates/shopperSearch/apis/DefaultApi.ts:515</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -386,7 +428,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperSearch/apis/DefaultApi.ts:556</li>
+									<li>Defined in renderedTemplates/shopperSearch/apis/DefaultApi.ts:599</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">

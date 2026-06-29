@@ -120,6 +120,15 @@
 				<blockquote>
 					<p><strong>Note:</strong> Requirements: Node <code>^20.x</code> or <code>^22.x</code>. To use a different version of Node.js for other projects, you can manage multiple versions of Node.js with <a href="https://github.com/nvm-sh/nvm">nvm</a>. ​</p>
 				</blockquote>
+				<a href="#nodejs-version-compatibility" id="nodejs-version-compatibility" style="color: inherit; text-decoration: none;">
+					<h2>Node.js version compatibility</h2>
+				</a>
+				<p>A regression in Node.js 24.17.0 and 22.23.0 caused libraries built on <code>node-fetch@2</code> to throw false <code>ERR_STREAM_PREMATURE_CLOSE</code> (&quot;Premature close&quot;) errors when reusing keep-alive connections. The security fix in those releases added a listener to the socket <code>&#39;data&#39;</code> event, which <code>node-fetch@2</code> misreads as a truncated response (<a href="https://github.com/nodejs/node/issues/63989">nodejs/node#63989</a>).</p>
+				<blockquote>
+					<p><strong>Note:</strong> commerce-sdk is <strong>not</strong> affected by this regression. Its HTTP layer is built on <code>make-fetch-happen</code>, which does not use the socket-listener heuristic that triggers the false error. The companion <a href="https://github.com/SalesforceCommerceCloud/commerce-sdk-isomorphic">Isomorphic SDK</a> does depend on <code>node-fetch@2</code> directly on its Node.js path, so it is affected; the upgrade guidance below applies to it as to any <code>node-fetch@2</code> consumer.</p>
+				</blockquote>
+				<p>If your application or another dependency uses <code>node-fetch@2</code>, upgrade to a Node.js release that contains the <a href="https://github.com/nodejs/node/pull/64004">upstream fix</a>: on the 24.x line use 24.18.0 or later (avoid 24.17.0); on the 22.x line use 22.23.1 or later (avoid 22.23.0). The fixed releases retain the security patch that the regression rode in on, so upgrade forward rather than downgrading.</p>
+				<p>Newer &quot;Current&quot;-line releases (Node 26.x) that shipped the same security patch are affected as well. As of June 24, 2026 no fixed 26.x release had shipped; check the <a href="https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V26.md">Node 26.x changelog</a> for a release that contains the <a href="https://github.com/nodejs/node/pull/64004">upstream fix</a>. For production, prefer an LTS line (24.x or 22.x) on the fixed versions above.</p>
 				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
 					<h2>Installation</h2>
 				</a>
@@ -625,7 +634,7 @@ sdkLogger.setLevel(sdkLogger.levels.INFO);</code></pre>
 				<p>For more information about security considerations related to developing headless commerce applications, see
 					<a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/security-considerations-for-headless-commerce.html">Security Considerations for Headless Commerce</a> on the
 				<a href="https://developer.salesforce.com/developer-centers/commerce-cloud">Commerce Cloud Developer Center</a>.</p>
-				<p>If you discover any potential security issues, please report them to <a href="mailto:&#115;&#x65;&#x63;&#117;&#x72;&#x69;&#x74;&#x79;&#x40;&#115;&#x61;&#x6c;&#101;&#x73;&#x66;&#111;&#x72;&#99;&#x65;&#x2e;&#x63;&#111;&#x6d;">&#115;&#x65;&#x63;&#117;&#x72;&#x69;&#x74;&#x79;&#x40;&#115;&#x61;&#x6c;&#101;&#x73;&#x66;&#111;&#x72;&#99;&#x65;&#x2e;&#x63;&#111;&#x6d;</a> as soon as possible.</p>
+				<p>If you discover any potential security issues, please report them to <a href="mailto:&#x73;&#x65;&#99;&#117;&#114;&#x69;&#x74;&#x79;&#x40;&#x73;&#x61;&#108;&#101;&#115;&#102;&#x6f;&#x72;&#99;&#101;&#x2e;&#99;&#x6f;&#x6d;">&#x73;&#x65;&#99;&#117;&#114;&#x69;&#x74;&#x79;&#x40;&#x73;&#x61;&#108;&#101;&#115;&#102;&#x6f;&#x72;&#99;&#101;&#x2e;&#99;&#x6f;&#x6d;</a> as soon as possible.</p>
 				<a href="#additional-documentation" id="additional-documentation" style="color: inherit; text-decoration: none;">
 					<h2>Additional Documentation</h2>
 				</a>

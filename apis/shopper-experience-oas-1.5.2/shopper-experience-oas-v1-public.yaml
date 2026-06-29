@@ -3,7 +3,7 @@ info:
   x-api-type: Shopper
   x-api-family: Experience
   title: Shopper Experience
-  version: 1.4.1
+  version: 1.5.2
   description: |-
     [Download API specification](https://developer.salesforce.com/static/commercecloud/commerce-api/shopper-experience/shopper-experience-oas-v1-public.yaml)
 
@@ -18,9 +18,37 @@ info:
 
     You must include `sfcc.shopper-experience` in the client ID used to generate the SLAS token. For a full list of required permissions, see the [Authorization Scopes Catalog.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html)
 
-    **Important**: Currently, the Shopper Experience Pages endpoints can’t be used when the [storefront password protection](https://documentation.b2c.commercecloud.salesforce.com/DOC1/index.jsp?topic=%2Fcom.demandware.dochelp%2Fcontent%2Fb2c_commerce%2Ftopics%2Fpermissions%2Fb2c_storefront_password_protection.html&resultof=%22%73%74%6f%72%65%66%72%6f%6e%74%22%20%22%70%72%6f%74%65%63%74%69%6f%6e%22%20%22%70%72%6f%74%65%63%74%22%20) feature is enabled.
+    **Important**: Currently, the Shopper Experience Pages endpoints can’t be used when the [storefront password protection](https://help.salesforce.com/s/articleView?id=cc.b2c_storefront_password_protection.htm&type=5) feature is enabled.
+
+    ## Response Details
+
+    ### Personalization
+
+    Responses from this API are not personalized via the Shopper Context API. Page Designer uses its own visibility rules (scheduling, customer groups) to control component visibility.
+
+    ### Caching
+
+    Caching is provided for the Shopper Experience API. For details, see [Server-Side Web-Tier Caching](https://developer.salesforce.com/docs/commerce/commerce-api/guide/server-side-web-tier-caching.html) and [Page Designer Caching](https://developer.salesforce.com/docs/commerce/b2c-commerce/guide/b2c-dev-for-page-designer.html#page-designer-caching).
+
+    ### Timeouts
+
+    Shopper API requests must respond within 10 seconds, including any hook execution. If a response exceeds this threshold, an HTTP 504 status code is returned. For details, see [Timeouts and Limits.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/timeouts-limits.html)
+
+    ### Error Handling
+
+    Error responses follow the [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807) problem detail format. To trace errors, include a `correlation-id` header in your request — the response returns it as `x-correlation-id`. For details, see [HTTP Status Codes and Errors.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/error-response-codes.html)
 
     ## Use Cases
+
+    ### Get a Page Designer Page
+
+    Retrieve a Page Designer page by ID.
+
+    ```sh
+    curl "https://{shortCode}.api.commercecloud.salesforce.com/experience/shopper-experience/v1/organizations/{organizationId}/pages/{pageId}?siteId=RefArch" \
+      -H "Authorization: Bearer {access_token}"
+    ```
+
 
     ### Access Content Folders
     The API provides access to content folders, which are used to organize and manage content assets. Content folders support:
@@ -46,6 +74,7 @@ info:
     Retrieve multiple content assets or content folders in a single API request for improved performance (up to 50 content assets or folders at once).
 
     ## Page Responses
+
     Responses for pages include the following:
 
     - The entire component hierarchy of the page at design time.
@@ -56,7 +85,7 @@ info:
 
     Both the page and components contain the values of all native and custom attributes that have been populated during page authoring.
 
-    Only visible pages are returned. Because the visibility of components is driven by rules (scheduling or customer groups, for example), these rules are subject to evaluation when assembling the component hierarchy in the response. Only components that are visible for the current customer context appear in the response. The same rules apply to the page itself, which is only be processed and returned if it is visible.
+    Only visible pages are returned. Because the visibility of components is driven by rules (scheduling or customer groups, for example), these rules are subject to evaluation when assembling the component hierarchy in the response. Only components that are visible for the current customer context appear in the response. The same rules apply to the page itself, which is only processed and returned if it is visible.
 
     ## Content Asset Responses
 
@@ -69,16 +98,21 @@ info:
     - Custom attributes and properties
 
     Only content assets that are marked as online are returned. Content assets provide flexible content management capabilities for storefronts.
+
+    ## Related APIs
+
+    - [Experiences (Admin)](https://developer.salesforce.com/docs/commerce/commerce-api/references/experiences?meta=Summary) — Manage Page Designer pages and content assets.
 servers:
   - url: https://{shortCode}.api.commercecloud.salesforce.com/experience/shopper-experience/v1
     variables:
       shortCode:
+        description: An eight-character string assigned to a realm for routing purposes. See [Base URL and Request Formation.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html)
         default: shortCode
 paths:
   /organizations/{organizationId}/pages:
     get:
       summary: Get Page Designer pages.
-      description: "Get Page Designer pages. The results apply the visibility rules for each page's components, such as personalization or scheduled visibility.\n\nYou must provide the `aspectTypeId` along with either a `categoryId` or a `productId`. Since you can only create one page-to-product or page-to-category assignment per aspect type, the result contains at most one element.\n\n**Important**: \n- Currently, you can't use the Shopper Experience Pages endpoints when the [storefront password protection](https://documentation.b2c.commercecloud.salesforce.com/DOC1/index.jsp?topic=%2Fcom.demandware.dochelp%2Fcontent%2Fb2c_commerce%2Ftopics%2Fpermissions%2Fb2c_storefront_password_protection.html&resultof=%22%73%74%6f%72%65%66%72%6f%6e%74%22%20%22%70%72%6f%74%65%63%74%69%6f%6e%22%20%22%70%72%6f%74%65%63%74%22%20) feature is enabled.\n- Because this resource uses the GET method, you must not pass sensitive data, for example: payment card information, and must not perform transactional processes within the server-side scripts that are run for the page and components.\n- Be aware that pagecache during fingerprint calculation will only be leveraged for pages and their components that don't use visibility rules. Furthermore the pagecaching of the actual response assembly solely depends on the response instrumentation with the serverside page type and component type script implementations. For more details also see the [Page Designer Caching Guide](https://developer.salesforce.com/docs/commerce/b2c-commerce/guide/b2c-dev-for-page-designer.html#page-caching)."
+      description: "Get Page Designer pages. The results apply the visibility rules for each page's components, such as personalization or scheduled visibility.\n\nYou must provide the `aspectTypeId` along with either a `categoryId` or a `productId`. Since you can only create one page-to-product or page-to-category assignment per aspect type, the result contains at most one element.\n\n**Important**: \n- Currently, you can't use the Shopper Experience Pages endpoints when the [storefront password protection](https://help.salesforce.com/s/articleView?id=cc.b2c_storefront_password_protection.htm&type=5) feature is enabled.\n- Because this resource uses the GET method, you must not pass sensitive data, for example: payment card information, and must not perform transactional processes within the server-side scripts that are run for the page and components.\n- Be aware that pagecache during fingerprint calculation will only be leveraged for pages and their components that don't use visibility rules. Furthermore the pagecaching of the actual response assembly solely depends on the response instrumentation with the serverside page type and component type script implementations. For more details also see the [Page Designer Caching Guide](https://developer.salesforce.com/docs/commerce/b2c-commerce/guide/b2c-dev-for-page-designer.html#page-caching)."
       operationId: getPages
       parameters:
         - $ref: '#/components/parameters/organizationId'
@@ -127,7 +161,7 @@ paths:
   /organizations/{organizationId}/pages/{pageId}:
     get:
       summary: Get a Page Designer page based on a single page ID.
-      description: "Get a Page Designer page for a specific page ID. The results apply the visibility rules for the page's components, such as personalization or scheduled visibility.\n\n**Important**: \n- Currently, you can't use the Shopper Experience Pages endpoints when the [storefront password protection](https://documentation.b2c.commercecloud.salesforce.com/DOC1/index.jsp?topic=%2Fcom.demandware.dochelp%2Fcontent%2Fb2c_commerce%2Ftopics%2Fpermissions%2Fb2c_storefront_password_protection.html&resultof=%22%73%74%6f%72%65%66%72%6f%6e%74%22%20%22%70%72%6f%74%65%63%74%69%6f%6e%22%20%22%70%72%6f%74%65%63%74%22%20) feature is enabled.\n- Because this resource uses the GET method, you must not pass sensitive data, for example: payment card information, and must not perform transactional processes within the server-side scripts that are run for the page and components.\n- Be aware that pagecache during fingerprint calculation will only be leveraged for pages and their components that don't use visibility rules. Furthermore the pagecaching of the actual response assembly solely depends on the response instrumentation with the serverside page type and component type script implementations. For more details also see the [Page Designer Caching Guide](https://developer.salesforce.com/docs/commerce/b2c-commerce/guide/b2c-dev-for-page-designer.html#page-caching)."
+      description: "Get a Page Designer page for a specific page ID. The results apply the visibility rules for the page's components, such as personalization or scheduled visibility.\n\n**Important**: \n- Currently, you can't use the Shopper Experience Pages endpoints when the [storefront password protection](https://help.salesforce.com/s/articleView?id=cc.b2c_storefront_password_protection.htm&type=5) feature is enabled.\n- Because this resource uses the GET method, you must not pass sensitive data, for example: payment card information, and must not perform transactional processes within the server-side scripts that are run for the page and components.\n- Be aware that pagecache during fingerprint calculation will only be leveraged for pages and their components that don't use visibility rules. Furthermore the pagecaching of the actual response assembly solely depends on the response instrumentation with the serverside page type and component type script implementations. For more details also see the [Page Designer Caching Guide](https://developer.salesforce.com/docs/commerce/b2c-commerce/guide/b2c-dev-for-page-designer.html#page-caching)."
       operationId: getPage
       parameters:
         - $ref: '#/components/parameters/pageId'
@@ -178,6 +212,68 @@ paths:
             - sfcc.shopper-experience
             - sfcc.shopper-experience.pages
             - sfcc.shopper-standard
+  /organizations/{organizationId}/components/{componentId}:
+    get:
+      summary: Get a component by ID.
+      description: "Get a Page Designer component by its unique identifier. The results apply the visibility rules for the component, such as personalization or scheduled visibility.\n\n**Important**: \n- Because this resource uses the GET method, you must not pass sensitive data, for example: payment card information, and must not perform transactional processes within the server-side scripts that are run for the component."
+      operationId: getComponent
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/componentId'
+        - $ref: '#/components/parameters/parameters'
+        - $ref: '#/components/parameters/siteId'
+        - $ref: '#/components/parameters/locale'
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Component'
+              examples:
+                Component:
+                  $ref: '#/components/examples/Component'
+        '400':
+          description: |
+            Invalid Parameter
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ComponentBadRequest:
+                  $ref: '#/components/examples/ComponentBadRequest'
+        '401':
+          description: |
+            Unauthorized Access
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: |
+            Component Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ComponentNotFound:
+                  $ref: '#/components/examples/ComponentNotFound'
+        '500':
+          description: |
+            Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ComponentInternalError:
+                  $ref: '#/components/examples/ComponentInternalError'
+      security:
+        - ShopperToken:
+            - sfcc.shopper-experience
+            - sfcc.shopper-experience.pages
   /organizations/{organizationId}/contents/{id}:
     get:
       summary: Get a content asset by ID.
@@ -445,7 +541,7 @@ components:
       description: |
         ShopperToken authentication follows the authorization code grant flow, as defined by the OAuth 2.1 standard. Depending on the type of OAuth client (public or private), this authorization flow has further requirements.
         For a detailed description of the authorization flow, see the [SLAS overview](https://developer.salesforce.com/docs/commerce/commerce-api/references?meta=shopper-login:Summary).
-        A shopper token allows you to access the Shopper API endpoints of both OCAPI and the B2C Commerce API. These endpoints can be used to build headless storefronts and other applications.
+        A shopper token allows you to access the Shopper API endpoints of both the Open Commerce API (OCAPI) and the B2C Commerce API. These endpoints can be used to build headless storefronts and other applications.
         The `ShopperToken` security scheme is a parent of other security schemes, such as `ShopperTokenTsob`. A Shopper API endpoint can require a specific child scheme (`ShopperTokenTsob`, for example) that cannot be accessed with a regular shopper token.
       flows:
         clientCredentials:
@@ -457,8 +553,8 @@ components:
             sfcc.shopper-experience.folders: Shopper Experience scope READONLY for folders
             sfcc.shopper-experience.qualifiers: Shopper Experience scope for resolving qualifiers
         authorizationCode:
-          authorizationUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/authorize
-          tokenUrl: https://{short-code}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
+          authorizationUrl: https://{shortCode}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/authorize
+          tokenUrl: https://{shortCode}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
           scopes:
             sfcc.shopper-experience: Shopper Experience scope READONLY
             sfcc.shopper-experience.pages: Shopper Experience scope READONLY for pages
@@ -547,6 +643,11 @@ components:
         fragment:
           title: Fragment
           description: Indicates whether the component is a fragment. True if the component is a fragment, otherwise false.
+          type: boolean
+          example: false
+        embedded:
+          title: Embedded
+          description: Indicates whether the component is embedded in another component. True if the component is embedded, otherwise false.
           type: boolean
           example: false
         contentLinkUuid:
@@ -1121,15 +1222,6 @@ components:
             $ref: '#/components/schemas/DataBindingRequirement'
           maxItems: 50
       type: object
-    ResolvedDataBinding:
-      description: A resolved data binding object containing arbitrary key-value pairs returned by the data provider for a specific record. The shape of the object is determined by the data provider and may include any user-defined fields.
-      type: object
-      additionalProperties: true
-      example:
-        title: Winter Sale
-        body: <div>Shop our winter collection</div>
-        c_showCountdown: true
-        c_endDate: '2026-03-31T23:59:59Z'
     QualifierResolveResponse:
       description: Response containing the resolved qualification results for customer groups, campaign qualifiers, and data bindings.
       properties:
@@ -1170,14 +1262,15 @@ components:
           additionalProperties:
             type: object
             additionalProperties:
-              $ref: '#/components/schemas/ResolvedDataBinding'
+              type: object
+              additionalProperties: true
           example:
             content_asset:
               homepage-banner:
                 title: Winter Sale
                 body: <div>Shop our winter collection</div>
-                c_showCountdown: true
-                c_endDate: '2026-03-31T23:59:59Z'
+                showCountdown: true
+                endDate: '2026-03-31T23:59:59Z'
       type: object
   parameters:
     organizationId:
@@ -1267,6 +1360,15 @@ components:
         maxLength: 256
         type: string
         example: homepage
+    componentId:
+      name: componentId
+      in: path
+      description: Identifier for the requested component.
+      required: true
+      schema:
+        maxLength: 256
+        type: string
+        example: be1f331b92d8ad7e38e440e35d
     contentId:
       name: id
       in: path
@@ -1393,6 +1495,7 @@ components:
                     typeId: commerce_assets.banner
                     name: Sale Banner
                     fragment: false
+                    embedded: false
                     contentLinkUuid: a7b2c4d8e1f9032a5b6c7d8e9f0
                     data:
                       title: Products On Sale
@@ -1411,6 +1514,7 @@ components:
                     typeId: commerce_assets.carousel
                     name: Topseller Carousel
                     fragment: false
+                    embedded: false
                     contentLinkUuid: 3f8e2a1b5c9d7e4f0a2b3c6d8e1
                     data:
                       title: Topseller
@@ -1429,6 +1533,7 @@ components:
                           - id: d98a30dfe93715e3e6fc22a329
                             typeId: commerce_assets.productTile
                             fragment: true
+                            embedded: false
                             contentLinkUuid: c4d6e8f0a2b4c6d8e0f2a4b6c8d
                             data:
                               product: iphone6
@@ -1437,6 +1542,7 @@ components:
                           - id: 43aa39896afb9292308181ce14
                             typeId: commerce_assets.productTile
                             fragment: false
+                            embedded: false
                             contentLinkUuid: 9e1a3c5d7f0b2e4a6c8d0f2b4e6
                             data:
                               product: iphone7
@@ -1494,6 +1600,7 @@ components:
                 typeId: commerce_assets.banner
                 name: Sale Banner
                 fragment: false
+                embedded: false
                 contentLinkUuid: 2b4d6f8a0c2e4a6b8d0f2a4c6e8
                 data:
                   title: Products On Sale
@@ -1511,6 +1618,7 @@ components:
               - id: be1f331b92d8ad7e38e440e35d
                 typeId: commerce_assets.carousel
                 fragment: false
+                embedded: false
                 contentLinkUuid: f0a2c4e6b8d0f2a4c6e8b0d2f4
                 data:
                   title: Topseller
@@ -1525,6 +1633,7 @@ components:
                       - id: 45af07459684e6db78990c5d05
                         typeId: commerce_assets.productTile
                         fragment: false
+                        embedded: false
                         contentLinkUuid: 5d7f1a3b5c7e9f0a2c4d6e8f0a2
                         data:
                           product: iphone6
@@ -1533,6 +1642,7 @@ components:
                       - id: df6e33766d90e7e205d109aa2f
                         typeId: commerce_assets.productTile
                         fragment: false
+                        embedded: false
                         contentLinkUuid: e8b0d2f4a6c8e0b2d4f6a8c0e2b
                         data:
                           product: iphone7
@@ -1548,6 +1658,63 @@ components:
         title: Page Not Found
         type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/page-not-found
         detail: No visible page with ID 'homepage' was found in site 'RefArch'.
+    Component:
+      value:
+        id: be1f331b92d8ad7e38e440e35d
+        typeId: commerce_assets.carousel
+        name: Topseller Carousel
+        fragment: false
+        embedded: false
+        contentLinkUuid: f0a2c4e6b8d0f2a4c6e8b0d2f4
+        data:
+          title: Topseller
+          category: topseller
+        localized: true
+        visible: true
+        custom:
+          detailUrl: www.myshop.com/topseller
+        designMetadata:
+          id: commerce_assets.carousel
+          name: Carousel Component
+          archType: headless
+        regions:
+          - id: tiles
+            components:
+              - id: 45af07459684e6db78990c5d05
+                typeId: commerce_assets.productTile
+                name: iPhone 6 Tile
+                fragment: false
+                embedded: false
+                contentLinkUuid: 5d7f1a3b5c7e9f0a2c4d6e8f0a2
+                data:
+                  product: iphone6
+                localized: false
+                visible: true
+              - id: df6e33766d90e7e205d109aa2f
+                typeId: commerce_assets.productTile
+                name: iPhone 7 Tile
+                fragment: false
+                embedded: false
+                contentLinkUuid: e8b0d2f4a6c8e0b2d4f6a8c0e2b
+                data:
+                  product: iphone7
+                localized: true
+                visible: true
+    ComponentBadRequest:
+      value:
+        title: Bad Request
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/bad-request
+        detail: The provided 'componentId' is invalid or missing required query parameter 'siteId'.
+    ComponentNotFound:
+      value:
+        title: Component Not Found
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/component-not-found
+        detail: No visible component with ID 'rfdvj4ojtltljw3' was found in site 'RefArch'.
+    ComponentInternalError:
+      value:
+        title: Internal Server Error
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/internal-server-error
+        detail: An unexpected error occurred while processing the request.
     Content:
       value:
         id: homepage-banner
@@ -1730,8 +1897,8 @@ components:
             homepage-banner:
               title: Winter Sale
               body: <div>Shop our winter collection</div>
-              c_showCountdown: true
-              c_endDate: '2026-03-31T23:59:59Z'
+              showCountdown: true
+              endDate: '2026-03-31T23:59:59Z'
     QualifierResolveBadRequest:
       value:
         title: Bad Request

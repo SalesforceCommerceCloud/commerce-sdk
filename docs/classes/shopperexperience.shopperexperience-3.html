@@ -87,10 +87,35 @@
 					<p>The Shopper Experience API requires a shopper access token from the Shopper Login and API Access Service (SLAS).</p>
 					<p>For details on how to request a shopper access token from SLAS, see the guest user flows for <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-public-client.html#guest-user">public clients</a> and <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-private-client.html#guest-user">private clients</a> in the SLAS guides.</p>
 					<p>You must include <code>sfcc.shopper-experience</code> in the client ID used to generate the SLAS token. For a full list of required permissions, see the <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html">Authorization Scopes Catalog.</a></p>
-					<p><em>Important*</em>: Currently, the Shopper Experience Pages endpoints can’t be used when the <a href="https://documentation.b2c.commercecloud.salesforce.com/DOC1/index.jsp?topic=%2Fcom.demandware.dochelp%2Fcontent%2Fb2c_commerce%2Ftopics%2Fpermissions%2Fb2c_storefront_password_protection.html&amp;resultof=%22%73%74%6f%72%65%66%72%6f%6e%74%22%20%22%70%72%6f%74%65%63%74%69%6f%6e%22%20%22%70%72%6f%74%65%63%74%22%20">storefront password protection</a> feature is enabled.</p>
+					<p><em>Important*</em>: Currently, the Shopper Experience Pages endpoints can’t be used when the <a href="https://help.salesforce.com/s/articleView?id=cc.b2c_storefront_password_protection.htm&amp;type=5">storefront password protection</a> feature is enabled.</p>
+					<a href="#response-details" id="response-details" style="color: inherit; text-decoration: none;">
+						<h2>Response Details</h2>
+					</a>
+					<a href="#personalization" id="personalization" style="color: inherit; text-decoration: none;">
+						<h3>Personalization</h3>
+					</a>
+					<p>Responses from this API are not personalized via the Shopper Context API. Page Designer uses its own visibility rules (scheduling, customer groups) to control component visibility.</p>
+					<a href="#caching" id="caching" style="color: inherit; text-decoration: none;">
+						<h3>Caching</h3>
+					</a>
+					<p>Caching is provided for the Shopper Experience API. For details, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/server-side-web-tier-caching.html">Server-Side Web-Tier Caching</a> and <a href="https://developer.salesforce.com/docs/commerce/b2c-commerce/guide/b2c-dev-for-page-designer.html#page-designer-caching">Page Designer Caching</a>.</p>
+					<a href="#timeouts" id="timeouts" style="color: inherit; text-decoration: none;">
+						<h3>Timeouts</h3>
+					</a>
+					<p>Shopper API requests must respond within 10 seconds, including any hook execution. If a response exceeds this threshold, an HTTP 504 status code is returned. For details, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/timeouts-limits.html">Timeouts and Limits.</a></p>
+					<a href="#error-handling" id="error-handling" style="color: inherit; text-decoration: none;">
+						<h3>Error Handling</h3>
+					</a>
+					<p>Error responses follow the <a href="https://datatracker.ietf.org/doc/html/rfc7807">RFC 7807</a> problem detail format. To trace errors, include a <code>correlation-id</code> header in your request — the response returns it as <code>x-correlation-id</code>. For details, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/error-response-codes.html">HTTP Status Codes and Errors.</a></p>
 					<a href="#use-cases" id="use-cases" style="color: inherit; text-decoration: none;">
 						<h2>Use Cases</h2>
 					</a>
+					<a href="#get-a-page-designer-page" id="get-a-page-designer-page" style="color: inherit; text-decoration: none;">
+						<h3>Get a Page Designer Page</h3>
+					</a>
+					<p>Retrieve a Page Designer page by ID.</p>
+					<pre><code class="language-sh">curl <span class="hljs-string">&quot;https://{shortCode}.api.commercecloud.salesforce.com/experience/shopper-experience/v1/organizations/{organizationId}/pages/{pageId}?siteId=RefArch&quot;</span> \
+-H <span class="hljs-string">&quot;Authorization: Bearer {access_token}&quot;</span></code></pre>
 					<a href="#access-content-folders" id="access-content-folders" style="color: inherit; text-decoration: none;">
 						<h3>Access Content Folders</h3>
 					</a>
@@ -129,7 +154,7 @@
 						<li>Support for reusable component fragments that can be shared across multiple pages.</li>
 					</ul>
 					<p>Both the page and components contain the values of all native and custom attributes that have been populated during page authoring.</p>
-					<p>Only visible pages are returned. Because the visibility of components is driven by rules (scheduling or customer groups, for example), these rules are subject to evaluation when assembling the component hierarchy in the response. Only components that are visible for the current customer context appear in the response. The same rules apply to the page itself, which is only be processed and returned if it is visible.</p>
+					<p>Only visible pages are returned. Because the visibility of components is driven by rules (scheduling or customer groups, for example), these rules are subject to evaluation when assembling the component hierarchy in the response. Only components that are visible for the current customer context appear in the response. The same rules apply to the page itself, which is only processed and returned if it is visible.</p>
 					<a href="#content-asset-responses" id="content-asset-responses" style="color: inherit; text-decoration: none;">
 						<h2>Content Asset Responses</h2>
 					</a>
@@ -141,7 +166,13 @@
 						<li>Folder organization structure</li>
 						<li>Custom attributes and properties</li>
 					</ul>
-					<p>Only content assets that are marked as online are returned. Content assets provide flexible content management capabilities for storefronts.* <br /></p>
+					<p>Only content assets that are marked as online are returned. Content assets provide flexible content management capabilities for storefronts.</p>
+					<a href="#related-apis" id="related-apis" style="color: inherit; text-decoration: none;">
+						<h2>Related APIs</h2>
+					</a>
+					<ul>
+						<li><a href="https://developer.salesforce.com/docs/commerce/commerce-api/references/experiences?meta=Summary">Experiences (Admin)</a> — Manage Page Designer pages and content assets.* <br /></li>
+					</ul>
 					<p>For instructions on how to retrieve access token for admin APIs: <a><a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html">https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html</a></a> <br /> <br />
 					Example with admin auth</p>
 					<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { ShopperExperience, ClientConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
@@ -199,6 +230,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="shopperexperience.shopperexperience-3.html#getcomponent" class="tsd-kind-icon">get<wbr>Component</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="shopperexperience.shopperexperience-3.html#getcontent" class="tsd-kind-icon">get<wbr>Content</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="shopperexperience.shopperexperience-3.html#getcontentfolder" class="tsd-kind-icon">get<wbr>Content<wbr>Folder</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="shopperexperience.shopperexperience-3.html#getcontentfolders" class="tsd-kind-icon">get<wbr>Content<wbr>Folders</a></li>
@@ -225,7 +257,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 							<aside class="tsd-sources">
 								<p>Overrides BaseClient.__constructor</p>
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:143</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:178</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -256,6 +288,89 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+					<a name="getcomponent" class="tsd-anchor"></a>
+					<h3>get<wbr>Component</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Component<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>componentId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperexperience.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/shopperexperience.html#component" class="tsd-signature-type">Component</a><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Component&lt;T&gt;<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>componentId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperexperience.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span>, rawResponse<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">Response</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">Component</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:210</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Get a Page Designer component by its unique identifier. The results apply the visibility rules for the component, such as personalization or scheduled visibility.</p>
+								</div>
+								<p><em>Important*</em>:</p>
+								<ul>
+									<li>Because this resource uses the GET method, you must not pass sensitive data, for example: payment card information, and must not perform transactional processes within the server-side scripts that are run for the component.</li>
+								</ul>
+								<p>If you would like to get a raw Response object use the other getComponent function.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>componentId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperexperience.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>An object containing the options for this method.</p>
+										</div>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/shopperexperience.html#component" class="tsd-signature-type">Component</a><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>A promise of type Component.</p>
+						</li>
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:245</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Get a Page Designer component by its unique identifier. The results apply the visibility rules for the component, such as personalization or scheduled visibility.</p>
+								</div>
+								<p><em>Important*</em>:</p>
+								<ul>
+									<li>Because this resource uses the GET method, you must not pass sensitive data, for example: payment card information, and must not perform transactional processes within the server-side scripts that are run for the component.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>componentId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperexperience.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>An object containing the options for this method.</p>
+										</div>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> rawResponse: <span class="tsd-signature-type">T</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>Set to true to return entire Response object instead of DTO.</p>
+										</div>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">Response</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">Component</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>A promise of type Response if rawResponse is true, a promise of type Component otherwise.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
 					<a name="getcontent" class="tsd-anchor"></a>
 					<h3>get<wbr>Content</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
@@ -266,7 +381,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:176</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:386</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -297,7 +412,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:211</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:421</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -351,7 +466,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:345</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:555</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -380,7 +495,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:380</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:590</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -432,7 +547,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:520</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:730</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -461,7 +576,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:555</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:765</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -513,7 +628,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:696</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:906</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -544,7 +659,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:731</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:941</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -598,7 +713,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:868</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:1078</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -607,7 +722,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 								</div>
 								<p><em>Important*</em>:</p>
 								<ul>
-									<li>Currently, you can&#39;t use the Shopper Experience Pages endpoints when the <a href="https://documentation.b2c.commercecloud.salesforce.com/DOC1/index.jsp?topic=%2Fcom.demandware.dochelp%2Fcontent%2Fb2c_commerce%2Ftopics%2Fpermissions%2Fb2c_storefront_password_protection.html&amp;resultof=%22%73%74%6f%72%65%66%72%6f%6e%74%22%20%22%70%72%6f%74%65%63%74%69%6f%6e%22%20%22%70%72%6f%74%65%63%74%22%20">storefront password protection</a> feature is enabled.</li>
+									<li>Currently, you can&#39;t use the Shopper Experience Pages endpoints when the <a href="https://help.salesforce.com/s/articleView?id=cc.b2c_storefront_password_protection.htm&amp;type=5">storefront password protection</a> feature is enabled.</li>
 									<li>Because this resource uses the GET method, you must not pass sensitive data, for example: payment card information, and must not perform transactional processes within the server-side scripts that are run for the page and components.</li>
 									<li>Be aware that pagecache during fingerprint calculation will only be leveraged for pages and their components that don&#39;t use visibility rules. Furthermore the pagecaching of the actual response assembly solely depends on the response instrumentation with the serverside page type and component type script implementations. For more details also see the <a href="https://developer.salesforce.com/docs/commerce/b2c-commerce/guide/b2c-dev-for-page-designer.html#page-caching">Page Designer Caching Guide</a>.</li>
 								</ul>
@@ -630,7 +745,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:907</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:1117</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -639,7 +754,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 								</div>
 								<p><em>Important*</em>:</p>
 								<ul>
-									<li>Currently, you can&#39;t use the Shopper Experience Pages endpoints when the <a href="https://documentation.b2c.commercecloud.salesforce.com/DOC1/index.jsp?topic=%2Fcom.demandware.dochelp%2Fcontent%2Fb2c_commerce%2Ftopics%2Fpermissions%2Fb2c_storefront_password_protection.html&amp;resultof=%22%73%74%6f%72%65%66%72%6f%6e%74%22%20%22%70%72%6f%74%65%63%74%69%6f%6e%22%20%22%70%72%6f%74%65%63%74%22%20">storefront password protection</a> feature is enabled.</li>
+									<li>Currently, you can&#39;t use the Shopper Experience Pages endpoints when the <a href="https://help.salesforce.com/s/articleView?id=cc.b2c_storefront_password_protection.htm&amp;type=5">storefront password protection</a> feature is enabled.</li>
 									<li>Because this resource uses the GET method, you must not pass sensitive data, for example: payment card information, and must not perform transactional processes within the server-side scripts that are run for the page and components.</li>
 									<li>Be aware that pagecache during fingerprint calculation will only be leveraged for pages and their components that don&#39;t use visibility rules. Furthermore the pagecaching of the actual response assembly solely depends on the response instrumentation with the serverside page type and component type script implementations. For more details also see the <a href="https://developer.salesforce.com/docs/commerce/b2c-commerce/guide/b2c-dev-for-page-designer.html#page-caching">Page Designer Caching Guide</a>.</li>
 								</ul>
@@ -685,7 +800,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:1064</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:1274</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -695,7 +810,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 								<p>You must provide the <code>aspectTypeId</code> along with either a <code>categoryId</code> or a <code>productId</code>. Since you can only create one page-to-product or page-to-category assignment per aspect type, the result contains at most one element.</p>
 								<p><em>Important*</em>:</p>
 								<ul>
-									<li>Currently, you can&#39;t use the Shopper Experience Pages endpoints when the <a href="https://documentation.b2c.commercecloud.salesforce.com/DOC1/index.jsp?topic=%2Fcom.demandware.dochelp%2Fcontent%2Fb2c_commerce%2Ftopics%2Fpermissions%2Fb2c_storefront_password_protection.html&amp;resultof=%22%73%74%6f%72%65%66%72%6f%6e%74%22%20%22%70%72%6f%74%65%63%74%69%6f%6e%22%20%22%70%72%6f%74%65%63%74%22%20">storefront password protection</a> feature is enabled.</li>
+									<li>Currently, you can&#39;t use the Shopper Experience Pages endpoints when the <a href="https://help.salesforce.com/s/articleView?id=cc.b2c_storefront_password_protection.htm&amp;type=5">storefront password protection</a> feature is enabled.</li>
 									<li>Because this resource uses the GET method, you must not pass sensitive data, for example: payment card information, and must not perform transactional processes within the server-side scripts that are run for the page and components.</li>
 									<li>Be aware that pagecache during fingerprint calculation will only be leveraged for pages and their components that don&#39;t use visibility rules. Furthermore the pagecaching of the actual response assembly solely depends on the response instrumentation with the serverside page type and component type script implementations. For more details also see the <a href="https://developer.salesforce.com/docs/commerce/b2c-commerce/guide/b2c-dev-for-page-designer.html#page-caching">Page Designer Caching Guide</a>.</li>
 								</ul>
@@ -718,7 +833,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:1109</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:1319</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -728,7 +843,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 								<p>You must provide the <code>aspectTypeId</code> along with either a <code>categoryId</code> or a <code>productId</code>. Since you can only create one page-to-product or page-to-category assignment per aspect type, the result contains at most one element.</p>
 								<p><em>Important*</em>:</p>
 								<ul>
-									<li>Currently, you can&#39;t use the Shopper Experience Pages endpoints when the <a href="https://documentation.b2c.commercecloud.salesforce.com/DOC1/index.jsp?topic=%2Fcom.demandware.dochelp%2Fcontent%2Fb2c_commerce%2Ftopics%2Fpermissions%2Fb2c_storefront_password_protection.html&amp;resultof=%22%73%74%6f%72%65%66%72%6f%6e%74%22%20%22%70%72%6f%74%65%63%74%69%6f%6e%22%20%22%70%72%6f%74%65%63%74%22%20">storefront password protection</a> feature is enabled.</li>
+									<li>Currently, you can&#39;t use the Shopper Experience Pages endpoints when the <a href="https://help.salesforce.com/s/articleView?id=cc.b2c_storefront_password_protection.htm&amp;type=5">storefront password protection</a> feature is enabled.</li>
 									<li>Because this resource uses the GET method, you must not pass sensitive data, for example: payment card information, and must not perform transactional processes within the server-side scripts that are run for the page and components.</li>
 									<li>Be aware that pagecache during fingerprint calculation will only be leveraged for pages and their components that don&#39;t use visibility rules. Furthermore the pagecaching of the actual response assembly solely depends on the response instrumentation with the serverside page type and component type script implementations. For more details also see the <a href="https://developer.salesforce.com/docs/commerce/b2c-commerce/guide/b2c-dev-for-page-designer.html#page-caching">Page Designer Caching Guide</a>.</li>
 								</ul>
@@ -774,7 +889,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:1281</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:1491</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -807,7 +922,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:1319</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:1529</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -863,7 +978,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:1464</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:1674</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -899,7 +1014,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:1516</li>
+									<li>Defined in renderedTemplates/shopperExperience/apis/DefaultApi.ts:1726</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -977,6 +1092,9 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
 								<a href="shopperexperience.shopperexperience-3.html#clientconfig" class="tsd-kind-icon">client<wbr>Config</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+								<a href="shopperexperience.shopperexperience-3.html#getcomponent" class="tsd-kind-icon">get<wbr>Component</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
 								<a href="shopperexperience.shopperexperience-3.html#getcontent" class="tsd-kind-icon">get<wbr>Content</a>

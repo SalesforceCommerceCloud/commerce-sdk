@@ -1,5 +1,44 @@
 # CHANGELOG
 
+## v6.4.0
+
+_ECOM v26.7_
+
+### API Versions
+
+| API Name | API Version |
+|----------|-------------|
+| assignments | 1.0.38 |
+| slas-admin | 1.18.0 |
+| shopper-login | 1.50.0 |
+| campaigns | 1.0.40 |
+| catalogs | 1.0.46 |
+| cors-preferences | 1.1.0 |
+| coupons | 1.0.43 |
+| customers | 1.1.3 |
+| gift-certificates | 1.0.42 |
+| orders | 1.4.16 |
+| preferences | 1.2.2 |
+| products | 1.2.0 |
+| promotions | 1.0.36 |
+| shopper-availability | 1.2.0 |
+| shopper-baskets | 1.11.0 |
+| shopper-baskets | 2.9.0 |
+| shopper-configurations | 1.2.0 |
+| shopper-consents | 1.1.4 |
+| shopper-context | 1.1.3 |
+| shopper-customers | 1.8.0 |
+| shopper-experience | 1.5.2 |
+| shopper-gift-certificates | 1.2.0 |
+| shopper-orders | 1.15.0 |
+| shopper-products | 1.10.1 |
+| shopper-promotions | 1.2.0 |
+| shopper-search | 1.10.0 |
+| shopper-seo | 1.0.17 |
+| shopper-stores | 1.2.0 |
+| source-code-groups | 1.0.40 |
+| cdn-api-process-apis | 1.2.0 |
+
 ## v6.3.0
 
 _ECOM v26.6_
@@ -42,15 +81,6 @@ _ECOM v26.6_
 ### Enhancements
 
 - Add Shopper Availability API (`shopperAvailability`).
-- Bump API versions for ECOM v26.6: `auth-oas` (1.46.0 → 1.48.0), `auth-admin-oas` (1.17.0 → 1.18.0), `preferences` (1.2.1 → 1.2.2), `products` (1.1.5 → 1.2.0), `shopper-customers` (1.7.0 → 1.8.0), `shopper-experience` (1.3.0 → 1.4.1), `shopper-products` (1.3.0 → 1.5.1), `shopper-search` (1.8.0 → 1.9.0).
-- `shopper-login`: add `getOtpRequest` and `getOtpVerify` endpoints. Add optional `x-slas-client-auth` header on authorize and login. Add optional `strict_verify` query parameter on passwordless login. Add optional `idpValidate` query parameter on userinfo.
-- `slas-admin`: add optional `strictClientAuth` field on Client responses and PUT request body.
-- `shopper-search`: add optional `imgTypes` query parameter on product-search. Increase `q` query parameter maxLength from 50 to 500.
-- `shopper-products`: the `availability` value of the `expand` parameter is deprecated — use the new Shopper Availability API for better caching performance.
-
-### Breaking changes
-
-- `preferences` PATCH `/site-preference-groups/{groupId}/{instanceType}/preferences/{preferenceId}`: `attributeDefinition.id` is now a required field on the request body. Existing clients that PATCH preferences without supplying `attributeDefinition.id` will start receiving 400 responses after the v26.6 deploy. Per team policy this does not trigger a major SDK bump — the SDK tracks the underlying SCAPI contract.
 
 ## v6.2.0
 

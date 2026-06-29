@@ -116,13 +116,57 @@
 						<li><code>/baskets/{basketId}/items/{itemId}/taxes</code></li>
 						<li><code>/baskets/{basketId}/price-books</code></li>
 					</ul>
+					<a href="#customization" id="customization" style="color: inherit; text-decoration: none;">
+						<h2>Customization</h2>
+					</a>
+					<a href="#custom-properties" id="custom-properties" style="color: inherit; text-decoration: none;">
+						<h3>Custom Properties</h3>
+					</a>
+					<p>This API supports custom properties (prefixed with <code>c_</code>). For details, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/custom-properties.html">Custom Properties.</a></p>
+					<a href="#hooks" id="hooks" style="color: inherit; text-decoration: none;">
+						<h3>Hooks</h3>
+					</a>
+					<p>For details on working with hooks, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html">Extensibility with Hooks.</a></p>
+					<a href="#response-details" id="response-details" style="color: inherit; text-decoration: none;">
+						<h2>Response Details</h2>
+					</a>
+					<a href="#personalization" id="personalization" style="color: inherit; text-decoration: none;">
+						<h3>Personalization</h3>
+					</a>
+					<p>Responses from this API can be personalized using the <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/shopper-context-api.html">Shopper Context API.</a> By setting context attributes such as customer group, source code, or store ID, you can retrieve personalized promotions, pricing, and shipping methods. For details on how personalization interacts with caching, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/server-side-web-tier-caching.html#personalized-caching">Personalized Caching.</a></p>
+					<a href="#caching" id="caching" style="color: inherit; text-decoration: none;">
+						<h3>Caching</h3>
+					</a>
+					<p>Responses from this API are not cached. Basket data is stateful and unique to each shopper session.</p>
+					<a href="#timeouts" id="timeouts" style="color: inherit; text-decoration: none;">
+						<h3>Timeouts</h3>
+					</a>
+					<p>Shopper API requests must respond within 10 seconds, including any hook execution. If a response exceeds this threshold, an HTTP 504 status code is returned. For details, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/timeouts-limits.html">Timeouts and Limits.</a></p>
+					<a href="#error-handling" id="error-handling" style="color: inherit; text-decoration: none;">
+						<h3>Error Handling</h3>
+					</a>
+					<p>Error responses follow the <a href="https://datatracker.ietf.org/doc/html/rfc7807">RFC 7807</a> problem detail format. To trace errors, include a <code>correlation-id</code> header in your request — the response returns it as <code>x-correlation-id</code>. For details, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/error-response-codes.html">HTTP Status Codes and Errors.</a></p>
 					<a href="#use-cases" id="use-cases" style="color: inherit; text-decoration: none;">
 						<h2>Use Cases</h2>
 					</a>
-					<a href="#use-hooks" id="use-hooks" style="color: inherit; text-decoration: none;">
-						<h3>Use Hooks</h3>
+					<a href="#create-a-basket" id="create-a-basket" style="color: inherit; text-decoration: none;">
+						<h3>Create a Basket</h3>
 					</a>
-					<p>For details on working with hooks, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html">Extensibility with Hooks.</a></p>
+					<p>Create a new basket for the shopper.</p>
+					<pre><code class="language-sh">curl <span class="hljs-string">&quot;https://{shortCode}.api.commercecloud.salesforce.com/checkout/shopper-baskets/v2/organizations/{organizationId}/baskets?siteId=RefArch&quot;</span> \
+-X POST \
+-H <span class="hljs-string">&quot;Authorization: Bearer {access_token}&quot;</span> \
+-H <span class="hljs-string">&quot;Content-Type: application/json&quot;</span> \
+-d <span class="hljs-string">&#x27;{}&#x27;</span></code></pre>
+					<a href="#add-an-item-to-a-basket" id="add-an-item-to-a-basket" style="color: inherit; text-decoration: none;">
+						<h3>Add an Item to a Basket</h3>
+					</a>
+					<p>Add a product to an existing basket.</p>
+					<pre><code class="language-sh">curl <span class="hljs-string">&quot;https://{shortCode}.api.commercecloud.salesforce.com/checkout/shopper-baskets/v2/organizations/{organizationId}/baskets/{basketId}/items?siteId=RefArch&quot;</span> \
+-X POST \
+-H <span class="hljs-string">&quot;Authorization: Bearer {access_token}&quot;</span> \
+-H <span class="hljs-string">&quot;Content-Type: application/json&quot;</span> \
+-d <span class="hljs-string">&#x27;[{ &quot;productId&quot;: &quot;25695327M&quot;, &quot;quantity&quot;: 1 }]&#x27;</span></code></pre>
 					<a href="#basket-calculation" id="basket-calculation" style="color: inherit; text-decoration: none;">
 						<h3>Basket Calculation</h3>
 					</a>
@@ -166,16 +210,16 @@
 						<li><code>dw.order.TaxMgr#applyExternalTax</code>: Applies externally set tax rates to the given basket. Only use when <code>dw.order.LineItemCtnr#isExternallyTaxed</code> returns true.</li>
 					</ul>
 					<p>The following example shows an implementation of external tax calculation with hooks enabled in the <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html#calculate-hook">Calculate Hook</a>:</p>
-					<p>exports.calculate = function (basket) {
-						if ( basket.isExternallyTaxed() )
-						{
-						TaxMgr.applyExternalTaxation( basket ); // apply the external tax calculation based on the tax rates set by the SCAPI external taxation APIs
-						}
-						else
-						{
-						// calculation with tax tables or customization
-						}
-					}</p>
+					<pre><code class="language-javascript"><span class="hljs-built_in">exports</span>.calculate = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">basket</span>) </span>{
+<span class="hljs-keyword">if</span> ( basket.isExternallyTaxed() )
+{
+TaxMgr.applyExternalTaxation( basket ); <span class="hljs-comment">// apply the external tax calculation based on the tax rates set by the SCAPI external taxation APIs</span>
+}
+<span class="hljs-keyword">else</span>
+{
+<span class="hljs-comment">// calculation with tax tables or customization</span>
+}
+}</code></pre>
 					<a href="#temporary-baskets" id="temporary-baskets" style="color: inherit; text-decoration: none;">
 						<h2>Temporary Baskets</h2>
 					</a>
@@ -185,7 +229,15 @@
 						<li>The shopper can have up to 10 (default 4) temporary baskets, which can be configured via Basket Preferences (Sites -&gt; Merchant Tools -&gt; Basket Preferences) and specifying the preference <strong>Temporary Baskets per Customer</strong>.</li>
 						<li>Available to all shoppers (guest and registered shoppers), as well as agents.</li>
 					</ul>
-					<p>To create a temporary basket, set the <code>temporary</code> parameter to <code>true</code> with the <a href="https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets-v2?meta=createBasket">Create basket</a> endpoint.* <br /></p>
+					<p>To create a temporary basket, set the <code>temporary</code> parameter to <code>true</code> with the <a href="https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets-v2?meta=createBasket">Create basket</a> endpoint.</p>
+					<p>To promote a temporary basket by clearing its <code>isTemporary</code> flag, use the <a href="https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets-v2?meta=promoteTemporaryBasket">Promote basket</a> endpoint.</p>
+					<a href="#related-apis" id="related-apis" style="color: inherit; text-decoration: none;">
+						<h2>Related APIs</h2>
+					</a>
+					<ul>
+						<li><a href="https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-orders?meta=Summary">Shopper Orders</a> — Place an order from a completed basket.</li>
+						<li><a href="https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-payments?meta=Summary">Shopper Payments</a> — Retrieve payment method configuration for checkout.* <br /></li>
+					</ul>
 					<p>For instructions on how to retrieve access token for admin APIs: <a><a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html">https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html</a></a> <br /> <br />
 					Example with admin auth</p>
 					<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { ShopperBasketsV2, ClientConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
@@ -260,6 +312,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="shopperbasketsv2.shopperbasketsv2-3.html#getshippingmethodsforshipment" class="tsd-kind-icon">get<wbr>Shipping<wbr>Methods<wbr>For<wbr>Shipment</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="shopperbasketsv2.shopperbasketsv2-3.html#gettaxesfrombasket" class="tsd-kind-icon">get<wbr>Taxes<wbr>From<wbr>Basket</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="shopperbasketsv2.shopperbasketsv2-3.html#mergebasket" class="tsd-kind-icon">merge<wbr>Basket</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="shopperbasketsv2.shopperbasketsv2-3.html#promotetemporarybasket" class="tsd-kind-icon">promote<wbr>Temporary<wbr>Basket</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="shopperbasketsv2.shopperbasketsv2-3.html#removecouponfrombasket" class="tsd-kind-icon">remove<wbr>Coupon<wbr>From<wbr>Basket</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="shopperbasketsv2.shopperbasketsv2-3.html#removegiftcertificateitemfrombasket" class="tsd-kind-icon">remove<wbr>Gift<wbr>Certificate<wbr>Item<wbr>From<wbr>Basket</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="shopperbasketsv2.shopperbasketsv2-3.html#removeitemfrombasket" class="tsd-kind-icon">remove<wbr>Item<wbr>From<wbr>Basket</a></li>
@@ -298,7 +351,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 							<aside class="tsd-sources">
 								<p>Overrides BaseClient.__constructor</p>
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:274</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:338</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -339,7 +392,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:303</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:367</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -365,7 +418,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:335</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:399</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -414,7 +467,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:466</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:530</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -440,7 +493,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:498</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:562</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -489,7 +542,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:654</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:718</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -541,7 +594,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:711</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:775</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -616,7 +669,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:867</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:931</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -642,7 +695,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:899</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:963</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -691,7 +744,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:1030</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:1094</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -717,7 +770,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:1062</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:1126</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -766,7 +819,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:1194</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:1258</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -794,7 +847,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:1226</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:1290</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -845,7 +898,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:1350</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:1414</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -871,7 +924,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:1380</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:1444</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -920,7 +973,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:1503</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:1567</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -946,7 +999,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:1535</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:1599</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -995,7 +1048,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:1689</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:1753</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1024,7 +1077,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:1743</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:1807</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1076,7 +1129,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:1916</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:1980</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1113,7 +1166,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:1959</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:2023</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1173,7 +1226,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:2099</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:2163</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1199,7 +1252,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:2127</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:2191</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1241,14 +1294,14 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 					<a name="getbasket" class="tsd-anchor"></a>
 					<h3>get<wbr>Basket</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Basket<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>basketId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperbasketsv2.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/shopperbasketsv2.html#basket" class="tsd-signature-type">Basket</a><span class="tsd-signature-symbol">&gt;</span></li>
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Basket&lt;T&gt;<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>basketId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperbasketsv2.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span>, rawResponse<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">Response</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">Basket</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Basket<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>basketId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>expand<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/shopperbasketsv2.html#getbasketexpandenum" class="tsd-signature-type">GetBasketExpandEnum</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperbasketsv2.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/shopperbasketsv2.html#basket" class="tsd-signature-type">Basket</a><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Basket&lt;T&gt;<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>basketId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>expand<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/shopperbasketsv2.html#getbasketexpandenum" class="tsd-signature-type">GetBasketExpandEnum</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperbasketsv2.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span>, rawResponse<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">Response</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">Basket</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:2244</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:2311</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1260,7 +1313,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>basketId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperbasketsv2.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>basketId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>expand<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/shopperbasketsv2.html#getbasketexpandenum" class="tsd-signature-type">GetBasketExpandEnum</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperbasketsv2.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<div class="lead">
 											<p>An object containing the options for this method.</p>
@@ -1274,7 +1327,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:2274</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:2345</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1291,7 +1344,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>basketId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperbasketsv2.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>basketId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>expand<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/shopperbasketsv2.html#getbasketexpandenum" class="tsd-signature-type">GetBasketExpandEnum</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperbasketsv2.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<div class="lead">
 											<p>An object containing the options for this method.</p>
@@ -1323,7 +1376,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:2399</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:2480</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1349,7 +1402,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:2429</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:2510</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1398,7 +1451,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:2555</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:2636</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1426,7 +1479,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:2585</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:2666</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1477,7 +1530,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:2705</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:2786</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1503,7 +1556,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:2737</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:2818</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1552,7 +1605,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:2872</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:2953</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1578,7 +1631,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:2900</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:2981</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1627,7 +1680,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:3064</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:3145</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1722,7 +1775,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:3142</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:3223</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1830,6 +1883,103 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+					<a name="promotetemporarybasket" class="tsd-anchor"></a>
+					<h3>promote<wbr>Temporary<wbr>Basket</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">promote<wbr>Temporary<wbr>Basket<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>basketId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperbasketsv2.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>merge<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>overrideExisting<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/shopperbasketsv2.html#basket" class="tsd-signature-type">Basket</a><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">promote<wbr>Temporary<wbr>Basket&lt;T&gt;<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>basketId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperbasketsv2.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>merge<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>overrideExisting<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span>, rawResponse<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">Response</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">Basket</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:3437</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Clears the <code>isTemporary</code> flag on a temporary basket (<code>isTemporary = true</code>). The basket UUID is preserved. For regular shopper baskets, the result satisfies <code>isStorefrontBasket</code>; for agent baskets (<code>isAgentBasket = true</code>), the <code>isTemporary</code> flag is cleared but the basket remains an agent basket — it does not become a storefront basket.</p>
+								</div>
+								<p><em>Agent baskets:*</em> Because agent baskets do not occupy the customer&#39;s storefront basket slot after promotion, conflict resolution is skipped entirely. The <code>merge</code> and <code>overrideExisting</code> parameters are ignored when promoting an agent basket.</p>
+								<p>For non-agent baskets, if the shopper already has a storefront basket, this endpoint uses the <code>merge</code> parameter to control the behavior:</p>
+								<ul>
+									<li><code>true</code> (recommended): Executes the <code>dw.order.mergeBasket</code> hook to fold the pre-existing storefront basket&#39;s contents into the promoted basket.</li>
+									<li><code>false</code>: Either overrides the pre-existing storefront basket or returns a <code>409</code> response, depending on the <code>overrideExisting</code> parameter.</li>
+								</ul>
+								<p>If <code>merge=false</code> and the shopper has a pre-existing storefront basket, the <code>overrideExisting</code> parameter controls the behavior:</p>
+								<ul>
+									<li><code>false</code> (default): Returns a <code>BasketNotPromotableException</code> (HTTP status 409).</li>
+									<li><code>true</code>: Deletes the pre-existing storefront basket and completes the promotion.</li>
+								</ul>
+								<p>If you would like to get a raw Response object use the other promoteTemporaryBasket function.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>basketId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperbasketsv2.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>merge<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>overrideExisting<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>An object containing the options for this method.</p>
+										</div>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/shopperbasketsv2.html#basket" class="tsd-signature-type">Basket</a><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>A promise of type Basket.</p>
+						</li>
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:3507</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Clears the <code>isTemporary</code> flag on a temporary basket (<code>isTemporary = true</code>). The basket UUID is preserved. For regular shopper baskets, the result satisfies <code>isStorefrontBasket</code>; for agent baskets (<code>isAgentBasket = true</code>), the <code>isTemporary</code> flag is cleared but the basket remains an agent basket — it does not become a storefront basket.</p>
+								</div>
+								<p><em>Agent baskets:*</em> Because agent baskets do not occupy the customer&#39;s storefront basket slot after promotion, conflict resolution is skipped entirely. The <code>merge</code> and <code>overrideExisting</code> parameters are ignored when promoting an agent basket.</p>
+								<p>For non-agent baskets, if the shopper already has a storefront basket, this endpoint uses the <code>merge</code> parameter to control the behavior:</p>
+								<ul>
+									<li><code>true</code> (recommended): Executes the <code>dw.order.mergeBasket</code> hook to fold the pre-existing storefront basket&#39;s contents into the promoted basket.</li>
+									<li><code>false</code>: Either overrides the pre-existing storefront basket or returns a <code>409</code> response, depending on the <code>overrideExisting</code> parameter.</li>
+								</ul>
+								<p>If <code>merge=false</code> and the shopper has a pre-existing storefront basket, the <code>overrideExisting</code> parameter controls the behavior:</p>
+								<ul>
+									<li><code>false</code> (default): Returns a <code>BasketNotPromotableException</code> (HTTP status 409).</li>
+									<li><code>true</code>: Deletes the pre-existing storefront basket and completes the promotion.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>basketId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperbasketsv2.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>merge<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>overrideExisting<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>An object containing the options for this method.</p>
+										</div>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> rawResponse: <span class="tsd-signature-type">T</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>Set to true to return entire Response object instead of DTO.</p>
+										</div>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">Response</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">Basket</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>A promise of type Response if rawResponse is true, a promise of type Basket otherwise.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
 					<a name="removecouponfrombasket" class="tsd-anchor"></a>
 					<h3>remove<wbr>Coupon<wbr>From<wbr>Basket</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
@@ -1840,7 +1990,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:3319</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:3685</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1866,7 +2016,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:3351</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:3717</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1915,7 +2065,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:3488</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:3854</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1941,7 +2091,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:3520</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:3886</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1990,7 +2140,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:3657</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:4023</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2016,7 +2166,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:3689</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:4055</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2065,7 +2215,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:3826</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:4192</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2091,7 +2241,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:3858</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:4224</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2140,7 +2290,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:3995</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:4361</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2166,7 +2316,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:4027</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:4393</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2215,7 +2365,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:4166</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:4532</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2243,7 +2393,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:4200</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:4566</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2294,7 +2444,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:4385</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:4751</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2332,7 +2482,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:4464</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:4830</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2393,7 +2543,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:4647</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:5013</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2419,7 +2569,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:4677</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:5043</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2468,7 +2618,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:4803</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:5169</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2494,7 +2644,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:4835</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:5201</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2543,7 +2693,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:4971</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:5337</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2570,7 +2720,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:5006</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:5372</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2620,7 +2770,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:5148</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:5514</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2646,7 +2796,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:5184</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:5550</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2695,7 +2845,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:5331</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:5697</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2721,7 +2871,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:5363</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:5729</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2770,7 +2920,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:5495</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:5861</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2796,7 +2946,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:5529</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:5895</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2845,7 +2995,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:5702</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:6068</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2901,7 +3051,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:5767</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:6133</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2980,7 +3130,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:5979</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:6345</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3039,7 +3189,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:6045</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:6411</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3114,14 +3264,14 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 					<a name="updatepaymentinstrumentinbasket" class="tsd-anchor"></a>
 					<h3>update<wbr>Payment<wbr>Instrument<wbr>InBasket</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
-						<li class="tsd-signature tsd-kind-icon">update<wbr>Payment<wbr>Instrument<wbr>InBasket<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">: </span><a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>body<span class="tsd-signature-symbol">: </span><a href="../modules/shopperbasketsv2.html#orderpaymentinstrument" class="tsd-signature-type">OrderPaymentInstrument</a><span class="tsd-signature-symbol"> &amp; </span><a href="../modules/types.html#customrequestbody" class="tsd-signature-type">CustomRequestBody</a><span class="tsd-signature-symbol">; </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>basketId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperbasketsv2.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>paymentInstrumentId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>removeExternalTax<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/shopperbasketsv2.html#basket" class="tsd-signature-type">Basket</a><span class="tsd-signature-symbol">&gt;</span></li>
-						<li class="tsd-signature tsd-kind-icon">update<wbr>Payment<wbr>Instrument<wbr>InBasket&lt;T&gt;<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">: </span><a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>body<span class="tsd-signature-symbol">: </span><a href="../modules/shopperbasketsv2.html#orderpaymentinstrument" class="tsd-signature-type">OrderPaymentInstrument</a><span class="tsd-signature-symbol"> &amp; </span><a href="../modules/types.html#customrequestbody" class="tsd-signature-type">CustomRequestBody</a><span class="tsd-signature-symbol">; </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>basketId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperbasketsv2.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>paymentInstrumentId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>removeExternalTax<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span>, rawResponse<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">Response</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">Basket</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">update<wbr>Payment<wbr>Instrument<wbr>InBasket<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">: </span><a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>body<span class="tsd-signature-symbol">: </span><a href="../modules/shopperbasketsv2.html#basketpaymentinstrumentrequest" class="tsd-signature-type">BasketPaymentInstrumentRequest</a><span class="tsd-signature-symbol"> &amp; </span><a href="../modules/types.html#customrequestbody" class="tsd-signature-type">CustomRequestBody</a><span class="tsd-signature-symbol">; </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>basketId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperbasketsv2.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>paymentInstrumentId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>removeExternalTax<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/shopperbasketsv2.html#basket" class="tsd-signature-type">Basket</a><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">update<wbr>Payment<wbr>Instrument<wbr>InBasket&lt;T&gt;<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">: </span><a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>body<span class="tsd-signature-symbol">: </span><a href="../modules/shopperbasketsv2.html#basketpaymentinstrumentrequest" class="tsd-signature-type">BasketPaymentInstrumentRequest</a><span class="tsd-signature-symbol"> &amp; </span><a href="../modules/types.html#customrequestbody" class="tsd-signature-type">CustomRequestBody</a><span class="tsd-signature-symbol">; </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>basketId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperbasketsv2.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>paymentInstrumentId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>removeExternalTax<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span>, rawResponse<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">Response</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">Basket</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:6218</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:6584</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3133,7 +3283,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>options: <a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>body<span class="tsd-signature-symbol">: </span><a href="../modules/shopperbasketsv2.html#orderpaymentinstrument" class="tsd-signature-type">OrderPaymentInstrument</a><span class="tsd-signature-symbol"> &amp; </span><a href="../modules/types.html#customrequestbody" class="tsd-signature-type">CustomRequestBody</a><span class="tsd-signature-symbol">; </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>basketId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperbasketsv2.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>paymentInstrumentId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>removeExternalTax<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5>options: <a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>body<span class="tsd-signature-symbol">: </span><a href="../modules/shopperbasketsv2.html#basketpaymentinstrumentrequest" class="tsd-signature-type">BasketPaymentInstrumentRequest</a><span class="tsd-signature-symbol"> &amp; </span><a href="../modules/types.html#customrequestbody" class="tsd-signature-type">CustomRequestBody</a><span class="tsd-signature-symbol">; </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>basketId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperbasketsv2.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>paymentInstrumentId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>removeExternalTax<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<div class="lead">
 											<p>An object containing the options for this method.</p>
@@ -3147,7 +3297,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:6254</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:6620</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3164,7 +3314,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>options: <a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>body<span class="tsd-signature-symbol">: </span><a href="../modules/shopperbasketsv2.html#orderpaymentinstrument" class="tsd-signature-type">OrderPaymentInstrument</a><span class="tsd-signature-symbol"> &amp; </span><a href="../modules/types.html#customrequestbody" class="tsd-signature-type">CustomRequestBody</a><span class="tsd-signature-symbol">; </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>basketId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperbasketsv2.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>paymentInstrumentId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>removeExternalTax<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5>options: <a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>body<span class="tsd-signature-symbol">: </span><a href="../modules/shopperbasketsv2.html#basketpaymentinstrumentrequest" class="tsd-signature-type">BasketPaymentInstrumentRequest</a><span class="tsd-signature-symbol"> &amp; </span><a href="../modules/types.html#customrequestbody" class="tsd-signature-type">CustomRequestBody</a><span class="tsd-signature-symbol">; </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>basketId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>locale<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperbasketsv2.html#localecode" class="tsd-signature-type">LocaleCode</a><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>paymentInstrumentId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>removeExternalTax<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<div class="lead">
 											<p>An object containing the options for this method.</p>
@@ -3196,7 +3346,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:6409</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:6775</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3229,7 +3379,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:6446</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:6812</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3285,7 +3435,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:6596</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:6962</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3322,7 +3472,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:6640</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:7006</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3382,7 +3532,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:6795</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:7161</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3408,7 +3558,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:6833</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:7199</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3457,7 +3607,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:6992</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:7358</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3483,7 +3633,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:7026</li>
+									<li>Defined in renderedTemplates/shopperBasketsv2/apis/DefaultApi.ts:7392</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3602,6 +3752,9 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
 								<a href="shopperbasketsv2.shopperbasketsv2-3.html#mergebasket" class="tsd-kind-icon">merge<wbr>Basket</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+								<a href="shopperbasketsv2.shopperbasketsv2-3.html#promotetemporarybasket" class="tsd-kind-icon">promote<wbr>Temporary<wbr>Basket</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
 								<a href="shopperbasketsv2.shopperbasketsv2-3.html#removecouponfrombasket" class="tsd-kind-icon">remove<wbr>Coupon<wbr>From<wbr>Basket</a>
