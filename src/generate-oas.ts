@@ -18,6 +18,8 @@ type ApiSpecDetail = {
   directoryName: string;
 };
 
+const ZONES_SPEC_NAME = "Zones OAS";
+
 const API_DIRECTORY = path.resolve(`${__dirname}/../apis`);
 const STATIC_DIRECTORY = path.join(__dirname, "./static");
 const TARGET_DIRECTORY = path.resolve(`${__dirname}/../renderedTemplates`);
@@ -28,6 +30,8 @@ const INDEX_TEMPLATE_LOCATION = path.resolve(
 const VERSION_TEMPLATE_LOCATION = path.resolve(
   `${__dirname}/../templates/version.ts.hbs`
 );
+
+const BASE_GENERATOR_FLAGS = "--reserved-words-mappings delete=delete";
 
 function kebabToCamelCase(str: string): string {
   return str.replace(/-([a-z])/g, (match, letter: string) =>
@@ -75,7 +79,7 @@ export function resolveApiName(name: string, version: string): string {
   if (name === "Auth OAS") {
     return "ShopperLogin";
   }
-  if (name === "Zones OAS") {
+  if (name === ZONES_SPEC_NAME) {
     return "CDNZones";
   }
   return name.replace(/\s+/g, "").replace("OAS", "");
@@ -127,6 +131,20 @@ export function getAPIDetailsFromExchange(directory: string): ApiSpecDetail {
 }
 
 /**
+ * The Zones spec ships some operations under a `Turnstile` tag; openapi-generator
+ * would otherwise emit a separate TurnstileApi.ts whose class collides with
+ * DefaultApi.ts on the spec-level `x-sdk-classname: CDNZones`. Collapsing every
+ * operation onto the `default` tag keeps them on one generated class and
+ * preserves the DefaultApi.ts filename shared with every other spec.
+ */
+export function resolveGeneratorFlags(apiSpecDetail: ApiSpecDetail): string {
+  if (apiSpecDetail.name === ZONES_SPEC_NAME) {
+    return `${BASE_GENERATOR_FLAGS} --openapi-normalizer SET_TAGS_FOR_ALL_OPERATIONS=default`;
+  }
+  return BASE_GENERATOR_FLAGS;
+}
+
+/**
  * Invokes openapi-generator via raml-toolkit to generate SDKs
  * @param apiSpecDetail
  */
@@ -137,10 +155,10 @@ export function generateSDKs(apiSpecDetail: ApiSpecDetail): void {
       console.log(`Generating SDK for ${name}`);
       const outputDir = `${TARGET_DIRECTORY}/${directoryName}`;
       generateFromOas.generateFromOas({
-        inputSpec: `${filepath}`,
+        inputSpec: filepath,
         outputDir: `${outputDir}`,
         templateDir: `${TEMPLATE_DIRECTORY}`,
-        flags: `--reserved-words-mappings delete=delete`,
+        flags: resolveGeneratorFlags(apiSpecDetail),
       });
     } catch (error) {
       console.error(`Error generating SDK for ${name}: ${error}`);
@@ -253,4 +271,6 @@ export function main(): void {
   });
 }
 
-main();
+if (require.main === module) {
+  main();
+}
