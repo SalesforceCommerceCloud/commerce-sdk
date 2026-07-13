@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## Unreleased
+
+### Bug Fixes
+
+- Fixed a class-name collision that blocked the CDN Zones spec from generating when operations were split across multiple tags.
+
 ## v6.4.0
 
 _ECOM v26.7_
