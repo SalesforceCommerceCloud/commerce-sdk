@@ -138,7 +138,7 @@ export function getAPIDetailsFromExchange(directory: string): ApiSpecDetail {
  * preserves the DefaultApi.ts filename shared with every other spec.
  */
 export function resolveGeneratorFlags(apiSpecDetail: ApiSpecDetail): string {
-  if (apiSpecDetail.name === ZONES_SPEC_NAME) {
+  if (apiSpecDetail.apiName === "CDNZones") {
     return `${BASE_GENERATOR_FLAGS} --openapi-normalizer SET_TAGS_FOR_ALL_OPERATIONS=default`;
   }
   return BASE_GENERATOR_FLAGS;
@@ -162,6 +162,7 @@ export function generateSDKs(apiSpecDetail: ApiSpecDetail): void {
       });
     } catch (error) {
       console.error(`Error generating SDK for ${name}: ${error}`);
+      throw error;
     }
   }
 }
