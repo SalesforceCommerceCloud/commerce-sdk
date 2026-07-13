@@ -9,9 +9,7 @@ import { resolveGeneratorFlags } from "./generate-oas";
 
 type ApiSpecDetail = Parameters<typeof resolveGeneratorFlags>[0];
 
-const buildDetail = (
-  overrides: Partial<ApiSpecDetail> = {}
-): ApiSpecDetail => ({
+const buildDetail = (overrides: Partial<ApiSpecDetail>): ApiSpecDetail => ({
   filepath: "/tmp/spec.yaml",
   filename: "spec.yaml",
   name: "Ignored",
