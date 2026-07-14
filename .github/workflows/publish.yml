@@ -20,6 +20,7 @@ jobs:
     if: |
       github.event_name == 'workflow_dispatch' ||
       (github.event.pull_request.merged == true &&
+       github.event.pull_request.head.repo.full_name == github.repository &&
        startsWith(github.event.pull_request.head.ref, 'release/v'))
     runs-on: ubuntu-latest
     permissions:
@@ -35,7 +36,6 @@ jobs:
       - run: npm install snyk --legacy-peer-deps
       - run: npm run snyk:auth ${{ secrets.SNYK_TOKEN }}
       - run: npm ci --legacy-peer-deps
-      - run: npm run build
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

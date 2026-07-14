@@ -44,11 +44,11 @@ test('publish.yml fires on pull_request: closed against main', () => {
   );
 });
 
-test('publish.yml job condition matches release-on-merge (merged + release-branch pattern)', () => {
+test('publish.yml job condition matches release-on-merge (merged + same-repo + release-branch pattern)', () => {
   assert.match(
     publish,
-    /if: \|\n\s+github\.event_name == 'workflow_dispatch' \|\|\n\s+\(github\.event\.pull_request\.merged == true &&\n\s+startsWith\(github\.event\.pull_request\.head\.ref, 'release\/v'\)\)/,
-    'publish-to-npm job must gate on merged==true and a release/v* head branch, mirroring release-on-merge.yml so both workflows fire on the same set of merges',
+    /if: \|\n\s+github\.event_name == 'workflow_dispatch' \|\|\n\s+\(github\.event\.pull_request\.merged == true &&\n\s+github\.event\.pull_request\.head\.repo\.full_name == github\.repository &&\n\s+startsWith\(github\.event\.pull_request\.head\.ref, 'release\/v'\)\)/,
+    'publish-to-npm job must gate on merged==true, same-repo head (fork-PR guard), and a release/v* head branch — mirroring release-on-merge.yml but with an added guard against a merged fork PR running npm publish with base-repo secrets',
   );
 });
 
