@@ -1,16 +1,34 @@
 name: Publish to NPM
 
+# Fires alongside release-on-merge.yml off the same merge event.
+# Not on release: published — a release authored by GITHUB_TOKEN cannot
+# trigger downstream workflows (anti-loop safety), and release-on-merge
+# creates the release with GITHUB_TOKEN.
 on:
-  release:
-    types: [published] # Releases to NPM when a github release is created
-  workflow_dispatch: # in case we need to manually publish
+  pull_request:
+    types: [closed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing release tag to re-publish (e.g. v6.5.0)'
+        required: true
+        type: string
 
 jobs:
   publish-to-npm:
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.merged == true &&
+       startsWith(github.event.pull_request.head.ref, 'release/v'))
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.event.pull_request.merge_commit_sha }}
+      - uses: actions/setup-node@v4
         with:
           node-version: '22.x'
           registry-url: 'https://registry.npmjs.org'
