@@ -78,6 +78,39 @@ test('publish.yml workflow_dispatch declares a required tag input', () => {
   assert.match(block, /required: true/, 'tag input must be required');
 });
 
+test('publish.yml cross-checks the target version against package.json and CHANGELOG.md before publishing', () => {
+  assert.match(
+    publish,
+    /- name: Resolve version and cross-check sources/,
+    'publish.yml must run the tri-source cross-check step so a version-mismatched merge cannot ship npm without a matching tag',
+  );
+  assert.match(
+    publish,
+    /HEAD_REF[^\n]*=~[^\n]*\^release\/v\(\[0-9\]/,
+    'PR-path cross-check must extract the expected version from the release/v* branch name',
+  );
+  assert.match(
+    publish,
+    /TAG_INPUT[^\n]*=~[^\n]*\^v\(\[0-9\]/,
+    'dispatch-path cross-check must validate the tag input matches vX.Y.Z — otherwise workflow_dispatch trusts an unvalidated ref',
+  );
+  assert.match(
+    publish,
+    /require\('\.\/package\.json'\)\.version/,
+    'cross-check must read package.json.version',
+  );
+  assert.match(
+    publish,
+    /awk[^\n]*CHANGELOG\.md/,
+    'cross-check must read the version off CHANGELOG.md via awk',
+  );
+  assert.match(
+    publish,
+    /::error::Version mismatch across sources(?:[\s\S]*?)exit 1\n\s+fi\n/,
+    'cross-check must exit non-zero on mismatch — echoing the error without exiting would let publish continue',
+  );
+});
+
 test('release-on-merge authors the release with GITHUB_TOKEN, not a PAT', () => {
   assert.match(
     releaseOnMerge,
