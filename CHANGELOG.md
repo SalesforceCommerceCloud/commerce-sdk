@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 - Fixed a class-name collision that blocked the CDN Zones spec from generating when operations were split across multiple tags.
+- Fixed auto-publish to npm on release-PR merge. Both `release-on-merge.yml` and `publish.yml` now fire off the same `pull_request: closed` event, avoiding GitHub's chain-block on `GITHUB_TOKEN`-authored release events.
 
 ## v6.4.0
 

@@ -1,23 +1,77 @@
 name: Publish to NPM
 
+# Fires alongside release-on-merge.yml off the same merge event.
+# Not on release: published — a release authored by GITHUB_TOKEN cannot
+# trigger downstream workflows (anti-loop safety), and release-on-merge
+# creates the release with GITHUB_TOKEN.
 on:
-  release:
-    types: [published] # Releases to NPM when a github release is created
-  workflow_dispatch: # in case we need to manually publish
+  pull_request:
+    types: [closed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing release tag to re-publish (e.g. v6.5.0)'
+        required: true
+        type: string
 
 jobs:
   publish-to-npm:
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.merged == true &&
+       github.event.pull_request.head.repo.full_name == github.repository &&
+       startsWith(github.event.pull_request.head.ref, 'release/v'))
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.event.pull_request.merge_commit_sha }}
+      - uses: actions/setup-node@v4
         with:
           node-version: '22.x'
           registry-url: 'https://registry.npmjs.org'
+      - name: Resolve version and cross-check sources
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          TAG_INPUT: ${{ github.event.inputs.tag }}
+        run: |
+          set -euo pipefail
+
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            if [[ ! "$HEAD_REF" =~ ^release/v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+              echo "::error::Branch name does not match release format: $HEAD_REF"
+              exit 1
+            fi
+            EXPECTED_VERSION="${BASH_REMATCH[1]}"
+            EXPECTED_LABEL="branch"
+          else
+            if [[ ! "$TAG_INPUT" =~ ^v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+              echo "::error::tag input does not match release format: $TAG_INPUT"
+              exit 1
+            fi
+            EXPECTED_VERSION="${BASH_REMATCH[1]}"
+            EXPECTED_LABEL="tag input"
+          fi
+
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          CHANGELOG_VERSION=$(awk '/^## v[0-9]+\.[0-9]+\.[0-9]+/ { sub(/^## v/, ""); print; exit }' CHANGELOG.md)
+
+          if [[ "$EXPECTED_VERSION" != "$PKG_VERSION" || "$PKG_VERSION" != "$CHANGELOG_VERSION" ]]; then
+            echo "::error::Version mismatch across sources"
+            echo "  $EXPECTED_LABEL: $EXPECTED_VERSION"
+            echo "  package.json:  $PKG_VERSION"
+            echo "  CHANGELOG.md:  $CHANGELOG_VERSION"
+            exit 1
+          fi
+
+          echo "Resolved release version: v$EXPECTED_VERSION"
       - run: npm install snyk --legacy-peer-deps
       - run: npm run snyk:auth ${{ secrets.SNYK_TOKEN }}
       - run: npm ci --legacy-peer-deps
-      - run: npm run build
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
