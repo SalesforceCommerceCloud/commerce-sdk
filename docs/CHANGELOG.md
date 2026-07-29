@@ -1,5 +1,49 @@
 # CHANGELOG
 
+## v6.5.0
+
+_ECOM v26.8_
+
+### API Versions
+
+| API Name | API Version |
+|----------|-------------|
+| assignments | 1.0.38 |
+| slas-admin | 1.18.0 |
+| shopper-login | 1.50.0 |
+| campaigns | 1.0.40 |
+| catalogs | 1.0.46 |
+| cors-preferences | 1.1.0 |
+| coupons | 1.0.43 |
+| customers | 1.1.3 |
+| gift-certificates | 1.0.42 |
+| orders | 1.5.2 |
+| preferences | 1.2.2 |
+| products | 1.2.0 |
+| promotions | 1.0.36 |
+| shopper-availability | 1.3.0 |
+| shopper-baskets | 1.11.0 |
+| shopper-baskets | 2.11.1 |
+| shopper-configurations | 1.3.0 |
+| shopper-consents | 1.1.4 |
+| shopper-context | 1.1.3 |
+| shopper-customers | 1.8.0 |
+| shopper-experience | 1.6.0 |
+| shopper-gift-certificates | 1.2.0 |
+| shopper-orders | 1.17.1 |
+| shopper-products | 1.11.1 |
+| shopper-promotions | 1.3.0 |
+| shopper-search | 1.10.0 |
+| shopper-seo | 1.2.0 |
+| shopper-stores | 1.3.0 |
+| source-code-groups | 1.0.40 |
+| cdn-api-process-apis | 1.3.0 |
+
+### Bug Fixes
+
+- Fixed a class-name collision that blocked the CDN Zones spec from generating when operations were split across multiple tags.
+- Fixed auto-publish to npm on release-PR merge. Both `release-on-merge.yml` and `publish.yml` now fire off the same `pull_request: closed` event, avoiding GitHub's chain-block on `GITHUB_TOKEN`-authored release events.
+
 ## v6.4.0
 
 _ECOM v26.7_
