@@ -1,0 +1,436 @@
+openapi: 3.0.3
+info:
+  x-api-type: Shopper
+  x-api-family: Product
+  title: Shopper Availability
+  version: 1.3.0
+  description: |-
+    [Download API specification](https://developer.salesforce.com/static/commercecloud/commerce-api/shopper-availability/shopper-availability-oas-v1-public.yaml)
+
+    # API Overview
+
+    Use the Shopper Availability API enables to retrieve inventory availability for products without fetching full product details. This allows independent caching strategies for volatile availability data and stable product data.
+
+    Use `/availability` to retrieve availability for products. If the `inventoryIds` parameter is omitted, availability is returned from the site-assigned default inventory list. If `inventoryIds` is provided, availability is returned only from the specified inventory lists.
+
+    Caching is provided for the Shopper Availability API. For details, see [Server-Side Web-Tier Caching.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/server-side-web-tier-caching.html)
+
+    ## Authentication & Authorization
+
+    The client requesting the availability information must have access to the Availability resource. The Shopper Availability API requires a shopper access token from the Shopper Login and API Access Service (SLAS).
+
+    You must include the relevant scopes in the client ID used to generate the SLAS token. For a full list of required permissions, see the [Authorization Scopes Catalog.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html)
+
+    For details on how to request a shopper access token from SLAS, see the guest user flows for [public clients](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-public-client.html#guest-user) and [private clients](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-private-client.html#guest-user) in the SLAS guides.
+
+    ## Use Cases
+
+    ### Retrieve Product Availability
+
+    Use the Shopper Availability API so that a customer can see whether products are in stock. This API returns availability details, including stock levels and inventory status, for up to 24 products per request.
+
+    ### Retrieve Availability from Specific Inventory Lists
+
+    Use the `inventoryIds` parameter to retrieve availability from specific inventory lists rather than the site-assigned default. This is useful for scenarios such as showing availability at specific store locations or warehouses. You can request availability from up to 5 inventory lists per request.
+
+    ### Retrieve Availability for Product Variations
+
+    Use the `expand=variations` parameter to retrieve availability for all variants of a master product in a single request. Use the `productId` from each entry in the Shopper Products API `variants` array to look up availability for a specific variant.
+
+    ## Use Hooks
+
+    For details working with hooks, see [Extensibility with Hooks.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html)
+servers:
+  - url: https://{shortCode}.api.commercecloud.salesforce.com/product/shopper-availability/v1
+    variables:
+      shortCode:
+        description: An eight-character string assigned to a realm for routing purposes. See [Base URL and Request Formation.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html)
+        default: shortCode
+paths:
+  /organizations/{organizationId}/availability:
+    parameters:
+      - $ref: '#/components/parameters/organizationId'
+    get:
+      description: Returns availability for multiple products. If `inventoryIds` is omitted, availability is returned from the site-assigned default inventory list. If `inventoryIds` is provided, availability is returned only from the specified inventory lists. The maximum number of product IDs that you can request is 24. The maximum number of inventory list IDs you can request is 5. The `productIds` parameter accepts product IDs for any product type (master, variant, standard, set, or bundle). Products that are offline or not found are silently filtered from the response. To retrieve availability for all variants of a master product, use the `expand=variations` parameter. Use the `productId` from each entry in the Shopper Products API `variants` array to look up availability for a specific variant.
+      operationId: getAvailability
+      summary: Returns availability for multiple products.
+      security:
+        - ShopperToken:
+            - sfcc.shopper-availability
+            - sfcc.shopper-standard
+      parameters:
+        - $ref: '#/components/parameters/productIds'
+        - $ref: '#/components/parameters/inventoryIds'
+        - $ref: '#/components/parameters/siteId'
+        - $ref: '#/components/parameters/expand'
+        - $ref: '#/components/parameters/personalized'
+      x-extensionPoints:
+        - phase: before
+          name: sfcc.product.shopper-availability.v1.availability.beforeGET
+          description: called before retrieving product availability.
+          arguments:
+            - $ref: '#/components/parameters/productIds'
+            - $ref: '#/components/parameters/inventoryIds'
+        - phase: modifyResponse
+          name: sfcc.product.shopper-availability.v1.availability.modifyGETResponse
+          description: called to modify the product availability response.
+          arguments:
+            - $ref: '#/components/schemas/AvailabilityResult'
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvailabilityResult'
+              examples:
+                GetAvailabilityResponseExample:
+                  $ref: '#/components/examples/GetAvailabilityResponseExample'
+                GetAvailabilityInventoryListsResponseExample:
+                  $ref: '#/components/examples/GetAvailabilityInventoryListsResponseExample'
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                GetAvailabilityBadRequestResponseExample:
+                  $ref: '#/components/examples/GetAvailabilityBadRequestResponseExample'
+                GetAvailabilityInventoryListsBadRequestResponseExample:
+                  $ref: '#/components/examples/GetAvailabilityInventoryListsBadRequestResponseExample'
+                MalformedSelectorResponseExample:
+                  $ref: '#/components/examples/MalformedSelectorResponseExample'
+        '401':
+          $ref: '#/components/responses/401unauthorized'
+components:
+  securitySchemes:
+    ShopperToken:
+      type: oauth2
+      description: |
+        ShopperToken authentication follows the authorization code grant flow, as defined by the OAuth 2.1 standard. Depending on the type of OAuth client (public or private), this authorization flow has further requirements.
+        For a detailed description of the authorization flow, see the [SLAS overview](https://developer.salesforce.com/docs/commerce/commerce-api/references?meta=shopper-login:Summary).
+        A shopper token allows you to access the Shopper API endpoints of both the Open Commerce API (OCAPI) and the B2C Commerce API. These endpoints can be used to build headless storefronts and other applications.
+        The `ShopperToken` security scheme is a parent of other security schemes, such as `ShopperTokenTsob`. A Shopper API endpoint can require a specific child scheme (`ShopperTokenTsob`, for example) that cannot be accessed with a regular shopper token.
+      flows:
+        clientCredentials:
+          tokenUrl: https://{shortCode}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
+          scopes:
+            sfcc.shopper-availability: scope granting read-access to shopper availability endpoints
+            sfcc.shopper-standard: standard aggregated scope granting read-access to a curated set of shopper endpoints
+        authorizationCode:
+          authorizationUrl: https://{shortCode}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/authorize
+          tokenUrl: https://{shortCode}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
+          scopes:
+            sfcc.shopper-availability: scope granting read-access to shopper availability endpoints
+            sfcc.shopper-standard: standard aggregated scope granting read-access to a curated set of shopper endpoints
+  schemas:
+    OrganizationId:
+      description: An identifier for the Salesforce Commerce Cloud organization the request is being made by. It consists of a prefix 'f_ecom_' followed by a 4-character [realm identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#realm-id) and a 3-character [instance type identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#instance-id).
+      example: f_ecom_zzxy_prd
+      type: string
+      pattern: ^f_ecom_[a-z]{4}_(prd|stg|dev|s[0-9]{2}|[0-9]{3})$
+    ProductId:
+      minLength: 1
+      maxLength: 100
+      type: string
+      description: The id (SKU) of the product.
+      example: apple-ipod-classic
+    InventoryId:
+      description: The inventory ID.
+      type: string
+      minLength: 1
+      maxLength: 256
+      example: Site1InventoryList
+    SiteId:
+      minLength: 1
+      maxLength: 32
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites
+      example: RefArch
+      type: string
+    Inventory:
+      description: Document representing inventory information of the current product for a particular inventory list.
+      properties:
+        ats:
+          format: double
+          description: |-
+            The Available To Sell (ATS) of the product. If it is infinity, the return value is 999999. The value can be overwritten by the
+             OCAPI setting 'product.inventory.ats.max_threshold'.
+          example: 15
+          type: number
+        backorderable:
+          description: A flag indicating whether the product is backorderable.
+          example: true
+          type: boolean
+        id:
+          $ref: '#/components/schemas/InventoryId'
+        inStockDate:
+          description: A flag indicating the date when the product will be in stock.
+          example: '9999-12-31T00:00:00.0Z'
+          type: string
+          format: date-time
+        orderable:
+          description: A flag indicating whether at least one of the products is available to sell.
+          example: true
+          type: boolean
+        preorderable:
+          description: A flag indicating whether the product is preorderable.
+          example: false
+          type: boolean
+        stockLevel:
+          format: double
+          description: |-
+            The stock level of the product. If it is infinity, the return value is 999999. The value can be overwritten by the
+             OCAPI setting 'product.inventory.stock_level.max_threshold'.
+          example: 10
+          type: number
+      required:
+        - id
+      type: object
+    Availability:
+      description: Availability of one product across the requested inventory lists, or the site-assigned default inventory list.
+      type: object
+      required:
+        - id
+        - inventories
+      properties:
+        id:
+          $ref: '#/components/schemas/ProductId'
+        inventories:
+          description: The array of inventory information for the product.
+          type: array
+          items:
+            $ref: '#/components/schemas/Inventory'
+    AvailabilityResult:
+      description: Result document containing an array of product availability.
+      type: object
+      required:
+        - limit
+        - data
+        - total
+      properties:
+        limit:
+          format: int32
+          description: The number of returned product entries in the data array.
+          example: 2
+          type: integer
+        data:
+          description: The array of product availability entries. Each entry represents one product (SKU) with available inventory across the requested inventory lists.
+          type: array
+          items:
+            $ref: '#/components/schemas/Availability'
+        total:
+          format: int32
+          description: The total number of distinct product entries in the data array, not individual inventory records.
+          example: 2
+          type: integer
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        title:
+          description: "A short, human-readable summary of the problem\ntype.  It will not change from occurrence to occurrence of the \nproblem, except for purposes of localization\n"
+          type: string
+          maxLength: 256
+          example: You do not have enough credit
+        type:
+          description: |
+            A URI reference [RFC3986] that identifies the
+            problem type.  This specification encourages that, when
+            dereferenced, it provide human-readable documentation for the
+            problem type (e.g., using HTML [W3C.REC-html5-20141028]).  When
+            this member is not present, its value is assumed to be
+            "about:blank". It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: NotEnoughMoney
+        detail:
+          description: A human-readable explanation specific to this occurrence of the problem.
+          type: string
+          example: Your current balance is 30, but that costs 50
+        instance:
+          description: |
+            A URI reference that identifies the specific
+            occurrence of the problem.  It may or may not yield further
+            information if dereferenced.  It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: /account/12345/msgs/abc
+      required:
+        - title
+        - type
+        - detail
+  parameters:
+    organizationId:
+      description: An identifier for the Salesforce Commerce Cloud organization the request is being made by. It consists of a prefix 'f_ecom_' followed by a 4-character [realm identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#realm-id) and a 3-character [instance type identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#instance-id).
+      name: organizationId
+      in: path
+      required: true
+      example: f_ecom_zzxy_prd
+      schema:
+        $ref: '#/components/schemas/OrganizationId'
+    productIds:
+      name: productIds
+      description: The IDs of the requested products (comma-separated, max 24 IDs). If more than 24 IDs are required, split them into multiple parallel requests. Products that are offline or not found are silently filtered from the response.
+      in: query
+      example: apple-ipod-shuffle,apple-ipod-nano
+      style: form
+      explode: false
+      required: true
+      schema:
+        type: array
+        items:
+          allOf:
+            - $ref: '#/components/schemas/ProductId'
+        minItems: 1
+        maxItems: 24
+        example:
+          - apple-ipod-shuffle
+          - apple-ipod-nano
+    inventoryIds:
+      description: The inventory list IDs for which the availability should be shown (comma-separated, max 5 inventory list IDs). If omitted, availability is returned from the site-assigned default inventory list. If provided, availability is returned only from the specified inventory lists.
+      name: inventoryIds
+      in: query
+      required: false
+      example: Site1InventoryList,Site2InventoryList
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          allOf:
+            - $ref: '#/components/schemas/InventoryId'
+        minItems: 1
+        maxItems: 5
+        example:
+          - Site1InventoryList
+          - Site2InventoryList
+    siteId:
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites.
+      name: siteId
+      in: query
+      required: true
+      examples:
+        SiteId:
+          value: RefArch
+      schema:
+        $ref: '#/components/schemas/SiteId'
+    expand:
+      name: expand
+      description: |-
+        Expand the response to include availability for related products. When `variations` is specified, availability for all variation products of a master product is included. When `set_products` is specified, availability for all products in a product set is included. The parent product's availability is always included alongside the expanded entries. Expansion is single-level only: if a variation is itself a product set, its set products are not further expanded. Other product types (bundles, bundled items, set items) are not expanded. Expanded results are returned flat at the top level of the response array, not nested below their parent product.
+        **Note:** When using `expand=variations`, combine this response with variant data from the Shopper Products API to determine which specific variant attribute combinations (e.g. size=L, color=red) are orderable. Use the `productId` from each entry in the Shopper Products API `variants` array as the key to look up availability for that variant in this response.
+      in: query
+      required: false
+      example: variations,set_products
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - variations
+            - set_products
+          example: variations
+        example:
+          - variations
+          - set_products
+    personalized:
+      description: |-
+        Controls whether personalization is applied to the response. Set to `none` to opt out of personalized response handling so the response is safe to cache at the CDN layer.
+
+        When set to `none`, the server skips applying personalization to the response.
+      name: personalized
+      in: query
+      schema:
+        type: string
+        enum:
+          - none
+        example: none
+  examples:
+    GetAvailabilityResponseExample:
+      value:
+        data:
+          - id: poodle-collar
+            inventories:
+              - ats: 100
+                backorderable: false
+                id: site-default-inventory
+                inStockDate: '2026-06-15T00:00:00.0Z'
+                orderable: true
+                preorderable: false
+                stockLevel: 90
+          - id: poodle-coat
+            inventories:
+              - id: site-default-inventory
+        limit: 2
+        total: 2
+    GetAvailabilityInventoryListsResponseExample:
+      value:
+        data:
+          - id: poodle-collar
+            inventories:
+              - ats: 100
+                backorderable: false
+                id: inventory1
+                orderable: true
+                preorderable: false
+                stockLevel: 90
+              - ats: 5
+                backorderable: false
+                id: inventory2
+                orderable: true
+                preorderable: true
+                stockLevel: 5
+          - id: poodle-coat
+            inventories:
+              - ats: 7100
+                backorderable: false
+                id: inventory1
+                orderable: true
+                preorderable: false
+                stockLevel: 7090
+              - ats: 15
+                backorderable: false
+                id: inventory2
+                orderable: true
+                preorderable: true
+                stockLevel: 15
+        limit: 2
+        total: 2
+    GetAvailabilityBadRequestResponseExample:
+      value:
+        title: Bad Request
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/validation
+        detail: Maximum number of product IDs you can request in one call is 24.
+    GetAvailabilityInventoryListsBadRequestResponseExample:
+      value:
+        title: Bad Request
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/validation
+        detail: Maximum number of inventory list IDs you can request in one call is 5.
+    MalformedSelectorResponseExample:
+      value:
+        title: Malformed Selector
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/malformed-selector
+        detail: The property selector '(data.(id, inventories.(**))' is malformed.
+        selector: (data.(id, inventories.(**))
+    UnauthorizedExample:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/unauthorized
+        title: Unauthorized
+        detail: Unauthorized request
+  responses:
+    401unauthorized:
+      description: Your access token is invalid or expired and can’t be used to identify a user.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            UnauthorizedExample:
+              $ref: '#/components/examples/UnauthorizedExample'
