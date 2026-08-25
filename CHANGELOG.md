@@ -1,5 +1,44 @@
 # CHANGELOG
 
+## v6.6.0
+
+_ECOM v26.9_
+
+### API Versions
+
+| API Name | API Version |
+|----------|-------------|
+| assignments | 1.0.38 |
+| slas-admin | 1.18.0 |
+| shopper-login | 1.50.0 |
+| campaigns | 1.1.0 |
+| catalogs | 1.0.46 |
+| cors-preferences | 1.1.0 |
+| coupons | 1.0.43 |
+| customers | 1.1.3 |
+| gift-certificates | 1.0.42 |
+| orders | 1.5.3 |
+| preferences | 1.2.2 |
+| products | 1.2.0 |
+| promotions | 1.0.36 |
+| shopper-availability | 1.4.0 |
+| shopper-baskets | 1.12.0 |
+| shopper-baskets | 2.12.0 |
+| shopper-configurations | 1.4.0 |
+| shopper-consents | 1.2.0 |
+| shopper-context | 1.1.3 |
+| shopper-customers | 1.9.0 |
+| shopper-experience | 1.7.0 |
+| shopper-gift-certificates | 1.3.0 |
+| shopper-orders | 1.20.1 |
+| shopper-products | 1.12.0 |
+| shopper-promotions | 1.4.0 |
+| shopper-search | 1.14.0 |
+| shopper-seo | 1.3.0 |
+| shopper-stores | 1.4.0 |
+| source-code-groups | 1.0.40 |
+| cdn-api-process-apis | 1.3.0 |
+
 ## v6.5.0
 
 _ECOM v26.8_
