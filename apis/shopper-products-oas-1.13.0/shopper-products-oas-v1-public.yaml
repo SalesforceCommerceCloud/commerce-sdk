@@ -3,7 +3,7 @@ info:
   x-api-type: Shopper
   x-api-family: Product
   title: Shopper Products
-  version: 1.12.0
+  version: 1.13.0
   description: |-
     [Download API specification](https://developer.salesforce.com/static/commercecloud/commerce-api/shopper-products/shopper-products-oas-v1-public.yaml)
 
@@ -783,6 +783,12 @@ components:
               type: string
               minLength: 1
               maxLength: 256
+            slug:
+              description: SEO path persisted for the primary category. This property is omitted when no category URL mapping exists for the requested locale.
+              example: electronics/ipod-mp3-players
+              type: string
+              minLength: 1
+              maxLength: 256
             parentCategoryTree:
               description: The list of ancestor categories from root to the primary category (root category node excluded).
               type: array
@@ -798,6 +804,12 @@ components:
                   name:
                     description: The name of the ancestor category.
                     example: Electronics
+                    type: string
+                    minLength: 1
+                    maxLength: 256
+                  slug:
+                    description: SEO path persisted for the primary category. This property is omitted when no category URL mapping exists for the requested locale.
+                    example: electronics/ipod-mp3-players
                     type: string
                     minLength: 1
                     maxLength: 256
@@ -829,6 +841,11 @@ components:
           description: The localized product short description.
           example: Awesome Product
           type: string
+        slug:
+          description: The SEO URL slug for the product. Only present when the slug expand is requested and the slug feature is enabled.
+          example: modern-dress-shirt/74974310M.html
+          type: string
+          maxLength: 256
         slugUrl:
           description: The complete link to this product's storefront page.
           example: https://www.example.com/on/store/Sites-MySite/default/Product-Show?pid=MyProduct
@@ -1742,6 +1759,12 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PathRecord'
+        slug:
+          description: SEO path persisted for the category. This property is omitted when no category URL mapping exists for the requested locale.
+          type: string
+          minLength: 1
+          maxLength: 256
+          example: mens/cloting
         thumbnail:
           description: The URL of the category thumbnail.
           example: https://www.exampleimage.com/images/categoryImage.jpg
@@ -1767,6 +1790,12 @@ components:
           description: The name of the category path.
           example: mens
           type: string
+        slug:
+          description: SEO path persisted for the category. This property is omitted when no category URL mapping exists for the requested locale.
+          type: string
+          minLength: 1
+          maxLength: 256
+          example: mens/cloting
       type: object
     CategoryResult:
       description: Result document containing an array of categories.
@@ -1829,11 +1858,12 @@ components:
     expand_multiId:
       name: expand
       description: |-
-        All expand parameters except page_meta_tags are used for the request when no expand parameter is provided.
+        All expand parameters except page_meta_tags and slug are used for the request when no expand parameter is provided.
         The value "none" may be used to turn off all expand options.
         The page_meta_tags expand value is optional and available starting from B2C Commerce version 25.2.
         The availability expand is deprecated. Use the Shopper Availability API instead for better caching performance.
         The primary_category expand returns the full breadcrumb path (root to leaf) for each product's primary category.
+        The slug expand populates the slug field on the product. Available starting from B2C Commerce version 26.8.
       in: query
       style: form
       explode: false
@@ -1860,6 +1890,7 @@ components:
             - shipping_methods
             - page_meta_tags
             - primary_category
+            - slug
           example: promotions
     allImages:
       name: allImages
@@ -1938,11 +1969,12 @@ components:
     expand_singleId:
       name: expand
       description: |-
-        All expand parameters except page_meta_tags are used for the request when no expand parameter is provided.
+        All expand parameters except page_meta_tags and slug are used for the request when no expand parameter is provided.
         The value "none" may be used to turn off all expand options.
         The page_meta_tags expand value is optional and available starting from B2C Commerce version 25.2.
         The availability expand is deprecated. Use the Shopper Availability API instead for better caching performance.
         The primary_category expand returns the full breadcrumb path (root to leaf) for the product's primary category.
+        The slug expand populates the slug field on the product. Available starting from B2C Commerce version 26.8.
       in: query
       style: form
       explode: false
@@ -1969,6 +2001,7 @@ components:
             - shipping_methods
             - page_meta_tags
             - primary_category
+            - slug
           example: links
     productId:
       name: productId
@@ -2036,7 +2069,7 @@ components:
         $ref: '#/components/schemas/ProductId'
     parameters-ids:
       name: ids
-      description: The comma separated list of category IDs (max 50).
+      description: The comma separated list of category IDs or slugs (max 50). For each value, if a category exists with that value as its ID, it is returned (ID takes precedence). Otherwise, the value is treated as a slug. If a slug is provided, it must be URL-encoded (for example, `mens%2Fclothing` for the slug `mens/clothing`).
       in: query
       required: true
       example: electronics-digital-cameras,electronics-televisions
@@ -2067,7 +2100,7 @@ components:
     parameters-id:
       name: id
       in: path
-      description: The ID of the requested category.
+      description: The ID or slug of the requested category. If a category exists with the given value as its ID, it is returned (ID takes precedence). Otherwise, the value is treated as a slug. If a slug is provided, it must be URL-encoded (for example, `mens%2Fclothing` for the slug `mens/clothing`).
       required: true
       schema:
         $ref: '#/components/schemas/CategoryId'
@@ -2197,9 +2230,11 @@ components:
         primaryCategory:
           id: electronics-digital-media-players
           name: iPod & MP3 Players
+          slug: ipod-mp3-players
           parentCategoryTree:
             - id: electronics
               name: Electronics
+              slug: electronics
         shortDescription: With the same size circular control pad as the previous model on a much more compact case with a built-in clip, the updated shuffle is ready to rock and easily tags along when you're on the go.
         stepQuantity: 1
         type:
@@ -2398,6 +2433,7 @@ components:
           - id: electronics-digital-cameras
             image: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/default/dw3535377d/images/slot/sub_banners/cat-banner-electronics-camera.jpg
             name: Digital Cameras
+            slug: digital-cameras
             onlineSubCategoriesCount: 0
             pageDescription: Shop the latest digital cameras from all the top brands, makes and models at Salesforce Commerce Cloud.
             pageKeywords: cameras, digital camerasm point and shoot, slr
@@ -2406,10 +2442,12 @@ components:
             parent_category_tree:
               - id: electronics
                 name: electronics
+                slug: electronics
           - categories:
               - id: electronics-televisions-flat-screen
                 image: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/default/dwc3940e75/images/slot/sub_banners/cat-banner-electronics-tv.jpg
                 name: Flat Screen
+                slug: flat-screen
                 pageDescription: Shop all Flat Screen Televisions including the latest in LCD and Plasma technology from all the latest brands, makes and models at Salesforce Commerce Cloud.
                 pageKeywords: flat screen, flat screen television, LCD, plasma, HDTV
                 pageTitle: LCD & Plasma High Definition Flat Screen Televisions
@@ -2417,9 +2455,11 @@ components:
                 parent_category_tree:
                   - id: electronics
                     name: electronics
+                    slug: electronics
               - id: electronics-televisions-projection
                 image: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/default/dwc3940e75/images/slot/sub_banners/cat-banner-electronics-tv.jpg
                 name: Projection
+                slug: projection
                 onlineSubCategoriesCount: 0
                 pageDescription: Shop all Projection Televisions from all the latest brands, makes and models at Salesforce Commerce Cloud.
                 pageKeywords: projection, projection televisions, HDTV
@@ -2428,9 +2468,11 @@ components:
                 parent_category_tree:
                   - id: electronics
                     name: electronics
+                    slug: electronics
             id: electronics-televisions
             image: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/default/dwc3940e75/images/slot/sub_banners/cat-banner-electronics-tv.jpg
             name: Televisions
+            slug: televisions
             onlineSubCategoriesCount: 2
             pageDescription: Shop the latest Televisions including LCD, Plasma, Flat Screens, Projection including all the top brands, makes and models at Salesforce Commerce Cloud.
             pageKeywords: televisions, tvs, LCD, plasma, flat screen, high definition, HDTV, projection
@@ -2439,6 +2481,7 @@ components:
             parent_category_tree:
               - id: electronics
                 name: electronics
+                slug: electronics
         total: 2
     GetCategoriesBadRequestResponseExample:
       value:
@@ -2451,6 +2494,7 @@ components:
           - id: electronics-televisions
             image: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/default/dwc3940e75/images/slot/sub_banners/cat-banner-electronics-tv.jpg
             name: Televisions
+            slug: televisions
             onlineSubCategoriesCount: 2
             pageDescription: Shop the latest Televisions including LCD, Plasma, Flat Screens, Projection including all the top brands, makes and models at Salesforce Commerce Cloud.
             pageKeywords: televisions, tvs, LCD, plasma, flat screen, high definition, HDTV, projection
@@ -2459,12 +2503,14 @@ components:
             parent_category_tree:
               - id: electronics
                 name: electronics
+                slug: electronics
             c_enableCompare: true
             c_showInMenu: true
             c_slotBannerImage: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/default/dw1d6f6411/images/slot/landing/cat-landing-tv.jpg
           - id: electronics-digital-cameras
             image: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/default/dw3535377d/images/slot/sub_banners/cat-banner-electronics-camera.jpg
             name: Digital Cameras
+            slug: digital-cameras
             onlineSubCategoriesCount: 0
             pageDescription: Shop the latest digital cameras from all the top brands, makes and models at Salesforce Commerce Cloud.
             pageKeywords: cameras, digital camerasm point and shoot, slr
@@ -2473,12 +2519,14 @@ components:
             parent_category_tree:
               - id: electronics
                 name: electronics
+                slug: electronics
             c_enableCompare: true
             c_showInMenu: true
             c_slotBannerImage: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/default/dw1a543dc7/images/slot/landing/cat-landing-camera.jpg
           - id: electronics-digital-media-players
             image: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/default/dw7e9353db/images/slot/sub_banners/cat-banner-electronics-mp3.jpg
             name: iPod & MP3 Players
+            slug: ipod-mp3-players
             onlineSubCategoriesCount: 0
             pageDescription: Shop Digital Media Players including iPods, Creative Zen, Sony & the latest from all the top brands, makes and models at Salesforce Commerce Cloud.
             pageKeywords: mp3, iPods, mp3 players
@@ -2487,12 +2535,14 @@ components:
             parent_category_tree:
               - id: electronics
                 name: electronics
+                slug: electronics
             c_enableCompare: true
             c_showInMenu: true
             c_slotBannerImage: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/default/dw9f3d289a/images/slot/landing/cat-landing-mp3.jpg
           - id: electronics-gps-units
             image: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/default/dw6ea864f2/images/slot/sub_banners/cat-banner-electronics-gps.jpg
             name: GPS Navigation
+            slug: gps-navigation
             onlineSubCategoriesCount: 0
             pageDescription: Shop the latest in GPS units from Garmin and Tom Tom along with other brands, makes and models at Salesforce Commerce Cloud.
             pageKeywords: gps, gps units, garmin, tom tom
@@ -2501,12 +2551,14 @@ components:
             parent_category_tree:
               - id: electronics
                 name: electronics
+                slug: electronics
             c_enableCompare: true
             c_showInMenu: true
             c_slotBannerImage: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/default/dwad4e06f8/images/slot/landing/cat-landing-gps.jpg
           - id: electronics-gaming
             image: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/default/dw9da58d91/images/slot/sub_banners/cat-banner-electronics.jpg
             name: Gaming
+            slug: gaming
             onlineSubCategoriesCount: 2
             pageDescription: Shop games and game consoles from Xbox, Xbox360, Playstation 2, Playstation 3, Game Cube, Wii, Playstation Portable and Nintento DS at Salesforce Commerce Cloud.
             pageKeywords: gaming, xbox, xbox360, ps3, ps2, playstaion 3, psp, game cube, wii, nintendo, nintendo ds
@@ -2515,11 +2567,13 @@ components:
             parent_category_tree:
               - id: electronics
                 name: electronics
+                slug: electronics
             c_enableCompare: true
             c_showInMenu: true
             c_slotBannerImage: https://example.com/on/demandware.static/-/Sites-storefront-catalog-en/en_US/v1551233475301/images/slot/landing/cat-landing-gaming.jpg
         id: electronics
         name: Electronics
+        slug: electronics
         onlineSubCategoriesCount: 5
         pageDescription: Shop Electronics including the latest in televisions, digital cameras, camcorders, mp3, ipod, mobil phones, GPS & gaming at Salesforce Commerce Cloud
         pageKeywords: televisions, digital cameras, camcorders, mp3, ipod, mobil phones, GPS, gaming
@@ -2528,6 +2582,7 @@ components:
         parent_category_tree:
           - id: root
             name: root
+            slug: root
         c_enableCompare: true
         c_headerMenuOrientation: Vertical
         c_showInMenu: true

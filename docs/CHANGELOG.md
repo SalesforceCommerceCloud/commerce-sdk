@@ -32,7 +32,7 @@ _ECOM v26.10_
 | shopper-experience | 1.7.2 |
 | shopper-gift-certificates | 1.3.2 |
 | shopper-orders | 1.22.4 |
-| shopper-products | 1.12.0 |
+| shopper-products | 1.13.0 |
 | shopper-promotions | 1.4.2 |
 | shopper-search | 1.15.2 |
 | shopper-seo | 1.3.1 |
