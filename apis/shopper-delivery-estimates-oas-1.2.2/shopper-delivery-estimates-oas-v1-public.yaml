@@ -1,0 +1,536 @@
+openapi: 3.0.3
+info:
+  x-api-type: Shopper
+  x-api-family: Product
+  title: Shopper Delivery Estimates
+  version: 1.2.2
+  description: |-
+    [Download API specification](https://developer.salesforce.com/static/commercecloud/commerce-api/shopper-delivery-estimates/shopper-delivery-estimates-oas-v1-public.yaml)
+
+    # API Overview
+
+    Use the Shopper Delivery Estimates API to retrieve carrier-calculated delivery date ranges for a single product at a destination postal code. The API is intended for product detail pages (PDP) where shoppers want to know when an item will arrive before adding it to a basket.
+
+    For the requested product, the platform enumerates the site's applicable shipping methods. Estimates are returned only when the `sfcc.app.shipping.estimate` hook is bound to a provider via an installed Commerce App; if no provider is bound, the platform returns no estimates.
+
+    The Shopper Delivery Estimates API is currently uncached. The URL is deterministic in `productIds`, `postalCode`, and `countryCode`, and will utilize a cache layer in the future.
+
+    ## Authentication & Authorization
+
+    The Shopper Delivery Estimates API requires a shopper access token.
+
+    For details on how to request an access token, see [Get a Shopper Token from SLAS](https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas.html).
+
+    You must include `sfcc.shopper-delivery-estimates` and `sfcc.shopper-standard` in the client ID used to generate the token. For a full list of permissions, see the [Authorization Scopes Catalog.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html)
+
+    ## Customization
+
+    ### Hooks
+
+    For details on working with hooks, see [Extensibility with Hooks.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html)
+
+    ## Response Details
+
+    ### Personalization
+
+    Responses from this API are not personalized via the Shopper Context API.
+
+    ### Caching
+
+    Responses from this API are not cached. The endpoint is currently uncached even though request URLs are deterministic for `productIds`, `postalCode`, and `countryCode`; a cache layer is planned for a future release. For details, see [Server-Side Web-Tier Caching.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/server-side-web-tier-caching.html)
+
+    ### Timeouts
+
+    Shopper API requests must respond within 10 seconds, including any hook execution. If a response exceeds this threshold, an HTTP 504 status code is returned. For details, see [Timeouts and Limits.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/timeouts-limits.html)
+
+    ### Error Handling
+
+    Error responses follow the [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807) problem detail format. To trace errors, include a `correlation-id` header in your request — the response returns it as `x-correlation-id`. For details, see [HTTP Status Codes and Errors.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/error-response-codes.html)
+
+    ## Use Cases
+
+    ### Show "Arrives by" on a Product Detail Page
+
+    Use this API on the PDP after a shopper enters postal code and country. The response provides delivery windows by applicable shipping method so you can display messaging such as "Arrives Fri, Oct 4."
+
+    ```bash
+    curl -X GET \
+      "https://{shortCode}.api.commercecloud.salesforce.com/product/shopper-delivery-estimates/v1/organizations/{organizationId}/delivery-estimates?siteId={siteId}&productIds={productId}&postalCode=94105&countryCode=US" \
+      -H "Authorization: Bearer {shopper_access_token}" \
+      -H "Content-Type: application/json" \
+      -H "correlation-id: pdp-delivery-estimate-001"
+    ```
+
+    ### Choose Which Shipping Methods to Highlight
+
+    The response includes one entry per applicable shipping method for each product. If a method is deliverable, use the `deliveryWindow`; if it is not deliverable, use `nonDeliverableReason` to suppress or de-prioritize that method in your UI.
+
+    ### Hide the Estimate Module When No Estimates Are Available
+
+    If `productDeliveryEstimates` is empty, no estimates are available for requested products (for example, no applicable shipping methods or no provider response). In that case, hide the delivery estimate component to avoid showing incomplete or misleading delivery messaging.
+
+    ## Best Practices
+
+    - Keep calls scoped to PDP interactions, since the endpoint is currently uncached.
+    - Respect the current one-product constraint (`productIds` currently supports one product per request) and avoid batching assumptions until multi-product support is released.
+    - Gracefully handle partial availability by rendering only methods with delivery windows and clearly handling non-deliverable methods.
+    - Ensure the `sfcc.app.shipping.estimate` hook is bound to a provider via an installed Commerce App — without a bound provider, no estimates are returned. Validate hook performance and timeout behavior to stay within the 10-second Shopper API limit.
+    - Always include a `correlation-id` header for easier production troubleshooting.
+
+    ## Related APIs
+
+    This API is commonly used with SLAS token APIs for shopper authentication and Shopper Products APIs for PDP data retrieval.
+servers:
+  - url: https://{shortCode}.api.commercecloud.salesforce.com/product/shopper-delivery-estimates/v1
+    variables:
+      shortCode:
+        default: shortCode
+paths:
+  /organizations/{organizationId}/delivery-estimates:
+    parameters:
+      - $ref: '#/components/parameters/organizationId'
+    get:
+      description: |-
+        Returns delivery date estimates for the requested products at a destination postal code. Currently limited to one product per request. For each requested product, the platform enumerates all applicable site-level shipping methods. Estimates are returned only when the `sfcc.app.shipping.estimate` Commerce Apps hook is bound to a provider. If no provider is bound, the platform returns no estimates.
+        Each entry in the response corresponds to one requested product, and contains one entry per applicable shipping method. Methods for which the provider returned an estimate carry a `deliveryWindow`. Methods for which the provider could not return an estimate include a `nonDeliverableReason`. An empty `productDeliveryEstimates` array means the platform has no estimates for any of the requested products, for example, no applicable shipping methods or the provider returned no results. In this case, clients should hide the delivery estimation block.
+      operationId: getDeliveryEstimates
+      summary: Returns delivery date estimates for the requested product.
+      security:
+        - ShopperToken:
+            - sfcc.shopper-delivery-estimates
+            - sfcc.shopper-standard
+        - ShopperClientContextToken:
+            - sfcc.shopper-delivery-estimates
+            - sfcc.shopper-standard
+      parameters:
+        - $ref: '#/components/parameters/productIds'
+        - $ref: '#/components/parameters/postalCode'
+        - $ref: '#/components/parameters/countryCode'
+        - $ref: '#/components/parameters/siteId'
+        - $ref: '#/components/parameters/sfdcUsid'
+        - $ref: '#/components/parameters/personalized'
+        - $ref: '#/components/parameters/sfdcShopperContext'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryEstimatesResult'
+              examples:
+                GetDeliveryEstimatesResponseExample:
+                  $ref: '#/components/examples/GetDeliveryEstimatesResponseExample'
+                GetDeliveryEstimatesPartialResponseExample:
+                  $ref: '#/components/examples/GetDeliveryEstimatesPartialResponseExample'
+                GetDeliveryEstimatesEmptyResponseExample:
+                  $ref: '#/components/examples/GetDeliveryEstimatesEmptyResponseExample'
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                GetDeliveryEstimatesBadRequestResponseExample:
+                  $ref: '#/components/examples/GetDeliveryEstimatesBadRequestResponseExample'
+        '401':
+          $ref: '#/components/responses/401unauthorized'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                GetDeliveryEstimatesProductNotFoundResponseExample:
+                  $ref: '#/components/examples/GetDeliveryEstimatesProductNotFoundResponseExample'
+components:
+  securitySchemes:
+    ShopperToken:
+      type: oauth2
+      description: |
+        ShopperToken authentication follows the authorization code grant flow, as defined by the OAuth 2.1 standard. Depending on the type of OAuth client (public or private), this authorization flow has further requirements.
+        For a detailed description of the authorization flow, see the [SLAS overview](https://developer.salesforce.com/docs/commerce/commerce-api/references?meta=shopper-login:Summary).
+        A shopper token allows you to access the Shopper API endpoints of both OCAPI and the B2C Commerce API. These endpoints can be used to build headless storefronts and other applications.
+        The `ShopperToken` security scheme is a parent of other security schemes, such as `ShopperTokenTsob`. A Shopper API endpoint can require a specific child scheme (`ShopperTokenTsob`, for example) that cannot be accessed with a regular shopper token.
+      flows:
+        clientCredentials:
+          tokenUrl: https://{shortCode}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
+          scopes:
+            sfcc.shopper-delivery-estimates: scope granting read-access to shopper delivery estimates endpoints
+            sfcc.shopper-standard: scope granting read-access to standard shopper endpoints
+        authorizationCode:
+          authorizationUrl: https://{shortCode}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/authorize
+          tokenUrl: https://{shortCode}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token
+          scopes:
+            sfcc.shopper-delivery-estimates: scope granting read-access to shopper delivery estimates endpoints
+            sfcc.shopper-standard: scope granting read-access to standard shopper endpoints
+    ShopperClientContextToken:
+      type: oauth2
+      description: |
+        ShopperClientContextToken is a separate security scheme used to track and validate client context information.
+        It is valid for Guest shoppers flows only using SLAS private clients. For registered shoppers, use existing ShopperToken flows.
+        For authentication details, see the [SLAS overview](https://developer.salesforce.com/docs/commerce/commerce-api/references?meta=shopper-login:Summary).
+        This token allows access to Shopper API endpoints for guest shoppers only.
+      flows:
+        clientCredentials:
+          tokenUrl: https://{shortCode}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/{organizationId}/oauth2/token?hint=client_context
+          scopes:
+            sfcc.shopper-delivery-estimates: scope granting read-access to shopper delivery estimates endpoints
+            sfcc.shopper-standard: scope granting read-access to standard shopper endpoints
+  schemas:
+    OrganizationId:
+      description: An identifier for the Salesforce Commerce Cloud organization the request is being made by. It consists of a prefix 'f_ecom_' followed by a 4-character [realm identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#realm-id) and a 3-character [instance type identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#instance-id).
+      example: f_ecom_zzxy_prd
+      type: string
+      pattern: ^f_ecom_[a-z]{4}_(prd|stg|dev|s[0-9]{2}|[0-9]{3})$
+    ProductId:
+      minLength: 1
+      maxLength: 100
+      type: string
+      description: The id (SKU) of the product.
+      example: apple-ipod-classic
+    CountryCode:
+      pattern: ^[A-Z][A-Z]$
+      description: A two letter uppercase country code conforming to the [ISO 3166-1](https://www.iso.org/iso-3166-country-codes.html) alpha-2 standard.
+      example: US
+      type: string
+    SiteId:
+      minLength: 1
+      maxLength: 32
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites
+      example: RefArch
+      type: string
+    Destination:
+      description: The normalized destination used for estimation. Echoes the values supplied on the request.
+      type: object
+      required:
+        - postalCode
+        - countryCode
+      properties:
+        postalCode:
+          description: The destination postal code.
+          type: string
+          minLength: 1
+          maxLength: 20
+          example: '10001'
+        countryCode:
+          allOf:
+            - $ref: '#/components/schemas/CountryCode'
+          description: The destination country as an ISO 3166-1 alpha-2 code.
+    CurrencyCode:
+      description: A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard, or the string `N/A` indicating that a currency is not applicable.
+      pattern: ^([A-Z][A-Z][A-Z]|N/A)$
+      example: USD
+      type: string
+    DeliveryWindow:
+      description: A time window during which the delivery is expected. Both endpoints are sub-day RFC 3339 timestamps passed through unmodified from the underlying provider.
+      type: object
+      required:
+        - startAt
+        - endAt
+      properties:
+        startAt:
+          description: The earliest expected delivery timestamp (inclusive).
+          type: string
+          format: date-time
+          example: '2026-04-30T14:00:00Z'
+        endAt:
+          description: The latest expected delivery timestamp (inclusive).
+          type: string
+          format: date-time
+          example: '2026-04-30T18:00:00Z'
+    ShippingOption:
+      description: A delivery estimate for one applicable shipping method. When the provider answered with a delivery window, `deliveryWindow` is populated and `nonDeliverableReason` is omitted. When the provider answered "cannot deliver via this method", `deliveryWindow` is omitted and `nonDeliverableReason` is populated.
+      type: object
+      required:
+        - shippingMethodId
+      properties:
+        shippingMethodId:
+          description: The identifier of the shipping method (matches the B2C Commerce `ShippingMethod.ID`).
+          type: string
+          minLength: 1
+          maxLength: 256
+          example: GroundShipping
+        name:
+          description: The localized name of the shipping method.
+          type: string
+          minLength: 1
+          maxLength: 256
+          example: Ground
+        description:
+          description: The localized description of the shipping method.
+          type: string
+          minLength: 1
+          maxLength: 4000
+          example: Standard ground shipping
+        carrier:
+          description: The carrier the provider resolved for this shipping method (for example, `UPS`, `FedEx`, `USPS`). May be omitted when the provider cannot or does not identify a single carrier.
+          type: string
+          minLength: 1
+          maxLength: 256
+          example: UPS
+        price:
+          description: The estimated shipping cost for this shipping method, in the currency given by `currency`. May be omitted when the provider cannot or does not return a price.
+          type: number
+          format: double
+          minimum: 0
+          example: 5.99
+        currency:
+          description: The ISO 4217 currency code for `price`. Defaults to the site's default currency. Omitted when `price` is omitted.
+          allOf:
+            - $ref: '#/components/schemas/CurrencyCode'
+        deliveryWindow:
+          allOf:
+            - $ref: '#/components/schemas/DeliveryWindow'
+          description: The estimated delivery window for this shipping method. Omitted when `nonDeliverableReason` is set.
+        orderCutoffAt:
+          description: The latest timestamp by which an order must be placed for the `deliveryWindow` to apply. Clients compare this to the current time to decide whether the estimate is still valid. Omitted when not applicable. Sub-day RFC 3339 precision.
+          type: string
+          format: date-time
+          example: '2026-04-27T14:00:00Z'
+        nonDeliverableReason:
+          description: A SCREAMING_SNAKE_CASE code identifying why the provider could not deliver via this shipping method. This is not localized and not intended to be shown directly to shoppers. This field may be omitted when the provider cannot or does not identify a single reason. Provider implementations may emit additional codes. Omitted when `deliveryWindow` is set.
+          type: string
+          minLength: 1
+          maxLength: 256
+          example: INSUFFICIENT_INVENTORY
+    ProductDeliveryEstimate:
+      description: Delivery estimates for one product at a destination, broken down by applicable shipping method.
+      type: object
+      required:
+        - productId
+        - destination
+        - shippingOptions
+      properties:
+        productId:
+          $ref: '#/components/schemas/ProductId'
+        destination:
+          $ref: '#/components/schemas/Destination'
+        shippingOptions:
+          description: The array of shipping method estimates for the product at the destination. Each entry corresponds to one applicable shipping method.
+          type: array
+          items:
+            $ref: '#/components/schemas/ShippingOption'
+    DeliveryEstimatesResult:
+      description: Result document containing per-product delivery estimates.
+      type: object
+      required:
+        - productDeliveryEstimates
+      properties:
+        productDeliveryEstimates:
+          description: The array of per-product delivery estimate entries, one per requested product that has estimates. The array is empty when the platform has no estimates for any of the requested products.
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductDeliveryEstimate'
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        title:
+          description: "A short, human-readable summary of the problem\ntype.  It will not change from occurrence to occurrence of the \nproblem, except for purposes of localization\n"
+          type: string
+          maxLength: 256
+          example: You do not have enough credit
+        type:
+          description: |
+            A URI reference [RFC3986] that identifies the
+            problem type.  This specification encourages that, when
+            dereferenced, it provide human-readable documentation for the
+            problem type (e.g., using HTML [W3C.REC-html5-20141028]).  When
+            this member is not present, its value is assumed to be
+            "about:blank". It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: NotEnoughMoney
+        detail:
+          description: A human-readable explanation specific to this occurrence of the problem.
+          type: string
+          example: Your current balance is 30, but that costs 50
+        instance:
+          description: |
+            A URI reference that identifies the specific
+            occurrence of the problem.  It may or may not yield further
+            information if dereferenced.  It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: /account/12345/msgs/abc
+      required:
+        - title
+        - type
+        - detail
+  parameters:
+    organizationId:
+      description: An identifier for the Salesforce Commerce Cloud organization the request is being made by. It consists of a prefix 'f_ecom_' followed by a 4-character [realm identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#realm-id) and a 3-character [instance type identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#instance-id).
+      name: organizationId
+      in: path
+      required: true
+      example: f_ecom_zzxy_prd
+      schema:
+        $ref: '#/components/schemas/OrganizationId'
+    productIds:
+      name: productIds
+      description: The IDs of the products for which to retrieve delivery estimates. Each product must be online and site-assigned. Currently limited to one ID per request; multi-product support is reserved for a future release.
+      in: query
+      example: apple-ipod-shuffle
+      style: form
+      explode: false
+      required: true
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/ProductId'
+        minItems: 1
+        maxItems: 1
+        example:
+          - apple-ipod-shuffle
+    postalCode:
+      name: postalCode
+      description: The destination postal code for which to compute delivery estimates. Format depends on the destination country (for example, a 5-digit ZIP for US, a 6-character alphanumeric code for CA).
+      in: query
+      example: '10001'
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 20
+        example: '10001'
+    countryCode:
+      name: countryCode
+      description: The destination country as an ISO 3166-1 alpha-2 country code (for example, `US`, `CA`, `GB`). Required for unambiguous resolution of the destination — postal codes are not globally unique.
+      in: query
+      example: US
+      required: true
+      schema:
+        $ref: '#/components/schemas/CountryCode'
+    siteId:
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites.
+      name: siteId
+      in: query
+      required: true
+      examples:
+        SiteId:
+          value: RefArch
+      schema:
+        $ref: '#/components/schemas/SiteId'
+    sfdcUsid:
+      description: |-
+        A unique shopper identifier (USID) for tracking client context.
+        Used with endpoints secured with ShopperClientContextToken.
+        This header is required for all endpoints secured with ShopperClientContextToken.
+      name: sfdc_usid
+      in: header
+      required: false
+      schema:
+        type: string
+        format: uuid
+        example: 550e8400-e29b-41d4-a716-446655440000
+    personalized:
+      description: Controls whether personalization is applied to the response. When set to `none`, the server skips applying personalization to the response.
+      name: personalized
+      in: query
+      schema:
+        type: string
+        enum:
+          - none
+        example: none
+    sfdcShopperContext:
+      description: |-
+        Shopper context information (for example clientIP, sourceCode, and customQualifiers)
+        passed in from a trusted backend application.
+      name: sfdc_shopper_context
+      in: header
+      required: false
+      schema:
+        type: string
+  examples:
+    GetDeliveryEstimatesResponseExample:
+      summary: Happy path — one product with two shipping options, both deliverable.
+      value:
+        productDeliveryEstimates:
+          - productId: apple-ipod-shuffle
+            destination:
+              postalCode: '10001'
+              countryCode: US
+            shippingOptions:
+              - shippingMethodId: GroundShipping
+                name: Ground
+                description: Standard ground shipping
+                carrier: UPS
+                price: 5.99
+                currency: USD
+                deliveryWindow:
+                  startAt: '2026-04-30T14:00:00Z'
+                  endAt: '2026-04-30T18:00:00Z'
+                orderCutoffAt: '2026-04-27T14:00:00Z'
+              - shippingMethodId: TwoDayShipping
+                name: Two-Day
+                description: Expedited air shipping
+                carrier: UPS
+                price: 12.99
+                currency: USD
+                deliveryWindow:
+                  startAt: '2026-04-28T09:00:00Z'
+                  endAt: '2026-04-28T17:00:00Z'
+                orderCutoffAt: '2026-04-26T18:00:00Z'
+    GetDeliveryEstimatesPartialResponseExample:
+      summary: One shipping option is deliverable, another is not. Methods that cannot deliver for a particular reason are kept in the response with `nonDeliverableReason` populated.
+      value:
+        productDeliveryEstimates:
+          - productId: apple-ipod-shuffle
+            destination:
+              postalCode: '10001'
+              countryCode: US
+            shippingOptions:
+              - shippingMethodId: GroundShipping
+                name: Ground
+                description: Standard ground shipping
+                carrier: UPS
+                price: 5.99
+                currency: USD
+                deliveryWindow:
+                  startAt: '2026-04-30T14:00:00Z'
+                  endAt: '2026-04-30T18:00:00Z'
+                orderCutoffAt: '2026-04-27T14:00:00Z'
+              - shippingMethodId: OvernightShipping
+                name: Overnight
+                description: Priority overnight shipping
+                carrier: UPS
+                nonDeliverableReason: INSUFFICIENT_INVENTORY
+    GetDeliveryEstimatesEmptyResponseExample:
+      summary: No estimates available — for example, when the provider returned an empty result.
+      value:
+        productDeliveryEstimates: []
+    GetDeliveryEstimatesBadRequestResponseExample:
+      summary: A required parameter is missing or has an invalid value.
+      value:
+        title: Bad Request
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/validation
+        detail: The 'postalCode' parameter is required.
+    UnauthorizedExample:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/unauthorized
+        title: Unauthorized
+        detail: Unauthorized request
+    GetDeliveryEstimatesProductNotFoundResponseExample:
+      summary: The supplied `productId` does not resolve to an online, site-assigned product.
+      value:
+        title: Product Not Found
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/product-not-found
+        detail: No product with ID 'apple-ipod-shuffle' for site 'SiteGenesis' could be found.
+        productId: apple-ipod-shuffle
+        siteId: SiteGenesis
+  responses:
+    401unauthorized:
+      description: Your access token is invalid or expired and can’t be used to identify a user.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            UnauthorizedExample:
+              $ref: '#/components/examples/UnauthorizedExample'
