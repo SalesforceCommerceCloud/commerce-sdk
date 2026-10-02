@@ -1,0 +1,1872 @@
+openapi: 3.0.3
+info:
+  x-api-type: Admin
+  x-api-family: Pricing
+  title: Campaigns
+  version: 1.1.1
+  description: |-
+    [Download API specification](https://developer.salesforce.com/static/commercecloud/commerce-api/campaigns/campaigns-oas-v1-public.yaml)
+
+    # API Overview
+
+    Campaigns enable experiences based on an optional schedule and qualifying criteria.
+
+    When an experience is assigned to a campaign, the schedule and qualifiers can only refine the containing campaign. A campaign is defined in the context of a site and is not shared among sites. A campaign can be enabled or disabled. A disabled campaign is inactive and not available to consumers. Enabled promotions contained within a disabled campaign are also inactive.
+
+    ## Qualifiers
+
+    Qualifiers are requirements that must be met to enable a campaign's experience.
+
+    -   Schedule: A start and end time and date. This can be open ended at one or both ends.
+    -   Coupon: A coupon
+    -   Customer Group: Membership in a customer group.
+    -   Source Code: A code attached to the site URL that identifies where the customer was redirected from.
+
+    For more details, see [Qualifiers](https://help.salesforce.com/s/articleView?id=cc.b2c_qualifiers.htm&type=5) on the B2C Commerce documentation.
+
+    ## Experiences
+
+    Promotion: A monetary discount or bonus item. Promotions can have additional criteria such as quantity or number of products gating the discount.
+
+    ## Authentication & Authorization
+
+    The client requesting the campaign information must have access to the Campaign resource. For resource access, you must use a client ID and client secret from Account Manager to request an access token. The access token is used as a bearer token and added to the Authorization header of your API request. The client must first authenticate against Account Manager to log in.
+
+    You must include the relevant scope(s) in the client ID used to generate the token. For details, see [Authorization Scopes Catalog.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html)
+
+    For detailed setup instructions, see [Authorization for Admin APIs](https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html).
+
+    ## Use Cases
+
+    ### Flash Sales
+
+    Use single date promotions when you want to run a campaign for a short period of time.
+
+    For example, a '20% Off Black Friday' campaign enables a 20% off promotion for registered customers on Black Friday.
+
+    ### No Date or Time Restrictions
+
+    You can also configure promotions with no time or date restrictions. This is useful when running coupon-coded promotions, or qualifier-based promotions that require certain criteria to be met.
+
+    For example, a 'Free Shipping' campaign enables a free shipping promotion when the coupon code "freeship" is added to the cart.
+
+    ### Redirections
+
+    Use redirection promotions to trigger a promotion when a customer arrives at the storefront from a specific location. You may want to use this when partnering with other resources or running external advertisements.
+
+    For example, all users directed from Facebook receive a free hat with purchase.
+
+    For more information, see [Use Source Codes as Qualifiers](https://help.salesforce.com/s/articleView?id=cc.b2c_using_source_codesas_qualifiers.htm&type=5) in the B2C Commerce documentation.
+
+    ## Related APIs
+
+    - [Promotions (Admin)](https://developer.salesforce.com/docs/commerce/commerce-api/references/promotions?meta=Summary) — Manage promotions assigned to campaigns.
+    - [Assignments](https://developer.salesforce.com/docs/commerce/commerce-api/references/assignments?meta=Summary) — Assign promotions and discounts to campaigns.
+    - [Coupons](https://developer.salesforce.com/docs/commerce/commerce-api/references/coupons?meta=Summary) — Manage coupons used as campaign qualifiers.
+servers:
+  - url: https://{shortCode}.api.commercecloud.salesforce.com/pricing/campaigns/v1
+    variables:
+      shortCode:
+        description: An eight-character string assigned to a realm for routing purposes. See [Base URL and Request Formation.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html)
+        default: shortCode
+paths:
+  /organizations/{organizationId}/campaigns:
+    post:
+      summary: Search for campaigns using a search request object that allows filtering on various attributes.
+      description: |-
+        ## Supported Query Attributes
+
+        The query attribute specifies a complex query that you can use to narrow down the search. A subset of these attributes can optionally be used to sort the returned results.
+
+        | Attribute | Type | Sortable |
+        |-----------|--------|----------|
+        | campaignId | String | yes |
+        | description | String | yes |
+        | enabled | Boolean | yes |
+        | couponId | String | no |
+        | customerGroup | String | no |
+        | sourceCode | String | no |
+        | startDate | Date | no |
+        | endDate | Date | no |
+        | lastModified | Date | no |
+
+        These fields can only be used in queries as conjunctions (using `AND`). If the field is used in a disjunction (`OR`), an exception is thrown.
+      operationId: campaignsSearch
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRequest'
+      responses:
+        '200':
+          description: Campaign search successfully executed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignSearchResult'
+              examples:
+                CampaignSearchResult:
+                  $ref: '#/components/examples/PostCampaignSearch'
+        '400':
+          description: Returned when the query is ill-formed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidOperation:
+                  $ref: '#/components/examples/InvalidOperation'
+      security:
+        - AmOAuth2:
+            - sfcc.promotions
+            - sfcc.promotions.rw
+  /organizations/{organizationId}/campaigns/{campaignId}:
+    get:
+      summary: Get campaign information.
+      operationId: getCampaign
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '200':
+          description: Campaign information successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+              examples:
+                GetCampaign:
+                  $ref: '#/components/examples/GetCampaign'
+        '404':
+          description: Returned when there is no campaign found with the given ID for the requested site.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getCampaign404:
+                  $ref: '#/components/examples/CampaignNotFound404'
+      security:
+        - AmOAuth2:
+            - sfcc.promotions
+            - sfcc.promotions.rw
+    put:
+      summary: Create a campaign using the information provided.
+      operationId: createCampaign
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              PutCampaign:
+                $ref: '#/components/examples/PutCampaign'
+            schema:
+              $ref: '#/components/schemas/Campaign'
+      responses:
+        '200':
+          description: Campaign successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+              examples:
+                GetCampaign:
+                  $ref: '#/components/examples/PutCampaign'
+        '400':
+          description: Returned when the ID in the request does not match the ID in the document.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                IdConflict400:
+                  $ref: '#/components/examples/IdConflict400'
+      security:
+        - AmOAuth2:
+            - sfcc.promotions.rw
+    delete:
+      summary: Deletes a campaign with a specified ID.
+      operationId: deleteCampaign
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '204':
+          description: Campaign deleted successfully.
+      security:
+        - AmOAuth2:
+            - sfcc.promotions.rw
+    patch:
+      summary: Update a campaign with the specified information.
+      operationId: updateCampaign
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              PatchCampaign:
+                $ref: '#/components/examples/PatchCampaign'
+            schema:
+              $ref: '#/components/schemas/Campaign'
+      responses:
+        '200':
+          description: Campaign successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+              examples:
+                PutCampaign:
+                  $ref: '#/components/examples/PutCampaign'
+        '400':
+          description: Returned when a campaign with the specified campaign ID already exists in the site.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                updateCampaign400:
+                  $ref: '#/components/examples/CampaignDuplicate400'
+        '404':
+          description: Returned when there is no campaign found with the specified ID for the requested site.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getCampaign404:
+                  $ref: '#/components/examples/CampaignNotFound404'
+      security:
+        - AmOAuth2:
+            - sfcc.promotions.rw
+  /organizations/{organizationId}/campaigns/{campaignId}/promotions:
+    get:
+      summary: List promotions assigned to a campaign.
+      operationId: getCampaignPromotionAssignments
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '200':
+          description: Promotion campaign assignments successfully retrieved, ordered by rank ascending.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromotionCampaignAssignmentResult'
+              examples:
+                GetCampaignPromotionAssignments:
+                  $ref: '#/components/examples/GetCampaignPromotionAssignments'
+        '401':
+          $ref: '#/components/responses/401unauthorized'
+        '403':
+          $ref: '#/components/responses/403forbidden'
+        '404':
+          $ref: '#/components/responses/404NotFound_Campaign'
+      security:
+        - AmOAuth2:
+            - sfcc.promotions
+            - sfcc.promotions.rw
+  /organizations/{organizationId}/campaigns/{campaignId}/promotions/{promotionId}:
+    get:
+      summary: Get a promotion campaign assignment.
+      operationId: getCampaignPromotionAssignment
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+        - $ref: '#/components/parameters/promotionId'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '200':
+          description: Promotion campaign assignment successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromotionCampaignAssignment'
+              examples:
+                GetCampaignPromotionAssignment:
+                  $ref: '#/components/examples/GetCampaignPromotionAssignment'
+        '401':
+          $ref: '#/components/responses/401unauthorized'
+        '403':
+          $ref: '#/components/responses/403forbidden'
+        '404':
+          $ref: '#/components/responses/404NotFound_Assignment'
+      security:
+        - AmOAuth2:
+            - sfcc.promotions
+            - sfcc.promotions.rw
+    put:
+      summary: Create or replace a promotion campaign assignment.
+      operationId: assignPromotionToCampaign
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+        - $ref: '#/components/parameters/promotionId'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            examples:
+              AssignPromotionToCampaign:
+                $ref: '#/components/examples/AssignPromotionToCampaign'
+            schema:
+              $ref: '#/components/schemas/PromotionCampaignAssignmentRequest'
+      responses:
+        '200':
+          description: Promotion campaign assignment successfully replaced.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromotionCampaignAssignment'
+              examples:
+                AssignPromotionToCampaign:
+                  $ref: '#/components/examples/GetCampaignPromotionAssignment'
+        '201':
+          description: Promotion campaign assignment successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromotionCampaignAssignment'
+              examples:
+                AssignPromotionToCampaign:
+                  $ref: '#/components/examples/GetCampaignPromotionAssignment'
+        '400':
+          $ref: '#/components/responses/400BadRequest_Assignment'
+        '401':
+          $ref: '#/components/responses/401unauthorized'
+        '403':
+          $ref: '#/components/responses/403forbidden'
+        '404':
+          $ref: '#/components/responses/404NotFound_CampaignOrPromotion'
+      security:
+        - AmOAuth2:
+            - sfcc.promotions.rw
+    patch:
+      summary: Update a promotion campaign assignment.
+      operationId: updateCampaignPromotionAssignment
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+        - $ref: '#/components/parameters/promotionId'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            examples:
+              UpdateCampaignPromotionAssignment:
+                $ref: '#/components/examples/UpdateCampaignPromotionAssignment'
+            schema:
+              $ref: '#/components/schemas/PromotionCampaignAssignmentUpdate'
+      responses:
+        '200':
+          description: Promotion campaign assignment successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromotionCampaignAssignment'
+              examples:
+                UpdateCampaignPromotionAssignment:
+                  $ref: '#/components/examples/GetCampaignPromotionAssignment'
+        '400':
+          $ref: '#/components/responses/400BadRequest_Assignment'
+        '401':
+          $ref: '#/components/responses/401unauthorized'
+        '403':
+          $ref: '#/components/responses/403forbidden'
+        '404':
+          $ref: '#/components/responses/404NotFound_Assignment'
+      security:
+        - AmOAuth2:
+            - sfcc.promotions.rw
+    delete:
+      summary: Unassign a promotion from a campaign.
+      operationId: unassignPromotionFromCampaign
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+        - $ref: '#/components/parameters/promotionId'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '204':
+          description: Promotion campaign assignment successfully deleted.
+        '401':
+          $ref: '#/components/responses/401unauthorized'
+        '403':
+          $ref: '#/components/responses/403forbidden'
+        '404':
+          $ref: '#/components/responses/404NotFound_Assignment'
+      security:
+        - AmOAuth2:
+            - sfcc.promotions.rw
+components:
+  securitySchemes:
+    AmOAuth2:
+      type: oauth2
+      description: AccountManager OAuth 2.0 bearer token Authentication.
+      flows:
+        clientCredentials:
+          tokenUrl: https://account.demandware.com/dwsso/oauth2/access_token
+          scopes:
+            sfcc.promotions: promotions READONLY
+            sfcc.promotions.rw: promotions read/write
+        authorizationCode:
+          authorizationUrl: https://account.demandware.com/dwsso/oauth2/authorize
+          tokenUrl: https://account.demandware.com/dwsso/oauth2/access_token
+          refreshUrl: https://account.demandware.com/dwsso/oauth2/access_token
+          scopes: {}
+  schemas:
+    OrganizationId:
+      description: An identifier for the Salesforce Commerce Cloud organization the request is being made by. It consists of a prefix 'f_ecom_' followed by a 4-character [realm identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#realm-id) and a 3-character [instance type identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#instance-id).
+      example: f_ecom_zzxy_prd
+      type: string
+      pattern: ^f_ecom_[a-z]{4}_(prd|stg|dev|s[0-9]{2}|[0-9]{3})$
+    SiteId:
+      minLength: 1
+      maxLength: 32
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites
+      example: RefArch
+      type: string
+    Query:
+      minProperties: 1
+      maxProperties: 1
+      description: |-
+        A set of objects that define criteria used to select records. A query can contain one of the following:
+        * `MatchAllQuery`
+         - Matches all documents.
+        * `TermQuery`
+         - Matches one or more documents against one or more document fields.
+        * `TextQuery`
+         - Matches text against one or more fields.
+        * `BoolQuery`
+         - Allows construction of a logical expression of multiple queries.
+        * `FilteredQuery`
+         - Allows a filter to be applied to a query.
+        * `NestedQuery`
+         - Allows you to query on nested documents.
+         - _Only supported by some Commerce APIs. For more details, see the endpoint descriptions in the API documentation._
+      example:
+        filteredQuery:
+          query:
+            textQuery:
+              fields:
+                - couponId
+              searchPhrase: disabled
+          filter:
+            termFilter:
+              field: enabled
+              operator: is
+              values:
+                - false
+      type: object
+      properties:
+        boolQuery:
+          $ref: '#/components/schemas/BoolQuery'
+        filteredQuery:
+          $ref: '#/components/schemas/FilteredQuery'
+        matchAllQuery:
+          $ref: '#/components/schemas/MatchAllQuery'
+        nestedQuery:
+          $ref: '#/components/schemas/NestedQuery'
+        termQuery:
+          $ref: '#/components/schemas/TermQuery'
+        textQuery:
+          $ref: '#/components/schemas/TextQuery'
+      additionalProperties: false
+    BoolQuery:
+      description: "A boolean query allows construction of full logical expression trees that are composed of other queries (usually term queries and text queries). A boolean query has three sets of clauses:\n  \n  - `must`, which combines as an `AND` operator.\n  - `should`, which combines as an `OR` operator.\n  - `must_not`, which combines as a `NOT` operator.\n  \nIf `must`, `mustNot`, or `should` appear in the same boolean query, they are combined logically using the `AND` operator. For example:\n\n    (must-1 AND must-1 AND ...)\n      AND (should-1 OR should-2 OR ...)\n      AND NOT (must_not-1 OR must_not-2 OR ...)\n"
+      type: object
+      example:
+        must:
+          - textQuery:
+              fields:
+                - couponId
+              searchPhrase: DEAL
+          - textQuery:
+              fields:
+                - description
+              searchPhrase: Big bargain deal
+        mustNot:
+          - termQuery:
+              fields:
+                - enabled
+              operator: is
+              values:
+                - false
+      properties:
+        must:
+          description: List of queries to be evaluated as an `AND` operator.
+          type: array
+          items:
+            $ref: '#/components/schemas/Query'
+        mustNot:
+          description: List of queries to be evaluated as a `NOT` operator.
+          type: array
+          items:
+            $ref: '#/components/schemas/Query'
+        should:
+          description: List of queries to be evaluated as an `OR` operator.
+          type: array
+          items:
+            $ref: '#/components/schemas/Query'
+      additionalProperties: false
+    Filter:
+      minProperties: 1
+      maxProperties: 1
+      description: |-
+        Contains a set of objects that define criteria used to select records. A filter can contain one of the following:
+          * `TermFilter`
+           - Matches records where a field (or fields) exactly matches some simple value (including `null`).
+          * `RangeFilter`
+           - Matches records where a field value lies within a specified range.
+          * `Range2Filter`
+           - Matches records in a specified range across fields.
+          * `QueryFilter`
+           - Matches records based on a query.
+          * `BoolFilter`
+           - Provides filtering of records using a set of filters combined using a logical operator.
+      example: null
+      type: object
+      properties:
+        boolFilter:
+          $ref: '#/components/schemas/BoolFilter'
+        queryFilter:
+          $ref: '#/components/schemas/QueryFilter'
+        range2Filter:
+          $ref: '#/components/schemas/Range2Filter'
+        rangeFilter:
+          $ref: '#/components/schemas/RangeFilter'
+        termFilter:
+          $ref: '#/components/schemas/TermFilter'
+      additionalProperties: false
+    BoolFilter:
+      description: Allows you to combine other filters into (possibly recursive) logical expression trees. A boolean filter is composed of a logical operator (`AND`, `OR`, `NOT`) and a list of filters that the operator relates to. Multiple filters can be negated with a single `NOT` operator, even when the filters are combined with the `AND` operator.
+      example:
+        operator: and
+        filters:
+          - termFilter:
+              field: id
+              operator: is
+              values:
+                - myId
+          - termFilter:
+              field: couponId
+              operator: is
+              values:
+                - couponOne
+      type: object
+      properties:
+        filters:
+          description: A list of filters that are logically combined by an operator.
+          type: array
+          items:
+            $ref: '#/components/schemas/Filter'
+        operator:
+          description: The logical operator that is used to combine the filters.
+          enum:
+            - and
+            - or
+            - not
+          type: string
+          example: and
+      required:
+        - operator
+      additionalProperties: false
+    QueryFilter:
+      description: Wraps any query and allows it to be used as a filter.
+      type: object
+      properties:
+        query:
+          $ref: '#/components/schemas/Query'
+      required:
+        - query
+    Field:
+      description: Name of the field. Might be a custom field name prefixed with c_.
+      maxLength: 260
+      type: string
+      example: couponId
+    Range2Filter:
+      description: |-
+        Allows you to restrict a search result to hits where a range defined by specified attributes has a certain relationship to a specified range.
+
+        The first range (R1) is defined by a pair of attributes (`fromField` and `toField`) that specify the extent of a range, such as attributes `validFrom` and `validTo`.
+
+        The second range (R2) is defined by `fromValue` and `toValue`.
+
+        The filter mode specifies the method used to compare the two ranges:
+
+        * `overlap`: R1 overlaps fully or partially with R2.
+        * `containing`: R1 contains R2.
+        * `contained`: R1 is contained in R2.
+
+        The range filter supports several value types, and relies on the natural sorting of the value type for range interpretation. Value ranges can be open-ended, but only at one end of the range. You can configure whether the lower bounds and upper bounds are inclusive or exclusive.
+
+        A range 2 filter is useful for general restrictions that can be shared between searches (like a static date range) because the filter result is cached in memory. Range filters are not appropriate if the range is expected to be different for every query (for example, if the user controls the date range down to the hour via a UI control). Range filters are inclusive by default.
+      example:
+        fromField: validFrom
+        toField: validTo
+        filterMode: overlap
+        fromValue: '2007-01-01T00:00:00.000Z'
+        toValue: '2017-01-01T00:00:00.000Z'
+      type: object
+      properties:
+        filterMode:
+          default: overlap
+          example: overlap
+          description: 'Compare mode: overlap, containing, or contained.'
+          enum:
+            - overlap
+            - containing
+            - contained
+          type: string
+        fromField:
+          description: The field name of the field that starts the first range.
+          example: validFrom
+          allOf:
+            - $ref: '#/components/schemas/Field'
+        fromInclusive:
+          default: true
+          example: true
+          description: A flag indicating if the lower bound of the second range is inclusive. To make the lower bound exclusive, set to `false`.
+          type: boolean
+        fromValue:
+          description: The lower bound of the second range. If not specified, the range is open-ended with respect to the lower bound. You can't leave both the lower and upper bounds open-ended.
+          example: '2007-01-01T00:00:00.000Z'
+        toField:
+          description: The field name of the field that ends the first range.
+          example: validTo
+          allOf:
+            - $ref: '#/components/schemas/Field'
+        toInclusive:
+          default: true
+          example: true
+          description: A flag indicating if the upper bound of the second range is inclusive. To make the lower bound exclusive, set to `false`.
+          type: boolean
+        toValue:
+          description: The upper bound of the second range. If not specified, the range is open-ended with respect to the upper bound. You can't leave both the upper and lower bounds open-ended.
+          example: '2017-01-01T00:00:00.000Z'
+      required:
+        - fromField
+        - toField
+      additionalProperties: false
+    RangeFilter:
+      description: |-
+        Allows you to restrict a search result to hits that have values for a given attribute that fall within a given value range. The range filter supports several value types and relies on the natural sorting of the value type for range interpretation. Value ranges can be open-ended, but only at one end of the range. You can configure whether the lower bounds and upper bounds are inclusive or exclusive.
+
+        A range filter is useful for general restrictions that can be shared between searches (like a static date range) because the filter result is cached in memory. Range filters are not appropriate if the range is expected to be different for every query (for example, if the user controls the date range down to the hour via a UI control). Range filters are inclusive by default.
+      type: object
+      properties:
+        field:
+          example: validFrom
+          description: The search field.
+          allOf:
+            - $ref: '#/components/schemas/Field'
+        from:
+          oneOf:
+            - type: string
+              format: date-time
+              example: '2007-01-01T00:00:00.000Z'
+            - type: integer
+              example: 1
+            - type: number
+              example: 1
+          description: The lower bound of the filter range. If not specified, the range is open-ended with respect to the lower bound. You can't leave both the lower and upper bounds open-ended.
+        fromInclusive:
+          default: true
+          example: true
+          description: A flag indicating if the lower bound of the range is inclusive. To make the lower bound exclusive, set to `false`.
+          type: boolean
+        to:
+          oneOf:
+            - type: string
+              format: date-time
+              example: '2007-01-02T00:00:00.000Z'
+            - type: integer
+              example: 2
+            - type: number
+              example: 2
+          description: The upper bound of the filter range. If not specified, the range is open-ended with respect to the upper bound. You can't leave both the upper and lower bounds open-ended.
+        toInclusive:
+          default: true
+          example: true
+          description: A flag indicating if the upper bound of the range is inclusive. To make the upper bound exclusive, set to `false`.
+          type: boolean
+      required:
+        - field
+    TermFilter:
+      description: Allows you to restrict a search result to hits that match exactly one of the values configured for the filter. A term filter is useful for general restrictions that can be shared between searches. Use term filters whenever the criteria you filter on is a shared property of multiple searches (for example, like filtering by an order status). Use term filters for fields that have a discrete and small set of values only.
+      example:
+        field: id
+        operator: is
+        values:
+          - myId
+      type: object
+      properties:
+        field:
+          description: The filter field.
+          allOf:
+            - $ref: '#/components/schemas/Field'
+        operator:
+          description: The operator used to compare the field's values with the given values.
+          example: is
+          enum:
+            - is
+            - one_of
+            - is_null
+            - is_not_null
+            - less
+            - greater
+            - not_in
+            - neq
+          type: string
+        values:
+          description: The filter values.
+          type: array
+          items:
+            type: string
+            example: myId
+      required:
+        - field
+        - operator
+      additionalProperties: false
+    FilteredQuery:
+      description: Allows to filter the result of a possibly complex query using a possibly complex filter.
+      example:
+        query:
+          textQuery:
+            fields:
+              - couponId
+            searchPhrase: disabled
+        filter:
+          termFilter:
+            field: enabled
+            operator: is
+            values:
+              - false
+      type: object
+      properties:
+        filter:
+          $ref: '#/components/schemas/Filter'
+        query:
+          $ref: '#/components/schemas/Query'
+      required:
+        - filter
+        - query
+      additionalProperties: false
+    MatchAllQuery:
+      description: Matches all documents (namespace and document type). This query comes in handy if you just want to filter a search result or really do not have any constraints.
+      type: object
+    NestedQuery:
+      description: "Allows you to query nested documents that are part of a larger document. Say, for example, that you have a main product with variations in one big document, and you want to constrain a search to main products that have variations that match multiple constraints. \n\nA `NestedQuery` is only supported by some Commerce APIs. For more details, see the endpoint descriptions in the API documentation.\n"
+      example:
+        path: order.shippingAddresses
+        query:
+          boolQuery:
+            must:
+              - boolQuery:
+                  must:
+                    - termQuery:
+                        fields:
+                          - order.shippingAddresses.firstName
+                        operator: is
+                        values:
+                          - John
+              - boolQuery:
+                  must:
+                    - termQuery:
+                        fields:
+                          - order.shippingAddresses.lastName
+                        operator: is
+                        values:
+                          - Doe
+        scoreMode: avg
+      type: object
+      properties:
+        path:
+          description: The path to the nested document.
+          type: string
+          example: order.shippingAddresses
+          maxLength: 2048
+        query:
+          $ref: '#/components/schemas/Query'
+        scoreMode:
+          description: Indicates how scores for matching child objects affect the root parent document’s relevance score.
+          enum:
+            - avg
+            - total
+            - max
+            - none
+          type: string
+          example: avg
+      required:
+        - path
+        - query
+      additionalProperties: false
+    TermQuery:
+      description: |-
+        A term query matches one or more values against one or more document fields. A document is considered a hit if one of the values matches exactly with at least one of the given fields. The operator `is` can only take one value, while `one_of` can take multiple values. If multiple fields are specified, they are combined using a logical `OR` operator.
+
+        **Limitations:**
+
+        * The `greater` and `less` operators are not supported under certain conditions. Both operators are permitted unless the API documentation states otherwise.
+        * A subset of Commerce APIs handle queries with multiple fields differently. If the query has multiple fields, the query is internally handled as a logical `OR` of `DisjointMaxQueries` (with the dismax matching a value against all fields). The dismax makes sure that a document carrying a single term in multiple fields does not get higher scores than a document matching multiple terms in multiple fields.
+      type: object
+      properties:
+        fields:
+          minItems: 1
+          description: The document fields that the values are matched against, combined with the operator.
+          type: array
+          items:
+            $ref: '#/components/schemas/Field'
+        operator:
+          description: Returns the operator to use for the term query.
+          enum:
+            - is
+            - one_of
+            - is_null
+            - is_not_null
+            - less
+            - greater
+            - not_in
+            - neq
+          type: string
+          example: is
+        values:
+          description: The values that the fields are compared against, combined with the operator.
+          type: array
+          items:
+            oneOf:
+              - type: string
+                example: myCouponId
+              - type: number
+                example: 1
+              - type: boolean
+                example: true
+              - type: integer
+                example: 1
+            example: myCouponId
+      required:
+        - fields
+        - operator
+    TextQuery:
+      description: A text query is used to match some text (for example, a search phrase possibly consisting of multiple terms) against one or more fields. When multiple fields are provided, the phrase conceptually forms a logical `OR` over the fields. In this case, the terms of the phrase basically have to match within the text, that would result in concatenating all given fields.
+      example:
+        fields:
+          - couponId
+        searchPhrase: limit
+      type: object
+      properties:
+        fields:
+          minItems: 1
+          description: The document fields that the search phrase matches against.
+          type: array
+          items:
+            $ref: '#/components/schemas/Field'
+        searchPhrase:
+          description: A search phrase, which can include multiple terms separated by spaces.
+          type: string
+          example: campaign summer
+      required:
+        - fields
+        - searchPhrase
+      additionalProperties: false
+    Sort:
+      description: Document representing a sort request. Each API has a different default sort configuration that can be modified in the request.
+      example:
+        field: couponId
+        sortOrder: desc
+      type: object
+      properties:
+        field:
+          description: The name of the field to sort on.
+          type: string
+          maxLength: 256
+          example: couponId
+        sortOrder:
+          default: asc
+          description: The sort order to be applied when sorting. When omitted, the default sort order (asc) is used.
+          example: asc
+          enum:
+            - asc
+            - desc
+          type: string
+      required:
+        - field
+      additionalProperties: false
+    Offset:
+      default: 0
+      minimum: 0
+      format: int32
+      description: The zero-based index of the first hit/data to include in the result.
+      type: integer
+      example: 0
+    SearchRequest:
+      description: Document representing a search request for retrieving items within the Data API. The query is a potentially complex set of expressions. The fields and expands that each query supports are defined within the search resource.
+      type: object
+      properties:
+        limit:
+          description: Maximum records to retrieve per request, not to exceed 200.
+          type: integer
+          format: int32
+          minimum: 1
+          example: 10
+          maximum: 200
+        query:
+          $ref: '#/components/schemas/Query'
+        sorts:
+          description: The list of sort clauses configured for the search request. Sort clauses are optional. See the description of the search endpoint for details on the default sorting behavior that is used when explicit sorts are not passed.
+          type: array
+          items:
+            $ref: '#/components/schemas/Sort'
+        offset:
+          $ref: '#/components/schemas/Offset'
+      required:
+        - query
+    Total:
+      default: 0
+      minimum: 0
+      format: int32
+      description: The total number of hits that match the search's criteria. This can be greater than the number of results returned as search results are pagenated.
+      type: integer
+      example: 10
+    ResultBase:
+      description: "Schema defining generic list result. Each response schema of a resource requiring a list response should extend this schema. \nAdditionally it needs to be defined what data is returned."
+      type: object
+      required:
+        - limit
+        - total
+      properties:
+        limit:
+          format: int32
+          description: Maximum records to retrieve per request. The limit with its constraints (minimum, maximum, default) is defined by the request parameter `limit` of the endpoint returning this schema.
+          type: integer
+          example: 10
+        total:
+          $ref: '#/components/schemas/Total'
+    PaginatedResultBase:
+      description: "Schema defining generic pageable result. Each response schema of a resource requiring pagination should extend this schema. \nIf you use this extend this schema directly, it needs to be defined what data is returned. Allowed names for the data field is `data`."
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ResultBase'
+      properties:
+        offset:
+          $ref: '#/components/schemas/Offset'
+      required:
+        - limit
+        - offset
+        - total
+    PaginatedSearchResult:
+      description: Document representing a generic search result. Each search resource should extend this to define what is returned in the `hits`.
+      properties:
+        query:
+          $ref: '#/components/schemas/Query'
+        sorts:
+          description: The sorting that was applied to the result.
+          type: array
+          items:
+            $ref: '#/components/schemas/Sort'
+        hits:
+          description: The sorted array of search hits. Can be empty.
+          type: array
+          items:
+            type: object
+      allOf:
+        - $ref: '#/components/schemas/PaginatedResultBase'
+      type: object
+      required:
+        - query
+      example:
+        limit: 1
+        hits:
+          - couponId: coupon1
+            creationDate: '2019-10-20T12:00:00Z'
+            description: This coupon is used to give 10% off stuff.
+            enabled: false
+            exportedCodeCount: 0
+            lastModified: '2019-10-30T04:23:59Z'
+            redemptionCount: 3
+            redemptionLimits:
+              limitPerCode: 1
+              limitPerCustomer: 1
+              limitPerTimeFrame:
+                limit: 2
+                redemptionTimeFrame: 24
+            singleCode: MyCode
+            systemCodesConfig:
+              codePrefix: SG
+              numberOfCodes: 500000
+            totalCodesCount: 50
+            type: single_code
+        query:
+          textQuery:
+            fields:
+              - id
+              - description
+            searchPhrase: stuff
+        sorts:
+          - field: couponId
+            sortOrder: desc
+        offset: 2
+        total: 8
+      additionalProperties: false
+    CampaignId:
+      minLength: 1
+      maxLength: 256
+      description: The ID of the campaign.
+      type: string
+      example: NewYearCampaign
+    CouponId:
+      minLength: 1
+      maxLength: 256
+      description: The ID of the coupon.
+      example: 20%offOrder
+      type: string
+    CustomerGroupId:
+      minLength: 1
+      maxLength: 256
+      description: The ID of the customer group.
+      example: Registered
+      type: string
+    SourceCodeGroupId:
+      minLength: 1
+      maxLength: 28
+      description: The ID of source code group.
+      example: TV-Email
+      type: string
+    Campaign:
+      description: Document representing a campaign.
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+      properties:
+        campaignId:
+          $ref: '#/components/schemas/CampaignId'
+        coupons:
+          description: The array of assigned coupon IDs, not sorted.
+          type: array
+          items:
+            $ref: '#/components/schemas/CouponId'
+          example:
+            - 20%offOrder
+            - 10%offWelcomeNewUser
+        creationDate:
+          description: Returns the value of attribute 'creationDate'.
+          type: string
+          format: date-time
+          example: '2019-10-03T19:36:56.000Z'
+        customerGroups:
+          description: The array of assigned customer groups, not sorted.
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomerGroupId'
+          example:
+            - BigShoppers
+            - NorthAmericanShoppers
+        description:
+          maxLength: 4000
+          description: The description of the campaign.
+          type: string
+          example: Campaign for the New Year
+        enabled:
+          description: The enabled flag for campaign.
+          type: boolean
+          example: true
+        endDate:
+          description: The date the scenario ends.
+          type: string
+          format: date-time
+          example: '2019-10-03T19:36:56.000Z'
+        lastModified:
+          description: Returns the value of attribute 'lastModified'.
+          type: string
+          format: date-time
+          example: '2019-10-03T19:36:56.000Z'
+        sourceCodeGroups:
+          description: The array of assigned source code groups, not sorted.
+          type: array
+          items:
+            $ref: '#/components/schemas/SourceCodeGroupId'
+          example:
+            - affiliate-email
+            - gaming-email
+        startDate:
+          description: The date the scenario begins.
+          type: string
+          format: date-time
+          example: '2019-10-03T19:36:56.000Z'
+      type: object
+    CampaignSearchResult:
+      description: Document representing a campaign search result.
+      allOf:
+        - $ref: '#/components/schemas/PaginatedSearchResult'
+      properties:
+        hits:
+          description: The sorted array of campaign search hits. Can be empty.
+          type: array
+          items:
+            $ref: '#/components/schemas/Campaign'
+      type: object
+      required:
+        - hits
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        title:
+          description: "A short, human-readable summary of the problem\ntype.  It will not change from occurrence to occurrence of the \nproblem, except for purposes of localization\n"
+          type: string
+          maxLength: 256
+          example: You do not have enough credit
+        type:
+          description: |
+            A URI reference [RFC3986] that identifies the
+            problem type.  This specification encourages that, when
+            dereferenced, it provide human-readable documentation for the
+            problem type (e.g., using HTML [W3C.REC-html5-20141028]).  When
+            this member is not present, its value is assumed to be
+            "about:blank". It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: NotEnoughMoney
+        detail:
+          description: A human-readable explanation specific to this occurrence of the problem.
+          type: string
+          example: Your current balance is 30, but that costs 50
+        instance:
+          description: |
+            A URI reference that identifies the specific
+            occurrence of the problem.  It may or may not yield further
+            information if dereferenced.  It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: /account/12345/msgs/abc
+      required:
+        - title
+        - type
+        - detail
+    CouponsBased:
+      description: |-
+        Whether the coupons qualifier participates in the assignment's qualification rule. When true, the
+        assigned coupons gate the promotion (combined with campaign-level coupons). When omitted, defaults to
+        true if a non-empty coupons array is supplied, otherwise false.
+      type: boolean
+      example: false
+    CustomerGroupsBased:
+      description: |-
+        Whether the customer-groups qualifier participates in the assignment's qualification rule. When true,
+        the assigned customer groups gate the promotion (combined with campaign-level customer groups). When
+        omitted, defaults to true if a non-empty customerGroups array is supplied, otherwise false.
+      type: boolean
+      example: false
+    RequiredQualifier:
+      description: |-
+        Controls how the active qualifier types (coupons, customer groups, source-code groups) combine.
+        'all' requires every active qualifier type to be satisfied (AND); 'any' requires at least one (OR).
+        Defaults to 'any' when omitted.
+      type: string
+      enum:
+        - all
+        - any
+      default: any
+      example: any
+    TimeOfDay:
+      type: object
+      description: Document representing a time schedule within a single day.
+      additionalProperties: false
+      properties:
+        timeFrom:
+          description: 'The time to start from. Time format: HH:mm or HH:mm:ss. Seconds are ignored and set to 0.'
+          type: string
+          pattern: ^([01][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$
+          example: '09:00:00'
+        timeTo:
+          description: 'The time to end on. Time format: HH:mm or HH:mm:ss. Seconds are ignored and set to 0.'
+          type: string
+          pattern: ^([01][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$
+          example: '17:00:00'
+    Recurrence:
+      type: object
+      description: Document representing a schedule recurrence.
+      additionalProperties: false
+      properties:
+        dayOfWeek:
+          description: The days of week for recurrence.
+          type: array
+          items:
+            type: string
+            enum:
+              - monday
+              - tuesday
+              - wednesday
+              - thursday
+              - friday
+              - saturday
+              - sunday
+            example: monday
+        timeOfDay:
+          description: The time of the day for recurrence.
+          allOf:
+            - $ref: '#/components/schemas/TimeOfDay'
+    Schedule:
+      type: object
+      description: Document representing a time schedule. Defines an optional validity window (startDate/endDate) and an optional recurrence. Omitting a bound leaves that side of the window open (unbounded).
+      additionalProperties: false
+      properties:
+        startDate:
+          description: 'The date to start validity. ISO8601 date time format: yyyy-MM-dd''T''HH:mm:ssZ.'
+          type: string
+          format: date-time
+          example: '2026-01-01T00:00:00.000Z'
+        endDate:
+          description: 'The date to end of validity. ISO8601 date time format: yyyy-MM-dd''T''HH:mm:ssZ.'
+          type: string
+          format: date-time
+          example: '2026-01-31T23:59:59.000Z'
+        recurrence:
+          description: The recurrence of the schedule by day of week and time of day. Not all schedules support a recurrence.
+          allOf:
+            - $ref: '#/components/schemas/Recurrence'
+    SourceCodeBased:
+      description: |-
+        Whether the source-code-groups qualifier participates in the assignment's qualification rule. When true,
+        the assigned source-code groups gate the promotion (combined with campaign-level source-code groups).
+        When omitted, defaults to true if a non-empty sourceCodeGroups array is supplied, otherwise false.
+      type: boolean
+      example: false
+    PromotionCampaignAssignment:
+      description: Document representing a promotion campaign assignment.
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+      properties:
+        campaign:
+          description: The campaign.
+          allOf:
+            - $ref: '#/components/schemas/Campaign'
+        campaignId:
+          minLength: 1
+          maxLength: 256
+          description: The ID of the campaign.
+          type: string
+          example: NewYearCampaign
+        coupons:
+          description: The sorted array of assigned coupon IDs.
+          type: array
+          items:
+            $ref: '#/components/schemas/CouponId'
+        couponsBased:
+          $ref: '#/components/schemas/CouponsBased'
+        customerGroups:
+          description: The sorted array of assigned customer groups.
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomerGroupId'
+        customerGroupsBased:
+          $ref: '#/components/schemas/CustomerGroupsBased'
+        enabled:
+          description: Read-only. True if the assigned promotion is enabled. Derived from the promotion's enabled state; cannot be set on the assignment. Use the Promotions API to change it.
+          type: boolean
+          readOnly: true
+          example: true
+        promotionId:
+          minLength: 1
+          maxLength: 256
+          description: The ID of the promotion. Use the Promotions API to fetch the full promotion.
+          type: string
+          example: 10offsku
+        rank:
+          format: int32
+          description: The rank of promotion campaign assignment.
+          type: integer
+          example: 1
+        requiredQualifier:
+          $ref: '#/components/schemas/RequiredQualifier'
+        schedule:
+          description: The schedule of the assignment resource.
+          allOf:
+            - $ref: '#/components/schemas/Schedule'
+        sourceCodeBased:
+          $ref: '#/components/schemas/SourceCodeBased'
+        sourceCodeGroups:
+          description: The sorted array of assigned source code groups.
+          type: array
+          items:
+            $ref: '#/components/schemas/SourceCodeGroupId'
+      type: object
+      required:
+        - campaign
+        - campaignId
+        - coupons
+        - couponsBased
+        - customerGroups
+        - customerGroupsBased
+        - enabled
+        - promotionId
+        - rank
+        - requiredQualifier
+        - schedule
+        - sourceCodeBased
+        - sourceCodeGroups
+    PromotionCampaignAssignmentResult:
+      description: Result document representing a list of promotion campaign assignments assigned to a campaign.
+      allOf:
+        - $ref: '#/components/schemas/ResultBase'
+      properties:
+        data:
+          description: The array of promotion campaign assignments, ordered by rank ascending. Can be empty.
+          type: array
+          items:
+            $ref: '#/components/schemas/PromotionCampaignAssignment'
+      type: object
+      required:
+        - data
+    CampaignNotFoundErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+      description: Returned when no campaign with the given ID exists for the requested site.
+      properties:
+        campaignId:
+          $ref: '#/components/schemas/CampaignId'
+        siteId:
+          $ref: '#/components/schemas/SiteId'
+    PromotionCampaignAssignmentNotFoundErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+      description: Returned when the promotion is not assigned to the campaign for the requested site.
+      properties:
+        campaignId:
+          $ref: '#/components/schemas/CampaignId'
+        promotionId:
+          minLength: 1
+          maxLength: 256
+          description: The ID of the promotion.
+          type: string
+          example: 10offsku
+        siteId:
+          $ref: '#/components/schemas/SiteId'
+    PromotionCampaignAssignmentRequest:
+      description: |-
+        Request body for creating or replacing a promotion campaign assignment (PUT). Omits the read-only nested
+        campaign and promotion courtesy copies, which are response-only.
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+      properties:
+        campaignId:
+          minLength: 1
+          maxLength: 256
+          description: The ID of the campaign. If supplied, must equal the campaignId path parameter.
+          type: string
+          example: NewYearCampaign
+        coupons:
+          description: The sorted array of assigned coupon IDs.
+          type: array
+          items:
+            $ref: '#/components/schemas/CouponId'
+        couponsBased:
+          $ref: '#/components/schemas/CouponsBased'
+        customerGroups:
+          description: The sorted array of assigned customer groups.
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomerGroupId'
+        customerGroupsBased:
+          $ref: '#/components/schemas/CustomerGroupsBased'
+        promotionId:
+          minLength: 1
+          maxLength: 256
+          description: The ID of the promotion. If supplied, must equal the promotionId path parameter.
+          type: string
+          example: 10offsku
+        rank:
+          format: int32
+          description: |-
+            The rank of the promotion campaign assignment. Must be null or a multiple of 10
+            from 0 to 100 (0, 10, 20, ..., 100).
+          type: integer
+          minimum: 0
+          maximum: 100
+          multipleOf: 10
+          example: 10
+        requiredQualifier:
+          $ref: '#/components/schemas/RequiredQualifier'
+        schedule:
+          description: The schedule of the assignment resource.
+          allOf:
+            - $ref: '#/components/schemas/Schedule'
+        sourceCodeBased:
+          $ref: '#/components/schemas/SourceCodeBased'
+        sourceCodeGroups:
+          description: The sorted array of assigned source code groups.
+          type: array
+          items:
+            $ref: '#/components/schemas/SourceCodeGroupId'
+      type: object
+      required:
+        - schedule
+    AssignmentIdMismatchErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+      description: Returned when the composite key in the request body does not match the campaignId or promotionId path parameters.
+    AssignmentBusinessRuleViolationErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+      description: Returned when a backend business rule rejects the assignment (for example, an invalid schedule or qualifier combination).
+    PromotionNotFoundErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+      description: Returned when the promotion referenced by the request does not exist for the requested site.
+      properties:
+        promotionId:
+          minLength: 1
+          maxLength: 256
+          description: The ID of the promotion.
+          type: string
+          example: 10offsku
+        siteId:
+          $ref: '#/components/schemas/SiteId'
+    PromotionCampaignAssignmentUpdate:
+      description: |-
+        Request body for partially updating a promotion campaign assignment (PATCH). Same properties as the create
+        request, but all properties are optional. Omits the read-only nested campaign and promotion courtesy copies.
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+      properties:
+        campaignId:
+          minLength: 1
+          maxLength: 256
+          description: The ID of the campaign. If supplied, must equal the campaignId path parameter.
+          type: string
+          example: NewYearCampaign
+        coupons:
+          description: The sorted array of assigned coupon IDs.
+          type: array
+          items:
+            $ref: '#/components/schemas/CouponId'
+        couponsBased:
+          $ref: '#/components/schemas/CouponsBased'
+        customerGroups:
+          description: The sorted array of assigned customer groups.
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomerGroupId'
+        customerGroupsBased:
+          $ref: '#/components/schemas/CustomerGroupsBased'
+        promotionId:
+          minLength: 1
+          maxLength: 256
+          description: The ID of the promotion. If supplied, must equal the promotionId path parameter.
+          type: string
+          example: 10offsku
+        rank:
+          format: int32
+          description: |-
+            The rank of the promotion campaign assignment. Must be null or a multiple of 10
+            from 0 to 100 (0, 10, 20, ..., 100).
+          type: integer
+          minimum: 0
+          maximum: 100
+          multipleOf: 10
+          example: 10
+        requiredQualifier:
+          $ref: '#/components/schemas/RequiredQualifier'
+        schedule:
+          description: The schedule of the assignment resource. Send schedule null to clear the assignment-level schedule.
+          type: object
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Schedule'
+        sourceCodeBased:
+          $ref: '#/components/schemas/SourceCodeBased'
+        sourceCodeGroups:
+          description: The sorted array of assigned source code groups.
+          type: array
+          items:
+            $ref: '#/components/schemas/SourceCodeGroupId'
+      type: object
+  parameters:
+    organizationId:
+      description: An identifier for the Salesforce Commerce Cloud organization the request is being made by. It consists of a prefix 'f_ecom_' followed by a 4-character [realm identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#realm-id) and a 3-character [instance type identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#instance-id).
+      name: organizationId
+      in: path
+      required: true
+      example: f_ecom_zzxy_prd
+      schema:
+        $ref: '#/components/schemas/OrganizationId'
+    siteId:
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites.
+      name: siteId
+      in: query
+      required: true
+      examples:
+        SiteId:
+          value: RefArch
+      schema:
+        $ref: '#/components/schemas/SiteId'
+    campaignId:
+      name: campaignId
+      in: path
+      description: The ID of the campaign.
+      required: true
+      schema:
+        minLength: 1
+        type: string
+        allOf:
+          - $ref: '#/components/schemas/CampaignId'
+    promotionId:
+      name: promotionId
+      in: path
+      description: The ID of the promotion assigned to the campaign.
+      required: true
+      schema:
+        minLength: 1
+        maxLength: 256
+        type: string
+        example: 10offsku
+  examples:
+    PostCampaignSearch:
+      value:
+        limit: 2
+        hits:
+          - campaignId: mens-clothing-dress-shirts
+            creationDate: '2019-11-06T21:12:35.000Z'
+            customerGroups:
+              - Everyone
+            description: This a campaign for the Mens Dress Shirts Category offering a specific banner as well as a 20% off dress shirts promotion, and a custom sort rule of product name ascending
+            enabled: false
+            lastModified: '2019-11-06T21:12:35.000Z'
+          - campaignId: mens-clothing-suits
+            creationDate: '2019-11-06T21:12:35.000Z'
+            customerGroups:
+              - Everyone
+            description: This is a campaign that displays a landing banner, with a 25% discount on all suits and default sorting rule of top selling suits.
+            enabled: false
+            lastModified: '2019-11-06T21:12:35.000Z'
+        query:
+          textQuery:
+            fields:
+              - id
+              - description
+            searchPhrase: campaign
+        offset: 1
+        total: 4
+    InvalidOperation:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/invalid-operation
+        detail: 'Failed to execute search query: wrong syntax.'
+        title: Incorrect Syntax
+    GetCampaign:
+      value:
+        campaignId: NewYearCampaign
+        coupons:
+          - 20%offOrdersAbove100
+          - 10%offties
+        creationDate: '2019-10-03T19:36:56.000Z'
+        customerGroups:
+          - Registered
+        description: Campaign for the New Year
+        enabled: true
+        endDate: '2020-07-31T23:09:08.000Z'
+        lastModified: '2019-10-10T14:27:00.867Z'
+        sourceCodeGroups:
+          - affiliate-email
+          - gaming-email
+        startDate: '2019-04-01T11:30:15.000Z'
+    CampaignNotFound404:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/campaign-not-found
+        detail: No campaign with ID 'SpecialCampaign' in site 'SiteGenesis' could be found.
+        title: Not Found Error
+    PutCampaign:
+      value:
+        campaignId: NewWinterCampaign
+        coupons:
+          - WinterSpecial
+        creationDate: '2019-10-03T19:36:56.000Z'
+        customerGroups:
+          - Registered
+        description: Campaign for winter specials
+        enabled: true
+        endDate: '2020-07-31T23:09:08.000Z'
+        lastModified: '2019-10-10T14:52:47.356Z'
+        startDate: '2019-04-01T11:30:15.000Z'
+    IdConflict400:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/id-conflict
+        detail: The ID in the request body ('CampaignXYZ') doesn't match the ID in the URL ('NewWinterCampaign')
+        title: Duplicate Error
+    PatchCampaign:
+      value:
+        description: Thanksgiving campaign enabling special promotions
+        enabled: true
+        coupons:
+          - thanksgiving
+          - special
+    CampaignDuplicate400:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/campaign-duplicate
+        detail: The campaign couldn't be created because of duplicate ID 'CampaignXYZ'.
+        title: Duplicate Error
+    GetCampaignPromotionAssignments:
+      value:
+        limit: 2
+        data:
+          - campaign:
+              campaignId: NewYearCampaign
+              description: Campaign for the New Year
+              enabled: true
+            campaignId: NewYearCampaign
+            coupons:
+              - 10offsku
+            couponsBased: true
+            customerGroups:
+              - Registered
+            customerGroupsBased: true
+            enabled: true
+            promotionId: 10offsku
+            rank: 1
+            requiredQualifier: all
+            schedule:
+              startDate: '2026-01-01T00:00:00.000Z'
+              endDate: '2026-01-31T23:59:59.000Z'
+              recurrence:
+                dayOfWeek:
+                  - monday
+                  - tuesday
+                timeOfDay:
+                  timeFrom: '09:00:00'
+                  timeTo: '17:00:00'
+            sourceCodeBased: true
+            sourceCodeGroups:
+              - affiliate-email
+          - campaign:
+              campaignId: NewYearCampaign
+              description: Campaign for the New Year
+              enabled: true
+            campaignId: NewYearCampaign
+            coupons: []
+            couponsBased: false
+            customerGroups: []
+            customerGroupsBased: false
+            enabled: true
+            promotionId: freeshipping50
+            rank: 2
+            requiredQualifier: any
+            schedule:
+              startDate: '2026-01-01T00:00:00.000Z'
+              endDate: '2026-01-31T23:59:59.000Z'
+              recurrence:
+                dayOfWeek:
+                  - saturday
+                  - sunday
+                timeOfDay:
+                  timeFrom: '00:00:00'
+                  timeTo: '23:59:59'
+            sourceCodeBased: false
+            sourceCodeGroups: []
+        total: 2
+    UnauthorizedExample:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/unauthorized
+        title: Unauthorized
+        detail: Unauthorized request
+    ForbiddenExample:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/forbidden
+        title: Forbidden
+        detail: Access to requested resource forbidden
+    GetCampaignPromotionAssignment:
+      value:
+        campaign:
+          campaignId: NewYearCampaign
+          description: Campaign for the New Year
+          enabled: true
+          startDate: '2026-01-01T00:00:00.000Z'
+          endDate: '2026-01-31T23:59:59.000Z'
+        campaignId: NewYearCampaign
+        coupons:
+          - 10offsku
+        couponsBased: true
+        customerGroups:
+          - Registered
+        customerGroupsBased: true
+        enabled: true
+        promotionId: 10offsku
+        rank: 1
+        requiredQualifier: any
+        schedule:
+          startDate: '2026-01-01T00:00:00.000Z'
+          endDate: '2026-01-31T23:59:59.000Z'
+          recurrence:
+            dayOfWeek:
+              - monday
+              - tuesday
+              - wednesday
+              - thursday
+              - friday
+            timeOfDay:
+              timeFrom: '09:00:00'
+              timeTo: '17:00:00'
+        sourceCodeBased: true
+        sourceCodeGroups:
+          - affiliate-email
+    AssignPromotionToCampaign:
+      value:
+        campaignId: NewYearCampaign
+        promotionId: 10offsku
+        rank: 10
+        coupons:
+          - 10offsku
+        couponsBased: true
+        customerGroups:
+          - Registered
+        customerGroupsBased: true
+        sourceCodeGroups:
+          - affiliate-email
+        sourceCodeBased: true
+        requiredQualifier: all
+        schedule:
+          startDate: '2026-01-01T00:00:00.000Z'
+          endDate: '2026-01-31T23:59:59.000Z'
+          recurrence:
+            dayOfWeek:
+              - monday
+              - tuesday
+              - wednesday
+              - thursday
+              - friday
+            timeOfDay:
+              timeFrom: '09:00:00'
+              timeTo: '17:00:00'
+    UpdateCampaignPromotionAssignment:
+      value:
+        rank: 20
+        coupons:
+          - 10offsku
+          - 15offsku
+    CampaignNotFoundErrorResponseExample:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/campaign-not-found
+        detail: No campaign with ID 'NewYearCampaign' was found for site 'RefArch'.
+        title: Campaign Not Found
+    PromotionCampaignAssignmentNotFoundErrorResponseExample:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/promotion-campaign-assignment-not-found
+        detail: No assignment of promotion '10offsku' to campaign 'NewYearCampaign' was found for site 'RefArch'.
+        title: Promotion Campaign Assignment Not Found
+    AssignmentIdMismatchErrorResponseExample:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/assignment-id-mismatch
+        detail: The campaignId or promotionId in the request body does not match the IDs in the request path.
+        title: Assignment Id Mismatch
+    AssignmentBusinessRuleViolationErrorResponseExample:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/assignment-business-rule-violation
+        detail: The promotion campaign assignment could not be saved because a business rule was violated.
+        title: Assignment Business Rule Violation
+    PromotionNotFoundErrorResponseExample:
+      value:
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/promotion-not-found
+        detail: No promotion with ID '10offsku' was found for site 'RefArch'.
+        title: Promotion Not Found
+  responses:
+    401unauthorized:
+      description: Your access token is invalid or expired and can’t be used to identify a user.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            UnauthorizedExample:
+              $ref: '#/components/examples/UnauthorizedExample'
+    403forbidden:
+      description: Forbidden. Your access token is valid, but you don’t have the required permissions to access the resource.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            ForbiddenExample:
+              $ref: '#/components/examples/ForbiddenExample'
+    404NotFound_Campaign:
+      description: The campaign was not found for the requested site.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/CampaignNotFoundErrorResponse'
+          examples:
+            CampaignNotFoundErrorResponseExample:
+              $ref: '#/components/examples/CampaignNotFoundErrorResponseExample'
+    404NotFound_Assignment:
+      description: The campaign or the promotion campaign assignment was not found for the requested site.
+      content:
+        application/problem+json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/CampaignNotFoundErrorResponse'
+              - $ref: '#/components/schemas/PromotionCampaignAssignmentNotFoundErrorResponse'
+          examples:
+            CampaignNotFoundErrorResponseExample:
+              $ref: '#/components/examples/CampaignNotFoundErrorResponseExample'
+            PromotionCampaignAssignmentNotFoundErrorResponseExample:
+              $ref: '#/components/examples/PromotionCampaignAssignmentNotFoundErrorResponseExample'
+    400BadRequest_Assignment:
+      description: Bad Request. The request body is ill-formed, the composite key does not match the path, or a business rule rejected the request.
+      content:
+        application/problem+json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/AssignmentIdMismatchErrorResponse'
+              - $ref: '#/components/schemas/AssignmentBusinessRuleViolationErrorResponse'
+          examples:
+            AssignmentIdMismatchErrorResponseExample:
+              $ref: '#/components/examples/AssignmentIdMismatchErrorResponseExample'
+            AssignmentBusinessRuleViolationErrorResponseExample:
+              $ref: '#/components/examples/AssignmentBusinessRuleViolationErrorResponseExample'
+    404NotFound_CampaignOrPromotion:
+      description: The campaign or the promotion was not found for the requested site.
+      content:
+        application/problem+json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/CampaignNotFoundErrorResponse'
+              - $ref: '#/components/schemas/PromotionNotFoundErrorResponse'
+          examples:
+            CampaignNotFoundErrorResponseExample:
+              $ref: '#/components/examples/CampaignNotFoundErrorResponseExample'
+            PromotionNotFoundErrorResponseExample:
+              $ref: '#/components/examples/PromotionNotFoundErrorResponseExample'

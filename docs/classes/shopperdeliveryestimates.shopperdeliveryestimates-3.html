@@ -1,0 +1,484 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>ShopperDeliveryEstimates | commerce-sdk</title>
+	<meta name="description" content="Documentation for commerce-sdk">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">commerce-sdk</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="../modules/shopperdeliveryestimates.html">shopperDeliveryEstimates</a>
+				</li>
+				<li>
+					<a href="shopperdeliveryestimates.shopperdeliveryestimates-3.html">ShopperDeliveryEstimates</a>
+				</li>
+			</ul>
+			<h1>Class ShopperDeliveryEstimates</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<a href="#shopper-delivery-estimates" id="shopper-delivery-estimates" style="color: inherit; text-decoration: none;">
+							<h1><a href="https://developer.salesforce.com/docs/commerce/commerce-api/references?meta=shopper-delivery-estimates:Summary">Shopper Delivery Estimates</a></h1>
+						</a>
+					</div>
+					<p>*<a href="https://developer.salesforce.com/static/commercecloud/commerce-api/shopper-delivery-estimates/shopper-delivery-estimates-oas-v1-public.yaml">Download API specification</a></p>
+					<a href="#api-overview" id="api-overview" style="color: inherit; text-decoration: none;">
+						<h1>API Overview</h1>
+					</a>
+					<p>Use the Shopper Delivery Estimates API to retrieve carrier-calculated delivery date ranges for a single product at a destination postal code. The API is intended for product detail pages (PDP) where shoppers want to know when an item will arrive before adding it to a basket.</p>
+					<p>For the requested product, the platform enumerates the site&#39;s applicable shipping methods. Estimates are returned only when the <code>sfcc.app.shipping.estimate</code> hook is bound to a provider via an installed Commerce App; if no provider is bound, the platform returns no estimates.</p>
+					<p>The Shopper Delivery Estimates API is currently uncached. The URL is deterministic in <code>productIds</code>, <code>postalCode</code>, and <code>countryCode</code>, and will utilize a cache layer in the future.</p>
+					<a href="#authentication-amp-authorization" id="authentication-amp-authorization" style="color: inherit; text-decoration: none;">
+						<h2>Authentication &amp; Authorization</h2>
+					</a>
+					<p>The Shopper Delivery Estimates API requires a shopper access token.</p>
+					<p>For details on how to request an access token, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas.html">Get a Shopper Token from SLAS</a>.</p>
+					<p>You must include <code>sfcc.shopper-delivery-estimates</code> and <code>sfcc.shopper-standard</code> in the client ID used to generate the token. For a full list of permissions, see the <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html">Authorization Scopes Catalog.</a></p>
+					<a href="#customization" id="customization" style="color: inherit; text-decoration: none;">
+						<h2>Customization</h2>
+					</a>
+					<a href="#hooks" id="hooks" style="color: inherit; text-decoration: none;">
+						<h3>Hooks</h3>
+					</a>
+					<p>For details on working with hooks, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html">Extensibility with Hooks.</a></p>
+					<a href="#response-details" id="response-details" style="color: inherit; text-decoration: none;">
+						<h2>Response Details</h2>
+					</a>
+					<a href="#personalization" id="personalization" style="color: inherit; text-decoration: none;">
+						<h3>Personalization</h3>
+					</a>
+					<p>Responses from this API are not personalized via the Shopper Context API.</p>
+					<a href="#caching" id="caching" style="color: inherit; text-decoration: none;">
+						<h3>Caching</h3>
+					</a>
+					<p>Responses from this API are not cached. The endpoint is currently uncached even though request URLs are deterministic for <code>productIds</code>, <code>postalCode</code>, and <code>countryCode</code>; a cache layer is planned for a future release. For details, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/server-side-web-tier-caching.html">Server-Side Web-Tier Caching.</a></p>
+					<a href="#timeouts" id="timeouts" style="color: inherit; text-decoration: none;">
+						<h3>Timeouts</h3>
+					</a>
+					<p>Shopper API requests must respond within 10 seconds, including any hook execution. If a response exceeds this threshold, an HTTP 504 status code is returned. For details, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/timeouts-limits.html">Timeouts and Limits.</a></p>
+					<a href="#error-handling" id="error-handling" style="color: inherit; text-decoration: none;">
+						<h3>Error Handling</h3>
+					</a>
+					<p>Error responses follow the <a href="https://datatracker.ietf.org/doc/html/rfc7807">RFC 7807</a> problem detail format. To trace errors, include a <code>correlation-id</code> header in your request — the response returns it as <code>x-correlation-id</code>. For details, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/error-response-codes.html">HTTP Status Codes and Errors.</a></p>
+					<a href="#use-cases" id="use-cases" style="color: inherit; text-decoration: none;">
+						<h2>Use Cases</h2>
+					</a>
+					<a href="#show-quotarrives-byquot-on-a-product-detail-page" id="show-quotarrives-byquot-on-a-product-detail-page" style="color: inherit; text-decoration: none;">
+						<h3>Show &quot;Arrives by&quot; on a Product Detail Page</h3>
+					</a>
+					<p>Use this API on the PDP after a shopper enters postal code and country. The response provides delivery windows by applicable shipping method so you can display messaging such as &quot;Arrives Fri, Oct 4.&quot;</p>
+					<pre><code class="language-bash">curl -X GET \
+<span class="hljs-string">&quot;https://{shortCode}.api.commercecloud.salesforce.com/product/shopper-delivery-estimates/v1/organizations/{organizationId}/delivery-estimates?siteId={siteId}&amp;productIds={productId}&amp;postalCode=94105&amp;countryCode=US&quot;</span> \
+-H <span class="hljs-string">&quot;Authorization: Bearer {shopper_access_token}&quot;</span> \
+-H <span class="hljs-string">&quot;Content-Type: application/json&quot;</span> \
+-H <span class="hljs-string">&quot;correlation-id: pdp-delivery-estimate-001&quot;</span></code></pre>
+					<a href="#choose-which-shipping-methods-to-highlight" id="choose-which-shipping-methods-to-highlight" style="color: inherit; text-decoration: none;">
+						<h3>Choose Which Shipping Methods to Highlight</h3>
+					</a>
+					<p>The response includes one entry per applicable shipping method for each product. If a method is deliverable, use the <code>deliveryWindow</code>; if it is not deliverable, use <code>nonDeliverableReason</code> to suppress or de-prioritize that method in your UI.</p>
+					<a href="#hide-the-estimate-module-when-no-estimates-are-available" id="hide-the-estimate-module-when-no-estimates-are-available" style="color: inherit; text-decoration: none;">
+						<h3>Hide the Estimate Module When No Estimates Are Available</h3>
+					</a>
+					<p>If <code>productDeliveryEstimates</code> is empty, no estimates are available for requested products (for example, no applicable shipping methods or no provider response). In that case, hide the delivery estimate component to avoid showing incomplete or misleading delivery messaging.</p>
+					<a href="#best-practices" id="best-practices" style="color: inherit; text-decoration: none;">
+						<h2>Best Practices</h2>
+					</a>
+					<ul>
+						<li>Keep calls scoped to PDP interactions, since the endpoint is currently uncached.</li>
+						<li>Respect the current one-product constraint (<code>productIds</code> currently supports one product per request) and avoid batching assumptions until multi-product support is released.</li>
+						<li>Gracefully handle partial availability by rendering only methods with delivery windows and clearly handling non-deliverable methods.</li>
+						<li>Ensure the <code>sfcc.app.shipping.estimate</code> hook is bound to a provider via an installed Commerce App — without a bound provider, no estimates are returned. Validate hook performance and timeout behavior to stay within the 10-second Shopper API limit.</li>
+						<li>Always include a <code>correlation-id</code> header for easier production troubleshooting.</li>
+					</ul>
+					<a href="#related-apis" id="related-apis" style="color: inherit; text-decoration: none;">
+						<h2>Related APIs</h2>
+					</a>
+					<p>This API is commonly used with SLAS token APIs for shopper authentication and Shopper Products APIs for PDP data retrieval.* <br /></p>
+					<p>For instructions on how to retrieve access token for admin APIs: <a><a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html">https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html</a></a> <br /> <br />
+					Example with admin auth</p>
+					<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { ShopperDeliveryEstimates, ClientConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;commerce-sdk&quot;</span>;
+<span class="hljs-comment">// or</span>
+<span class="hljs-keyword">const</span> { ShopperDeliveryEstimates, ClientConfig } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;commerce-sdk&quot;</span>);
+
+<span class="hljs-keyword">const</span> clientConfig: ClientConfig = {
+  <span class="hljs-attr">parameters</span>: {
+    <span class="hljs-attr">clientId</span>: <span class="hljs-string">&quot;XXXXXX&quot;</span>,
+    <span class="hljs-attr">organizationId</span>: <span class="hljs-string">&quot;XXXX&quot;</span>,
+    <span class="hljs-attr">shortCode</span>: <span class="hljs-string">&quot;XXX&quot;</span>,
+    <span class="hljs-attr">siteId</span>: <span class="hljs-string">&quot;XX&quot;</span>
+  }
+};
+
+token = { <span class="hljs-attr">access_token</span>: <span class="hljs-string">&#x27;INSERT_ACCESS_TOKEN_HERE&#x27;</span> };
+
+clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>] = <span class="hljs-string">`Bearer <span class="hljs-subst">${token.access_token}</span>`</span>;
+<span class="hljs-keyword">const</span> shopperDeliveryEstimatesClient = <span class="hljs-keyword">new</span> ShopperDeliveryEstimates(clientConfig);</code></pre>
+					<span style="font-size:.7em; display:block; text-align: right">
+						API Version: 1.4.4<br />
+						Last Updated: <br />
+					</span>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="tsd-signature-type">BaseClient</span>
+						<ul class="tsd-hierarchy">
+							<li>
+								<span class="target">ShopperDeliveryEstimates</span>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Constructors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite"><a href="shopperdeliveryestimates.shopperdeliveryestimates-3.html#constructor" class="tsd-kind-icon">constructor</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section tsd-is-inherited">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="shopperdeliveryestimates.shopperdeliveryestimates-3.html#clientconfig" class="tsd-kind-icon">client<wbr>Config</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="shopperdeliveryestimates.shopperdeliveryestimates-3.html#getdeliveryestimates" class="tsd-kind-icon">get<wbr>Delivery<wbr>Estimates</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Constructors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
+					<a name="constructor" class="tsd-anchor"></a>
+					<h3>constructor</h3>
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Shopper<wbr>Delivery<wbr>Estimates<span class="tsd-signature-symbol">(</span>config<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ClientConfig</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="shopperdeliveryestimates.shopperdeliveryestimates-3.html" class="tsd-signature-type">ShopperDeliveryEstimates</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Overrides BaseClient.__constructor</p>
+								<ul>
+									<li>Defined in renderedTemplates/shopperDeliveryEstimates/apis/DefaultApi.ts:142</li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>config: <span class="tsd-signature-type">ClientConfig</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="shopperdeliveryestimates.shopperdeliveryestimates-3.html" class="tsd-signature-type">ShopperDeliveryEstimates</a></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+					<a name="clientconfig" class="tsd-anchor"></a>
+					<h3>client<wbr>Config</h3>
+					<div class="tsd-signature tsd-kind-icon">client<wbr>Config<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">ClientConfig</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="assignments.assignments-3.html">Assignments</a>.<a href="assignments.assignments-3.html#clientconfig">clientConfig</a></p>
+						<ul>
+							<li>Defined in node_modules/@commerce-apps/core/dist/base/client.d.ts:28</li>
+						</ul>
+					</aside>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+					<a name="getdeliveryestimates" class="tsd-anchor"></a>
+					<h3>get<wbr>Delivery<wbr>Estimates</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Delivery<wbr>Estimates<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>countryCode<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>personalized<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperdeliveryestimates.html#getdeliveryestimatespersonalizedenum" class="tsd-signature-type">GetDeliveryEstimatesPersonalizedEnum</a><span class="tsd-signature-symbol">; </span>postalCode<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>productIds<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/shopperdeliveryestimates.html#deliveryestimatesresult" class="tsd-signature-type">DeliveryEstimatesResult</a><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Delivery<wbr>Estimates&lt;T&gt;<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>countryCode<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>personalized<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperdeliveryestimates.html#getdeliveryestimatespersonalizedenum" class="tsd-signature-type">GetDeliveryEstimatesPersonalizedEnum</a><span class="tsd-signature-symbol">; </span>postalCode<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>productIds<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span>, rawResponse<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">Response</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">DeliveryEstimatesResult</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in renderedTemplates/shopperDeliveryEstimates/apis/DefaultApi.ts:173</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns delivery date estimates for the requested products at a destination postal code. Currently limited to one product per request. For each requested product, the platform enumerates all applicable site-level shipping methods. Estimates are returned only when the <code>sfcc.app.shipping.estimate</code> Commerce Apps hook is bound to a provider. If no provider is bound, the platform returns no estimates.
+									Each entry in the response corresponds to one requested product, and contains one entry per applicable shipping method. Methods for which the provider returned an estimate carry a <code>deliveryWindow</code>. Methods for which the provider could not return an estimate include a <code>nonDeliverableReason</code>. An empty <code>productDeliveryEstimates</code> array means the platform has no estimates for any of the requested products, for example, no applicable shipping methods or the provider returned no results. In this case, clients should hide the delivery estimation block.</p>
+								</div>
+								<p>If you would like to get a raw Response object use the other getDeliveryEstimates function.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>countryCode<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>personalized<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperdeliveryestimates.html#getdeliveryestimatespersonalizedenum" class="tsd-signature-type">GetDeliveryEstimatesPersonalizedEnum</a><span class="tsd-signature-symbol">; </span>postalCode<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>productIds<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>An object containing the options for this method.</p>
+										</div>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/shopperdeliveryestimates.html#deliveryestimatesresult" class="tsd-signature-type">DeliveryEstimatesResult</a><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>A promise of type DeliveryEstimatesResult.</p>
+						</li>
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in renderedTemplates/shopperDeliveryEstimates/apis/DefaultApi.ts:208</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns delivery date estimates for the requested products at a destination postal code. Currently limited to one product per request. For each requested product, the platform enumerates all applicable site-level shipping methods. Estimates are returned only when the <code>sfcc.app.shipping.estimate</code> Commerce Apps hook is bound to a provider. If no provider is bound, the platform returns no estimates.
+									Each entry in the response corresponds to one requested product, and contains one entry per applicable shipping method. Methods for which the provider returned an estimate carry a <code>deliveryWindow</code>. Methods for which the provider could not return an estimate include a <code>nonDeliverableReason</code>. An empty <code>productDeliveryEstimates</code> array means the platform has no estimates for any of the requested products, for example, no applicable shipping methods or the provider returned no results. In this case, clients should hide the delivery estimation block.</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <a href="../modules/types.html#requireparametersunlessallareoptional" class="tsd-signature-type">RequireParametersUnlessAllAreOptional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>fetchOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">RequestInit</span><span class="tsd-signature-symbol">; </span>headers<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>parameters<span class="tsd-signature-symbol">?: </span><a href="../modules/types.html#compositeparameters" class="tsd-signature-type">CompositeParameters</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>countryCode<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>organizationId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>personalized<span class="tsd-signature-symbol">?: </span><a href="../modules/shopperdeliveryestimates.html#getdeliveryestimatespersonalizedenum" class="tsd-signature-type">GetDeliveryEstimatesPersonalizedEnum</a><span class="tsd-signature-symbol">; </span>postalCode<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>productIds<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>siteId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><a href="../interfaces/types.queryparameters.html" class="tsd-signature-type">QueryParameters</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">CommonParameters</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>retrySettings<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">OperationOptions</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>An object containing the options for this method.</p>
+										</div>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> rawResponse: <span class="tsd-signature-type">T</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>Set to true to return entire Response object instead of DTO.</p>
+										</div>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">Response</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">DeliveryEstimatesResult</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>A promise of type Response if rawResponse is true, a promise of type DeliveryEstimatesResult otherwise.</p>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="../modules/shopperdeliveryestimates.html">shopper<wbr>Delivery<wbr>Estimates</a>
+						<ul>
+							<li class=" tsd-kind-namespace tsd-parent-kind-module">
+								<a href="../modules/shopperdeliveryestimates.shopperdeliveryestimatestypes.html">Shopper<wbr>Delivery<wbr>Estimates<wbr>Types</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperdeliveryestimates.html#deliveryestimatesresult" class="tsd-kind-icon">Delivery<wbr>Estimates<wbr>Result</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperdeliveryestimates.html#deliveryestimatesresult-1" class="tsd-kind-icon">Delivery<wbr>Estimates<wbr>Result</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperdeliveryestimates.html#deliverywindow" class="tsd-kind-icon">Delivery<wbr>Window</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperdeliveryestimates.html#deliverywindow-1" class="tsd-kind-icon">Delivery<wbr>Window</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperdeliveryestimates.html#destination" class="tsd-kind-icon">Destination</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperdeliveryestimates.html#destination-1" class="tsd-kind-icon">Destination</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperdeliveryestimates.html#errorresponse" class="tsd-kind-icon">Error<wbr>Response</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperdeliveryestimates.html#errorresponse-1" class="tsd-kind-icon">Error<wbr>Response</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperdeliveryestimates.html#getdeliveryestimatespersonalizedenum" class="tsd-kind-icon">Get<wbr>Delivery<wbr>Estimates<wbr>Personalized<wbr>Enum</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperdeliveryestimates.html#getdeliveryestimatespersonalizedenum-1" class="tsd-kind-icon">Get<wbr>Delivery<wbr>Estimates<wbr>Personalized<wbr>Enum</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperdeliveryestimates.html#productdeliveryestimate" class="tsd-kind-icon">Product<wbr>Delivery<wbr>Estimate</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperdeliveryestimates.html#productdeliveryestimate-1" class="tsd-kind-icon">Product<wbr>Delivery<wbr>Estimate</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperdeliveryestimates.html#shippingoption" class="tsd-kind-icon">Shipping<wbr>Option</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperdeliveryestimates.html#shippingoption-1" class="tsd-kind-icon">Shipping<wbr>Option</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperdeliveryestimates.html#shopperdeliveryestimates-1" class="tsd-kind-icon">Shopper<wbr>Delivery<wbr>Estimates</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperdeliveryestimates.html#shopperdeliveryestimates-2" class="tsd-kind-icon">Shopper<wbr>Delivery<wbr>Estimates</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/shopperdeliveryestimates.html#defaultbaseuri" class="tsd-kind-icon">default<wbr>Base<wbr>Uri</a>
+					</li>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-class tsd-parent-kind-module">
+						<a href="shopperdeliveryestimates.shopperdeliveryestimates-3.html" class="tsd-kind-icon">Shopper<wbr>Delivery<wbr>Estimates</a>
+						<ul>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
+								<a href="shopperdeliveryestimates.shopperdeliveryestimates-3.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="shopperdeliveryestimates.shopperdeliveryestimates-3.html#clientconfig" class="tsd-kind-icon">client<wbr>Config</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+								<a href="shopperdeliveryestimates.shopperdeliveryestimates-3.html#getdeliveryestimates" class="tsd-kind-icon">get<wbr>Delivery<wbr>Estimates</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+						<a href="../modules/shopperdeliveryestimates.html#deliveryestimatesresult-2" class="tsd-kind-icon">Delivery<wbr>Estimates<wbr>Result</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+						<a href="../modules/shopperdeliveryestimates.html#deliverywindow-2" class="tsd-kind-icon">Delivery<wbr>Window</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+						<a href="../modules/shopperdeliveryestimates.html#destination-2" class="tsd-kind-icon">Destination</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+						<a href="../modules/shopperdeliveryestimates.html#errorresponse-2" class="tsd-kind-icon">Error<wbr>Response</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+						<a href="../modules/shopperdeliveryestimates.html#getdeliveryestimatespersonalizedenum-2" class="tsd-kind-icon">Get<wbr>Delivery<wbr>Estimates<wbr>Personalized<wbr>Enum</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+						<a href="../modules/shopperdeliveryestimates.html#productdeliveryestimate-2" class="tsd-kind-icon">Product<wbr>Delivery<wbr>Estimate</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+						<a href="../modules/shopperdeliveryestimates.html#shippingoption-2" class="tsd-kind-icon">Shipping<wbr>Option</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-module">
+						<a href="../modules/shopperdeliveryestimates.html#defaultbaseuri-1" class="tsd-kind-icon">default<wbr>Base<wbr>Uri</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-namespace"><span class="tsd-kind-icon">Namespace</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

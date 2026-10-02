@@ -96,9 +96,44 @@
 					<p>For details on how to request a shopper access token from SLAS, see the guest user flows for <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-public-client.html">public clients</a> and <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/slas-private-client.html">private clients</a> in the SLAS guides.</p>
 					<p>For more information, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-shopper-apis.html">Authorization for Shopper APIs</a> in the Get Started guides.</p>
 					<p><em>Warning*</em>: As with all APIs, never store access tokens in the browser because this creates a security vulnerability.</p>
+					<a href="#customization" id="customization" style="color: inherit; text-decoration: none;">
+						<h2>Customization</h2>
+					</a>
+					<a href="#hooks" id="hooks" style="color: inherit; text-decoration: none;">
+						<h3>Hooks</h3>
+					</a>
+					<p>For details on working with hooks, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/extensibility_via_hooks.html">Extensibility with Hooks.</a></p>
+					<a href="#response-details" id="response-details" style="color: inherit; text-decoration: none;">
+						<h2>Response Details</h2>
+					</a>
+					<a href="#personalization" id="personalization" style="color: inherit; text-decoration: none;">
+						<h3>Personalization</h3>
+					</a>
+					<p>Responses from this API are not personalized via the Shopper Context API.</p>
+					<a href="#caching" id="caching" style="color: inherit; text-decoration: none;">
+						<h3>Caching</h3>
+					</a>
+					<p>Responses from this API are not cached. Shopper context is per-shopper state that changes with each context update.</p>
+					<a href="#timeouts" id="timeouts" style="color: inherit; text-decoration: none;">
+						<h3>Timeouts</h3>
+					</a>
+					<p>Shopper API requests must respond within 10 seconds, including any hook execution. If a response exceeds this threshold, an HTTP 504 status code is returned. For details, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/timeouts-limits.html">Timeouts and Limits.</a></p>
+					<a href="#error-handling" id="error-handling" style="color: inherit; text-decoration: none;">
+						<h3>Error Handling</h3>
+					</a>
+					<p>Error responses follow the <a href="https://datatracker.ietf.org/doc/html/rfc7807">RFC 7807</a> problem detail format. To trace errors, include a <code>correlation-id</code> header in your request — the response returns it as <code>x-correlation-id</code>. For details, see <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/error-response-codes.html">HTTP Status Codes and Errors.</a></p>
 					<a href="#use-cases" id="use-cases" style="color: inherit; text-decoration: none;">
 						<h2>Use Cases</h2>
 					</a>
+					<a href="#set-shopper-context" id="set-shopper-context" style="color: inherit; text-decoration: none;">
+						<h3>Set Shopper Context</h3>
+					</a>
+					<p>Set context attributes for a shopper to personalize subsequent API responses.</p>
+					<pre><code class="language-sh">curl <span class="hljs-string">&quot;https://{shortCode}.api.commercecloud.salesforce.com/shopper/shopper-context/v1/organizations/{organizationId}/shopper-context/{usid}?siteId=RefArch&quot;</span> \
+-X PUT \
+-H <span class="hljs-string">&quot;Authorization: Bearer {access_token}&quot;</span> \
+-H <span class="hljs-string">&quot;Content-Type: application/json&quot;</span> \
+-d <span class="hljs-string">&#x27;{ &quot;customQualifiers&quot;: { &quot;deviceType&quot;: &quot;mobile&quot; }, &quot;assignmentQualifiers&quot;: { &quot;storeId&quot;: &quot;boston&quot; } }&#x27;</span></code></pre>
 					<p>For detailed usage information, see the <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/shopper-context-api.html">Shopper Context guides</a>.* <br /></p>
 					<p>For instructions on how to retrieve access token for admin APIs: <a><a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html">https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html</a></a> <br /> <br />
 					Example with admin auth</p>
@@ -179,7 +214,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 							<aside class="tsd-sources">
 								<p>Overrides BaseClient.__constructor</p>
 								<ul>
-									<li>Defined in renderedTemplates/shopperContext/apis/DefaultApi.ts:100</li>
+									<li>Defined in renderedTemplates/shopperContext/apis/DefaultApi.ts:137</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -220,7 +255,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperContext/apis/DefaultApi.ts:135</li>
+									<li>Defined in renderedTemplates/shopperContext/apis/DefaultApi.ts:172</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -245,7 +280,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperContext/apis/DefaultApi.ts:173</li>
+									<li>Defined in renderedTemplates/shopperContext/apis/DefaultApi.ts:210</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -291,12 +326,12 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperContext/apis/DefaultApi.ts:308</li>
+									<li>Defined in renderedTemplates/shopperContext/apis/DefaultApi.ts:345</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Get a shopper&#39;s context based on the shopperJWT.</p>
+									<p>Delete the shopper&#39;s context based on the shopperJWT.</p>
 								</div>
 								<p>If you would like to get a raw Response object use the other deleteShopperContext function.</p>
 							</div>
@@ -317,12 +352,12 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperContext/apis/DefaultApi.ts:336</li>
+									<li>Defined in renderedTemplates/shopperContext/apis/DefaultApi.ts:373</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Get a shopper&#39;s context based on the shopperJWT.</p>
+									<p>Delete the shopper&#39;s context based on the shopperJWT.</p>
 								</div>
 							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -366,7 +401,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperContext/apis/DefaultApi.ts:452</li>
+									<li>Defined in renderedTemplates/shopperContext/apis/DefaultApi.ts:489</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -391,7 +426,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperContext/apis/DefaultApi.ts:480</li>
+									<li>Defined in renderedTemplates/shopperContext/apis/DefaultApi.ts:517</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -437,7 +472,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperContext/apis/DefaultApi.ts:634</li>
+									<li>Defined in renderedTemplates/shopperContext/apis/DefaultApi.ts:671</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -488,7 +523,7 @@ clientConfig.headers[<span class="hljs-string">&#x27;authorization&#x27;</span>]
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in renderedTemplates/shopperContext/apis/DefaultApi.ts:702</li>
+									<li>Defined in renderedTemplates/shopperContext/apis/DefaultApi.ts:739</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">

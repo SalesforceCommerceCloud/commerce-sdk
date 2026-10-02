@@ -1,0 +1,2268 @@
+openapi: 3.0.3
+info:
+  x-api-type: Admin
+  x-api-family: Pricing
+  title: Promotions
+  version: 1.2.0
+  description: |-
+    [Download API specification](https://developer.salesforce.com/static/commercecloud/commerce-api/promotions/promotions-oas-v1-public.yaml)
+
+    # API Overview
+
+    Use the Promotions API to create, update, delete, and search for promotion information on your site. Promotions are configured with rules that define the type of promotion, conditions, and discounts.
+
+    This API can be used to synchronize promotion data in the commerce platform with third-party promotion management systems. This API can also be called from a custom promotion management application. In sandbox environments, the Promotions API is useful for creating and updating test data, for example, with integration testing or as part of a continuous integration or continuous deployment process.
+
+    For more information, see [Campaigns and Promotions](https://help.salesforce.com/s/articleView?id=cc.b2c_campaigns_and_promotions.htm&type=5) in the B2C Commerce documentation.
+
+    ## Authentication & Authorization
+
+    The client requesting the promotion information must have access to the Promotion resource. For resource access, you must use a client ID and client secret from Account Manager to request an access token. The access token is used as a bearer token and added to the Authorization header of your API request. The client must first authenticate against Account Manager to log in.
+
+    You must include the relevant scope(s) in the client ID used to generate the token. For details, see [Authorization Scopes Catalog.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/auth-z-scope-catalog.html)
+
+    For detailed setup instructions, see [Authorization for Admin APIs](https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html).
+
+    ## Response Details
+
+    ### Timeouts
+
+    Admin API requests must respond within 60 seconds. If a response exceeds this threshold, an HTTP 504 status code is returned. For details, see [Timeouts and Limits.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/timeouts-limits.html)
+
+    ### Error Handling
+
+    Error responses follow the [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807) problem detail format. To trace errors, include a `correlation-id` header in your request — the response returns it as `x-correlation-id`. For details, see [HTTP Status Codes and Errors.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/error-response-codes.html)
+
+    ## Use Cases
+
+    **Note**: A promotion can be created, enabled, and assigned exclusivity using the API, but qualifier and discounted criteria must be assigned in Business Manager.
+
+    ### Shipping Promotions
+
+    Use the Promotions API to configure shipping promotions.
+
+    You can configure shipping promotions based on an order and on individual products or product combinations. You can also configure product-specific shipping cost (fixed or surcharge).
+
+    **Note**: Product-related shipping discounts are considered product promotions.
+
+    In a multiple ship-to scenario, B2C Commerce determines which shipments use any of the discounted shipping methods and applies the discount from most expensive to least expensive until meeting the maximum applications limit, if specified.
+
+    For example, create a shipping promotion that gives the customer free shipping when their purchase exceeds $50.
+
+    For more detail, see [Shipping Promotions](https://help.salesforce.com/s/articleView?id=cc.b2c_shipping_promotions.htm&type=5) in the B2C Commerce documentation.
+
+    ### Product Promotions
+
+    Use the Promotions API to configure product promotions.
+
+    You can define product promotions for specific products, groups of products or brands, or amounts of products purchased. You can define conditions that require customers to purchase from a set of products.
+
+    A product promotion is prorated, calculated, and rounded once per product in the order. A product promotion is different than an order promotion, which is calculated once at the order level, and rounded off once, if necessary.
+
+    For example, create a product promotion that discounts a second item by 50% when the customer buys two.
+
+    For more detail, see [Product Promotions](https://help.salesforce.com/s/articleView?id=cc.b2c_product_promotions.htm&type=5) in the B2C Commerce documentation.
+
+    ### Order Promotions
+
+    Use the Promotions API to configure order promotions.
+
+    You can configure order promotions for percentage discounts, fixed price discounts, and free shipping. You can offer a bonus product or a choice of bonus products, and you can tier order discounts.
+
+    An order promotion is calculated once at the order level, and rounded off once, if necessary. An order promotion is different than a product promotion, where the promotion is prorated, calculated, and rounded per product in the order.
+
+    For example, create an order promotion that discounts an entire order when the customer buys 3 qualifying items.
+
+    For more detail, see [Order Promotions](https://help.salesforce.com/s/articleView?id=cc.b2c_order_promotions.htm&type=5) in the B2C Commerce documentation.
+
+    ## Related APIs
+
+    - [Shopper Promotions](https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-promotions?meta=Summary) — Retrieve active promotions visible to shoppers.
+    - [Campaigns](https://developer.salesforce.com/docs/commerce/commerce-api/references/campaigns?meta=Summary) — Manage campaigns that group promotions.
+    - [Assignments](https://developer.salesforce.com/docs/commerce/commerce-api/references/assignments?meta=Summary) — Assign promotions and discounts to campaigns.
+servers:
+  - url: https://{shortCode}.api.commercecloud.salesforce.com/pricing/promotions/v1
+    variables:
+      shortCode:
+        description: An eight-character string assigned to a realm for routing purposes. See [Base URL and Request Formation.](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html)
+        default: shortCode
+paths:
+  /organizations/{organizationId}/promotions:
+    post:
+      summary: Search for promotions.
+      description: |-
+        The SearchRequest document contains a search object that allows you to filter using various attributes.
+
+        Use the following searchable query attributes to narrow down the search:
+
+         | Attribute | Type |
+         |-----------|--------|
+         | id | String |
+         | name | String |
+         | currecyCode |  String |
+         | exclusivity |  String |
+         | enabled | Boolean |
+
+        Note that only searchable attributes can be used in sorting. Additionally, the following attribute can be used to
+        sort:
+
+         | Attribute | Type |
+         |-----------|--------|
+         | promotionClass | String |
+      operationId: promotionsSearch
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRequest'
+      responses:
+        '200':
+          description: Promotions information searched successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromotionSearchResult'
+        '400':
+          description: Returned when the query is ill-formed.
+      security:
+        - AmOAuth2:
+            - sfcc.promotions
+            - sfcc.promotions.rw
+  /organizations/{organizationId}/promotions/{id}:
+    get:
+      summary: Retrieve promotion information.
+      operationId: getPromotion
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '200':
+          description: Retrieved promotion information successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promotion'
+              examples:
+                GetPromotion:
+                  $ref: '#/components/examples/GetPromotion'
+        '404':
+          description: Returned when there is no promotion found for the specified ID for the requested site.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getPromotion404:
+                  $ref: '#/components/examples/PromotionNotFound404'
+      security:
+        - AmOAuth2:
+            - sfcc.promotions
+            - sfcc.promotions.rw
+    put:
+      summary: Create a promotion using the information provided.
+      operationId: createPromotion
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              PutPromotion:
+                $ref: '#/components/examples/PutPromotion'
+            schema:
+              $ref: '#/components/schemas/Promotion'
+      responses:
+        '200':
+          description: Promotion created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promotion'
+              examples:
+                PutPromotion:
+                  $ref: '#/components/examples/examples-PutPromotion'
+        '400':
+          description: Returned when the ID in the request does not match the ID in the document.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                IdConflict400:
+                  $ref: '#/components/examples/IdConflict400'
+      security:
+        - AmOAuth2:
+            - sfcc.promotions.rw
+    delete:
+      summary: Delete a promotion for a specified ID.
+      operationId: deletePromotion
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '204':
+          description: Deleted the promotion successfully.
+      security:
+        - AmOAuth2:
+            - sfcc.promotions.rw
+    patch:
+      summary: Update a promotion with the specified information.
+      operationId: updatePromotion
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              PromotionsPatch:
+                $ref: '#/components/examples/PatchPromotion'
+            schema:
+              $ref: '#/components/schemas/Promotion'
+      responses:
+        '200':
+          description: |-
+            Updated the promotion using the information provided.
+            Fields that can be updated:
+            name, ID, enabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promotion'
+              examples:
+                PutPromotion:
+                  $ref: '#/components/examples/examples-PatchPromotion'
+        '404':
+          description: Returned when there is no promotion found with the given ID for the requested site.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                GetPromotion:
+                  $ref: '#/components/examples/PromotionNotFound404'
+      security:
+        - AmOAuth2:
+            - sfcc.promotions.rw
+  /organizations/{organizationId}/promotions/{id}/discount-rule:
+    get:
+      summary: Retrieve the discount rule for a promotion.
+      description: Returns the discount rule, product qualifiers, and payment-method qualifiers for the promotion.
+      operationId: getPromotionDiscountRule
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '200':
+          description: Retrieved the discount rule successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscountRule'
+              examples:
+                GetPromotionDiscountRule:
+                  $ref: '#/components/examples/GetPromotionDiscountRule'
+        '404':
+          description: Returned when there is no promotion found for the specified ID for the requested site.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getPromotionDiscountRule404:
+                  $ref: '#/components/examples/PromotionNotFound404'
+      security:
+        - AmOAuth2:
+            - sfcc.promotions
+            - sfcc.promotions.rw
+    put:
+      summary: Create or replace the discount rule for a promotion.
+      description: Replaces the entire discount rule, product qualifiers, and payment-method qualifiers for the promotion.
+      operationId: createPromotionDiscountRule
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              PutPromotionDiscountRule:
+                $ref: '#/components/examples/PutPromotionDiscountRule'
+            schema:
+              $ref: '#/components/schemas/DiscountRule'
+      responses:
+        '200':
+          description: Discount rule replaced successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscountRule'
+              examples:
+                PutPromotionDiscountRule:
+                  $ref: '#/components/examples/GetPromotionDiscountRule'
+        '201':
+          description: Discount rule created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscountRule'
+              examples:
+                PutPromotionDiscountRule:
+                  $ref: '#/components/examples/GetPromotionDiscountRule'
+        '404':
+          description: Returned when there is no promotion found for the specified ID for the requested site.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                putPromotionDiscountRule404:
+                  $ref: '#/components/examples/PromotionNotFound404'
+      security:
+        - AmOAuth2:
+            - sfcc.promotions.rw
+    patch:
+      summary: Update the discount rule for a promotion.
+      description: |-
+        Updates the discount rule, product qualifiers, or payment-method qualifiers for the promotion. The merge is at
+         top-level-section granularity: any of promotionRule, qualifyingProducts, discountedProducts, excludedProducts, or
+         paymentMethodQualifiers that is omitted is left unchanged, and any that is supplied fully replaces that section.
+         In particular a supplied promotionRule replaces the entire rule - send the complete rule (including all tiers) to
+         preserve tiers, since a promotionRule that omits tiers clears them. It is not a field-level (deep) merge.
+      operationId: updatePromotionDiscountRule
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              PatchPromotionDiscountRule:
+                $ref: '#/components/examples/PatchPromotionDiscountRule'
+            schema:
+              $ref: '#/components/schemas/DiscountRule'
+      responses:
+        '200':
+          description: Discount rule updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscountRule'
+              examples:
+                PatchPromotionDiscountRule:
+                  $ref: '#/components/examples/GetPromotionDiscountRule'
+        '404':
+          description: Returned when there is no promotion found for the specified ID for the requested site.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                patchPromotionDiscountRule404:
+                  $ref: '#/components/examples/PromotionNotFound404'
+      security:
+        - AmOAuth2:
+            - sfcc.promotions.rw
+    delete:
+      summary: Delete the discount rule for a promotion.
+      description: Removes the discount rule and its qualifiers from the promotion, resetting it to a shell with no discount configuration.
+      operationId: deletePromotionDiscountRule
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '204':
+          description: Deleted the discount rule successfully.
+        '404':
+          description: Returned when there is no promotion found for the specified ID for the requested site.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                deletePromotionDiscountRule404:
+                  $ref: '#/components/examples/PromotionNotFound404'
+      security:
+        - AmOAuth2:
+            - sfcc.promotions.rw
+  /organizations/{organizationId}/promotions/{id}/compatibility:
+    get:
+      summary: Retrieve the compatibility settings for a promotion.
+      description: Returns the stacking / exclusivity settings that control how this promotion combines with other promotions.
+      operationId: getPromotionCompatibility
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '200':
+          description: Retrieved the compatibility settings successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromotionCompatibility'
+              examples:
+                GetPromotionCompatibility:
+                  $ref: '#/components/examples/GetPromotionCompatibility'
+        '404':
+          description: Returned when there is no promotion found for the specified ID for the requested site.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getPromotionCompatibility404:
+                  $ref: '#/components/examples/PromotionNotFound404'
+      security:
+        - AmOAuth2:
+            - sfcc.promotions
+            - sfcc.promotions.rw
+    put:
+      summary: Create or replace the compatibility settings for a promotion.
+      description: Replaces the stacking / exclusivity settings for the promotion.
+      operationId: createPromotionCompatibility
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              PutPromotionCompatibility:
+                $ref: '#/components/examples/PutPromotionCompatibility'
+            schema:
+              $ref: '#/components/schemas/PromotionCompatibility'
+      responses:
+        '200':
+          description: Compatibility settings replaced successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromotionCompatibility'
+              examples:
+                PutPromotionCompatibility:
+                  $ref: '#/components/examples/GetPromotionCompatibility'
+        '201':
+          description: Compatibility settings created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromotionCompatibility'
+              examples:
+                PutPromotionCompatibility:
+                  $ref: '#/components/examples/GetPromotionCompatibility'
+        '404':
+          description: Returned when there is no promotion found for the specified ID for the requested site.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                putPromotionCompatibility404:
+                  $ref: '#/components/examples/PromotionNotFound404'
+      security:
+        - AmOAuth2:
+            - sfcc.promotions.rw
+    patch:
+      summary: Update the compatibility settings for a promotion.
+      description: |-
+        Partially updates the stacking / exclusivity settings for the promotion. Each field (exclusivity, exclusivityGroup,
+         combinablePromotions, mutuallyExclusivePromotions) that is omitted is left unchanged. A supplied
+         combinablePromotions or mutuallyExclusivePromotions replaces that list wholesale - the entries are not merged into
+         the existing list, so send the complete list.
+      operationId: updatePromotionCompatibility
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/siteId'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              PatchPromotionCompatibility:
+                $ref: '#/components/examples/PatchPromotionCompatibility'
+            schema:
+              $ref: '#/components/schemas/PromotionCompatibility'
+      responses:
+        '200':
+          description: Compatibility settings updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromotionCompatibility'
+              examples:
+                PatchPromotionCompatibility:
+                  $ref: '#/components/examples/GetPromotionCompatibility'
+        '404':
+          description: Returned when there is no promotion found for the specified ID for the requested site.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                patchPromotionCompatibility404:
+                  $ref: '#/components/examples/PromotionNotFound404'
+      security:
+        - AmOAuth2:
+            - sfcc.promotions.rw
+components:
+  securitySchemes:
+    AmOAuth2:
+      type: oauth2
+      description: AccountManager OAuth 2.0 bearer token Authentication.
+      flows:
+        clientCredentials:
+          tokenUrl: https://account.demandware.com/dwsso/oauth2/access_token
+          scopes:
+            sfcc.promotions: promotions READONLY
+            sfcc.promotions.rw: promotions read/write
+        authorizationCode:
+          authorizationUrl: https://account.demandware.com/dwsso/oauth2/authorize
+          tokenUrl: https://account.demandware.com/dwsso/oauth2/access_token
+          refreshUrl: https://account.demandware.com/dwsso/oauth2/access_token
+          scopes: {}
+  schemas:
+    OrganizationId:
+      description: An identifier for the Salesforce Commerce Cloud organization the request is being made by. It consists of a prefix 'f_ecom_' followed by a 4-character [realm identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#realm-id) and a 3-character [instance type identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#instance-id).
+      example: f_ecom_zzxy_prd
+      type: string
+      pattern: ^f_ecom_[a-z]{4}_(prd|stg|dev|s[0-9]{2}|[0-9]{3})$
+    SiteId:
+      minLength: 1
+      maxLength: 32
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites
+      example: RefArch
+      type: string
+    Query:
+      minProperties: 1
+      maxProperties: 1
+      description: |-
+        A set of objects that define criteria used to select records. A query can contain one of the following:
+        * `MatchAllQuery`
+         - Matches all documents.
+        * `TermQuery`
+         - Matches one or more documents against one or more document fields.
+        * `TextQuery`
+         - Matches text against one or more fields.
+        * `BoolQuery`
+         - Allows construction of a logical expression of multiple queries.
+        * `FilteredQuery`
+         - Allows a filter to be applied to a query.
+        * `NestedQuery`
+         - Allows you to query on nested documents.
+         - _Only supported by some Commerce APIs. For more details, see the endpoint descriptions in the API documentation._
+      example:
+        filteredQuery:
+          query:
+            textQuery:
+              fields:
+                - couponId
+              searchPhrase: disabled
+          filter:
+            termFilter:
+              field: enabled
+              operator: is
+              values:
+                - false
+      type: object
+      properties:
+        boolQuery:
+          $ref: '#/components/schemas/BoolQuery'
+        filteredQuery:
+          $ref: '#/components/schemas/FilteredQuery'
+        matchAllQuery:
+          $ref: '#/components/schemas/MatchAllQuery'
+        nestedQuery:
+          $ref: '#/components/schemas/NestedQuery'
+        termQuery:
+          $ref: '#/components/schemas/TermQuery'
+        textQuery:
+          $ref: '#/components/schemas/TextQuery'
+      additionalProperties: false
+    BoolQuery:
+      description: "A boolean query allows construction of full logical expression trees that are composed of other queries (usually term queries and text queries). A boolean query has three sets of clauses:\n  \n  - `must`, which combines as an `AND` operator.\n  - `should`, which combines as an `OR` operator.\n  - `must_not`, which combines as a `NOT` operator.\n  \nIf `must`, `mustNot`, or `should` appear in the same boolean query, they are combined logically using the `AND` operator. For example:\n\n    (must-1 AND must-1 AND ...)\n      AND (should-1 OR should-2 OR ...)\n      AND NOT (must_not-1 OR must_not-2 OR ...)\n"
+      type: object
+      example:
+        must:
+          - textQuery:
+              fields:
+                - couponId
+              searchPhrase: DEAL
+          - textQuery:
+              fields:
+                - description
+              searchPhrase: Big bargain deal
+        mustNot:
+          - termQuery:
+              fields:
+                - enabled
+              operator: is
+              values:
+                - false
+      properties:
+        must:
+          description: List of queries to be evaluated as an `AND` operator.
+          type: array
+          items:
+            $ref: '#/components/schemas/Query'
+        mustNot:
+          description: List of queries to be evaluated as a `NOT` operator.
+          type: array
+          items:
+            $ref: '#/components/schemas/Query'
+        should:
+          description: List of queries to be evaluated as an `OR` operator.
+          type: array
+          items:
+            $ref: '#/components/schemas/Query'
+      additionalProperties: false
+    Filter:
+      minProperties: 1
+      maxProperties: 1
+      description: |-
+        Contains a set of objects that define criteria used to select records. A filter can contain one of the following:
+          * `TermFilter`
+           - Matches records where a field (or fields) exactly matches some simple value (including `null`).
+          * `RangeFilter`
+           - Matches records where a field value lies within a specified range.
+          * `Range2Filter`
+           - Matches records in a specified range across fields.
+          * `QueryFilter`
+           - Matches records based on a query.
+          * `BoolFilter`
+           - Provides filtering of records using a set of filters combined using a logical operator.
+      example: null
+      type: object
+      properties:
+        boolFilter:
+          $ref: '#/components/schemas/BoolFilter'
+        queryFilter:
+          $ref: '#/components/schemas/QueryFilter'
+        range2Filter:
+          $ref: '#/components/schemas/Range2Filter'
+        rangeFilter:
+          $ref: '#/components/schemas/RangeFilter'
+        termFilter:
+          $ref: '#/components/schemas/TermFilter'
+      additionalProperties: false
+    BoolFilter:
+      description: Allows you to combine other filters into (possibly recursive) logical expression trees. A boolean filter is composed of a logical operator (`AND`, `OR`, `NOT`) and a list of filters that the operator relates to. Multiple filters can be negated with a single `NOT` operator, even when the filters are combined with the `AND` operator.
+      example:
+        operator: and
+        filters:
+          - termFilter:
+              field: id
+              operator: is
+              values:
+                - myId
+          - termFilter:
+              field: couponId
+              operator: is
+              values:
+                - couponOne
+      type: object
+      properties:
+        filters:
+          description: A list of filters that are logically combined by an operator.
+          type: array
+          items:
+            $ref: '#/components/schemas/Filter'
+        operator:
+          description: The logical operator that is used to combine the filters.
+          enum:
+            - and
+            - or
+            - not
+          type: string
+          example: and
+      required:
+        - operator
+      additionalProperties: false
+    QueryFilter:
+      description: Wraps any query and allows it to be used as a filter.
+      type: object
+      properties:
+        query:
+          $ref: '#/components/schemas/Query'
+      required:
+        - query
+    Field:
+      description: Name of the field. Might be a custom field name prefixed with c_.
+      maxLength: 260
+      type: string
+      example: couponId
+    Range2Filter:
+      description: |-
+        Allows you to restrict a search result to hits where a range defined by specified attributes has a certain relationship to a specified range.
+
+        The first range (R1) is defined by a pair of attributes (`fromField` and `toField`) that specify the extent of a range, such as attributes `validFrom` and `validTo`.
+
+        The second range (R2) is defined by `fromValue` and `toValue`.
+
+        The filter mode specifies the method used to compare the two ranges:
+
+        * `overlap`: R1 overlaps fully or partially with R2.
+        * `containing`: R1 contains R2.
+        * `contained`: R1 is contained in R2.
+
+        The range filter supports several value types, and relies on the natural sorting of the value type for range interpretation. Value ranges can be open-ended, but only at one end of the range. You can configure whether the lower bounds and upper bounds are inclusive or exclusive.
+
+        A range 2 filter is useful for general restrictions that can be shared between searches (like a static date range) because the filter result is cached in memory. Range filters are not appropriate if the range is expected to be different for every query (for example, if the user controls the date range down to the hour via a UI control). Range filters are inclusive by default.
+      example:
+        fromField: validFrom
+        toField: validTo
+        filterMode: overlap
+        fromValue: '2007-01-01T00:00:00.000Z'
+        toValue: '2017-01-01T00:00:00.000Z'
+      type: object
+      properties:
+        filterMode:
+          default: overlap
+          example: overlap
+          description: 'Compare mode: overlap, containing, or contained.'
+          enum:
+            - overlap
+            - containing
+            - contained
+          type: string
+        fromField:
+          description: The field name of the field that starts the first range.
+          example: validFrom
+          allOf:
+            - $ref: '#/components/schemas/Field'
+        fromInclusive:
+          default: true
+          example: true
+          description: A flag indicating if the lower bound of the second range is inclusive. To make the lower bound exclusive, set to `false`.
+          type: boolean
+        fromValue:
+          description: The lower bound of the second range. If not specified, the range is open-ended with respect to the lower bound. You can't leave both the lower and upper bounds open-ended.
+          example: '2007-01-01T00:00:00.000Z'
+        toField:
+          description: The field name of the field that ends the first range.
+          example: validTo
+          allOf:
+            - $ref: '#/components/schemas/Field'
+        toInclusive:
+          default: true
+          example: true
+          description: A flag indicating if the upper bound of the second range is inclusive. To make the lower bound exclusive, set to `false`.
+          type: boolean
+        toValue:
+          description: The upper bound of the second range. If not specified, the range is open-ended with respect to the upper bound. You can't leave both the upper and lower bounds open-ended.
+          example: '2017-01-01T00:00:00.000Z'
+      required:
+        - fromField
+        - toField
+      additionalProperties: false
+    RangeFilter:
+      description: |-
+        Allows you to restrict a search result to hits that have values for a given attribute that fall within a given value range. The range filter supports several value types and relies on the natural sorting of the value type for range interpretation. Value ranges can be open-ended, but only at one end of the range. You can configure whether the lower bounds and upper bounds are inclusive or exclusive.
+
+        A range filter is useful for general restrictions that can be shared between searches (like a static date range) because the filter result is cached in memory. Range filters are not appropriate if the range is expected to be different for every query (for example, if the user controls the date range down to the hour via a UI control). Range filters are inclusive by default.
+      type: object
+      properties:
+        field:
+          example: validFrom
+          description: The search field.
+          allOf:
+            - $ref: '#/components/schemas/Field'
+        from:
+          oneOf:
+            - type: string
+              format: date-time
+              example: '2007-01-01T00:00:00.000Z'
+            - type: integer
+              example: 1
+            - type: number
+              example: 1
+          description: The lower bound of the filter range. If not specified, the range is open-ended with respect to the lower bound. You can't leave both the lower and upper bounds open-ended.
+        fromInclusive:
+          default: true
+          example: true
+          description: A flag indicating if the lower bound of the range is inclusive. To make the lower bound exclusive, set to `false`.
+          type: boolean
+        to:
+          oneOf:
+            - type: string
+              format: date-time
+              example: '2007-01-02T00:00:00.000Z'
+            - type: integer
+              example: 2
+            - type: number
+              example: 2
+          description: The upper bound of the filter range. If not specified, the range is open-ended with respect to the upper bound. You can't leave both the upper and lower bounds open-ended.
+        toInclusive:
+          default: true
+          example: true
+          description: A flag indicating if the upper bound of the range is inclusive. To make the upper bound exclusive, set to `false`.
+          type: boolean
+      required:
+        - field
+    TermFilter:
+      description: Allows you to restrict a search result to hits that match exactly one of the values configured for the filter. A term filter is useful for general restrictions that can be shared between searches. Use term filters whenever the criteria you filter on is a shared property of multiple searches (for example, like filtering by an order status). Use term filters for fields that have a discrete and small set of values only.
+      example:
+        field: id
+        operator: is
+        values:
+          - myId
+      type: object
+      properties:
+        field:
+          description: The filter field.
+          allOf:
+            - $ref: '#/components/schemas/Field'
+        operator:
+          description: The operator used to compare the field's values with the given values.
+          example: is
+          enum:
+            - is
+            - one_of
+            - is_null
+            - is_not_null
+            - less
+            - greater
+            - not_in
+            - neq
+          type: string
+        values:
+          description: The filter values.
+          type: array
+          items:
+            type: string
+            example: myId
+      required:
+        - field
+        - operator
+      additionalProperties: false
+    FilteredQuery:
+      description: Allows to filter the result of a possibly complex query using a possibly complex filter.
+      example:
+        query:
+          textQuery:
+            fields:
+              - couponId
+            searchPhrase: disabled
+        filter:
+          termFilter:
+            field: enabled
+            operator: is
+            values:
+              - false
+      type: object
+      properties:
+        filter:
+          $ref: '#/components/schemas/Filter'
+        query:
+          $ref: '#/components/schemas/Query'
+      required:
+        - filter
+        - query
+      additionalProperties: false
+    MatchAllQuery:
+      description: Matches all documents (namespace and document type). This query comes in handy if you just want to filter a search result or really do not have any constraints.
+      type: object
+    NestedQuery:
+      description: "Allows you to query nested documents that are part of a larger document. Say, for example, that you have a main product with variations in one big document, and you want to constrain a search to main products that have variations that match multiple constraints. \n\nA `NestedQuery` is only supported by some Commerce APIs. For more details, see the endpoint descriptions in the API documentation.\n"
+      example:
+        path: order.shippingAddresses
+        query:
+          boolQuery:
+            must:
+              - boolQuery:
+                  must:
+                    - termQuery:
+                        fields:
+                          - order.shippingAddresses.firstName
+                        operator: is
+                        values:
+                          - John
+              - boolQuery:
+                  must:
+                    - termQuery:
+                        fields:
+                          - order.shippingAddresses.lastName
+                        operator: is
+                        values:
+                          - Doe
+        scoreMode: avg
+      type: object
+      properties:
+        path:
+          description: The path to the nested document.
+          type: string
+          example: order.shippingAddresses
+          maxLength: 2048
+        query:
+          $ref: '#/components/schemas/Query'
+        scoreMode:
+          description: Indicates how scores for matching child objects affect the root parent document’s relevance score.
+          enum:
+            - avg
+            - total
+            - max
+            - none
+          type: string
+          example: avg
+      required:
+        - path
+        - query
+      additionalProperties: false
+    TermQuery:
+      description: |-
+        A term query matches one or more values against one or more document fields. A document is considered a hit if one of the values matches exactly with at least one of the given fields. The operator `is` can only take one value, while `one_of` can take multiple values. If multiple fields are specified, they are combined using a logical `OR` operator.
+
+        **Limitations:**
+
+        * The `greater` and `less` operators are not supported under certain conditions. Both operators are permitted unless the API documentation states otherwise.
+        * A subset of Commerce APIs handle queries with multiple fields differently. If the query has multiple fields, the query is internally handled as a logical `OR` of `DisjointMaxQueries` (with the dismax matching a value against all fields). The dismax makes sure that a document carrying a single term in multiple fields does not get higher scores than a document matching multiple terms in multiple fields.
+      type: object
+      properties:
+        fields:
+          minItems: 1
+          description: The document fields that the values are matched against, combined with the operator.
+          type: array
+          items:
+            $ref: '#/components/schemas/Field'
+        operator:
+          description: Returns the operator to use for the term query.
+          enum:
+            - is
+            - one_of
+            - is_null
+            - is_not_null
+            - less
+            - greater
+            - not_in
+            - neq
+          type: string
+          example: is
+        values:
+          description: The values that the fields are compared against, combined with the operator.
+          type: array
+          items:
+            oneOf:
+              - type: string
+                example: myCouponId
+              - type: number
+                example: 1
+              - type: boolean
+                example: true
+              - type: integer
+                example: 1
+            example: myCouponId
+      required:
+        - fields
+        - operator
+    TextQuery:
+      description: A text query is used to match some text (for example, a search phrase possibly consisting of multiple terms) against one or more fields. When multiple fields are provided, the phrase conceptually forms a logical `OR` over the fields. In this case, the terms of the phrase basically have to match within the text, that would result in concatenating all given fields.
+      example:
+        fields:
+          - couponId
+        searchPhrase: limit
+      type: object
+      properties:
+        fields:
+          minItems: 1
+          description: The document fields that the search phrase matches against.
+          type: array
+          items:
+            $ref: '#/components/schemas/Field'
+        searchPhrase:
+          description: A search phrase, which can include multiple terms separated by spaces.
+          type: string
+          example: campaign summer
+      required:
+        - fields
+        - searchPhrase
+      additionalProperties: false
+    Sort:
+      description: Document representing a sort request. Each API has a different default sort configuration that can be modified in the request.
+      example:
+        field: couponId
+        sortOrder: desc
+      type: object
+      properties:
+        field:
+          description: The name of the field to sort on.
+          type: string
+          maxLength: 256
+          example: couponId
+        sortOrder:
+          default: asc
+          description: The sort order to be applied when sorting. When omitted, the default sort order (asc) is used.
+          example: asc
+          enum:
+            - asc
+            - desc
+          type: string
+      required:
+        - field
+      additionalProperties: false
+    Offset:
+      default: 0
+      minimum: 0
+      format: int32
+      description: The zero-based index of the first hit/data to include in the result.
+      type: integer
+      example: 0
+    SearchRequest:
+      description: Document representing a search request for retrieving items within the Data API. The query is a potentially complex set of expressions. The fields and expands that each query supports are defined within the search resource.
+      type: object
+      properties:
+        limit:
+          description: Maximum records to retrieve per request, not to exceed 200.
+          type: integer
+          format: int32
+          minimum: 1
+          example: 10
+          maximum: 200
+        query:
+          $ref: '#/components/schemas/Query'
+        sorts:
+          description: The list of sort clauses configured for the search request. Sort clauses are optional. See the description of the search endpoint for details on the default sorting behavior that is used when explicit sorts are not passed.
+          type: array
+          items:
+            $ref: '#/components/schemas/Sort'
+        offset:
+          $ref: '#/components/schemas/Offset'
+      required:
+        - query
+    Total:
+      default: 0
+      minimum: 0
+      format: int32
+      description: The total number of hits that match the search's criteria. This can be greater than the number of results returned as search results are pagenated.
+      type: integer
+      example: 10
+    ResultBase:
+      description: "Schema defining generic list result. Each response schema of a resource requiring a list response should extend this schema. \nAdditionally it needs to be defined what data is returned."
+      type: object
+      required:
+        - limit
+        - total
+      properties:
+        limit:
+          format: int32
+          description: Maximum records to retrieve per request. The limit with its constraints (minimum, maximum, default) is defined by the request parameter `limit` of the endpoint returning this schema.
+          type: integer
+          example: 10
+        total:
+          $ref: '#/components/schemas/Total'
+    PaginatedResultBase:
+      description: "Schema defining generic pageable result. Each response schema of a resource requiring pagination should extend this schema. \nIf you use this extend this schema directly, it needs to be defined what data is returned. Allowed names for the data field is `data`."
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ResultBase'
+      properties:
+        offset:
+          $ref: '#/components/schemas/Offset'
+      required:
+        - limit
+        - offset
+        - total
+    PaginatedSearchResult:
+      description: Document representing a generic search result. Each search resource should extend this to define what is returned in the `hits`.
+      properties:
+        query:
+          $ref: '#/components/schemas/Query'
+        sorts:
+          description: The sorting that was applied to the result.
+          type: array
+          items:
+            $ref: '#/components/schemas/Sort'
+        hits:
+          description: The sorted array of search hits. Can be empty.
+          type: array
+          items:
+            type: object
+      allOf:
+        - $ref: '#/components/schemas/PaginatedResultBase'
+      type: object
+      required:
+        - query
+      example:
+        limit: 1
+        hits:
+          - couponId: coupon1
+            creationDate: '2019-10-20T12:00:00Z'
+            description: This coupon is used to give 10% off stuff.
+            enabled: false
+            exportedCodeCount: 0
+            lastModified: '2019-10-30T04:23:59Z'
+            redemptionCount: 3
+            redemptionLimits:
+              limitPerCode: 1
+              limitPerCustomer: 1
+              limitPerTimeFrame:
+                limit: 2
+                redemptionTimeFrame: 24
+            singleCode: MyCode
+            systemCodesConfig:
+              codePrefix: SG
+              numberOfCodes: 500000
+            totalCodesCount: 50
+            type: single_code
+        query:
+          textQuery:
+            fields:
+              - id
+              - description
+            searchPhrase: stuff
+        sorts:
+          - field: couponId
+            sortOrder: desc
+        offset: 2
+        total: 8
+      additionalProperties: false
+    TimeOfDay:
+      type: object
+      description: Document representing a time schedule within a single day.
+      additionalProperties: false
+      properties:
+        timeFrom:
+          description: 'The time to start from. Time format: HH:mm or HH:mm:ss. Seconds are ignored and set to 0.'
+          type: string
+          pattern: ^([01][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$
+          example: '09:00:00'
+        timeTo:
+          description: 'The time to end on. Time format: HH:mm or HH:mm:ss. Seconds are ignored and set to 0.'
+          type: string
+          pattern: ^([01][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$
+          example: '17:00:00'
+    Recurrence:
+      type: object
+      description: Document representing a schedule recurrence.
+      additionalProperties: false
+      properties:
+        dayOfWeek:
+          description: The days of week for recurrence.
+          type: array
+          items:
+            type: string
+            enum:
+              - monday
+              - tuesday
+              - wednesday
+              - thursday
+              - friday
+              - saturday
+              - sunday
+            example: monday
+        timeOfDay:
+          description: The time of the day for recurrence.
+          allOf:
+            - $ref: '#/components/schemas/TimeOfDay'
+    Schedule:
+      type: object
+      description: Document representing a time schedule. Defines an optional validity window (startDate/endDate) and an optional recurrence. Omitting a bound leaves that side of the window open (unbounded).
+      additionalProperties: false
+      properties:
+        startDate:
+          description: 'The date to start validity. ISO8601 date time format: yyyy-MM-dd''T''HH:mm:ssZ.'
+          type: string
+          format: date-time
+          example: '2026-01-01T00:00:00.000Z'
+        endDate:
+          description: 'The date to end of validity. ISO8601 date time format: yyyy-MM-dd''T''HH:mm:ssZ.'
+          type: string
+          format: date-time
+          example: '2026-01-31T23:59:59.000Z'
+        recurrence:
+          description: The recurrence of the schedule by day of week and time of day. Not all schedules support a recurrence.
+          allOf:
+            - $ref: '#/components/schemas/Recurrence'
+    PromotionAbtestGroupAssignment:
+      additionalProperties: false
+      properties:
+        abtestDescription:
+          type: string
+        abtestId:
+          type: string
+        enabled:
+          type: boolean
+          example: true
+        schedule:
+          $ref: '#/components/schemas/Schedule'
+        segmentDescription:
+          type: string
+        segmentId:
+          type: string
+      type: object
+      required:
+        - abtestDescription
+        - abtestId
+        - enabled
+        - schedule
+        - segmentDescription
+        - segmentId
+    CampaignId:
+      minLength: 1
+      maxLength: 256
+      description: The ID of the campaign.
+      type: string
+      example: NewYearCampaign
+    Campaign:
+      description: Document representing a campaign.
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+      properties:
+        campaignId:
+          $ref: '#/components/schemas/CampaignId'
+        coupons:
+          description: The array of assigned coupon IDs, not sorted.
+          type: array
+          items:
+            type: string
+          example:
+            - 20%offOrder
+            - 10%offWelcomeNewUser
+        creationDate:
+          description: Returns the value of attribute 'creationDate'.
+          type: string
+          format: date-time
+          example: '2019-10-03T19:36:56.000Z'
+        customerGroups:
+          description: The array of assigned customer groups, not sorted.
+          type: array
+          items:
+            type: string
+          example:
+            - BigShoppers
+            - NorthAmericanShoppers
+        description:
+          maxLength: 4000
+          description: The description of the campaign.
+          type: string
+        enabled:
+          description: The enabled flag for campaign.
+          type: boolean
+          example: true
+        endDate:
+          description: The date the scenario ends.
+          type: string
+          format: date-time
+        lastModified:
+          description: Returns the value of attribute 'lastModified'.
+          type: string
+          format: date-time
+          example: '2019-10-03T19:36:56.000Z'
+        sourceCodeGroups:
+          description: The array of assigned source code groups, not sorted.
+          type: array
+          items:
+            type: string
+          example:
+            - affiliate-email
+            - gaming-email
+        startDate:
+          description: The date the scenario begins.
+          type: string
+          format: date-time
+          example: '2019-10-03T19:36:56.000Z'
+      type: object
+      required:
+        - campaignId
+    Promotion:
+      description: |-
+        Document representing a promotion. Unless otherwise stated, attributes of this document are not supported when using
+        the Open Commerce API to update multiple promotions at once.
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+      properties:
+        archived:
+          description: |-
+            Determines if this promotion is archived. This attribute is allowed to be updated when using the Open
+             Commerce API to update multiple promotions at once.
+          type: boolean
+          example: true
+        assignmentInformation:
+          description: Information about the assignments and assignment schedules of this promotion.
+          allOf:
+            - $ref: '#/components/schemas/PromotionAssignmentInformation'
+        creationDate:
+          description: Returns the value of attribute 'creationDate'.
+          type: string
+          format: date-time
+        currencyCode:
+          maxLength: 3
+          description: |-
+            The ISO 4217 mnemonic code of the currency this promotion is restricted to. If not populated, then there is no
+             currency restriction on the promotion.
+          type: string
+        disableGloballyExcluded:
+          description: Determines if this promotion ignores the global product exclusions for promotions.
+          type: boolean
+          example: true
+        enabled:
+          description: |-
+            Determines if this promotion is enabled. This attribute is allowed to be updated when using the Open
+             Commerce API to update multiple promotions at once.
+          type: boolean
+          example: true
+        exclusivity:
+          description: |-
+            Determines if the promotion can be combined with other promotions of the same promotion class or if it cannot be
+             combined with any other promotions. This attribute is allowed to be updated when using the Open Commerce API to
+             update multiple promotions at once.
+          enum:
+            - 'no'
+            - class
+            - global
+          type: string
+        id:
+          description: The ID for the promotion.
+          type: string
+        lastModified:
+          description: Returns the value of attribute 'lastModified'.
+          type: string
+          format: date-time
+        name:
+          description: The user supplied name of this promotion, which can be localized.
+          type: object
+          additionalProperties:
+            type: string
+        promotionClass:
+          description: |-
+            The class of the promotion. If the promotion class is modified, then the promotion rule and all of its values,
+             such as whether or not to disable global product exclusions, are reset.
+          enum:
+            - product
+            - shipping
+            - order
+          type: string
+        tags:
+          description: |-
+            Returns the list of tags assigned to this promotion. If used to set the tags on a promotion, the promotion will
+             only have the tags passed in the input. Any existing tags are removed.
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+      type: object
+    PromotionCampaignAssignment:
+      description: Document representing a promotion campaign assignment.
+      additionalProperties: false
+      properties:
+        campaign:
+          description: The campaign.
+          allOf:
+            - $ref: '#/components/schemas/Campaign'
+        campaignId:
+          minLength: 1
+          maxLength: 256
+          description: The ID of the campaign.
+          type: string
+        coupons:
+          description: The sorted array of assigned coupon IDs.
+          type: array
+          items:
+            type: string
+        customerGroups:
+          description: The sorted array of assigned customer groups.
+          type: array
+          items:
+            type: string
+        description:
+          maxLength: 4000
+          description: The description of the promotion campaign assignment.
+          type: string
+        enabled:
+          description: True if the assignment resource is enabled.
+          type: boolean
+          example: true
+        promotion:
+          description: The promotion.
+          allOf:
+            - $ref: '#/components/schemas/Promotion'
+        promotionId:
+          minLength: 1
+          maxLength: 256
+          description: The ID of the promotion.
+          type: string
+        rank:
+          format: int32
+          description: The rank of promotion campaign assignment.
+          type: integer
+        schedule:
+          description: The schedule of the assignment resource.
+          allOf:
+            - $ref: '#/components/schemas/Schedule'
+        sourceCodeGroups:
+          description: The sorted array of assigned source code groups.
+          type: array
+          items:
+            type: string
+      type: object
+      required:
+        - campaignId
+        - description
+        - enabled
+        - promotionId
+        - schedule
+    PromotionAssignmentInformation:
+      additionalProperties: false
+      properties:
+        abtestId:
+          description: |-
+            If there is only one assignment, and that assignment is an A/B test segment, the ID of the A/B test the segment
+            belongs to. Otherwise, empty.
+          type: string
+        abtestSegmentId:
+          description: |-
+            If there is only one assignment, and that assignment is an A/B test segment, the ID of the A/B test segment.
+             Otherwise, empty.
+          type: string
+        active:
+          description: True if the individual assignment or the multiple assignments are currently active.
+          type: boolean
+          example: true
+        activeAbtestAssignments:
+          description: A list of currently active A/B tests this is assigned to.
+          type: array
+          items:
+            $ref: '#/components/schemas/PromotionAbtestGroupAssignment'
+        activeCampaignAssignments:
+          description: A list of currently active campaigns this is assigned to.
+          type: array
+          items:
+            $ref: '#/components/schemas/PromotionCampaignAssignment'
+        campaignId:
+          description: If there is only one assignment, and that assignment is a campaign, the ID of the campaign. Otherwise, empty.
+          type: string
+        enabled:
+          type: boolean
+          example: true
+        endDate:
+          description: |-
+            The end date of the container of the assignment (a Campaign or ABTest). If scheduleType is
+             scheduleType : "multiple" or scheduleType : "none", then then result is null. Also, a null
+             date returns null.
+          type: string
+          format: date-time
+        schedule:
+          description: |-
+            The schedule of the assignment (a Campaign or ABTest). If scheduleType is
+             scheduleType : "multiple" or scheduleType : "none", then then result is null.
+          allOf:
+            - $ref: '#/components/schemas/Schedule'
+        scheduleType:
+          description: |-
+            If there is only one active assignment, or no active assignments and one upcoming assignment, this is that type
+             of assignment (scheduleType : "campaign" or scheduleType : "abtest"). If there are no
+             assignments, it is scheduleType : "none", otherwise, scheduleType : "multiple".
+          enum:
+            - none
+            - campaign
+            - abtest
+            - multiple
+          type: string
+        startDate:
+          description: |-
+            The start date of the container of the assignment (a Campaign or ABTest). If scheduleType is
+             scheduleType : "multiple" or scheduleType : "none", then then result is null. Also, a null
+             date returns null.
+          type: string
+          format: date-time
+        upcomingAbtestAssignments:
+          description: A list of upcoming A/B tests this is assigned to.
+          type: array
+          items:
+            $ref: '#/components/schemas/PromotionAbtestGroupAssignment'
+        upcomingCampaignAssignments:
+          description: A list of upcoming campaigns this is assigned to.
+          type: array
+          items:
+            $ref: '#/components/schemas/PromotionCampaignAssignment'
+      type: object
+      required:
+        - active
+        - activeCampaignAssignments
+        - campaignId
+        - enabled
+        - schedule
+        - scheduleType
+    Tag:
+      description: Document representing a tag
+      additionalProperties: false
+      properties:
+        tagId:
+          description: The ID of the tag.
+          type: string
+      type: object
+      required:
+        - tagId
+    PromotionSearchResult:
+      description: Document representing a promotion search result.
+      allOf:
+        - $ref: '#/components/schemas/PaginatedSearchResult'
+      properties:
+        hits:
+          description: The sorted array of promotion search hits. Can be empty.
+          type: array
+          items:
+            $ref: '#/components/schemas/Promotion'
+      type: object
+      required:
+        - hits
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        title:
+          description: "A short, human-readable summary of the problem\ntype.  It will not change from occurrence to occurrence of the \nproblem, except for purposes of localization\n"
+          type: string
+          maxLength: 256
+          example: You do not have enough credit
+        type:
+          description: |
+            A URI reference [RFC3986] that identifies the
+            problem type.  This specification encourages that, when
+            dereferenced, it provide human-readable documentation for the
+            problem type (e.g., using HTML [W3C.REC-html5-20141028]).  When
+            this member is not present, its value is assumed to be
+            "about:blank". It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: NotEnoughMoney
+        detail:
+          description: A human-readable explanation specific to this occurrence of the problem.
+          type: string
+          example: Your current balance is 30, but that costs 50
+        instance:
+          description: |
+            A URI reference that identifies the specific
+            occurrence of the problem.  It may or may not yield further
+            information if dereferenced.  It accepts relative URIs; this means
+            that they must be resolved relative to the document's base URI, as
+            per [RFC3986], Section 5.
+          type: string
+          maxLength: 2048
+          example: /account/12345/msgs/abc
+      required:
+        - title
+        - type
+        - detail
+    CurrencyCode:
+      description: A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard, or the string `N/A` indicating that a currency is not applicable.
+      pattern: ^([A-Z][A-Z][A-Z]|N/A)$
+      example: USD
+      type: string
+    Money:
+      description: A combination of a Currency and an amount of that Currency.
+      type: object
+      properties:
+        currencyMnemonic:
+          $ref: '#/components/schemas/CurrencyCode'
+        value:
+          format: double
+          description: The amount of money for the given currency.
+          example: 1234.56
+          type: number
+    Percentage:
+      description: A percentage value, from 0 to 100.
+      format: double
+      minimum: 0
+      maximum: 100
+      type: number
+      example: 10
+    ProductId:
+      minLength: 1
+      maxLength: 100
+      type: string
+      description: The id (SKU) of the product.
+      example: apple-ipod-classic
+    Discount:
+      description: |-
+        A discount value object. The type determines which value field applies: amount, fixed_price, total_fixed_price,
+         and fixed_price_shipping use amount; percentage and percent_off_options use percentage; price_book_price uses
+         priceBookId; bonus and bonus_choice use bonusProducts; free_shipping carries no value.
+        Valid types depend on the enclosing promotion class - the schema does not enforce this, so the backend rejects an
+         out-of-class type: product rules accept amount, percentage, fixed_price, total_fixed_price, price_book_price, bonus,
+         bonus_choice, free_shipping, fixed_price_shipping, percent_off_options; order rules accept amount, percentage, bonus,
+         bonus_choice; shipping rules accept fixed_price, percentage, amount. A BOGO discount is a stricter product subset:
+         fixed_price, price_book_price, percentage, amount.
+      additionalProperties: false
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          description: The kind of discount.
+          enum:
+            - amount
+            - percentage
+            - fixed_price
+            - total_fixed_price
+            - price_book_price
+            - bonus
+            - bonus_choice
+            - free_shipping
+            - fixed_price_shipping
+            - percent_off_options
+          type: string
+          example: amount
+        amount:
+          description: The monetary value, for amount, fixed_price, total_fixed_price, and fixed_price_shipping discounts.
+          allOf:
+            - $ref: '#/components/schemas/Money'
+        percentage:
+          description: The percentage off, for percentage and percent_off_options discounts.
+          allOf:
+            - $ref: '#/components/schemas/Percentage'
+        priceBookId:
+          maxLength: 256
+          description: The price book the discounted price is taken from, for a price_book_price discount.
+          type: string
+          example: usd-list-prices
+        bonusProducts:
+          description: The bonus products offered, for bonus and bonus_choice discounts.
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductId'
+    TieredDiscount:
+      description: "A single discount tier - a threshold and the discount applied once the threshold is met. \n All tiers in the same rule MUST carry the same conditionType - the backend applies one condition-type to the whole\n tier set and rejects mixed values."
+      additionalProperties: false
+      type: object
+      required:
+        - threshold
+        - conditionType
+        - discount
+      properties:
+        threshold:
+          format: double
+          minimum: 0
+          description: The threshold at which this tier's discount applies.
+          type: number
+          example: 100
+        conditionType:
+          description: |-
+            The kind of threshold. All tiers in the same rule MUST send the same value. Valid values depend on the promotion class -
+             product: product_quantity, product_amount; order: order_total, product_quantity, product_combination;
+             shipping: shipment_total, product_quantity, product_combination.
+          enum:
+            - product_quantity
+            - product_amount
+            - order_total
+            - product_combination
+            - shipment_total
+          type: string
+          example: order_total
+        discount:
+          description: The discount applied at this tier.
+          allOf:
+            - $ref: '#/components/schemas/Discount'
+    BogoDiscount:
+      description: A buy-one-get-one discount. In Business Manager the Type selector (Buy X / Get Y) is Product-class only.
+      additionalProperties: false
+      type: object
+      properties:
+        threshold:
+          format: double
+          minimum: 0
+          description: The quantity of eligible products required.
+          type: number
+          example: 1
+        discount:
+          description: The discount applied to the bonus product; typically fixed_price, percentage, or amount.
+          allOf:
+            - $ref: '#/components/schemas/Discount'
+        eligibleQuantity:
+          format: int32
+          minimum: 1
+          description: The number of eligible products that earn the bonus.
+          type: integer
+          example: 1
+        requireExactEligibleQuantity:
+          description: Determines if exactly the eligible quantity is required, rather than at least.
+          type: boolean
+          example: false
+    ProductPromotionRule:
+      description: The discount rule for a product promotion.
+      additionalProperties: false
+      type: object
+      required:
+        - promotionClass
+      properties:
+        promotionClass:
+          description: The promotion class discriminator. Always product for a product promotion rule.
+          enum:
+            - product
+          type: string
+          example: product
+        discount:
+          description: The discount applied by this rule.
+          allOf:
+            - $ref: '#/components/schemas/Discount'
+        tiers:
+          description: The tiered discounts, applied by threshold. Empty or absent for a non-tiered rule.
+          type: array
+          items:
+            $ref: '#/components/schemas/TieredDiscount'
+        bogo:
+          description: The buy-one-get-one discount. Present only for a buy-X-get-Y product promotion.
+          allOf:
+            - $ref: '#/components/schemas/BogoDiscount'
+        maxApplications:
+          format: int32
+          minimum: 1
+          description: The maximum number of times the discount can be applied.
+          type: integer
+          example: 1
+        identicalProducts:
+          description: Determines if the qualifying and discounted products must all be identical.
+          type: boolean
+          example: false
+        prorate:
+          description: Determines if the discount is prorated across the eligible items.
+          type: boolean
+          example: false
+        disableGlobalExcludedProducts:
+          description: |-
+            Determines if this rule ignores the site-level global product exclusions. Distinct from the
+             promotion-level disableGloballyExcluded flag.
+          type: boolean
+          default: false
+          example: false
+    OrderPromotionRule:
+      description: The discount rule for an order promotion.
+      additionalProperties: false
+      type: object
+      required:
+        - promotionClass
+      properties:
+        promotionClass:
+          description: The promotion class discriminator. Always order for an order promotion rule.
+          enum:
+            - order
+          type: string
+          example: order
+        discount:
+          description: The discount applied by this rule.
+          allOf:
+            - $ref: '#/components/schemas/Discount'
+        tiers:
+          description: The tiered discounts, applied by threshold. Empty or absent for a non-tiered rule.
+          type: array
+          items:
+            $ref: '#/components/schemas/TieredDiscount'
+        discountOnlyQualifyingProducts:
+          description: Determines if only the qualifying products are discounted.
+          type: boolean
+          example: false
+        excludeDiscountedProducts:
+          description: Determines if products that already received a product-level discount are excluded.
+          type: boolean
+          example: false
+        disableGlobalExcludedProducts:
+          description: |-
+            Determines if this rule ignores the site-level global product exclusions. Distinct from the
+             promotion-level disableGloballyExcluded flag.
+          type: boolean
+          default: false
+          example: false
+        enableUpsells:
+          description: Determines if the promotion is returned as an approaching promotion to encourage upsell.
+          type: boolean
+          example: false
+        upsellThreshold:
+          description: The amount by which the merchandise total may fall short of the purchase condition and still upsell.
+          allOf:
+            - $ref: '#/components/schemas/Money'
+    PromotedShippingMethods:
+      description: The shipping methods a shipping promotion applies to.
+      additionalProperties: false
+      type: object
+      properties:
+        methodIds:
+          description: The shipping method IDs.
+          type: array
+          items:
+            maxLength: 256
+            type: string
+            example: '001'
+    ShippingPromotionRule:
+      description: The discount rule for a shipping promotion.
+      additionalProperties: false
+      type: object
+      required:
+        - promotionClass
+      properties:
+        promotionClass:
+          description: The promotion class discriminator. Always shipping for a shipping promotion rule.
+          enum:
+            - shipping
+          type: string
+          example: shipping
+        discount:
+          description: The discount applied by this rule.
+          allOf:
+            - $ref: '#/components/schemas/Discount'
+        tiers:
+          description: The tiered discounts, applied by threshold. Empty or absent for a non-tiered rule.
+          type: array
+          items:
+            $ref: '#/components/schemas/TieredDiscount'
+        shippingMethodQualifiers:
+          description: The shipping methods the promotion applies to. Shipping-class only.
+          allOf:
+            - $ref: '#/components/schemas/PromotedShippingMethods'
+        prohibitNonqualifyingProducts:
+          description: Determines if the shipment must contain only qualifying products for the discount to apply.
+          type: boolean
+          example: false
+        disableGlobalExcludedProducts:
+          description: |-
+            Determines if this rule ignores the site-level global product exclusions. Distinct from the
+             promotion-level disableGloballyExcluded flag.
+          type: boolean
+          default: false
+          example: false
+        maxApplications:
+          format: int32
+          minimum: 1
+          description: The maximum number of times the discount can be applied.
+          type: integer
+          example: 1
+    PromotionRule:
+      description: |-
+        The discount rule for a promotion. The concrete shape is selected by promotionClass: a product promotion uses
+         ProductPromotionRule, an order promotion uses OrderPromotionRule, and a shipping promotion uses ShippingPromotionRule.
+      oneOf:
+        - $ref: '#/components/schemas/ProductPromotionRule'
+        - $ref: '#/components/schemas/OrderPromotionRule'
+        - $ref: '#/components/schemas/ShippingPromotionRule'
+      discriminator:
+        propertyName: promotionClass
+        mapping:
+          product: '#/components/schemas/ProductPromotionRule'
+          order: '#/components/schemas/OrderPromotionRule'
+          shipping: '#/components/schemas/ShippingPromotionRule'
+    ProductCondition:
+      description: |-
+        A single product condition - a condition type, a comparison operator, and one or more values. Each condition type
+         supports a specific operator (for example, category supports is_equal, is_exactly,
+         is_child_of; brand and attribute add exists / does_not_exist).
+      additionalProperties: false
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          description: The kind of product condition.
+          enum:
+            - brand
+            - product_id
+            - category
+            - price
+            - inventory
+            - attribute
+            - product_set
+            - price_book
+            - option
+          type: string
+          example: category
+        operator:
+          maxLength: 256
+          description: |-
+            The comparison operator, as a lower_snake_case token. The valid set depends on the condition type:
+             category: is_equal, is_exactly, is_direct_child_of, is_child_of, is_direct_parent_of, is_parent_of, is_sibling_of;
+             brand: exists, does_not_exist, is_equal, is_not_equal, starts_with, ends_with, contains, does_not_contain;
+             product_id: is_equal, is_not_equal, starts_with, ends_with, contains, does_not_contain;
+             price: less_than, greater_than, ends_with;
+             inventory: less_than, greater_than;
+             attribute: less_than, greater_than, equals, is_not_equal, exists, does_not_exist, starts_with, ends_with, contains, does_not_contain;
+             product_set: is_equal, exists;
+             price_book: storefront_price_in_recursive, storefront_price_in, price_in;
+             option: is_equal, exists, does_not_exist.
+          type: string
+          example: is_equal
+        values:
+          description: The values compared against.
+          type: array
+          items:
+            maxLength: 256
+            type: string
+            example: electronics
+        catalogId:
+          maxLength: 256
+          description: The id of the catalog that owns the categories listed in `values`. Required when `type` is `category; ignored for every other condition type.
+          type: string
+          example: storefront-catalog-m-en
+        attributeId:
+          maxLength: 256
+          description: |-
+            The id of the custom product attribute to compare. Required when `type` is `attribute`; ignored for every
+             other condition type.
+          type: string
+          example: color
+        optionId:
+          maxLength: 256
+          description: |-
+            The id of the product option to compare. Required when `type` is `option`; ignored for every other
+             condition type.
+          type: string
+          example: memorySize
+    ProductConditionGroup:
+      description: A group of product conditions.
+      additionalProperties: false
+      type: object
+      properties:
+        conditions:
+          description: The conditions in this group.
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductCondition'
+    ProductSpecification:
+      description: |-
+        A set of product conditions. A product matches when it satisfies the included-products groups and none of the
+         excluded-products groups.
+      additionalProperties: false
+      type: object
+      properties:
+        includedProducts:
+          description: The condition groups a product must match.
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductConditionGroup'
+        excludedProducts:
+          description: The condition groups that exclude a product.
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductConditionGroup'
+    PromotedPaymentMethods:
+      description: The payment methods a promotion is restricted to.
+      additionalProperties: false
+      type: object
+      properties:
+        methodIds:
+          description: |-
+            The payment method IDs. Each is either a payment method ID or a credit card type prefixed with CREDIT_CARD
+             (for example CREDIT_CARD.Visa).
+          type: array
+          items:
+            maxLength: 256
+            type: string
+            example: CREDIT_CARD.Visa
+    DiscountRule:
+      description: |-
+        The discount-rule document for a promotion, managed as a sub-resource at /promotions/{id}/discount-rule. It holds
+         the discount rule (shape selected by promotionClass), the product qualifiers, and the payment-method qualifiers.
+         The promotion shell (id, name, enabled, promotionClass) is managed separately on the
+         parent /promotions/{id} resource.
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+      type: object
+      properties:
+        promotionRule:
+          description: |-
+            The discount rule for this promotion. Its shape is selected by the parent promotion's promotionClass (product,
+             order, or shipping) and holds the discount, tiers, BOGO, thresholds, max-applications, and class-specific flags.
+          allOf:
+            - $ref: '#/components/schemas/PromotionRule'
+        qualifyingProducts:
+          description: The products a customer must purchase for the promotion to apply.
+          allOf:
+            - $ref: '#/components/schemas/ProductSpecification'
+        discountedProducts:
+          description: |-
+            The products that receive the discount. Valid only for a product-class promotion; supplying it for an order or shipping
+             promotion is rejected with a 400.
+          allOf:
+            - $ref: '#/components/schemas/ProductSpecification'
+        excludedProducts:
+          description: |-
+            The products excluded from both qualifying for and receiving the discount. Valid only for an order-class
+             promotion; supplying it for a product or shipping promotion is rejected with a 400.
+          allOf:
+            - $ref: '#/components/schemas/ProductSpecification'
+        paymentMethodQualifiers:
+          description: The payment methods the promotion is restricted to.
+          allOf:
+            - $ref: '#/components/schemas/PromotedPaymentMethods'
+    PromotionCompatibility:
+      description: |-
+        The compatibility (stacking / exclusivity) document for a promotion, managed as a sub-resource at
+         /promotions/{id}/compatibility. It controls how this promotion combines with other promotions of the same class.
+      additionalProperties:
+        title: Additional Property Support
+        description: |-
+          This type supports additional properties passed along with the defined properties of this API.
+          To indicate that the properties were defined and expected to be handled as additional properties, they are expected to be prefixed with a `c_`.
+          The type will reject any property that does not fit this pattern, only allowing additional properties beginning with the known prefix.
+        example: c_trackingId
+      type: object
+      properties:
+        exclusivity:
+          description: |-
+            Determines if the promotion can be combined with other promotions of the same promotion class, cannot be
+             combined with any other promotion, or has no exclusivity restriction.
+          enum:
+            - 'no'
+            - class
+            - global
+          type: string
+          example: class
+        exclusivityGroup:
+          maxLength: 256
+          description: |-
+            The ID of the exclusivity group this promotion belongs to. Only meaningful when exclusivity restricts
+             combination to promotions within the same group.
+          type: string
+          example: SummerSale
+        combinablePromotions:
+          description: The set of promotion or promotion-group IDs this promotion can be combined with.
+          type: array
+          items:
+            maxLength: 256
+            type: string
+            example: 10%offOrder
+        mutuallyExclusivePromotions:
+          description: The set of promotion or promotion-group IDs this promotion cannot be combined with.
+          type: array
+          items:
+            maxLength: 256
+            type: string
+            example: 20%offOrder
+  parameters:
+    organizationId:
+      description: An identifier for the Salesforce Commerce Cloud organization the request is being made by. It consists of a prefix 'f_ecom_' followed by a 4-character [realm identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#realm-id) and a 3-character [instance type identifier](https://developer.salesforce.com/docs/commerce/commerce-api/guide/base-url.html#instance-id).
+      name: organizationId
+      in: path
+      required: true
+      example: f_ecom_zzxy_prd
+      schema:
+        $ref: '#/components/schemas/OrganizationId'
+    siteId:
+      description: The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites.
+      name: siteId
+      in: query
+      required: true
+      examples:
+        SiteId:
+          value: RefArch
+      schema:
+        $ref: '#/components/schemas/SiteId'
+    id:
+      name: id
+      in: path
+      description: The ID of the promotion to create.
+      required: true
+      schema:
+        minLength: 1
+        type: string
+  examples:
+    GetPromotion:
+      value:
+        archived: false
+        assignmentInformation:
+          active: true
+          activeCampaignAssignments:
+            - campaignId: coupon-campaign
+              coupons:
+                - shipping-promotion-coupon
+              description: Coupon Shipping Promotion
+              enabled: true
+              promotionId: my-shipping-promotion
+              schedule: {}
+          campaignId: coupon-campaign
+          enabled: true
+          schedule: {}
+          scheduleType: none
+        creationDate: '2020-01-09T16:50:32.000Z'
+        disableGloballyExcluded: false
+        enabled: true
+        exclusivity: 'no'
+        id: my-shipping-promotion
+        lastModified: '2020-01-09T16:50:32.000Z'
+        name:
+          default: Coupon Shipping Promotion
+        promotionClass: shipping
+        c_customString: Custom Value
+    PromotionNotFound404:
+      value:
+        title: Promotion Not Found
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/promotion-not-found
+        detail: No promotion with ID 'not-existing-promotion' in site 'SiteGenesis' could be found.
+        promotionId: not-existing-promotion
+        siteId: SiteGenesis
+    PutPromotion:
+      value:
+        enabled: true
+        name:
+          default: __PROMOTION_ID__
+        exclusivity: class
+        promotionClass: order
+        c_customString: Custom Value
+    examples-PutPromotion:
+      value:
+        archived: false
+        assignmentInformation:
+          active: false
+          activeCampaignAssignments: []
+          campaignId: coupon-campaign
+          enabled: true
+          schedule: {}
+          scheduleType: none
+        creationDate: '2020-01-13T20:22:09.189Z'
+        disableGloballyExcluded: false
+        enabled: true
+        exclusivity: class
+        id: my-promotion
+        lastModified: '2020-01-13T20:22:09.199Z'
+        name:
+          default: __PROMOTION_ID__
+        promotionClass: order
+        c_customString: Custom Value
+    IdConflict400:
+      value:
+        title: Id Conflict
+        type: https://api.commercecloud.salesforce.com/documentation/error/v1/errors/id-conflict
+        detail: The ID in the request body ('his-promotion') doesn't match the ID in the URL ('my-promotion').
+        bodyID: his-promotion
+        urlID: my-promotion
+    PatchPromotion:
+      value:
+        enabled: false
+        name:
+          default: __PROMOTION_ID__
+        exclusivity: class
+        promotionClass: order
+        c_customString: Custom Value
+    examples-PatchPromotion:
+      value:
+        archived: false
+        assignmentInformation:
+          active: false
+          activeCampaignAssignments: []
+          campaignId: coupon-campaign
+          enabled: false
+          schedule: {}
+          scheduleType: none
+        creationDate: '2020-01-13T20:22:09.189Z'
+        disableGloballyExcluded: false
+        enabled: false
+        exclusivity: class
+        id: my-promotion
+        lastModified: '2020-01-13T20:31:25.795Z'
+        name:
+          default: __PROMOTION_ID__
+        promotionClass: order
+        c_customString: Custom Value
+    GetPromotionDiscountRule:
+      value:
+        promotionRule:
+          promotionClass: order
+          discount:
+            type: amount
+            amount:
+              currencyMnemonic: USD
+              value: 15
+          tiers:
+            - threshold: 100
+              conditionType: order_total
+              discount:
+                type: amount
+                amount:
+                  currencyMnemonic: USD
+                  value: 15
+          discountOnlyQualifyingProducts: false
+          disableGlobalExcludedProducts: false
+        qualifyingProducts:
+          includedProducts:
+            - conditions:
+                - type: category
+                  operator: is_equal
+                  catalogId: storefront-catalog-m-en
+                  values:
+                    - electronics
+        paymentMethodQualifiers:
+          methodIds:
+            - CREDIT_CARD.Visa
+    PutPromotionDiscountRule:
+      value:
+        promotionRule:
+          promotionClass: order
+          discount:
+            type: amount
+            amount:
+              currencyMnemonic: USD
+              value: 15
+          tiers:
+            - threshold: 100
+              conditionType: order_total
+              discount:
+                type: amount
+                amount:
+                  currencyMnemonic: USD
+                  value: 15
+        qualifyingProducts:
+          includedProducts:
+            - conditions:
+                - type: category
+                  operator: is_equal
+                  catalogId: storefront-catalog-m-en
+                  values:
+                    - electronics
+    PatchPromotionDiscountRule:
+      value:
+        promotionRule:
+          promotionClass: order
+          discount:
+            type: percentage
+            percentage: 10
+          discountOnlyQualifyingProducts: false
+          disableGlobalExcludedProducts: false
+    GetPromotionCompatibility:
+      value:
+        exclusivity: class
+        exclusivityGroup: SummerSale
+        combinablePromotions:
+          - 10%offOrder
+        mutuallyExclusivePromotions:
+          - 20%offOrder
+    PutPromotionCompatibility:
+      value:
+        exclusivity: class
+        exclusivityGroup: SummerSale
+        combinablePromotions:
+          - 10%offOrder
+        mutuallyExclusivePromotions:
+          - 20%offOrder
+    PatchPromotionCompatibility:
+      value:
+        exclusivity: class
+        exclusivityGroup: SummerSale
+        combinablePromotions:
+          - 10%offOrder
+        mutuallyExclusivePromotions:
+          - 20%offOrder

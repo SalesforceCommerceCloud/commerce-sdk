@@ -52,6 +52,7 @@ export namespace {{#apiInfo}}{{#apis.0}}{{#vendorExtensions}}{{#x-sdk-classname}
     {{#models}}
     {{#model}}
     export type {{classname}} = {{#apiInfo}}{{#apis.0}}{{#vendorExtensions}}{{#x-sdk-classname}}{{{ . }}}{{/x-sdk-classname}}{{^x-sdk-classname}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/x-sdk-classname}}{{/vendorExtensions}}{{^vendorExtensions}}{{#lambda.titlecase}}{{#lambda.camelcase}}{{appName}}{{/lambda.camelcase}}{{/lambda.titlecase}}{{/vendorExtensions}}{{/apis.0}}{{/apiInfo}}ModelTypes.{{classname}}
+    {{^oneOf}}
     {{#hasEnums}}
     {{#vars}}
     {{#isEnum}}
@@ -59,6 +60,7 @@ export namespace {{#apiInfo}}{{#apis.0}}{{#vendorExtensions}}{{#x-sdk-classname}
     {{/isEnum}}
     {{/vars}}
     {{/hasEnums}}
+    {{/oneOf}}
     {{/model}}
     {{/models}}
 }
