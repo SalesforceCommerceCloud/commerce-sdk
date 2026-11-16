@@ -116,10 +116,13 @@ export function parseSingleApiArgs(
   if (refs.length === 0) {
     throw new Error("--api requires --ref");
   }
+  if (refs.length > 1) {
+    throw new Error("--ref can be given only once");
+  }
   if (parseEcomVersionArg(argv) !== undefined) {
     throw new Error("--api/--ref cannot be combined with --ecom-version");
   }
-  return { apis, ref: refs[refs.length - 1] };
+  return { apis, ref: refs[0] };
 }
 
 const KNOWN_FLAGS = ["--ecom-version", "--api", "--ref"];

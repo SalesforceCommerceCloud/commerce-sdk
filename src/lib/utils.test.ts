@@ -223,6 +223,19 @@ describe("parseSingleApiArgs", () => {
     });
   });
 
+  it("rejects a repeated --ref instead of silently using the last one", () => {
+    expect(() =>
+      parseSingleApiArgs([
+        "--api",
+        "a-oas-v1",
+        "--ref",
+        "branch-a",
+        "--ref",
+        "branch-b",
+      ])
+    ).to.throw("--ref can be given only once");
+  });
+
   it("rejects --api without --ref", () => {
     expect(() => parseSingleApiArgs(["--api", "a-oas-v1"])).to.throw(
       "--api requires --ref"
