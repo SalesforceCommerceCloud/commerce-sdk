@@ -134,7 +134,7 @@ export function fetchEcomBundles(
     );
   } catch {
     throw new Error(
-      `Could not fetch ${ref} from ECOM (git output above). Check you can reach ECOM and that the branch, tag or full 40-character commit SHA exists; a release branch may not be cut yet.`
+      `Could not fetch ${ref} from ECOM (git output above). Check ECOM_REPO_URL, that you can reach ECOM, and that the branch, tag or full 40-character commit SHA exists; a release branch may not be cut yet.`
     );
   }
   git("checkout", "-q", "FETCH_HEAD");

@@ -44,9 +44,12 @@ function prepareDiffInputs(): void {
   ].forEach(([name, source]) => {
     const target = path.join(DIFF_INPUT_PATH, name);
     fs.copySync(source, target);
-    fs.readdirSync(target).forEach((folder) => {
-      fs.writeFileSync(path.join(target, folder, "exchange.json"), "{}");
-    });
+    fs.readdirSync(target)
+      .map((entry) => path.join(target, entry))
+      .filter((entryPath) => fs.statSync(entryPath).isDirectory())
+      .forEach((folder) => {
+        fs.writeFileSync(path.join(folder, "exchange.json"), "{}");
+      });
   });
 }
 
@@ -89,6 +92,17 @@ function updateApis(): void {
   }
   const bundlePaths = requested.map((key) => allowList.get(key) as string);
 
+  const apiVersionsContent = fs.readFileSync(API_VERSIONS_FILE, "utf-8");
+  if (ecomVersion) {
+    // Fails before anything changes if the header is missing.
+    setEcomVersionHeader(apiVersionsContent, ecomVersion);
+    if (process.env.ECOM_OAS_REF?.trim()) {
+      throw new Error(
+        "--ecom-version cannot be used while ECOM_OAS_REF is set: the header would name a release the specs did not come from. Unset ECOM_OAS_REF."
+      );
+    }
+  }
+
   const ref = partial ? partial.ref : resolveEcomOasRef(ecomVersion);
   // Printed before the fetch so it is seen even when the run fails or scrolls away.
   if (!partial && process.env.ECOM_OAS_REF?.trim()) {
@@ -128,25 +142,12 @@ function updateApis(): void {
   if (ecomVersion) {
     fs.writeFileSync(
       API_VERSIONS_FILE,
-      setEcomVersionHeader(
-        fs.readFileSync(API_VERSIONS_FILE, "utf-8"),
-        ecomVersion
-      )
+      setEcomVersionHeader(apiVersionsContent, ecomVersion)
     );
     console.log(`Set the api-versions.txt header to ECOM v${ecomVersion}`);
   }
 
   console.log("\nECOM API update completed successfully");
-}
-
-try {
-  updateApis();
-} catch (error) {
-  console.error(
-    "Error during ECOM API update:",
-    error instanceof Error ? error.message : String(error)
-  );
-  process.exit(1);
 }
 
 // Run here rather than chained in package.json: npm appends command-line arguments
@@ -155,18 +156,32 @@ try {
 // of an update; anything else means the diff itself failed.
 // The report is removed first because raml-toolkit writes it only when it finds
 // differences, so a clean run would otherwise leave the previous run's report behind.
-fs.removeSync(DIFF_REPORT_PATH);
-prepareDiffInputs();
-const diff = spawnSync("npm", ["run", "diffApis"], { stdio: "inherit" });
-if (diff.status === 0) {
-  console.log("diffApis found no differences");
-} else if (diff.status === 1) {
-  console.log("diffApis found differences, see temp/diffApis.txt");
-} else {
-  console.error(
-    `diffApis failed (exit ${String(
-      diff.status
-    )}); apis/ is updated but not diffed`
-  );
-  process.exit(1);
+function diffUpdatedApis(): void {
+  fs.removeSync(DIFF_REPORT_PATH);
+  prepareDiffInputs();
+  const diff = spawnSync("npm", ["run", "diffApis"], { stdio: "inherit" });
+  if (diff.status === 0) {
+    console.log("diffApis found no differences");
+  } else if (diff.status === 1) {
+    console.log("diffApis found differences, see temp/diffApis.txt");
+  } else {
+    throw new Error(
+      `diffApis failed (exit ${String(
+        diff.status
+      )}); apis/ is updated but not diffed`
+    );
+  }
+}
+
+if (require.main === module) {
+  try {
+    updateApis();
+    diffUpdatedApis();
+  } catch (error) {
+    console.error(
+      "Error during ECOM API update:",
+      error instanceof Error ? error.message : String(error)
+    );
+    process.exit(1);
+  }
 }

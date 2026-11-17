@@ -108,6 +108,15 @@ from the id is the one Exchange used, so SDK class names do not change.
 `npm run diffApis` still needs an `exchange.json` marker in each folder because raml-toolkit
 looks for one; `updateApis` adds empty markers to scratch copies under `temp/diff` only.
 
+### Running `diffApis` on its own
+`npm run diffApis` compares `temp/diff/old` with `temp/diff/new` and writes
+`temp/diffApis.txt`. It is tailored to `updateApis`, which builds those two folders from the
+`apis/` backup and the updated `apis/`. You can run it by hand if you build them the same
+way: each holds one folder per API, each folder holds that API's `*-public.yaml`, plus an
+empty `exchange.json` (raml-toolkit looks for the file and never reads it). It needs
+`oasdiff` installed. Exit 0 means no differences, 1 means differences, anything else means
+the diff failed.
+
 ### Versioning
 `api-versions.txt` keeps the ECOM release in its header (the ref selector) and one
 `<assetId>-vN=<type>/<family>/<api>/vN` line per API the SDK ships. The key is the SDK's name
