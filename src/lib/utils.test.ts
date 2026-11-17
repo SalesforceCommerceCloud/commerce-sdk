@@ -4,14 +4,18 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
+import os from "os";
+import path from "path";
 import fs from "fs-extra";
 import { expect } from "chai";
 import sinon from "sinon";
 import {
+  apiDisplayName,
   ecomRefForVersion,
   parseEcomVersion,
   parseEcomVersionArg,
   parseSingleApiArgs,
+  readApiFolderIdentity,
   readApiVersions,
   rejectUnknownArgs,
   setEcomVersionHeader,
@@ -293,5 +297,62 @@ describe("rejectUnknownArgs", () => {
     )}`, () => {
       expect(() => rejectUnknownArgs(argv)).to.throw(`Unknown argument ${bad}`);
     });
+  });
+});
+
+describe("readApiFolderIdentity", () => {
+  let folder: string;
+
+  beforeEach(() => {
+    folder = fs.mkdtempSync(path.join(os.tmpdir(), "api-folder-"));
+  });
+
+  afterEach(() => {
+    fs.removeSync(folder);
+  });
+
+  it("reads the API id and major version from the spec file name", () => {
+    fs.writeFileSync(
+      path.join(folder, "shopper-baskets-oas-v2-public.yaml"),
+      ""
+    );
+
+    expect(readApiFolderIdentity(folder)).to.deep.equal({
+      specFile: "shopper-baskets-oas-v2-public.yaml",
+      assetId: "shopper-baskets-oas",
+      apiVersion: "v2",
+    });
+  });
+
+  it("ignores other files beside the spec", () => {
+    fs.writeFileSync(path.join(folder, "README.md"), "");
+    fs.writeFileSync(path.join(folder, "coupons-oas-v1-public.yaml"), "");
+
+    expect(readApiFolderIdentity(folder)).to.deep.include({
+      assetId: "coupons-oas",
+    });
+  });
+
+  it("returns undefined for a folder with no spec file", () => {
+    fs.writeFileSync(path.join(folder, "README.md"), "");
+
+    expect(readApiFolderIdentity(folder)).to.be.undefined;
+  });
+
+  it("returns undefined for a path that is not a folder", () => {
+    const file = path.join(folder, "coupons-oas-v1-public.yaml");
+    fs.writeFileSync(file, "");
+
+    expect(readApiFolderIdentity(file)).to.be.undefined;
+    expect(readApiFolderIdentity(path.join(folder, "missing"))).to.be.undefined;
+  });
+});
+
+describe("apiDisplayName", () => {
+  it("title-cases the API id and adds the OAS suffix Exchange used", () => {
+    expect(apiDisplayName("source-code-groups-oas")).to.equal(
+      "Source Code Groups OAS"
+    );
+    expect(apiDisplayName("shopper-seo-oas")).to.equal("Shopper Seo OAS");
   });
 });

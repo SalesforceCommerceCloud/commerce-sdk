@@ -10,15 +10,19 @@ import { execFileSync } from "child_process";
 import path from "path";
 import fs from "fs-extra";
 import { API_VERSIONS_FILE } from "./config";
-import { ecomRefForVersion, parseEcomVersion } from "./utils";
+import {
+  ecomRefForVersion,
+  parseEcomVersion,
+  readApiFolderIdentity,
+} from "./utils";
 
 /**
  * ECOM is the source of truth for SCAPI OAS definitions. Its build publishes one
  * bundled, self-contained spec per API into a bundles directory in git, next to a
  * `manifest.json` that records the API's identity, schema version and SHA-256. This
  * module fetches only the bundles the SDK ships and reshapes each into the on-disk
- * form the generator consumes - `apis/<assetId>-<version>/` holding the public
- * bundle plus an `exchange.json` descriptor - so `generate-oas.ts` needs no changes.
+ * form the generator consumes - `apis/<assetId>-<version>/` holding just the public
+ * bundle, whose file name carries the API's id and major version.
  *
  * We consume ECOM's public bundle rather than bundling the authoring sources
  * ourselves: the public view is produced by ECOM's own Redocly config and
@@ -159,8 +163,6 @@ export type BundledApi = {
   apiVersion: string;
   // SemVer of the spec, e.g. "1.12.3"
   version: string;
-  // Display name the generator derives class names from, e.g. "Shopper Baskets OAS"
-  name: string;
   // Absolute path to ECOM's public bundle
   publicSpec: string;
 };
@@ -231,12 +233,6 @@ export function loadBundledApi(
     assetId,
     apiVersion: manifest.apiVersion,
     version: schemaVersion,
-    // Same "<Title Case> OAS" names Exchange used, which resolveApiName in
-    // generate-oas.ts maps to SDK class names.
-    name: `${manifest.apiName
-      .split("-")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ")} OAS`,
     publicSpec,
   };
 }
@@ -245,24 +241,15 @@ const LEADING_COMMENT_LINES = /^(#[^\n]*\n)+/;
 
 /**
  * Writes one API into `stagedDir` in the shape the generator reads: a
- * `<assetId>-<version>` folder holding the public bundle and an `exchange.json`.
- * `ecomRef` and `ecomCommit` record where the spec came from, which matters once a
- * partial update leaves APIs from different refs side by side.
+ * `<assetId>-<version>` folder holding the public bundle, named
+ * `<assetId>-<apiVersion>-public.yaml`.
  * @param api - the bundle returned by loadBundledApi
  * @param stagedDir - the staging directory
- * @param ref - the ECOM ref that was requested
- * @param commit - the ECOM commit that ref resolved to
  * @returns the folder name written
  */
-export function stageApi(
-  api: BundledApi,
-  stagedDir: string,
-  ref: string,
-  commit: string
-): string {
+export function stageApi(api: BundledApi, stagedDir: string): string {
   const folderName = `${api.assetId}-${api.version}`;
   const targetDir = path.join(stagedDir, folderName);
-  const specName = `${api.assetId}-${api.apiVersion}-public.yaml`;
   fs.ensureDirSync(targetDir);
   // ECOM prefixes each bundle with a comment block naming its internal source file
   // and build command. This repo is public, so that block is dropped; the rest of the
@@ -270,29 +257,18 @@ export function stageApi(
   const spec = fs
     .readFileSync(api.publicSpec, "utf-8")
     .replace(LEADING_COMMENT_LINES, "");
-  fs.writeFileSync(path.join(targetDir, specName), spec);
-  fs.writeJSONSync(
-    path.join(targetDir, "exchange.json"),
-    {
-      main: specName,
-      name: api.name,
-      assetId: api.assetId,
-      version: api.version,
-      classifier: "oas",
-      apiVersion: api.apiVersion,
-      ecomRef: ref,
-      ecomCommit: commit,
-    },
-    { spaces: 2 }
+  fs.writeFileSync(
+    path.join(targetDir, `${api.assetId}-${api.apiVersion}-public.yaml`),
+    spec
   );
   return folderName;
 }
 
 /**
  * Finds the folders in `apisDir` that belong to one allow-list key such as
- * `shopper-baskets-oas-v1`. Matches on the `assetId` and `apiVersion` recorded in
- * each folder's `exchange.json` rather than on the folder name: the name embeds the
- * spec version, which changes on every update, and v1 and v2 share an assetId.
+ * `shopper-baskets-oas-v1`. Matches on the `assetId` and `apiVersion` in each
+ * folder's spec file name rather than on the folder name: the name embeds the spec
+ * version, which changes on every update, and v1 and v2 share an assetId.
  * @param apisDir - directory of generator-ready API folders
  * @param allowKey - the api-versions.txt key
  * @returns absolute paths of the matching folders
@@ -305,15 +281,11 @@ export function findApiFolders(apisDir: string, allowKey: string): string[] {
     .readdirSync(apisDir)
     .map((name) => path.join(apisDir, name))
     .filter((dir) => {
-      const descriptor = path.join(dir, "exchange.json");
-      if (!fs.existsSync(descriptor)) {
-        return false;
-      }
-      const { assetId, apiVersion } = fs.readJSONSync(descriptor) as {
-        assetId: string;
-        apiVersion: string;
-      };
-      return `${assetId}-${apiVersion}` === allowKey;
+      const identity = readApiFolderIdentity(dir);
+      return (
+        identity !== undefined &&
+        `${identity.assetId}-${identity.apiVersion}` === allowKey
+      );
     });
 }
 

@@ -4,8 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
+import os from "os";
+import path from "path";
+import fs from "fs-extra";
 import { expect } from "chai";
-import { resolveGeneratorFlags } from "./generate-oas";
+import { getAPIDetailsFromSpec, resolveGeneratorFlags } from "./generate-oas";
 
 type ApiSpecDetail = Parameters<typeof resolveGeneratorFlags>[0];
 
@@ -46,5 +49,50 @@ describe("resolveGeneratorFlags", () => {
     );
 
     expect(flags).to.equal("--reserved-words-mappings delete=delete");
+  });
+});
+
+describe("getAPIDetailsFromSpec", () => {
+  let folder: string;
+
+  const writeSpec = (fileName: string): void =>
+    fs.writeFileSync(path.join(folder, fileName), "openapi: 3.0.3\n");
+
+  beforeEach(() => {
+    folder = fs.mkdtempSync(path.join(os.tmpdir(), "spec-folder-"));
+  });
+
+  afterEach(() => {
+    fs.removeSync(folder);
+  });
+
+  it("derives the generator inputs from the spec file name alone", () => {
+    writeSpec("source-code-groups-oas-v1-public.yaml");
+
+    expect(getAPIDetailsFromSpec(folder)).to.deep.equal({
+      filepath: path.join(folder, "source-code-groups-oas-v1-public.yaml"),
+      filename: "source-code-groups-oas-v1-public.yaml",
+      directoryName: "sourceCodeGroups",
+      name: "Source Code Groups OAS",
+      apiName: "SourceCodeGroups",
+    });
+  });
+
+  it("keeps the class names the SDK already ships for APIs that need an override", () => {
+    [
+      ["shopper-seo-oas-v1-public.yaml", "ShopperSEO"],
+      ["auth-oas-v1-public.yaml", "ShopperLogin"],
+      ["zones-oas-v1-public.yaml", "CDNZones"],
+      ["shopper-baskets-oas-v2-public.yaml", "ShopperBasketsV2"],
+    ].forEach(([fileName, apiName]) => {
+      const apiFolder = fs.mkdtempSync(path.join(folder, "api-"));
+      fs.writeFileSync(path.join(apiFolder, fileName), "");
+
+      expect(getAPIDetailsFromSpec(apiFolder).apiName).to.equal(apiName);
+    });
+  });
+
+  it("fails when the folder holds no spec file", () => {
+    expect(() => getAPIDetailsFromSpec(folder)).to.throw("No spec file found");
   });
 });

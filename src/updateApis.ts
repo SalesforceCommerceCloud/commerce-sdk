@@ -31,6 +31,24 @@ const OLD_APIS_PATH = path.join(__dirname, "../temp/oldApis");
 const STAGED_APIS_PATH = path.join(__dirname, "../temp/stagedApis");
 const ECOM_CHECKOUT_PATH = path.join(__dirname, "../temp/ecom-oas");
 const DIFF_REPORT_PATH = path.join(__dirname, "../temp/diffApis.txt");
+const DIFF_INPUT_PATH = path.join(__dirname, "../temp/diff");
+
+// raml-toolkit's diff treats a folder as an API only if it holds an exchange.json, and
+// never reads the file. `apis/` has none, so the diff runs on scratch copies carrying an
+// empty marker. Drop this when the diff no longer uses raml-toolkit.
+function prepareDiffInputs(): void {
+  fs.removeSync(DIFF_INPUT_PATH);
+  [
+    ["old", OLD_APIS_PATH],
+    ["new", PRODUCTION_API_PATH],
+  ].forEach(([name, source]) => {
+    const target = path.join(DIFF_INPUT_PATH, name);
+    fs.copySync(source, target);
+    fs.readdirSync(target).forEach((folder) => {
+      fs.writeFileSync(path.join(target, folder, "exchange.json"), "{}");
+    });
+  });
+}
 
 /**
  * Populates `apis/` from the ECOM monorepo.
@@ -96,7 +114,7 @@ function updateApis(): void {
   fs.ensureDirSync(STAGED_APIS_PATH);
   console.log(`\nStaged ${apis.length} API(s):`);
   apis.forEach((api) => {
-    const folderName = stageApi(api, STAGED_APIS_PATH, ref, commit);
+    const folderName = stageApi(api, STAGED_APIS_PATH);
     console.log(`  ${api.assetId}-${api.apiVersion} -> ${folderName}`);
   });
 
@@ -138,6 +156,7 @@ try {
 // The report is removed first because raml-toolkit writes it only when it finds
 // differences, so a clean run would otherwise leave the previous run's report behind.
 fs.removeSync(DIFF_REPORT_PATH);
+prepareDiffInputs();
 const diff = spawnSync("npm", ["run", "diffApis"], { stdio: "inherit" });
 if (diff.status === 0) {
   console.log("diffApis found no differences");

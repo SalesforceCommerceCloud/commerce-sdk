@@ -7,8 +7,9 @@
 
 import path from "path";
 import fs from "fs-extra";
-import { generateFromOas, download } from "@commerce-apps/raml-toolkit";
+import { generateFromOas } from "@commerce-apps/raml-toolkit";
 import Handlebars from "handlebars";
+import { apiDisplayName, readApiFolderIdentity } from "./lib/utils";
 
 type ApiSpecDetail = {
   filepath: string;
@@ -103,31 +104,25 @@ function resolveDirectoryName(name: string, version?: string): string {
 }
 
 /**
- * Helper that reads api details from exchange.json
+ * Helper that reads api details from the spec file in an `apis/` folder
  * @param directory
  */
-export function getAPIDetailsFromExchange(directory: string): ApiSpecDetail {
-  const exchangePath = path.join(directory, "exchange.json");
-  if (fs.existsSync(exchangePath)) {
-    const exchangeConfig = fs.readJSONSync(
-      exchangePath
-    ) as download.ExchangeConfig;
-
-    return {
-      filepath: path.join(directory, exchangeConfig.main),
-      filename: exchangeConfig.main,
-      directoryName: resolveDirectoryName(
-        exchangeConfig.assetId.replace("-oas", ""),
-        exchangeConfig.apiVersion
-      ),
-      name:
-        exchangeConfig.apiVersion === "v2"
-          ? exchangeConfig.name + " V2"
-          : exchangeConfig.name,
-      apiName: resolveApiName(exchangeConfig.name, exchangeConfig.apiVersion),
-    };
+export function getAPIDetailsFromSpec(directory: string): ApiSpecDetail {
+  const identity = readApiFolderIdentity(directory);
+  if (!identity) {
+    throw new Error(`No spec file found in ${directory}`);
   }
-  throw new Error(`Exchange file does not exist for ${directory}`);
+  const displayName = apiDisplayName(identity.assetId);
+  return {
+    filepath: path.join(directory, identity.specFile),
+    filename: identity.specFile,
+    directoryName: resolveDirectoryName(
+      identity.assetId.replace("-oas", ""),
+      identity.apiVersion
+    ),
+    name: identity.apiVersion === "v2" ? `${displayName} V2` : displayName,
+    apiName: resolveApiName(displayName, identity.apiVersion),
+  };
 }
 
 /**
@@ -192,10 +187,7 @@ export function generateVersionFile(): void {
   fs.writeFileSync(`${TARGET_DIRECTORY}/version.ts`, generatedVersion);
 }
 
-function getAllDirectoriesWithExchangeFiles(
-  basePath: string,
-  relativePath = ""
-): string[] {
+function getAllApiDirectories(basePath: string, relativePath = ""): string[] {
   const fullPath = path.join(basePath, relativePath);
   const directories: string[] = [];
 
@@ -209,12 +201,10 @@ function getAllDirectoriesWithExchangeFiles(
         : item;
 
       if (fs.lstatSync(itemPath).isDirectory()) {
-        if (fs.existsSync(path.join(itemPath, "exchange.json"))) {
+        if (readApiFolderIdentity(itemPath)) {
           directories.push(relativeItemPath);
         }
-        directories.push(
-          ...getAllDirectoriesWithExchangeFiles(basePath, relativeItemPath)
-        );
+        directories.push(...getAllApiDirectories(basePath, relativeItemPath));
       }
     }
   } catch (error) {
@@ -244,12 +234,11 @@ export function main(): void {
     }
 
     const apiSpecDetails: ApiSpecDetail[] = [];
-    const subDirectories: string[] =
-      getAllDirectoriesWithExchangeFiles(API_DIRECTORY);
+    const subDirectories: string[] = getAllApiDirectories(API_DIRECTORY);
 
     subDirectories.forEach((directory: string) => {
       try {
-        const details = getAPIDetailsFromExchange(
+        const details = getAPIDetailsFromSpec(
           path.join(API_DIRECTORY, directory)
         );
         apiSpecDetails.push(details);

@@ -34,10 +34,10 @@ const writeDescriptor = (
   apiVersion: string
 ): void => {
   fs.ensureDirSync(path.join(apisDir, name));
-  fs.writeJSONSync(path.join(apisDir, name, "exchange.json"), {
-    assetId,
-    apiVersion,
-  });
+  fs.writeFileSync(
+    path.join(apisDir, name, `${assetId}-${apiVersion}-public.yaml`),
+    "openapi: 3.0.3\n"
+  );
 };
 
 describe("ecomOas", () => {
@@ -136,7 +136,7 @@ describe("ecomOas", () => {
       );
     });
 
-    it("ignores folders without an exchange.json", () => {
+    it("ignores folders without a spec file", () => {
       fs.ensureDirSync(path.join(apisDir, "stray"));
       expect(findApiFolders(apisDir, "shopper-baskets-oas-v1")).to.deep.equal(
         []
@@ -192,18 +192,8 @@ describe("ecomOas", () => {
         assetId: "coupons-oas",
         apiVersion: "v1",
         version: "1.0.44",
-        name: "Coupons OAS",
         publicSpec: path.join(bundlesRoot, bundlePath, publicFile),
       });
-    });
-
-    it("title-cases multi-word API names the way Exchange did", () => {
-      writeBundle({ apiName: "source-code-groups" });
-
-      expect(
-        loadBundledApi(bundlesRoot, "source-code-groups-oas-v1", bundlePath)
-          .name
-      ).to.equal("Source Code Groups OAS");
     });
 
     it("fails when the ref has no bundle at that location", () => {
@@ -275,7 +265,7 @@ describe("ecomOas", () => {
       fs.removeSync(workDir);
     });
 
-    it("writes the bundle without ECOM's leading build comments, and the descriptor the generator reads", () => {
+    it("writes only the bundle, without ECOM's leading build comments", () => {
       const publicSpec = path.join(workDir, "source.yaml");
       fs.writeFileSync(
         publicSpec,
@@ -285,33 +275,23 @@ describe("ecomOas", () => {
         assetId: "shopper-baskets-oas",
         apiVersion: "v2",
         version: "2.13.4",
-        name: "Shopper Baskets OAS",
         publicSpec,
       };
       const stagedDir = path.join(workDir, "staged");
 
-      const folderName = stageApi(api, stagedDir, "master", "a".repeat(40));
+      const folderName = stageApi(api, stagedDir);
 
       expect(folderName).to.equal("shopper-baskets-oas-2.13.4");
       const folder = path.join(stagedDir, folderName);
+      expect(fs.readdirSync(folder)).to.deep.equal([
+        "shopper-baskets-oas-v2-public.yaml",
+      ]);
       expect(
         fs.readFileSync(
           path.join(folder, "shopper-baskets-oas-v2-public.yaml"),
           "utf-8"
         )
       ).to.equal("openapi: 3.0.3\n# kept\n");
-      expect(fs.readJSONSync(path.join(folder, "exchange.json"))).to.deep.equal(
-        {
-          main: "shopper-baskets-oas-v2-public.yaml",
-          name: "Shopper Baskets OAS",
-          assetId: "shopper-baskets-oas",
-          version: "2.13.4",
-          classifier: "oas",
-          apiVersion: "v2",
-          ecomRef: "master",
-          ecomCommit: "a".repeat(40),
-        }
-      );
     });
   });
 

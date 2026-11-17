@@ -73,17 +73,15 @@ npm run updateApis -- --api shopper-baskets-oas-v1 --ref my-feature-branch
   Any other argument, including a mistyped flag, fails the run instead of falling back to a
   full refresh.
 - Only the named APIs are rebuilt. The old folder for each (found by the `assetId` and
-  `apiVersion` in its `exchange.json`, since folder names embed the spec version) is
+  `apiVersion` in its spec file name, since folder names embed the spec version) is
   replaced, and every other folder in `apis/` is untouched. The header is not rewritten.
-- Each rebuilt `exchange.json` records `ecomRef` and `ecomCommit`, so a mixed result is
-  visible in the diff.
+- The log shows the ECOM commit the ref resolved to; `apis/` itself records no ref.
 
 Then regenerate and test: `npm run build`, `npm run test:unit`. To go back, run the release
 refresh.
 
 A release must come from one release branch. Before cutting a release, run the release
-refresh and check that every `apis/*/exchange.json` has the same `ecomRef`, equal to the
-header's release branch.
+refresh without `--api`, so every API comes from the header's release branch.
 
 ## Decisions
 
@@ -94,16 +92,21 @@ it, for example `ECOM_OAS_REF=master`.
 
 Until a release branch carries the bundles, the script must run with `ECOM_OAS_REF=master`,
 and a release built from `master` is not reproducible from a ref alone. The script logs the
-resolved commit SHA on every run, and records it in each `exchange.json`, for that reason.
+resolved commit SHA on every run for that reason; put it in the release PR notes.
 
 ### Bundling
 The generator needs one self-contained file per API. ECOM's bundles already are that file,
 and the public bundle is produced by ECOM's own bundler config and decorators, which strip
 internal-only content and resolve description placeholders. Using it means the SDK sees the
-same spec as every other ECOM consumer. `exchange.json` is synthesized from the manifest, so
-`src/generate-oas.ts` is unchanged: it reads `main`, `name`, `assetId` and `apiVersion`, and
-the synthesized `"<Title Case> OAS"` name is the one Exchange used, so SDK class names do not
-change.
+same spec as every other ECOM consumer.
+
+### No `exchange.json`
+Each `apis/` folder holds only `<assetId>-<apiVersion>-public.yaml`. ECOM bundles carry no
+Exchange descriptor, so `src/generate-oas.ts` derives the API's identity from that file name
+(`readApiFolderIdentity` in `src/lib/utils.ts`). The `"<Title Case> OAS"` display name built
+from the id is the one Exchange used, so SDK class names do not change.
+`npm run diffApis` still needs an `exchange.json` marker in each folder because raml-toolkit
+looks for one; `updateApis` adds empty markers to scratch copies under `temp/diff` only.
 
 ### Versioning
 `api-versions.txt` keeps the ECOM release in its header (the ref selector) and one

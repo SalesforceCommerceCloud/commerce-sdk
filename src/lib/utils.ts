@@ -8,6 +8,54 @@
 import fs from "fs-extra";
 import { API_VERSIONS_FILE } from "./config";
 
+// The one file in an `apis/` folder: `<assetId>-<apiVersion>-public.yaml`.
+const SPEC_FILE_PATTERN = /^(.+)-(v\d+)-public\.yaml$/;
+
+export type ApiFolderIdentity = {
+  // e.g. "shopper-baskets-oas-v2-public.yaml"
+  specFile: string;
+  // e.g. "shopper-baskets-oas"
+  assetId: string;
+  // e.g. "v2"
+  apiVersion: string;
+};
+
+/**
+ * Identifies the API an `apis/` folder holds from the name of its spec file. The file
+ * name is the only per-API metadata ECOM's bundles provide, so the folder carries no
+ * descriptor beside the spec.
+ * @param folder - absolute path of one `apis/` folder
+ * @returns the API's identity, or undefined when the path is not a folder holding a spec file
+ */
+export function readApiFolderIdentity(
+  folder: string
+): ApiFolderIdentity | undefined {
+  if (!fs.existsSync(folder) || !fs.statSync(folder).isDirectory()) {
+    return undefined;
+  }
+  const specFile = fs
+    .readdirSync(folder)
+    .find((name) => SPEC_FILE_PATTERN.test(name));
+  const match = specFile && SPEC_FILE_PATTERN.exec(specFile);
+  return specFile && match
+    ? { specFile, assetId: match[1], apiVersion: match[2] }
+    : undefined;
+}
+
+/**
+ * Builds the "<Title Case> OAS" display name that `resolveApiName` in generate-oas.ts
+ * maps to SDK class names.
+ * @param assetId - e.g. "source-code-groups-oas"
+ * @returns e.g. "Source Code Groups OAS"
+ */
+export function apiDisplayName(assetId: string): string {
+  return `${assetId
+    .replace(/-oas$/, "")
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ")} OAS`;
+}
+
 const MISSING_HEADER_MESSAGE =
   'api-versions.txt is missing the "# APIs for ECOM vXX.Y" header';
 
