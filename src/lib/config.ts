@@ -17,4 +17,3 @@ export const PRIMITIVE_DATA_TYPE_MAP = {
 
 export const PRODUCTION_API_PATH = `${__dirname}/../../apis`;
 export const API_VERSIONS_FILE = path.join(__dirname, "../../api-versions.txt");
-export const ORG_ID = "893f605e-10e2-423a-bdb4-f952f56eb6d8";

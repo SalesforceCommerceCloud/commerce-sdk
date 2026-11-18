@@ -18,13 +18,12 @@
     "LICENSE.txt"
   ],
   "scripts": {
-    "backupApis": "rm -rf updateApisTmp && mkdir updateApisTmp && mv apis updateApisTmp/oldApis",
     "build": "npm run clean && npm run renderTemplates && npm run compile",
     "ci": "rm -rf node_modules && npm install --legacy-peer-deps",
     "clean": "rm -rf renderedTemplates dist",
     "compile": "tsc && eslint dist --ext .ts,.js --quiet --fix",
     "depcheck": "depcheck",
-    "diffApis": "raml-toolkit diff --dir updateApisTmp/oldApis apis -f console -o updateApisTmp/oasDiff.txt -s oas",
+    "diffApis": "raml-toolkit diff --dir temp/diff/old temp/diff/new -f console -o temp/diffApis.txt -s oas",
     "doc": "npm run generateVersionTable && npm run doc:generate && npm run doc:resources",
     "doc:generate": "typedoc --mode modules --out ./docs renderedTemplates/** --tsconfig tsconfig.json --external-modulemap  \".*/renderedTemplates/([\\w]+)\" --exclude \"renderedTemplates/index.ts\"",
     "doc:resources": "cp CHANGELOG.md ./docs",
@@ -33,7 +32,6 @@
     "lint:dev": "sort-package-json && eslint . --ext .ts --fix",
     "prepack": "npm run build",
     "prepare": "snyk protect",
-    "removeInternalOas": "ts-node src/removeInternalOas.ts",
     "renderTemplates": "PACKAGE_VERSION=$(node -p \"require('./package.json').version\") ts-node src/generate-oas.ts",
     "snyk:auth": "snyk auth",
     "pretest": "npm run lint && npm run depcheck",
@@ -41,7 +39,7 @@
     "test:ci": "npm run test:unit -- --reporter=xunit --reporter-options output=./reports/generator.xml && npm run test:workflow",
     "test:unit": "nyc mocha \"src/**/*.test.ts\"",
     "test:workflow": "node --test src/test/releaseOnMergeWorkflow.mjs src/test/publishAutoTriggerWorkflow.mjs",
-    "updateApis": "npm run backupApis && ts-node src/updateApis.ts && npm run diffApis"
+    "updateApis": "ts-node src/updateApis.ts"
   },
   "mocha": {
     "file": [
@@ -60,15 +58,11 @@
   "devDependencies": {
     "@commerce-apps/raml-toolkit": "^0.8.0",
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
-    "@types/adm-zip": "^0.5.0",
     "@types/mocha": "^8.2.3",
     "@types/node-fetch": "^2.5.12",
     "@types/retry": "^0.12.1",
     "@typescript-eslint/eslint-plugin": "^5.58.0",
     "@typescript-eslint/parser": "^5.58.0",
-    "adm-zip": "^0.5.10",
-    "anypoint-cli-exchange-plugin": "^1.0.0",
-    "anypoint-cli-v4": "1.6.12",
     "chai": "^4.3.5",
     "depcheck": "^0.9.2",
     "dotenv": "^16.0.3",

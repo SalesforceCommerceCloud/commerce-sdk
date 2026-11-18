@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## Unreleased
+
+### Tooling
+
+- `npm run updateApis` now fetches SCAPI specs from ECOM instead of Anypoint Exchange. It also accepts `--api <key> --ref <ref>` to update only the named APIs from any ECOM ref. See `ECOM_SPEC_CONTRACT.md`.
+- The `apis/` folders no longer contain an `exchange.json`. API names are derived from the spec file name, so the generated SDK is unchanged.
+- Removed the Anypoint CLI tooling (`anypoint-cli-v4`, `anypoint-cli-exchange-plugin`, `adm-zip`) and the `ANYPOINT_*` environment variables.
+
 ## v6.7.0
 
 _ECOM v26.10_

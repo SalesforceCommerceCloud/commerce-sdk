@@ -28,6 +28,16 @@ First, check the [open issues](https://github.com/SalesforceCommerceCloud/commer
 * Make sure that your code builds and passes the unit tests.
 * Monitor your pull requests. Please respond in a timely manner to any comments, questions for changes requested. We may close abandoned pull requests.
 
+## Updating SCAPI specs
+
+`npm run updateApis` refreshes the specs in `apis/` from the internal ECOM monorepo. `api-versions.txt` lists every API the SDK ships and where ECOM publishes it. Refreshing them requires access to the Salesforce network, so it is done by SDK maintainers:
+
+1. Copy `.env.example` to `.env` and fill in `ECOM_REPO_URL` and `ECOM_BUNDLES_ROOT` (ask the SDK maintainers for the values).
+2. Run `npm run updateApis` to refresh every API for the ECOM release in the `api-versions.txt` header, or `npm run updateApis -- --api <key> --ref <ecom-ref>` to refresh only some APIs from an ECOM branch.
+3. Review `temp/diffApis.txt`, then run `npm run build` and `npm run test:unit`.
+
+See [ECOM_SPEC_CONTRACT.md](./ECOM_SPEC_CONTRACT.md) for both modes, the checks each run makes, and the release steps.
+
 ## What to expect
 
 After you submit your pull request, we'll look it over and consider it for merging.
