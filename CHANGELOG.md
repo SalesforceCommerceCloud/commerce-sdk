@@ -7,6 +7,7 @@
 - `npm run updateApis` now fetches SCAPI specs from ECOM instead of Anypoint Exchange. It also accepts `--api <key> --ref <ref>` to update only the named APIs from any ECOM ref. See `ECOM_SPEC_CONTRACT.md`.
 - The `apis/` folders no longer contain an `exchange.json`. API names are derived from the spec file name, so the generated SDK is unchanged.
 - Removed the Anypoint CLI tooling (`anypoint-cli-v4`, `anypoint-cli-exchange-plugin`, `adm-zip`) and the `ANYPOINT_*` environment variables.
+- CI now tests Node 24 and 26, and the publish workflow and `.nvmrc` use Node 24. The lockfile's `jsonwebtoken` chain is refreshed (`jsonwebtoken` 9.0.3, `jws` 4.0.1, `jwa` 2.0.1) so the SDK loads on Node 26, where the old `jwa` crashed on the removed `SlowBuffer`.
 
 ## v6.7.0
 
